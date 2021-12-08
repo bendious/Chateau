@@ -1,6 +1,6 @@
 ﻿namespace Platformer.Core
 {
-    public static partial class Simulation
+	public static partial class Simulation
     {
         /// <summary>
         /// This class provides a container for creating singletons for any other class,

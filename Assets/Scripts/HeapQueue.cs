@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 
+
 namespace Platformer.Core
 {
-    /// <summary>
-    /// HeapQueue provides a queue collection that is always ordered.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class HeapQueue<T> where T : IComparable<T>
+	/// <summary>
+	/// HeapQueue provides a queue collection that is always ordered.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	public class HeapQueue<T> where T : IComparable<T>
     {
-        List<T> items;
+        readonly List<T> items;
 
         public int Count { get { return items.Count; } }
 

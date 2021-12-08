@@ -1,13 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+
 
 namespace Platformer.Mechanics
 {
-    /// <summary>
-    /// Implements game physics for some in game entity.
-    /// </summary>
-    public class KinematicObject : MonoBehaviour
+	/// <summary>
+	/// Implements game physics for some in game entity.
+	/// </summary>
+	public class KinematicObject : MonoBehaviour
     {
         /// <summary>
         /// The minimum normal (dot product) considered suitable for the entity sit on.
@@ -155,7 +154,7 @@ namespace Platformer.Mechanics
                         if (projection < 0)
                         {
                             //slower velocity if moving against the normal (up a hill).
-                            velocity = velocity - projection * currentNormal;
+                            velocity -= projection * currentNormal;
                         }
                     }
                     else
@@ -169,7 +168,7 @@ namespace Platformer.Mechanics
                     distance = modifiedDistance < distance ? modifiedDistance : distance;
                 }
             }
-            body.position = body.position + move.normalized * distance;
+            body.position += move.normalized * distance;
         }
 
     }

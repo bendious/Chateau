@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-
-namespace Platformer.Core
+﻿namespace Platformer.Core
 {
-    public static partial class Simulation
+	public static partial class Simulation
     {
         /// <summary>
         /// An event is something that happens at a point in time in a simulation.

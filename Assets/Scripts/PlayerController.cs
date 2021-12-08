@@ -1,18 +1,17 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using Platformer.Core;
 using Platformer.Gameplay;
-using static Platformer.Core.Simulation;
 using Platformer.Model;
-using Platformer.Core;
+using UnityEngine;
+using static Platformer.Core.Simulation;
+
 
 namespace Platformer.Mechanics
 {
-    /// <summary>
-    /// This is the main class used to implement control of the player.
-    /// It is a superset of the AnimationController class, but is inlined to allow for any kind of customisation.
-    /// </summary>
-    public class PlayerController : KinematicObject
+	/// <summary>
+	/// This is the main class used to implement control of the player.
+	/// It is a superset of the AnimationController class, but is inlined to allow for any kind of customisation.
+	/// </summary>
+	public class PlayerController : KinematicObject
     {
         public AudioClip jumpAudio;
         public AudioClip respawnAudio;
@@ -25,7 +24,7 @@ namespace Platformer.Mechanics
         /// <summary>
         /// Initial jump velocity at the start of a jump.
         /// </summary>
-        public float jumpTakeOffSpeed = 7;
+        public float jumpTakeOffSpeed = 5.0f;
 
         public JumpState jumpState = JumpState.Grounded;
         private bool stopJump;
@@ -114,7 +113,7 @@ namespace Platformer.Mechanics
                 stopJump = false;
                 if (velocity.y > 0)
                 {
-                    velocity.y = velocity.y * model.jumpDeceleration;
+                    velocity.y *= model.jumpDeceleration;
                 }
             }
 

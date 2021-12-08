@@ -1,15 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Platformer.Core;
+﻿using Platformer.Core;
 using Platformer.Model;
 using UnityEngine;
 
+
 namespace Platformer.Mechanics
 {
-    /// <summary>
-    /// AnimationController integrates physics and animation. It is generally used for simple enemy animation.
-    /// </summary>
-    [RequireComponent(typeof(SpriteRenderer), typeof(Animator))]
+	/// <summary>
+	/// AnimationController integrates physics and animation. It is generally used for simple enemy animation.
+	/// </summary>
+	[RequireComponent(typeof(SpriteRenderer), typeof(Animator))]
     public class AnimationController : KinematicObject
     {
         /// <summary>
@@ -38,7 +37,7 @@ namespace Platformer.Mechanics
 
         SpriteRenderer spriteRenderer;
         Animator animator;
-        PlatformerModel model = Simulation.GetModel<PlatformerModel>();
+        readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
 
         protected virtual void Awake()
         {
@@ -58,7 +57,7 @@ namespace Platformer.Mechanics
                 stopJump = false;
                 if (velocity.y > 0)
                 {
-                    velocity.y = velocity.y * model.jumpDeceleration;
+                    velocity.y *= model.jumpDeceleration;
                 }
             }
 
