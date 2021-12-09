@@ -36,6 +36,7 @@ public class RoomController : MonoBehaviour
 	{
 		if (!remove)
 		{
+			door.GetComponent<BoxCollider2D>().enabled = true; // TODO: why are instantiated door colliders sometimes disabled?
 			return;
 		}
 
