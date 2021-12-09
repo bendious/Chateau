@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 
 
 namespace Platformer.Mechanics
@@ -127,6 +128,37 @@ namespace Platformer.Mechanics
 
 		}
 
+		protected bool ShouldIgnore(Rigidbody2D body, Collider2D collider, bool ignoreStatics, bool ignoreDynamics)
+		{
+			Assert.IsNotNull(collider);
+			GameObject otherObj = collider.gameObject;
+			if (otherObj == gameObject)
+			{
+				return true; // ignore our own object
+			}
+			if (ignoreStatics && (body == null || body.bodyType == RigidbodyType2D.Static))
+			{
+				return true;
+			}
+			if (ignoreDynamics && body != null && body.bodyType == RigidbodyType2D.Dynamic)
+			{
+				return true;
+			}
+			for (Transform transformItr = otherObj.transform; transformItr != null; transformItr = transformItr.parent)
+			{
+				if (transformItr == transform)
+				{
+					return true; // ignore child objects
+				}
+			}
+			if (Physics2D.GetIgnoreCollision(GetComponent<Collider2D>(), collider))
+			{
+				return true; // ignore objects flagged to ignore each other
+			}
+			return false;
+		}
+
+
 		void PerformMovement(Vector2 move, bool yMovement)
 		{
 			float distance = move.magnitude;
@@ -137,6 +169,11 @@ namespace Platformer.Mechanics
 				int count = body.Cast(move, contactFilter, hitBuffer, distance + shellRadius);
 				for (int i = 0; i < count; i++)
 				{
+					if (ShouldIgnore(hitBuffer[i].rigidbody, hitBuffer[i].collider, false, true))
+					{
+						continue; // don't get hung up on dynamic/carried/ignored objects
+					}
+
 					Vector2 currentNormal = hitBuffer[i].normal;
 
 					//is this surface flat enough to land on?
@@ -173,6 +210,5 @@ namespace Platformer.Mechanics
 			}
 			body.position += move.normalized * distance;
 		}
-
 	}
 }

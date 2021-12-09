@@ -595,6 +595,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_roomPrefab: {fileID: 7422594126546487761}
+  m_itemPrefab: {fileID: 1043350943784929906, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
   m_doorL: {fileID: 7910571754348373109}
   m_doorR: {fileID: 5416165761018516747}
   m_roomSpawnPct: 0.5
