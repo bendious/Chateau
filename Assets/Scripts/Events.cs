@@ -1,5 +1,5 @@
 ﻿using Platformer.Mechanics;
-using Platformer.Model;
+using UnityEngine;
 using static Platformer.Core.Simulation;
 
 
@@ -10,18 +10,16 @@ namespace Platformer.Gameplay
 	/// </summary>
 	public class EnablePlayerInput : Event<EnablePlayerInput>
 	{
-		readonly PlatformerModel model = GetModel<PlatformerModel>();
+		public PlayerController player;
 
 		public override void Execute()
 		{
-			PlayerController player = model.player;
 			player.controlEnabled = true;
 		}
 	}
 
 	/// <summary>
-	/// Fired when the player health reaches 0. This usually would result in a
-	/// PlayerDeath event.
+	/// Fired when health reaches 0. This usually would result in a Death event.
 	/// </summary>
 	/// <typeparam name="HealthIsZero"></typeparam>
 	public class HealthIsZero : Event<HealthIsZero>
@@ -30,27 +28,24 @@ namespace Platformer.Gameplay
 
 		public override void Execute()
 		{
-			Schedule<PlayerDeath>();
+			Death evt = Schedule<Death>();
+			evt.health = health;
 		}
 	}
 
 	/// <summary>
-	/// Fired when the player has died.
+	/// Fired when a character has died.
 	/// </summary>
-	/// <typeparam name="PlayerDeath"></typeparam>
-	public class PlayerDeath : Event<PlayerDeath>
+	/// <typeparam name="Death"></typeparam>
+	public class Death : Event<Death>
 	{
-		readonly PlatformerModel model = GetModel<PlatformerModel>();
+		public Health health;
 
 		public override void Execute()
 		{
-			PlayerController player = model.player;
-			if (player.health.IsAlive)
+			PlayerController player = health.GetComponent<PlayerController>();
+			if (player != null)
 			{
-				player.health.Die();
-				model.virtualCamera.m_Follow = null;
-				model.virtualCamera.m_LookAt = null;
-				// player.collider.enabled = false;
 				player.controlEnabled = false;
 
 				if (player.audioSource && player.ouchAudio)
@@ -59,22 +54,9 @@ namespace Platformer.Gameplay
 				}
 				player.animator.SetTrigger("hurt");
 				player.animator.SetBool("dead", true);
-				Schedule<PlayerSpawn>(2);
+				PlayerSpawn evt = Schedule<PlayerSpawn>(2);
+				evt.player = player;
 			}
-		}
-	}
-
-	/// <summary>
-	/// Fired when the Jump Input is deactivated by the user, cancelling the upward velocity of the jump.
-	/// </summary>
-	/// <typeparam name="PlayerStopJump"></typeparam>
-	public class PlayerStopJump : Event<PlayerStopJump>
-	{
-		public PlayerController player;
-
-		public override void Execute()
-		{
-
 		}
 	}
 
@@ -83,11 +65,10 @@ namespace Platformer.Gameplay
 	/// </summary>
 	public class PlayerSpawn : Event<PlayerSpawn>
 	{
-		readonly PlatformerModel model = GetModel<PlatformerModel>();
+		public PlayerController player;
 
 		public override void Execute()
 		{
-			PlayerController player = model.player;
 			player.collider2d.enabled = true;
 			player.controlEnabled = false;
 			if (player.audioSource && player.respawnAudio)
@@ -95,25 +76,11 @@ namespace Platformer.Gameplay
 				player.audioSource.PlayOneShot(player.respawnAudio);
 			}
 			player.health.Increment();
-			player.Teleport(model.spawnPoint.transform.position);
+			player.Teleport(Vector3.zero);
 			player.jumpState = PlayerController.JumpState.Grounded;
 			player.animator.SetBool("dead", false);
-			model.virtualCamera.m_Follow = player.transform;
-			model.virtualCamera.m_LookAt = player.transform;
-			Schedule<EnablePlayerInput>(2f);
-		}
-	}
-
-	/// <summary>
-	/// Fired when the player character lands after being airborne.
-	/// </summary>
-	/// <typeparam name="PlayerLanded"></typeparam>
-	public class PlayerLanded : Event<PlayerLanded>
-	{
-		public PlayerController player;
-
-		public override void Execute()
-		{
+			EnablePlayerInput evt = Schedule<EnablePlayerInput>(2f);
+			evt.player = player;
 		}
 	}
 

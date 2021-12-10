@@ -128,7 +128,7 @@ namespace Platformer.Mechanics
 
 		}
 
-		protected bool ShouldIgnore(Rigidbody2D body, Collider2D collider, bool ignoreStatics, bool ignoreDynamics)
+		public bool ShouldIgnore(Rigidbody2D body, Collider2D collider, bool ignoreStatics, bool ignoreDynamics)
 		{
 			Assert.IsNotNull(collider);
 			GameObject otherObj = collider.gameObject;

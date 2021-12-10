@@ -8,6 +8,7 @@ public class ItemController : MonoBehaviour
 {
 	public float m_swingDegreesPerSec = 5000.0f;
 	public float m_aimDampTime = 0.1f;
+	public float m_damageThresholdSpeed = 9.0f;
 
 
 	public bool LeftFacing => Mathf.Cos(Mathf.Deg2Rad * m_aimDegrees) < 0.0f; // TODO: efficiency?
@@ -61,6 +62,14 @@ public class ItemController : MonoBehaviour
 
 	private void ProcessCollision(Collision2D collision)
 	{
+		// TODO: flag/unflag within the physics system itself?
+		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
+		Rigidbody2D body = GetComponent<Rigidbody2D>();
+		if (kinematicObj != null && kinematicObj.ShouldIgnore(body, GetComponent<Collider2D>(), true, false))
+		{
+			return;
+		}
+
 		// maybe attach to avatar
 		PlayerController playerController = collision.gameObject.GetComponent<PlayerController>();
 		if (playerController != null && playerController.IsPickingUp)
@@ -69,8 +78,24 @@ public class ItemController : MonoBehaviour
 			return;
 		}
 
-		// don't specially process non-character collisions
-		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
+		// if hitting a valid point fast enough, apply damage
+		float collisionSpeed = kinematicObj == null ? collision.relativeVelocity.magnitude : (kinematicObj.velocity - body.velocity).magnitude + Mathf.Abs(m_aimVelocity); // TODO: incorporate aim velocity direction?
+		bool locationCanDamage = kinematicObj == null ? true : transform.position.y > collision.gameObject.transform.position.y; // if a character, ignore collisions w/ lower body
+		if (locationCanDamage && collisionSpeed > m_damageThresholdSpeed)
+		{
+			Health otherHealth = collision.gameObject.GetComponent<Health>();
+			if (otherHealth != null)
+			{
+				otherHealth.Decrement();
+			}
+			Health health = GetComponent<Health>();
+			if (health != null)
+			{
+				health.Decrement();
+			}
+		}
+
+		// done for fully-dynamic collisions
 		if (kinematicObj == null)
 		{
 			return;
@@ -79,8 +104,6 @@ public class ItemController : MonoBehaviour
 		// add upward force to emulate kicking
 		List<ContactPoint2D> contacts = new List<ContactPoint2D>();
 		int contactCount = collision.GetContacts(contacts);
-		Rigidbody2D body = GetComponent<Rigidbody2D>();
-		float collisionSpeed = (kinematicObj.velocity - body.velocity).magnitude; // NOTE that we can't use collision.relativeVelocity since it doesn't know KinematicObject.velocity
 		for (int i = 0; i < contactCount; ++i) // NOTE that we can't use foreach() since GetContacts() for some reason adds a bunch of null entries
 		{
 			ContactPoint2D pos = contacts[i];

@@ -1,6 +1,4 @@
-﻿using Platformer.Core;
-using Platformer.Model;
-using UnityEngine;
+﻿using UnityEngine;
 
 
 namespace Platformer.Mechanics
@@ -15,30 +13,42 @@ namespace Platformer.Mechanics
 		/// Max horizontal speed.
 		/// </summary>
 		public float maxSpeed = 7;
+
 		/// <summary>
 		/// Max jump velocity
 		/// </summary>
 		public float jumpTakeOffSpeed = 7;
 
 		/// <summary>
+		/// A jump modifier applied to initial jump velocities.
+		/// </summary>
+		public float jumpModifier = 1.5f;
+
+		/// <summary>
+		/// A jump modifier applied to slow down an active jump when
+		/// the user releases the jump input.
+		/// </summary>
+		public float jumpDeceleration = 0.5f;
+
+
+		/// <summary>
 		/// Used to indicated desired direction of travel.
 		/// </summary>
-		public Vector2 move;
+		protected Vector2 move;
 
 		/// <summary>
 		/// Set to true to initiate a jump.
 		/// </summary>
-		public bool jump;
+		protected bool jump;
 
 		/// <summary>
 		/// Set to true to set the current jump velocity to zero.
 		/// </summary>
-		public bool stopJump;
+		protected bool stopJump;
 
 
 		SpriteRenderer spriteRenderer;
 		internal Animator animator;
-		readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
 
 
 		public bool LeftFacing => spriteRenderer.flipX;
@@ -54,7 +64,7 @@ namespace Platformer.Mechanics
 		{
 			if (jump && IsGrounded)
 			{
-				velocity.y = jumpTakeOffSpeed * model.jumpModifier;
+				velocity.y = jumpTakeOffSpeed * jumpModifier;
 				jump = false;
 			}
 			else if (stopJump)
@@ -62,7 +72,7 @@ namespace Platformer.Mechanics
 				stopJump = false;
 				if (velocity.y > 0)
 				{
-					velocity.y *= model.jumpDeceleration;
+					velocity.y *= jumpDeceleration;
 				}
 			}
 

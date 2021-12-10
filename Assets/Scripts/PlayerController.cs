@@ -57,7 +57,6 @@ namespace Platformer.Mechanics
 				else if (Input.GetButtonUp("Jump"))
 				{
 					stopJump = true;
-					Schedule<PlayerStopJump>().player = this;
 				}
 
 				// determine current focus object
@@ -154,7 +153,6 @@ namespace Platformer.Mechanics
 				case JumpState.InFlight:
 					if (IsGrounded)
 					{
-						Schedule<PlayerLanded>().player = this;
 						jumpState = JumpState.Landed;
 					}
 					break;
