@@ -109,6 +109,21 @@ namespace Platformer.Mechanics
 						GetComponentInChildren<ItemController>().Detach();
 					}
 				}
+
+				if (transform.childCount > 0)
+				{
+					// manipulate first held item
+					ItemController item = GetComponentInChildren<ItemController>();
+
+					// swing
+					if (Input.GetButtonDown("Fire1"))
+					{
+						item.Swing();
+					}
+
+					// aim
+					item.UpdateAim(Camera.main.ScreenToWorldPoint(Input.mousePosition), radius);
+				}
 			}
 			else
 			{
