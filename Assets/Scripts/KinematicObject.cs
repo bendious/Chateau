@@ -163,7 +163,7 @@ namespace Platformer.Mechanics
 		{
 			float distance = move.magnitude;
 
-			if (distance > minMoveDistance)
+			if (distance >= minMoveDistance)
 			{
 				//check if we hit anything in current direction of travel
 				int count = body.Cast(move, contactFilter, hitBuffer, distance + shellRadius);

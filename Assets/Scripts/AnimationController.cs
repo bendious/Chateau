@@ -35,9 +35,14 @@ namespace Platformer.Mechanics
 		/// </summary>
 		public bool stopJump;
 
+
 		SpriteRenderer spriteRenderer;
-		Animator animator;
+		internal Animator animator;
 		readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
+
+
+		public bool LeftFacing { get => spriteRenderer.flipX; }
+
 
 		protected virtual void Awake()
 		{
@@ -61,10 +66,14 @@ namespace Platformer.Mechanics
 				}
 			}
 
-			if (move.x > 0.01f)
+			if (move.x >= minMoveDistance)
+			{
 				spriteRenderer.flipX = false;
-			else if (move.x < -0.01f)
+			}
+			else if (move.x <= -minMoveDistance)
+			{
 				spriteRenderer.flipX = true;
+			}
 
 			animator.SetBool("grounded", IsGrounded);
 			animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / maxSpeed);
