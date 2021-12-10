@@ -41,7 +41,7 @@ namespace Platformer.Mechanics
 		readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
 
 
-		public bool LeftFacing { get => spriteRenderer.flipX; }
+		public bool LeftFacing => spriteRenderer.flipX;
 
 
 		protected virtual void Awake()

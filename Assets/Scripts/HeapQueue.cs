@@ -12,11 +12,11 @@ namespace Platformer.Core
 	{
 		readonly List<T> items;
 
-		public int Count { get { return items.Count; } }
+		public int Count => items.Count;
 
-		public bool IsEmpty { get { return items.Count == 0; } }
+		public bool IsEmpty => items.Count == 0;
 
-		public T First { get { return items[0]; } }
+		public T First => items[0];
 
 		public void Clear() => items.Clear();
 
