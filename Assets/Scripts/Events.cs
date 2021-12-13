@@ -57,6 +57,31 @@ namespace Platformer.Gameplay
 				PlayerSpawn evt = Schedule<PlayerSpawn>(2);
 				evt.player = player;
 			}
+			EnemyController enemy = health.GetComponent<EnemyController>();
+			if (enemy != null && enemy.enabled)
+			{
+				enemy.enabled = false;
+				if (enemy._audio && enemy.ouch)
+				{
+					enemy._audio.PlayOneShot(enemy.ouch);
+				}
+				enemy.animator.SetBool("death", true);
+				Schedule<Despawn>(0.5f).obj = health.gameObject; // TODO: animation event rather than hardcoded time
+			}
+		}
+	}
+
+	/// <summary>
+	/// Fired when an object despawns, usually after dying.
+	/// </summary>
+	/// <typeparam name="Despawn"></typeparam>
+	public class Despawn : Event<Despawn>
+	{
+		public GameObject obj;
+
+		public override void Execute()
+		{
+			Object.Destroy(obj);
 		}
 	}
 
@@ -98,6 +123,21 @@ namespace Platformer.Gameplay
 			{
 				player.audioSource.PlayOneShot(player.jumpAudio);
 			}
+		}
+	}
+
+	/// <summary>
+	/// Fired when a Player collides with an Enemy.
+	/// </summary>
+	/// <typeparam name="EnemyCollision"></typeparam>
+	public class PlayerEnemyCollision : Event<PlayerEnemyCollision>
+	{
+		public EnemyController enemy;
+		public PlayerController player;
+
+		public override void Execute()
+		{
+			player.GetComponent<Health>().Decrement();
 		}
 	}
 }

@@ -1,3 +1,4 @@
+using Platformer.Mechanics;
 using System;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -7,6 +8,7 @@ public class RoomController : MonoBehaviour
 {
 	public GameObject m_roomPrefab;
 	public GameObject m_itemPrefab;
+	public GameObject m_enemyPrefab;
 
 	public GameObject m_doorL;
 	public GameObject m_doorR;
@@ -40,6 +42,19 @@ public class RoomController : MonoBehaviour
 			BoxCollider2D itemCollider = m_itemPrefab.GetComponent<BoxCollider2D>();
 			Vector3 spawnCenterPos = transform.position + new Vector3(UnityEngine.Random.Range(-offsetMagMax, offsetMagMax), + itemCollider.size.y * 0.5f + itemCollider.edgeRadius, 0.0f);
 			Instantiate(m_itemPrefab, spawnCenterPos, Quaternion.identity);
+		}
+
+		// spawn enemies
+		// TODO: more deliberate spawning
+		int enemyCount = !fromLeft && !fromRight ? 0 : UnityEngine.Random.Range(0, 5);
+		for (int i = 0; i < enemyCount; ++i)
+		{
+			const float offsetMagMax = 5.0f; // TODO: calculate from room size
+			CapsuleCollider2D enemyCollider = m_enemyPrefab.GetComponent<CapsuleCollider2D>();
+			Vector3 spawnCenterPos = transform.position + new Vector3(UnityEngine.Random.Range(-offsetMagMax, offsetMagMax), + enemyCollider.size.y * 0.5f, 0.0f);
+			GameObject enemyObj = Instantiate(m_enemyPrefab, spawnCenterPos, Quaternion.identity);
+			EnemyController enemy = enemyObj.GetComponent<EnemyController>();
+			enemy.m_target = Camera.main.GetComponent<Cinemachine.CinemachineBrain>().ActiveVirtualCamera.Follow;
 		}
 	}
 
