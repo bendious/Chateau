@@ -1,8 +1,10 @@
 fileFormatVersion: 2
 guid: b09e60546065cf9448b36ebb7f759a91
-timeCreated: 1438790907
-licenseType: Pro
+labels:
+- Character
 NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 

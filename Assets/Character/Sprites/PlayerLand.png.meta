@@ -1,5 +1,7 @@
 fileFormatVersion: 2
 guid: e0d1e122a29a24ec19a2b23782952411
+labels:
+- Character
 TextureImporter:
   internalIDToNameTable:
   - first:
