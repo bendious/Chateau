@@ -1,4 +1,5 @@
 ﻿using Platformer.Gameplay;
+using System.Linq;
 using UnityEngine;
 using static Platformer.Core.Simulation;
 
@@ -23,6 +24,8 @@ namespace Platformer.Mechanics
 
 		public AudioClip jumpAudio;
 		public AudioClip respawnAudio;
+
+		public GameObject m_focusIndicator;
 
 		public JumpState jumpState = JumpState.Grounded;
 		public Health health;
@@ -58,7 +61,7 @@ namespace Platformer.Mechanics
 				// TODO: more nuanced prioritization?
 				m_focusObj = null;
 				float radius = GetComponent<CircleCollider2D>().radius;
-				Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + Vector2.right * (LeftFacing ? -1.0f : 1.0f) * radius, radius); // TODO: restrict to certain layers?
+				Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + Vector2.right * (LeftFacing ? -1.0f : 1.0f) * radius, radius * 1.5f); // TODO: restrict to certain layers?
 				float distSqFocus = float.MaxValue;
 				foreach (Collider2D candidate in focusCandidates)
 				{
@@ -75,23 +78,28 @@ namespace Platformer.Mechanics
 					}
 				}
 
+				// place focus indicator if appropriate
+				ItemController focusItem = m_focusObj?.GetComponent<ItemController>();
+				if (focusItem != null)
+				{
+					BoxCollider2D[] colliders = focusItem.GetComponents<BoxCollider2D>(); // TODO: handle other collider shapes?
+					float yMax = colliders.Max(collider => collider.bounds.max.y + collider.edgeRadius) + 0.1f;
+					Vector3 pos = m_focusObj.transform.position;
+					pos.y = yMax;
+					m_focusIndicator.transform.position = pos;
+				}
+				m_focusIndicator.SetActive(focusItem != null);
+
 				// pick up / drop items
 				const int maxPickUps = 2; // TODO: determine based on current inventory/gear
-				if (Input.GetButtonDown("PickUp"))
+				if (focusItem != null && Input.GetButtonDown("PickUp"))
 				{
-					if (m_focusObj != null)
+					focusItem.AttachTo(gameObject);
+					m_focusObj = null;
+					if (transform.childCount > maxPickUps)
 					{
-						ItemController item = m_focusObj.GetComponent<ItemController>();
-						if (item != null)
-						{
-							item.AttachTo(gameObject);
-							m_focusObj = null;
-							if (transform.childCount > maxPickUps)
-							{
-								// drop first attached to cycle through items
-								transform.GetChild(0).GetComponent<ItemController>().Detach();
-							}
-						}
+						// drop first attached to cycle through items
+						transform.GetChild(0).GetComponent<ItemController>().Detach();
 					}
 				}
 				IsPickingUp = Input.GetButton("PickUp") && transform.childCount < maxPickUps;
