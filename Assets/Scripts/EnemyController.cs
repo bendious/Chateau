@@ -16,19 +16,19 @@ namespace Platformer.Mechanics
 
 		void OnCollisionEnter2D(Collision2D collision)
 		{
-			var player = collision.gameObject.GetComponent<PlayerController>();
-			if (player != null)
+			var avatar = collision.gameObject.GetComponent<AvatarController>();
+			if (avatar != null)
 			{
-				var ev = Schedule<PlayerEnemyCollision>();
-				ev.player = player;
-				ev.enemy = this;
+				var evt = Schedule<AvatarEnemyCollision>();
+				evt.avatar = avatar;
+				evt.enemy = this;
 			}
 		}
 
 		protected override void Update()
 		{
-			PlayerController targetPlayer = m_target.GetComponent<PlayerController>();
-			bool moveAway = targetPlayer != null && !targetPlayer.controlEnabled; // avoid softlock from enemies in spawn position // TODO: better shouldMoveAway flag?
+			AvatarController targetAvatar = m_target.GetComponent<AvatarController>();
+			bool moveAway = targetAvatar != null && !targetAvatar.controlEnabled; // avoid softlock from enemies in spawn position // TODO: better shouldMoveAway flag?
 			move.x = m_target == null ? 0.0f : Mathf.Clamp((m_target.position.x - transform.position.x) * (moveAway ? -1.0f : 1.0f), -m_moveMax, m_moveMax);
 			base.Update();
 		}

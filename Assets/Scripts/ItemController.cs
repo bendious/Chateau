@@ -71,8 +71,8 @@ public class ItemController : MonoBehaviour
 		}
 
 		// maybe attach to avatar
-		PlayerController playerController = collision.gameObject.GetComponent<PlayerController>();
-		if (playerController != null && playerController.IsPickingUp)
+		AvatarController avatarController = collision.gameObject.GetComponent<AvatarController>();
+		if (avatarController != null && avatarController.IsPickingUp)
 		{
 			AttachTo(collision.gameObject);
 			return;

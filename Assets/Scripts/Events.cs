@@ -10,11 +10,11 @@ namespace Platformer.Gameplay
 	/// </summary>
 	public class EnablePlayerInput : Event<EnablePlayerInput>
 	{
-		public PlayerController player;
+		public AvatarController avatar;
 
 		public override void Execute()
 		{
-			player.controlEnabled = true;
+			avatar.controlEnabled = true;
 		}
 	}
 
@@ -63,11 +63,11 @@ namespace Platformer.Gameplay
 			}
 
 			// avatar logic
-			PlayerController player = health.GetComponent<PlayerController>();
-			if (player != null)
+			AvatarController avatar = health.GetComponent<AvatarController>();
+			if (avatar != null)
 			{
-				player.controlEnabled = false;
-				Schedule<PlayerSpawn>(2.0f).player = player;
+				avatar.controlEnabled = false;
+				Schedule<AvatarSpawn>(2.0f).avatar = avatar;
 			}
 
 			// enemy logic
@@ -95,58 +95,58 @@ namespace Platformer.Gameplay
 	}
 
 	/// <summary>
-	/// Fired when the player is spawned after dying.
+	/// Fired when the avatar is spawned after dying.
 	/// </summary>
-	public class PlayerSpawn : Event<PlayerSpawn>
+	public class AvatarSpawn : Event<AvatarSpawn>
 	{
-		public PlayerController player;
+		public AvatarController avatar;
 
 		public override void Execute()
 		{
-			player.collider2d.enabled = true;
-			player.controlEnabled = false;
-			if (player.audioSource && player.respawnAudio)
+			avatar.collider2d.enabled = true;
+			avatar.controlEnabled = false;
+			if (avatar.audioSource && avatar.respawnAudio)
 			{
-				player.audioSource.PlayOneShot(player.respawnAudio);
+				avatar.audioSource.PlayOneShot(avatar.respawnAudio);
 			}
-			player.health.Increment();
-			player.Teleport(Vector3.zero);
-			player.jumpState = PlayerController.JumpState.Grounded;
-			player.animator.SetBool("dead", false);
+			avatar.health.Increment();
+			avatar.Teleport(Vector3.zero);
+			avatar.jumpState = AvatarController.JumpState.Grounded;
+			avatar.animator.SetBool("dead", false);
 			EnablePlayerInput evt = Schedule<EnablePlayerInput>(2f);
-			evt.player = player;
+			evt.avatar = avatar;
 		}
 	}
 
 	/// <summary>
-	/// Fired when the player performs a Jump.
+	/// Fired when the avatar performs a Jump.
 	/// </summary>
-	/// <typeparam name="PlayerJumped"></typeparam>
-	public class PlayerJumped : Event<PlayerJumped>
+	/// <typeparam name="AvatarJumped"></typeparam>
+	public class AvatarJumped : Event<AvatarJumped>
 	{
-		public PlayerController player;
+		public AvatarController avatar;
 
 		public override void Execute()
 		{
-			if (player.audioSource && player.jumpAudio)
+			if (avatar.audioSource && avatar.jumpAudio)
 			{
-				player.audioSource.PlayOneShot(player.jumpAudio);
+				avatar.audioSource.PlayOneShot(avatar.jumpAudio);
 			}
 		}
 	}
 
 	/// <summary>
-	/// Fired when a Player collides with an Enemy.
+	/// Fired when an Avatar collides with an Enemy.
 	/// </summary>
 	/// <typeparam name="EnemyCollision"></typeparam>
-	public class PlayerEnemyCollision : Event<PlayerEnemyCollision>
+	public class AvatarEnemyCollision : Event<AvatarEnemyCollision>
 	{
 		public EnemyController enemy;
-		public PlayerController player;
+		public AvatarController avatar;
 
 		public override void Execute()
 		{
-			player.GetComponent<Health>().Decrement();
+			avatar.GetComponent<Health>().Decrement();
 		}
 	}
 }

@@ -6,10 +6,10 @@ using static Platformer.Core.Simulation;
 namespace Platformer.Mechanics
 {
 	/// <summary>
-	/// This is the main class used to implement control of the player.
+	/// This is the main class used to implement control of the avatar.
 	/// </summary>
 	[RequireComponent(typeof(Collider2D), typeof(Health))]
-	public class PlayerController : AnimationController
+	public class AvatarController : AnimationController
 	{
 		public enum JumpState
 		{
@@ -143,7 +143,7 @@ namespace Platformer.Mechanics
 				case JumpState.Jumping:
 					if (!IsGrounded)
 					{
-						Schedule<PlayerJumped>().player = this;
+						Schedule<AvatarJumped>().avatar = this;
 						jumpState = JumpState.InFlight;
 					}
 					break;
