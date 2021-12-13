@@ -6,7 +6,7 @@ namespace Platformer.Mechanics
 	/// <summary>
 	/// AnimationController integrates physics and animation. It is generally used for simple enemy animation.
 	/// </summary>
-	[RequireComponent(typeof(SpriteRenderer), typeof(Animator))]
+	[RequireComponent(typeof(SpriteRenderer), typeof(Animator), typeof(AudioSource))]
 	public class AnimationController : KinematicObject
 	{
 		/// <summary>
@@ -30,6 +30,8 @@ namespace Platformer.Mechanics
 		/// </summary>
 		public float jumpDeceleration = 0.5f;
 
+		public AudioClip ouchAudio;
+
 
 		/// <summary>
 		/// Used to indicated desired direction of travel.
@@ -49,6 +51,7 @@ namespace Platformer.Mechanics
 
 		SpriteRenderer spriteRenderer;
 		internal Animator animator;
+		public AudioSource audioSource;
 
 
 		public bool LeftFacing => spriteRenderer.flipX;
@@ -58,6 +61,7 @@ namespace Platformer.Mechanics
 		{
 			spriteRenderer = GetComponent<SpriteRenderer>();
 			animator = GetComponent<Animator>();
+			audioSource = GetComponent<AudioSource>();
 		}
 
 		protected override void ComputeVelocity()

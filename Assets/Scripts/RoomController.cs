@@ -46,7 +46,7 @@ public class RoomController : MonoBehaviour
 
 		// spawn enemies
 		// TODO: more deliberate spawning
-		int enemyCount = !fromLeft && !fromRight ? 0 : UnityEngine.Random.Range(0, 5);
+		int enemyCount = UnityEngine.Random.Range(0, 5);
 		for (int i = 0; i < enemyCount; ++i)
 		{
 			const float offsetMagMax = 5.0f; // TODO: calculate from room size

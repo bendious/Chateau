@@ -8,7 +8,7 @@ namespace Platformer.Mechanics
 	/// <summary>
 	/// This is the main class used to implement control of the player.
 	/// </summary>
-	[RequireComponent(typeof(SpriteRenderer), typeof(Collider2D), typeof(Animator)), RequireComponent(typeof(AudioSource), typeof(Health))]
+	[RequireComponent(typeof(Collider2D), typeof(Health))]
 	public class PlayerController : AnimationController
 	{
 		public enum JumpState
@@ -23,11 +23,9 @@ namespace Platformer.Mechanics
 
 		public AudioClip jumpAudio;
 		public AudioClip respawnAudio;
-		public AudioClip ouchAudio;
 
 		public JumpState jumpState = JumpState.Grounded;
 		public Collider2D collider2d;
-		public AudioSource audioSource;
 		public Health health;
 		public bool controlEnabled = true;
 
@@ -41,7 +39,6 @@ namespace Platformer.Mechanics
 		{
 			base.Awake();
 			health = GetComponent<Health>();
-			audioSource = GetComponent<AudioSource>();
 			collider2d = GetComponent<Collider2D>();
 		}
 

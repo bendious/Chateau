@@ -43,29 +43,38 @@ namespace Platformer.Gameplay
 
 		public override void Execute()
 		{
+			// detach all items
+			foreach (ItemController item in health.GetComponentsInChildren<ItemController>())
+			{
+				item.Detach();
+			}
+
+			// character logic
+			AnimationController character = health.GetComponent<AnimationController>();
+			if (character != null)
+			{
+				if (character.audioSource && character.ouchAudio)
+				{
+					character.audioSource.PlayOneShot(character.ouchAudio);
+				}
+				character.animator.SetTrigger("hurt");
+				character.animator.SetTrigger("startDeath");
+				character.animator.SetBool("dead", true);
+			}
+
+			// avatar logic
 			PlayerController player = health.GetComponent<PlayerController>();
 			if (player != null)
 			{
 				player.controlEnabled = false;
-
-				if (player.audioSource && player.ouchAudio)
-				{
-					player.audioSource.PlayOneShot(player.ouchAudio);
-				}
-				player.animator.SetTrigger("hurt");
-				player.animator.SetBool("dead", true);
-				PlayerSpawn evt = Schedule<PlayerSpawn>(2);
-				evt.player = player;
+				Schedule<PlayerSpawn>(2.0f).player = player;
 			}
+
+			// enemy logic
 			EnemyController enemy = health.GetComponent<EnemyController>();
 			if (enemy != null && enemy.enabled)
 			{
 				enemy.enabled = false;
-				if (enemy._audio && enemy.ouch)
-				{
-					enemy._audio.PlayOneShot(enemy.ouch);
-				}
-				enemy.animator.SetBool("death", true);
 				Schedule<Despawn>(0.5f).obj = health.gameObject; // TODO: animation event rather than hardcoded time
 			}
 		}

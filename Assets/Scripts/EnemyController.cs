@@ -8,26 +8,11 @@ namespace Platformer.Mechanics
 	/// <summary>
 	/// A simple controller for enemies. Provides movement control toward a target object.
 	/// </summary>
-	[RequireComponent(typeof(Collider2D))]
 	public class EnemyController : AnimationController
 	{
-		public AudioClip ouch;
-
 		public Transform m_target;
 		public float m_moveMax = 0.1f;
 
-		internal Collider2D _collider;
-		internal AudioSource _audio;
-
-		public Bounds Bounds => _collider.bounds;
-
-
-		protected override void Awake()
-		{
-			base.Awake();
-			_collider = GetComponent<Collider2D>();
-			_audio = GetComponent<AudioSource>();
-		}
 
 		void OnCollisionEnter2D(Collision2D collision)
 		{
@@ -42,7 +27,9 @@ namespace Platformer.Mechanics
 
 		protected override void Update()
 		{
-			move.x = m_target == null ? 0.0f : Mathf.Clamp(m_target.position.x - transform.position.x, -m_moveMax, m_moveMax);
+			PlayerController targetPlayer = m_target.GetComponent<PlayerController>();
+			bool moveAway = targetPlayer != null && !targetPlayer.controlEnabled; // avoid softlock from enemies in spawn position // TODO: better shouldMoveAway flag?
+			move.x = m_target == null ? 0.0f : Mathf.Clamp((m_target.position.x - transform.position.x) * (moveAway ? -1.0f : 1.0f), -m_moveMax, m_moveMax);
 			base.Update();
 		}
 	}
