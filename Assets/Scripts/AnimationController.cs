@@ -6,7 +6,7 @@ namespace Platformer.Mechanics
 	/// <summary>
 	/// AnimationController integrates physics and animation. It is generally used for simple enemy animation.
 	/// </summary>
-	[RequireComponent(typeof(SpriteRenderer), typeof(Animator), typeof(AudioSource))]
+	[RequireComponent(typeof(SpriteRenderer), typeof(Animator), typeof(Collider2D)), RequireComponent(typeof(AudioSource))]
 	public class AnimationController : KinematicObject
 	{
 		/// <summary>
@@ -52,6 +52,7 @@ namespace Platformer.Mechanics
 		SpriteRenderer spriteRenderer;
 		internal Animator animator;
 		public AudioSource audioSource;
+		public Collider2D collider2d;
 
 
 		public bool LeftFacing => spriteRenderer.flipX;
@@ -62,6 +63,7 @@ namespace Platformer.Mechanics
 			spriteRenderer = GetComponent<SpriteRenderer>();
 			animator = GetComponent<Animator>();
 			audioSource = GetComponent<AudioSource>();
+			collider2d = GetComponent<Collider2D>();
 		}
 
 		protected override void ComputeVelocity()

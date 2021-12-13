@@ -1,3 +1,5 @@
+using Platformer.Core;
+using Platformer.Gameplay;
 using Platformer.Mechanics;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,8 +9,9 @@ using UnityEngine;
 public class ItemController : MonoBehaviour
 {
 	public float m_swingDegreesPerSec = 5000.0f;
-	public float m_aimDampTime = 0.1f;
-	public float m_damageThresholdSpeed = 9.0f;
+	public float m_swingSpringStiffness = 100.0f;
+	public float m_damageThresholdSpeed = 2.0f;
+	public float m_throwSpeed = 100.0f;
 
 
 	public bool LeftFacing => Mathf.Cos(Mathf.Deg2Rad * m_aimDegrees) < 0.0f; // TODO: efficiency?
@@ -16,6 +19,7 @@ public class ItemController : MonoBehaviour
 
 	private float m_aimDegrees;
 	private float m_aimVelocity;
+	private bool m_swingDirection;
 
 
 	private void OnCollisionEnter2D(Collision2D collision)
@@ -47,16 +51,31 @@ public class ItemController : MonoBehaviour
 
 	public void Swing()
 	{
-		m_aimVelocity += LeftFacing ? m_swingDegreesPerSec : -m_swingDegreesPerSec;
+		m_aimVelocity += m_swingDirection ? m_swingDegreesPerSec : -m_swingDegreesPerSec;
+		m_swingDirection = !m_swingDirection;
 	}
 
 	public void UpdateAim(Vector3 position, float radius)
 	{
-		m_aimDegrees = Mathf.SmoothDampAngle(m_aimDegrees, AimDegreesRaw(position), ref m_aimVelocity, m_aimDampTime);
+		m_aimDegrees = UnderdampedSpringAngle(m_aimDegrees, AimDegreesRaw(position), ref m_aimVelocity);
 
 		transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegrees);
 		transform.localPosition = transform.localRotation * Vector3.right * radius - Vector3.forward; // NOTE the negative Z in order to force rendering on top of our parent
 		GetComponent<SpriteRenderer>().flipY = LeftFacing;
+	}
+
+	public void Throw()
+	{
+		// temporarily ignore collisions w/ thrower
+		Collider2D collider = GetComponent<Collider2D>();
+		Collider2D parentCollider = transform.parent.GetComponent<Collider2D>();
+		Physics2D.IgnoreCollision(collider, parentCollider, true);
+		EnableCollision evt = Simulation.Schedule<EnableCollision>(0.1f);
+		evt.m_collider1 = collider;
+		evt.m_collider2 = parentCollider;
+
+		Detach();
+		GetComponent<Rigidbody2D>().AddForce(Quaternion.Euler(0.0f, 0.0f, m_aimDegrees) * Vector2.right * m_throwSpeed);
 	}
 
 
@@ -79,9 +98,9 @@ public class ItemController : MonoBehaviour
 		}
 
 		// if hitting a valid point fast enough, apply damage
-		float collisionSpeed = kinematicObj == null ? collision.relativeVelocity.magnitude : (kinematicObj.velocity - body.velocity).magnitude + Mathf.Abs(m_aimVelocity); // TODO: incorporate aim velocity direction?
-		bool locationCanDamage = kinematicObj == null ? true : transform.position.y > collision.gameObject.transform.position.y; // if a character, ignore collisions w/ lower body
-		if (locationCanDamage && collisionSpeed > m_damageThresholdSpeed)
+		float collisionSpeed = kinematicObj == null ? collision.relativeVelocity.magnitude : (body.velocity - kinematicObj.velocity).magnitude + Mathf.Abs(m_aimVelocity); // TODO: incorporate aim velocity direction?
+		bool canDamage = avatarController == null ? true : false; // TODO: base on what object threw us
+		if (canDamage && collisionSpeed > m_damageThresholdSpeed)
 		{
 			Health otherHealth = collision.gameObject.GetComponent<Health>();
 			if (otherHealth != null)
@@ -115,5 +134,24 @@ public class ItemController : MonoBehaviour
 	{
 		Vector2 aimDiff = position - transform.parent.position;
 		return Mathf.Rad2Deg * Mathf.Atan2(aimDiff.y, aimDiff.x);
+	}
+
+	private float UnderdampedSpringAngle(float degreesCurrent, float degreesTarget, ref float velocityCurrent)
+	{
+		// spring motion: F = kx - dv, where x = {vel/pos}_desired - {vel/pos}_current
+		// critically damped spring: d = 2*sqrt(km)
+		float mass = GetComponent<Rigidbody2D>().mass;
+		float damping_factor = /*2.0f **/ Mathf.Sqrt(m_swingSpringStiffness * mass); // NOTE that we leave off the 2 since we want a slightly underdamped spring
+		float degreesDiff = degreesTarget - degreesCurrent;
+		while (Mathf.Abs(degreesDiff) > 180.0f)
+		{
+			degreesDiff -= degreesDiff < 0.0f ? -360.0f : 360.0f;
+		}
+		float force = m_swingSpringStiffness * degreesDiff - damping_factor * velocityCurrent;
+
+		float accel = force / mass;
+		velocityCurrent += accel * Time.deltaTime;
+
+		return degreesCurrent + velocityCurrent * Time.deltaTime;
 	}
 }

@@ -8,7 +8,7 @@ namespace Platformer.Mechanics
 	/// <summary>
 	/// This is the main class used to implement control of the avatar.
 	/// </summary>
-	[RequireComponent(typeof(Collider2D), typeof(Health))]
+	[RequireComponent(typeof(Health))]
 	public class AvatarController : AnimationController
 	{
 		public enum JumpState
@@ -25,7 +25,6 @@ namespace Platformer.Mechanics
 		public AudioClip respawnAudio;
 
 		public JumpState jumpState = JumpState.Grounded;
-		public Collider2D collider2d;
 		public Health health;
 		public bool controlEnabled = true;
 
@@ -39,7 +38,6 @@ namespace Platformer.Mechanics
 		{
 			base.Awake();
 			health = GetComponent<Health>();
-			collider2d = GetComponent<Collider2D>();
 		}
 
 		protected override void Update()
@@ -119,6 +117,17 @@ namespace Platformer.Mechanics
 
 					// aim
 					item.UpdateAim(Camera.main.ScreenToWorldPoint(Input.mousePosition), radius);
+
+					// throw
+					if (Input.GetButtonDown("Fire2"))
+					{
+						// TODO: show aim indicator?
+					}
+					else if (Input.GetButtonUp("Fire2"))
+					{
+						// release
+						item.Throw();
+					}
 				}
 			}
 			else

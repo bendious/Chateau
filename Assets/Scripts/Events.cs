@@ -19,6 +19,20 @@ namespace Platformer.Gameplay
 	}
 
 	/// <summary>
+	/// This event is fired when collision between two objects should be re-enabled.
+	/// </summary>
+	public class EnableCollision : Event<EnableCollision>
+	{
+		public Collider2D m_collider1;
+		public Collider2D m_collider2;
+
+		public override void Execute()
+		{
+			Physics2D.IgnoreCollision(m_collider1, m_collider2, false);
+		}
+	}
+
+	/// <summary>
 	/// Fired when health reaches 0. This usually would result in a Death event.
 	/// </summary>
 	/// <typeparam name="HealthIsZero"></typeparam>
@@ -60,6 +74,8 @@ namespace Platformer.Gameplay
 				character.animator.SetTrigger("hurt");
 				character.animator.SetTrigger("startDeath");
 				character.animator.SetBool("dead", true);
+				character.collider2d.enabled = false;
+				character.body.simulated = false;
 			}
 
 			// avatar logic
@@ -104,6 +120,7 @@ namespace Platformer.Gameplay
 		public override void Execute()
 		{
 			avatar.collider2d.enabled = true;
+			avatar.body.simulated = true;
 			avatar.controlEnabled = false;
 			if (avatar.audioSource && avatar.respawnAudio)
 			{

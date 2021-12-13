@@ -173,4 +173,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_swingDegreesPerSec: 5000
   m_aimDampTime: 0.1
-  m_damageThresholdSpeed: 9
+  m_damageThresholdSpeed: 2
+  m_throwSpeed: 100
