@@ -1,5 +1,6 @@
 using Platformer.Gameplay;
 using UnityEngine;
+using UnityEngine.Assertions;
 using static Platformer.Core.Simulation;
 
 
@@ -15,6 +16,9 @@ namespace Platformer.Mechanics
 		/// </summary>
 		public int maxHP = 1;
 
+		public GameObject m_healthUIParent;
+		public float m_UIPadding = 5.0f;
+
 		/// <summary>
 		/// Indicates if the entity should be considered 'alive'.
 		/// </summary>
@@ -22,12 +26,14 @@ namespace Platformer.Mechanics
 
 		int currentHP;
 
+
 		/// <summary>
 		/// Increment the HP of the entity.
 		/// </summary>
 		public void Increment()
 		{
-			currentHP = Mathf.Clamp(currentHP + 1, 0, maxHP);
+			IncrementInternal(1);
+			SyncUI();
 		}
 
 		/// <summary>
@@ -36,7 +42,7 @@ namespace Platformer.Mechanics
 		/// </summary>
 		public void Decrement()
 		{
-			currentHP = Mathf.Clamp(currentHP - 1, 0, maxHP);
+			IncrementInternal(-1);
 			Animator animator = GetComponent<Animator>();
 			if (animator != null)
 			{
@@ -47,6 +53,7 @@ namespace Platformer.Mechanics
 				HealthIsZero ev = Schedule<HealthIsZero>();
 				ev.health = this;
 			}
+			SyncUI();
 		}
 
 		/// <summary>
@@ -54,7 +61,8 @@ namespace Platformer.Mechanics
 		/// </summary>
 		public void Die()
 		{
-			while (currentHP > 0) Decrement();
+			IncrementInternal(-currentHP);
+			SyncUI();
 		}
 
 		/// <summary>
@@ -62,16 +70,57 @@ namespace Platformer.Mechanics
 		/// </summary>
 		public void Respawn()
 		{
-			while (currentHP < maxHP)
-			{
-				Increment();
-			}
+			IncrementInternal(maxHP - currentHP);
+			SyncUI();
 		}
 
 
 		void Awake()
 		{
 			currentHP = maxHP;
+			SyncUI();
+		}
+
+
+		private void IncrementInternal(int diff)
+		{
+			currentHP = Mathf.Clamp(currentHP + diff, 0, maxHP);
+		}
+
+		private void SyncUI()
+		{
+			if (m_healthUIParent == null)
+			{
+				return;
+			}
+
+			// check current values
+			int uiHealthCount = m_healthUIParent.transform.childCount - 1; // NOTE that we assume that the first child is a deactivated template object
+			Assert.IsTrue(uiHealthCount >= 0);
+			if (uiHealthCount == currentHP)
+			{
+				return;
+			}
+
+			// remove excess
+			for (; uiHealthCount > currentHP; --uiHealthCount)
+			{
+				Destroy(m_healthUIParent.transform.GetChild(uiHealthCount).gameObject);
+			}
+
+			// add deficient
+			GameObject templateObj = m_healthUIParent.transform.GetChild(0).gameObject;
+			float templateWidth = templateObj.GetComponent<RectTransform>().sizeDelta.x;
+			float xItr = (templateWidth + m_UIPadding) * uiHealthCount;
+			Assert.IsFalse(templateObj.activeSelf);
+			for (; uiHealthCount < currentHP; ++uiHealthCount, xItr += templateWidth + m_UIPadding)
+			{
+				GameObject uiNew = Instantiate(templateObj, m_healthUIParent.transform);
+				uiNew.transform.position += new Vector3(xItr, 0.0f, 0.0f);
+				uiNew.SetActive(true);
+			}
+
+			// TODO: adjust size of parent if its width is ever visible/used
 		}
 	}
 }

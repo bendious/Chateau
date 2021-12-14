@@ -51,7 +51,7 @@ public class RoomController : MonoBehaviour
 		{
 			const float offsetMagMax = 5.0f; // TODO: calculate from room size
 			CapsuleCollider2D enemyCollider = m_enemyPrefab.GetComponent<CapsuleCollider2D>();
-			Vector3 spawnCenterPos = transform.position + new Vector3(UnityEngine.Random.Range(-offsetMagMax, offsetMagMax), + enemyCollider.size.y * 0.5f, 0.0f);
+			Vector3 spawnCenterPos = transform.position + new Vector3(UnityEngine.Random.Range(-offsetMagMax, offsetMagMax), enemyCollider.size.y - enemyCollider.offset.y, 0.0f);
 			GameObject enemyObj = Instantiate(m_enemyPrefab, spawnCenterPos, Quaternion.identity);
 			EnemyController enemy = enemyObj.GetComponent<EnemyController>();
 			enemy.m_target = Camera.main.GetComponent<Cinemachine.CinemachineBrain>().ActiveVirtualCamera.Follow;
