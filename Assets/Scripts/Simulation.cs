@@ -10,9 +10,9 @@ namespace Platformer.Core
 	/// </summary>
 	public static partial class Simulation
 	{
-
 		static readonly HeapQueue<Event> eventQueue = new HeapQueue<Event>();
 		static readonly Dictionary<System.Type, Stack<Event>> eventPools = new Dictionary<System.Type, Stack<Event>>();
+
 
 		/// <summary>
 		/// Create a new event of type T and return it, but do not schedule it.
@@ -70,33 +70,6 @@ namespace Platformer.Core
 			ev.tick = Time.time + tick;
 			eventQueue.Push(ev);
 			return ev;
-		}
-
-		/// <summary>
-		/// Return the simulation model instance for a class.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		static public T GetModel<T>() where T : class, new()
-		{
-			return InstanceRegister<T>.instance;
-		}
-
-		/// <summary>
-		/// Set a simulation model instance for a class.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		static public void SetModel<T>(T instance) where T : class, new()
-		{
-			InstanceRegister<T>.instance = instance;
-		}
-
-		/// <summary>
-		/// Destroy the simulation model instance for a class.
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		static public void DestroyModel<T>() where T : class, new()
-		{
-			InstanceRegister<T>.instance = null;
 		}
 
 		/// <summary>
