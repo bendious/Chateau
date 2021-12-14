@@ -18,6 +18,7 @@ namespace Platformer.Mechanics
 			PrepareToJump,
 			Jumping,
 			InFlight,
+			WallCling,
 			Landed
 		}
 
@@ -27,12 +28,20 @@ namespace Platformer.Mechanics
 
 		public GameObject m_focusIndicator;
 
+		public float m_coyoteTime = 0.15f;
+		public float m_xInputForcedSmoothTime = 0.25f;
+
 		public JumpState jumpState = JumpState.Grounded;
 		public Health health;
 		public bool controlEnabled = true;
 
 		public bool IsPickingUp { get; private set; }
 
+
+		private float m_leftGroundTime = -1.0f;
+
+		private float m_xInputForced = 0.0f;
+		private float m_xInputForcedVel;
 
 		private GameObject m_focusObj;
 
@@ -47,15 +56,23 @@ namespace Platformer.Mechanics
 		{
 			if (controlEnabled)
 			{
-				move.x = Input.GetAxis("Horizontal");
-				if (jumpState == JumpState.Grounded && Input.GetButtonDown("Jump"))
+				if ((jumpState == JumpState.Grounded || jumpState == JumpState.WallCling || m_leftGroundTime + m_coyoteTime <= Time.time) && Input.GetButtonDown("Jump"))
 				{
 					jumpState = JumpState.PrepareToJump;
+					if (IsWallClinging)
+					{
+						m_xInputForced = m_wallNormal.x;
+						m_xInputForcedVel = 0.0f;
+					}
 				}
 				else if (Input.GetButtonUp("Jump"))
 				{
 					stopJump = true;
 				}
+				move.x = Mathf.Lerp(Input.GetAxis("Horizontal"), m_xInputForced, Mathf.Abs(m_xInputForced));
+
+				// blend x-input back from forced if necessary
+				m_xInputForced = Mathf.SmoothDamp(m_xInputForced, 0.0f, ref m_xInputForcedVel, m_xInputForcedSmoothTime);
 
 				// determine current focus object
 				// TODO: more nuanced prioritization?
@@ -152,6 +169,13 @@ namespace Platformer.Mechanics
 			jump = false;
 			switch (jumpState)
 			{
+				case JumpState.Grounded:
+					if (!IsGrounded)
+					{
+						jumpState = JumpState.InFlight;
+						m_leftGroundTime = Time.time;
+					}
+					break;
 				case JumpState.PrepareToJump:
 					jumpState = JumpState.Jumping;
 					jump = true;
@@ -168,6 +192,17 @@ namespace Platformer.Mechanics
 					if (IsGrounded)
 					{
 						jumpState = JumpState.Landed;
+					}
+					else if (IsWallClinging)
+					{
+						jumpState = JumpState.WallCling;
+					}
+					break;
+				case JumpState.WallCling:
+					if (!IsWallClinging)
+					{
+						jumpState = JumpState.InFlight;
+						m_leftGroundTime = Time.time;
 					}
 					break;
 				case JumpState.Landed:

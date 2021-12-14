@@ -25,6 +25,11 @@ namespace Platformer.Mechanics
 		public float jumpModifier = 1.5f;
 
 		/// <summary>
+		/// Ratio governing the horizontal/vertical direction of wall jumps.
+		/// </summary>
+		public float m_wallJumpXYRatio = 1.0f;
+
+		/// <summary>
 		/// A jump modifier applied to slow down an active jump when
 		/// the user releases the jump input.
 		/// </summary>
@@ -68,9 +73,16 @@ namespace Platformer.Mechanics
 
 		protected override void ComputeVelocity()
 		{
-			if (jump && IsGrounded)
+			if (jump && (IsGrounded || IsWallClinging))
 			{
-				velocity.y = jumpTakeOffSpeed * jumpModifier;
+				if (IsWallClinging)
+				{
+					velocity += jumpTakeOffSpeed * jumpModifier * new Vector2(move.x < 0.0f ? -m_wallJumpXYRatio : m_wallJumpXYRatio, 1.0f).normalized; // NOTE that we purposely incorporate any existing velocity so that gravity will eventually take over and prevent clinging to the walls forever
+				}
+				else
+				{
+					velocity.y = jumpTakeOffSpeed * jumpModifier; // NOTE that we purposely ignore any existing velocity so that ground-based jumps are always full strength
+				}
 				jump = false;
 			}
 			else if (stopJump)
@@ -92,6 +104,7 @@ namespace Platformer.Mechanics
 			}
 
 			animator.SetBool("grounded", IsGrounded);
+			animator.SetBool("wallCling", IsWallClinging);
 			animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / maxSpeed);
 
 			targetVelocity = move * maxSpeed;

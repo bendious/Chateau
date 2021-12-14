@@ -15,9 +15,19 @@ namespace Platformer.Mechanics
 		public float minGroundNormalY = .65f;
 
 		/// <summary>
+		/// The minimum normal (dot product) considered suitable for the entity to cling to.
+		/// </summary>
+		public float m_minWallClingNormalY = float.MaxValue;
+
+		/// <summary>
 		/// A custom gravity coefficient applied to this entity.
 		/// </summary>
 		public float gravityModifier = 1f;
+
+		/// <summary>
+		/// Gravity scalar applied while wall clinging.
+		/// </summary>
+		public float m_wallClingGravityScalar = 0.1f;
 
 		/// <summary>
 		/// The current velocity of the entity.
@@ -30,8 +40,16 @@ namespace Platformer.Mechanics
 		/// <value></value>
 		public bool IsGrounded { get; private set; }
 
+		/// <summary>
+		/// Is the entity currently clinging to a wall?
+		/// </summary>
+		/// <value></value>
+		public bool IsWallClinging { get; private set; }
+
+
 		protected Vector2 targetVelocity;
 		protected Vector2 groundNormal;
+		protected Vector2 m_wallNormal;
 		public Rigidbody2D body;
 		protected ContactFilter2D contactFilter;
 		protected RaycastHit2D[] hitBuffer = new RaycastHit2D[16];
@@ -101,18 +119,12 @@ namespace Platformer.Mechanics
 		protected virtual void FixedUpdate()
 		{
 			//if already falling, fall faster than the jump speed, otherwise use normal gravity.
-			if (velocity.y < 0)
-			{
-				velocity += gravityModifier * Physics2D.gravity * Time.deltaTime;
-			}
-			else
-			{
-				velocity += Physics2D.gravity * Time.deltaTime;
-			}
+			velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0 ? gravityModifier : 1.0f) * Physics2D.gravity * Time.deltaTime;
 
 			velocity.x = targetVelocity.x;
 
 			IsGrounded = false;
+			IsWallClinging = false;
 
 			Vector2 deltaPosition = velocity * Time.deltaTime;
 
@@ -125,7 +137,6 @@ namespace Platformer.Mechanics
 			move = Vector2.up * deltaPosition.y;
 
 			PerformMovement(move, true);
-
 		}
 
 		public bool ShouldIgnore(Rigidbody2D body, Collider2D collider, bool ignoreStatics, bool ignoreDynamics)
@@ -177,15 +188,21 @@ namespace Platformer.Mechanics
 					Vector2 currentNormal = hitBuffer[i].normal;
 
 					//is this surface flat enough to land on?
-					if (currentNormal.y > minGroundNormalY)
+					if (currentNormal.y >= minGroundNormalY)
 					{
 						IsGrounded = true;
+						IsWallClinging = false;
 						// if moving up, change the groundNormal to new surface normal.
 						if (yMovement)
 						{
 							groundNormal = currentNormal;
 							currentNormal.x = 0;
 						}
+					}
+					if (!IsGrounded && currentNormal.y >= m_minWallClingNormalY)
+					{
+						IsWallClinging = true;
+						m_wallNormal = currentNormal;
 					}
 					if (IsGrounded)
 					{

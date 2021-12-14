@@ -402,10 +402,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1455061591}
+  - component: {fileID: 1455061592}
   - component: {fileID: 1455061590}
   - component: {fileID: 1455061589}
   - component: {fileID: 1455061588}
-  - component: {fileID: 1455061592}
   - component: {fileID: 1455061593}
   - component: {fileID: 1455061595}
   - component: {fileID: 1455061594}
@@ -531,12 +531,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   minGroundNormalY: 0.65
+  m_minWallClingNormalY: 0
   gravityModifier: 3
+  m_wallClingGravityScalar: 0.1
   velocity: {x: 0, y: 0}
   body: {fileID: 0}
   maxSpeed: 7
   jumpTakeOffSpeed: 5
   jumpModifier: 1.5
+  m_wallJumpXYRatio: 1
   jumpDeceleration: 0.5
   ouchAudio: {fileID: 0}
   audioSource: {fileID: 0}
@@ -544,6 +547,8 @@ MonoBehaviour:
   jumpAudio: {fileID: 0}
   respawnAudio: {fileID: 0}
   m_focusIndicator: {fileID: 844943370}
+  m_coyoteTime: 0.15
+  m_wallJumpSmoothTime: 0.25
   jumpState: 0
   health: {fileID: 0}
   controlEnabled: 1
