@@ -56,41 +56,10 @@ namespace Platformer.Gameplay
 
 		public override void Execute()
 		{
-			// detach all items
-			foreach (ItemController item in health.GetComponentsInChildren<ItemController>())
-			{
-				item.Detach();
-			}
-
-			// character logic
 			AnimationController character = health.GetComponent<AnimationController>();
 			if (character != null)
 			{
-				if (character.audioSource && character.ouchAudio)
-				{
-					character.audioSource.PlayOneShot(character.ouchAudio);
-				}
-				character.animator.SetTrigger("hurt");
-				character.animator.SetTrigger("startDeath");
-				character.animator.SetBool("dead", true);
-				character.collider2d.enabled = false;
-				character.body.simulated = false;
-			}
-
-			// avatar logic
-			AvatarController avatar = health.GetComponent<AvatarController>();
-			if (avatar != null)
-			{
-				avatar.controlEnabled = false;
-				Schedule<AvatarSpawn>(2.0f).avatar = avatar;
-			}
-
-			// enemy logic
-			EnemyController enemy = health.GetComponent<EnemyController>();
-			if (enemy != null && enemy.enabled)
-			{
-				enemy.enabled = false;
-				Schedule<Despawn>(0.5f).obj = health.gameObject; // TODO: animation event rather than hardcoded time
+				character.OnDeath();
 			}
 		}
 	}
@@ -118,36 +87,7 @@ namespace Platformer.Gameplay
 
 		public override void Execute()
 		{
-			avatar.collider2d.enabled = true;
-			avatar.body.simulated = true;
-			avatar.controlEnabled = false;
-			if (avatar.audioSource && avatar.respawnAudio)
-			{
-				avatar.audioSource.PlayOneShot(avatar.respawnAudio);
-			}
-			avatar.health.Respawn();
-			avatar.Teleport(Vector3.zero);
-			avatar.jumpState = AvatarController.JumpState.Grounded;
-			avatar.animator.SetBool("dead", false);
-			EnablePlayerInput evt = Schedule<EnablePlayerInput>(2f);
-			evt.avatar = avatar;
-		}
-	}
-
-	/// <summary>
-	/// Fired when the avatar performs a Jump.
-	/// </summary>
-	/// <typeparam name="AvatarJumped"></typeparam>
-	public class AvatarJumped : Event<AvatarJumped>
-	{
-		public AvatarController avatar;
-
-		public override void Execute()
-		{
-			if (avatar.audioSource && avatar.jumpAudio)
-			{
-				avatar.audioSource.PlayOneShot(avatar.jumpAudio);
-			}
+			avatar.OnSpawn();
 		}
 	}
 
@@ -160,14 +100,10 @@ namespace Platformer.Gameplay
 		public EnemyController enemy;
 		public AvatarController avatar;
 
-		private static readonly Vector2 m_bounceVec = new Vector2(1.0f, 2.5f);
-
 
 		public override void Execute()
 		{
-			avatar.health.Decrement();
-			Vector2 bounceVecOriented = avatar.transform.position.x - enemy.transform.position.x < 0.0f ? new Vector2(-m_bounceVec.x, m_bounceVec.y) : m_bounceVec;
-			avatar.Bounce(bounceVecOriented);
+			avatar.OnCollision(enemy);
 		}
 	}
 }

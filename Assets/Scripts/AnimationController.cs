@@ -60,9 +60,9 @@ namespace Platformer.Mechanics
 
 
 		SpriteRenderer spriteRenderer;
-		internal Animator animator;
-		public AudioSource audioSource;
-		public Collider2D collider2d;
+		protected Animator animator;
+		protected AudioSource audioSource;
+		protected Collider2D collider2d;
 
 
 		public bool LeftFacing => spriteRenderer.flipX;
@@ -114,6 +114,28 @@ namespace Platformer.Mechanics
 			animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / maxSpeed);
 
 			targetVelocity = move * maxSpeed;
+		}
+
+
+		public virtual void OnDeath()
+		{
+			// detach all items
+			foreach (ItemController item in GetComponentsInChildren<ItemController>())
+			{
+				item.Detach();
+			}
+
+			if (audioSource && ouchAudio)
+			{
+				audioSource.PlayOneShot(ouchAudio);
+			}
+
+			animator.SetTrigger("hurt");
+			animator.SetTrigger("startDeath");
+			animator.SetBool("dead", true);
+
+			collider2d.enabled = false;
+			body.simulated = false;
 		}
 	}
 }

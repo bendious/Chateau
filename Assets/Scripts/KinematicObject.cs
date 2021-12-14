@@ -50,7 +50,7 @@ namespace Platformer.Mechanics
 		protected Vector2 targetVelocity;
 		protected Vector2 groundNormal;
 		protected Vector2 m_wallNormal;
-		public Rigidbody2D body;
+		protected Rigidbody2D body;
 		protected ContactFilter2D contactFilter;
 		protected RaycastHit2D[] hitBuffer = new RaycastHit2D[16];
 

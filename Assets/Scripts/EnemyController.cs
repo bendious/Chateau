@@ -32,5 +32,12 @@ namespace Platformer.Mechanics
 			move.x = m_target == null ? 0.0f : Mathf.Clamp((m_target.position.x - transform.position.x) * (moveAway ? -1.0f : 1.0f), -m_moveMax, m_moveMax);
 			base.Update();
 		}
+
+		public override void OnDeath()
+		{
+			base.OnDeath();
+			enabled = false;
+			Schedule<Despawn>(0.5f).obj = gameObject; // TODO: animation event rather than hardcoded time
+		}
 	}
 }

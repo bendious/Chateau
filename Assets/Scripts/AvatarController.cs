@@ -31,8 +31,8 @@ namespace Platformer.Mechanics
 		public float m_coyoteTime = 0.15f;
 		public float m_xInputForcedSmoothTime = 0.25f;
 
-		public JumpState jumpState = JumpState.Grounded;
-		public Health health;
+		private JumpState jumpState = JumpState.Grounded;
+		private Health health;
 		public bool controlEnabled = true;
 
 		public bool IsPickingUp { get; private set; }
@@ -176,6 +176,43 @@ namespace Platformer.Mechanics
 			m_xInputForcedVel = 0.0f;
 		}
 
+		public override void OnDeath()
+		{
+			base.OnDeath();
+			controlEnabled = false;
+			m_xInputForced = 0.0f;
+			Schedule<AvatarSpawn>(2.0f).avatar = this;
+		}
+
+		private static readonly Vector2 m_collisionBounceVec = new Vector2(1.0f, 2.5f);
+		public void OnCollision(EnemyController enemy)
+		{
+			health.Decrement();
+			Vector2 bounceVecOriented = transform.position.x - enemy.transform.position.x < 0.0f ? new Vector2(-m_collisionBounceVec.x, m_collisionBounceVec.y) : m_collisionBounceVec;
+			Bounce(bounceVecOriented);
+		}
+
+		public void OnSpawn()
+		{
+			collider2d.enabled = true;
+			body.simulated = true;
+			controlEnabled = false;
+
+			if (audioSource && respawnAudio)
+			{
+				audioSource.PlayOneShot(respawnAudio);
+			}
+
+			health.Respawn();
+
+			Teleport(Vector3.zero);
+			jumpState = JumpState.Grounded;
+
+			animator.SetBool("dead", false);
+
+			Schedule<EnablePlayerInput>(2f).avatar = this;
+		}
+
 
 		private void UpdateJumpState()
 		{
@@ -197,7 +234,10 @@ namespace Platformer.Mechanics
 				case JumpState.Jumping:
 					if (!IsGrounded)
 					{
-						Schedule<AvatarJumped>().avatar = this;
+						if (audioSource && jumpAudio)
+						{
+							audioSource.PlayOneShot(jumpAudio);
+						}
 						jumpState = JumpState.InFlight;
 					}
 					break;
