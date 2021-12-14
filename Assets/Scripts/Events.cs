@@ -42,8 +42,7 @@ namespace Platformer.Gameplay
 
 		public override void Execute()
 		{
-			Death evt = Schedule<Death>();
-			evt.health = health;
+			Schedule<Death>().health = health;
 		}
 	}
 
@@ -126,7 +125,7 @@ namespace Platformer.Gameplay
 			{
 				avatar.audioSource.PlayOneShot(avatar.respawnAudio);
 			}
-			avatar.health.Increment();
+			avatar.health.Respawn();
 			avatar.Teleport(Vector3.zero);
 			avatar.jumpState = AvatarController.JumpState.Grounded;
 			avatar.animator.SetBool("dead", false);
@@ -161,9 +160,14 @@ namespace Platformer.Gameplay
 		public EnemyController enemy;
 		public AvatarController avatar;
 
+		private static readonly Vector2 m_bounceVec = new Vector2(1.0f, 2.5f);
+
+
 		public override void Execute()
 		{
-			avatar.GetComponent<Health>().Decrement();
+			avatar.health.Decrement();
+			Vector2 bounceVecOriented = avatar.transform.position.x - enemy.transform.position.x < 0.0f ? new Vector2(-m_bounceVec.x, m_bounceVec.y) : m_bounceVec;
+			avatar.Bounce(bounceVecOriented);
 		}
 	}
 }

@@ -71,10 +71,9 @@ namespace Platformer.Mechanics
 		/// Bounce the objects velocity in a direction.
 		/// </summary>
 		/// <param name="dir"></param>
-		public void Bounce(Vector2 dir)
+		public virtual void Bounce(Vector2 dir)
 		{
-			velocity.y = dir.y;
-			velocity.x = dir.x;
+			velocity = dir;
 		}
 
 		/// <summary>

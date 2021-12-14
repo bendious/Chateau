@@ -37,6 +37,11 @@ namespace Platformer.Mechanics
 		public void Decrement()
 		{
 			currentHP = Mathf.Clamp(currentHP - 1, 0, maxHP);
+			Animator animator = GetComponent<Animator>();
+			if (animator != null)
+			{
+				animator.SetTrigger("hurt");
+			}
 			if (currentHP == 0)
 			{
 				HealthIsZero ev = Schedule<HealthIsZero>();
@@ -51,6 +56,18 @@ namespace Platformer.Mechanics
 		{
 			while (currentHP > 0) Decrement();
 		}
+
+		/// <summary>
+		/// Increment the HP of the entitiy until HP reaches max.
+		/// </summary>
+		public void Respawn()
+		{
+			while (currentHP < maxHP)
+			{
+				Increment();
+			}
+		}
+
 
 		void Awake()
 		{

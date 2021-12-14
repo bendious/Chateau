@@ -44,6 +44,11 @@ namespace Platformer.Mechanics
 		protected Vector2 move;
 
 		/// <summary>
+		/// Used to indicated desired direction of aim.
+		/// </summary>
+		protected int m_aimDir;
+
+		/// <summary>
 		/// Set to true to initiate a jump.
 		/// </summary>
 		protected bool jump;
@@ -94,17 +99,18 @@ namespace Platformer.Mechanics
 				}
 			}
 
-			if (move.x >= minMoveDistance)
+			if (m_aimDir > 0 || (m_aimDir == 0 && move.x >= minMoveDistance))
 			{
 				spriteRenderer.flipX = false;
 			}
-			else if (move.x <= -minMoveDistance)
+			else if (m_aimDir < 0 || (m_aimDir == 0 && move.x <= -minMoveDistance))
 			{
 				spriteRenderer.flipX = true;
 			}
 
 			animator.SetBool("grounded", IsGrounded);
 			animator.SetBool("wallCling", IsWallClinging);
+			animator.SetBool("aimReverse", m_aimDir != 0 && (velocity.x < 0.0f) != (m_aimDir < 0));
 			animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / maxSpeed);
 
 			targetVelocity = move * maxSpeed;

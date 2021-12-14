@@ -548,7 +548,7 @@ MonoBehaviour:
   respawnAudio: {fileID: 0}
   m_focusIndicator: {fileID: 844943370}
   m_coyoteTime: 0.15
-  m_wallJumpSmoothTime: 0.25
+  m_xInputForcedSmoothTime: 0.25
   jumpState: 0
   health: {fileID: 0}
   controlEnabled: 1
@@ -583,7 +583,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e9c1bd3b458dfc4ab7a9c66b6782439, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 1
+  maxHP: 3
 --- !u!82 &1455061595
 AudioSource:
   m_ObjectHideFlags: 0

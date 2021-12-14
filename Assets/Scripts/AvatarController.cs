@@ -129,6 +129,7 @@ namespace Platformer.Mechanics
 					}
 				}
 
+				Vector3 mousePosWS = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 				if (transform.childCount > 0)
 				{
 					// manipulate first held item
@@ -141,7 +142,7 @@ namespace Platformer.Mechanics
 					}
 
 					// aim
-					item.UpdateAim(Camera.main.ScreenToWorldPoint(Input.mousePosition), radius);
+					item.UpdateAim(mousePosWS, radius);
 
 					// throw
 					if (Input.GetButtonDown("Fire2"))
@@ -154,6 +155,7 @@ namespace Platformer.Mechanics
 						item.Throw();
 					}
 				}
+				m_aimDir = mousePosWS.x > transform.position.x ? 1 : -1;
 			}
 			else
 			{
@@ -161,6 +163,17 @@ namespace Platformer.Mechanics
 			}
 			UpdateJumpState();
 			base.Update();
+		}
+
+		/// <summary>
+		/// Bounce the objects velocity in a direction.
+		/// </summary>
+		/// <param name="dir"></param>
+		public override void Bounce(Vector2 dir)
+		{
+			base.Bounce(dir);
+			m_xInputForced = dir.x;
+			m_xInputForcedVel = 0.0f;
 		}
 
 
