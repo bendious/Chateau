@@ -58,6 +58,10 @@ namespace Platformer.Mechanics
 		protected const float shellRadius = 0.01f;
 
 
+		private /*readonly*/ int m_platformLayer;
+		private const float m_platformTopEpsilon = 0.1f;
+
+
 		/// <summary>
 		/// Bounce the object's vertical velocity.
 		/// </summary>
@@ -101,8 +105,8 @@ namespace Platformer.Mechanics
 		protected virtual void Start()
 		{
 			contactFilter.useTriggers = false;
-			contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
-			contactFilter.useLayerMask = true;
+			m_platformLayer = LayerMask.NameToLayer("OneWayPlatforms");
+			Assert.AreNotEqual(m_platformLayer, -1);
 		}
 
 		protected virtual void Update()
@@ -130,6 +134,10 @@ namespace Platformer.Mechanics
 			Vector2 moveAlongGround = new Vector2(groundNormal.y, -groundNormal.x);
 
 			Vector2 move = moveAlongGround * deltaPosition.x;
+
+			// update our collision mask
+			bool shouldIgnoreOneWays = velocity.y >= 0 || /*(GetComponent<AnimationController>() != null && GetComponent<AnimationController>().move.y < 0.0f) ||*/ (GetComponent<AvatarController>() != null && Input.GetAxis("Vertical") < 0.0f); // TODO: way for AI to drop through platforms
+			contactFilter.SetLayerMask(shouldIgnoreOneWays ? Physics2D.GetLayerCollisionMask(gameObject.layer) & ~(1 << m_platformLayer) : Physics2D.GetLayerCollisionMask(gameObject.layer));
 
 			PerformMovement(move, false);
 
@@ -179,12 +187,17 @@ namespace Platformer.Mechanics
 				int count = body.Cast(move, contactFilter, hitBuffer, distance + shellRadius);
 				for (int i = 0; i < count; i++)
 				{
-					if (ShouldIgnore(hitBuffer[i].rigidbody, hitBuffer[i].collider, false, true))
+					RaycastHit2D hit = hitBuffer[i];
+					if (ShouldIgnore(hit.rigidbody, hit.collider, false, true))
 					{
 						continue; // don't get hung up on dynamic/carried/ignored objects
 					}
+					if (hit.collider.gameObject.layer == m_platformLayer && GetComponent<Collider2D>().bounds.min.y + m_platformTopEpsilon < hit.collider.bounds.max.y)
+					{
+						continue; // if partway through a one-way platform, ignore it
+					}
 
-					Vector2 currentNormal = hitBuffer[i].normal;
+					Vector2 currentNormal = hit.normal;
 
 					//is this surface flat enough to land on?
 					if (currentNormal.y >= minGroundNormalY)
@@ -220,7 +233,7 @@ namespace Platformer.Mechanics
 						velocity.y = Mathf.Min(velocity.y, 0);
 					}
 					//remove shellDistance from actual move distance.
-					float modifiedDistance = hitBuffer[i].distance - shellRadius;
+					float modifiedDistance = hit.distance - shellRadius;
 					distance = modifiedDistance < distance ? modifiedDistance : distance;
 				}
 			}

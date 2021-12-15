@@ -15,6 +15,8 @@ public class RoomController : MonoBehaviour
 	public GameObject m_doorB;
 	public GameObject m_doorT;
 
+	public Color m_oneWayPlatformColor = new Color(0.3f, 0.2f, 0.1f);
+
 	public float m_roomSpawnPct = 0.5f;
 	public int m_spawnDepthMax = 5;
 
@@ -91,19 +93,35 @@ public class RoomController : MonoBehaviour
 
 		if (!isOpen)
 		{
-			door.GetComponent<BoxCollider2D>().enabled = true; // TODO: why are instantiated door colliders sometimes disabled?
 			return;
 		}
 
-		Destroy(door);
+		// enable one-way movement or destroy
+		PlatformEffector2D effector = door.GetComponent<PlatformEffector2D>();
+		if (effector == null)
+		{
+			Destroy(door);
+		}
+		else
+		{
+			// enable effector for dynamic collisions
+			effector.enabled = true;
+			door.GetComponent<Collider2D>().usedByEffector = true;
+
+			// set layer for kinematic movement
+			door.layer = LayerMask.NameToLayer("OneWayPlatforms");
+
+			// change color for user visibility
+			door.GetComponent<SpriteRenderer>().color = m_oneWayPlatformColor;
+		}
 
 		if (!canSpawnRoom)
 		{
 			return;
 		}
 
-		GameObject newRoomObj = Instantiate(m_roomPrefab, transform.position + replaceOffset, Quaternion.identity);
-		RoomController newRoom = newRoomObj.GetComponent<RoomController>();
+		RoomController newRoom = Instantiate(m_roomPrefab, transform.position + replaceOffset, Quaternion.identity).GetComponent<RoomController>();
+		newRoom.m_roomPrefab = m_roomPrefab; // NOTE that since Unity's method of internal prefab references doesn't allow a script to reference the prefab that contains it, we have to manually update the child's reference here
 		newRoom.m_spawnDepthMax = m_spawnDepthMax - 1;
 		postReplace(newRoom);
 	}
