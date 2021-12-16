@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
+	public GameObject m_avatar;
+
 	public GameObject m_roomPrefab;
 
 

@@ -27,6 +27,9 @@ namespace Platformer.Mechanics
 		public AudioClip respawnAudio;
 
 		public GameObject m_focusIndicator;
+		public GameObject m_aimObject;
+
+		public float m_aimRadius = 5.0f;
 
 		public float m_coyoteTime = 0.15f;
 		public float m_xInputForcedSmoothTime = 0.25f;
@@ -74,11 +77,43 @@ namespace Platformer.Mechanics
 				// blend x-input back from forced if necessary
 				m_xInputForced = Mathf.SmoothDamp(m_xInputForced, 0.0f, ref m_xInputForcedVel, m_xInputForcedSmoothTime);
 
+				// aim camera
+				Vector3 mousePosWS = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+				m_aimObject.transform.position = transform.position + (mousePosWS - transform.position).normalized * m_aimRadius;
+
+				// aim items
+				float holdRadius = GetComponent<CircleCollider2D>().radius;
+				if (transform.childCount > 0)
+				{
+					// manipulate first held item
+					ItemController item = GetComponentInChildren<ItemController>();
+
+					// swing
+					if (Input.GetButtonDown("Fire1"))
+					{
+						item.Swing();
+					}
+
+					// aim
+					item.UpdateAim(mousePosWS, holdRadius);
+
+					// throw
+					if (Input.GetButtonDown("Fire2"))
+					{
+						// TODO: show aim indicator?
+					}
+					else if (Input.GetButtonUp("Fire2"))
+					{
+						// release
+						item.Throw();
+					}
+				}
+				m_aimDir = mousePosWS.x > transform.position.x ? 1 : -1;
+
 				// determine current focus object
 				// TODO: more nuanced prioritization?
 				m_focusObj = null;
-				float radius = GetComponent<CircleCollider2D>().radius;
-				Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + Vector2.right * (LeftFacing ? -1.0f : 1.0f) * radius, radius * 1.5f); // TODO: restrict to certain layers?
+				Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + Vector2.right * (LeftFacing ? -1.0f : 1.0f) * holdRadius, holdRadius * 1.5f); // TODO: restrict to certain layers?
 				float distSqFocus = float.MaxValue;
 				foreach (Collider2D candidate in focusCandidates)
 				{
@@ -128,34 +163,6 @@ namespace Platformer.Mechanics
 						GetComponentInChildren<ItemController>().Detach();
 					}
 				}
-
-				Vector3 mousePosWS = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-				if (transform.childCount > 0)
-				{
-					// manipulate first held item
-					ItemController item = GetComponentInChildren<ItemController>();
-
-					// swing
-					if (Input.GetButtonDown("Fire1"))
-					{
-						item.Swing();
-					}
-
-					// aim
-					item.UpdateAim(mousePosWS, radius);
-
-					// throw
-					if (Input.GetButtonDown("Fire2"))
-					{
-						// TODO: show aim indicator?
-					}
-					else if (Input.GetButtonUp("Fire2"))
-					{
-						// release
-						item.Throw();
-					}
-				}
-				m_aimDir = mousePosWS.x > transform.position.x ? 1 : -1;
 			}
 			else
 			{
