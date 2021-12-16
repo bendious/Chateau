@@ -723,6 +723,8 @@ MonoBehaviour:
   m_focusIndicator: {fileID: 844943370}
   m_aimObject: {fileID: 871473911}
   m_aimRadius: 5
+  m_secondaryRadiusPct: 0.5
+  m_secondaryDegrees: -45
   m_coyoteTime: 0.15
   m_xInputForcedSmoothTime: 0.25
   controlEnabled: 1

@@ -3,13 +3,18 @@ using Platformer.Gameplay;
 using Platformer.Mechanics;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class ItemController : MonoBehaviour
 {
 	public float m_swingDegreesPerSec = 5000.0f;
-	public float m_swingSpringStiffness = 100.0f;
+	public float m_swingRadiusPerSec = 10.0f;
+	public float m_aimSpringStiffness = 100.0f;
+	public float m_aimSpringDampPct = 0.5f;
+	public float m_radiusSpringStiffness = 25.0f;
+	public float m_radiusSpringDampPct = 0.5f;
 	public float m_damageThresholdSpeed = 2.0f;
 	public float m_throwSpeed = 100.0f;
 
@@ -19,6 +24,8 @@ public class ItemController : MonoBehaviour
 
 	private float m_aimDegrees;
 	private float m_aimVelocity;
+	private float m_aimRadius;
+	private float m_aimRadiusVelocity;
 	private bool m_swingDirection;
 
 
@@ -39,6 +46,7 @@ public class ItemController : MonoBehaviour
 		GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Kinematic;
 		m_aimDegrees = AimDegreesRaw(transform.position);
 		m_aimVelocity = 0.0f;
+		m_aimRadiusVelocity = 0.0f;
 	}
 
 	public void Detach()
@@ -47,20 +55,24 @@ public class ItemController : MonoBehaviour
 		transform.position = (Vector2)transform.position; // nullify any z that may have been applied for rendering order
 		GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
 		m_aimVelocity = 0.0f;
+		m_aimRadiusVelocity = 0.0f;
 	}
 
 	public void Swing()
 	{
 		m_aimVelocity += m_swingDirection ? m_swingDegreesPerSec : -m_swingDegreesPerSec;
+		m_aimRadiusVelocity += m_swingRadiusPerSec;
 		m_swingDirection = !m_swingDirection;
 	}
 
 	public void UpdateAim(Vector3 position, float radius)
 	{
-		m_aimDegrees = UnderdampedSpringAngle(m_aimDegrees, AimDegreesRaw(position), ref m_aimVelocity);
+		Assert.IsFalse(position.x == float.MaxValue || position.x == float.PositiveInfinity || position.x == float.NegativeInfinity || position.x == float.NaN || radius == float.MaxValue || radius == float.PositiveInfinity || radius == float.NegativeInfinity || radius == float.NaN); // TODO: prevent unbounded radius growth (caused by low framerate?)
+		m_aimDegrees = DampedSpring(m_aimDegrees, AimDegreesRaw(position), m_aimSpringDampPct, true, m_aimSpringStiffness, ref m_aimVelocity);
+		m_aimRadius = DampedSpring(m_aimRadius, radius, m_radiusSpringDampPct, false, m_radiusSpringStiffness, ref m_aimRadiusVelocity);
 
 		transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegrees);
-		transform.localPosition = transform.localRotation * Vector3.right * radius - Vector3.forward; // NOTE the negative Z in order to force rendering on top of our parent
+		transform.localPosition = transform.localRotation * Vector3.right * m_aimRadius - Vector3.forward; // NOTE the negative Z in order to force rendering on top of our parent
 		GetComponent<SpriteRenderer>().flipY = LeftFacing;
 	}
 
@@ -98,7 +110,7 @@ public class ItemController : MonoBehaviour
 		}
 
 		// if hitting a valid point fast enough, apply damage
-		float collisionSpeed = kinematicObj == null ? collision.relativeVelocity.magnitude : (body.velocity - kinematicObj.velocity).magnitude + Mathf.Abs(m_aimVelocity); // TODO: incorporate aim velocity direction?
+		float collisionSpeed = kinematicObj == null ? collision.relativeVelocity.magnitude : (body.velocity - kinematicObj.velocity).magnitude + Mathf.Abs(m_aimVelocity) + m_aimRadiusVelocity; // TODO: incorporate aim velocity direction?
 		bool canDamage = avatarController == null ? true : false; // TODO: base on what object threw us
 		if (canDamage && collisionSpeed > m_damageThresholdSpeed)
 		{
@@ -136,22 +148,22 @@ public class ItemController : MonoBehaviour
 		return Mathf.Rad2Deg * Mathf.Atan2(aimDiff.y, aimDiff.x);
 	}
 
-	private float UnderdampedSpringAngle(float degreesCurrent, float degreesTarget, ref float velocityCurrent)
+	private float DampedSpring(float current, float target, float dampPct, bool isAngle, float stiffness, ref float velocityCurrent)
 	{
 		// spring motion: F = kx - dv, where x = {vel/pos}_desired - {vel/pos}_current
 		// critically damped spring: d = 2*sqrt(km)
 		float mass = GetComponent<Rigidbody2D>().mass;
-		float damping_factor = /*2.0f **/ Mathf.Sqrt(m_swingSpringStiffness * mass); // NOTE that we leave off the 2 since we want a slightly underdamped spring
-		float degreesDiff = degreesTarget - degreesCurrent;
-		while (Mathf.Abs(degreesDiff) > 180.0f)
+		float dampingFactor = 2.0f * Mathf.Sqrt(m_aimSpringStiffness * mass) * dampPct;
+		float diff = target - current;
+		while (isAngle && Mathf.Abs(diff) > 180.0f)
 		{
-			degreesDiff -= degreesDiff < 0.0f ? -360.0f : 360.0f;
+			diff -= diff < 0.0f ? -360.0f : 360.0f;
 		}
-		float force = m_swingSpringStiffness * degreesDiff - damping_factor * velocityCurrent;
+		float force = stiffness * diff - dampingFactor * velocityCurrent;
 
 		float accel = force / mass;
 		velocityCurrent += accel * Time.deltaTime;
 
-		return degreesCurrent + velocityCurrent * Time.deltaTime;
+		return current + velocityCurrent * Time.deltaTime;
 	}
 }

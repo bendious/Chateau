@@ -30,6 +30,8 @@ namespace Platformer.Mechanics
 		public GameObject m_aimObject;
 
 		public float m_aimRadius = 5.0f;
+		public float m_secondaryRadiusPct = 0.5f;
+		public float m_secondaryDegrees = -45.0f;
 
 		public float m_coyoteTime = 0.15f;
 		public float m_xInputForcedSmoothTime = 0.25f;
@@ -86,7 +88,8 @@ namespace Platformer.Mechanics
 				if (transform.childCount > 0)
 				{
 					// manipulate first held item
-					ItemController item = GetComponentInChildren<ItemController>();
+					ItemController[] items = GetComponentsInChildren<ItemController>();
+					ItemController item = items.First();
 
 					// swing
 					if (Input.GetButtonDown("Fire1"))
@@ -96,6 +99,12 @@ namespace Platformer.Mechanics
 
 					// aim
 					item.UpdateAim(mousePosWS, holdRadius);
+					Vector3 secondaryAimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, LeftFacing ? 180.0f - m_secondaryDegrees : m_secondaryDegrees) * Vector3.right;
+					float secondaryRadius = m_secondaryRadiusPct * holdRadius;
+					for (int i = 1; i < items.Length; ++i)
+					{
+						items[i].UpdateAim(secondaryAimPos, secondaryRadius);
+					}
 
 					// throw
 					if (Input.GetButtonDown("Fire2"))
@@ -214,6 +223,7 @@ namespace Platformer.Mechanics
 			health.Respawn();
 
 			Teleport(Vector3.zero);
+			m_aimObject.transform.position = Vector3.zero;
 			jumpState = JumpState.Grounded;
 
 			animator.SetBool("dead", false);

@@ -172,6 +172,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_swingDegreesPerSec: 5000
+  m_swingRadiusPerSec: 10
   m_swingSpringStiffness: 100
+  m_swingSpringDampPct: 0.5
+  m_radiusSpringStiffness: 25
+  m_radiusSpringDampPct: 0.5
   m_damageThresholdSpeed: 2
   m_throwSpeed: 100
