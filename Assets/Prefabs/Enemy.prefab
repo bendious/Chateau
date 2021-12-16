@@ -157,14 +157,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   minGroundNormalY: 0.65
+  m_minWallClingNormalY: 3.4028235e+38
   gravityModifier: 1
+  m_wallClingGravityScalar: 0.1
   velocity: {x: 0, y: 0}
   maxSpeed: 7
   jumpTakeOffSpeed: 7
   jumpModifier: 1.5
+  m_wallJumpXYRatio: 1
   jumpDeceleration: 0.5
-  path: {fileID: 0}
-  ouch: {fileID: 0}
+  ouchAudio: {fileID: 0}
   m_target: {fileID: 0}
   m_moveMax: 0.1
 --- !u!82 &5843668731025413174
@@ -276,3 +278,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHP: 1
+  m_healthUIParent: {fileID: 0}
+  m_UIPadding: 5

@@ -74,6 +74,11 @@ namespace Platformer.Gameplay
 
 		public override void Execute()
 		{
+			EnemyController enemy = obj.GetComponent<EnemyController>();
+			if (enemy != null)
+			{
+				Camera.main.GetComponent<GameController>().OnEnemyDespawn(enemy);
+			}
 			Object.Destroy(obj);
 		}
 	}

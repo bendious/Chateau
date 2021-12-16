@@ -966,7 +966,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_roomPrefab: {fileID: 7422594126546487761}
   m_tablePrefab: {fileID: 5142660895504974057, guid: 717755c04a138404d80679d2c0d06ab5, type: 3}
-  m_enemyPrefab: {fileID: 1661912868639658944, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
   m_doorL: {fileID: 7910571754348373109}
   m_doorR: {fileID: 5416165761018516747}
   m_doorB: {fileID: 409852463158594107}

@@ -8,7 +8,6 @@ public class RoomController : MonoBehaviour
 {
 	public GameObject m_roomPrefab;
 	public GameObject m_tablePrefab;
-	public GameObject m_enemyPrefab;
 
 	public GameObject m_doorL;
 	public GameObject m_doorR;
@@ -70,20 +69,6 @@ public class RoomController : MonoBehaviour
 		if (newTable != null)
 		{
 			Destroy(newTable);
-		}
-
-		// spawn enemies
-		// TODO: more deliberate spawning
-		int enemyCount = UnityEngine.Random.Range(0, 5);
-		Transform avatar = Camera.main.GetComponent<GameController>().m_avatar.transform;
-		for (int i = 0; i < enemyCount; ++i)
-		{
-			const float offsetMagMax = 5.0f; // TODO: calculate from room size
-			CapsuleCollider2D enemyCollider = m_enemyPrefab.GetComponent<CapsuleCollider2D>();
-			Vector3 spawnCenterPos = transform.position + new Vector3(UnityEngine.Random.Range(-offsetMagMax, offsetMagMax), enemyCollider.size.y - enemyCollider.offset.y, 0.0f);
-			GameObject enemyObj = Instantiate(m_enemyPrefab, spawnCenterPos, Quaternion.identity);
-			EnemyController enemy = enemyObj.GetComponent<EnemyController>();
-			enemy.m_target = avatar;
 		}
 	}
 
