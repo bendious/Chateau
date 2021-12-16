@@ -1,5 +1,8 @@
 fileFormatVersion: 2
 guid: ef543e37377452d4d8a2467c198f80ed
+labels:
+- Prop
+- Weapon
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
