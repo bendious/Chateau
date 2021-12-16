@@ -7,7 +7,7 @@ using UnityEngine.Assertions;
 public class RoomController : MonoBehaviour
 {
 	public GameObject m_roomPrefab;
-	public GameObject m_itemPrefab;
+	public GameObject m_tablePrefab;
 	public GameObject m_enemyPrefab;
 
 	public GameObject m_doorL;
@@ -19,6 +19,9 @@ public class RoomController : MonoBehaviour
 
 	public float m_roomSpawnPct = 0.5f;
 	public int m_spawnDepthMax = 5;
+
+	public int m_tablesMin = 0;
+	public int m_tablesMax = 2;
 
 
 	private bool m_leftOpen = false;
@@ -42,15 +45,31 @@ public class RoomController : MonoBehaviour
 		MaybeReplaceDoor(ref m_bottomOpen, bounds, -offsetMagV, checkSize, m_doorB, roomController => roomController.m_topOpen = true);
 		MaybeReplaceDoor(ref m_topOpen, bounds, offsetMagV, checkSize, m_doorT, roomController => roomController.m_bottomOpen = true);
 
-		// spawn items
+		// spawn tables
 		// TODO: more deliberate spawning
-		int itemCount = UnityEngine.Random.Range(0, 5);
-		for (int i = 0; i < itemCount; ++i)
+		int tableCount = UnityEngine.Random.Range(m_tablesMin, m_tablesMax + 1);
+		float extentX = offsetMagH.x * 0.5f;
+		BoxCollider2D tableCollider = m_tablePrefab.GetComponent<BoxCollider2D>();
+		float tableExtentY = tableCollider.size.y * 0.5f + tableCollider.edgeRadius - tableCollider.offset.y;
+		GameObject newTable = null;
+		for (int i = 0; i < tableCount; ++i)
 		{
-			const float offsetMagMax = 5.0f; // TODO: calculate from room size
-			BoxCollider2D itemCollider = m_itemPrefab.GetComponent<BoxCollider2D>();
-			Vector3 spawnCenterPos = transform.position + new Vector3(UnityEngine.Random.Range(-offsetMagMax, offsetMagMax), + itemCollider.size.y * 0.5f + itemCollider.edgeRadius, 0.0f);
-			Instantiate(m_itemPrefab, spawnCenterPos, Quaternion.identity);
+			if (newTable == null)
+			{
+				newTable = Instantiate(m_tablePrefab); // NOTE that we have to spawn before placement due to size randomization in Awake()
+			}
+			Bounds newBounds = newTable.GetComponent<Collider2D>().bounds;
+			Vector3 spawnPos = transform.position + new Vector3(UnityEngine.Random.Range(-extentX + newBounds.extents.x, extentX - newBounds.extents.x), tableExtentY, 0.0f);
+			if (Physics2D.OverlapBox(spawnPos + newBounds.center + new Vector3(0.0f, 0.1f, 0.0f), newBounds.size, 0.0f) != null) // NOTE the small offset to avoid collecting the floor; also that this will collect our newly spawned table when at the origin, but that's okay since keeping the start point clear isn't objectionable
+			{
+				continue; // re-place and try again
+			}
+			newTable.transform.position = spawnPos;
+			newTable = null;
+		}
+		if (newTable != null)
+		{
+			Destroy(newTable);
 		}
 
 		// spawn enemies

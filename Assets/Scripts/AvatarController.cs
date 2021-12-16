@@ -181,6 +181,7 @@ namespace Platformer.Mechanics
 			base.OnDeath();
 			controlEnabled = false;
 			m_xInputForced = 0.0f;
+			m_focusIndicator.SetActive(false);
 			Schedule<AvatarSpawn>(2.0f).avatar = this;
 		}
 
