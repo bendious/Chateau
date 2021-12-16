@@ -7,10 +7,11 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-	public GameObject m_avatar;
+	public AvatarController m_avatar;
 
 	public GameObject m_roomPrefab;
 	public GameObject m_enemyPrefab;
+	public GameObject m_victoryZonePrefab;
 
 	public Text m_timerUI;
 
@@ -20,19 +21,33 @@ public class GameController : MonoBehaviour
 	public int m_waveEnemiesMax = 10;
 
 
-	private float m_nextWaveTime = -1.0f;
+	private GameObject m_victoryZone;
 
-	private List<EnemyController> m_enemies = new List<EnemyController>();
+	private float m_nextWaveTime = 0.0f;
+
+	private readonly List<EnemyController> m_enemies = new List<EnemyController>();
 
 
 	private void Start()
 	{
 		Instantiate(m_roomPrefab).GetComponent<RoomController>().m_roomPrefab = m_roomPrefab; // NOTE that since Unity's method of internal prefab references doesn't allow a script to reference the prefab that contains it, we have to manually update the child's reference here
+
+		m_victoryZone = Instantiate(m_victoryZonePrefab, Vector3.one, Quaternion.identity); // TODO: place in end room
+
+		if (Random.value > 0.5f)
+		{
+			m_nextWaveTime = Random.Range(m_waveSecondsMin, m_waveSecondsMax);
+		}
 	}
 
 	private void Update()
 	{
 		Simulation.Tick();
+
+		if (m_nextWaveTime < 0.0f)
+		{
+			return;
+		}
 
 		if (Time.time > m_nextWaveTime)
 		{
@@ -40,14 +55,30 @@ public class GameController : MonoBehaviour
 			m_nextWaveTime = Time.time + Random.Range(m_waveSecondsMin, m_waveSecondsMax);
 		}
 
+		// TODO: don't bash every frame?
 		m_timerUI.text = System.TimeSpan.FromSeconds(m_nextWaveTime - Time.time).ToString("m':'ss");
-		m_timerUI.color = m_enemies.Count == 0 ? Color.green : Color.red;
+		Color color = EnemiesRemain() ? Color.red : Color.green;
+		m_timerUI.color = color;
+		m_victoryZone.GetComponent<SpriteRenderer>().color = color;
 	}
 
+
+	public bool EnemiesRemain()
+	{
+		return m_enemies.Count > 0;
+	}
 
 	public void OnEnemyDespawn(EnemyController enemy)
 	{
 		m_enemies.Remove(enemy);
+	}
+
+	public void OnVictory()
+	{
+		m_avatar.OnVictory();
+		m_timerUI.text = "WIN!";
+		m_nextWaveTime = -1.0f;
+		// TODO: roll credits / etc.
 	}
 
 

@@ -231,6 +231,12 @@ namespace Platformer.Mechanics
 			Schedule<EnablePlayerInput>(2f).avatar = this;
 		}
 
+		public void OnVictory()
+		{
+			animator.SetTrigger("victory");
+			controlEnabled = false;
+		}
+
 
 		private void UpdateJumpState()
 		{

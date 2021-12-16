@@ -485,12 +485,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5cfd923f2d1be345bd6931a1535b111, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_avatar: {fileID: 1455061587}
+  m_avatar: {fileID: 1455061592}
   m_roomPrefab: {fileID: 7422594126546487761, guid: bc523bdaf3586ea4385e45a9a5838915, type: 3}
   m_enemyPrefab: {fileID: 1661912868639658944, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+  m_victoryZonePrefab: {fileID: 8396716149559462411, guid: 071e51a82246f374680ba2adce86a07b, type: 3}
   m_timerUI: {fileID: 474715063}
   m_waveSecondsMin: 30
   m_waveSecondsMax: 60
+  m_waveEnemiesMin: 0
+  m_waveEnemiesMax: 10
 --- !u!1 &666593248
 GameObject:
   m_ObjectHideFlags: 0
