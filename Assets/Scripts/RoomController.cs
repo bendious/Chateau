@@ -1,5 +1,5 @@
-using Platformer.Mechanics;
 using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -28,6 +28,13 @@ public class RoomController : MonoBehaviour
 	private bool m_bottomOpen = false;
 	private bool m_topOpen = false;
 
+	private /*readonly*/ RoomController m_leftChild;
+	private /*readonly*/ RoomController m_rightChild;
+	private /*readonly*/ RoomController m_bottomChild;
+	private /*readonly*/ RoomController m_topChild;
+
+	private bool m_childrenCreated = false;
+
 
 	private void Start()
 	{
@@ -39,10 +46,12 @@ public class RoomController : MonoBehaviour
 
 		// replace doors / spawn rooms
 		// TODO: randomize order to avoid directional bias?
-		MaybeReplaceDoor(ref m_leftOpen, bounds, -offsetMagH, checkSize, m_doorL, roomController => roomController.m_rightOpen = true);
-		MaybeReplaceDoor(ref m_rightOpen, bounds, offsetMagH, checkSize, m_doorR, roomController => roomController.m_leftOpen = true);
-		MaybeReplaceDoor(ref m_bottomOpen, bounds, -offsetMagV, checkSize, m_doorB, roomController => roomController.m_topOpen = true);
-		MaybeReplaceDoor(ref m_topOpen, bounds, offsetMagV, checkSize, m_doorT, roomController => roomController.m_bottomOpen = true);
+		m_leftChild = MaybeReplaceDoor(ref m_leftOpen, bounds, -offsetMagH, checkSize, m_doorL, child => child.m_rightOpen = true);
+		m_rightChild = MaybeReplaceDoor(ref m_rightOpen, bounds, offsetMagH, checkSize, m_doorR, child => child.m_leftOpen = true);
+		m_bottomChild = MaybeReplaceDoor(ref m_bottomOpen, bounds, -offsetMagV, checkSize, m_doorB, child => child.m_topOpen = true);
+		m_topChild = MaybeReplaceDoor(ref m_topOpen, bounds, offsetMagV, checkSize, m_doorT, child => child.m_bottomOpen = true);
+
+		m_childrenCreated = true;
 
 		// spawn tables
 		// TODO: more deliberate spawning
@@ -73,6 +82,35 @@ public class RoomController : MonoBehaviour
 	}
 
 
+	public bool AllChildrenReady()
+	{
+		if (!m_childrenCreated)
+		{
+			return false;
+		}
+		return (new RoomController[] { m_leftChild, m_rightChild, m_bottomChild, m_topChild }).All(child => child == null || child.AllChildrenReady());
+	}
+
+	public Tuple<RoomController, int> LeafRoomFarthest()
+	{
+		// enumerate non-null children
+		Assert.IsTrue(m_childrenCreated);
+		RoomController[] children = (new RoomController[] { m_leftChild, m_rightChild, m_bottomChild, m_topChild }).Where(child => child != null).ToArray();
+		if (children.Length == 0)
+		{
+			return Tuple.Create(this, 0);
+		}
+
+		// recursively find farthest distance
+		Tuple<RoomController, int>[] childTuples = children.Select(child => child.LeafRoomFarthest()).ToArray();
+		int maxDistance = childTuples.Max(a => a.Item2);
+
+		// pick random child at farthest distance
+		Tuple<RoomController, int>[] childTuplesMax = childTuples.Where(childTuple => childTuple.Item2 >= maxDistance).ToArray();
+		return Tuple.Create(childTuplesMax[UnityEngine.Random.Range(0, childTuplesMax.Length)].Item1, maxDistance + 1);
+	}
+
+
 	// see https://gamedev.stackexchange.com/questions/86863/calculating-the-bounding-box-of-a-game-object-based-on-its-children
 	private Bounds CalculateBounds()
 	{
@@ -89,7 +127,7 @@ public class RoomController : MonoBehaviour
 		return b;
 	}
 
-	private void MaybeReplaceDoor(ref bool isOpen, Bounds bounds, Vector3 replaceOffset, Vector3 checkSize, GameObject door, Action<RoomController> postReplace)
+	private RoomController MaybeReplaceDoor(ref bool isOpen, Bounds bounds, Vector3 replaceOffset, Vector3 checkSize, GameObject door, Action<RoomController> postReplace)
 	{
 		bool spawnedFromThisDirection = isOpen;
 		bool canSpawnRoom = !spawnedFromThisDirection && m_spawnDepthMax > 0 && Physics2D.OverlapBox(bounds.center + replaceOffset, checkSize, 0.0f) == null;
@@ -98,7 +136,7 @@ public class RoomController : MonoBehaviour
 
 		if (!isOpen)
 		{
-			return;
+			return null;
 		}
 
 		// enable one-way movement or destroy
@@ -122,12 +160,13 @@ public class RoomController : MonoBehaviour
 
 		if (!canSpawnRoom)
 		{
-			return;
+			return null;
 		}
 
 		RoomController newRoom = Instantiate(m_roomPrefab, transform.position + replaceOffset, Quaternion.identity).GetComponent<RoomController>();
 		newRoom.m_roomPrefab = m_roomPrefab; // NOTE that since Unity's method of internal prefab references doesn't allow a script to reference the prefab that contains it, we have to manually update the child's reference here
 		newRoom.m_spawnDepthMax = m_spawnDepthMax - 1;
 		postReplace(newRoom);
+		return newRoom;
 	}
 }

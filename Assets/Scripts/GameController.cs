@@ -21,6 +21,7 @@ public class GameController : MonoBehaviour
 	public int m_waveEnemiesMax = 10;
 
 
+	private RoomController m_startRoom;
 	private GameObject m_victoryZone;
 
 	private float m_nextWaveTime = 0.0f;
@@ -30,9 +31,8 @@ public class GameController : MonoBehaviour
 
 	private void Start()
 	{
-		Instantiate(m_roomPrefab).GetComponent<RoomController>().m_roomPrefab = m_roomPrefab; // NOTE that since Unity's method of internal prefab references doesn't allow a script to reference the prefab that contains it, we have to manually update the child's reference here
-
-		m_victoryZone = Instantiate(m_victoryZonePrefab, Vector3.one, Quaternion.identity); // TODO: place in end room
+		m_startRoom = Instantiate(m_roomPrefab).GetComponent<RoomController>();
+		m_startRoom.m_roomPrefab = m_roomPrefab; // NOTE that since Unity's method of internal prefab references doesn't allow a script to reference the prefab that contains it, we have to manually update the child's reference here
 
 		if (Random.value > 0.5f)
 		{
@@ -42,6 +42,12 @@ public class GameController : MonoBehaviour
 
 	private void Update()
 	{
+		if (m_victoryZone == null && m_startRoom.AllChildrenReady()) // TODO: move out of Update() but still guarantee Start() has been called on all rooms? coroutine?
+		{
+			RoomController endRoom = m_startRoom.LeafRoomFarthest().Item1;
+			m_victoryZone = Instantiate(m_victoryZonePrefab, endRoom.transform.position, Quaternion.identity);
+		}
+
 		Simulation.Tick();
 
 		if (m_nextWaveTime < 0.0f)
@@ -59,7 +65,10 @@ public class GameController : MonoBehaviour
 		m_timerUI.text = System.TimeSpan.FromSeconds(m_nextWaveTime - Time.time).ToString("m':'ss");
 		Color color = EnemiesRemain() ? Color.red : Color.green;
 		m_timerUI.color = color;
-		m_victoryZone.GetComponent<SpriteRenderer>().color = color;
+		if (m_victoryZone != null)
+		{
+			m_victoryZone.GetComponent<SpriteRenderer>().color = color;
+		}
 	}
 
 
