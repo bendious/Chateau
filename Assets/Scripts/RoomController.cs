@@ -154,8 +154,9 @@ public class RoomController : MonoBehaviour
 			// set layer for kinematic movement
 			door.layer = LayerMask.NameToLayer("OneWayPlatforms");
 
-			// change color for user visibility
+			// change color/shadows for user visibility
 			door.GetComponent<SpriteRenderer>().color = m_oneWayPlatformColor;
+			Destroy(door.GetComponent<UnityEngine.Rendering.Universal.ShadowCaster2D>());
 		}
 
 		if (!canSpawnRoom)
