@@ -233,6 +233,7 @@ namespace Platformer.Mechanics
 
 		public void OnVictory()
 		{
+			m_focusIndicator.SetActive(false);
 			animator.SetTrigger("victory");
 			controlEnabled = false;
 		}

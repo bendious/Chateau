@@ -1,5 +1,6 @@
 using Platformer.Core;
 using Platformer.Mechanics;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,42 +34,20 @@ public class GameController : MonoBehaviour
 	{
 		m_startRoom = Instantiate(m_roomPrefab).GetComponent<RoomController>();
 		m_startRoom.m_roomPrefab = m_roomPrefab; // NOTE that since Unity's method of internal prefab references doesn't allow a script to reference the prefab that contains it, we have to manually update the child's reference here
+		StartCoroutine(SpawnVictoryZoneWhenReady());
 
 		if (Random.value > 0.5f)
 		{
 			m_nextWaveTime = Random.Range(m_waveSecondsMin, m_waveSecondsMax);
 		}
+		StartCoroutine(SpawnWavesCoroutine());
+
+		StartCoroutine(TimerCoroutine());
 	}
 
 	private void Update()
 	{
-		if (m_victoryZone == null && m_startRoom.AllChildrenReady()) // TODO: move out of Update() but still guarantee Start() has been called on all rooms? coroutine?
-		{
-			RoomController endRoom = m_startRoom.LeafRoomFarthest().Item1;
-			m_victoryZone = Instantiate(m_victoryZonePrefab, endRoom.transform.position, Quaternion.identity);
-		}
-
 		Simulation.Tick();
-
-		if (m_nextWaveTime < 0.0f)
-		{
-			return;
-		}
-
-		if (Time.time > m_nextWaveTime)
-		{
-			SpawnEnemyWave();
-			m_nextWaveTime = Time.time + Random.Range(m_waveSecondsMin, m_waveSecondsMax);
-		}
-
-		// TODO: don't bash every frame?
-		m_timerUI.text = System.TimeSpan.FromSeconds(m_nextWaveTime - Time.time).ToString("m':'ss");
-		Color color = EnemiesRemain() ? Color.red : Color.green;
-		m_timerUI.color = color;
-		if (m_victoryZone != null)
-		{
-			m_victoryZone.GetComponent<SpriteRenderer>().color = color;
-		}
 	}
 
 
@@ -87,9 +66,27 @@ public class GameController : MonoBehaviour
 		m_avatar.OnVictory();
 		m_timerUI.text = "WIN!";
 		m_nextWaveTime = -1.0f;
+		StopAllCoroutines();
 		// TODO: roll credits / etc.
 	}
 
+
+	private IEnumerator SpawnVictoryZoneWhenReady()
+	{
+		yield return new WaitUntil(() => m_startRoom.AllChildrenReady());
+		RoomController endRoom = m_startRoom.LeafRoomFarthest().Item1;
+		m_victoryZone = Instantiate(m_victoryZonePrefab, endRoom.transform.position, Quaternion.identity);
+	}
+
+	private IEnumerator SpawnWavesCoroutine()
+	{
+		while (m_nextWaveTime >= 0.0f)
+		{
+			yield return new WaitForSeconds(m_nextWaveTime - Time.time);
+			SpawnEnemyWave();
+			m_nextWaveTime = Time.time + Random.Range(m_waveSecondsMin, m_waveSecondsMax);
+		}
+	}
 
 	private void SpawnEnemyWave()
 	{
@@ -106,6 +103,21 @@ public class GameController : MonoBehaviour
 			EnemyController enemy = Instantiate(m_enemyPrefab, spawnCenterPos, Quaternion.identity).GetComponent<EnemyController>();
 			enemy.m_target = avatarTf;
 			m_enemies.Add(enemy);
+		}
+	}
+
+	private IEnumerator TimerCoroutine()
+	{
+		while (m_nextWaveTime >= 0.0f)
+		{
+			yield return new WaitForSeconds(1.0f); // NOTE that we currently don't care whether the UI timer is precise within partial seconds
+			m_timerUI.text = System.TimeSpan.FromSeconds(m_nextWaveTime - Time.time).ToString("m':'ss");
+			Color color = EnemiesRemain() ? Color.red : Color.green;
+			m_timerUI.color = color;
+			if (m_victoryZone != null)
+			{
+				m_victoryZone.GetComponent<SpriteRenderer>().color = color;
+			}
 		}
 	}
 }
