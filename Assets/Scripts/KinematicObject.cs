@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 
@@ -60,6 +61,8 @@ namespace Platformer.Mechanics
 
 		private /*readonly*/ int m_platformLayer;
 		private const float m_platformTopEpsilon = 0.1f;
+
+		private const float m_nearGroundDistance = 1.0f;
 
 
 		/// <summary>
@@ -139,11 +142,12 @@ namespace Platformer.Mechanics
 			bool shouldIgnoreOneWays = velocity.y >= 0 || /*(GetComponent<AnimationController>() != null && GetComponent<AnimationController>().move.y < 0.0f) ||*/ (GetComponent<AvatarController>() != null && Input.GetAxis("Vertical") < 0.0f); // TODO: way for AI to drop through platforms
 			contactFilter.SetLayerMask(shouldIgnoreOneWays ? Physics2D.GetLayerCollisionMask(gameObject.layer) & ~(1 << m_platformLayer) : Physics2D.GetLayerCollisionMask(gameObject.layer));
 
-			PerformMovement(move, false);
+			Lazy<bool> isNearGround = new Lazy<bool>(() => Physics2D.Raycast(GetComponent<Collider2D>().bounds.min, Vector2.down, m_nearGroundDistance).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground?
+			PerformMovement(move, false, ref isNearGround);
 
 			move = Vector2.up * deltaPosition.y;
 
-			PerformMovement(move, true);
+			PerformMovement(move, true, ref isNearGround);
 		}
 
 		public bool ShouldIgnore(Rigidbody2D body, Collider2D collider, bool ignoreStatics, bool ignoreDynamics)
@@ -177,7 +181,7 @@ namespace Platformer.Mechanics
 		}
 
 
-		void PerformMovement(Vector2 move, bool yMovement)
+		void PerformMovement(Vector2 move, bool yMovement, ref Lazy<bool> isNearGround)
 		{
 			float distance = move.magnitude;
 
@@ -211,7 +215,7 @@ namespace Platformer.Mechanics
 							currentNormal.x = 0;
 						}
 					}
-					if (!IsGrounded && currentNormal.y >= m_minWallClingNormalY)
+					if (!IsGrounded && currentNormal.y >= m_minWallClingNormalY && !isNearGround.Value)
 					{
 						IsWallClinging = true;
 						m_wallNormal = currentNormal;
@@ -226,7 +230,7 @@ namespace Platformer.Mechanics
 							velocity -= projection * currentNormal;
 						}
 					}
-					else
+					else if (!isNearGround.Value)
 					{
 						//We are airborne, but hit something, so cancel vertical up and horizontal velocity.
 						velocity.x *= 0;
