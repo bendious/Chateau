@@ -111,7 +111,7 @@ public class ItemController : MonoBehaviour
 
 		// if hitting a valid point fast enough, apply damage
 		float collisionSpeed = kinematicObj == null ? collision.relativeVelocity.magnitude : (body.velocity - kinematicObj.velocity).magnitude + Mathf.Abs(m_aimVelocity) + m_aimRadiusVelocity; // TODO: incorporate aim velocity direction?
-		bool canDamage = avatarController == null ? true : false; // TODO: base on what object threw us
+		bool canDamage = avatarController == null; // TODO: base on what object threw us
 		if (canDamage && collisionSpeed > m_damageThresholdSpeed)
 		{
 			Health otherHealth = collision.gameObject.GetComponent<Health>();

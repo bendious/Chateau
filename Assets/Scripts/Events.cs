@@ -33,6 +33,19 @@ namespace Platformer.Gameplay
 	}
 
 	/// <summary>
+	/// This event is fired when damage to an object should be re-enabled.
+	/// </summary>
+	public class EnableDamage : Event<EnableDamage>
+	{
+		public Health m_health;
+
+		public override void Execute()
+		{
+			m_health.EnableDamage();
+		}
+	}
+
+	/// <summary>
 	/// Fired when health reaches 0. This usually would result in a Death event.
 	/// </summary>
 	/// <typeparam name="HealthIsZero"></typeparam>

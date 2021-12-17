@@ -26,6 +26,9 @@ namespace Platformer.Mechanics
 
 		int currentHP;
 
+		private bool m_invincible;
+		private const float m_invincibilityTime = 0.5f; // TODO: vary by character type / animation played?
+
 
 		/// <summary>
 		/// Increment the HP of the entity.
@@ -40,8 +43,13 @@ namespace Platformer.Mechanics
 		/// Decrement the HP of the entity. Will trigger a HealthIsZero event when
 		/// current HP reaches 0.
 		/// </summary>
-		public void Decrement()
+		public bool Decrement()
 		{
+			if (m_invincible)
+			{
+				return false;
+			}
+
 			IncrementInternal(-1);
 			Animator animator = GetComponent<Animator>();
 			if (animator != null)
@@ -50,10 +58,21 @@ namespace Platformer.Mechanics
 			}
 			if (currentHP == 0)
 			{
-				HealthIsZero ev = Schedule<HealthIsZero>();
-				ev.health = this;
+				Schedule<HealthIsZero>().health = this;
+			}
+			else
+			{
+				m_invincible = true;
+				Schedule<EnableDamage>(m_invincibilityTime).m_health = this;
 			}
 			SyncUI();
+
+			return true;
+		}
+
+		public void EnableDamage()
+		{
+			m_invincible = false;
 		}
 
 		/// <summary>
