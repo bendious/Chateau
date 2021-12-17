@@ -30,12 +30,12 @@ public class TableController : MonoBehaviour
 		// TODO: more deliberate spawning
 		int itemCount = Random.Range(m_itemsMin, m_itemsMax + 1);
 		Vector3 size = GetComponent<Collider2D>().bounds.size;
-		float width = size.x;
+		float extentX = size.x * 0.5f;
 		BoxCollider2D itemCollider = m_itemPrefab.GetComponent<BoxCollider2D>();
 		float offsetY = size.y + itemCollider.size.y * 0.5f + itemCollider.edgeRadius;
 		for (int i = 0; i < itemCount; ++i)
 		{
-			Vector3 spawnCenterPos = transform.position + new Vector3(Random.Range(-width, width), offsetY, 0.0f);
+			Vector3 spawnCenterPos = transform.position + new Vector3(Random.Range(-extentX, extentX), offsetY, 0.0f);
 			Instantiate(m_itemPrefab, spawnCenterPos, Quaternion.identity);
 		}
 	}
