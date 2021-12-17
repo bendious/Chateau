@@ -170,6 +170,7 @@ TextureImporter:
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -1266,6 +1267,55 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      EnemyIdle_5: 4083628424625405360
+      EnemyIdle_10: -1911661629280461423
+      EnemyIdle_42: 5541135898002719470
+      EnemyIdle_3: -4137714196570529883
+      EnemyIdle_7: 5397975490625903457
+      EnemyIdle_44: 8003988807459990185
+      EnemyIdle_24: 5674232886818905516
+      EnemyIdle_30: 8966948659316001411
+      EnemyIdle_15: -2227811224880392320
+      EnemyIdle_40: -2120571105170325146
+      EnemyIdle_1: -8626430948324366259
+      EnemyIdle_36: -8648508642028357287
+      EnemyIdle_26: -7522605916704644062
+      EnemyIdle_13: 7923652759977848444
+      EnemyIdle_38: -7954368255334752861
+      EnemyIdle_17: -781749100953568232
+      EnemyIdle_20: 8364947481816118182
+      EnemyIdle_9: 8046221937238875741
+      EnemyIdle_22: 662232649014303170
+      EnemyIdle_46: -3678711361014398480
+      EnemyIdle_25: -7491215280504266555
+      EnemyIdle_28: 849165507010968834
+      EnemyIdle_8: -2292051563450731795
+      EnemyIdle_18: -3561567941321891658
+      EnemyIdle_27: -5023540826923673731
+      EnemyIdle_35: 8247848304654393482
+      EnemyIdle_2: -6599519009133296541
+      EnemyIdle_32: -3101495029596761616
+      EnemyIdle_47: -1189272267582357026
+      EnemyIdle_4: 1558792902711424901
+      EnemyIdle_0: 4250926123117471553
+      EnemyIdle_39: 5536231140731700174
+      EnemyIdle_12: -8367205577823325385
+      EnemyIdle_43: 3510839507952243081
+      EnemyIdle_6: -800174519175370468
+      EnemyIdle_23: -3124154863182941861
+      EnemyIdle_33: 8822648940508315731
+      EnemyIdle_31: -1184023329454687247
+      EnemyIdle_34: 3353963689198264338
+      EnemyIdle_14: -8811486713536899203
+      EnemyIdle_29: 8406071627315556976
+      EnemyIdle_21: -4689384519538984025
+      EnemyIdle_45: 4479256130746501506
+      EnemyIdle_16: -7431990202634592073
+      EnemyIdle_41: 3897173392494542476
+      EnemyIdle_37: -2681484474142548522
+      EnemyIdle_11: -3694711524240207550
+      EnemyIdle_19: 1103029824894431229
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
