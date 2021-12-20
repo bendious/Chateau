@@ -198,7 +198,7 @@ namespace Platformer.Mechanics
 			controlEnabled = false;
 			m_xInputForced = 0.0f;
 			m_focusIndicator.SetActive(false);
-			Schedule<AvatarSpawn>(2.0f).avatar = this;
+			Schedule<GameOver>(3.0f);
 		}
 
 		private static readonly Vector2 m_collisionBounceVec = new Vector2(1.0f, 2.5f);

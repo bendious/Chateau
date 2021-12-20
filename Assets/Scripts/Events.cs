@@ -46,38 +46,6 @@ namespace Platformer.Gameplay
 	}
 
 	/// <summary>
-	/// Fired when health reaches 0. This usually would result in a Death event.
-	/// </summary>
-	/// <typeparam name="HealthIsZero"></typeparam>
-	public class HealthIsZero : Event<HealthIsZero>
-	{
-		public Health health;
-
-		public override void Execute()
-		{
-			Schedule<Death>().health = health;
-		}
-	}
-
-	/// <summary>
-	/// Fired when a character has died.
-	/// </summary>
-	/// <typeparam name="Death"></typeparam>
-	public class Death : Event<Death>
-	{
-		public Health health;
-
-		public override void Execute()
-		{
-			AnimationController character = health.GetComponent<AnimationController>();
-			if (character != null)
-			{
-				character.OnDeath();
-			}
-		}
-	}
-
-	/// <summary>
 	/// Fired when an object despawns, usually after dying.
 	/// </summary>
 	/// <typeparam name="Despawn"></typeparam>
@@ -97,31 +65,13 @@ namespace Platformer.Gameplay
 	}
 
 	/// <summary>
-	/// Fired when the avatar is spawned after dying.
+	/// Fired after the avatar dies.
 	/// </summary>
-	public class AvatarSpawn : Event<AvatarSpawn>
+	public class GameOver : Event<GameOver>
 	{
-		public AvatarController avatar;
-
 		public override void Execute()
 		{
-			avatar.OnSpawn();
-		}
-	}
-
-	/// <summary>
-	/// Fired when an Avatar collides with an Enemy.
-	/// </summary>
-	/// <typeparam name="EnemyCollision"></typeparam>
-	public class AvatarEnemyCollision : Event<AvatarEnemyCollision>
-	{
-		public EnemyController enemy;
-		public AvatarController avatar;
-
-
-		public override void Execute()
-		{
-			avatar.OnCollision(enemy);
+			Camera.main.GetComponent<GameController>().OnGameOver();
 		}
 	}
 }

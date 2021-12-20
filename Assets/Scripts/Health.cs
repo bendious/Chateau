@@ -58,7 +58,11 @@ namespace Platformer.Mechanics
 			}
 			if (currentHP == 0)
 			{
-				Schedule<HealthIsZero>().health = this;
+				AnimationController character = GetComponent<AnimationController>();
+				if (character != null)
+				{
+					character.OnDeath();
+				}
 			}
 			else
 			{

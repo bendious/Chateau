@@ -1,9 +1,9 @@
 using Platformer.Core;
+using Platformer.Gameplay;
 using Platformer.Mechanics;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 
 public class GameController : MonoBehaviour
@@ -16,6 +16,7 @@ public class GameController : MonoBehaviour
 
 	public TMPro.TMP_Text m_timerUI;
 	public Canvas m_pauseUI;
+	public Canvas m_gameOverUI;
 
 	public float m_waveSecondsMin = 30.0f;
 	public float m_waveSecondsMax = 60.0f;
@@ -50,7 +51,7 @@ public class GameController : MonoBehaviour
 	{
 		Simulation.Tick();
 
-		if (Input.GetKeyDown(KeyCode.Escape))
+		if (!m_gameOverUI.gameObject.activeSelf && Input.GetKeyDown(KeyCode.Escape))
 		{
 			TogglePause();
 		}
@@ -72,6 +73,19 @@ public class GameController : MonoBehaviour
 	public void OnEnemyDespawn(EnemyController enemy)
 	{
 		m_enemies.Remove(enemy);
+	}
+
+	public void OnGameOver()
+	{
+		m_gameOverUI.gameObject.SetActive(true);
+	}
+
+	public void Retry()
+	{
+		// TODO: re-generate?
+
+		m_avatar.OnSpawn();
+		m_gameOverUI.gameObject.SetActive(false);
 	}
 
 	public void OnVictory()

@@ -19,9 +19,7 @@ namespace Platformer.Mechanics
 			var avatar = collision.gameObject.GetComponent<AvatarController>();
 			if (avatar != null)
 			{
-				var evt = Schedule<AvatarEnemyCollision>();
-				evt.avatar = avatar;
-				evt.enemy = this;
+				avatar.OnCollision(this);
 			}
 		}
 
