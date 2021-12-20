@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Platformer.Core;
+using Platformer.Gameplay;
+using System;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -242,6 +244,20 @@ namespace Platformer.Mechanics
 				}
 			}
 			body.position += move.normalized * distance;
+
+			// detect out-of-bounds experiences
+			if (body.position.y < -1000.0f) // TODO: automatically determine suitable lower bound?
+			{
+				AvatarController avatar = GetComponent<AvatarController>();
+				if (avatar != null)
+				{
+					avatar.OnDeath();
+				}
+				else
+				{
+					Simulation.Schedule<Despawn>().obj = gameObject;
+				}
+			}
 		}
 	}
 }

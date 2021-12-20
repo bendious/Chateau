@@ -79,31 +79,12 @@ namespace Platformer.Mechanics
 				// blend x-input back from forced if necessary
 				m_xInputForced = Mathf.SmoothDamp(m_xInputForced, 0.0f, ref m_xInputForcedVel, m_xInputForcedSmoothTime);
 
-				// aim camera
-				Vector3 mousePosWS = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-				m_aimObject.transform.position = transform.position + (mousePosWS - transform.position).normalized * m_aimRadius;
-
-				// aim items
-				float holdRadius = GetComponent<CircleCollider2D>().radius;
+				// swing
 				if (transform.childCount > 0)
 				{
-					// manipulate first held item
-					ItemController[] items = GetComponentsInChildren<ItemController>();
-					ItemController item = items.First();
-
-					// swing
 					if (Input.GetButtonDown("Fire1"))
 					{
-						item.Swing();
-					}
-
-					// aim
-					item.UpdateAim(mousePosWS, holdRadius);
-					Vector3 secondaryAimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, LeftFacing ? 180.0f - m_secondaryDegrees : m_secondaryDegrees) * Vector3.right;
-					float secondaryRadius = m_secondaryRadiusPct * holdRadius;
-					for (int i = 1; i < items.Length; ++i)
-					{
-						items[i].UpdateAim(secondaryAimPos, secondaryRadius);
+						GetComponentInChildren<ItemController>().Swing();
 					}
 
 					// throw
@@ -114,14 +95,14 @@ namespace Platformer.Mechanics
 					else if (Input.GetButtonUp("Fire2"))
 					{
 						// release
-						item.Throw();
+						GetComponentInChildren<ItemController>().Throw();
 					}
 				}
-				m_aimDir = mousePosWS.x > transform.position.x ? 1 : -1;
 
 				// determine current focus object
 				// TODO: more nuanced prioritization?
 				m_focusObj = null;
+				float holdRadius = GetComponent<CircleCollider2D>().radius;
 				Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + Vector2.right * (LeftFacing ? -1.0f : 1.0f) * holdRadius, holdRadius * 1.5f); // TODO: restrict to certain layers?
 				float distSqFocus = float.MaxValue;
 				foreach (Collider2D candidate in focusCandidates)
@@ -180,6 +161,34 @@ namespace Platformer.Mechanics
 			UpdateJumpState();
 			base.Update();
 		}
+
+		protected override void FixedUpdate()
+		{
+			// aim camera/sprite
+			Vector3 mousePosWS = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			m_aimObject.transform.position = transform.position + (mousePosWS - transform.position).normalized * m_aimRadius;
+			m_aimDir = mousePosWS.x > transform.position.x ? 1 : -1;
+
+			// aim items
+			if (transform.childCount > 0)
+			{
+				// primary aim
+				float holdRadius = GetComponent<CircleCollider2D>().radius;
+				ItemController[] items = GetComponentsInChildren<ItemController>();
+				items.First().UpdateAim(mousePosWS, holdRadius);
+
+				// secondary hold
+				Vector3 secondaryAimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, LeftFacing ? 180.0f - m_secondaryDegrees : m_secondaryDegrees) * Vector3.right;
+				float secondaryRadius = m_secondaryRadiusPct * holdRadius;
+				for (int i = 1; i < items.Length; ++i)
+				{
+					items[i].UpdateAim(secondaryAimPos, secondaryRadius);
+				}
+			}
+
+			base.FixedUpdate();
+		}
+
 
 		/// <summary>
 		/// Bounce the objects velocity in a direction.
