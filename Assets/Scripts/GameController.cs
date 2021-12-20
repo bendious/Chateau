@@ -14,7 +14,8 @@ public class GameController : MonoBehaviour
 	public GameObject m_enemyPrefab;
 	public GameObject m_victoryZonePrefab;
 
-	public Text m_timerUI;
+	public TMPro.TMP_Text m_timerUI;
+	public Canvas m_pauseUI;
 
 	public float m_waveSecondsMin = 30.0f;
 	public float m_waveSecondsMax = 60.0f;
@@ -48,8 +49,20 @@ public class GameController : MonoBehaviour
 	private void Update()
 	{
 		Simulation.Tick();
+
+		if (Input.GetKeyDown(KeyCode.Escape))
+		{
+			TogglePause();
+		}
 	}
 
+
+	public void TogglePause()
+	{
+		Time.timeScale = Time.timeScale == 0.0f ? 1.0f : 0.0f;
+		m_pauseUI.gameObject.SetActive(!m_pauseUI.gameObject.activeSelf);
+		// NOTE that if the avatar is ever visible while paused, we should disable its script here to avoid continuing to update facing
+	}
 
 	public bool EnemiesRemain()
 	{
@@ -68,6 +81,16 @@ public class GameController : MonoBehaviour
 		m_nextWaveTime = -1.0f;
 		StopAllCoroutines();
 		// TODO: roll credits / etc.
+	}
+
+	public void Quit()
+	{
+		// TODO: save?
+
+#if UNITY_EDITOR
+		UnityEditor.EditorApplication.isPlaying = false;
+#endif
+		Application.Quit();
 	}
 
 
