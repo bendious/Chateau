@@ -17,6 +17,8 @@ namespace Platformer.Mechanics
 		public int maxHP = 1;
 
 		public GameObject m_healthUIParent;
+		public Sprite m_healthSprite;
+		public Sprite m_healthMissingSprite;
 		public float m_UIPadding = 5.0f;
 
 		/// <summary>
@@ -117,16 +119,12 @@ namespace Platformer.Mechanics
 				return;
 			}
 
-			// check current values
+			// get current UI count
 			int uiHealthCount = m_healthUIParent.transform.childCount - 1; // NOTE that we assume that the first child is a deactivated template object
 			Assert.IsTrue(uiHealthCount >= 0);
-			if (uiHealthCount == currentHP)
-			{
-				return;
-			}
 
 			// remove excess
-			for (; uiHealthCount > currentHP; --uiHealthCount)
+			for (; uiHealthCount > maxHP; --uiHealthCount)
 			{
 				Destroy(m_healthUIParent.transform.GetChild(uiHealthCount).gameObject);
 			}
@@ -136,11 +134,17 @@ namespace Platformer.Mechanics
 			float templateWidth = templateObj.GetComponent<RectTransform>().sizeDelta.x;
 			float xItr = (templateWidth + m_UIPadding) * uiHealthCount;
 			Assert.IsFalse(templateObj.activeSelf);
-			for (; uiHealthCount < currentHP; ++uiHealthCount, xItr += templateWidth + m_UIPadding)
+			for (; uiHealthCount < maxHP; ++uiHealthCount, xItr += templateWidth + m_UIPadding)
 			{
 				GameObject uiNew = Instantiate(templateObj, m_healthUIParent.transform);
 				uiNew.transform.position += new Vector3(xItr, 0.0f, 0.0f);
 				uiNew.SetActive(true);
+			}
+
+			// set sprites
+			for (int i = 1; i <= maxHP; ++i)
+			{
+				m_healthUIParent.transform.GetChild(i).GetComponent<UnityEngine.UI.Image>().sprite = i <= currentHP ? m_healthSprite : m_healthMissingSprite;
 			}
 
 			// TODO: adjust size of parent if its width is ever visible/used

@@ -164,25 +164,28 @@ namespace Platformer.Mechanics
 
 		protected override void FixedUpdate()
 		{
-			// aim camera/sprite
-			Vector3 mousePosWS = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			m_aimObject.transform.position = transform.position + (mousePosWS - transform.position).normalized * m_aimRadius;
-			m_aimDir = mousePosWS.x > transform.position.x ? 1 : -1;
-
-			// aim items
-			if (transform.childCount > 0)
+			if (controlEnabled)
 			{
-				// primary aim
-				float holdRadius = GetComponent<CircleCollider2D>().radius;
-				ItemController[] items = GetComponentsInChildren<ItemController>();
-				items.First().UpdateAim(mousePosWS, holdRadius);
+				// aim camera/sprite
+				Vector3 mousePosWS = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+				m_aimObject.transform.position = transform.position + (mousePosWS - transform.position).normalized * m_aimRadius;
+				m_aimDir = mousePosWS.x > transform.position.x ? 1 : -1;
 
-				// secondary hold
-				Vector3 secondaryAimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, LeftFacing ? 180.0f - m_secondaryDegrees : m_secondaryDegrees) * Vector3.right;
-				float secondaryRadius = m_secondaryRadiusPct * holdRadius;
-				for (int i = 1; i < items.Length; ++i)
+				// aim items
+				if (transform.childCount > 0)
 				{
-					items[i].UpdateAim(secondaryAimPos, secondaryRadius);
+					// primary aim
+					float holdRadius = GetComponent<CircleCollider2D>().radius;
+					ItemController[] items = GetComponentsInChildren<ItemController>();
+					items.First().UpdateAim(mousePosWS, holdRadius);
+
+					// secondary hold
+					Vector3 secondaryAimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, LeftFacing ? 180.0f - m_secondaryDegrees : m_secondaryDegrees) * Vector3.right;
+					float secondaryRadius = m_secondaryRadiusPct * holdRadius;
+					for (int i = 1; i < items.Length; ++i)
+					{
+						items[i].UpdateAim(secondaryAimPos, secondaryRadius);
+					}
 				}
 			}
 
@@ -213,9 +216,9 @@ namespace Platformer.Mechanics
 		private static readonly Vector2 m_collisionBounceVec = new Vector2(1.0f, 2.5f);
 		public void OnCollision(EnemyController enemy)
 		{
-			health.Decrement();
 			Vector2 bounceVecOriented = transform.position.x - enemy.transform.position.x < 0.0f ? new Vector2(-m_collisionBounceVec.x, m_collisionBounceVec.y) : m_collisionBounceVec;
 			Bounce(bounceVecOriented);
+			health.Decrement(); // NOTE that this is AFTER bouncing velocity so that OnDeath()'s reset of m_xInputForced isn't overwritten
 		}
 
 		public void OnSpawn()
