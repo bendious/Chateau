@@ -18,6 +18,7 @@ public class ItemController : MonoBehaviour
 	public float m_damageThresholdSpeed = 2.0f;
 	public float m_throwSpeed = 100.0f;
 
+	public AudioClip[] m_swingThrowAudio;
 	public AudioClip[] m_collisionAudio;
 
 
@@ -65,6 +66,12 @@ public class ItemController : MonoBehaviour
 		m_aimVelocity += m_swingDirection ? m_swingDegreesPerSec : -m_swingDegreesPerSec;
 		m_aimRadiusVelocity += m_swingRadiusPerSec;
 		m_swingDirection = !m_swingDirection;
+
+		// play audio
+		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
+		{
+			GetComponent<AudioSource>().PlayOneShot(m_swingThrowAudio[Random.Range(0, m_swingThrowAudio.Length)]);
+		}
 	}
 
 	public void UpdateAim(Vector3 position, float radius)
@@ -90,6 +97,12 @@ public class ItemController : MonoBehaviour
 
 		Detach();
 		GetComponent<Rigidbody2D>().AddForce(Quaternion.Euler(0.0f, 0.0f, m_aimDegrees) * Vector2.right * m_throwSpeed);
+
+		// play audio
+		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
+		{
+			GetComponent<AudioSource>().PlayOneShot(m_swingThrowAudio[Random.Range(0, m_swingThrowAudio.Length)]);
+		}
 	}
 
 
