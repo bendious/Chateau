@@ -18,6 +18,8 @@ public class GameController : MonoBehaviour
 	public Canvas m_pauseUI;
 	public Canvas m_gameOverUI;
 
+	public AudioClip m_victoryAudio;
+
 	public float m_waveSecondsMin = 30.0f;
 	public float m_waveSecondsMax = 60.0f;
 	public int m_waveEnemiesMin = 0;
@@ -94,6 +96,7 @@ public class GameController : MonoBehaviour
 		m_timerUI.text = "WIN!";
 		m_nextWaveTime = -1.0f;
 		StopAllCoroutines();
+		m_avatar.GetComponent<AudioSource>().PlayOneShot(m_victoryAudio);
 		// TODO: roll credits / etc.
 	}
 

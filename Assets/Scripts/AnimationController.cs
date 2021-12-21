@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 
 
 namespace Platformer.Mechanics
@@ -36,6 +37,7 @@ namespace Platformer.Mechanics
 		public float jumpDeceleration = 0.5f;
 
 		public AudioClip ouchAudio;
+		public AudioClip m_deathAudio;
 
 
 		/// <summary>
@@ -117,6 +119,14 @@ namespace Platformer.Mechanics
 		}
 
 
+		public virtual void OnDamage()
+		{
+			if (audioSource && ouchAudio)
+			{
+				audioSource.PlayOneShot(ouchAudio);
+			}
+		}
+
 		public virtual void OnDeath()
 		{
 			// detach all items
@@ -125,9 +135,9 @@ namespace Platformer.Mechanics
 				item.Detach();
 			}
 
-			if (audioSource && ouchAudio)
+			if (audioSource && m_deathAudio)
 			{
-				audioSource.PlayOneShot(ouchAudio);
+				audioSource.PlayOneShot(m_deathAudio);
 			}
 
 			animator.SetTrigger("hurt");
@@ -136,6 +146,17 @@ namespace Platformer.Mechanics
 
 			collider2d.enabled = false;
 			body.simulated = false;
+		}
+
+
+		private void ProcessAnimEvent(AnimationEvent evt)
+		{
+			Assert.IsNotNull(evt.objectReferenceParameter);
+			Assert.IsTrue(evt.objectReferenceParameter.GetType() == typeof(AudioClip));
+			if (audioSource)
+			{
+				audioSource.PlayOneShot((AudioClip)evt.objectReferenceParameter);
+			}
 		}
 	}
 }

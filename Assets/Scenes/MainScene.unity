@@ -402,6 +402,7 @@ MonoBehaviour:
   m_timerUI: {fileID: 890711136}
   m_pauseUI: {fileID: 2025162744}
   m_gameOverUI: {fileID: 690702301}
+  m_victoryAudio: {fileID: 8300000, guid: 5833894e2899f1840ac04193ca462e39, type: 3}
   m_waveSecondsMin: 30
   m_waveSecondsMax: 60
   m_waveEnemiesMin: 0
@@ -1982,9 +1983,10 @@ MonoBehaviour:
   jumpModifier: 1.5
   m_wallJumpXYRatio: 1
   jumpDeceleration: 0.5
-  ouchAudio: {fileID: 0}
-  jumpAudio: {fileID: 0}
-  respawnAudio: {fileID: 0}
+  ouchAudio: {fileID: 8300000, guid: 6c05149e5a2fba64ba172e25a61074b7, type: 3}
+  m_deathAudio: {fileID: 8300000, guid: e18959d46b63f3c4c8cc020a433cf848, type: 3}
+  jumpAudio: {fileID: 8300000, guid: 67975c08d56ceb147bad38572d805aa8, type: 3}
+  respawnAudio: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
   m_focusIndicator: {fileID: 844943370}
   m_aimObject: {fileID: 871473911}
   m_aimRadius: 5
@@ -2041,8 +2043,8 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 1
+  m_PlayOnAwake: 0
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -3009,7 +3011,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.0894886, y: 1}
+    m_SensorSize: {x: 1.0941513, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0

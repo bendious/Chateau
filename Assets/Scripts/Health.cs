@@ -58,10 +58,11 @@ namespace Platformer.Mechanics
 			{
 				animator.SetTrigger("hurt");
 			}
-			if (currentHP == 0)
+			AnimationController character = GetComponent<AnimationController>();
+			if (character != null)
 			{
-				AnimationController character = GetComponent<AnimationController>();
-				if (character != null)
+				character.OnDamage();
+				if (currentHP == 0)
 				{
 					character.OnDeath();
 				}

@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 
-[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Rigidbody2D), typeof(AudioSource))]
 public class ItemController : MonoBehaviour
 {
 	public float m_swingDegreesPerSec = 5000.0f;
@@ -17,6 +17,8 @@ public class ItemController : MonoBehaviour
 	public float m_radiusSpringDampPct = 0.5f;
 	public float m_damageThresholdSpeed = 2.0f;
 	public float m_throwSpeed = 100.0f;
+
+	public AudioClip[] m_collisionAudio;
 
 
 	public bool LeftFacing => Mathf.Cos(Mathf.Deg2Rad * m_aimDegrees) < 0.0f; // TODO: efficiency?
@@ -109,20 +111,31 @@ public class ItemController : MonoBehaviour
 			return;
 		}
 
-		// if hitting a valid point fast enough, apply damage
+		// check speed
 		float collisionSpeed = kinematicObj == null ? collision.relativeVelocity.magnitude : (body.velocity - kinematicObj.velocity).magnitude + Mathf.Abs(m_aimVelocity) + m_aimRadiusVelocity; // TODO: incorporate aim velocity direction?
-		bool canDamage = avatarController == null; // TODO: base on what object threw us
-		if (canDamage && collisionSpeed > m_damageThresholdSpeed)
+		if (collisionSpeed > m_damageThresholdSpeed)
 		{
-			Health otherHealth = collision.gameObject.GetComponent<Health>();
-			if (otherHealth != null)
+			// play audio
+			if (m_collisionAudio != null && m_collisionAudio.Length > 0)
 			{
-				otherHealth.Decrement();
+				AudioSource source = GetComponent<AudioSource>();
+				source.PlayOneShot(m_collisionAudio[Random.Range(0, m_collisionAudio.Length)]);
 			}
-			Health health = GetComponent<Health>();
-			if (health != null)
+
+			// if hitting a valid point, apply damage
+			bool canDamage = avatarController == null; // TODO: base on what object threw us
+			if (canDamage)
 			{
-				health.Decrement();
+				Health otherHealth = collision.gameObject.GetComponent<Health>();
+				if (otherHealth != null)
+				{
+					otherHealth.Decrement();
+				}
+				Health health = GetComponent<Health>();
+				if (health != null)
+				{
+					health.Decrement();
+				}
 			}
 		}
 
