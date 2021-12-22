@@ -4,6 +4,7 @@ using Platformer.Mechanics;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.VFX;
 
 
 [RequireComponent(typeof(Rigidbody2D), typeof(AudioSource))]
@@ -67,6 +68,10 @@ public class ItemController : MonoBehaviour
 		m_aimRadiusVelocity += m_swingRadiusPerSec;
 		m_swingDirection = !m_swingDirection;
 
+		VisualEffect vfx = GetComponent<VisualEffect>();
+		vfx.enabled = true;
+		Simulation.Schedule<DisableVFX>(0.25f).m_vfx = vfx;
+
 		// play audio
 		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
 		{
@@ -97,6 +102,10 @@ public class ItemController : MonoBehaviour
 
 		Detach();
 		GetComponent<Rigidbody2D>().AddForce(Quaternion.Euler(0.0f, 0.0f, m_aimDegrees) * Vector2.right * m_throwSpeed);
+
+		VisualEffect vfx = GetComponent<VisualEffect>();
+		vfx.enabled = true;
+		Simulation.Schedule<DisableVFX>(0.5f).m_vfx = vfx;
 
 		// play audio
 		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)

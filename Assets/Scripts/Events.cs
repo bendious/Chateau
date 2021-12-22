@@ -1,5 +1,6 @@
 ﻿using Platformer.Mechanics;
 using UnityEngine;
+using UnityEngine.VFX;
 using static Platformer.Core.Simulation;
 
 
@@ -42,6 +43,19 @@ namespace Platformer.Gameplay
 		public override void Execute()
 		{
 			m_health.EnableDamage();
+		}
+	}
+
+	/// <summary>
+	/// This event is fired when a timed VFX component should be disabled.
+	/// </summary>
+	public class DisableVFX : Event<DisableVFX>
+	{
+		public VisualEffect m_vfx;
+
+		public override void Execute()
+		{
+			m_vfx.enabled = false;
 		}
 	}
 
