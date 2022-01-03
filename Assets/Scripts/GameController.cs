@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Platformer.Core;
 using Platformer.Mechanics;
 using UnityEngine;
@@ -10,7 +11,8 @@ public class GameController : MonoBehaviour
 	public AvatarController m_avatar;
 
 	public GameObject m_roomPrefab;
-	public GameObject m_enemyPrefab;
+	public GameObject[] m_enemyPrefabs;
+	public float[] m_enemyPrefabWeights;
 	public GameObject m_victoryZonePrefab;
 
 	public TMPro.TMP_Text m_timerUI;
@@ -139,10 +141,23 @@ public class GameController : MonoBehaviour
 		for (int i = 0; i < enemyCount; ++i)
 		{
 			Vector3 spawnCenterPos = avatarTf.position + new Vector3(Random.Range(offsetMagMin, offsetMagMax) * (Random.value > 0.5f ? -1.0f : 1.0f), 0.0f, 0.0f);
-			EnemyController enemy = Instantiate(m_enemyPrefab, spawnCenterPos, Quaternion.identity).GetComponent<EnemyController>();
+			EnemyController enemy = Instantiate(EnemyPrefabRandom(), spawnCenterPos, Quaternion.identity).GetComponent<EnemyController>();
 			enemy.m_target = avatarTf;
 			m_enemies.Add(enemy);
 		}
+	}
+
+	private GameObject EnemyPrefabRandom()
+	{
+		float weightSum = m_enemyPrefabWeights.Sum();
+		float weightItr = Random.Range(0.0f, weightSum);
+		int idxItr = 0;
+		while (weightItr >= m_enemyPrefabWeights[idxItr])
+		{
+			weightItr -= m_enemyPrefabWeights[idxItr];
+			++idxItr;
+		}
+		return m_enemyPrefabs[idxItr];
 	}
 
 	private IEnumerator TimerCoroutine()

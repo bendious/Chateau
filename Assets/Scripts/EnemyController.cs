@@ -9,7 +9,6 @@ namespace Platformer.Mechanics
 	public class EnemyController : AnimationController
 	{
 		public Transform m_target;
-		public float m_moveMax = 0.1f;
 
 
 		void OnCollisionEnter2D(Collision2D collision)
@@ -26,7 +25,7 @@ namespace Platformer.Mechanics
 			// left/right
 			AvatarController targetAvatar = m_target.GetComponent<AvatarController>();
 			bool moveAway = targetAvatar != null && !targetAvatar.controlEnabled; // avoid softlock from enemies in spawn position // TODO: better shouldMoveAway flag?
-			move.x = m_target == null ? 0.0f : Mathf.Clamp((m_target.position.x - transform.position.x) * (moveAway ? -1.0f : 1.0f), -m_moveMax, m_moveMax);
+			move.x = m_target == null ? 0.0f : Mathf.Clamp((m_target.position.x - transform.position.x) * (moveAway ? -1.0f : 1.0f), -1.0f, 1.0f);
 
 			// jump/drop
 			// TODO: actual pathfinding
