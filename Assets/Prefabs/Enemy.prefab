@@ -166,8 +166,7 @@ MonoBehaviour:
   m_wallClingGravityScalar: 0.1
   velocity: {x: 0, y: 0}
   maxSpeed: 7
-  jumpTakeOffSpeed: 7
-  jumpModifier: 1.5
+  jumpTakeOffSpeed: 5
   m_wallJumpXYRatio: 1
   jumpDeceleration: 0.5
   ouchAudio: {fileID: 8300000, guid: b7f741588644cd64bbee6387cb54a96d, type: 3}

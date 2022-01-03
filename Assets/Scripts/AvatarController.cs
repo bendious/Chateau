@@ -75,6 +75,7 @@ namespace Platformer.Mechanics
 					stopJump = true;
 				}
 				move.x = Mathf.Lerp(Input.GetAxis("Horizontal"), m_xInputForced, Mathf.Abs(m_xInputForced));
+				move.y = Input.GetAxis("Vertical");
 
 				// blend x-input back from forced if necessary
 				m_xInputForced = Mathf.SmoothDamp(m_xInputForced, 0.0f, ref m_xInputForcedVel, m_xInputForcedSmoothTime);

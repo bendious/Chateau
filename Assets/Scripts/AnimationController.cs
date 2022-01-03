@@ -21,11 +21,6 @@ namespace Platformer.Mechanics
 		public float jumpTakeOffSpeed = 7;
 
 		/// <summary>
-		/// A jump modifier applied to initial jump velocities.
-		/// </summary>
-		public float jumpModifier = 1.5f;
-
-		/// <summary>
 		/// Ratio governing the horizontal/vertical direction of wall jumps.
 		/// </summary>
 		public float m_wallJumpXYRatio = 1.0f;
@@ -69,6 +64,8 @@ namespace Platformer.Mechanics
 
 		public bool LeftFacing => spriteRenderer.flipX;
 
+		public bool IsDropping => move.y < 0.0f;
+
 
 		protected virtual void Awake()
 		{
@@ -84,11 +81,11 @@ namespace Platformer.Mechanics
 			{
 				if (IsWallClinging)
 				{
-					velocity += jumpTakeOffSpeed * jumpModifier * new Vector2(move.x < 0.0f ? -m_wallJumpXYRatio : m_wallJumpXYRatio, 1.0f).normalized; // NOTE that we purposely incorporate any existing velocity so that gravity will eventually take over and prevent clinging to the walls forever
+					velocity += jumpTakeOffSpeed * new Vector2(move.x < 0.0f ? -m_wallJumpXYRatio : m_wallJumpXYRatio, 1.0f).normalized; // NOTE that we purposely incorporate any existing velocity so that gravity will eventually take over and prevent clinging to the walls forever
 				}
 				else
 				{
-					velocity.y = jumpTakeOffSpeed * jumpModifier; // NOTE that we purposely ignore any existing velocity so that ground-based jumps are always full strength
+					velocity.y = jumpTakeOffSpeed; // NOTE that we purposely ignore any existing velocity so that ground-based jumps are always full strength
 				}
 				jump = false;
 			}

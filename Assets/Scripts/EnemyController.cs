@@ -1,6 +1,4 @@
-﻿using Platformer.Gameplay;
-using UnityEngine;
-using static Platformer.Core.Simulation;
+﻿using UnityEngine;
 
 
 namespace Platformer.Mechanics
@@ -25,9 +23,24 @@ namespace Platformer.Mechanics
 
 		protected override void Update()
 		{
+			// left/right
 			AvatarController targetAvatar = m_target.GetComponent<AvatarController>();
 			bool moveAway = targetAvatar != null && !targetAvatar.controlEnabled; // avoid softlock from enemies in spawn position // TODO: better shouldMoveAway flag?
 			move.x = m_target == null ? 0.0f : Mathf.Clamp((m_target.position.x - transform.position.x) * (moveAway ? -1.0f : 1.0f), -m_moveMax, m_moveMax);
+
+			// jump/drop
+			// TODO: actual pathfinding
+			Bounds targetBounds = targetAvatar.GetComponent<CircleCollider2D>().bounds;
+			Bounds selfBounds = GetComponent<CapsuleCollider2D>().bounds;
+			if (IsGrounded && targetBounds.min.y > selfBounds.max.y && Random.value > 0.95f/*?*/)
+			{
+				jump = true;
+			}
+			else if (targetBounds.max.y < selfBounds.min.y)
+			{
+				move.y = -1.0f;
+			}
+
 			base.Update();
 		}
 

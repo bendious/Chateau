@@ -1,6 +1,4 @@
-﻿using Platformer.Core;
-using Platformer.Gameplay;
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -141,7 +139,7 @@ namespace Platformer.Mechanics
 			Vector2 move = moveAlongGround * deltaPosition.x;
 
 			// update our collision mask
-			bool shouldIgnoreOneWays = velocity.y >= 0 || /*(GetComponent<AnimationController>() != null && GetComponent<AnimationController>().move.y < 0.0f) ||*/ (GetComponent<AvatarController>() != null && Input.GetAxis("Vertical") < 0.0f); // TODO: way for AI to drop through platforms
+			bool shouldIgnoreOneWays = velocity.y >= 0 || (GetComponent<AnimationController>() != null && GetComponent<AnimationController>().IsDropping); // TODO: don't require knowledge of AnimationController
 			contactFilter.SetLayerMask(shouldIgnoreOneWays ? Physics2D.GetLayerCollisionMask(gameObject.layer) & ~(1 << m_platformLayer) : Physics2D.GetLayerCollisionMask(gameObject.layer));
 
 			Lazy<bool> isNearGround = new Lazy<bool>(() => Physics2D.Raycast(GetComponent<Collider2D>().bounds.min, Vector2.down, m_nearGroundDistance).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground?
