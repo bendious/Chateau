@@ -35,7 +35,12 @@ namespace Platformer.Mechanics
 		{
 			base.OnDeath();
 			enabled = false;
-			Schedule<Despawn>(0.5f).obj = gameObject; // TODO: animation event rather than hardcoded time
+		}
+
+		protected override void DespawnSelf()
+		{
+			Camera.main.GetComponent<GameController>().OnEnemyDespawn(this);
+			base.DespawnSelf();
 		}
 	}
 }

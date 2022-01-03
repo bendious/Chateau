@@ -182,6 +182,11 @@ namespace Platformer.Mechanics
 			return false;
 		}
 
+		protected virtual void DespawnSelf()
+		{
+			Destroy(gameObject);
+		}
+
 
 		void PerformMovement(Vector2 move, bool yMovement, ref Lazy<bool> isNearGround)
 		{
@@ -255,7 +260,7 @@ namespace Platformer.Mechanics
 				}
 				else
 				{
-					Simulation.Schedule<Despawn>().obj = gameObject;
+					DespawnSelf();
 				}
 			}
 		}

@@ -60,25 +60,6 @@ namespace Platformer.Gameplay
 	}
 
 	/// <summary>
-	/// Fired when an object despawns, usually after dying.
-	/// </summary>
-	/// <typeparam name="Despawn"></typeparam>
-	public class Despawn : Event<Despawn>
-	{
-		public GameObject obj;
-
-		public override void Execute()
-		{
-			EnemyController enemy = obj.GetComponent<EnemyController>();
-			if (enemy != null)
-			{
-				Camera.main.GetComponent<GameController>().OnEnemyDespawn(enemy);
-			}
-			Object.Destroy(obj);
-		}
-	}
-
-	/// <summary>
 	/// Fired after the avatar dies.
 	/// </summary>
 	public class GameOver : Event<GameOver>
