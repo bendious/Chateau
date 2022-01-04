@@ -87,8 +87,8 @@ namespace Platformer.Mechanics
 		/// </summary>
 		public void Die()
 		{
-			IncrementInternal(-currentHP);
-			SyncUI();
+			IncrementInternal(-currentHP - 1); // NOTE that we have to go to one and then use Decrement() to avoid skipping the death logic there
+			Decrement();
 		}
 
 		/// <summary>

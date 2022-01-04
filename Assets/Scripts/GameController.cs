@@ -112,6 +112,17 @@ public class GameController : MonoBehaviour
 	}
 
 
+#if DEBUG
+	public void DebugKillAllEnemies()
+	{
+		foreach (EnemyController enemy in m_enemies)
+		{
+			enemy.GetComponent<Health>().Die();
+		}
+	}
+#endif
+
+
 	private IEnumerator SpawnVictoryZoneWhenReady()
 	{
 		yield return new WaitUntil(() => m_startRoom.AllChildrenReady());
@@ -129,7 +140,12 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	private void SpawnEnemyWave()
+#if DEBUG
+	public
+#else
+	private
+#endif
+		void SpawnEnemyWave()
 	{
 		// TODO: more deliberate spawning, room knowledge
 		const float offsetMagMin = 1.0f;

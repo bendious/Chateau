@@ -64,6 +64,8 @@ namespace Platformer.Mechanics
 
 		public bool LeftFacing => spriteRenderer.flipX;
 
+		public bool IsPickingUp { get; protected set; }
+
 		public bool IsDropping => move.y < 0.0f;
 
 

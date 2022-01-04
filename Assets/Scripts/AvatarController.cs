@@ -40,8 +40,6 @@ namespace Platformer.Mechanics
 		private Health health;
 		public bool controlEnabled = true;
 
-		public bool IsPickingUp { get; private set; }
-
 
 		private float m_leftGroundTime = -1.0f;
 

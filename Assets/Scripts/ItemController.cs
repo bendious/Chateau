@@ -125,9 +125,9 @@ public class ItemController : MonoBehaviour
 			return;
 		}
 
-		// maybe attach to avatar
-		AvatarController avatarController = collision.gameObject.GetComponent<AvatarController>();
-		if (avatarController != null && avatarController.IsPickingUp)
+		// maybe attach to character
+		AnimationController character = collision.gameObject.GetComponent<AnimationController>();
+		if (character != null && character.IsPickingUp)
 		{
 			AttachTo(collision.gameObject);
 			return;
@@ -145,7 +145,7 @@ public class ItemController : MonoBehaviour
 			}
 
 			// if hitting a valid point, apply damage
-			bool canDamage = avatarController == null; // TODO: base on what object threw us
+			bool canDamage = collision.gameObject.GetComponent<AvatarController>() == null; // TODO: base on what object threw us
 			if (canDamage)
 			{
 				Health otherHealth = collision.gameObject.GetComponent<Health>();
