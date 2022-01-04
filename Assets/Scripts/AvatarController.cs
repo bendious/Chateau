@@ -132,18 +132,17 @@ namespace Platformer.Mechanics
 				m_focusIndicator.SetActive(focusItem != null);
 
 				// pick up / drop items
-				const int maxPickUps = 2; // TODO: determine based on current inventory/gear
 				if (focusItem != null && Input.GetButtonDown("PickUp"))
 				{
 					focusItem.AttachTo(gameObject);
 					m_focusObj = null;
-					if (transform.childCount > maxPickUps)
+					if (transform.childCount > m_maxPickUps)
 					{
 						// drop first attached to cycle through items
 						transform.GetChild(0).GetComponent<ItemController>().Detach();
 					}
 				}
-				IsPickingUp = Input.GetButton("PickUp") && transform.childCount < maxPickUps;
+				IsPickingUp = Input.GetButton("PickUp") && transform.childCount < m_maxPickUps;
 
 				if (Input.GetButtonDown("Drop"))
 				{

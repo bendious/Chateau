@@ -34,6 +34,8 @@ namespace Platformer.Mechanics
 		public AudioClip ouchAudio;
 		public AudioClip m_deathAudio;
 
+		public int m_maxPickUps = 0; // TODO: determine based on current inventory/gear
+
 
 		/// <summary>
 		/// Used to indicated desired direction of travel.

@@ -147,7 +147,7 @@ public class ItemController : MonoBehaviour
 		if (isDetached)
 		{
 			AnimationController character = collision.gameObject.GetComponent<AnimationController>();
-			if (character != null && character.IsPickingUp && character.transform.childCount < 2/*TODO*/)
+			if (character != null && character.IsPickingUp && character.transform.childCount < character.m_maxPickUps)
 			{
 				AttachTo(collision.gameObject);
 				return;

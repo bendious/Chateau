@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 
 
 namespace Platformer.Mechanics
@@ -12,17 +11,6 @@ namespace Platformer.Mechanics
 		public float m_targetDistance = 0.0f;
 		public Transform m_target;
 
-		public bool m_itemCapability = false;
-
-
-		protected override void Start()
-		{
-			base.Start();
-			if (m_itemCapability)
-			{
-				IsPickingUp = true; // TODO: base on animation?
-			}
-		}
 
 		void OnCollisionEnter2D(Collision2D collision)
 		{
@@ -61,7 +49,7 @@ namespace Platformer.Mechanics
 				}
 
 				// swing
-				if (m_itemCapability && transform.childCount > 0)
+				if (m_maxPickUps > 0 && transform.childCount > 0)
 				{
 					if (Random.value > 0.99f) // TODO
 					{
@@ -84,7 +72,7 @@ namespace Platformer.Mechanics
 			base.FixedUpdate();
 
 			// aim items
-			if (m_itemCapability && transform.childCount > 0)
+			if (m_maxPickUps > 0 && transform.childCount > 0)
 			{
 				Vector2 colliderSize = ((CapsuleCollider2D)collider2d).size;
 				float holdRadius = Mathf.Max(colliderSize.x, colliderSize.y) * 0.5f;
