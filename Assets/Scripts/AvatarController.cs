@@ -101,7 +101,7 @@ namespace Platformer.Mechanics
 				// determine current focus object
 				// TODO: more nuanced prioritization?
 				m_focusObj = null;
-				float holdRadius = GetComponent<CircleCollider2D>().radius;
+				float holdRadius = ((CircleCollider2D)collider2d).radius;
 				Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + Vector2.right * (LeftFacing ? -1.0f : 1.0f) * holdRadius, holdRadius * 1.5f); // TODO: restrict to certain layers?
 				float distSqFocus = float.MaxValue;
 				foreach (Collider2D candidate in focusCandidates)
@@ -174,7 +174,7 @@ namespace Platformer.Mechanics
 				if (transform.childCount > 0)
 				{
 					// primary aim
-					float holdRadius = GetComponent<CircleCollider2D>().radius;
+					float holdRadius = ((CircleCollider2D)collider2d).radius;
 					ItemController[] items = GetComponentsInChildren<ItemController>();
 					items.First().UpdateAim(mousePosWS, holdRadius);
 
@@ -210,6 +210,11 @@ namespace Platformer.Mechanics
 			m_xInputForced = 0.0f;
 			m_focusIndicator.SetActive(false);
 			Schedule<GameOver>(3.0f);
+		}
+
+		protected override void DespawnSelf()
+		{
+			// NOTE that we purposely don't call base.DespawnSelf() since the avatar should never despawn
 		}
 
 		private static readonly Vector2 m_collisionBounceVec = new Vector2(1.0f, 2.5f);

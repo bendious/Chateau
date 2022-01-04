@@ -50,7 +50,7 @@ namespace Platformer.Mechanics
 				// jump/drop
 				// TODO: actual pathfinding
 				Bounds targetBounds = targetAvatar.GetComponent<CircleCollider2D>().bounds;
-				Bounds selfBounds = GetComponent<CapsuleCollider2D>().bounds;
+				Bounds selfBounds = collider2d.bounds;
 				if (IsGrounded && targetBounds.min.y > selfBounds.max.y && Random.value > 0.95f/*?*/)
 				{
 					jump = true;
@@ -86,7 +86,7 @@ namespace Platformer.Mechanics
 			// aim items
 			if (m_itemCapability && transform.childCount > 0)
 			{
-				Vector2 colliderSize = GetComponent<CapsuleCollider2D>().size;
+				Vector2 colliderSize = ((CapsuleCollider2D)collider2d).size;
 				float holdRadius = Mathf.Max(colliderSize.x, colliderSize.y) * 0.5f;
 				ItemController[] items = GetComponentsInChildren<ItemController>();
 				for (int i = 0; i < items.Length; ++i)

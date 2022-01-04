@@ -59,6 +59,10 @@ namespace Platformer.Mechanics
 		protected const float shellRadius = 0.01f;
 
 
+		private AnimationController m_character;
+		private Collider2D m_collider;
+		private AvatarController m_avatar;
+
 		private /*readonly*/ int m_platformLayer;
 		private const float m_platformTopEpsilon = 0.1f;
 
@@ -98,6 +102,9 @@ namespace Platformer.Mechanics
 		{
 			body = GetComponent<Rigidbody2D>();
 			body.isKinematic = true;
+			m_character = GetComponent<AnimationController>();
+			m_collider = GetComponent<Collider2D>();
+			m_avatar = GetComponent<AvatarController>();
 		}
 
 		protected virtual void OnDisable()
@@ -139,10 +146,10 @@ namespace Platformer.Mechanics
 			Vector2 move = moveAlongGround * deltaPosition.x;
 
 			// update our collision mask
-			bool shouldIgnoreOneWays = velocity.y >= 0 || (GetComponent<AnimationController>() != null && GetComponent<AnimationController>().IsDropping); // TODO: don't require knowledge of AnimationController
+			bool shouldIgnoreOneWays = velocity.y >= 0 || (m_character != null && m_character.IsDropping); // TODO: don't require knowledge of AnimationController
 			contactFilter.SetLayerMask(shouldIgnoreOneWays ? Physics2D.GetLayerCollisionMask(gameObject.layer) & ~(1 << m_platformLayer) : Physics2D.GetLayerCollisionMask(gameObject.layer));
 
-			Lazy<bool> isNearGround = new Lazy<bool>(() => Physics2D.Raycast(GetComponent<Collider2D>().bounds.min, Vector2.down, m_nearGroundDistance).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground?
+			Lazy<bool> isNearGround = new Lazy<bool>(() => Physics2D.Raycast(m_collider.bounds.min, Vector2.down, m_nearGroundDistance).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground?
 			PerformMovement(move, false, ref isNearGround);
 
 			move = Vector2.up * deltaPosition.y;
@@ -173,7 +180,7 @@ namespace Platformer.Mechanics
 					return true; // ignore child objects
 				}
 			}
-			if (Physics2D.GetIgnoreCollision(GetComponent<Collider2D>(), collider))
+			if (Physics2D.GetIgnoreCollision(m_collider, collider))
 			{
 				return true; // ignore objects flagged to ignore each other
 			}
@@ -201,7 +208,7 @@ namespace Platformer.Mechanics
 					{
 						continue; // don't get hung up on dynamic/carried/ignored objects
 					}
-					if (hit.collider.gameObject.layer == m_platformLayer && GetComponent<Collider2D>().bounds.min.y + m_platformTopEpsilon < hit.collider.bounds.max.y)
+					if (hit.collider.gameObject.layer == m_platformLayer && m_collider.bounds.min.y + m_platformTopEpsilon < hit.collider.bounds.max.y)
 					{
 						continue; // if partway through a one-way platform, ignore it
 					}
@@ -251,10 +258,9 @@ namespace Platformer.Mechanics
 			// detect out-of-bounds experiences
 			if (body.position.y < -1000.0f) // TODO: automatically determine suitable lower bound?
 			{
-				AvatarController avatar = GetComponent<AvatarController>();
-				if (avatar != null)
+				if (m_avatar != null)
 				{
-					avatar.OnDeath();
+					m_avatar.OnDeath();
 				}
 				else
 				{

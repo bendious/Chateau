@@ -6,6 +6,14 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
     public static bool PassiveAI { get; private set; }
 
 
+    private /*readonly*/ GameController m_gameController;
+
+
+    private void Start()
+    {
+        m_gameController = Camera.main.GetComponent<GameController>();
+    }
+
 #if DEBUG
     // TODO: callback rather than checking every frame?
     private void Update()
@@ -22,12 +30,12 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.W))
         {
-            Camera.main.GetComponent<GameController>().SpawnEnemyWave();
+            m_gameController.SpawnEnemyWave();
         }
 
         if (Input.GetKeyDown(KeyCode.K))
         {
-            Camera.main.GetComponent<GameController>().DebugKillAllEnemies();
+            m_gameController.DebugKillAllEnemies();
         }
     }
 #endif

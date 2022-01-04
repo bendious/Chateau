@@ -26,10 +26,14 @@ namespace Platformer.Mechanics
 		/// </summary>
 		public bool IsAlive => currentHP > 0;
 
+
 		int currentHP;
 
 		private bool m_invincible;
 		private const float m_invincibilityTime = 0.5f; // TODO: vary by character type / animation played?
+
+		private Animator m_animator;
+		private AnimationController m_character;
 
 
 		/// <summary>
@@ -53,18 +57,16 @@ namespace Platformer.Mechanics
 			}
 
 			IncrementInternal(-1);
-			Animator animator = GetComponent<Animator>();
-			if (animator != null)
+			if (m_animator != null)
 			{
-				animator.SetTrigger("hurt");
+				m_animator.SetTrigger("hurt");
 			}
-			AnimationController character = GetComponent<AnimationController>();
-			if (character != null)
+			if (m_character != null)
 			{
-				character.OnDamage();
+				m_character.OnDamage();
 				if (currentHP == 0)
 				{
-					character.OnDeath();
+					m_character.OnDeath();
 				}
 			}
 			else
@@ -103,6 +105,8 @@ namespace Platformer.Mechanics
 
 		void Awake()
 		{
+			m_animator = GetComponent<Animator>();
+			m_character = GetComponent<AnimationController>();
 			currentHP = maxHP;
 			SyncUI();
 		}

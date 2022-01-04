@@ -32,6 +32,23 @@ public class ItemController : MonoBehaviour
 	private float m_aimRadiusVelocity;
 	private bool m_swingDirection;
 
+	private Rigidbody2D m_body;
+	private VisualEffect m_vfx;
+	private AudioSource m_audioSource;
+	private Collider2D m_collider;
+	private SpriteRenderer m_renderer;
+	private Health m_health;
+
+
+	private void Awake()
+	{
+		m_body = GetComponent<Rigidbody2D>();
+		m_vfx = GetComponent<VisualEffect>();
+		m_audioSource = GetComponent<AudioSource>();
+		m_collider = GetComponent<Collider2D>();
+		m_renderer = GetComponent<SpriteRenderer>();
+		m_health = GetComponent<Health>();
+	}
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
@@ -47,7 +64,7 @@ public class ItemController : MonoBehaviour
 	public void AttachTo(GameObject obj)
 	{
 		transform.SetParent(obj.transform);
-		GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Kinematic;
+		m_body.bodyType = RigidbodyType2D.Kinematic;
 		m_aimDegrees = AimDegreesRaw(transform.position);
 		m_aimVelocity = 0.0f;
 		m_aimRadiusVelocity = 0.0f;
@@ -57,7 +74,7 @@ public class ItemController : MonoBehaviour
 	{
 		transform.SetParent(null);
 		transform.position = (Vector2)transform.position; // nullify any z that may have been applied for rendering order
-		GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
+		m_body.bodyType = RigidbodyType2D.Dynamic;
 		m_aimVelocity = 0.0f;
 		m_aimRadiusVelocity = 0.0f;
 	}
@@ -68,14 +85,13 @@ public class ItemController : MonoBehaviour
 		m_aimRadiusVelocity += m_swingRadiusPerSec;
 		m_swingDirection = !m_swingDirection;
 
-		VisualEffect vfx = GetComponent<VisualEffect>();
-		vfx.enabled = true;
-		Simulation.Schedule<DisableVFX>(0.25f).m_vfx = vfx;
+		m_vfx.enabled = true;
+		Simulation.Schedule<DisableVFX>(0.25f).m_vfx = m_vfx;
 
 		// play audio
 		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
 		{
-			GetComponent<AudioSource>().PlayOneShot(m_swingThrowAudio[Random.Range(0, m_swingThrowAudio.Length)]);
+			m_audioSource.PlayOneShot(m_swingThrowAudio[Random.Range(0, m_swingThrowAudio.Length)]);
 		}
 	}
 
@@ -87,30 +103,28 @@ public class ItemController : MonoBehaviour
 
 		transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegrees);
 		transform.localPosition = transform.localRotation * Vector3.right * m_aimRadius - Vector3.forward; // NOTE the negative Z in order to force rendering on top of our parent
-		GetComponent<SpriteRenderer>().flipY = LeftFacing;
+		m_renderer.flipY = LeftFacing;
 	}
 
 	public void Throw()
 	{
 		// temporarily ignore collisions w/ thrower
-		Collider2D collider = GetComponent<Collider2D>();
 		Collider2D parentCollider = transform.parent.GetComponent<Collider2D>();
-		Physics2D.IgnoreCollision(collider, parentCollider, true);
+		Physics2D.IgnoreCollision(m_collider, parentCollider, true);
 		EnableCollision evt = Simulation.Schedule<EnableCollision>(0.1f);
-		evt.m_collider1 = collider;
+		evt.m_collider1 = m_collider;
 		evt.m_collider2 = parentCollider;
 
 		Detach();
-		GetComponent<Rigidbody2D>().AddForce(Quaternion.Euler(0.0f, 0.0f, m_aimDegrees) * Vector2.right * m_throwSpeed);
+		m_body.AddForce(Quaternion.Euler(0.0f, 0.0f, m_aimDegrees) * Vector2.right * m_throwSpeed);
 
-		VisualEffect vfx = GetComponent<VisualEffect>();
-		vfx.enabled = true;
-		Simulation.Schedule<DisableVFX>(0.5f).m_vfx = vfx;
+		m_vfx.enabled = true;
+		Simulation.Schedule<DisableVFX>(0.5f).m_vfx = m_vfx;
 
 		// play audio
 		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
 		{
-			GetComponent<AudioSource>().PlayOneShot(m_swingThrowAudio[Random.Range(0, m_swingThrowAudio.Length)]);
+			m_audioSource.PlayOneShot(m_swingThrowAudio[Random.Range(0, m_swingThrowAudio.Length)]);
 		}
 	}
 
@@ -119,8 +133,7 @@ public class ItemController : MonoBehaviour
 	{
 		// TODO: flag/unflag within the physics system itself?
 		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
-		Rigidbody2D body = GetComponent<Rigidbody2D>();
-		if (kinematicObj != null && kinematicObj.ShouldIgnore(body, GetComponent<Collider2D>(), true, false))
+		if (kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_collider, true, false))
 		{
 			return;
 		}
@@ -134,14 +147,13 @@ public class ItemController : MonoBehaviour
 		}
 
 		// check speed
-		float collisionSpeed = kinematicObj == null ? collision.relativeVelocity.magnitude : (body.velocity - kinematicObj.velocity).magnitude + Mathf.Abs(m_aimVelocity) + m_aimRadiusVelocity; // TODO: incorporate aim velocity direction?
+		float collisionSpeed = kinematicObj == null ? collision.relativeVelocity.magnitude : (m_body.velocity - kinematicObj.velocity).magnitude + Mathf.Abs(m_aimVelocity) + m_aimRadiusVelocity; // TODO: incorporate aim velocity direction?
 		if (collisionSpeed > m_damageThresholdSpeed)
 		{
 			// play audio
 			if (m_collisionAudio != null && m_collisionAudio.Length > 0)
 			{
-				AudioSource source = GetComponent<AudioSource>();
-				source.PlayOneShot(m_collisionAudio[Random.Range(0, m_collisionAudio.Length)]);
+				m_audioSource.PlayOneShot(m_collisionAudio[Random.Range(0, m_collisionAudio.Length)]);
 			}
 
 			// if hitting a valid point, apply damage
@@ -153,10 +165,9 @@ public class ItemController : MonoBehaviour
 				{
 					otherHealth.Decrement();
 				}
-				Health health = GetComponent<Health>();
-				if (health != null)
+				if (m_health != null)
 				{
-					health.Decrement();
+					m_health.Decrement();
 				}
 			}
 		}
@@ -173,7 +184,7 @@ public class ItemController : MonoBehaviour
 		for (int i = 0; i < contactCount; ++i) // NOTE that we can't use foreach() since GetContacts() for some reason adds a bunch of null entries
 		{
 			ContactPoint2D pos = contacts[i];
-			body.AddForceAtPosition(Vector2.up * collisionSpeed, pos.point);
+			m_body.AddForceAtPosition(Vector2.up * collisionSpeed, pos.point);
 		}
 	}
 
@@ -187,7 +198,7 @@ public class ItemController : MonoBehaviour
 	{
 		// spring motion: F = kx - dv, where x = {vel/pos}_desired - {vel/pos}_current
 		// critically damped spring: d = 2*sqrt(km)
-		float mass = GetComponent<Rigidbody2D>().mass;
+		float mass = m_body.mass;
 		float dampingFactor = 2.0f * Mathf.Sqrt(m_aimSpringStiffness * mass) * dampPct;
 		float diff = target - current;
 		while (isAngle && Mathf.Abs(diff) > 180.0f)
