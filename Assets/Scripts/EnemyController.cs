@@ -43,9 +43,9 @@ namespace Platformer.Mechanics
 			{
 				// left/right
 				AvatarController targetAvatar = m_target.GetComponent<AvatarController>();
-				Vector3 targetPos = m_target.position + (transform.position - m_target.position).normalized * m_targetDistance;
+				Vector3 targetPos = m_target == null ? transform.position : m_target.position + (transform.position - m_target.position).normalized * m_targetDistance;
 				bool moveAway = targetAvatar != null && !targetAvatar.controlEnabled; // avoid softlock from enemies in spawn position // TODO: better shouldMoveAway flag?
-				move.x = m_target == null || (targetPos - transform.position).magnitude < minMoveDistance ? 0.0f : Mathf.Clamp((targetPos.x - transform.position.x) * (moveAway ? -1.0f : 1.0f), -1.0f, 1.0f);
+				move.x = (targetPos - transform.position).magnitude < collider2d.bounds.extents.x ? 0.0f : Mathf.Clamp((targetPos.x - transform.position.x) * (moveAway ? -1.0f : 1.0f), -1.0f, 1.0f);
 
 				// jump/drop
 				// TODO: actual pathfinding

@@ -39,6 +39,8 @@ public class ItemController : MonoBehaviour
 	private SpriteRenderer m_renderer;
 	private Health m_health;
 
+	private GameObject m_cause;
+
 
 	private void Awake()
 	{
@@ -65,9 +67,11 @@ public class ItemController : MonoBehaviour
 	{
 		transform.SetParent(obj.transform);
 		m_body.bodyType = RigidbodyType2D.Kinematic;
+		gameObject.layer = obj.layer;
 		m_aimDegrees = AimDegreesRaw(transform.position);
 		m_aimVelocity = 0.0f;
 		m_aimRadiusVelocity = 0.0f;
+		m_cause = obj;
 	}
 
 	public void Detach()
@@ -139,11 +143,15 @@ public class ItemController : MonoBehaviour
 		}
 
 		// maybe attach to character
-		AnimationController character = collision.gameObject.GetComponent<AnimationController>();
-		if (character != null && character.IsPickingUp)
+		bool isDetached = transform.parent == null;
+		if (isDetached)
 		{
-			AttachTo(collision.gameObject);
-			return;
+			AnimationController character = collision.gameObject.GetComponent<AnimationController>();
+			if (character != null && character.IsPickingUp && character.transform.childCount < 2/*TODO*/)
+			{
+				AttachTo(collision.gameObject);
+				return;
+			}
 		}
 
 		// check speed
@@ -157,7 +165,7 @@ public class ItemController : MonoBehaviour
 			}
 
 			// if hitting a valid point, apply damage
-			bool canDamage = collision.gameObject.GetComponent<AvatarController>() == null; // TODO: base on what object threw us
+			bool canDamage = m_cause != null && m_cause != collision.gameObject;
 			if (canDamage)
 			{
 				Health otherHealth = collision.gameObject.GetComponent<Health>();
@@ -179,6 +187,10 @@ public class ItemController : MonoBehaviour
 		}
 
 		// add upward force to emulate kicking
+		if (isDetached)
+		{
+			m_cause = collision.gameObject;
+		}
 		List<ContactPoint2D> contacts = new List<ContactPoint2D>();
 		int contactCount = collision.GetContacts(contacts);
 		for (int i = 0; i < contactCount; ++i) // NOTE that we can't use foreach() since GetContacts() for some reason adds a bunch of null entries
