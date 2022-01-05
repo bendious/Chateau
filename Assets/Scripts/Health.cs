@@ -39,9 +39,9 @@ namespace Platformer.Mechanics
 		/// <summary>
 		/// Increment the HP of the entity.
 		/// </summary>
-		public void Increment()
+		public void Increment(int amount = 1)
 		{
-			IncrementInternal(1);
+			IncrementInternal(amount);
 			SyncUI();
 		}
 

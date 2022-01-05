@@ -6,7 +6,8 @@ public class TableController : MonoBehaviour
 	public Vector2 m_sizeMin = new Vector2(1.0f, 0.25f);
 	public Vector2 m_sizeMax = new Vector2(4.0f, 0.5f);
 
-	public GameObject m_itemPrefab;
+	public GameObject[] m_itemPrefabs;
+	public float[] m_itemPrefabWeights;
 
 	public int m_itemsMin = 0;
 	public int m_itemsMax = 4;
@@ -31,12 +32,13 @@ public class TableController : MonoBehaviour
 		int itemCount = Random.Range(m_itemsMin, m_itemsMax + 1);
 		Vector3 size = GetComponent<Collider2D>().bounds.size;
 		float extentX = size.x * 0.5f;
-		BoxCollider2D itemCollider = m_itemPrefab.GetComponent<BoxCollider2D>();
+		GameObject itemPrefab = Utility.RandomWeighted(m_itemPrefabs, m_itemPrefabWeights);
+		BoxCollider2D itemCollider = itemPrefab.GetComponent<BoxCollider2D>();
 		float offsetY = size.y + itemCollider.size.y * 0.5f + itemCollider.edgeRadius;
 		for (int i = 0; i < itemCount; ++i)
 		{
 			Vector3 spawnCenterPos = transform.position + new Vector3(Random.Range(-extentX, extentX), offsetY, 0.0f);
-			Instantiate(m_itemPrefab, spawnCenterPos, Quaternion.identity);
+			Instantiate(itemPrefab, spawnCenterPos, Quaternion.identity);
 		}
 	}
 }

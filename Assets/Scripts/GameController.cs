@@ -165,15 +165,7 @@ public class GameController : MonoBehaviour
 
 	private GameObject EnemyPrefabRandom()
 	{
-		float weightSum = m_enemyPrefabWeights.Sum();
-		float weightItr = Random.Range(0.0f, weightSum);
-		int idxItr = 0;
-		while (weightItr >= m_enemyPrefabWeights[idxItr])
-		{
-			weightItr -= m_enemyPrefabWeights[idxItr];
-			++idxItr;
-		}
-		return m_enemyPrefabs[idxItr];
+		return Utility.RandomWeighted(m_enemyPrefabs, m_enemyPrefabWeights);
 	}
 
 	private IEnumerator TimerCoroutine()

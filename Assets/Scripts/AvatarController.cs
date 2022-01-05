@@ -96,6 +96,11 @@ namespace Platformer.Mechanics
 						// release
 						GetComponentInChildren<ItemController>().Throw();
 					}
+
+					if (Input.GetButtonDown("Fire3"))
+					{
+						GetComponentInChildren<ItemController>().Use();
+					}
 				}
 
 				// determine current focus object

@@ -18,6 +18,7 @@ public class ItemController : MonoBehaviour
 	public float m_radiusSpringDampPct = 0.5f;
 	public float m_damageThresholdSpeed = 2.0f;
 	public float m_throwSpeed = 100.0f;
+	public int m_healAmount = 0;
 
 	public AudioClip[] m_swingThrowAudio;
 	public AudioClip[] m_collisionAudio;
@@ -114,6 +115,15 @@ public class ItemController : MonoBehaviour
 		transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegrees);
 		transform.localPosition = transform.localRotation * Vector3.right * m_aimRadius - Vector3.forward; // NOTE the negative Z in order to force rendering on top of our parent
 		m_renderer.flipY = LeftFacing;
+	}
+
+	public void Use()
+	{
+		if (m_healAmount > 0)
+		{
+			transform.parent.GetComponent<Health>().Increment(m_healAmount);
+			Destroy(gameObject);
+		}
 	}
 
 	public void Throw()
