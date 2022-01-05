@@ -52,6 +52,12 @@ public class ItemController : MonoBehaviour
 		m_health = GetComponent<Health>();
 	}
 
+	// TODO: only when VFX is enabled?
+	private void FixedUpdate()
+	{
+		m_vfx.SetVector3("PosLocalPrev", -(Vector3)m_body.velocity * Time.deltaTime + Vector3.forward); // NOTE the inclusion of Vector3.forward to put the VFX in the background
+	}
+
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
 		ProcessCollision(collision);
@@ -90,7 +96,7 @@ public class ItemController : MonoBehaviour
 		m_swingDirection = !m_swingDirection;
 
 		m_vfx.enabled = true;
-		Simulation.Schedule<DisableVFX>(0.25f).m_vfx = m_vfx;
+		Simulation.Schedule<DisableVFX>(1.0f).m_vfx = m_vfx;
 
 		// play audio
 		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
