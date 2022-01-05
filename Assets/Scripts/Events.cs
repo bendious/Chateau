@@ -13,10 +13,7 @@ namespace Platformer.Gameplay
 	{
 		public AvatarController avatar;
 
-		public override void Execute()
-		{
-			avatar.controlEnabled = true;
-		}
+		public override void Execute() => avatar.controlEnabled = true;
 	}
 
 	/// <summary>
@@ -27,10 +24,9 @@ namespace Platformer.Gameplay
 		public Collider2D m_collider1;
 		public Collider2D m_collider2;
 
-		public override void Execute()
-		{
-			Physics2D.IgnoreCollision(m_collider1, m_collider2, false);
-		}
+		public override bool Precondition() => m_collider1 != null && m_collider2 != null; // NOTE that this event can fire after the object(s) have been destroyed
+
+		public override void Execute() => Physics2D.IgnoreCollision(m_collider1, m_collider2, false);
 	}
 
 	/// <summary>
@@ -40,10 +36,7 @@ namespace Platformer.Gameplay
 	{
 		public Health m_health;
 
-		public override void Execute()
-		{
-			m_health.EnableDamage();
-		}
+		public override void Execute() => m_health.EnableDamage();
 	}
 
 	/// <summary>
@@ -53,10 +46,9 @@ namespace Platformer.Gameplay
 	{
 		public VisualEffect m_vfx;
 
-		public override void Execute()
-		{
-			m_vfx.enabled = false;
-		}
+		public override bool Precondition() => m_vfx != null; // NOTE that this event can fire after the object has been destroyed
+
+		public override void Execute() => m_vfx.enabled = false;
 	}
 
 	/// <summary>
@@ -64,9 +56,6 @@ namespace Platformer.Gameplay
 	/// </summary>
 	public class GameOver : Event<GameOver>
 	{
-		public override void Execute()
-		{
-			Camera.main.GetComponent<GameController>().OnGameOver();
-		}
+		public override void Execute() => Camera.main.GetComponent<GameController>().OnGameOver();
 	}
 }

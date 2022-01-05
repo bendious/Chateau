@@ -61,6 +61,12 @@ public class GameController : MonoBehaviour
 	}
 
 
+	public Vector3 FloorPosition()
+	{
+		// TODO: track open/closed rooms
+		return m_startRoom.ChildFloorPosition();
+	}
+
 	public void TogglePause()
 	{
 		Time.timeScale = Time.timeScale == 0.0f ? 1.0f : 0.0f;

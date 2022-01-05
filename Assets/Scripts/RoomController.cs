@@ -7,6 +7,7 @@ using UnityEngine.Assertions;
 public class RoomController : MonoBehaviour
 {
 	public GameObject m_roomPrefab;
+	public GameObject m_doorPrefab;
 	public GameObject m_tablePrefab;
 
 	public GameObject m_doorL;
@@ -91,6 +92,21 @@ public class RoomController : MonoBehaviour
 		return (new RoomController[] { m_leftChild, m_rightChild, m_bottomChild, m_topChild }).All(child => child == null || child.AllChildrenReady());
 	}
 
+	public Vector3 ChildFloorPosition()
+	{
+		// enumerate non-null children
+		RoomController[] children = (new RoomController[] { m_leftChild, m_rightChild, m_bottomChild, m_topChild }).Where(child => child != null && child.m_childrenCreated).ToArray();
+		if (!m_childrenCreated || children.Length == 0)
+		{
+			// return interior position
+			float xDiffMax = CalculateBounds().extents.x - 0.5f; // TODO: determine floor/wall extent automatically
+			return transform.position + Vector3.right * UnityEngine.Random.Range(-xDiffMax, xDiffMax);
+		}
+
+		// return position from child room
+		return children[UnityEngine.Random.Range(0, children.Length)].ChildFloorPosition();
+	}
+
 	public Tuple<RoomController, int> LeafRoomFarthest()
 	{
 		// enumerate non-null children
@@ -137,6 +153,15 @@ public class RoomController : MonoBehaviour
 		if (!isOpen)
 		{
 			return null;
+		}
+
+		if (UnityEngine.Random.value > 0.95f/*TODO*/)
+		{
+			// create locked door
+			GameObject newDoor = Instantiate(m_doorPrefab, door.transform.position, Quaternion.identity);
+			Vector2 size = door.GetComponent<BoxCollider2D>().size;
+			newDoor.GetComponent<BoxCollider2D>().size = size;
+			newDoor.GetComponent<SpriteRenderer>().size = size;
 		}
 
 		// enable one-way movement or destroy
