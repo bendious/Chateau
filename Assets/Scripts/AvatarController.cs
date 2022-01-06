@@ -252,6 +252,10 @@ namespace Platformer.Mechanics
 		public void OnVictory()
 		{
 			m_focusIndicator.SetActive(false);
+			foreach (ItemController item in GetComponentsInChildren<ItemController>())
+			{
+				item.Detach();
+			}
 			animator.SetTrigger("victory");
 			controlEnabled = false;
 		}

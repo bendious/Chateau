@@ -101,7 +101,7 @@ public class RoomController : MonoBehaviour
 	public Vector3 ChildFloorPosition(bool checkLocks, GameObject targetObj)
 	{
 		// enumerate valid options
-		RoomController[] options = (new Tuple<RoomController, GameObject>[] { new Tuple<RoomController, GameObject>(this, null), new Tuple<RoomController, GameObject>(m_leftChild, m_leftLock), new Tuple<RoomController, GameObject>(m_rightChild, m_rightLock), new Tuple<RoomController, GameObject>(m_bottomChild, m_bottomLock), new Tuple<RoomController, GameObject>(m_topChild, m_topLock) }).Where(child => child.Item1 != null && child.Item1.m_childrenCreated && (!checkLocks || child.Item2 == null)).Select(pair => pair.Item1).ToArray();
+		RoomController[] options = (new Tuple<RoomController, GameObject>[] { new Tuple<RoomController, GameObject>(this, null), Tuple.Create(m_leftChild, m_leftLock), Tuple.Create(m_rightChild, m_rightLock), Tuple.Create(m_bottomChild, m_bottomLock), Tuple.Create(m_topChild, m_topLock) }).Where(child => child.Item1 != null && child.Item1.m_childrenCreated && (!checkLocks || child.Item2 == null)).Select(pair => pair.Item1).ToArray();
 
 		// weight options based on distance to target
 		float[] optionWeights = targetObj == null ? Enumerable.Repeat(1.0f, options.Length).ToArray() : options.Select(option => 1.0f / (option.transform.position - targetObj.transform.position).magnitude).ToArray();
@@ -119,23 +119,23 @@ public class RoomController : MonoBehaviour
 		return child.ChildFloorPosition(checkLocks, targetObj);
 	}
 
-	public Tuple<RoomController, int> LeafRoomFarthest()
+	public Tuple<RoomController, int> LeafRoomFarthest(int startDistance = 0)
 	{
 		// enumerate non-null children
 		Assert.IsTrue(m_childrenCreated);
-		RoomController[] children = (new RoomController[] { m_leftChild, m_rightChild, m_bottomChild, m_topChild }).Where(child => child != null).ToArray();
-		if (children.Length == 0)
+		Tuple<RoomController, int>[] childrenPreprocess = (new Tuple<RoomController, int>[] { Tuple.Create(m_leftChild, m_leftLock != null ? 1 : 0), Tuple.Create(m_rightChild, m_rightLock != null ? 1 : 0), Tuple.Create(m_bottomChild, m_bottomLock != null ? 1 : 0), Tuple.Create(m_topChild, m_topLock != null ? 1 : 0) }).Where(child => child.Item1 != null).ToArray();
+		if (childrenPreprocess.Length == 0)
 		{
-			return Tuple.Create(this, 0);
+			return Tuple.Create(this, startDistance);
 		}
 
 		// recursively find farthest distance
-		Tuple<RoomController, int>[] childTuples = children.Select(child => child.LeafRoomFarthest()).ToArray();
-		int maxDistance = childTuples.Max(a => a.Item2);
+		Tuple<RoomController, int>[] childrenPostprocessed = childrenPreprocess.Select(child => child.Item1.LeafRoomFarthest(child.Item2)).ToArray();
+		int maxDistance = childrenPostprocessed.Max(a => a.Item2);
 
 		// pick random child at farthest distance
-		Tuple<RoomController, int>[] childTuplesMax = childTuples.Where(childTuple => childTuple.Item2 >= maxDistance).ToArray();
-		return Tuple.Create(childTuplesMax[UnityEngine.Random.Range(0, childTuplesMax.Length)].Item1, maxDistance + 1);
+		Tuple<RoomController, int>[] childrenMax = childrenPostprocessed.Where(childTuple => childTuple.Item2 >= maxDistance).ToArray();
+		return Tuple.Create(childrenMax[UnityEngine.Random.Range(0, childrenMax.Length)].Item1, maxDistance + 1);
 	}
 
 

@@ -53,7 +53,7 @@ public class ItemController : MonoBehaviour
 		m_collider = GetComponent<Collider2D>();
 		m_renderer = GetComponent<SpriteRenderer>();
 		m_health = GetComponent<Health>();
-		SetCause(transform.parent.gameObject);
+		SetCause(transform.parent == null ? null : transform.parent.gameObject);
 	}
 
 	// TODO: only when VFX is enabled?
@@ -206,7 +206,7 @@ public class ItemController : MonoBehaviour
 		}
 
 		// add upward force to emulate kicking
-		if (isDetached)
+		if (isDetached && (m_cause == null || collision.gameObject == Camera.main.GetComponent<GameController>().m_avatar.gameObject))
 		{
 			SetCause(collision.gameObject);
 		}
