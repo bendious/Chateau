@@ -171,7 +171,7 @@ public class RoomController : MonoBehaviour
 		{
 			// create locked door
 			lockObj = Instantiate(m_doorPrefab, door.transform.position, Quaternion.identity);
-			Vector2 size = door.GetComponent<BoxCollider2D>().size;
+			Vector2 size = door.GetComponent<BoxCollider2D>().size * door.transform.localScale;
 			lockObj.GetComponent<BoxCollider2D>().size = size;
 			lockObj.GetComponent<SpriteRenderer>().size = size;
 		}

@@ -20,6 +20,8 @@ public class ItemController : MonoBehaviour
 	public float m_throwSpeed = 100.0f;
 	public int m_healAmount = 0;
 
+	public float m_trailAlphaMax = 0.5f;
+
 	public AudioClip[] m_swingThrowAudio;
 	public AudioClip[] m_collisionAudio;
 
@@ -51,6 +53,7 @@ public class ItemController : MonoBehaviour
 		m_collider = GetComponent<Collider2D>();
 		m_renderer = GetComponent<SpriteRenderer>();
 		m_health = GetComponent<Health>();
+		SetCause(transform.parent.gameObject);
 	}
 
 	// TODO: only when VFX is enabled?
@@ -78,7 +81,7 @@ public class ItemController : MonoBehaviour
 		m_aimDegrees = AimDegreesRaw(transform.position);
 		m_aimVelocity = 0.0f;
 		m_aimRadiusVelocity = 0.0f;
-		m_cause = obj;
+		SetCause(obj);
 	}
 
 	public void Detach()
@@ -205,7 +208,7 @@ public class ItemController : MonoBehaviour
 		// add upward force to emulate kicking
 		if (isDetached)
 		{
-			m_cause = collision.gameObject;
+			SetCause(collision.gameObject);
 		}
 		List<ContactPoint2D> contacts = new List<ContactPoint2D>();
 		int contactCount = collision.GetContacts(contacts);
@@ -220,6 +223,16 @@ public class ItemController : MonoBehaviour
 	{
 		Vector2 aimDiff = position - transform.parent.position;
 		return Mathf.Rad2Deg * Mathf.Atan2(aimDiff.y, aimDiff.x);
+	}
+
+	private void SetCause(GameObject cause)
+	{
+		m_cause = cause;
+
+		Gradient gradient = new Gradient();
+		gradient.colorKeys = new GradientColorKey[] { new GradientColorKey(cause == Camera.main.GetComponent<GameController>().m_avatar.gameObject ? Color.white : Color.red, 0.0f) };
+		gradient.alphaKeys = new GradientAlphaKey[] { new GradientAlphaKey(0.0f, 0.0f), new GradientAlphaKey(1.0f, m_trailAlphaMax)};
+		m_vfx.SetGradient("Gradient", gradient);
 	}
 
 	private float DampedSpring(float current, float target, float dampPct, bool isAngle, float stiffness, ref float velocityCurrent)
