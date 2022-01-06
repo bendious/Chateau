@@ -15,6 +15,8 @@ public class RoomController : MonoBehaviour
 	public GameObject m_doorB;
 	public GameObject m_doorT;
 
+	public GameObject[] m_ladderPieces;
+
 	public float m_roomSpawnPct = 0.5f;
 	public int m_spawnDepthMax = 5;
 
@@ -53,10 +55,10 @@ public class RoomController : MonoBehaviour
 
 		// replace doors / spawn rooms
 		// TODO: randomize order to avoid directional bias?
-		m_leftChild = MaybeReplaceDoor(ref m_leftConnected, bounds, -offsetMagH, checkSize, ref m_leftLock, m_doorL, child => child.m_rightConnected = true);
-		m_rightChild = MaybeReplaceDoor(ref m_rightConnected, bounds, offsetMagH, checkSize, ref m_rightLock, m_doorR, child => child.m_leftConnected = true);
-		m_bottomChild = MaybeReplaceDoor(ref m_bottomConnected, bounds, -offsetMagV, checkSize, ref m_bottomLock, m_doorB, child => child.m_topConnected = true);
-		m_topChild = MaybeReplaceDoor(ref m_topConnected, bounds, offsetMagV, checkSize, ref m_topLock, m_doorT, child => child.m_bottomConnected = true);
+		m_leftChild = MaybeReplaceDoor(ref m_leftConnected, bounds, -offsetMagH, checkSize, ref m_leftLock, m_doorL, null, child => child.m_rightConnected = true);
+		m_rightChild = MaybeReplaceDoor(ref m_rightConnected, bounds, offsetMagH, checkSize, ref m_rightLock, m_doorR, null, child => child.m_leftConnected = true);
+		m_bottomChild = MaybeReplaceDoor(ref m_bottomConnected, bounds, -offsetMagV, checkSize, ref m_bottomLock, m_doorB, null, child => child.m_topConnected = true);
+		m_topChild = MaybeReplaceDoor(ref m_topConnected, bounds, offsetMagV, checkSize, ref m_topLock, m_doorT, m_ladderPieces, child => child.m_bottomConnected = true);
 
 		m_childrenCreated = true;
 
@@ -155,7 +157,7 @@ public class RoomController : MonoBehaviour
 		return b;
 	}
 
-	private RoomController MaybeReplaceDoor(ref bool isOpen, Bounds bounds, Vector3 replaceOffset, Vector3 checkSize, ref GameObject lockObj, GameObject door, Action<RoomController> postReplace)
+	private RoomController MaybeReplaceDoor(ref bool isOpen, Bounds bounds, Vector3 replaceOffset, Vector3 checkSize, ref GameObject lockObj, GameObject door, GameObject[] ladderPieces, Action<RoomController> postReplace)
 	{
 		bool spawnedFromThisDirection = isOpen;
 		bool canSpawnRoom = !spawnedFromThisDirection && m_spawnDepthMax > 0 && Physics2D.OverlapBox(bounds.center + replaceOffset, checkSize, 0.0f) == null;
@@ -164,6 +166,14 @@ public class RoomController : MonoBehaviour
 
 		if (!isOpen)
 		{
+			if (ladderPieces != null)
+			{
+				foreach (GameObject piece in ladderPieces)
+				{
+					Destroy(piece);
+				}
+			}
+
 			return null;
 		}
 
