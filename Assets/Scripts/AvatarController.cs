@@ -128,11 +128,9 @@ namespace Platformer.Mechanics
 				ItemController focusItem = m_focusObj?.GetComponent<ItemController>();
 				if (focusItem != null)
 				{
-					BoxCollider2D[] colliders = focusItem.GetComponents<BoxCollider2D>(); // TODO: handle other collider shapes?
-					float yMax = colliders.Max(collider => collider.bounds.max.y + collider.edgeRadius) + 0.1f;
-					Vector3 pos = m_focusObj.transform.position;
-					pos.y = yMax;
-					m_focusIndicator.transform.position = pos;
+					m_focusIndicator.transform.position = m_focusObj.transform.position + Vector3.back; // NOTE the Z offset to ensure the focus indicator is rendered on top
+					m_focusIndicator.transform.rotation = m_focusObj.transform.rotation;
+					m_focusIndicator.GetComponent<SpriteRenderer>().sprite = m_focusObj.GetComponent<SpriteRenderer>().sprite;
 				}
 				m_focusIndicator.SetActive(focusItem != null);
 
