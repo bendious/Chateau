@@ -61,10 +61,9 @@ public class GameController : MonoBehaviour
 	}
 
 
-	public Vector3 FloorPosition()
+	public Vector3 FloorPosition(bool checkLocks, GameObject targetObj)
 	{
-		// TODO: track open/closed rooms
-		return m_startRoom.ChildFloorPosition();
+		return m_startRoom.ChildFloorPosition(checkLocks, targetObj);
 	}
 
 	public void TogglePause()
@@ -153,17 +152,13 @@ public class GameController : MonoBehaviour
 #endif
 		void SpawnEnemyWave()
 	{
-		// TODO: more deliberate spawning, room knowledge
-		const float offsetMagMin = 1.0f;
-		const float offsetMagMax = 5.0f;
-
 		int enemyCount = Random.Range(m_waveEnemiesMin, m_waveEnemiesMax + 1);
 		Transform avatarTf = m_avatar.transform;
 
 		for (int i = 0; i < enemyCount; ++i)
 		{
-			Vector3 spawnCenterPos = avatarTf.position + new Vector3(Random.Range(offsetMagMin, offsetMagMax) * (Random.value > 0.5f ? -1.0f : 1.0f), 0.0f, 0.0f);
-			EnemyController enemy = Instantiate(EnemyPrefabRandom(), spawnCenterPos, Quaternion.identity).GetComponent<EnemyController>();
+			Vector3 spawnPos = FloorPosition(true, m_avatar.gameObject);
+			EnemyController enemy = Instantiate(EnemyPrefabRandom(), spawnPos, Quaternion.identity).GetComponent<EnemyController>();
 			enemy.m_target = avatarTf;
 			m_enemies.Add(enemy);
 		}

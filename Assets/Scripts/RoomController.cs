@@ -15,8 +15,6 @@ public class RoomController : MonoBehaviour
 	public GameObject m_doorB;
 	public GameObject m_doorT;
 
-	public Color m_oneWayPlatformColor = new Color(0.3f, 0.2f, 0.1f);
-
 	public float m_roomSpawnPct = 0.5f;
 	public int m_spawnDepthMax = 5;
 
@@ -24,17 +22,25 @@ public class RoomController : MonoBehaviour
 	public int m_tablesMax = 2;
 
 
-	private bool m_leftOpen = false;
-	private bool m_rightOpen = false;
-	private bool m_bottomOpen = false;
-	private bool m_topOpen = false;
+	private bool m_leftConnected = false;
+	private bool m_rightConnected = false;
+	private bool m_bottomConnected = false;
+	private bool m_topConnected = false;
 
 	private /*readonly*/ RoomController m_leftChild;
 	private /*readonly*/ RoomController m_rightChild;
 	private /*readonly*/ RoomController m_bottomChild;
 	private /*readonly*/ RoomController m_topChild;
 
+	private /*readonly*/ GameObject m_leftLock;
+	private /*readonly*/ GameObject m_rightLock;
+	private /*readonly*/ GameObject m_bottomLock;
+	private /*readonly*/ GameObject m_topLock;
+
 	private bool m_childrenCreated = false;
+
+
+	private readonly Color m_oneWayPlatformColor = new Color(0.3f, 0.2f, 0.1f);
 
 
 	private void Start()
@@ -47,10 +53,10 @@ public class RoomController : MonoBehaviour
 
 		// replace doors / spawn rooms
 		// TODO: randomize order to avoid directional bias?
-		m_leftChild = MaybeReplaceDoor(ref m_leftOpen, bounds, -offsetMagH, checkSize, m_doorL, child => child.m_rightOpen = true);
-		m_rightChild = MaybeReplaceDoor(ref m_rightOpen, bounds, offsetMagH, checkSize, m_doorR, child => child.m_leftOpen = true);
-		m_bottomChild = MaybeReplaceDoor(ref m_bottomOpen, bounds, -offsetMagV, checkSize, m_doorB, child => child.m_topOpen = true);
-		m_topChild = MaybeReplaceDoor(ref m_topOpen, bounds, offsetMagV, checkSize, m_doorT, child => child.m_bottomOpen = true);
+		m_leftChild = MaybeReplaceDoor(ref m_leftConnected, bounds, -offsetMagH, checkSize, ref m_leftLock, m_doorL, child => child.m_rightConnected = true);
+		m_rightChild = MaybeReplaceDoor(ref m_rightConnected, bounds, offsetMagH, checkSize, ref m_rightLock, m_doorR, child => child.m_leftConnected = true);
+		m_bottomChild = MaybeReplaceDoor(ref m_bottomConnected, bounds, -offsetMagV, checkSize, ref m_bottomLock, m_doorB, child => child.m_topConnected = true);
+		m_topChild = MaybeReplaceDoor(ref m_topConnected, bounds, offsetMagV, checkSize, ref m_topLock, m_doorT, child => child.m_bottomConnected = true);
 
 		m_childrenCreated = true;
 
@@ -92,19 +98,25 @@ public class RoomController : MonoBehaviour
 		return (new RoomController[] { m_leftChild, m_rightChild, m_bottomChild, m_topChild }).All(child => child == null || child.AllChildrenReady());
 	}
 
-	public Vector3 ChildFloorPosition()
+	public Vector3 ChildFloorPosition(bool checkLocks, GameObject targetObj)
 	{
-		// enumerate non-null children
-		RoomController[] children = (new RoomController[] { m_leftChild, m_rightChild, m_bottomChild, m_topChild }).Where(child => child != null && child.m_childrenCreated).ToArray();
-		if (!m_childrenCreated || children.Length == 0)
+		// enumerate valid options
+		RoomController[] options = (new Tuple<RoomController, GameObject>[] { new Tuple<RoomController, GameObject>(this, null), new Tuple<RoomController, GameObject>(m_leftChild, m_leftLock), new Tuple<RoomController, GameObject>(m_rightChild, m_rightLock), new Tuple<RoomController, GameObject>(m_bottomChild, m_bottomLock), new Tuple<RoomController, GameObject>(m_topChild, m_topLock) }).Where(child => child.Item1 != null && child.Item1.m_childrenCreated && (!checkLocks || child.Item2 == null)).Select(pair => pair.Item1).ToArray();
+
+		// weight options based on distance to target
+		float[] optionWeights = targetObj == null ? Enumerable.Repeat(1.0f, options.Length).ToArray() : options.Select(option => 1.0f / (option.transform.position - targetObj.transform.position).magnitude).ToArray();
+		RoomController child = options.Length == 0 ? this : Utility.RandomWeighted(options, optionWeights);
+
+		if (child == this)
 		{
 			// return interior position
+			// TODO: avoid spawning right on top of targetObj
 			float xDiffMax = CalculateBounds().extents.x - 0.5f; // TODO: determine floor/wall extent automatically
 			return transform.position + Vector3.right * UnityEngine.Random.Range(-xDiffMax, xDiffMax);
 		}
 
 		// return position from child room
-		return children[UnityEngine.Random.Range(0, children.Length)].ChildFloorPosition();
+		return child.ChildFloorPosition(checkLocks, targetObj);
 	}
 
 	public Tuple<RoomController, int> LeafRoomFarthest()
@@ -143,7 +155,7 @@ public class RoomController : MonoBehaviour
 		return b;
 	}
 
-	private RoomController MaybeReplaceDoor(ref bool isOpen, Bounds bounds, Vector3 replaceOffset, Vector3 checkSize, GameObject door, Action<RoomController> postReplace)
+	private RoomController MaybeReplaceDoor(ref bool isOpen, Bounds bounds, Vector3 replaceOffset, Vector3 checkSize, ref GameObject lockObj, GameObject door, Action<RoomController> postReplace)
 	{
 		bool spawnedFromThisDirection = isOpen;
 		bool canSpawnRoom = !spawnedFromThisDirection && m_spawnDepthMax > 0 && Physics2D.OverlapBox(bounds.center + replaceOffset, checkSize, 0.0f) == null;
@@ -155,13 +167,13 @@ public class RoomController : MonoBehaviour
 			return null;
 		}
 
-		if (UnityEngine.Random.value > 0.95f/*TODO*/)
+		if (!spawnedFromThisDirection && UnityEngine.Random.value > 0.95f/*TODO*/)
 		{
 			// create locked door
-			GameObject newDoor = Instantiate(m_doorPrefab, door.transform.position, Quaternion.identity);
+			lockObj = Instantiate(m_doorPrefab, door.transform.position, Quaternion.identity);
 			Vector2 size = door.GetComponent<BoxCollider2D>().size;
-			newDoor.GetComponent<BoxCollider2D>().size = size;
-			newDoor.GetComponent<SpriteRenderer>().size = size;
+			lockObj.GetComponent<BoxCollider2D>().size = size;
+			lockObj.GetComponent<SpriteRenderer>().size = size;
 		}
 
 		// enable one-way movement or destroy
