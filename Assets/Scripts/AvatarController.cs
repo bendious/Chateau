@@ -236,6 +236,7 @@ namespace Platformer.Mechanics
 			controlEnabled = false;
 			m_xInputForced = 0.0f;
 			m_focusIndicator.SetActive(false);
+			InventorySync();
 			Schedule<GameOver>(3.0f);
 		}
 
@@ -313,6 +314,7 @@ namespace Platformer.Mechanics
 					uiImage.sprite = srcComp.sprite;
 					uiImage.color = srcComp.color;
 				}
+				UIObj.GetComponent<InventoryController>().m_draggable = iconIdx < transform.childCount;
 			}
 			for (int j = m_inventoryUI.transform.childCount - 1; j > iconCount; --j)
 			{
