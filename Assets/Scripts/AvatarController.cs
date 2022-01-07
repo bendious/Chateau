@@ -1,6 +1,7 @@
 ﻿using Platformer.Gameplay;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 using static Platformer.Core.Simulation;
 
 
@@ -28,6 +29,7 @@ namespace Platformer.Mechanics
 
 		public GameObject m_focusIndicator;
 		public GameObject m_aimObject;
+		public GameObject m_inventoryUI;
 
 		public float m_aimRadius = 5.0f;
 		public float m_secondaryRadiusPct = 0.5f;
@@ -159,6 +161,40 @@ namespace Platformer.Mechanics
 					if (transform.childCount > 0)
 					{
 						GetComponentInChildren<ItemController>().Detach();
+					}
+				}
+
+				if (Input.GetButtonDown("Inventory"))
+				{
+					// show/update inventory
+					m_inventoryUI.SetActive(!m_inventoryUI.activeSelf);
+					if (m_inventoryUI.activeSelf)
+					{
+						GameObject templateObj = m_inventoryUI.transform.GetChild(0).gameObject;
+						Assert.IsFalse(templateObj.activeSelf);
+
+						int iconIdx = 0;
+						int iconCount = System.Math.Max(m_maxPickUps, transform.childCount);
+						Vector3 posItr = templateObj.transform.position;
+						for (; iconIdx < iconCount; ++iconIdx)
+						{
+							GameObject UIObj;
+							if (iconIdx + 1 < m_inventoryUI.transform.childCount)
+							{
+								UIObj = m_inventoryUI.transform.GetChild(iconIdx + 1).gameObject;
+							}
+							else
+							{
+								posItr.x = templateObj.transform.position.x + (templateObj.GetComponent<RectTransform>().sizeDelta.x + templateObj.transform.position.x) * iconIdx;
+								UIObj = Instantiate(templateObj, posItr, Quaternion.identity, m_inventoryUI.transform);
+								UIObj.SetActive(true);
+							}
+							UIObj.GetComponent<UnityEngine.UI.Image>().sprite = iconIdx < transform.childCount ? transform.GetChild(iconIdx).GetComponent<SpriteRenderer>().sprite : templateObj.GetComponent<UnityEngine.UI.Image>().sprite;
+						}
+						for (int j = m_inventoryUI.transform.childCount - 1; j > iconCount; --j)
+						{
+							Destroy(m_inventoryUI.transform.GetChild(j).gameObject);
+						}
 					}
 				}
 			}

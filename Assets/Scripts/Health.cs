@@ -39,10 +39,11 @@ namespace Platformer.Mechanics
 		/// <summary>
 		/// Increment the HP of the entity.
 		/// </summary>
-		public void Increment(int amount = 1)
+		public bool Increment(int amount = 1)
 		{
-			IncrementInternal(amount);
+			bool changed = IncrementInternal(amount);
 			SyncUI();
+			return changed;
 		}
 
 		/// <summary>
@@ -112,9 +113,11 @@ namespace Platformer.Mechanics
 		}
 
 
-		private void IncrementInternal(int diff)
+		private bool IncrementInternal(int diff)
 		{
+			int hpPrev = currentHP;
 			currentHP = Mathf.Clamp(currentHP + diff, 0, maxHP);
+			return currentHP != hpPrev;
 		}
 
 		private void SyncUI()

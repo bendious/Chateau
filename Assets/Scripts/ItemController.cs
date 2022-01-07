@@ -124,9 +124,12 @@ public class ItemController : MonoBehaviour
 	{
 		if (m_healAmount > 0)
 		{
-			transform.parent.GetComponent<Health>().Increment(m_healAmount);
-			Destroy(gameObject);
-			return true;
+			bool healed = transform.parent.GetComponent<Health>().Increment(m_healAmount);
+			if (healed)
+			{
+				Destroy(gameObject);
+				return true;
+			}
 		}
 
 		return false;
