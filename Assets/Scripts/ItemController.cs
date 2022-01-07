@@ -120,13 +120,16 @@ public class ItemController : MonoBehaviour
 		m_renderer.flipY = LeftFacing;
 	}
 
-	public void Use()
+	public bool Use()
 	{
 		if (m_healAmount > 0)
 		{
 			transform.parent.GetComponent<Health>().Increment(m_healAmount);
 			Destroy(gameObject);
+			return true;
 		}
+
+		return false;
 	}
 
 	public void Throw()

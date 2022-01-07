@@ -99,7 +99,14 @@ namespace Platformer.Mechanics
 
 					if (Input.GetButtonDown("Fire3"))
 					{
-						GetComponentInChildren<ItemController>().Use();
+						foreach (ItemController item in GetComponentsInChildren<ItemController>())
+						{
+							bool used = item.Use();
+							if (used)
+							{
+								break;
+							}
+						}
 					}
 				}
 
