@@ -8,7 +8,7 @@
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
-#/[Bb]uild/
+/[Bb]uild/
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
@@ -480,3 +480,8 @@ FodyWeavers.xsd
 # Additional files built by Visual Studio
 
 # End of https://www.toptal.com/developers/gitignore/api/unity,visualstudio,windows
+
+
+Build.app
+*.DS_Store
+.~lock*#
