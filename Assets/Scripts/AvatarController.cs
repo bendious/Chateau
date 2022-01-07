@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.UI;
 using static Platformer.Core.Simulation;
 
 
@@ -81,6 +82,7 @@ namespace Platformer.Mechanics
 				m_xInputForced = Mathf.SmoothDamp(m_xInputForced, 0.0f, ref m_xInputForcedVel, m_xInputForcedSmoothTime);
 
 				// swing
+				bool refreshInventory = false;
 				if (transform.childCount > 0)
 				{
 					if (Input.GetButtonDown("Fire1"))
@@ -97,6 +99,7 @@ namespace Platformer.Mechanics
 					{
 						// release
 						GetComponentInChildren<ItemController>().Throw();
+						refreshInventory = true;
 					}
 
 					if (Input.GetButtonDown("Fire3"))
@@ -116,7 +119,7 @@ namespace Platformer.Mechanics
 				// TODO: more nuanced prioritization?
 				m_focusObj = null;
 				float holdRadius = ((CircleCollider2D)collider2d).radius;
-				Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + Vector2.right * (LeftFacing ? -1.0f : 1.0f) * holdRadius, holdRadius * 1.5f); // TODO: restrict to certain layers?
+				Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + (Vector2)(Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position).normalized * holdRadius, holdRadius * 1.5f); // TODO: restrict to certain layers?
 				float distSqFocus = float.MaxValue;
 				foreach (Collider2D candidate in focusCandidates)
 				{
@@ -153,6 +156,7 @@ namespace Platformer.Mechanics
 						// drop first attached to cycle through items
 						transform.GetChild(0).GetComponent<ItemController>().Detach();
 					}
+					refreshInventory = true;
 				}
 				IsPickingUp = Input.GetButton("PickUp") && transform.childCount < m_maxPickUps;
 
@@ -161,41 +165,19 @@ namespace Platformer.Mechanics
 					if (transform.childCount > 0)
 					{
 						GetComponentInChildren<ItemController>().Detach();
+						refreshInventory = true;
 					}
 				}
 
+				// show/update inventory
 				if (Input.GetButtonDown("Inventory"))
 				{
-					// show/update inventory
 					m_inventoryUI.SetActive(!m_inventoryUI.activeSelf);
-					if (m_inventoryUI.activeSelf)
-					{
-						GameObject templateObj = m_inventoryUI.transform.GetChild(0).gameObject;
-						Assert.IsFalse(templateObj.activeSelf);
-
-						int iconIdx = 0;
-						int iconCount = System.Math.Max(m_maxPickUps, transform.childCount);
-						Vector3 posItr = templateObj.transform.position;
-						for (; iconIdx < iconCount; ++iconIdx)
-						{
-							GameObject UIObj;
-							if (iconIdx + 1 < m_inventoryUI.transform.childCount)
-							{
-								UIObj = m_inventoryUI.transform.GetChild(iconIdx + 1).gameObject;
-							}
-							else
-							{
-								posItr.x = templateObj.transform.position.x + (templateObj.GetComponent<RectTransform>().sizeDelta.x + templateObj.transform.position.x) * iconIdx;
-								UIObj = Instantiate(templateObj, posItr, Quaternion.identity, m_inventoryUI.transform);
-								UIObj.SetActive(true);
-							}
-							UIObj.GetComponent<UnityEngine.UI.Image>().sprite = iconIdx < transform.childCount ? transform.GetChild(iconIdx).GetComponent<SpriteRenderer>().sprite : templateObj.GetComponent<UnityEngine.UI.Image>().sprite;
-						}
-						for (int j = m_inventoryUI.transform.childCount - 1; j > iconCount; --j)
-						{
-							Destroy(m_inventoryUI.transform.GetChild(j).gameObject);
-						}
-					}
+					InventorySync();
+				}
+				else if (refreshInventory)
+				{
+					InventorySync();
 				}
 			}
 			else
@@ -290,6 +272,52 @@ namespace Platformer.Mechanics
 			animator.SetBool("dead", false);
 
 			Schedule<EnablePlayerInput>(2f).avatar = this;
+		}
+
+		public void InventorySync()
+		{
+			if (!m_inventoryUI.activeSelf)
+			{
+				return;
+			}
+
+			GameObject templateObj = m_inventoryUI.transform.GetChild(0).gameObject;
+			Assert.IsFalse(templateObj.activeSelf);
+
+			int iconIdx = 0;
+			int iconCount = System.Math.Max(m_maxPickUps, transform.childCount);
+			Vector3 posItr = templateObj.transform.position;
+			for (; iconIdx < iconCount; ++iconIdx)
+			{
+				GameObject UIObj;
+				if (iconIdx + 1 < m_inventoryUI.transform.childCount)
+				{
+					UIObj = m_inventoryUI.transform.GetChild(iconIdx + 1).gameObject;
+				}
+				else
+				{
+					posItr.x = templateObj.transform.position.x + (templateObj.GetComponent<RectTransform>().sizeDelta.x + templateObj.transform.position.x) * iconIdx;
+					UIObj = Instantiate(templateObj, posItr, Quaternion.identity, m_inventoryUI.transform);
+					UIObj.SetActive(true);
+				}
+				Image uiImage = UIObj.GetComponent<Image>();
+				if (iconIdx < transform.childCount)
+				{
+					SpriteRenderer srcComp = transform.GetChild(iconIdx).GetComponent<SpriteRenderer>();
+					uiImage.sprite = srcComp.sprite;
+					uiImage.color = srcComp.color;
+				}
+				else
+				{
+					Image srcComp = templateObj.GetComponent<Image>();
+					uiImage.sprite = srcComp.sprite;
+					uiImage.color = srcComp.color;
+				}
+			}
+			for (int j = m_inventoryUI.transform.childCount - 1; j > iconCount; --j)
+			{
+				Destroy(m_inventoryUI.transform.GetChild(j).gameObject);
+			}
 		}
 
 		public void OnVictory()

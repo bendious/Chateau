@@ -175,6 +175,11 @@ public class ItemController : MonoBehaviour
 			if (character != null && character.IsPickingUp && character.transform.childCount < character.m_maxPickUps)
 			{
 				AttachTo(collision.gameObject);
+				AvatarController avatar = collision.gameObject.GetComponent<AvatarController>();
+				if (avatar != null)
+				{
+					avatar.InventorySync();
+				}
 				return;
 			}
 		}
