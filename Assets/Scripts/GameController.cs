@@ -28,7 +28,6 @@ public class GameController : MonoBehaviour
 
 
 	private RoomController m_startRoom;
-	private GameObject m_victoryZone;
 
 	private float m_nextWaveTime = 0.0f;
 
@@ -131,8 +130,30 @@ public class GameController : MonoBehaviour
 	private IEnumerator SpawnVictoryZoneWhenReady()
 	{
 		yield return new WaitUntil(() => m_startRoom.AllChildrenReady());
-		RoomController endRoom = m_startRoom.LeafRoomFarthest().Item1;
-		m_victoryZone = Instantiate(m_victoryZonePrefab, endRoom.transform.position, Quaternion.identity);
+
+		// color path to victory
+		Color colorDefault = Color.gray; // TODO: don't hardcode default color
+		List<RoomController> endRoomPath = m_startRoom.RoomPathLongest().Item1;
+		int pathIdx = 0;
+		foreach (RoomController room in endRoomPath)
+		{
+			++pathIdx;
+			float pathPct = (float)pathIdx / endRoomPath.Count;
+			Color color = colorDefault;
+			color.r = Mathf.Lerp(color.r, 1.0f, pathPct);
+			color.g = Mathf.Lerp(color.g, 1.0f, pathPct);
+			color.b = Mathf.Lerp(color.b, 1.0f, pathPct);
+			foreach (SpriteRenderer renderer in room.transform.GetComponentsInChildren<SpriteRenderer>())
+			{
+				if (renderer.color == colorDefault)
+				{
+					renderer.color = color;
+				}
+			}
+		}
+
+		// create victory zone
+		Instantiate(m_victoryZonePrefab, endRoomPath.Last().transform.position, Quaternion.identity);
 	}
 
 	private IEnumerator SpawnWavesCoroutine()
@@ -175,12 +196,7 @@ public class GameController : MonoBehaviour
 		{
 			yield return new WaitForSeconds(1.0f); // NOTE that we currently don't care whether the UI timer is precise within partial seconds
 			m_timerUI.text = System.TimeSpan.FromSeconds(m_nextWaveTime - Time.time).ToString("m':'ss");
-			Color color = EnemiesRemain() ? Color.red : Color.green;
-			m_timerUI.color = color;
-			if (m_victoryZone != null)
-			{
-				m_victoryZone.GetComponent<SpriteRenderer>().color = color;
-			}
+			m_timerUI.color = EnemiesRemain() ? Color.red : Color.green;
 		}
 	}
 }

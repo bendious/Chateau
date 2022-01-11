@@ -21,6 +21,8 @@ namespace Platformer.Mechanics
 		public Sprite m_healthMissingSprite;
 		public float m_UIPadding = 5.0f;
 
+		public bool m_invincible;
+
 		/// <summary>
 		/// Indicates if the entity should be considered 'alive'.
 		/// </summary>
@@ -29,7 +31,6 @@ namespace Platformer.Mechanics
 
 		int currentHP;
 
-		private bool m_invincible;
 		private const float m_invincibilityTime = 0.5f; // TODO: vary by character type / animation played?
 
 		private Animator m_animator;
@@ -78,11 +79,6 @@ namespace Platformer.Mechanics
 			SyncUI();
 
 			return true;
-		}
-
-		public void EnableDamage()
-		{
-			m_invincible = false;
 		}
 
 		/// <summary>

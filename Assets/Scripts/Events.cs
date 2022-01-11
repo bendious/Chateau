@@ -36,7 +36,7 @@ namespace Platformer.Gameplay
 	{
 		public Health m_health;
 
-		public override void Execute() => m_health.EnableDamage();
+		public override void Execute() => m_health.m_invincible = false;
 	}
 
 	/// <summary>

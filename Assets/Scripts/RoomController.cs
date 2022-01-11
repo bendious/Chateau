@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -121,23 +122,25 @@ public class RoomController : MonoBehaviour
 		return child.ChildFloorPosition(checkLocks, targetObj);
 	}
 
-	public Tuple<RoomController, int> LeafRoomFarthest(int startDistance = 0)
+	public Tuple<List<RoomController>, int> RoomPathLongest(int startDistance = 0)
 	{
 		// enumerate non-null children
 		Assert.IsTrue(m_childrenCreated);
 		Tuple<RoomController, int>[] childrenPreprocess = (new Tuple<RoomController, int>[] { Tuple.Create(m_leftChild, m_leftLock != null ? 1 : 0), Tuple.Create(m_rightChild, m_rightLock != null ? 1 : 0), Tuple.Create(m_bottomChild, m_bottomLock != null ? 1 : 0), Tuple.Create(m_topChild, m_topLock != null ? 1 : 0) }).Where(child => child.Item1 != null).ToArray();
 		if (childrenPreprocess.Length == 0)
 		{
-			return Tuple.Create(this, startDistance);
+			return Tuple.Create(new List<RoomController> { this }, startDistance);
 		}
 
 		// recursively find farthest distance
-		Tuple<RoomController, int>[] childrenPostprocessed = childrenPreprocess.Select(child => child.Item1.LeafRoomFarthest(child.Item2)).ToArray();
+		Tuple<List<RoomController>, int>[] childrenPostprocessed = childrenPreprocess.Select(child => child.Item1.RoomPathLongest(child.Item2)).ToArray();
 		int maxDistance = childrenPostprocessed.Max(a => a.Item2);
 
 		// pick random child at farthest distance
-		Tuple<RoomController, int>[] childrenMax = childrenPostprocessed.Where(childTuple => childTuple.Item2 >= maxDistance).ToArray();
-		return Tuple.Create(childrenMax[UnityEngine.Random.Range(0, childrenMax.Length)].Item1, maxDistance + 1);
+		Tuple<List<RoomController>, int>[] childrenMax = childrenPostprocessed.Where(childTuple => childTuple.Item2 >= maxDistance).ToArray();
+		List<RoomController> pathFinal = childrenMax[UnityEngine.Random.Range(0, childrenMax.Length)].Item1;
+		pathFinal.Insert(0, this);
+		return Tuple.Create(pathFinal, maxDistance + 1);
 	}
 
 

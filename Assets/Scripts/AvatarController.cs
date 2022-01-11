@@ -330,6 +330,7 @@ namespace Platformer.Mechanics
 				item.Detach();
 			}
 			animator.SetTrigger("victory");
+			GetComponent<Health>().m_invincible = true;
 			controlEnabled = false;
 		}
 
