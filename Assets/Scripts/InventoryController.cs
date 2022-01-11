@@ -10,15 +10,10 @@ public class InventoryController : MonoBehaviour, IBeginDragHandler, IDragHandle
 {
 	public float m_smoothTime = 0.05f;
 	public float m_smoothEpsilon = 0.01f;
-
 	public GraphicRaycaster m_raycaster;
-
 	public bool m_draggable = false;
-
-
 	private Vector3 m_restPosition;
 	private Vector2 m_mouseOffset;
-
 	private Vector3 m_lerpVelocity;
 
 
@@ -34,7 +29,6 @@ public class InventoryController : MonoBehaviour, IBeginDragHandler, IDragHandle
 			eventData.pointerDrag = null; // this cancels OnDrag{End}() being called
 			return;
 		}
-
 		m_mouseOffset = (Vector2)transform.position - eventData.position;
 	}
 
@@ -95,7 +89,6 @@ public class InventoryController : MonoBehaviour, IBeginDragHandler, IDragHandle
 			newPos.y = Mathf.SmoothDamp(transform.position.y, m_restPosition.y, ref m_lerpVelocity.y, m_smoothTime);
 			newPos.z = Mathf.SmoothDamp(transform.position.z, m_restPosition.z, ref m_lerpVelocity.z, m_smoothTime);
 			transform.position = newPos;
-
 			yield return null;
 		}
 
