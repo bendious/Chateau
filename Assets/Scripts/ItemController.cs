@@ -1,6 +1,7 @@
 using Platformer.Core;
 using Platformer.Gameplay;
 using Platformer.Mechanics;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -17,10 +18,8 @@ public class ItemController : MonoBehaviour
 	public float m_radiusSpringStiffness = 25.0f;
 	public float m_radiusSpringDampPct = 0.5f;
 	public float m_damageThresholdSpeed = 2.0f;
-	public float m_throwSpeed = 100.0f;
+	public float m_throwSpeed = 10.0f;
 	public int m_healAmount = 0;
-
-	public float m_trailAlphaMax = 0.5f;
 
 	public AudioClip[] m_swingThrowAudio;
 	public AudioClip[] m_collisionAudio;
@@ -44,22 +43,47 @@ public class ItemController : MonoBehaviour
 
 	private GameObject m_cause;
 
+	private static int m_posLocalPrevID;
+	private static int m_upVecID;
+	private static int m_gradientID;
+
 
 	private void Awake()
 	{
+		m_posLocalPrevID = Shader.PropertyToID("PosLocalPrev");
+		m_upVecID = Shader.PropertyToID("UpVec");
+		m_gradientID = Shader.PropertyToID("Gradient");
+
 		m_body = GetComponent<Rigidbody2D>();
 		m_vfx = GetComponent<VisualEffect>();
 		m_audioSource = GetComponent<AudioSource>();
 		m_collider = GetComponent<Collider2D>();
 		m_renderer = GetComponent<SpriteRenderer>();
 		m_health = GetComponent<Health>();
+
 		SetCause(transform.parent == null ? null : transform.parent.gameObject);
+		Vector3 size = m_collider.bounds.size;
+		m_vfx.SetFloat("Size", Mathf.Max(size.x, size.y));
+		m_vfx.SetVector3("SpriteOffset", -(m_renderer.sprite.pivot / m_renderer.sprite.rect.size * 2.0f - Vector2.one) * m_renderer.sprite.bounds.extents);
 	}
 
 	// TODO: only when VFX is enabled?
 	private void FixedUpdate()
 	{
-		m_vfx.SetVector3("PosLocalPrev", -(Vector3)m_body.velocity * Time.deltaTime + Vector3.forward); // NOTE the inclusion of Vector3.forward to put the VFX in the background
+		float speed = m_body.velocity.magnitude + Mathf.Abs(m_aimVelocity) + Mathf.Abs(m_aimRadiusVelocity); // TODO: incorporate aim velocity direction?
+		if (speed >= m_damageThresholdSpeed)
+		{
+			m_vfx.SetVector3(m_posLocalPrevID, Quaternion.Inverse(transform.rotation) * -(Vector3)m_body.velocity * Time.fixedDeltaTime + Vector3.forward); // NOTE the inclusion of Vector3.forward to put the VFX in the background // TODO: don't assume constant/unchanged velocity across the time step?
+		}
+		else
+		{
+			m_vfx.Stop();
+			StopAllCoroutines();
+			if (transform.parent == null)
+			{
+				SetCause(null);
+			}
+		}
 	}
 
 	private void OnCollisionEnter2D(Collision2D collision)
@@ -76,6 +100,7 @@ public class ItemController : MonoBehaviour
 	public void AttachTo(GameObject obj)
 	{
 		transform.SetParent(obj.transform);
+		m_body.velocity = Vector2.zero;
 		m_body.bodyType = RigidbodyType2D.Kinematic;
 		gameObject.layer = obj.layer;
 		m_aimDegrees = AimDegreesRaw(transform.position);
@@ -99,8 +124,7 @@ public class ItemController : MonoBehaviour
 		m_aimRadiusVelocity += m_swingRadiusPerSec;
 		m_swingDirection = !m_swingDirection;
 
-		m_vfx.enabled = true;
-		Simulation.Schedule<DisableVFX>(1.0f).m_vfx = m_vfx;
+		EnableVFX();
 
 		// play audio
 		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
@@ -145,10 +169,9 @@ public class ItemController : MonoBehaviour
 		evt.m_collider2 = parentCollider;
 
 		Detach();
-		m_body.AddForce(Quaternion.Euler(0.0f, 0.0f, m_aimDegrees) * Vector2.right * m_throwSpeed);
+		m_body.velocity = Quaternion.Euler(0.0f, 0.0f, m_aimDegrees) * Vector2.right * m_throwSpeed;
 
-		m_vfx.enabled = true;
-		Simulation.Schedule<DisableVFX>(0.5f).m_vfx = m_vfx;
+		EnableVFX();
 
 		// play audio
 		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
@@ -185,11 +208,11 @@ public class ItemController : MonoBehaviour
 		}
 
 		// check speed
-		float collisionSpeed = kinematicObj == null ? collision.relativeVelocity.magnitude : (m_body.velocity - kinematicObj.velocity).magnitude + Mathf.Abs(m_aimVelocity) + m_aimRadiusVelocity; // TODO: incorporate aim velocity direction?
+		float collisionSpeed = kinematicObj == null ? collision.relativeVelocity.magnitude : (m_body.velocity - kinematicObj.velocity).magnitude + Mathf.Abs(m_aimVelocity) + Mathf.Abs(m_aimRadiusVelocity); // TODO: incorporate aim velocity direction?
 		if (collisionSpeed > m_damageThresholdSpeed)
 		{
 			// play audio
-			if (m_collisionAudio != null && m_collisionAudio.Length > 0)
+			if (m_collisionAudio != null && m_collisionAudio.Length > 0 && m_audioSource.enabled)
 			{
 				m_audioSource.PlayOneShot(m_collisionAudio[Random.Range(0, m_collisionAudio.Length)]);
 			}
@@ -238,12 +261,30 @@ public class ItemController : MonoBehaviour
 
 	private void SetCause(GameObject cause)
 	{
+		if (m_cause == cause)
+		{
+			return;
+		}
+
 		m_cause = cause;
+
+		if (m_cause == null)
+		{
+			return;
+		}
 
 		Gradient gradient = new Gradient();
 		gradient.colorKeys = new GradientColorKey[] { new GradientColorKey(cause == Camera.main.GetComponent<GameController>().m_avatar.gameObject ? Color.white : Color.red, 0.0f) };
-		gradient.alphaKeys = new GradientAlphaKey[] { new GradientAlphaKey(0.0f, 0.0f), new GradientAlphaKey(1.0f, m_trailAlphaMax)};
-		m_vfx.SetGradient("Gradient", gradient);
+		gradient.alphaKeys = new GradientAlphaKey[] { new GradientAlphaKey(0.0f, 0.0f), new GradientAlphaKey(1.0f, 1.0f) }; // NOTE that this gets overridden by the VFX's Alpha Over Life node
+		m_vfx.SetGradient(m_gradientID, gradient);
+	}
+
+	private void EnableVFX()
+	{
+		m_vfx.enabled = true;
+		m_vfx.Play();
+		StopAllCoroutines();
+		StartCoroutine(UpdateVFX());
 	}
 
 	private float DampedSpring(float current, float target, float dampPct, bool isAngle, float stiffness, ref float velocityCurrent)
@@ -260,8 +301,17 @@ public class ItemController : MonoBehaviour
 		float force = stiffness * diff - dampingFactor * velocityCurrent;
 
 		float accel = force / mass;
-		velocityCurrent += accel * Time.deltaTime;
+		velocityCurrent += accel * Time.fixedDeltaTime;
 
-		return current + velocityCurrent * Time.deltaTime;
+		return current + velocityCurrent * Time.fixedDeltaTime;
+	}
+
+	private IEnumerator UpdateVFX()
+	{
+		while (true)
+		{
+			m_vfx.SetVector3(m_upVecID, transform.rotation * Vector3.up);
+			yield return null;
+		}
 	}
 }

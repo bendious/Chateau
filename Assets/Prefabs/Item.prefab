@@ -184,9 +184,8 @@ MonoBehaviour:
   m_radiusSpringStiffness: 25
   m_radiusSpringDampPct: 0.5
   m_damageThresholdSpeed: 2
-  m_throwSpeed: 100
+  m_throwSpeed: 10
   m_healAmount: 0
-  m_trailAlphaMax: 0.5
   m_swingThrowAudio:
   - {fileID: 8300000, guid: bd75c6b6ef0eb684e8159da49bdc2be8, type: 3}
   - {fileID: 8300000, guid: 0ad195f3e50a81f4d87df76997aed45a, type: 3}

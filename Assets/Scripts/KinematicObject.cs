@@ -132,14 +132,14 @@ namespace Platformer.Mechanics
 		protected virtual void FixedUpdate()
 		{
 			//if already falling, fall faster than the jump speed, otherwise use normal gravity.
-			velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0 ? gravityModifier : 1.0f) * Physics2D.gravity * Time.deltaTime;
+			velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0 ? gravityModifier : 1.0f) * Physics2D.gravity * Time.fixedDeltaTime;
 
 			velocity.x = targetVelocity.x;
 
 			IsGrounded = false;
 			IsWallClinging = false;
 
-			Vector2 deltaPosition = velocity * Time.deltaTime;
+			Vector2 deltaPosition = velocity * Time.fixedDeltaTime;
 
 			Vector2 moveAlongGround = new Vector2(groundNormal.y, -groundNormal.x);
 

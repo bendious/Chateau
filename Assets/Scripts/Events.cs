@@ -40,18 +40,6 @@ namespace Platformer.Gameplay
 	}
 
 	/// <summary>
-	/// This event is fired when a timed VFX component should be disabled.
-	/// </summary>
-	public class DisableVFX : Event<DisableVFX>
-	{
-		public VisualEffect m_vfx;
-
-		public override bool Precondition() => m_vfx != null; // NOTE that this event can fire after the object has been destroyed
-
-		public override void Execute() => m_vfx.enabled = false;
-	}
-
-	/// <summary>
 	/// Fired after the avatar dies.
 	/// </summary>
 	public class GameOver : Event<GameOver>
