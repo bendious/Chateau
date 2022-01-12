@@ -3,6 +3,14 @@ using System.Linq;
 using UnityEngine.Assertions;
 
 
+[Serializable]
+public struct WeightedObject<T>
+{
+	public T m_object;
+	public float m_weight;
+}
+
+
 public static class Utility
 {
 	public static int Modulo(int x, int m)
@@ -22,6 +30,11 @@ public static class Utility
 	public static int EnumNumTypes<T>()
 	{
 		return Enum.GetValues(typeof(T)).Length;
+	}
+
+	public static T RandomWeighted<T>(WeightedObject<T>[] pairs)
+	{
+		return RandomWeighted(pairs.Select(pair => pair.m_object).ToArray(), pairs.Select(pair => pair.m_weight).ToArray());
 	}
 
 	public static T RandomWeighted<T>(T[] values, float[] weights)

@@ -6,8 +6,7 @@ public class TableController : MonoBehaviour
 	public Vector2 m_sizeMin = new Vector2(1.0f, 0.25f);
 	public Vector2 m_sizeMax = new Vector2(4.0f, 0.5f);
 
-	public GameObject[] m_itemPrefabs;
-	public float[] m_itemPrefabWeights;
+	public WeightedObject<GameObject>[] m_itemPrefabs;
 
 	public int m_itemsMin = 0;
 	public int m_itemsMax = 4;
@@ -34,7 +33,7 @@ public class TableController : MonoBehaviour
 		float extentX = size.x * 0.5f;
 		for (int i = 0; i < itemCount; ++i)
 		{
-			GameObject itemPrefab = Utility.RandomWeighted(m_itemPrefabs, m_itemPrefabWeights);
+			GameObject itemPrefab = Utility.RandomWeighted(m_itemPrefabs);
 			BoxCollider2D itemCollider = itemPrefab.GetComponent<BoxCollider2D>();
 			float offsetY = size.y + itemCollider.size.y * 0.5f + itemCollider.edgeRadius;
 			Vector3 spawnCenterPos = transform.position + new Vector3(Random.Range(-extentX, extentX), offsetY, 0.0f);

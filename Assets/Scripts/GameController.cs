@@ -11,8 +11,7 @@ public class GameController : MonoBehaviour
 	public AvatarController m_avatar;
 
 	public GameObject m_roomPrefab;
-	public GameObject[] m_enemyPrefabs;
-	public float[] m_enemyPrefabWeights;
+	public WeightedObject<GameObject>[] m_enemyPrefabs;
 	public GameObject m_victoryZonePrefab;
 
 	public TMPro.TMP_Text m_timerUI;
@@ -179,15 +178,10 @@ public class GameController : MonoBehaviour
 		for (int i = 0; i < enemyCount; ++i)
 		{
 			Vector3 spawnPos = FloorPosition(true, m_avatar.gameObject);
-			EnemyController enemy = Instantiate(EnemyPrefabRandom(), spawnPos, Quaternion.identity).GetComponent<EnemyController>();
+			EnemyController enemy = Instantiate(Utility.RandomWeighted(m_enemyPrefabs), spawnPos, Quaternion.identity).GetComponent<EnemyController>();
 			enemy.m_target = avatarTf;
 			m_enemies.Add(enemy);
 		}
-	}
-
-	private GameObject EnemyPrefabRandom()
-	{
-		return Utility.RandomWeighted(m_enemyPrefabs, m_enemyPrefabWeights);
 	}
 
 	private IEnumerator TimerCoroutine()

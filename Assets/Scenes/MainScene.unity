@@ -500,11 +500,10 @@ MonoBehaviour:
   m_avatar: {fileID: 1455061592}
   m_roomPrefab: {fileID: 7422594126546487761, guid: bc523bdaf3586ea4385e45a9a5838915, type: 3}
   m_enemyPrefabs:
-  - {fileID: 1661912868639658944, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
-  - {fileID: 8176166786061933274, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
-  m_enemyPrefabWeights:
-  - 1
-  - 0.5
+  - m_object: {fileID: 1661912868639658944, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8176166786061933274, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+    m_weight: 0.1
   m_victoryZonePrefab: {fileID: 8396716149559462411, guid: 071e51a82246f374680ba2adce86a07b, type: 3}
   m_timerUI: {fileID: 890711136}
   m_pauseUI: {fileID: 2025162744}
@@ -2044,7 +2043,6 @@ MonoBehaviour:
   m_smoothTime: 0.05
   m_smoothEpsilon: 0.01
   m_raycaster: {fileID: 339841933}
-  m_index: 0
   m_draggable: 0
 --- !u!1 &1455061587
 GameObject:
@@ -2246,6 +2244,7 @@ MonoBehaviour:
   m_healthSprite: {fileID: 21300000, guid: 66ce8ac3d26a2c0468edc3a8d88698e0, type: 3}
   m_healthMissingSprite: {fileID: 21300000, guid: 2581a037f6f73f84b98c2af8eaaf9d1d, type: 3}
   m_UIPadding: 5
+  m_invincible: 0
 --- !u!82 &1455061595
 AudioSource:
   m_ObjectHideFlags: 0
@@ -3225,7 +3224,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.6627219, y: 1}
+    m_SensorSize: {x: 1.0955777, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
