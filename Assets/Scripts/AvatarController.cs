@@ -271,8 +271,6 @@ namespace Platformer.Mechanics
 			jumpState = JumpState.Grounded;
 
 			animator.SetBool("dead", false);
-
-			Schedule<EnablePlayerInput>(2f).avatar = this;
 		}
 
 		public void InventorySync()
@@ -383,6 +381,12 @@ namespace Platformer.Mechanics
 					jumpState = JumpState.Grounded;
 					break;
 			}
+		}
+
+		// called from animation event
+		private void EnablePlayerControl()
+		{
+			controlEnabled = true;
 		}
 	}
 }

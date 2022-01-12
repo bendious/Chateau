@@ -177,8 +177,10 @@ public class GameController : MonoBehaviour
 
 		for (int i = 0; i < enemyCount; ++i)
 		{
-			Vector3 spawnPos = FloorPosition(true, m_avatar.gameObject);
-			EnemyController enemy = Instantiate(Utility.RandomWeighted(m_enemyPrefabs), spawnPos, Quaternion.identity).GetComponent<EnemyController>();
+			GameObject enemyPrefab = Utility.RandomWeighted(m_enemyPrefabs);
+			CapsuleCollider2D enemyCollider = enemyPrefab.GetComponent<CapsuleCollider2D>();
+			Vector3 spawnPos = FloorPosition(true, m_avatar.gameObject) + Vector3.up * (enemyCollider.size.y * 0.5f - enemyCollider.offset.y);
+			EnemyController enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>();
 			enemy.m_target = avatarTf;
 			m_enemies.Add(enemy);
 		}

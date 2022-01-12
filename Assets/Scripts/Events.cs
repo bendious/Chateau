@@ -7,16 +7,6 @@ using static Platformer.Core.Simulation;
 namespace Platformer.Gameplay
 {
 	/// <summary>
-	/// This event is fired when user input should be enabled.
-	/// </summary>
-	public class EnablePlayerInput : Event<EnablePlayerInput>
-	{
-		public AvatarController avatar;
-
-		public override void Execute() => avatar.controlEnabled = true;
-	}
-
-	/// <summary>
 	/// This event is fired when collision between two objects should be re-enabled.
 	/// </summary>
 	public class EnableCollision : Event<EnableCollision>
