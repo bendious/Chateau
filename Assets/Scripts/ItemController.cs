@@ -27,6 +27,8 @@ public class ItemController : MonoBehaviour
 
 	public bool LeftFacing => Mathf.Cos(Mathf.Deg2Rad * m_aimDegrees) < 0.0f; // TODO: efficiency?
 
+	public float Speed => m_body.velocity.magnitude + Mathf.Abs(m_aimVelocity) + Mathf.Abs(m_aimRadiusVelocity); // TODO: incorporate aim velocity direction?
+
 
 	private float m_aimDegrees;
 	private float m_aimVelocity;
@@ -70,8 +72,7 @@ public class ItemController : MonoBehaviour
 	// TODO: only when VFX is enabled?
 	private void FixedUpdate()
 	{
-		float speed = m_body.velocity.magnitude + Mathf.Abs(m_aimVelocity) + Mathf.Abs(m_aimRadiusVelocity); // TODO: incorporate aim velocity direction?
-		if (speed >= m_damageThresholdSpeed)
+		if (Speed >= m_damageThresholdSpeed)
 		{
 			m_vfx.SetVector3(m_posLocalPrevID, Quaternion.Inverse(transform.rotation) * -(Vector3)m_body.velocity * Time.fixedDeltaTime + Vector3.forward); // NOTE the inclusion of Vector3.forward to put the VFX in the background // TODO: don't assume constant/unchanged velocity across the time step?
 		}

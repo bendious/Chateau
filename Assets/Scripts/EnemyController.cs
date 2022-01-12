@@ -11,6 +11,18 @@ namespace Platformer.Mechanics
 		public float m_targetDistance = 0.0f;
 		public Transform m_target;
 
+		public float m_meleeRange = 1.0f;
+
+
+		private AIState m_aiState;
+
+
+		protected override void Start()
+		{
+			base.Start();
+			m_aiState = new AIPursue { m_target = m_target, m_targetDistance = m_targetDistance };
+			m_aiState.Enter(this);
+		}
 
 		void OnCollisionEnter2D(Collision2D collision)
 		{
@@ -29,38 +41,13 @@ namespace Platformer.Mechanics
 			}
 			else
 			{
-				// left/right
-				AvatarController targetAvatar = m_target.GetComponent<AvatarController>();
-				Vector3 targetPos = m_target == null ? transform.position : m_target.position + (transform.position - m_target.position).normalized * m_targetDistance;
-				bool moveAway = targetAvatar != null && !targetAvatar.controlEnabled; // avoid softlock from enemies in spawn position // TODO: better shouldMoveAway flag?
-				move.x = (targetPos - transform.position).magnitude < collider2d.bounds.extents.x ? 0.0f : Mathf.Clamp((targetPos.x - transform.position.x) * (moveAway ? -1.0f : 1.0f), -1.0f, 1.0f);
-
-				// jump/drop
-				// TODO: actual pathfinding
-				Bounds targetBounds = targetAvatar.GetComponent<CircleCollider2D>().bounds;
-				Bounds selfBounds = collider2d.bounds;
-				if (IsGrounded && targetBounds.min.y > selfBounds.max.y && Random.value > 0.95f/*?*/)
+				AIState stateNew = m_aiState.Update(this);
+				if (stateNew != null)
 				{
-					jump = true;
-				}
-				else if (targetBounds.max.y < selfBounds.min.y)
-				{
-					move.y = -1.0f;
-				}
-
-				// swing
-				if (m_maxPickUps > 0 && transform.childCount > 0)
-				{
-					if (Random.value > 0.99f) // TODO
-					{
-						GetComponentInChildren<ItemController>().Swing();
-					}
-
-					// throw
-					if (Random.value > 0.99f) // TODO
-					{
-						GetComponentInChildren<ItemController>().Throw();
-					}
+					// TODO: split across frames?
+					m_aiState.Exit(this);
+					m_aiState = stateNew;
+					m_aiState.Enter(this);
 				}
 			}
 
@@ -84,6 +71,7 @@ namespace Platformer.Mechanics
 			}
 		}
 
+
 		public override void OnDeath()
 		{
 			base.OnDeath();
@@ -94,6 +82,30 @@ namespace Platformer.Mechanics
 		{
 			Camera.main.GetComponent<GameController>().OnEnemyDespawn(this);
 			base.DespawnSelf();
+		}
+
+
+		// TODO: un-expose?
+		public bool NavigateTowardTarget(Transform target, float targetDistance)
+		{
+			// left/right
+			Vector3 targetPos = target == null ? transform.position : target.position + (transform.position - target.position).normalized * targetDistance;
+			AvatarController targetAvatar = target?.GetComponent<AvatarController>();
+			bool moveAway = targetAvatar != null && !targetAvatar.controlEnabled; // avoid softlock from enemies in spawn position // TODO: better shouldMoveAway flag? avoid move-away failure when current distance is less than targetDistance
+			bool hasArrived = Vector2.Distance(targetPos, transform.position) < collider2d.bounds.extents.x;
+			move.x = hasArrived ? 0.0f : Mathf.Clamp((targetPos.x - transform.position.x) * (moveAway ? -1.0f : 1.0f), -1.0f, 1.0f);
+
+			// jump/drop
+			// TODO: actual room-based pathfinding to avoid getting stuck
+			Bounds targetBounds = targetAvatar == null ? new Bounds(targetPos, Vector3.zero) : targetAvatar.GetComponent<CircleCollider2D>().bounds;
+			Bounds selfBounds = collider2d.bounds;
+			if (IsGrounded && targetBounds.min.y > selfBounds.max.y && Random.value > 0.95f/*?*/)
+			{
+				jump = true;
+			}
+			move.y = targetBounds.max.y < selfBounds.min.y ? -1.0f : 0.0f;
+
+			return hasArrived;
 		}
 	}
 }
