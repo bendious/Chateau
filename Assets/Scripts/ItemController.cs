@@ -27,7 +27,7 @@ public class ItemController : MonoBehaviour
 
 	public bool LeftFacing => Mathf.Cos(Mathf.Deg2Rad * m_aimDegrees) < 0.0f; // TODO: efficiency?
 
-	public float Speed => m_body.velocity.magnitude + Mathf.Abs(m_aimVelocity) + Mathf.Abs(m_aimRadiusVelocity); // TODO: incorporate aim velocity direction?
+	public float Speed => (transform.parent == null ? m_body.velocity.magnitude : 0.0f) + Mathf.Abs(m_aimVelocity) + Mathf.Abs(m_aimRadiusVelocity); // TODO: incorporate aim velocity direction?
 
 
 	private float m_aimDegrees;

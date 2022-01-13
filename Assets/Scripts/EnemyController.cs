@@ -20,8 +20,8 @@ namespace Platformer.Mechanics
 		protected override void Start()
 		{
 			base.Start();
-			m_aiState = new AIPursue { m_target = m_target, m_targetDistance = m_targetDistance };
-			m_aiState.Enter(this);
+			m_aiState = new AIPursue(this);
+			m_aiState.Enter();
 		}
 
 		void OnCollisionEnter2D(Collision2D collision)
@@ -41,13 +41,13 @@ namespace Platformer.Mechanics
 			}
 			else
 			{
-				AIState stateNew = m_aiState.Update(this);
+				AIState stateNew = m_aiState.Update();
 				if (stateNew != null)
 				{
 					// TODO: split across frames?
-					m_aiState.Exit(this);
+					m_aiState.Exit();
 					m_aiState = stateNew;
-					m_aiState.Enter(this);
+					m_aiState.Enter();
 				}
 			}
 
@@ -89,15 +89,14 @@ namespace Platformer.Mechanics
 		public bool NavigateTowardTarget(Transform target, float targetDistance)
 		{
 			// left/right
-			Vector3 targetPos = target == null ? transform.position : target.position + (transform.position - target.position).normalized * targetDistance;
-			AvatarController targetAvatar = target?.GetComponent<AvatarController>();
-			bool moveAway = targetAvatar != null && !targetAvatar.controlEnabled; // avoid softlock from enemies in spawn position // TODO: better shouldMoveAway flag? avoid move-away failure when current distance is less than targetDistance
-			bool hasArrived = Vector2.Distance(targetPos, transform.position) < collider2d.bounds.extents.x;
-			move.x = hasArrived ? 0.0f : Mathf.Clamp((targetPos.x - transform.position.x) * (moveAway ? -1.0f : 1.0f), -1.0f, 1.0f);
+			Vector3 targetPos = target == null ? transform.position : target.position + (transform.position - target.position).normalized * targetDistance; // TODO: handle pathfinding / unreachable positions
+			bool hasArrivedX = Mathf.Abs(targetPos.x - transform.position.x) < collider2d.bounds.extents.x;
+			move.x = hasArrivedX ? 0.0f : Mathf.Clamp(targetPos.x - transform.position.x, -1.0f, 1.0f);
 
 			// jump/drop
 			// TODO: actual room-based pathfinding to avoid getting stuck
-			Bounds targetBounds = targetAvatar == null ? new Bounds(targetPos, Vector3.zero) : targetAvatar.GetComponent<CircleCollider2D>().bounds;
+			Collider2D targetCollider = target?.GetComponent<Collider2D>();
+			Bounds targetBounds = targetCollider == null ? new Bounds(targetPos, Vector3.zero) : targetCollider.bounds;
 			Bounds selfBounds = collider2d.bounds;
 			if (IsGrounded && targetBounds.min.y > selfBounds.max.y && Random.value > 0.95f/*?*/)
 			{
@@ -105,7 +104,7 @@ namespace Platformer.Mechanics
 			}
 			move.y = targetBounds.max.y < selfBounds.min.y ? -1.0f : 0.0f;
 
-			return hasArrived;
+			return hasArrivedX; // TODO: take Y into account once pathfinding doesn't get stuck, but w/o stalling due to object height differences
 		}
 	}
 }

@@ -4,37 +4,82 @@ using UnityEngine;
 
 public abstract class AIState
 {
-	public virtual void Enter(EnemyController ai) {}
-	public abstract AIState Update(EnemyController ai);
-	public virtual void Exit(EnemyController ai) {}
+	protected readonly EnemyController m_ai;
+
+
+	public AIState(EnemyController ai) => m_ai = ai;
+
+	public virtual void Enter() {}
+	public abstract AIState Update();
+	public virtual void Exit() {}
 }
 
 
 public sealed class AIPursue : AIState
 {
-	public Transform m_target;
-	public float m_targetDistance;
+	private readonly Transform m_target;
+	private readonly float m_targetDistance;
 
 
-	public static AIPursue FromAI(EnemyController ai)
+	public AIPursue(EnemyController ai)
+		: base(ai)
 	{
-		return new AIPursue { m_target = ai.m_target, m_targetDistance = Random.value > 0.9f ? ai.m_meleeRange * 0.75f : ai.m_targetDistance }; // NOTE that even enemies w/ range go in for melee sometimes // TODO: EnemyController.disallowMelee flag?
+		m_target = m_ai.m_target;
+		m_targetDistance = Random.value > 0.9f ? m_ai.m_meleeRange * 0.75f : m_ai.m_targetDistance; // NOTE that even enemies w/ range go in for melee sometimes // TODO: EnemyController.disallowMelee flag?
 	}
 
-	public override AIState Update(EnemyController ai)
+	public override AIState Update()
 	{
-		bool hasArrived = ai.NavigateTowardTarget(m_target, m_targetDistance);
+		bool hasArrived = m_ai.NavigateTowardTarget(m_target, m_targetDistance);
+
+		// check for target death
+		AvatarController targetAvatar = m_target.GetComponent<AvatarController>();
+		if (targetAvatar != null && !targetAvatar.controlEnabled)
+		{
+			return new AIFlee(m_ai);
+		}
 
 		// check for ammo need
-		if (ai.m_maxPickUps > 0 && ai.GetComponentInChildren<ItemController>() == null)
+		bool hasItem = m_ai.GetComponentInChildren<ItemController>() != null;
+		if (m_ai.m_maxPickUps > 0 && !hasItem)
 		{
-			return new AIFindAmmo();
+			return new AIFindAmmo(m_ai);
 		}
 
 		// check for arrival
-		if (hasArrived)
+		if (hasArrived && hasItem)
 		{
-			return m_targetDistance > ai.m_meleeRange ? new AIThrow() : new AIMelee();
+			return m_targetDistance > m_ai.m_meleeRange ? new AIThrow(m_ai) : new AIMelee(m_ai);
+		}
+
+		return null;
+	}
+}
+
+
+public sealed class AIFlee : AIState
+{
+	public float m_fleeDistance = 12.0f;
+
+
+	private readonly Transform m_target;
+
+
+	public AIFlee(EnemyController ai)
+		: base(ai)
+	{
+		m_target = m_ai.m_target;
+	}
+
+	public override AIState Update()
+	{
+		m_ai.NavigateTowardTarget(m_target, m_fleeDistance);
+
+		// check target availability
+		AvatarController targetAvatar = m_target.GetComponent<AvatarController>();
+		if (targetAvatar == null || targetAvatar.controlEnabled)
+		{
+			return new AIPursue(m_ai);
 		}
 
 		return null;
@@ -47,17 +92,22 @@ public sealed class AIMelee : AIState
 	private ItemController m_item;
 
 
-	public override void Enter(EnemyController ai)
+	public AIMelee(EnemyController ai)
+		: base(ai)
 	{
-		m_item = ai.GetComponentInChildren<ItemController>();
+	}
+
+	public override void Enter()
+	{
+		m_item = m_ai.GetComponentInChildren<ItemController>();
 		m_item.Swing();
 	}
 
-	public override AIState Update(EnemyController ai)
+	public override AIState Update()
 	{
 		if (m_item.Speed < m_item.m_damageThresholdSpeed)
 		{
-			return AIPursue.FromAI(ai);
+			return new AIPursue(m_ai);
 		}
 
 		return null;
@@ -70,22 +120,42 @@ public sealed class AIThrow : AIState
 	public float m_waitSeconds = 0.5f;
 
 
-	private float m_startTime;
+	private ItemController m_item;
+
+	private float m_startTime = 0.0f;
 
 
-	public override void Enter(EnemyController ai)
+	public AIThrow(EnemyController ai)
+		: base(ai)
 	{
-		ai.GetComponentInChildren<ItemController>().Throw();
-		m_startTime = Time.time;
 	}
 
-	public override AIState Update(EnemyController ai)
+	public override void Enter()
 	{
-		if (Time.time >= m_startTime + m_waitSeconds)
+		m_item = m_ai.GetComponentInChildren<ItemController>();
+	}
+
+	public override AIState Update()
+	{
+		if (m_startTime == 0.0f)
 		{
-			return ai.GetComponentInChildren<ItemController>() == null ? new AIFindAmmo() : AIPursue.FromAI(ai);
+			// pre-throw
+			if (m_item.Speed < m_item.m_damageThresholdSpeed) // TODO: better aimReady flag?
+			{
+				m_item.Throw();
+				m_startTime = Time.time;
+			}
+			return null;
 		}
-		return null;
+
+		// post-throw
+		if (Time.time < m_startTime + m_waitSeconds)
+		{
+			return null;
+		}
+
+		// finished
+		return m_ai.GetComponentInChildren<ItemController>() == null ? new AIFindAmmo(m_ai) : new AIPursue(m_ai);
 	}
 }
 
@@ -95,39 +165,44 @@ public sealed class AIFindAmmo : AIState
 	private Transform m_target;
 
 
-	public override void Enter(EnemyController ai)
+	public AIFindAmmo(EnemyController ai)
+		: base(ai)
 	{
-		m_target = FindTarget(ai);
 	}
 
-	public override AIState Update(EnemyController ai)
+	public override void Enter()
+	{
+		m_target = FindTarget();
+	}
+
+	public override AIState Update()
 	{
 		// validate target
-		if (m_target == null || (m_target.parent != null && m_target.parent != ai.transform))
+		if (m_target == null || (m_target.parent != null && m_target.parent != m_ai.transform))
 		{
-			m_target = FindTarget(ai);
+			m_target = FindTarget();
 			if (m_target == null)
 			{
 				// no items anywhere? fallback on pursuit
-				return AIPursue.FromAI(ai);
+				return new AIPursue(m_ai);
 			}
 		}
 
 		// move
-		bool hasArrived = ai.NavigateTowardTarget(m_target, 0.0f);
+		bool hasArrived = m_ai.NavigateTowardTarget(m_target, 0.0f);
 
 		// pick up target
 		if (hasArrived)
 		{
-			m_target.GetComponent<ItemController>().AttachTo(ai.gameObject);
-			return AIPursue.FromAI(ai);
+			m_target.GetComponent<ItemController>().AttachTo(m_ai.gameObject);
+			return new AIPursue(m_ai);
 		}
 
 		return null;
 	}
 
 
-	private Transform FindTarget(EnemyController ai)
+	private Transform FindTarget()
 	{
 		// TODO: efficiency?
 		GameObject[] items = GameObject.FindGameObjectsWithTag("Item");
@@ -143,8 +218,8 @@ public sealed class AIFindAmmo : AIState
 			}
 
 			// prioritize by distance
-			// TODO: use pathfind distance? de-prioritize based on vertical distance / passing through ai.m_target?
-			float distSq = ((Vector2)tf.position - (Vector2)ai.transform.position).sqrMagnitude;
+			// TODO: use pathfind distance? de-prioritize based on vertical distance / passing through m_ai.m_target?
+			float distSq = ((Vector2)tf.position - (Vector2)m_ai.transform.position).sqrMagnitude;
 			if (distSq < closestDistSq)
 			{
 				closest = tf;

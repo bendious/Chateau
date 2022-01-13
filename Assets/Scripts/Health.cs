@@ -71,11 +71,13 @@ namespace Platformer.Mechanics
 					m_character.OnDeath();
 				}
 			}
-			else
+
+			m_invincible = true;
+			if (currentHP > 0)
 			{
-				m_invincible = true;
 				Schedule<EnableDamage>(m_invincibilityTime).m_health = this;
 			}
+
 			SyncUI();
 
 			return true;
@@ -97,6 +99,7 @@ namespace Platformer.Mechanics
 		{
 			IncrementInternal(maxHP - currentHP);
 			SyncUI();
+			m_invincible = false;
 		}
 
 
