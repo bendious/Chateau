@@ -8,7 +8,7 @@ namespace Platformer.Mechanics
 	/// </summary>
 	public class EnemyController : AnimationController
 	{
-		public float m_targetDistance = 0.0f;
+		public Vector2 m_targetOffset = Vector2.zero;
 		public Transform m_target;
 
 		public float m_meleeRange = 1.0f;
@@ -86,10 +86,10 @@ namespace Platformer.Mechanics
 
 
 		// TODO: un-expose?
-		public bool NavigateTowardTarget(Transform target, float targetDistance)
+		public bool NavigateTowardTarget(Transform target, Vector2 targetOffsetAbs)
 		{
 			// left/right
-			Vector3 targetPos = target == null ? transform.position : target.position + (transform.position - target.position).normalized * targetDistance; // TODO: handle pathfinding / unreachable positions
+			Vector3 targetPos = target == null ? transform.position : target.position + (Vector3)(transform.position.x > target.position.x ? targetOffsetAbs : targetOffsetAbs * new Vector2(-1.0f, 1.0f)); // TODO: handle pathfinding / unreachable positions
 			bool hasArrivedX = Mathf.Abs(targetPos.x - transform.position.x) < collider2d.bounds.extents.x;
 			move.x = hasArrivedX ? 0.0f : Mathf.Clamp(targetPos.x - transform.position.x, -1.0f, 1.0f);
 
@@ -112,7 +112,7 @@ namespace Platformer.Mechanics
 				move.y = targetBounds.max.y < selfBounds.min.y ? -1.0f : 0.0f;
 			}
 
-			return hasArrivedX; // TODO: take Y into account once pathfinding doesn't get stuck, but w/o stalling due to object height differences
+			return hasArrivedX && Mathf.Abs(targetPos.y - transform.position.y) < collider2d.bounds.extents.y;
 		}
 	}
 }

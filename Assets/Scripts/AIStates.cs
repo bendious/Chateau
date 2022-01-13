@@ -18,19 +18,19 @@ public abstract class AIState
 public sealed class AIPursue : AIState
 {
 	private readonly Transform m_target;
-	private readonly float m_targetDistance;
+	private readonly Vector2 m_targetOffset;
 
 
 	public AIPursue(EnemyController ai)
 		: base(ai)
 	{
 		m_target = m_ai.m_target;
-		m_targetDistance = Random.value > 0.9f ? m_ai.m_meleeRange * 0.75f : m_ai.m_targetDistance; // NOTE that even enemies w/ range go in for melee sometimes // TODO: EnemyController.disallowMelee flag?
+		m_targetOffset = Random.value > 0.9f ? Vector2.right * m_ai.m_meleeRange * 0.75f : m_ai.m_targetOffset; // NOTE that even enemies w/ range go in for melee sometimes // TODO: EnemyController.disallowMelee flag?
 	}
 
 	public override AIState Update()
 	{
-		bool hasArrived = m_ai.NavigateTowardTarget(m_target, m_targetDistance);
+		bool hasArrived = m_ai.NavigateTowardTarget(m_target, m_targetOffset);
 
 		// check for target death
 		AvatarController targetAvatar = m_target.GetComponent<AvatarController>();
@@ -47,9 +47,16 @@ public sealed class AIPursue : AIState
 		}
 
 		// check for arrival
-		if (hasArrived && hasItem)
+		if (hasArrived)
 		{
-			return m_targetDistance > m_ai.m_meleeRange ? new AIThrow(m_ai) : new AIMelee(m_ai);
+			if (hasItem)
+			{
+				return m_targetOffset.magnitude > m_ai.m_meleeRange ? new AIThrow(m_ai) : new AIMelee(m_ai);
+			}
+			else
+			{
+				return new AIRamSwoop(m_ai);
+			}
 		}
 
 		return null;
@@ -59,7 +66,7 @@ public sealed class AIPursue : AIState
 
 public sealed class AIFlee : AIState
 {
-	public float m_fleeDistance = 12.0f;
+	public Vector2 m_fleeOffset = 12.0f * Vector2.right;
 
 
 	private readonly Transform m_target;
@@ -73,7 +80,7 @@ public sealed class AIFlee : AIState
 
 	public override AIState Update()
 	{
-		m_ai.NavigateTowardTarget(m_target, m_fleeDistance);
+		m_ai.NavigateTowardTarget(m_target, m_fleeOffset);
 
 		// check target availability
 		AvatarController targetAvatar = m_target.GetComponent<AvatarController>();
@@ -160,6 +167,51 @@ public sealed class AIThrow : AIState
 }
 
 
+public sealed class AIRamSwoop : AIState
+{
+	public float m_durationSeconds = 1.0f;
+
+
+	private /*readonly*/ Vector2 m_targetingScalars;
+	private /*readonly*/ float m_speedScalar;
+	private /*readonly*/ float m_degreesPerSecond;
+
+	private float m_angleDegrees = 0.0f;
+
+
+	public AIRamSwoop(EnemyController ai)
+		: base(ai)
+	{
+	}
+
+	public override void Enter()
+	{
+		m_targetingScalars = (Vector2)m_ai.transform.position - (Vector2)m_ai.m_target.position; // this stretches circular movement into an ellipse based on the target offset
+
+		m_speedScalar = Mathf.PI * 0.5f * Mathf.Min(Mathf.Abs(m_targetingScalars.x), Mathf.Abs(m_targetingScalars.y)) / m_durationSeconds; // this scales the movement speed in order to move through one-quarter of a circle in the allotted time
+		m_ai.maxSpeed *= m_speedScalar;
+
+		m_degreesPerSecond = 180.0f / m_durationSeconds;
+
+		// TODO: trigger animation/SFX
+	}
+
+	public override AIState Update()
+	{
+		m_ai.move = Quaternion.AngleAxis(m_angleDegrees, Vector3.back) * Vector2.down * m_targetingScalars;
+
+		m_angleDegrees += m_degreesPerSecond * Time.deltaTime;
+
+		return m_angleDegrees >= 180.0f ? new AIPursue(m_ai) : null;
+	}
+
+	public override void Exit()
+	{
+		m_ai.maxSpeed /= m_speedScalar;
+	}
+}
+
+
 public sealed class AIFindAmmo : AIState
 {
 	private Transform m_target;
@@ -189,7 +241,7 @@ public sealed class AIFindAmmo : AIState
 		}
 
 		// move
-		bool hasArrived = m_ai.NavigateTowardTarget(m_target, 0.0f);
+		bool hasArrived = m_ai.NavigateTowardTarget(m_target, Vector2.zero);
 
 		// pick up target
 		if (hasArrived)

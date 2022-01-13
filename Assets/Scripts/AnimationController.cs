@@ -40,7 +40,7 @@ namespace Platformer.Mechanics
 		/// <summary>
 		/// Used to indicated desired direction of travel.
 		/// </summary>
-		protected Vector2 move;
+		public Vector2 move; // TODO: un-expose?
 
 		/// <summary>
 		/// Used to indicated desired direction of aim.
