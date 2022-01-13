@@ -48,8 +48,11 @@ namespace Platformer.Mechanics
 		public bool IsWallClinging { get; private set; }
 
 
+		public bool HasFlying => gravityModifier <= 0.01f;
+
+
 		protected Vector2 targetVelocity;
-		protected Vector2 groundNormal;
+		protected Vector2 groundNormal = Vector2.up;
 		protected Vector2 m_wallNormal;
 		protected Rigidbody2D body;
 		protected ContactFilter2D contactFilter;
@@ -134,7 +137,14 @@ namespace Platformer.Mechanics
 			//if already falling, fall faster than the jump speed, otherwise use normal gravity.
 			velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0 ? gravityModifier : 1.0f) * Physics2D.gravity * Time.fixedDeltaTime;
 
-			velocity.x = targetVelocity.x;
+			if (HasFlying)
+			{
+				velocity = targetVelocity;
+			}
+			else
+			{
+				velocity.x = targetVelocity.x;
+			}
 
 			IsGrounded = false;
 			IsWallClinging = false;
@@ -197,7 +207,7 @@ namespace Platformer.Mechanics
 		{
 			float distance = move.magnitude;
 
-			if (distance >= minMoveDistance)
+			if (yMovement || distance >= minMoveDistance) // NOTE that even if we aren't moving vertically, we may still need to push out of the ground
 			{
 				//check if we hit anything in current direction of travel
 				int count = body.Cast(move, contactFilter, hitBuffer, distance + shellRadius);
@@ -220,8 +230,8 @@ namespace Platformer.Mechanics
 					{
 						IsGrounded = true;
 						IsWallClinging = false;
-						// if moving up, change the groundNormal to new surface normal.
-						if (yMovement)
+						// if moving down, change the groundNormal to new surface normal.
+						if (move.y < 0.0f)
 						{
 							groundNormal = currentNormal;
 							currentNormal.x = 0;
@@ -232,21 +242,24 @@ namespace Platformer.Mechanics
 						IsWallClinging = true;
 						m_wallNormal = currentNormal;
 					}
-					if (IsGrounded)
+					if (!HasFlying)
 					{
-						//how much of our velocity aligns with surface normal?
-						float projection = Vector2.Dot(velocity, currentNormal);
-						if (projection < 0)
+						if (IsGrounded)
 						{
-							//slower velocity if moving against the normal (up a hill).
-							velocity -= projection * currentNormal;
+							//how much of our velocity aligns with surface normal?
+							float projection = Vector2.Dot(velocity, currentNormal);
+							if (projection < 0)
+							{
+								//slower velocity if moving against the normal (up a hill).
+								velocity -= projection * currentNormal;
+							}
 						}
-					}
-					else if (!isNearGround.Value)
-					{
-						//We are airborne, but hit something, so cancel vertical up and horizontal velocity.
-						velocity.x *= 0;
-						velocity.y = Mathf.Min(velocity.y, 0);
+						else if (!isNearGround.Value)
+						{
+							//We are airborne, but hit something, so cancel vertical up and horizontal velocity.
+							velocity.x *= 0;
+							velocity.y = Mathf.Min(velocity.y, 0);
+						}
 					}
 					//remove shellDistance from actual move distance.
 					float modifiedDistance = hit.distance - shellRadius;

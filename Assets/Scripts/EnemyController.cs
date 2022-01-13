@@ -93,16 +93,24 @@ namespace Platformer.Mechanics
 			bool hasArrivedX = Mathf.Abs(targetPos.x - transform.position.x) < collider2d.bounds.extents.x;
 			move.x = hasArrivedX ? 0.0f : Mathf.Clamp(targetPos.x - transform.position.x, -1.0f, 1.0f);
 
-			// jump/drop
-			// TODO: actual room-based pathfinding to avoid getting stuck
-			Collider2D targetCollider = target?.GetComponent<Collider2D>();
-			Bounds targetBounds = targetCollider == null ? new Bounds(targetPos, Vector3.zero) : targetCollider.bounds;
-			Bounds selfBounds = collider2d.bounds;
-			if (IsGrounded && targetBounds.min.y > selfBounds.max.y && Random.value > 0.95f/*?*/)
+			if (HasFlying)
 			{
-				jump = true;
+				// fly
+				move.y = Mathf.Clamp(targetPos.y - transform.position.y, -1.0f, 1.0f);
 			}
-			move.y = targetBounds.max.y < selfBounds.min.y ? -1.0f : 0.0f;
+			else
+			{
+				// jump/drop
+				// TODO: actual room-based pathfinding to avoid getting stuck
+				Collider2D targetCollider = target?.GetComponent<Collider2D>();
+				Bounds targetBounds = targetCollider == null ? new Bounds(targetPos, Vector3.zero) : targetCollider.bounds;
+				Bounds selfBounds = collider2d.bounds;
+				if (IsGrounded && targetBounds.min.y > selfBounds.max.y && Random.value > 0.95f/*?*/)
+				{
+					jump = true;
+				}
+				move.y = targetBounds.max.y < selfBounds.min.y ? -1.0f : 0.0f;
+			}
 
 			return hasArrivedX; // TODO: take Y into account once pathfinding doesn't get stuck, but w/o stalling due to object height differences
 		}

@@ -12,7 +12,7 @@ public class DoorController : MonoBehaviour
 	private void Awake()
     {
 		// spawn key
-		Vector3 spawnPos = Camera.main.GetComponent<GameController>().FloorPosition(false, null); // NOTE that we don't care about locks since this occurs during the room hierarchy creation
+		Vector3 spawnPos = Camera.main.GetComponent<GameController>().RoomPosition(false, null, true); // NOTE that we don't care about locks since this occurs during the room hierarchy creation
 		m_key = Instantiate(m_keyPrefab, spawnPos, Quaternion.identity);
 
 		// match color w/ key

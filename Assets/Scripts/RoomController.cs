@@ -101,7 +101,7 @@ public class RoomController : MonoBehaviour
 		return (new RoomController[] { m_leftChild, m_rightChild, m_bottomChild, m_topChild }).All(child => child == null || child.AllChildrenReady());
 	}
 
-	public Vector3 ChildFloorPosition(bool checkLocks, GameObject targetObj)
+	public Vector3 ChildPosition(bool checkLocks, GameObject targetObj, bool onFloor)
 	{
 		// enumerate valid options
 		RoomController[] options = (new Tuple<RoomController, GameObject>[] { new Tuple<RoomController, GameObject>(this, null), Tuple.Create(m_leftChild, m_leftLock), Tuple.Create(m_rightChild, m_rightLock), Tuple.Create(m_bottomChild, m_bottomLock), Tuple.Create(m_topChild, m_topLock) }).Where(child => child.Item1 != null && child.Item1.m_childrenCreated && (!checkLocks || child.Item2 == null)).Select(pair => pair.Item1).ToArray();
@@ -113,13 +113,15 @@ public class RoomController : MonoBehaviour
 		if (child == this)
 		{
 			// return interior position
-			// TODO: avoid spawning right on top of targetObj
-			float xDiffMax = CalculateBounds().extents.x - 0.5f; // TODO: determine floor/wall extent automatically
-			return transform.position + Vector3.right * UnityEngine.Random.Range(-xDiffMax, xDiffMax);
+			// TODO: avoid spawning right on top of targetObj, determine interior floor/wall extent automatically
+			Bounds bounds = CalculateBounds();
+			float xDiffMax = bounds.extents.x - 0.5f;
+			float yMax = onFloor ? 0.0f : bounds.size.y - 0.5f;
+			return transform.position + new Vector3(UnityEngine.Random.Range(-xDiffMax, xDiffMax), UnityEngine.Random.Range(0, yMax), 0.0f);
 		}
 
 		// return position from child room
-		return child.ChildFloorPosition(checkLocks, targetObj);
+		return child.ChildPosition(checkLocks, targetObj, onFloor);
 	}
 
 	public Tuple<List<RoomController>, int> RoomPathLongest(int startDistance = 0)

@@ -502,6 +502,8 @@ MonoBehaviour:
   m_enemyPrefabs:
   - m_object: {fileID: 1661912868639658944, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
     m_weight: 1
+  - m_object: {fileID: 2645866617808041851, guid: 0112a6934fe93af4cac38fb37ef6b61c, type: 3}
+    m_weight: 0.5
   - m_object: {fileID: 8176166786061933274, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
     m_weight: 0.1
   m_victoryZonePrefab: {fileID: 8396716149559462411, guid: 071e51a82246f374680ba2adce86a07b, type: 3}
@@ -3224,7 +3226,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.0955777, y: 1}
+    m_SensorSize: {x: 1.7019868, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0

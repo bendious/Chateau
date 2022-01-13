@@ -59,9 +59,9 @@ public class GameController : MonoBehaviour
 	}
 
 
-	public Vector3 FloorPosition(bool checkLocks, GameObject targetObj)
+	public Vector3 RoomPosition(bool checkLocks, GameObject targetObj, bool onFloor)
 	{
-		return m_startRoom.ChildFloorPosition(checkLocks, targetObj);
+		return m_startRoom.ChildPosition(checkLocks, targetObj, onFloor);
 	}
 
 	public void TogglePause()
@@ -179,7 +179,7 @@ public class GameController : MonoBehaviour
 		{
 			GameObject enemyPrefab = Utility.RandomWeighted(m_enemyPrefabs);
 			CapsuleCollider2D enemyCollider = enemyPrefab.GetComponent<CapsuleCollider2D>();
-			Vector3 spawnPos = FloorPosition(true, m_avatar.gameObject) + Vector3.up * (enemyCollider.size.y * 0.5f - enemyCollider.offset.y);
+			Vector3 spawnPos = RoomPosition(true, m_avatar.gameObject, !enemyPrefab.GetComponent<KinematicObject>().HasFlying) + Vector3.up * (enemyCollider.size.y * 0.5f - enemyCollider.offset.y);
 			EnemyController enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>();
 			enemy.m_target = avatarTf;
 			m_enemies.Add(enemy);
