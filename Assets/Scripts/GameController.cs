@@ -139,9 +139,7 @@ public class GameController : MonoBehaviour
 			++pathIdx;
 			float pathPct = (float)pathIdx / endRoomPath.Count;
 			Color color = colorDefault;
-			color.r = Mathf.Lerp(color.r, 1.0f, pathPct);
-			color.g = Mathf.Lerp(color.g, 1.0f, pathPct);
-			color.b = Mathf.Lerp(color.b, 1.0f, pathPct);
+			color = Color.Lerp(color, Color.white, pathPct);
 			foreach (SpriteRenderer renderer in room.transform.GetComponentsInChildren<SpriteRenderer>())
 			{
 				if (renderer.color == colorDefault)

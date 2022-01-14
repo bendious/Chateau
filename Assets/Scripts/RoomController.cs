@@ -25,6 +25,9 @@ public class RoomController : MonoBehaviour
 	public int m_tablesMax = 2;
 
 
+	public static readonly Color m_oneWayPlatformColor = new Color(0.3f, 0.2f, 0.1f);
+
+
 	private bool m_leftConnected = false;
 	private bool m_rightConnected = false;
 	private bool m_bottomConnected = false;
@@ -41,9 +44,6 @@ public class RoomController : MonoBehaviour
 	private /*readonly*/ GameObject m_topLock;
 
 	private bool m_childrenCreated = false;
-
-
-	private readonly Color m_oneWayPlatformColor = new Color(0.3f, 0.2f, 0.1f);
 
 
 	private void Start()
