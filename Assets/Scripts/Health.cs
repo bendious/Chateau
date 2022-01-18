@@ -22,6 +22,8 @@ namespace Platformer.Mechanics
 		public float m_UIPadding = 5.0f;
 
 		public bool m_invincible;
+		public const float m_invincibilityTime = 0.5f; // TODO: vary by character type / animation played?
+
 
 		/// <summary>
 		/// Indicates if the entity should be considered 'alive'.
@@ -30,8 +32,6 @@ namespace Platformer.Mechanics
 
 
 		int currentHP;
-
-		private const float m_invincibilityTime = 0.5f; // TODO: vary by character type / animation played?
 
 		private Animator m_animator;
 		private AnimationController m_character;

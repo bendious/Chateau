@@ -190,10 +190,29 @@ namespace Platformer.Mechanics
 					return true; // ignore child objects
 				}
 			}
+
+			// ignore objects flagged to ignore each other and their children
 			if (Physics2D.GetIgnoreCollision(m_collider, collider))
 			{
-				return true; // ignore objects flagged to ignore each other
+				return true;
 			}
+			if (transform.parent != null)
+			{
+				Collider2D parentCollider = transform.parent.GetComponent<Collider2D>();
+				if (parentCollider != null && Physics2D.GetIgnoreCollision(parentCollider, collider))
+				{
+					return true;
+				}
+			}
+			if (collider.transform.parent != null)
+			{
+				Collider2D parentCollider = collider.transform.parent.GetComponent<Collider2D>();
+				if (parentCollider != null && Physics2D.GetIgnoreCollision(m_collider, parentCollider))
+				{
+					return true;
+				}
+			}
+
 			return false;
 		}
 

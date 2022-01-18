@@ -250,6 +250,13 @@ namespace Platformer.Mechanics
 			Vector2 bounceVecOriented = transform.position.x - enemy.transform.position.x < 0.0f ? new(-m_collisionBounceVec.x, m_collisionBounceVec.y) : m_collisionBounceVec;
 			Bounce(bounceVecOriented);
 			health.Decrement(); // NOTE that this is AFTER bouncing velocity so that OnDeath()'s reset of m_xInputForced isn't overwritten
+
+			// temporarily disable collision to prevent getting stuck
+			Collider2D enemyCollider = enemy.GetComponent<Collider2D>();
+			Physics2D.IgnoreCollision(collider2d, enemyCollider, true);
+			EnableCollision evt = Schedule<EnableCollision>(Health.m_invincibilityTime);
+			evt.m_collider1 = collider2d;
+			evt.m_collider2 = enemyCollider;
 		}
 
 		public void OnSpawn()

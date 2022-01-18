@@ -106,6 +106,14 @@ public sealed class AIFlee : AIState
 
 public sealed class AIMelee : AIState
 {
+	public float m_durationSeconds = 1.0f;
+	public float m_swingTimeSeconds = 0.2f;
+
+
+	private float m_startTime;
+	private float m_swingTime;
+
+
 	private ItemController m_item;
 
 
@@ -116,13 +124,23 @@ public sealed class AIMelee : AIState
 
 	public override void Enter()
 	{
+		m_startTime = Time.time;
+
 		m_item = m_ai.GetComponentInChildren<ItemController>();
 		m_item.Swing();
 	}
 
 	public override AIState Update()
 	{
-		if (m_item.Speed < m_item.m_damageThresholdSpeed)
+		m_ai.NavigateTowardTarget(m_ai.m_target, Vector2.zero);
+
+		if (Time.time >= m_swingTime + m_swingTimeSeconds)
+		{
+			m_item.Swing();
+			m_swingTime = Time.time;
+		}
+
+		if (Time.time >= m_startTime + m_durationSeconds)
 		{
 			return new AIPursue(m_ai);
 		}
@@ -198,7 +216,7 @@ public sealed class AIRamSwoop : AIState
 	{
 		m_targetingScalars = (Vector2)m_ai.transform.position - (Vector2)m_ai.m_target.position; // this stretches circular movement into an ellipse based on the target offset
 
-		m_speedScalar = Mathf.PI * 0.5f * Mathf.Min(Mathf.Abs(m_targetingScalars.x), Mathf.Abs(m_targetingScalars.y)) / m_durationSeconds; // this scales the movement speed in order to move through one-quarter of a circle in the allotted time
+		m_speedScalar = Mathf.PI * 0.5f * Mathf.Max(Mathf.Abs(m_targetingScalars.x), Mathf.Abs(m_targetingScalars.y)) / m_durationSeconds; // this scales the movement speed in order to move through one-quarter of a circle in the allotted time
 		m_ai.maxSpeed *= m_speedScalar;
 
 		m_degreesPerSecond = 180.0f / m_durationSeconds;
