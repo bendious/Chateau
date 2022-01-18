@@ -75,6 +75,22 @@ namespace Platformer.Mechanics
 			}
 		}
 
+#if UNITY_EDITOR
+		private void OnDrawGizmos()
+		{
+			m_aiState.DebugGizmo();
+
+			if (ConsoleCommands.AIDebugLevel >= (int)ConsoleCommands.AIDebugLevels.Path && m_pathfindWaypoints?.Count > 0)
+			{
+				UnityEditor.Handles.DrawLine(transform.position, m_pathfindWaypoints.First());
+				for (int i = 0, n = m_pathfindWaypoints.Count - 1; i < n; ++i)
+				{
+					UnityEditor.Handles.DrawLine(m_pathfindWaypoints[i], m_pathfindWaypoints[i + 1]);
+				}
+			}
+		}
+#endif
+
 
 		public override void OnDeath()
 		{

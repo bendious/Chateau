@@ -12,6 +12,16 @@ public abstract class AIState
 	public virtual void Enter() {}
 	public abstract AIState Update();
 	public virtual void Exit() {}
+
+#if UNITY_EDITOR
+	public void DebugGizmo()
+	{
+		if (ConsoleCommands.AIDebugLevel >= (int)ConsoleCommands.AIDebugLevels.State)
+		{
+			UnityEditor.Handles.Label(m_ai.transform.position, ToString());
+		}
+	}
+#endif
 }
 
 
