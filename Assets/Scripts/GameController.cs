@@ -22,12 +22,13 @@ public class GameController : MonoBehaviour
 
 	public float m_waveSecondsMin = 30.0f;
 	public float m_waveSecondsMax = 60.0f;
-	public int m_waveEnemiesMin = 0;
-	public int m_waveEnemiesMax = 10;
+	public float m_waveEscalationMin = 0.0f;
+	public float m_waveEscalationMax = 2.0f;
 
 
 	private RoomController m_startRoom;
 
+	private float m_waveWeight = 0.0f;
 	private float m_nextWaveTime = 0.0f;
 
 	private readonly List<EnemyController> m_enemies = new();
@@ -121,6 +122,16 @@ public class GameController : MonoBehaviour
 
 
 #if DEBUG
+	public void DebugSpawnEnemy(int typeIndex)
+	{
+		if (typeIndex >= m_enemyPrefabs.Length)
+		{
+			return; // NOTE that we don't complain since this is triggered from user input
+		}
+
+		SpawnEnemy(m_enemyPrefabs[typeIndex].m_object);
+	}
+
 	public void DebugKillAllEnemies()
 	{
 		foreach (EnemyController enemy in m_enemies)
@@ -175,18 +186,30 @@ public class GameController : MonoBehaviour
 #endif
 		void SpawnEnemyWave()
 	{
-		int enemyCount = Random.Range(m_waveEnemiesMin, m_waveEnemiesMax + 1);
-		Transform avatarTf = m_avatar.transform;
+		m_waveWeight += Random.Range(m_waveEscalationMin, m_waveEscalationMax); // TODO: exponential/logistic escalation?
 
-		for (int i = 0; i < enemyCount; ++i)
+		WeightedObject<GameObject>[] options = m_enemyPrefabs;
+		for (float weightRemaining = m_waveWeight; weightRemaining > 0.0f; )
 		{
-			GameObject enemyPrefab = Utility.RandomWeighted(m_enemyPrefabs);
-			CapsuleCollider2D enemyCollider = enemyPrefab.GetComponent<CapsuleCollider2D>();
-			Vector3 spawnPos = RoomPosition(true, m_avatar.gameObject, !enemyPrefab.GetComponent<KinematicObject>().HasFlying) + Vector3.up * (enemyCollider.size.y * 0.5f - enemyCollider.offset.y);
-			EnemyController enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>();
-			enemy.m_target = avatarTf;
-			m_enemies.Add(enemy);
+			options = options.Where(weightedObj => weightedObj.m_weight <= weightRemaining).ToArray(); // NOTE that since weightRemaining never increases, it is safe to assume that all previously excluded options are still excluded
+			if (options.Length <= 0)
+			{
+				break; // this shouldn't happen as long as the weights are integers and at least one is 1, but we handle it just in case
+			}
+			WeightedObject<GameObject> weightedEnemyPrefab = options[Random.Range(0, options.Length)];
+			SpawnEnemy(weightedEnemyPrefab.m_object);
+
+			weightRemaining -= weightedEnemyPrefab.m_weight;
 		}
+	}
+
+	private void SpawnEnemy(GameObject enemyPrefab)
+	{
+		CapsuleCollider2D enemyCollider = enemyPrefab.GetComponent<CapsuleCollider2D>();
+		Vector3 spawnPos = RoomPosition(true, m_avatar.gameObject, !enemyPrefab.GetComponent<KinematicObject>().HasFlying) + Vector3.up * (enemyCollider.size.y * 0.5f - enemyCollider.offset.y);
+		EnemyController enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>();
+		enemy.m_target = m_avatar.transform;
+		m_enemies.Add(enemy);
 	}
 
 	private IEnumerator TimerCoroutine()
