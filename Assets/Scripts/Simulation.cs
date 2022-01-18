@@ -10,8 +10,8 @@ namespace Platformer.Core
 	/// </summary>
 	public static partial class Simulation
 	{
-		static readonly HeapQueue<Event> eventQueue = new HeapQueue<Event>();
-		static readonly Dictionary<System.Type, Stack<Event>> eventPools = new Dictionary<System.Type, Stack<Event>>();
+		static readonly HeapQueue<Event> eventQueue = new();
+		static readonly Dictionary<System.Type, Stack<Event>> eventPools = new();
 
 
 		/// <summary>
@@ -23,7 +23,7 @@ namespace Platformer.Core
 		{
 			if (!eventPools.TryGetValue(typeof(T), out Stack<Event> pool))
 			{
-				pool = new Stack<Event>(4);
+				pool = new(4);
 				pool.Push(new T());
 				eventPools[typeof(T)] = pool;
 			}
@@ -33,7 +33,7 @@ namespace Platformer.Core
 			}
 			else
 			{
-				return new T();
+				return new();
 			}
 		}
 

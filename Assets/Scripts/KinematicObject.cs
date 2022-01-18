@@ -135,7 +135,7 @@ namespace Platformer.Mechanics
 		protected virtual void FixedUpdate()
 		{
 			//if already falling, fall faster than the jump speed, otherwise use normal gravity.
-			velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0 ? gravityModifier : 1.0f) * Physics2D.gravity * Time.fixedDeltaTime;
+			velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0 ? gravityModifier : 1.0f) * Time.fixedDeltaTime * Physics2D.gravity;
 
 			if (HasFlying)
 			{
@@ -151,7 +151,7 @@ namespace Platformer.Mechanics
 
 			Vector2 deltaPosition = velocity * Time.fixedDeltaTime;
 
-			Vector2 moveAlongGround = new Vector2(groundNormal.y, -groundNormal.x);
+			Vector2 moveAlongGround = new(groundNormal.y, -groundNormal.x);
 
 			Vector2 move = moveAlongGround * deltaPosition.x;
 
@@ -159,7 +159,7 @@ namespace Platformer.Mechanics
 			bool shouldIgnoreOneWays = velocity.y >= 0 || (m_character != null && m_character.IsDropping); // TODO: don't require knowledge of AnimationController
 			contactFilter.SetLayerMask(shouldIgnoreOneWays ? Physics2D.GetLayerCollisionMask(gameObject.layer) & ~(1 << m_platformLayer) : Physics2D.GetLayerCollisionMask(gameObject.layer));
 
-			Lazy<bool> isNearGround = new Lazy<bool>(() => Physics2D.Raycast(m_collider.bounds.min, Vector2.down, m_nearGroundDistance).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground?
+			Lazy<bool> isNearGround = new(() => Physics2D.Raycast(m_collider.bounds.min, Vector2.down, m_nearGroundDistance).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground? cast whole collider for better detection?
 			PerformMovement(move, false, ref isNearGround);
 
 			move = Vector2.up * deltaPosition.y;

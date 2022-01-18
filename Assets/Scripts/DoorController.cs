@@ -16,7 +16,7 @@ public class DoorController : MonoBehaviour
 		m_key = Instantiate(m_keyPrefab, spawnPos, Quaternion.identity);
 
 		// choose color
-		Color color = new Color(Random.value, Random.value, Random.value);
+		Color color = new(Random.value, Random.value, Random.value);
 		if (ColorsSimilar(color, Color.black) || ColorsSimilar(color, Color.white) || ColorsSimilar(color, RoomController.m_oneWayPlatformColor))
 		{
 			// avoid colors that are too close to the black/white/brown of the background/walls/platforms

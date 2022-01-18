@@ -28,7 +28,7 @@ namespace Platformer.Core
 
 		public HeapQueue()
 		{
-			items = new List<T>();
+			items = new();
 		}
 
 		public void Push(T item)
@@ -46,7 +46,7 @@ namespace Platformer.Core
 			//then, add last item to front of tree, shrink the list
 			//and find correct index in tree for first item.
 			T item;
-			T last = items[items.Count - 1];
+			T last = items[^1];
 			items.RemoveAt(items.Count - 1);
 			if (items.Count > 0)
 			{

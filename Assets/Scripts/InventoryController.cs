@@ -55,7 +55,7 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 	public void OnEndDrag(PointerEventData eventData)
 	{
 		// check graphics under pointer
-		List<RaycastResult> results = new List<RaycastResult>();
+		List<RaycastResult> results = new();
 		m_raycaster.Raycast(eventData, results);
 
 		foreach (RaycastResult result in results)

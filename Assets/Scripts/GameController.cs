@@ -30,7 +30,7 @@ public class GameController : MonoBehaviour
 
 	private float m_nextWaveTime = 0.0f;
 
-	private readonly List<EnemyController> m_enemies = new List<EnemyController>();
+	private readonly List<EnemyController> m_enemies = new();
 
 
 	private void Start()

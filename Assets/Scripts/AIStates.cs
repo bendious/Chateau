@@ -25,7 +25,7 @@ public sealed class AIPursue : AIState
 		: base(ai)
 	{
 		m_target = m_ai.m_target;
-		m_targetOffset = Random.value > 0.9f ? Vector2.right * m_ai.m_meleeRange * 0.75f : m_ai.m_targetOffset; // NOTE that even enemies w/ range go in for melee sometimes // TODO: EnemyController.disallowMelee flag?
+		m_targetOffset = Random.value > 0.9f ? 0.75f/*?*/ * m_ai.m_meleeRange * Vector2.right : m_ai.m_targetOffset; // NOTE that even enemies w/ range go in for melee sometimes // TODO: EnemyController.disallowMelee flag?
 	}
 
 	public override AIState Update()

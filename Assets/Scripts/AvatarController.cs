@@ -137,11 +137,10 @@ namespace Platformer.Mechanics
 				}
 
 				// place focus indicator if appropriate
-				ItemController focusItem = m_focusObj?.GetComponent<ItemController>();
+				ItemController focusItem = m_focusObj == null ? null : m_focusObj.GetComponent<ItemController>();
 				if (focusItem != null)
 				{
-					m_focusIndicator.transform.position = m_focusObj.transform.position + Vector3.back; // NOTE the Z offset to ensure the focus indicator is rendered on top
-					m_focusIndicator.transform.rotation = m_focusObj.transform.rotation;
+					m_focusIndicator.transform.SetPositionAndRotation(m_focusObj.transform.position + Vector3.back, m_focusObj.transform.rotation); // NOTE the Z offset to ensure the focus indicator is rendered on top
 					m_focusIndicator.GetComponent<SpriteRenderer>().sprite = m_focusObj.GetComponent<SpriteRenderer>().sprite;
 				}
 				m_focusIndicator.SetActive(focusItem != null);
@@ -245,10 +244,10 @@ namespace Platformer.Mechanics
 			// NOTE that we purposely don't call base.DespawnSelf() since the avatar should never despawn
 		}
 
-		private static readonly Vector2 m_collisionBounceVec = new Vector2(1.0f, 2.5f);
+		private static readonly Vector2 m_collisionBounceVec = new(1.0f, 2.5f);
 		public void OnCollision(EnemyController enemy)
 		{
-			Vector2 bounceVecOriented = transform.position.x - enemy.transform.position.x < 0.0f ? new Vector2(-m_collisionBounceVec.x, m_collisionBounceVec.y) : m_collisionBounceVec;
+			Vector2 bounceVecOriented = transform.position.x - enemy.transform.position.x < 0.0f ? new(-m_collisionBounceVec.x, m_collisionBounceVec.y) : m_collisionBounceVec;
 			Bounce(bounceVecOriented);
 			health.Decrement(); // NOTE that this is AFTER bouncing velocity so that OnDeath()'s reset of m_xInputForced isn't overwritten
 		}

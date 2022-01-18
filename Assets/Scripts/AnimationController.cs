@@ -150,6 +150,7 @@ namespace Platformer.Mechanics
 		}
 
 
+		// called by animation triggers
 		private void ProcessAnimEvent(AnimationEvent evt)
 		{
 			Assert.IsNotNull(evt.objectReferenceParameter);

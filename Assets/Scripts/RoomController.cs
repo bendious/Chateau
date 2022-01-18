@@ -25,7 +25,7 @@ public class RoomController : MonoBehaviour
 	public int m_tablesMax = 2;
 
 
-	public static readonly Color m_oneWayPlatformColor = new Color(0.3f, 0.2f, 0.1f);
+	public static readonly Color m_oneWayPlatformColor = new(0.3f, 0.2f, 0.1f);
 
 
 	private bool m_leftConnected = false;
@@ -60,8 +60,8 @@ public class RoomController : MonoBehaviour
 
 		// calculate size info
 		Bounds bounds = CalculateBounds();
-		Vector3 offsetMagH = new Vector3(bounds.size.x, 0.0f, 0.0f);
-		Vector3 offsetMagV = new Vector3(0.0f, bounds.size.y, 0.0f);
+		Vector3 offsetMagH = new(bounds.size.x, 0.0f, 0.0f);
+		Vector3 offsetMagV = new(0.0f, bounds.size.y, 0.0f);
 		Vector3 checkSize = bounds.size - new Vector3(0.1f, 0.1f, 0.0f); // NOTE the small reduction to avoid always collecting ourself
 
 		// replace doors / spawn rooms
@@ -114,7 +114,7 @@ public class RoomController : MonoBehaviour
 	public Vector3 ChildPosition(bool checkLocks, GameObject targetObj, bool onFloor)
 	{
 		// enumerate valid options
-		RoomController[] options = (new Tuple<RoomController, GameObject>[] { new Tuple<RoomController, GameObject>(this, null), Tuple.Create(m_leftChild, m_leftLock), Tuple.Create(m_rightChild, m_rightLock), Tuple.Create(m_bottomChild, m_bottomLock), Tuple.Create(m_topChild, m_topLock) }).Where(child => child.Item1 != null && child.Item1.m_childrenCreated && (!checkLocks || child.Item2 == null)).Select(pair => pair.Item1).ToArray();
+		RoomController[] options = (new[] { new(this, null), new(m_leftChild, m_leftLock), new(m_rightChild, m_rightLock), new(m_bottomChild, m_bottomLock), Tuple.Create(m_topChild, m_topLock) }).Where(child => child.Item1 != null && child.Item1.m_childrenCreated && (!checkLocks || child.Item2 == null)).Select(pair => pair.Item1).ToArray();
 
 		// weight options based on distance to target
 		float[] optionWeights = targetObj == null ? Enumerable.Repeat(1.0f, options.Length).ToArray() : options.Select(option => 1.0f / Vector3.Distance(option.transform.position, targetObj.transform.position)).ToArray();
@@ -138,12 +138,12 @@ public class RoomController : MonoBehaviour
 	{
 		// TODO: efficiency?
 		// find root-->start and root-->end paths
-		List<RoomController> startPath = RoomPathFromRoot(startPosition, new List<RoomController>());
+		List<RoomController> startPath = RoomPathFromRoot(startPosition, new());
 		if (startPath == null)
 		{
 			return null; // TODO: find closest reachable point?
 		}
-		List<RoomController> endPath = RoomPathFromRoot(endPosition, new List<RoomController>());
+		List<RoomController> endPath = RoomPathFromRoot(endPosition, new());
 		if (endPath == null)
 		{
 			return null; // TODO: find closest reachable point?
@@ -166,7 +166,7 @@ public class RoomController : MonoBehaviour
 
 		// convert rooms to waypoints
 		List<Vector2> waypointPath = new();
-		for (int i = 0; i < startPath.Count - 1; ++i)
+		for (int i = 0, n = startPath.Count - 1; i < n; ++i)
 		{
 			Vector2 connectionPos = RoomConnection(startPath[i], startPath[i + 1]);
 			Assert.IsFalse(connectionPos == Vector2.zero);
@@ -180,10 +180,10 @@ public class RoomController : MonoBehaviour
 	{
 		// enumerate non-null children
 		Assert.IsTrue(m_childrenCreated);
-		Tuple<RoomController, int>[] childrenPreprocess = (new Tuple<RoomController, int>[] { Tuple.Create(m_leftChild, m_leftLock != null ? 1 : 0), Tuple.Create(m_rightChild, m_rightLock != null ? 1 : 0), Tuple.Create(m_bottomChild, m_bottomLock != null ? 1 : 0), Tuple.Create(m_topChild, m_topLock != null ? 1 : 0) }).Where(child => child.Item1 != null).ToArray();
+		Tuple<RoomController, int>[] childrenPreprocess = (new[] { new(m_leftChild, m_leftLock != null ? 1 : 0), new(m_rightChild, m_rightLock != null ? 1 : 0), new(m_bottomChild, m_bottomLock != null ? 1 : 0), Tuple.Create(m_topChild, m_topLock != null ? 1 : 0) }).Where(child => child.Item1 != null).ToArray();
 		if (childrenPreprocess.Length == 0)
 		{
-			return Tuple.Create(new List<RoomController> { this }, startDistance);
+			return new(new List<RoomController> { this }, startDistance);
 		}
 
 		// recursively find farthest distance
@@ -194,7 +194,7 @@ public class RoomController : MonoBehaviour
 		Tuple<List<RoomController>, int>[] childrenMax = childrenPostprocessed.Where(childTuple => childTuple.Item2 >= maxDistance).ToArray();
 		List<RoomController> pathFinal = childrenMax[UnityEngine.Random.Range(0, childrenMax.Length)].Item1;
 		pathFinal.Insert(0, this);
-		return Tuple.Create(pathFinal, maxDistance + 1);
+		return new(pathFinal, maxDistance + 1);
 	}
 
 
@@ -204,7 +204,7 @@ public class RoomController : MonoBehaviour
 		Renderer[] renderers = GetComponentsInChildren<Renderer>();
 		if (renderers.Length == 0)
 		{
-			return new Bounds(transform.position, Vector3.zero);
+			return new(transform.position, Vector3.zero);
 		}
 		Bounds b = renderers[0].bounds;
 		foreach (Renderer r in renderers)
@@ -279,11 +279,11 @@ public class RoomController : MonoBehaviour
 	{
 		// TODO: A* algorithm?
 
-		prePath = new List<RoomController>(prePath); // NOTE the copy to prevent storing up entries from other branches of the recursion
+		prePath = new(prePath); // NOTE the copy to prevent storing up entries from other branches of the recursion
 		prePath.Add(this);
 
 		Bounds bounds = CalculateBounds();
-		Vector3 pos3D = new Vector3(endPosition.x, endPosition.y, bounds.center.z);
+		Vector3 pos3D = new(endPosition.x, endPosition.y, bounds.center.z);
 		if (bounds.Contains(pos3D))
 		{
 			return prePath;

@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class TableController : MonoBehaviour
 {
-	public Vector2 m_sizeMin = new Vector2(1.0f, 0.25f);
-	public Vector2 m_sizeMax = new Vector2(4.0f, 0.5f);
+	public Vector2 m_sizeMin = new(1.0f, 0.25f);
+	public Vector2 m_sizeMax = new(4.0f, 0.5f);
 
 	public WeightedObject<GameObject>[] m_itemPrefabs;
 
@@ -17,11 +17,11 @@ public class TableController : MonoBehaviour
 		// randomize size
 		float width = Random.Range(m_sizeMin.x, m_sizeMax.x);
 		float height = Random.Range(m_sizeMin.y, m_sizeMax.y);
-		Vector2 size = new Vector2(width, height);
+		Vector2 size = new(width, height);
 		GetComponent<SpriteRenderer>().size = size;
 		BoxCollider2D collider2d = GetComponent<BoxCollider2D>(); // NOTE that Unity doesn't like naming variables 'collider' w/i a MonoBehaviour...
 		collider2d.size = size;
-		collider2d.offset = new Vector2(0.0f, height * 0.5f);
+		collider2d.offset = new(0.0f, height * 0.5f);
 	}
 
 	private void Start()

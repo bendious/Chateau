@@ -245,7 +245,7 @@ public class ItemController : MonoBehaviour
 		{
 			SetCause(collision.gameObject);
 		}
-		List<ContactPoint2D> contacts = new List<ContactPoint2D>();
+		List<ContactPoint2D> contacts = new();
 		int contactCount = collision.GetContacts(contacts);
 		for (int i = 0; i < contactCount; ++i) // NOTE that we can't use foreach() since GetContacts() for some reason adds a bunch of null entries
 		{
@@ -274,9 +274,9 @@ public class ItemController : MonoBehaviour
 			return;
 		}
 
-		Gradient gradient = new Gradient();
-		gradient.colorKeys = new GradientColorKey[] { new GradientColorKey(cause == Camera.main.GetComponent<GameController>().m_avatar.gameObject ? Color.white : Color.red, 0.0f) };
-		gradient.alphaKeys = new GradientAlphaKey[] { new GradientAlphaKey(0.0f, 0.0f), new GradientAlphaKey(1.0f, 1.0f) }; // NOTE that this gets overridden by the VFX's Alpha Over Life node
+		Gradient gradient = new();
+		gradient.colorKeys = new GradientColorKey[] { new(cause == Camera.main.GetComponent<GameController>().m_avatar.gameObject ? Color.white : Color.red, 0.0f) };
+		gradient.alphaKeys = new GradientAlphaKey[] { new(0.0f, 0.0f), new(1.0f, 1.0f) }; // NOTE that this gets overridden by the VFX's Alpha Over Life node
 		m_vfx.SetGradient(m_gradientID, gradient);
 	}
 

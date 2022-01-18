@@ -122,8 +122,8 @@ namespace Platformer.Mechanics
 			{
 				// jump/drop
 				// TODO: actual room-based pathfinding to avoid getting stuck
-				Collider2D targetCollider = target?.GetComponent<Collider2D>();
-				Bounds nextBounds = targetCollider == null || m_pathfindWaypoints.Count > 1 ? new Bounds(nextWaypoint, Vector3.zero) : targetCollider.bounds;
+				Collider2D targetCollider = target == null ? null : target.GetComponent<Collider2D>();
+				Bounds nextBounds = targetCollider == null || m_pathfindWaypoints.Count > 1 ? new(nextWaypoint, Vector3.zero) : targetCollider.bounds;
 				Bounds selfBounds = collider2d.bounds;
 				if (IsGrounded && nextBounds.min.y > selfBounds.max.y && Random.value > 0.95f/*?*/)
 				{
