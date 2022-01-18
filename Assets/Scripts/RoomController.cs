@@ -38,6 +38,11 @@ public class RoomController : MonoBehaviour
 	private /*readonly*/ RoomController m_bottomChild;
 	private /*readonly*/ RoomController m_topChild;
 
+	private /*readonly*/ Vector2 m_leftDoorPos;
+	private /*readonly*/ Vector2 m_rightDoorPos;
+	private /*readonly*/ Vector2 m_bottomDoorPos;
+	private /*readonly*/ Vector2 m_topDoorPos;
+
 	private /*readonly*/ GameObject m_leftLock;
 	private /*readonly*/ GameObject m_rightLock;
 	private /*readonly*/ GameObject m_bottomLock;
@@ -48,6 +53,11 @@ public class RoomController : MonoBehaviour
 
 	private void Start()
 	{
+		m_leftDoorPos = m_doorL.transform.position;
+		m_rightDoorPos = m_doorR.transform.position;
+		m_bottomDoorPos = m_doorB.transform.position;
+		m_topDoorPos = m_doorT.transform.position;
+
 		// calculate size info
 		Bounds bounds = CalculateBounds();
 		Vector3 offsetMagH = new Vector3(bounds.size.x, 0.0f, 0.0f);
@@ -122,6 +132,48 @@ public class RoomController : MonoBehaviour
 
 		// return position from child room
 		return child.ChildPosition(checkLocks, targetObj, onFloor);
+	}
+
+	public List<Vector2> ChildRoomPath(Vector2 startPosition, Vector2 endPosition)
+	{
+		// TODO: efficiency?
+		// find root-->start and root-->end paths
+		List<RoomController> startPath = RoomPathFromRoot(startPosition, new List<RoomController>());
+		if (startPath == null)
+		{
+			return null; // TODO: find closest reachable point?
+		}
+		List<RoomController> endPath = RoomPathFromRoot(endPosition, new List<RoomController>());
+		if (endPath == null)
+		{
+			return null; // TODO: find closest reachable point?
+		}
+
+		// remove shared trunk
+		RoomController lastSharedRoom = null;
+		while (startPath.Count > 0 && endPath.Count > 0 && startPath.First() == endPath.First())
+		{
+			lastSharedRoom = startPath.First();
+			startPath.RemoveAt(0);
+			endPath.RemoveAt(0);
+		}
+		Assert.IsNotNull(lastSharedRoom); // at least the root room should always be shared
+
+		// combine paths in order
+		startPath.Reverse();
+		startPath.Add(lastSharedRoom);
+		startPath.AddRange(endPath);
+
+		// convert rooms to waypoints
+		List<Vector2> waypointPath = new();
+		for (int i = 0; i < startPath.Count - 1; ++i)
+		{
+			Vector2 connectionPos = RoomConnection(startPath[i], startPath[i + 1]);
+			Assert.IsFalse(connectionPos == Vector2.zero);
+			waypointPath.Add(connectionPos);
+		}
+		waypointPath.Add(endPosition);
+		return waypointPath;
 	}
 
 	public Tuple<List<RoomController>, int> RoomPathLongest(int startDistance = 0)
@@ -221,5 +273,74 @@ public class RoomController : MonoBehaviour
 		newRoom.m_spawnDepthMax = m_spawnDepthMax - 1;
 		postReplace(newRoom);
 		return newRoom;
+	}
+
+	private List<RoomController> RoomPathFromRoot(Vector2 endPosition, List<RoomController> prePath)
+	{
+		// TODO: A* algorithm?
+
+		prePath = new List<RoomController>(prePath); // NOTE the copy to prevent storing up entries from other branches of the recursion
+		prePath.Add(this);
+
+		Bounds bounds = CalculateBounds();
+		Vector3 pos3D = new Vector3(endPosition.x, endPosition.y, bounds.center.z);
+		if (bounds.Contains(pos3D))
+		{
+			return prePath;
+		}
+
+		// check non-null children
+		// TODO: prioritize by distance from endPosition?
+		Assert.IsTrue(m_childrenCreated);
+		RoomController[] children = (new RoomController[] { m_leftChild, m_rightChild, m_bottomChild, m_topChild }).Where(child => child != null).ToArray();
+		foreach (RoomController child in children)
+		{
+			List<RoomController> childPath = child.RoomPathFromRoot(endPosition, prePath);
+			if (childPath != null)
+			{
+				return childPath;
+			}
+		}
+
+		return null;
+	}
+
+	private Vector2 RoomConnection(RoomController a, RoomController b)
+	{
+		// TODO: efficiency?
+		if (a.m_leftChild == b)
+		{
+			return a.m_leftDoorPos;
+		}
+		if (a.m_rightChild == b)
+		{
+			return a.m_rightDoorPos;
+		}
+		if (a.m_bottomChild == b)
+		{
+			return a.m_bottomDoorPos;
+		}
+		if (a.m_topChild == b)
+		{
+			return a.m_topDoorPos;
+		}
+		if (b.m_leftChild == a)
+		{
+			return b.m_leftDoorPos;
+		}
+		if (b.m_rightChild == a)
+		{
+			return b.m_rightDoorPos;
+		}
+		if (b.m_bottomChild == a)
+		{
+			return b.m_bottomDoorPos;
+		}
+		if (b.m_topChild == a)
+		{
+			return b.m_topDoorPos;
+		}
+
+		return Vector3.zero; // TODO: better no-connection return value?
 	}
 }

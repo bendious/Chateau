@@ -64,6 +64,11 @@ public class GameController : MonoBehaviour
 		return m_startRoom.ChildPosition(checkLocks, targetObj, onFloor);
 	}
 
+	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos)
+	{
+		return m_startRoom.ChildRoomPath(startPos, targetPos);
+	}
+
 	public void TogglePause()
 	{
 		Time.timeScale = Time.timeScale == 0.0f ? 1.0f : 0.0f;

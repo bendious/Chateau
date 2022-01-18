@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 
 namespace Platformer.Mechanics
@@ -15,6 +17,8 @@ namespace Platformer.Mechanics
 
 
 		private AIState m_aiState;
+
+		private List<Vector2> m_pathfindWaypoints;
 
 
 		protected override void Start()
@@ -88,31 +92,51 @@ namespace Platformer.Mechanics
 		// TODO: un-expose?
 		public bool NavigateTowardTarget(Transform target, Vector2 targetOffsetAbs)
 		{
+			const float arrivalEpsilon = 0.1f; // TODO: derive/calculate?
+
+			// pathfind
+			// TODO: efficiency?
+			Vector2 targetPos = target == null ? transform.position : target.position + (Vector3)(transform.position.x > target.position.x ? targetOffsetAbs : targetOffsetAbs * new Vector2(-1.0f, 1.0f));
+			if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0 || Vector2.Distance(targetPos, m_pathfindWaypoints.Last()) > m_meleeRange) // TODO: better re-plan trigger(s)?
+			{
+				m_pathfindWaypoints = Camera.main.GetComponent<GameController>().Pathfind(transform.position, targetPos);
+				if (m_pathfindWaypoints == null)
+				{
+					// TODO: handle unreachable positions; find closest reachable position?
+					m_pathfindWaypoints = new List<Vector2> { targetPos };
+				}
+			}
+			Vector2 nextWaypoint = m_pathfindWaypoints.First();
+
 			// left/right
-			Vector3 targetPos = target == null ? transform.position : target.position + (Vector3)(transform.position.x > target.position.x ? targetOffsetAbs : targetOffsetAbs * new Vector2(-1.0f, 1.0f)); // TODO: handle pathfinding / unreachable positions
-			bool hasArrivedX = Mathf.Abs(targetPos.x - transform.position.x) < collider2d.bounds.extents.x;
-			move.x = hasArrivedX ? 0.0f : Mathf.Clamp(targetPos.x - transform.position.x, -1.0f, 1.0f);
+			Vector2 diff = nextWaypoint - (Vector2)transform.position;
+			bool hasArrivedX = Mathf.Abs(diff.x) <= collider2d.bounds.extents.x + Mathf.Abs(collider2d.offset.x) + arrivalEpsilon;
+			move.x = hasArrivedX ? 0.0f : Mathf.Clamp(diff.x, -1.0f, 1.0f); // TODO: less slow-down when near waypoints
 
 			if (HasFlying)
 			{
 				// fly
-				move.y = Mathf.Clamp(targetPos.y - transform.position.y, -1.0f, 1.0f);
+				move.y = Mathf.Clamp(diff.y, -1.0f, 1.0f); // TODO: less slow-down when near waypoints
 			}
 			else
 			{
 				// jump/drop
 				// TODO: actual room-based pathfinding to avoid getting stuck
 				Collider2D targetCollider = target?.GetComponent<Collider2D>();
-				Bounds targetBounds = targetCollider == null ? new Bounds(targetPos, Vector3.zero) : targetCollider.bounds;
+				Bounds nextBounds = targetCollider == null || m_pathfindWaypoints.Count > 1 ? new Bounds(nextWaypoint, Vector3.zero) : targetCollider.bounds;
 				Bounds selfBounds = collider2d.bounds;
-				if (IsGrounded && targetBounds.min.y > selfBounds.max.y && Random.value > 0.95f/*?*/)
+				if (IsGrounded && nextBounds.min.y > selfBounds.max.y && Random.value > 0.95f/*?*/)
 				{
 					jump = true;
 				}
-				move.y = targetBounds.max.y < selfBounds.min.y ? -1.0f : 0.0f;
+				move.y = nextBounds.max.y < selfBounds.min.y ? -1.0f : 0.0f;
 			}
 
-			return hasArrivedX && Mathf.Abs(targetPos.y - transform.position.y) < collider2d.bounds.extents.y;
+			if (hasArrivedX && Mathf.Abs(diff.y) <= collider2d.bounds.extents.y + Mathf.Abs(collider2d.offset.y) + arrivalEpsilon)
+			{
+				m_pathfindWaypoints.RemoveAt(0);
+			}
+			return m_pathfindWaypoints.Count == 0;
 		}
 	}
 }
