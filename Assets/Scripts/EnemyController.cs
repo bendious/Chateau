@@ -111,14 +111,13 @@ namespace Platformer.Mechanics
 
 			// pathfind
 			// TODO: efficiency?
-			Vector2 targetPos = target == null ? transform.position : target.position + (Vector3)(transform.position.x > target.position.x ? targetOffsetAbs : targetOffsetAbs * new Vector2(-1.0f, 1.0f));
-			if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0 || Vector2.Distance(targetPos, m_pathfindWaypoints.Last()) > m_meleeRange) // TODO: better re-plan trigger(s)?
+			if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0 || Vector2.Distance(target.position, m_pathfindWaypoints.Last()) > m_meleeRange) // TODO: better re-plan trigger(s)?
 			{
-				m_pathfindWaypoints = Camera.main.GetComponent<GameController>().Pathfind(transform.position, targetPos);
+				m_pathfindWaypoints = Camera.main.GetComponent<GameController>().Pathfind(transform.position, target.position, targetOffsetAbs);
 				if (m_pathfindWaypoints == null)
 				{
 					// TODO: handle unreachable positions; find closest reachable position?
-					m_pathfindWaypoints = new List<Vector2> { targetPos };
+					m_pathfindWaypoints = new List<Vector2> { target.position };
 				}
 			}
 			Vector2 nextWaypoint = m_pathfindWaypoints.First();

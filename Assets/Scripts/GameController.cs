@@ -65,9 +65,9 @@ public class GameController : MonoBehaviour
 		return m_startRoom.ChildPosition(checkLocks, targetObj, onFloor);
 	}
 
-	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos)
+	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos, Vector2 offsetMag)
 	{
-		return m_startRoom.ChildRoomPath(startPos, targetPos);
+		return m_startRoom.ChildRoomPath(startPos, targetPos, offsetMag);
 	}
 
 	public void TogglePause()

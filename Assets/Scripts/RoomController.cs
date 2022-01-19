@@ -59,7 +59,7 @@ public class RoomController : MonoBehaviour
 		m_topDoorPos = m_doorT.transform.position;
 
 		// calculate size info
-		Bounds bounds = CalculateBounds();
+		Bounds bounds = CalculateBounds(false);
 		Vector3 offsetMagH = new(bounds.size.x, 0.0f, 0.0f);
 		Vector3 offsetMagV = new(0.0f, bounds.size.y, 0.0f);
 		Vector3 checkSize = bounds.size - new Vector3(0.1f, 0.1f, 0.0f); // NOTE the small reduction to avoid always collecting ourself
@@ -123,10 +123,10 @@ public class RoomController : MonoBehaviour
 		if (child == this)
 		{
 			// return interior position
-			// TODO: avoid spawning right on top of targetObj, determine interior floor/wall extent automatically
-			Bounds bounds = CalculateBounds();
-			float xDiffMax = bounds.extents.x - 0.5f;
-			float yMax = onFloor ? 0.0f : bounds.size.y - 0.5f;
+			// TODO: avoid spawning right on top of targetObj
+			Bounds bounds = CalculateBounds(true);
+			float xDiffMax = bounds.extents.x;
+			float yMax = onFloor ? 0.0f : bounds.size.y;
 			return transform.position + new Vector3(UnityEngine.Random.Range(-xDiffMax, xDiffMax), UnityEngine.Random.Range(0, yMax), 0.0f);
 		}
 
@@ -134,7 +134,7 @@ public class RoomController : MonoBehaviour
 		return child.ChildPosition(checkLocks, targetObj, onFloor);
 	}
 
-	public List<Vector2> ChildRoomPath(Vector2 startPosition, Vector2 endPosition)
+	public List<Vector2> ChildRoomPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag)
 	{
 		// TODO: efficiency?
 		// find root-->start and root-->end paths
@@ -143,7 +143,7 @@ public class RoomController : MonoBehaviour
 		{
 			return null; // TODO: find closest reachable point?
 		}
-		List<RoomController> endPath = RoomPathFromRoot(endPosition, new());
+		List<RoomController> endPath = RoomPathFromRoot(endPositionPreoffset, new());
 		if (endPath == null)
 		{
 			return null; // TODO: find closest reachable point?
@@ -172,7 +172,13 @@ public class RoomController : MonoBehaviour
 			Assert.IsFalse(connectionPos == Vector2.zero);
 			waypointPath.Add(connectionPos);
 		}
-		waypointPath.Add(endPosition);
+
+		// add valid end point
+		float semifinalX = waypointPath.Count > 0 ? waypointPath.Last().x : startPosition.x;
+		Vector2 endPos = endPositionPreoffset + (semifinalX >= endPositionPreoffset.x ? offsetMag : offsetMag * new Vector2(-1.0f, 1.0f));
+		Bounds endRoomBounds = startPath.Last().CalculateBounds(true);
+		waypointPath.Add(endRoomBounds.Contains(new(endPos.x, endPos.y, endRoomBounds.center.z)) ? endPos : endRoomBounds.ClosestPoint(endPos)); // TODO: flip offset if closest interior point is significantly different from endPos?
+
 		return waypointPath;
 	}
 
@@ -199,7 +205,7 @@ public class RoomController : MonoBehaviour
 
 
 	// see https://gamedev.stackexchange.com/questions/86863/calculating-the-bounding-box-of-a-game-object-based-on-its-children
-	private Bounds CalculateBounds()
+	private Bounds CalculateBounds(bool interiorOnly)
 	{
 		Renderer[] renderers = GetComponentsInChildren<Renderer>();
 		if (renderers.Length == 0)
@@ -210,6 +216,10 @@ public class RoomController : MonoBehaviour
 		foreach (Renderer r in renderers)
 		{
 			b.Encapsulate(r.bounds);
+		}
+		if (interiorOnly)
+		{
+			b.Expand(new Vector3(-1.0f, -1.0f, 0.0f)); // TODO: dynamically determine wall/floor thickness
 		}
 		return b;
 	}
@@ -282,7 +292,7 @@ public class RoomController : MonoBehaviour
 		prePath = new(prePath); // NOTE the copy to prevent storing up entries from other branches of the recursion
 		prePath.Add(this);
 
-		Bounds bounds = CalculateBounds();
+		Bounds bounds = CalculateBounds(false);
 		Vector3 pos3D = new(endPosition.x, endPosition.y, bounds.center.z);
 		if (bounds.Contains(pos3D))
 		{
