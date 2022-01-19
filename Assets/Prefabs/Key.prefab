@@ -13,11 +13,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4446408722389883950, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
       propertyPath: m_Size.x
-      value: 0.35
+      value: 0.175
       objectReference: {fileID: 0}
     - target: {fileID: 4446408722389883950, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
       propertyPath: m_Size.y
-      value: 0.175
+      value: 0.075
       objectReference: {fileID: 0}
     - target: {fileID: 4446408722389883950, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
       propertyPath: m_EdgeRadius
@@ -37,11 +37,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4446408722389883950, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
       propertyPath: m_SpriteTilingProperty.oldSize.x
-      value: 0.4
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 4446408722389883950, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
       propertyPath: m_SpriteTilingProperty.oldSize.y
-      value: 0.4
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 4751744398685980310, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
       propertyPath: m_PropertySheet.m_NamedObject.m_Array.Array.data[0].m_Value

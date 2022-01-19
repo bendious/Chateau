@@ -102,6 +102,7 @@ public class ItemController : MonoBehaviour
 	{
 		transform.SetParent(obj.transform);
 		m_body.velocity = Vector2.zero;
+		m_body.angularVelocity = 0.0f;
 		m_body.bodyType = RigidbodyType2D.Kinematic;
 		gameObject.layer = obj.layer;
 		m_aimDegrees = AimDegreesRaw(transform.position);
@@ -152,6 +153,7 @@ public class ItemController : MonoBehaviour
 			bool healed = transform.parent.GetComponent<Health>().Increment(m_healAmount);
 			if (healed)
 			{
+				transform.parent = null; // so that we can refresh inventory immediately even though object deletion is deferred
 				Destroy(gameObject);
 				return true;
 			}

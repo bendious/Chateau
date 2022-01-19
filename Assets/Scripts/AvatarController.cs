@@ -56,6 +56,7 @@ namespace Platformer.Mechanics
 		{
 			base.Awake();
 			health = GetComponent<Health>();
+			InventorySync();
 		}
 
 		protected override void Update()
@@ -109,6 +110,7 @@ namespace Platformer.Mechanics
 							bool used = item.Use();
 							if (used)
 							{
+								refreshInventory = true;
 								break;
 							}
 						}

@@ -141,7 +141,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &339841933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -513,8 +513,8 @@ MonoBehaviour:
   m_victoryAudio: {fileID: 8300000, guid: 5833894e2899f1840ac04193ca462e39, type: 3}
   m_waveSecondsMin: 30
   m_waveSecondsMax: 60
-  m_waveEnemiesMin: 0
-  m_waveEnemiesMax: 10
+  m_waveEscalationMin: 0
+  m_waveEscalationMax: 2
 --- !u!114 &519420034
 MonoBehaviour:
   m_ObjectHideFlags: 0

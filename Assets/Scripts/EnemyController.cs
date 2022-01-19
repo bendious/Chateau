@@ -83,10 +83,9 @@ namespace Platformer.Mechanics
 			if (ConsoleCommands.AIDebugLevel >= (int)ConsoleCommands.AIDebugLevels.Path && m_pathfindWaypoints?.Count > 0)
 			{
 				UnityEditor.Handles.DrawLine(transform.position, m_pathfindWaypoints.First());
-				for (int i = 0, n = m_pathfindWaypoints.Count - 1; i < n; ++i)
-				{
-					UnityEditor.Handles.DrawLine(m_pathfindWaypoints[i], m_pathfindWaypoints[i + 1]);
-				}
+				int i = 0;
+				int[] lineIndicies = m_pathfindWaypoints.SelectMany(vec2 => new int[] { i, ++i }).ToArray()[0 .. ^2]; // i.e. [0, 1, 1, 2, 2, 3, ..., WaypointCount - 2, WaypointCount - 1]
+				UnityEditor.Handles.DrawLines(m_pathfindWaypoints.Select(vec2 => (Vector3)vec2).ToArray(), lineIndicies);
 			}
 		}
 #endif

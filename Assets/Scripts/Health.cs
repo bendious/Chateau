@@ -22,7 +22,7 @@ namespace Platformer.Mechanics
 		public float m_UIPadding = 5.0f;
 
 		public bool m_invincible;
-		public const float m_invincibilityTime = 0.5f; // TODO: vary by character type / animation played?
+		public const float m_invincibilityTime = 1.0f; // TODO: vary by character type / animation played?
 
 
 		/// <summary>
