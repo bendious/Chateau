@@ -29,6 +29,8 @@ public class ItemController : MonoBehaviour
 
 	public float Speed => (transform.parent == null ? m_body.velocity.magnitude : 0.0f) + Mathf.Abs(m_aimVelocity) + Mathf.Abs(m_aimRadiusVelocity); // TODO: incorporate aim velocity direction?
 
+	public Vector2 SpritePivotOffset => -(m_renderer.sprite.pivot / m_renderer.sprite.rect.size * 2.0f - Vector2.one) * m_renderer.sprite.bounds.extents;
+
 
 	private float m_aimDegrees;
 	private float m_aimVelocity;
@@ -66,7 +68,7 @@ public class ItemController : MonoBehaviour
 		SetCause(transform.parent == null ? null : transform.parent.gameObject);
 		Vector3 size = m_collider.bounds.size;
 		m_vfx.SetFloat("Size", Mathf.Max(size.x, size.y));
-		m_vfx.SetVector3("SpriteOffset", -(m_renderer.sprite.pivot / m_renderer.sprite.rect.size * 2.0f - Vector2.one) * m_renderer.sprite.bounds.extents);
+		m_vfx.SetVector3("SpriteOffset", SpritePivotOffset);
 	}
 
 	// TODO: only when VFX is enabled?
@@ -135,7 +137,7 @@ public class ItemController : MonoBehaviour
 		}
 	}
 
-	public void UpdateAim(Vector3 position, float radius)
+	public void UpdateAim(Vector2 position, float radius)
 	{
 		Assert.IsFalse(position.x == float.MaxValue || position.x == float.PositiveInfinity || position.x == float.NegativeInfinity || position.x == float.NaN || radius == float.MaxValue || radius == float.PositiveInfinity || radius == float.NegativeInfinity || radius == float.NaN); // TODO: prevent unbounded radius growth (caused by low framerate?)
 		m_aimDegrees = DampedSpring(m_aimDegrees, AimDegreesRaw(position), m_aimSpringDampPct, true, m_aimSpringStiffness, ref m_aimVelocity);
@@ -256,9 +258,9 @@ public class ItemController : MonoBehaviour
 		}
 	}
 
-	private float AimDegreesRaw(Vector3 position)
+	private float AimDegreesRaw(Vector2 position)
 	{
-		Vector2 aimDiff = position - transform.parent.position;
+		Vector2 aimDiff = position - (Vector2)transform.parent.position;
 		return Mathf.Rad2Deg * Mathf.Atan2(aimDiff.y, aimDiff.x);
 	}
 

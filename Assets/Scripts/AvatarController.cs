@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UI;
+using UnityEngine.VFX;
 using static Platformer.Core.Simulation;
 
 
@@ -51,11 +52,30 @@ namespace Platformer.Mechanics
 
 		private GameObject m_focusObj;
 
+		private VisualEffect m_aimVfx;
+
+		// TODO: class for ease of VFX ID use?
+		private static int m_spriteID;
+		private static int m_sizeID;
+		private static int m_spriteOffsetID;
+		private static int m_speedID;
+		private static int m_holdRadiusID;
+		private static int m_forwardID;
+
 
 		protected override void Awake()
 		{
 			base.Awake();
 			health = GetComponent<Health>();
+
+			m_aimVfx = GetComponent<VisualEffect>();
+			m_spriteID = Shader.PropertyToID("Sprite");
+			m_sizeID = Shader.PropertyToID("Size");
+			m_spriteOffsetID = Shader.PropertyToID("SpriteOffset");
+			m_speedID = Shader.PropertyToID("Speed");
+			m_holdRadiusID = Shader.PropertyToID("HoldRadius");
+			m_forwardID = Shader.PropertyToID("Forward");
+
 			InventorySync();
 		}
 
@@ -83,6 +103,7 @@ namespace Platformer.Mechanics
 				m_xInputForced = Mathf.SmoothDamp(m_xInputForced, 0.0f, ref m_xInputForcedVel, m_xInputForcedSmoothTime);
 
 				// swing
+				float holdRadius = ((CircleCollider2D)collider2d).radius;
 				bool refreshInventory = false;
 				if (transform.childCount > 0)
 				{
@@ -94,10 +115,21 @@ namespace Platformer.Mechanics
 					// throw
 					if (Input.GetButtonDown("Fire2"))
 					{
-						// TODO: show aim indicator?
+						// enable/initialize aim VFX
+						ItemController item = GetComponentInChildren<ItemController>();
+						m_aimVfx.enabled = true;
+						Sprite itemSprite = item.GetComponent<SpriteRenderer>().sprite;
+						m_aimVfx.SetTexture(m_spriteID, itemSprite.texture);
+						Vector3 itemSize = item.GetComponent<Collider2D>().bounds.size;
+						m_aimVfx.SetFloat(m_sizeID, Mathf.Max(itemSize.x, itemSize.y));
+						m_aimVfx.SetVector3(m_spriteOffsetID, item.SpritePivotOffset);
+						m_aimVfx.SetFloat(m_speedID, item.m_throwSpeed);
+						m_aimVfx.SetFloat(m_holdRadiusID, holdRadius);
 					}
 					else if (Input.GetButtonUp("Fire2"))
 					{
+						m_aimVfx.enabled = false; // NOTE that this instantly removes any existing particles, which is fine for this effect
+
 						// release
 						GetComponentInChildren<ItemController>().Throw();
 						refreshInventory = true;
@@ -120,7 +152,6 @@ namespace Platformer.Mechanics
 				// determine current focus object
 				// TODO: more nuanced prioritization?
 				m_focusObj = null;
-				float holdRadius = ((CircleCollider2D)collider2d).radius;
 				Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + (Vector2)(Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position).normalized * holdRadius, holdRadius * 1.5f); // TODO: restrict to certain layers?
 				float distSqFocus = float.MaxValue;
 				foreach (Collider2D candidate in focusCandidates)
@@ -194,8 +225,11 @@ namespace Platformer.Mechanics
 			if (controlEnabled)
 			{
 				// aim camera/sprite
-				Vector3 mousePosWS = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-				m_aimObject.transform.position = transform.position + (mousePosWS - transform.position).normalized * m_aimRadius;
+				Vector2 mousePosWS = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+				Vector2 mousePctsFromCenter = Input.mousePosition / new Vector2(Screen.height, Screen.width) * 2.0f - Vector2.one;
+				mousePctsFromCenter.x = Mathf.Clamp(mousePctsFromCenter.x, -1.0f, 1.0f);
+				mousePctsFromCenter.y = Mathf.Clamp(mousePctsFromCenter.y, -1.0f, 1.0f);
+				m_aimObject.transform.position = transform.position + (Vector3)(m_aimRadius * mousePctsFromCenter);
 				m_aimDir = mousePosWS.x > transform.position.x ? 1 : -1;
 
 				// aim items
@@ -213,6 +247,12 @@ namespace Platformer.Mechanics
 					{
 						items[i].UpdateAim(secondaryAimPos, secondaryRadius);
 					}
+				}
+
+				// aim VFX
+				if (m_aimVfx.enabled)
+				{
+					m_aimVfx.SetVector3(m_forwardID, (mousePosWS - (Vector2)transform.position).normalized);
 				}
 			}
 
