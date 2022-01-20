@@ -37,6 +37,11 @@ namespace Platformer.Mechanics
 			}
 		}
 
+		protected override float IntegrateForcedVelocity(float target, float forced)
+		{
+			return Mathf.Abs(forced) < 0.01f ? target : forced;
+		}
+
 		protected override void Update()
 		{
 			if (ConsoleCommands.PassiveAI)

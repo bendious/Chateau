@@ -38,7 +38,6 @@ namespace Platformer.Mechanics
 		public float m_secondaryDegrees = -45.0f;
 
 		public float m_coyoteTime = 0.15f;
-		public float m_xInputForcedSmoothTime = 0.25f;
 
 		private JumpState jumpState = JumpState.Grounded;
 		private Health health;
@@ -46,9 +45,6 @@ namespace Platformer.Mechanics
 
 
 		private float m_leftGroundTime = -1.0f;
-
-		private float m_xInputForced = 0.0f;
-		private float m_xInputForcedVel;
 
 		private GameObject m_focusObj;
 
@@ -79,6 +75,11 @@ namespace Platformer.Mechanics
 			InventorySync();
 		}
 
+		protected override float IntegrateForcedVelocity(float target, float forced)
+		{
+			return Mathf.Lerp(target, forced, Mathf.Abs(forced));
+		}
+
 		protected override void Update()
 		{
 			if (controlEnabled)
@@ -86,21 +87,13 @@ namespace Platformer.Mechanics
 				if ((jumpState == JumpState.Grounded || jumpState == JumpState.WallCling || m_leftGroundTime + m_coyoteTime <= Time.time) && Input.GetButtonDown("Jump"))
 				{
 					jumpState = JumpState.PrepareToJump;
-					if (IsWallClinging)
-					{
-						m_xInputForced = m_wallNormal.x;
-						m_xInputForcedVel = 0.0f;
-					}
 				}
 				else if (Input.GetButtonUp("Jump"))
 				{
 					stopJump = true;
 				}
-				move.x = Mathf.Lerp(Input.GetAxis("Horizontal"), m_xInputForced, Mathf.Abs(m_xInputForced));
+				move.x = Input.GetAxis("Horizontal");
 				move.y = Input.GetAxis("Vertical");
-
-				// blend x-input back from forced if necessary
-				m_xInputForced = Mathf.SmoothDamp(m_xInputForced, 0.0f, ref m_xInputForcedVel, m_xInputForcedSmoothTime);
 
 				// swing
 				float holdRadius = ((CircleCollider2D)collider2d).radius;
@@ -260,22 +253,10 @@ namespace Platformer.Mechanics
 		}
 
 
-		/// <summary>
-		/// Bounce the objects velocity in a direction.
-		/// </summary>
-		/// <param name="dir"></param>
-		public override void Bounce(Vector2 dir)
-		{
-			base.Bounce(dir);
-			m_xInputForced = dir.x;
-			m_xInputForcedVel = 0.0f;
-		}
-
 		public override void OnDeath()
 		{
 			base.OnDeath();
 			controlEnabled = false;
-			m_xInputForced = 0.0f;
 			m_focusIndicator.SetActive(false);
 			InventorySync();
 			Schedule<GameOver>(3.0f);
@@ -286,16 +267,13 @@ namespace Platformer.Mechanics
 			// NOTE that we purposely don't call base.DespawnSelf() since the avatar should never despawn
 		}
 
-		private static readonly Vector2 m_collisionBounceVec = new(1.0f, 2.5f);
 		public void OnCollision(EnemyController enemy)
 		{
-			Vector2 bounceVecOriented = transform.position.x - enemy.transform.position.x < 0.0f ? new(-m_collisionBounceVec.x, m_collisionBounceVec.y) : m_collisionBounceVec;
-			Bounce(bounceVecOriented);
-			health.Decrement(); // NOTE that this is AFTER bouncing velocity so that OnDeath()'s reset of m_xInputForced isn't overwritten
+			health.Decrement(enemy.gameObject);
 
 			// temporarily disable collision to prevent getting stuck
 			Collider2D enemyCollider = enemy.GetComponent<Collider2D>();
-			Physics2D.IgnoreCollision(collider2d, enemyCollider, true);
+			Physics2D.IgnoreCollision(collider2d, enemyCollider);
 			EnableCollision evt = Schedule<EnableCollision>(Health.m_invincibilityTime);
 			evt.m_collider1 = collider2d;
 			evt.m_collider2 = enemyCollider;

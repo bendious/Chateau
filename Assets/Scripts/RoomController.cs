@@ -175,7 +175,7 @@ public class RoomController : MonoBehaviour
 
 		// add valid end point
 		float semifinalX = waypointPath.Count > 0 ? waypointPath.Last().x : startPosition.x;
-		Vector2 endPos = endPositionPreoffset + (semifinalX >= endPositionPreoffset.x ? offsetMag : offsetMag * new Vector2(-1.0f, 1.0f));
+		Vector2 endPos = endPositionPreoffset + (semifinalX >= endPositionPreoffset.x ? offsetMag : new Vector2(-offsetMag.x, offsetMag.y));
 		Bounds endRoomBounds = startPath.Last().CalculateBounds(true);
 		waypointPath.Add(endRoomBounds.Contains(new(endPos.x, endPos.y, endRoomBounds.center.z)) ? endPos : endRoomBounds.ClosestPoint(endPos)); // TODO: flip offset if closest interior point is significantly different from endPos?
 

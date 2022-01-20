@@ -31,7 +31,7 @@ namespace Platformer.Mechanics
 		public bool IsAlive => currentHP > 0;
 
 
-		int currentHP;
+		float currentHP;
 
 		private Animator m_animator;
 		private AnimationController m_character;
@@ -51,29 +51,30 @@ namespace Platformer.Mechanics
 		/// Decrement the HP of the entity. Will trigger a HealthIsZero event when
 		/// current HP reaches 0.
 		/// </summary>
-		public bool Decrement()
+		public bool Decrement(GameObject source, float amount = 1)
 		{
 			if (m_invincible)
 			{
 				return false;
 			}
 
-			IncrementInternal(-1);
+			IncrementInternal(-1.0f * amount);
 			if (m_animator != null)
 			{
 				m_animator.SetTrigger("hurt");
 			}
+			bool isDead = Mathf.Approximately(currentHP, 0.0f);
 			if (m_character != null)
 			{
-				m_character.OnDamage();
-				if (currentHP == 0)
+				m_character.OnDamage(source);
+				if (isDead)
 				{
 					m_character.OnDeath();
 				}
 			}
 
 			m_invincible = true;
-			if (currentHP > 0)
+			if (!isDead)
 			{
 				Schedule<EnableDamage>(m_invincibilityTime).m_health = this;
 			}
@@ -88,8 +89,7 @@ namespace Platformer.Mechanics
 		/// </summary>
 		public void Die()
 		{
-			IncrementInternal(-currentHP - 1); // NOTE that we have to go to one and then use Decrement() to avoid skipping the death logic there
-			Decrement();
+			Decrement(gameObject, currentHP); // NOTE that we can't use IncrementInternal() directly since that skips the death logic
 		}
 
 		/// <summary>
@@ -112,11 +112,11 @@ namespace Platformer.Mechanics
 		}
 
 
-		private bool IncrementInternal(int diff)
+		private bool IncrementInternal(float diff)
 		{
-			int hpPrev = currentHP;
+			float hpPrev = currentHP;
 			currentHP = Mathf.Clamp(currentHP + diff, 0, maxHP);
-			return currentHP != hpPrev;
+			return !Mathf.Approximately(currentHP, hpPrev);
 		}
 
 		private void SyncUI()
@@ -149,6 +149,7 @@ namespace Platformer.Mechanics
 			}
 
 			// set sprites
+			// TODO: handle partial hit points?
 			for (int i = 1; i <= maxHP; ++i)
 			{
 				m_healthUIParent.transform.GetChild(i).GetComponent<UnityEngine.UI.Image>().sprite = i <= currentHP ? m_healthSprite : m_healthMissingSprite;

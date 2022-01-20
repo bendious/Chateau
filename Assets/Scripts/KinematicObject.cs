@@ -8,7 +8,7 @@ namespace Platformer.Mechanics
 	/// <summary>
 	/// Implements game physics for some in game entity.
 	/// </summary>
-	public class KinematicObject : MonoBehaviour
+	public abstract class KinematicObject : MonoBehaviour
 	{
 		/// <summary>
 		/// The minimum normal (dot product) considered suitable for the entity sit on.
@@ -29,6 +29,8 @@ namespace Platformer.Mechanics
 		/// Gravity scalar applied while wall clinging.
 		/// </summary>
 		public float m_wallClingGravityScalar = 0.1f;
+
+		public float m_velocityForcedSmoothTime = 0.25f;
 
 		/// <summary>
 		/// The current velocity of the entity.
@@ -66,6 +68,9 @@ namespace Platformer.Mechanics
 		private Collider2D m_collider;
 		private AvatarController m_avatar;
 
+		private Vector2 m_velocityForced = Vector2.zero;
+		private Vector2 m_velocityForcedVel = Vector2.zero;
+
 		private /*readonly*/ int m_platformLayer;
 		private const float m_platformTopEpsilon = 0.1f;
 
@@ -73,21 +78,13 @@ namespace Platformer.Mechanics
 
 
 		/// <summary>
-		/// Bounce the object's vertical velocity.
-		/// </summary>
-		/// <param name="value"></param>
-		public void Bounce(float value)
-		{
-			velocity.y = value;
-		}
-
-		/// <summary>
 		/// Bounce the objects velocity in a direction.
 		/// </summary>
-		/// <param name="dir"></param>
-		public virtual void Bounce(Vector2 dir)
+		/// <param name="velocity"></param>
+		public void Bounce(Vector2 velocity)
 		{
-			velocity = dir;
+			m_velocityForced = velocity;
+			m_velocityForcedVel = Vector2.zero;
 		}
 
 		/// <summary>
@@ -132,19 +129,22 @@ namespace Platformer.Mechanics
 		{
 		}
 
+		protected abstract float IntegrateForcedVelocity(float target, float forced);
+
 		protected virtual void FixedUpdate()
 		{
 			//if already falling, fall faster than the jump speed, otherwise use normal gravity.
 			velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0 ? gravityModifier : 1.0f) * Time.fixedDeltaTime * Physics2D.gravity;
 
+			velocity.x = IntegrateForcedVelocity(targetVelocity.x, m_velocityForced.x);
 			if (HasFlying)
 			{
-				velocity = targetVelocity;
+				velocity.y = IntegrateForcedVelocity(targetVelocity.y, m_velocityForced.y);
 			}
-			else
-			{
-				velocity.x = targetVelocity.x;
-			}
+
+			// blend velocity back from forced if necessary
+			m_velocityForced.x = Mathf.SmoothDamp(m_velocityForced.x, 0.0f, ref m_velocityForcedVel.x, m_velocityForcedSmoothTime);
+			m_velocityForced.y = Mathf.SmoothDamp(m_velocityForced.y, 0.0f, ref m_velocityForcedVel.y, m_velocityForcedSmoothTime);
 
 			IsGrounded = false;
 			IsWallClinging = false;

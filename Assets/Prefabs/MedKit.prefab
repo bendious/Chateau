@@ -24,6 +24,10 @@ PrefabInstance:
       value: MedKit
       objectReference: {fileID: 0}
     - target: {fileID: 2776295948456945994, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
+      propertyPath: m_damage
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2776295948456945994, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
       propertyPath: m_healAmount
       value: 1
       objectReference: {fileID: 0}

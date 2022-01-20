@@ -19,6 +19,7 @@ public class ItemController : MonoBehaviour
 	public float m_radiusSpringDampPct = 0.5f;
 	public float m_damageThresholdSpeed = 2.0f;
 	public float m_throwSpeed = 10.0f;
+	public float m_damage = 1.0f;
 	public int m_healAmount = 0;
 
 	public AudioClip[] m_swingThrowAudio;
@@ -168,7 +169,7 @@ public class ItemController : MonoBehaviour
 	{
 		// temporarily ignore collisions w/ thrower
 		Collider2D parentCollider = transform.parent.GetComponent<Collider2D>();
-		Physics2D.IgnoreCollision(m_collider, parentCollider, true);
+		Physics2D.IgnoreCollision(m_collider, parentCollider);
 		EnableCollision evt = Simulation.Schedule<EnableCollision>(0.1f);
 		evt.m_collider1 = m_collider;
 		evt.m_collider2 = parentCollider;
@@ -197,7 +198,8 @@ public class ItemController : MonoBehaviour
 
 		// maybe attach to character
 		bool isDetached = transform.parent == null;
-		if (isDetached)
+		bool causeCanDamage = m_cause != null && m_cause != collision.gameObject; // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus
+		if (isDetached && !causeCanDamage)
 		{
 			AnimationController character = collision.gameObject.GetComponent<AnimationController>();
 			if (character != null && character.IsPickingUp && character.transform.childCount < character.m_maxPickUps)
@@ -222,18 +224,17 @@ public class ItemController : MonoBehaviour
 				m_audioSource.PlayOneShot(m_collisionAudio[Random.Range(0, m_collisionAudio.Length)]);
 			}
 
-			// if hitting a valid point, apply damage
-			bool canDamage = m_cause != null && m_cause != collision.gameObject;
-			if (canDamage)
+			// if from a valid source, apply damage
+			if (causeCanDamage)
 			{
 				Health otherHealth = collision.gameObject.GetComponent<Health>();
 				if (otherHealth != null)
 				{
-					otherHealth.Decrement();
+					otherHealth.Decrement(gameObject, m_damage); // TODO: round if damaging avatar?
 				}
 				if (m_health != null)
 				{
-					m_health.Decrement();
+					m_health.Decrement(gameObject);
 				}
 			}
 		}

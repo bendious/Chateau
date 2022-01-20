@@ -11,6 +11,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Key
       objectReference: {fileID: 0}
+    - target: {fileID: 2776295948456945994, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
+      propertyPath: m_damage
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 4446408722389883950, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
       propertyPath: m_Size.x
       value: 0.175

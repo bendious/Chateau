@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Platformer.Gameplay;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 
@@ -8,7 +9,7 @@ namespace Platformer.Mechanics
 	/// AnimationController integrates physics and animation. It is generally used for simple enemy animation.
 	/// </summary>
 	[RequireComponent(typeof(SpriteRenderer), typeof(Animator), typeof(Collider2D)), RequireComponent(typeof(AudioSource))]
-	public class AnimationController : KinematicObject
+	public abstract class AnimationController : KinematicObject
 	{
 		/// <summary>
 		/// Max horizontal speed.
@@ -71,6 +72,9 @@ namespace Platformer.Mechanics
 		public bool IsDropping => move.y < 0.0f;
 
 
+		private static readonly Vector2 m_damageBounceVec = new(7.0f, 15.5f); // TODO: public?
+
+
 		protected virtual void Awake()
 		{
 			spriteRenderer = GetComponent<SpriteRenderer>();
@@ -86,6 +90,7 @@ namespace Platformer.Mechanics
 				if (IsWallClinging)
 				{
 					velocity += jumpTakeOffSpeed * new Vector2(move.x < 0.0f ? -m_wallJumpXYRatio : m_wallJumpXYRatio, 1.0f).normalized; // NOTE that we purposely incorporate any existing velocity so that gravity will eventually take over and prevent clinging to the walls forever
+					Bounce(new Vector2(m_wallNormal.x * maxSpeed, 0.0f)); // TODO: fix
 				}
 				else
 				{
@@ -120,8 +125,19 @@ namespace Platformer.Mechanics
 		}
 
 
-		public virtual void OnDamage()
+		public virtual void OnDamage(GameObject source)
 		{
+			// temporarily disable collision
+			Collider2D sourceCollider = source.GetComponent<Collider2D>();
+			Physics2D.IgnoreCollision(collider2d, sourceCollider);
+			EnableCollision evt = Core.Simulation.Schedule<EnableCollision>(Health.m_invincibilityTime);
+			evt.m_collider1 = collider2d;
+			evt.m_collider2 = sourceCollider;
+
+			// knock away from source
+			Vector2 bounceVecOriented = transform.position.x < source.transform.position.x ? new(-m_damageBounceVec.x, m_damageBounceVec.y) : m_damageBounceVec;
+			Bounce(bounceVecOriented);
+
 			if (audioSource && ouchAudio)
 			{
 				audioSource.PlayOneShot(ouchAudio);
@@ -147,6 +163,8 @@ namespace Platformer.Mechanics
 
 			collider2d.enabled = false;
 			body.simulated = false;
+
+			Bounce(Vector2.zero); // to remove any current forced input
 		}
 
 
