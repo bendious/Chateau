@@ -32,6 +32,11 @@ namespace Platformer.Mechanics
 		/// </summary>
 		public float jumpDeceleration = 0.5f;
 
+		/// <summary>
+		/// A velocity directed and sent to Bounce() when taking nonlethal damage
+		/// </summary>
+		public Vector2 m_damageBounceMagnitude = new(3.5f, 3.5f);
+
 		public AudioClip ouchAudio;
 		public AudioClip m_deathAudio;
 
@@ -72,9 +77,6 @@ namespace Platformer.Mechanics
 		public bool IsDropping => move.y < 0.0f;
 
 
-		private static readonly Vector2 m_damageBounceVec = new(7.0f, 15.5f); // TODO: public?
-
-
 		protected virtual void Awake()
 		{
 			spriteRenderer = GetComponent<SpriteRenderer>();
@@ -89,8 +91,8 @@ namespace Platformer.Mechanics
 			{
 				if (IsWallClinging)
 				{
-					velocity += jumpTakeOffSpeed * new Vector2(move.x < 0.0f ? -m_wallJumpXYRatio : m_wallJumpXYRatio, 1.0f).normalized; // NOTE that we purposely incorporate any existing velocity so that gravity will eventually take over and prevent clinging to the walls forever
 					Bounce(new Vector2(m_wallNormal.x * maxSpeed, 0.0f)); // TODO: fix
+					velocity += jumpTakeOffSpeed * new Vector2(move.x < 0.0f ? -m_wallJumpXYRatio : m_wallJumpXYRatio, 1.0f).normalized; // NOTE that we purposely incorporate any existing velocity so that gravity will eventually take over and prevent clinging to the walls forever
 				}
 				else
 				{
@@ -130,7 +132,7 @@ namespace Platformer.Mechanics
 			EnableCollision.TemporarilyDisableCollision(source.GetComponent<Collider2D>(), collider2d);
 
 			// knock away from source
-			Vector2 bounceVecOriented = transform.position.x < source.transform.position.x ? new(-m_damageBounceVec.x, m_damageBounceVec.y) : m_damageBounceVec;
+			Vector2 bounceVecOriented = transform.position.x < source.transform.position.x ? new(-m_damageBounceMagnitude.x, m_damageBounceMagnitude.y) : m_damageBounceMagnitude;
 			Bounce(bounceVecOriented);
 
 			if (audioSource && ouchAudio)

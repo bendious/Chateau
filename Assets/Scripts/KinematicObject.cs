@@ -80,10 +80,11 @@ namespace Platformer.Mechanics
 		/// <summary>
 		/// Bounce the objects velocity in a direction.
 		/// </summary>
-		/// <param name="velocity"></param>
-		public void Bounce(Vector2 velocity)
+		/// <param name="dir"></param>
+		public void Bounce(Vector2 dir)
 		{
-			m_velocityForced = velocity;
+			velocity = dir;
+			m_velocityForced = dir;
 			m_velocityForcedVel = Vector2.zero;
 		}
 
@@ -137,9 +138,9 @@ namespace Platformer.Mechanics
 			velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0 ? gravityModifier : 1.0f) * Time.fixedDeltaTime * Physics2D.gravity;
 
 			velocity.x = IntegrateForcedVelocity(targetVelocity.x, m_velocityForced.x);
-			if (HasFlying)
+			if (HasFlying && Mathf.Abs(m_velocityForced.y) <= 0.01f)
 			{
-				velocity.y = IntegrateForcedVelocity(targetVelocity.y, m_velocityForced.y);
+				velocity.y = targetVelocity.y;
 			}
 
 			// blend velocity back from forced if necessary
