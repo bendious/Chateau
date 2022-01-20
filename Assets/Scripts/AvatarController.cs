@@ -272,11 +272,7 @@ namespace Platformer.Mechanics
 			health.Decrement(enemy.gameObject);
 
 			// temporarily disable collision to prevent getting stuck
-			Collider2D enemyCollider = enemy.GetComponent<Collider2D>();
-			Physics2D.IgnoreCollision(collider2d, enemyCollider);
-			EnableCollision evt = Schedule<EnableCollision>(Health.m_invincibilityTime);
-			evt.m_collider1 = collider2d;
-			evt.m_collider2 = enemyCollider;
+			EnableCollision.TemporarilyDisableCollision(enemy.GetComponent<Collider2D>(), collider2d);
 		}
 
 		public void OnSpawn()

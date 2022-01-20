@@ -1,4 +1,3 @@
-using Platformer.Core;
 using Platformer.Gameplay;
 using Platformer.Mechanics;
 using System.Collections;
@@ -168,11 +167,7 @@ public class ItemController : MonoBehaviour
 	public void Throw()
 	{
 		// temporarily ignore collisions w/ thrower
-		Collider2D parentCollider = transform.parent.GetComponent<Collider2D>();
-		Physics2D.IgnoreCollision(m_collider, parentCollider);
-		EnableCollision evt = Simulation.Schedule<EnableCollision>(0.1f);
-		evt.m_collider1 = m_collider;
-		evt.m_collider2 = parentCollider;
+		EnableCollision.TemporarilyDisableCollision(transform.parent.GetComponent<Collider2D>(), m_collider, 0.1f);
 
 		Detach();
 		m_body.velocity = Quaternion.Euler(0.0f, 0.0f, m_aimDegrees) * Vector2.right * m_throwSpeed;

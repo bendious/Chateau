@@ -127,12 +127,7 @@ namespace Platformer.Mechanics
 
 		public virtual void OnDamage(GameObject source)
 		{
-			// temporarily disable collision
-			Collider2D sourceCollider = source.GetComponent<Collider2D>();
-			Physics2D.IgnoreCollision(collider2d, sourceCollider);
-			EnableCollision evt = Core.Simulation.Schedule<EnableCollision>(Health.m_invincibilityTime);
-			evt.m_collider1 = collider2d;
-			evt.m_collider2 = sourceCollider;
+			EnableCollision.TemporarilyDisableCollision(source.GetComponent<Collider2D>(), collider2d);
 
 			// knock away from source
 			Vector2 bounceVecOriented = transform.position.x < source.transform.position.x ? new(-m_damageBounceVec.x, m_damageBounceVec.y) : m_damageBounceVec;

@@ -1,6 +1,5 @@
 ﻿using Platformer.Mechanics;
 using UnityEngine;
-using UnityEngine.VFX;
 using static Platformer.Core.Simulation;
 
 
@@ -17,6 +16,16 @@ namespace Platformer.Gameplay
 		public override bool Precondition() => m_collider1 != null && m_collider2 != null; // NOTE that this event can fire after the object(s) have been destroyed
 
 		public override void Execute() => Physics2D.IgnoreCollision(m_collider1, m_collider2, false);
+
+
+		public static void TemporarilyDisableCollision(Collider2D a, Collider2D b, float durationSeconds = Health.m_invincibilityTime)
+		{
+			Physics2D.IgnoreCollision(a, b);
+
+			EnableCollision evt = Schedule<EnableCollision>(durationSeconds);
+			evt.m_collider1 = a;
+			evt.m_collider2 = b;
+		}
 	}
 
 	/// <summary>
