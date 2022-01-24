@@ -34,8 +34,8 @@ namespace Platformer.Mechanics
 		public GameObject m_inventoryUI;
 
 		public float m_aimRadius = 5.0f;
-		public float m_primaryRadiusPct = 0.25f; // TODO: combine w/ EnemyController version?
-		public float m_secondaryRadiusPct = 0.5f;
+
+		public Vector2 m_armOffset; // TODO: combine w/ EnemyController version?
 		public float m_secondaryDegrees = -45.0f;
 
 		public float m_coyoteTime = 0.15f;
@@ -54,9 +54,8 @@ namespace Platformer.Mechanics
 		// TODO: class for ease of VFX ID use?
 		private static int m_spriteID;
 		private static int m_sizeID;
-		private static int m_spriteOffsetID;
+		private static int m_spawnOffsetID;
 		private static int m_speedID;
-		private static int m_holdRadiusID;
 		private static int m_forwardID;
 
 
@@ -68,9 +67,8 @@ namespace Platformer.Mechanics
 			m_aimVfx = GetComponent<VisualEffect>();
 			m_spriteID = Shader.PropertyToID("Sprite");
 			m_sizeID = Shader.PropertyToID("Size");
-			m_spriteOffsetID = Shader.PropertyToID("SpriteOffset");
+			m_spawnOffsetID = Shader.PropertyToID("SpawnOffset");
 			m_speedID = Shader.PropertyToID("Speed");
-			m_holdRadiusID = Shader.PropertyToID("HoldRadius");
 			m_forwardID = Shader.PropertyToID("Forward");
 
 			InventorySync();
@@ -97,7 +95,6 @@ namespace Platformer.Mechanics
 				move.y = Input.GetAxis("Vertical");
 
 				// swing
-				float holdRadius = ((CircleCollider2D)collider2d).radius;
 				bool refreshInventory = false;
 				ItemController[] items = GetComponentsInChildren<ItemController>();
 				ItemController primaryItem = items.FirstOrDefault();
@@ -125,9 +122,7 @@ namespace Platformer.Mechanics
 						m_aimVfx.SetTexture(m_spriteID, itemSprite.texture);
 						Vector3 itemSize = primaryItem.GetComponent<Collider2D>().bounds.size;
 						m_aimVfx.SetFloat(m_sizeID, Mathf.Max(itemSize.x, itemSize.y));
-						m_aimVfx.SetVector3(m_spriteOffsetID, primaryItem.SpritePivotOffset);
 						m_aimVfx.SetFloat(m_speedID, primaryItem.m_throwSpeed);
-						m_aimVfx.SetFloat(m_holdRadiusID, holdRadius);
 					}
 					else if (Input.GetButtonUp("Fire2"))
 					{
@@ -156,7 +151,8 @@ namespace Platformer.Mechanics
 				// determine current focus object
 				// TODO: more nuanced prioritization?
 				m_focusObj = null;
-				Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + (Vector2)(Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position).normalized * holdRadius, holdRadius * 1.5f); // TODO: restrict to certain layers?
+				float focusRadius = ((CircleCollider2D)collider2d).radius;
+				Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + (Vector2)(Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position).normalized * focusRadius, focusRadius * 1.5f); // TODO: restrict to certain layers?
 				float distSqFocus = float.MaxValue;
 				foreach (Collider2D candidate in focusCandidates)
 				{
@@ -234,26 +230,26 @@ namespace Platformer.Mechanics
 				// aim arms/items
 				// primary aim
 				ArmController[] arms = GetComponentsInChildren<ArmController>();
-				float holdRadius = ((CircleCollider2D)collider2d).radius * m_primaryRadiusPct;
 				ArmController primaryArm = arms.Length == 0 ? null : arms.First().transform.childCount > 0 || arms.Last().transform.childCount == 0 ? arms.First() : arms.Last();
-				primaryArm.UpdateAim(mousePosWS, holdRadius);
+				primaryArm.UpdateAim(m_armOffset, mousePosWS);
 
 				// secondary hold
 				Vector3 secondaryAimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, LeftFacing ? 180.0f - m_secondaryDegrees : m_secondaryDegrees) * Vector3.right;
-				float secondaryRadius = m_secondaryRadiusPct * holdRadius;
 				for (int i = 0; i < arms.Length; ++i)
 				{
 					if (arms[i] == primaryArm)
 					{
 						continue;
 					}
-					arms[i].UpdateAim(secondaryAimPos, secondaryRadius);
+					arms[i].UpdateAim(m_armOffset, secondaryAimPos);
 				}
 
 				// aim VFX
 				if (m_aimVfx.enabled)
 				{
+					ItemController primaryItem = GetComponentInChildren<ItemController>();
 					m_aimVfx.SetVector3(m_forwardID, (mousePosWS - (Vector2)transform.position).normalized);
+					m_aimVfx.SetVector3(m_spawnOffsetID, primaryItem.transform.position - transform.position + (Vector3)primaryItem.SpritePivotOffset);
 				}
 			}
 

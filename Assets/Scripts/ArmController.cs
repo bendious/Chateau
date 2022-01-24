@@ -4,6 +4,9 @@ using UnityEngine.Assertions;
 
 public class ArmController : MonoBehaviour
 {
+	public Vector3 m_offset;
+
+
 	private float m_aimSpringStiffness = 100.0f;
 	private float m_aimSpringDampPct = 0.5f;
 
@@ -31,7 +34,7 @@ public class ArmController : MonoBehaviour
 	{
 		m_aimSpringStiffness = item.m_aimSpringStiffness; // TODO: reset when detaching?
 		m_aimSpringDampPct = item.m_aimSpringDampPct;
-		m_aimDegrees = AimDegreesRaw(item.transform.position); // TODO: lerp?
+		m_aimDegrees = AimDegreesRaw(Vector2.zero, item.transform.position); // TODO: lerp? use previous rootOffset?
 		m_aimVelocity = 0.0f;
 		m_aimRadiusVelocity = 0.0f;
 	}
@@ -48,14 +51,13 @@ public class ArmController : MonoBehaviour
 		m_swingDirection = !m_swingDirection;
 	}
 
-	public void UpdateAim(Vector2 position, float radius)
+	public void UpdateAim(Vector2 rootOffset, Vector2 aimPosition)
 	{
-		m_aimDegrees = DampedSpring(m_aimDegrees, AimDegreesRaw(position), m_aimSpringDampPct, true, m_aimSpringStiffness, ref m_aimVelocity);
-		m_aimRadius = DampedSpring(m_aimRadius, radius, m_radiusSpringDampPct, false, m_radiusSpringStiffness, ref m_aimRadiusVelocity);
+		m_aimDegrees = DampedSpring(m_aimDegrees, AimDegreesRaw(rootOffset, aimPosition), m_aimSpringDampPct, true, m_aimSpringStiffness, ref m_aimVelocity);
+		m_aimRadius = DampedSpring(m_aimRadius, 0.0f, m_radiusSpringDampPct, false, m_radiusSpringStiffness, ref m_aimRadiusVelocity);
 
 		transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegrees);
-		Vector3 localPos = transform.localRotation * Vector3.right * m_aimRadius;
-		localPos.z = transform.localPosition.z; // NOTE that Z is used to force rendering on top of or behind our parent
+		Vector3 localPos = (Vector3)rootOffset + (LeftFacing ? new Vector3(m_offset.x, m_offset.y, -m_offset.z) : m_offset) + transform.localRotation * Vector3.right * m_aimRadius;
 		transform.localPosition = localPos;
 
 		bool leftFacingCached = LeftFacing;
@@ -66,9 +68,9 @@ public class ArmController : MonoBehaviour
 	}
 
 
-	private float AimDegreesRaw(Vector2 position)
+	private float AimDegreesRaw(Vector2 rootOffset, Vector2 aimPosition)
 	{
-		Vector2 aimDiff = position - (Vector2)transform.parent.position;
+		Vector2 aimDiff = aimPosition - ((Vector2)transform.parent.position + rootOffset + (Vector2)m_offset);
 		return Mathf.Rad2Deg * Mathf.Atan2(aimDiff.y, aimDiff.x);
 	}
 
@@ -76,7 +78,8 @@ public class ArmController : MonoBehaviour
 	{
 		// spring motion: F = kx - dv, where x = {vel/pos}_desired - {vel/pos}_current
 		// critically damped spring: d = 2*sqrt(km)
-		float mass = 0.2f;//TODO //m_body.mass;
+		ItemController item = GetComponentInChildren<ItemController>();
+		float mass = item == null ? 0.2f : item.GetComponent<Rigidbody2D>().mass; // TODO: expose arm mass?
 		float dampingFactor = 2.0f * Mathf.Sqrt(m_aimSpringStiffness * mass) * dampPct;
 		float diff = target - current;
 		while (isAngle && Mathf.Abs(diff) > 180.0f)

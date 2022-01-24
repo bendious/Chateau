@@ -13,7 +13,7 @@ namespace Platformer.Mechanics
 		public Vector2 m_targetOffset = Vector2.zero;
 		public Transform m_target;
 
-		public float m_primaryRadiusPct = 0.25f; // TODO: combine w/ AvatarController version?
+		public Vector2 m_armOffset; // TODO: combine w/ AvatarController version?
 
 		public float m_meleeRange = 1.0f;
 
@@ -75,11 +75,9 @@ namespace Platformer.Mechanics
 				ArmController[] arms = GetComponentsInChildren<ArmController>();
 				if (arms.Length > 0)
 				{
-					Vector2 colliderSize = ((CapsuleCollider2D)collider2d).size;
-					float holdRadius = Mathf.Max(colliderSize.x, colliderSize.y) * m_primaryRadiusPct;
 					for (int i = 0; i < arms.Length; ++i)
 					{
-						arms[i].UpdateAim(m_target.position, holdRadius);
+						arms[i].UpdateAim(m_armOffset, m_target.position);
 					}
 				}
 			}

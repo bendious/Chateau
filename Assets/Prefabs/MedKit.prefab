@@ -71,6 +71,10 @@ PrefabInstance:
       propertyPath: m_PropertySheet.m_NamedObject.m_Array.Array.data[0].m_Value
       value: 
       objectReference: {fileID: 2800000, guid: 1c171103c6baa4491ba4a72afd3f6dd2, type: 3}
+    - target: {fileID: 5581583143811576733, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
+      propertyPath: m_Mass
+      value: 0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 6777191233196178050, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
       propertyPath: m_Sprite
       value: 
