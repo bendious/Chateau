@@ -34,6 +34,7 @@ namespace Platformer.Mechanics
 		public GameObject m_inventoryUI;
 
 		public float m_aimRadius = 5.0f;
+		public float m_primaryRadiusPct = 0.25f; // TODO: combine w/ EnemyController version?
 		public float m_secondaryRadiusPct = 0.5f;
 		public float m_secondaryDegrees = -45.0f;
 
@@ -98,25 +99,34 @@ namespace Platformer.Mechanics
 				// swing
 				float holdRadius = ((CircleCollider2D)collider2d).radius;
 				bool refreshInventory = false;
-				if (transform.childCount > 0)
+				ItemController[] items = GetComponentsInChildren<ItemController>();
+				ItemController primaryItem = items.FirstOrDefault();
+				if (Input.GetButtonDown("Fire1"))
 				{
-					if (Input.GetButtonDown("Fire1"))
+					if (primaryItem == null)
 					{
-						GetComponentInChildren<ItemController>().Swing();
+						// TODO: add collision handling to arms for knock-back only swings?
+						//GetComponentInChildren<ArmController>().Swing(100.0f, 5.0f, 100.0f, 0.5f)/*?*/;
 					}
+					else
+					{
+						primaryItem.Swing();
+					}
+				}
 
+				if (primaryItem != null)
+				{
 					// throw
 					if (Input.GetButtonDown("Fire2"))
 					{
 						// enable/initialize aim VFX
-						ItemController item = GetComponentInChildren<ItemController>();
 						m_aimVfx.enabled = true;
-						Sprite itemSprite = item.GetComponent<SpriteRenderer>().sprite;
+						Sprite itemSprite = primaryItem.GetComponent<SpriteRenderer>().sprite;
 						m_aimVfx.SetTexture(m_spriteID, itemSprite.texture);
-						Vector3 itemSize = item.GetComponent<Collider2D>().bounds.size;
+						Vector3 itemSize = primaryItem.GetComponent<Collider2D>().bounds.size;
 						m_aimVfx.SetFloat(m_sizeID, Mathf.Max(itemSize.x, itemSize.y));
-						m_aimVfx.SetVector3(m_spriteOffsetID, item.SpritePivotOffset);
-						m_aimVfx.SetFloat(m_speedID, item.m_throwSpeed);
+						m_aimVfx.SetVector3(m_spriteOffsetID, primaryItem.SpritePivotOffset);
+						m_aimVfx.SetFloat(m_speedID, primaryItem.m_throwSpeed);
 						m_aimVfx.SetFloat(m_holdRadiusID, holdRadius);
 					}
 					else if (Input.GetButtonUp("Fire2"))
@@ -124,13 +134,14 @@ namespace Platformer.Mechanics
 						m_aimVfx.enabled = false; // NOTE that this instantly removes any existing particles, which is fine for this effect
 
 						// release
-						GetComponentInChildren<ItemController>().Throw();
+						primaryItem.Throw();
+						primaryItem = null;
 						refreshInventory = true;
 					}
 
 					if (Input.GetButtonDown("Fire3"))
 					{
-						foreach (ItemController item in GetComponentsInChildren<ItemController>())
+						foreach (ItemController item in items)
 						{
 							bool used = item.Use();
 							if (used)
@@ -174,22 +185,17 @@ namespace Platformer.Mechanics
 				// pick up / drop items
 				if (focusItem != null && Input.GetButtonDown("PickUp"))
 				{
-					focusItem.AttachTo(gameObject);
+					AttachItem(focusItem);
 					m_focusObj = null;
-					if (transform.childCount > m_maxPickUps)
-					{
-						// drop first attached to cycle through items
-						transform.GetChild(0).GetComponent<ItemController>().Detach();
-					}
 					refreshInventory = true;
 				}
-				IsPickingUp = Input.GetButton("PickUp") && transform.childCount < m_maxPickUps;
+				IsPickingUp = Input.GetButton("PickUp") && items.Length < m_maxPickUps;
 
 				if (Input.GetButtonDown("Drop"))
 				{
-					if (transform.childCount > 0)
+					if (primaryItem != null)
 					{
-						GetComponentInChildren<ItemController>().Detach();
+						primaryItem.Detach();
 						refreshInventory = true;
 					}
 				}
@@ -225,21 +231,23 @@ namespace Platformer.Mechanics
 				m_aimObject.transform.position = transform.position + (Vector3)(m_aimRadius * mousePctsFromCenter);
 				m_aimDir = mousePosWS.x > transform.position.x ? 1 : -1;
 
-				// aim items
-				if (transform.childCount > 0)
-				{
-					// primary aim
-					float holdRadius = ((CircleCollider2D)collider2d).radius;
-					ItemController[] items = GetComponentsInChildren<ItemController>();
-					items.First().UpdateAim(mousePosWS, holdRadius);
+				// aim arms/items
+				// primary aim
+				ArmController[] arms = GetComponentsInChildren<ArmController>();
+				float holdRadius = ((CircleCollider2D)collider2d).radius * m_primaryRadiusPct;
+				ArmController primaryArm = arms.Length == 0 ? null : arms.First().transform.childCount > 0 || arms.Last().transform.childCount == 0 ? arms.First() : arms.Last();
+				primaryArm.UpdateAim(mousePosWS, holdRadius);
 
-					// secondary hold
-					Vector3 secondaryAimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, LeftFacing ? 180.0f - m_secondaryDegrees : m_secondaryDegrees) * Vector3.right;
-					float secondaryRadius = m_secondaryRadiusPct * holdRadius;
-					for (int i = 1; i < items.Length; ++i)
+				// secondary hold
+				Vector3 secondaryAimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, LeftFacing ? 180.0f - m_secondaryDegrees : m_secondaryDegrees) * Vector3.right;
+				float secondaryRadius = m_secondaryRadiusPct * holdRadius;
+				for (int i = 0; i < arms.Length; ++i)
+				{
+					if (arms[i] == primaryArm)
 					{
-						items[i].UpdateAim(secondaryAimPos, secondaryRadius);
+						continue;
 					}
+					arms[i].UpdateAim(secondaryAimPos, secondaryRadius);
 				}
 
 				// aim VFX
@@ -286,6 +294,12 @@ namespace Platformer.Mechanics
 				audioSource.PlayOneShot(respawnAudio);
 			}
 
+			// TODO: move to animation trigger?
+			foreach (ArmController arm in GetComponentsInChildren<ArmController>(true))
+			{
+				arm.gameObject.SetActive(true);
+			}
+
 			health.Respawn();
 
 			Teleport(Vector3.zero);
@@ -306,7 +320,8 @@ namespace Platformer.Mechanics
 			Assert.IsFalse(templateObj.activeSelf);
 
 			int iconIdx = 0;
-			int iconCount = System.Math.Max(m_maxPickUps, transform.childCount);
+			ItemController[] items = GetComponentsInChildren<ItemController>();
+			int iconCount = System.Math.Max(m_maxPickUps, items.Length);
 			Vector3 posItr = templateObj.transform.position;
 			for (; iconIdx < iconCount; ++iconIdx)
 			{
@@ -322,9 +337,9 @@ namespace Platformer.Mechanics
 					UIObj.SetActive(true);
 				}
 				Image uiImage = UIObj.GetComponent<Image>();
-				if (iconIdx < transform.childCount)
+				if (iconIdx < items.Length)
 				{
-					SpriteRenderer srcComp = transform.GetChild(iconIdx).GetComponent<SpriteRenderer>();
+					SpriteRenderer srcComp = items[iconIdx].GetComponent<SpriteRenderer>();
 					uiImage.sprite = srcComp.sprite;
 					uiImage.color = srcComp.color;
 				}
@@ -334,7 +349,7 @@ namespace Platformer.Mechanics
 					uiImage.sprite = srcComp.sprite;
 					uiImage.color = srcComp.color;
 				}
-				UIObj.GetComponent<InventoryController>().m_draggable = iconIdx < transform.childCount;
+				UIObj.GetComponent<InventoryController>().m_draggable = iconIdx < items.Length;
 			}
 			for (int j = m_inventoryUI.transform.childCount - 1; j > iconCount; --j)
 			{
@@ -348,6 +363,10 @@ namespace Platformer.Mechanics
 			foreach (ItemController item in GetComponentsInChildren<ItemController>())
 			{
 				item.Detach();
+			}
+			foreach (ArmController arm in GetComponentsInChildren<ArmController>())
+			{
+				arm.gameObject.SetActive(false);
 			}
 			animator.SetTrigger("victory");
 			GetComponent<Health>().m_invincible = true;

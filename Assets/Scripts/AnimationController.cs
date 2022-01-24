@@ -1,4 +1,5 @@
 ﻿using Platformer.Gameplay;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -149,6 +150,11 @@ namespace Platformer.Mechanics
 				item.Detach();
 			}
 
+			foreach (ArmController arm in GetComponentsInChildren<ArmController>())
+			{
+				arm.gameObject.SetActive(false);
+			}
+
 			if (audioSource && m_deathAudio)
 			{
 				audioSource.PlayOneShot(m_deathAudio);
@@ -162,6 +168,19 @@ namespace Platformer.Mechanics
 			body.simulated = false;
 
 			Bounce(Vector2.zero); // to remove any current forced input
+		}
+
+		public void AttachItem(ItemController item)
+		{
+			ItemController[] heldItems = GetComponentsInChildren<ItemController>();
+			if (heldItems.Length >= m_maxPickUps)
+			{
+				// TODO: ensure cycling through items?
+				heldItems.First().Detach();
+			}
+
+			ArmController[] arms = GetComponentsInChildren<ArmController>();
+			item.AttachTo(arms.First().transform.childCount == 0 ? arms.First() : arms.Last()); // TODO: don't assume there's always two arms?
 		}
 
 

@@ -3,11 +3,10 @@ using Platformer.Mechanics;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.VFX;
 
 
-[RequireComponent(typeof(Rigidbody2D), typeof(AudioSource))]
+[RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(VisualEffect)), RequireComponent(typeof(Collider2D), typeof(SpriteRenderer))]
 public class ItemController : MonoBehaviour
 {
 	public float m_swingDegreesPerSec = 5000.0f;
@@ -18,6 +17,7 @@ public class ItemController : MonoBehaviour
 	public float m_radiusSpringDampPct = 0.5f;
 	public float m_damageThresholdSpeed = 2.0f;
 	public float m_throwSpeed = 10.0f;
+	public float m_vfxAlphaMax = 0.35f;
 	public float m_damage = 1.0f;
 	public int m_healAmount = 0;
 
@@ -25,18 +25,10 @@ public class ItemController : MonoBehaviour
 	public AudioClip[] m_collisionAudio;
 
 
-	public bool LeftFacing => Mathf.Cos(Mathf.Deg2Rad * m_aimDegrees) < 0.0f; // TODO: efficiency?
-
-	public float Speed => (transform.parent == null ? m_body.velocity.magnitude : 0.0f) + Mathf.Abs(m_aimVelocity) + Mathf.Abs(m_aimRadiusVelocity); // TODO: incorporate aim velocity direction?
+	public float Speed => m_arm == null ? m_body.velocity.magnitude : m_arm.Speed;
 
 	public Vector2 SpritePivotOffset => -(m_renderer.sprite.pivot / m_renderer.sprite.rect.size * 2.0f - Vector2.one) * m_renderer.sprite.bounds.extents;
 
-
-	private float m_aimDegrees;
-	private float m_aimVelocity;
-	private float m_aimRadius;
-	private float m_aimRadiusVelocity;
-	private bool m_swingDirection;
 
 	private Rigidbody2D m_body;
 	private VisualEffect m_vfx;
@@ -45,6 +37,7 @@ public class ItemController : MonoBehaviour
 	private SpriteRenderer m_renderer;
 	private Health m_health;
 
+	private ArmController m_arm;
 	private GameObject m_cause;
 
 	private static int m_posLocalPrevID;
@@ -65,7 +58,8 @@ public class ItemController : MonoBehaviour
 		m_renderer = GetComponent<SpriteRenderer>();
 		m_health = GetComponent<Health>();
 
-		SetCause(transform.parent == null ? null : transform.parent.gameObject);
+		m_arm = transform.parent == null ? null : transform.parent.GetComponent<ArmController>();
+		SetCause(m_arm == null ? null : m_arm.transform.parent.gameObject);
 		Vector3 size = m_collider.bounds.size;
 		m_vfx.SetFloat("Size", Mathf.Max(size.x, size.y));
 		m_vfx.SetVector3("SpriteOffset", SpritePivotOffset);
@@ -82,7 +76,7 @@ public class ItemController : MonoBehaviour
 		{
 			m_vfx.Stop();
 			StopAllCoroutines();
-			if (transform.parent == null)
+			if (m_arm == null)
 			{
 				SetCause(null);
 			}
@@ -100,17 +94,19 @@ public class ItemController : MonoBehaviour
 	}
 
 
-	public void AttachTo(GameObject obj)
+	public void AttachTo(ArmController arm)
 	{
-		transform.SetParent(obj.transform);
+		m_arm = arm;
+		arm.OnItemAttachment(this); // NOTE that this needs to be BEFORE changing the item transform
+
+		transform.SetParent(arm.transform);
+		transform.localPosition = Vector3.right * arm.GetComponent<SpriteRenderer>().sprite.bounds.size.x; // TODO: lerp?
+		transform.localRotation = Quaternion.identity; // TODO: lerp?
 		m_body.velocity = Vector2.zero;
 		m_body.angularVelocity = 0.0f;
 		m_body.bodyType = RigidbodyType2D.Kinematic;
-		gameObject.layer = obj.layer;
-		m_aimDegrees = AimDegreesRaw(transform.position);
-		m_aimVelocity = 0.0f;
-		m_aimRadiusVelocity = 0.0f;
-		SetCause(obj);
+		gameObject.layer = arm.gameObject.layer;
+		SetCause(arm.transform.parent.gameObject);
 	}
 
 	public void Detach()
@@ -118,15 +114,11 @@ public class ItemController : MonoBehaviour
 		transform.SetParent(null);
 		transform.position = (Vector2)transform.position; // nullify any z that may have been applied for rendering order
 		m_body.bodyType = RigidbodyType2D.Dynamic;
-		m_aimVelocity = 0.0f;
-		m_aimRadiusVelocity = 0.0f;
 	}
 
 	public void Swing()
 	{
-		m_aimVelocity += m_swingDirection ? m_swingDegreesPerSec : -m_swingDegreesPerSec;
-		m_aimRadiusVelocity += m_swingRadiusPerSec;
-		m_swingDirection = !m_swingDirection;
+		m_arm.Swing(m_swingDegreesPerSec, m_swingRadiusPerSec, m_radiusSpringStiffness, m_radiusSpringDampPct);
 
 		EnableVFX();
 
@@ -137,22 +129,11 @@ public class ItemController : MonoBehaviour
 		}
 	}
 
-	public void UpdateAim(Vector2 position, float radius)
-	{
-		Assert.IsFalse(position.x == float.MaxValue || position.x == float.PositiveInfinity || position.x == float.NegativeInfinity || position.x == float.NaN || radius == float.MaxValue || radius == float.PositiveInfinity || radius == float.NegativeInfinity || radius == float.NaN); // TODO: prevent unbounded radius growth (caused by low framerate?)
-		m_aimDegrees = DampedSpring(m_aimDegrees, AimDegreesRaw(position), m_aimSpringDampPct, true, m_aimSpringStiffness, ref m_aimVelocity);
-		m_aimRadius = DampedSpring(m_aimRadius, radius, m_radiusSpringDampPct, false, m_radiusSpringStiffness, ref m_aimRadiusVelocity);
-
-		transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegrees);
-		transform.localPosition = transform.localRotation * Vector3.right * m_aimRadius - Vector3.forward; // NOTE the negative Z in order to force rendering on top of our parent
-		m_renderer.flipY = LeftFacing;
-	}
-
 	public bool Use()
 	{
 		if (m_healAmount > 0)
 		{
-			bool healed = transform.parent.GetComponent<Health>().Increment(m_healAmount);
+			bool healed = m_arm.transform.parent.GetComponent<Health>().Increment(m_healAmount);
 			if (healed)
 			{
 				transform.parent = null; // so that we can refresh inventory immediately even though object deletion is deferred
@@ -167,10 +148,10 @@ public class ItemController : MonoBehaviour
 	public void Throw()
 	{
 		// temporarily ignore collisions w/ thrower
-		EnableCollision.TemporarilyDisableCollision(transform.parent.GetComponent<Collider2D>(), m_collider, 0.1f);
+		EnableCollision.TemporarilyDisableCollision(m_arm.transform.parent.GetComponent<Collider2D>(), m_collider, 0.1f);
 
 		Detach();
-		m_body.velocity = Quaternion.Euler(0.0f, 0.0f, m_aimDegrees) * Vector2.right * m_throwSpeed;
+		m_body.velocity = transform.rotation * Vector2.right * m_throwSpeed;
 
 		EnableVFX();
 
@@ -192,14 +173,14 @@ public class ItemController : MonoBehaviour
 		}
 
 		// maybe attach to character
-		bool isDetached = transform.parent == null;
+		bool isDetached = m_arm == null;
 		bool causeCanDamage = m_cause != null && m_cause != collision.gameObject; // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus
 		if (isDetached && !causeCanDamage)
 		{
 			AnimationController character = collision.gameObject.GetComponent<AnimationController>();
-			if (character != null && character.IsPickingUp && character.transform.childCount < character.m_maxPickUps)
+			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>().Length < character.m_maxPickUps)
 			{
-				AttachTo(collision.gameObject);
+				character.AttachItem(this);
 				AvatarController avatar = collision.gameObject.GetComponent<AvatarController>();
 				if (avatar != null)
 				{
@@ -210,7 +191,7 @@ public class ItemController : MonoBehaviour
 		}
 
 		// check speed
-		float collisionSpeed = kinematicObj == null ? collision.relativeVelocity.magnitude : (m_body.velocity - kinematicObj.velocity).magnitude + Mathf.Abs(m_aimVelocity) + Mathf.Abs(m_aimRadiusVelocity); // TODO: incorporate aim velocity direction?
+		float collisionSpeed = kinematicObj == null ? collision.relativeVelocity.magnitude : (m_body.velocity - kinematicObj.velocity).magnitude + Speed;
 		if (collisionSpeed > m_damageThresholdSpeed)
 		{
 			// play audio
@@ -254,12 +235,6 @@ public class ItemController : MonoBehaviour
 		}
 	}
 
-	private float AimDegreesRaw(Vector2 position)
-	{
-		Vector2 aimDiff = position - (Vector2)transform.parent.position;
-		return Mathf.Rad2Deg * Mathf.Atan2(aimDiff.y, aimDiff.x);
-	}
-
 	private void SetCause(GameObject cause)
 	{
 		if (m_cause == cause)
@@ -276,7 +251,7 @@ public class ItemController : MonoBehaviour
 
 		Gradient gradient = new();
 		gradient.colorKeys = new GradientColorKey[] { new(cause == Camera.main.GetComponent<GameController>().m_avatar.gameObject ? Color.white : Color.red, 0.0f) };
-		gradient.alphaKeys = new GradientAlphaKey[] { new(0.0f, 0.0f), new(1.0f, 1.0f) }; // NOTE that this gets overridden by the VFX's Alpha Over Life node
+		gradient.alphaKeys = new GradientAlphaKey[] { new(0.0f, 0.0f), new(m_vfxAlphaMax, 1.0f) }; // TODO: determine how this interacts w/ the VFX's Alpha Over Life node
 		m_vfx.SetGradient(m_gradientID, gradient);
 	}
 
@@ -286,25 +261,6 @@ public class ItemController : MonoBehaviour
 		m_vfx.Play();
 		StopAllCoroutines();
 		StartCoroutine(UpdateVFX());
-	}
-
-	private float DampedSpring(float current, float target, float dampPct, bool isAngle, float stiffness, ref float velocityCurrent)
-	{
-		// spring motion: F = kx - dv, where x = {vel/pos}_desired - {vel/pos}_current
-		// critically damped spring: d = 2*sqrt(km)
-		float mass = m_body.mass;
-		float dampingFactor = 2.0f * Mathf.Sqrt(m_aimSpringStiffness * mass) * dampPct;
-		float diff = target - current;
-		while (isAngle && Mathf.Abs(diff) > 180.0f)
-		{
-			diff -= diff < 0.0f ? -360.0f : 360.0f;
-		}
-		float force = stiffness * diff - dampingFactor * velocityCurrent;
-
-		float accel = force / mass;
-		velocityCurrent += accel * Time.fixedDeltaTime;
-
-		return current + velocityCurrent * Time.fixedDeltaTime;
 	}
 
 	private IEnumerator UpdateVFX()

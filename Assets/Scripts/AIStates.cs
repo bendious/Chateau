@@ -274,7 +274,7 @@ public sealed class AIFindAmmo : AIState
 		// pick up target
 		if (hasArrived)
 		{
-			m_target.GetComponent<ItemController>().AttachTo(m_ai.gameObject);
+			m_ai.AttachItem(m_target.GetComponent<ItemController>());
 			return new AIPursue(m_ai);
 		}
 

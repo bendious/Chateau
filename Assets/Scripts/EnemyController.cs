@@ -13,6 +13,8 @@ namespace Platformer.Mechanics
 		public Vector2 m_targetOffset = Vector2.zero;
 		public Transform m_target;
 
+		public float m_primaryRadiusPct = 0.25f; // TODO: combine w/ AvatarController version?
+
 		public float m_meleeRange = 1.0f;
 
 
@@ -68,14 +70,17 @@ namespace Platformer.Mechanics
 			base.FixedUpdate();
 
 			// aim items
-			if (m_maxPickUps > 0 && transform.childCount > 0)
+			if (m_maxPickUps > 0)
 			{
-				Vector2 colliderSize = ((CapsuleCollider2D)collider2d).size;
-				float holdRadius = Mathf.Max(colliderSize.x, colliderSize.y) * 0.5f;
-				ItemController[] items = GetComponentsInChildren<ItemController>();
-				for (int i = 0; i < items.Length; ++i)
+				ArmController[] arms = GetComponentsInChildren<ArmController>();
+				if (arms.Length > 0)
 				{
-					items[i].UpdateAim(m_target.position, holdRadius);
+					Vector2 colliderSize = ((CapsuleCollider2D)collider2d).size;
+					float holdRadius = Mathf.Max(colliderSize.x, colliderSize.y) * m_primaryRadiusPct;
+					for (int i = 0; i < arms.Length; ++i)
+					{
+						arms[i].UpdateAim(m_target.position, holdRadius);
+					}
 				}
 			}
 		}

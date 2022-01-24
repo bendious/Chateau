@@ -31,6 +31,26 @@ PrefabInstance:
       propertyPath: m_healAmount
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2776295948456945994, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
+      propertyPath: m_throwSpeed
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2776295948456945994, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
+      propertyPath: m_aimSpringDampPct
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2776295948456945994, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
+      propertyPath: m_swingRadiusPerSec
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2776295948456945994, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
+      propertyPath: m_aimSpringStiffness
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 2776295948456945994, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
+      propertyPath: m_swingDegreesPerSec
+      value: 1250
+      objectReference: {fileID: 0}
     - target: {fileID: 4446408722389883950, guid: 43d7c196b3de6364aba5331c17ec5ecf, type: 3}
       propertyPath: m_Size.x
       value: 0.175
