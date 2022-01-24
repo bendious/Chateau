@@ -10,6 +10,8 @@ public class GameController : MonoBehaviour
 {
 	public AvatarController m_avatar;
 
+	public DialogueController m_dialogueController;
+
 	public GameObject m_roomPrefab;
 	public WeightedObject<GameObject>[] m_enemyPrefabs;
 	public GameObject m_victoryZonePrefab;
@@ -47,6 +49,9 @@ public class GameController : MonoBehaviour
 		StartCoroutine(SpawnWavesCoroutine());
 
 		StartCoroutine(TimerCoroutine());
+
+		// TODO: dialogue system
+		m_dialogueController.Play(new string[] { "Ah, welcome home.", "You’ve been out for quite a while, haven’t you?", "You’re not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", "But don’t worry about me; you have more pressing concerns at the moment, I believe." });
 	}
 
 	private void Update()
