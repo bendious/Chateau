@@ -34,10 +34,15 @@ public class DoorController : MonoBehaviour
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		if (collision.gameObject == m_key)
+		foreach (ItemController item in collision.gameObject.GetComponentsInChildren<ItemController>())
 		{
-			Destroy(m_key);
-			Destroy(gameObject);
+			if (item.gameObject == m_key)
+			{
+				Destroy(m_key);
+				Destroy(gameObject);
+
+				// TODO: unlock SFX/VFX/etc.
+			}
 		}
 	}
 
