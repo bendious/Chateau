@@ -144,6 +144,8 @@ namespace Platformer.Mechanics
 
 		public virtual void OnDeath()
 		{
+			// TODO: early-out if already dead?
+
 			// detach all items
 			foreach (ItemController item in GetComponentsInChildren<ItemController>())
 			{

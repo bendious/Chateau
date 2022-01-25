@@ -72,100 +72,10 @@ public class ItemController : MonoBehaviour
 		{
 			m_vfx.SetVector3(m_posLocalPrevID, Quaternion.Inverse(transform.rotation) * -(Vector3)m_body.velocity * Time.fixedDeltaTime + Vector3.forward); // NOTE the inclusion of Vector3.forward to put the VFX in the background // TODO: don't assume constant/unchanged velocity across the time step?
 		}
-		else
-		{
-			m_vfx.Stop();
-			StopAllCoroutines();
-			if (m_arm == null)
-			{
-				SetCause(null);
-			}
-		}
 	}
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		ProcessCollision(collision);
-	}
-
-	private void OnCollisionStay2D(Collision2D collision)
-	{
-		ProcessCollision(collision);
-	}
-
-
-	public void AttachTo(ArmController arm)
-	{
-		m_arm = arm;
-		arm.OnItemAttachment(this); // NOTE that this needs to be BEFORE changing the item transform
-
-		transform.SetParent(arm.transform);
-		transform.localPosition = Vector3.right * arm.GetComponent<SpriteRenderer>().sprite.bounds.size.x; // TODO: lerp?
-		transform.localRotation = Quaternion.identity; // TODO: lerp?
-		m_body.velocity = Vector2.zero;
-		m_body.angularVelocity = 0.0f;
-		m_body.bodyType = RigidbodyType2D.Kinematic;
-		gameObject.layer = arm.gameObject.layer;
-		SetCause(arm.transform.parent.gameObject);
-	}
-
-	public void Detach()
-	{
-		transform.SetParent(null);
-		transform.position = (Vector2)transform.position; // nullify any z that may have been applied for rendering order
-		m_body.bodyType = RigidbodyType2D.Dynamic;
-	}
-
-	public void Swing()
-	{
-		m_arm.Swing(m_swingDegreesPerSec, m_swingRadiusPerSec, m_radiusSpringStiffness, m_radiusSpringDampPct);
-
-		EnableVFX();
-
-		// play audio
-		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
-		{
-			m_audioSource.PlayOneShot(m_swingThrowAudio[Random.Range(0, m_swingThrowAudio.Length)]);
-		}
-	}
-
-	public bool Use()
-	{
-		if (m_healAmount > 0)
-		{
-			bool healed = m_arm.transform.parent.GetComponent<Health>().Increment(m_healAmount);
-			if (healed)
-			{
-				transform.parent = null; // so that we can refresh inventory immediately even though object deletion is deferred
-				Destroy(gameObject);
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	public void Throw()
-	{
-		// temporarily ignore collisions w/ thrower
-		EnableCollision.TemporarilyDisableCollision(m_arm.transform.parent.GetComponent<Collider2D>(), m_collider, 0.1f);
-
-		Detach();
-		m_body.velocity = transform.rotation * Vector2.right * m_throwSpeed;
-
-		EnableVFX();
-
-		// play audio
-		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
-		{
-			m_audioSource.PlayOneShot(m_swingThrowAudio[Random.Range(0, m_swingThrowAudio.Length)]);
-		}
-	}
-
-
-	private void ProcessCollision(Collision2D collision)
-	{
-		// TODO: flag/unflag within the physics system itself?
 		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
 		if (kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_collider, true, false))
 		{
@@ -235,6 +145,77 @@ public class ItemController : MonoBehaviour
 		}
 	}
 
+
+	public void AttachTo(ArmController arm)
+	{
+		m_arm = arm;
+		arm.OnItemAttachment(this); // NOTE that this needs to be BEFORE changing the item transform
+
+		transform.SetParent(arm.transform);
+		transform.localPosition = Vector3.right * arm.GetComponent<SpriteRenderer>().sprite.bounds.size.x; // TODO: lerp?
+		transform.localRotation = Quaternion.identity; // TODO: lerp?
+		m_body.velocity = Vector2.zero;
+		m_body.angularVelocity = 0.0f;
+		m_body.bodyType = RigidbodyType2D.Kinematic;
+		gameObject.layer = arm.gameObject.layer;
+		SetCause(arm.transform.parent.gameObject);
+	}
+
+	public void Detach()
+	{
+		transform.SetParent(null);
+		transform.position = (Vector2)transform.position; // nullify any z that may have been applied for rendering order
+		m_body.bodyType = RigidbodyType2D.Dynamic;
+		m_arm = null;
+	}
+
+	public void Swing()
+	{
+		m_arm.Swing(m_swingDegreesPerSec, m_swingRadiusPerSec, m_radiusSpringStiffness, m_radiusSpringDampPct);
+
+		EnableVFX();
+
+		// play audio
+		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
+		{
+			m_audioSource.PlayOneShot(m_swingThrowAudio[Random.Range(0, m_swingThrowAudio.Length)]);
+		}
+	}
+
+	public bool Use()
+	{
+		if (m_healAmount > 0)
+		{
+			bool healed = m_arm.transform.parent.GetComponent<Health>().Increment(m_healAmount);
+			if (healed)
+			{
+				Detach(); // so that we can refresh inventory immediately even though object deletion is deferred
+				Destroy(gameObject);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public void Throw()
+	{
+		// temporarily ignore collisions w/ thrower
+		EnableCollision.TemporarilyDisableCollision(m_arm.transform.parent.GetComponent<Collider2D>(), m_collider, 0.1f);
+
+		Detach();
+		m_body.velocity = transform.rotation * Vector2.right * m_throwSpeed;
+
+		EnableVFX();
+
+		// play audio
+		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
+		{
+			m_audioSource.PlayOneShot(m_swingThrowAudio[Random.Range(0, m_swingThrowAudio.Length)]);
+		}
+	}
+
+
 	private void SetCause(GameObject cause)
 	{
 		if (m_cause == cause)
@@ -267,7 +248,20 @@ public class ItemController : MonoBehaviour
 	{
 		while (true)
 		{
-			m_vfx.SetVector3(m_upVecID, transform.rotation * Vector3.up);
+			if (Speed >= m_damageThresholdSpeed)
+			{
+				m_vfx.SetVector3(m_upVecID, transform.rotation * Vector3.up);
+			}
+			else
+			{
+				m_vfx.Stop();
+				if (m_arm == null)
+				{
+					SetCause(null);
+				}
+				StopAllCoroutines();
+				break;
+			}
 			yield return null;
 		}
 	}

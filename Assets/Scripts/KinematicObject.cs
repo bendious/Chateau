@@ -134,6 +134,11 @@ namespace Platformer.Mechanics
 
 		protected virtual void FixedUpdate()
 		{
+			if (!body.simulated)
+			{
+				return;
+			}
+
 			//if already falling, fall faster than the jump speed, otherwise use normal gravity.
 			velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0 ? gravityModifier : 1.0f) * Time.fixedDeltaTime * Physics2D.gravity;
 

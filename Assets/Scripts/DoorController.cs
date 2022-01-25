@@ -1,3 +1,4 @@
+using Platformer.Mechanics;
 using UnityEngine;
 
 
@@ -38,10 +39,17 @@ public class DoorController : MonoBehaviour
 		{
 			if (item.gameObject == m_key)
 			{
+				item.Detach(); // so that we can refresh inventory immediately even though object deletion is deferred
 				Destroy(m_key);
 				Destroy(gameObject);
 
 				// TODO: unlock SFX/VFX/etc.
+
+				AvatarController avatar = collision.gameObject.GetComponent<AvatarController>();
+				if (avatar != null)
+				{
+					avatar.InventorySync();
+				}
 			}
 		}
 	}

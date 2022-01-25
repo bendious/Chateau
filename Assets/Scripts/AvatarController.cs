@@ -274,6 +274,7 @@ namespace Platformer.Mechanics
 		public void OnCollision(EnemyController enemy)
 		{
 			health.Decrement(enemy.gameObject);
+			controlEnabled = false; // re-enabled via EnablePlayerControl() animation trigger
 
 			// temporarily disable collision to prevent getting stuck
 			EnableCollision.TemporarilyDisableCollision(enemy.GetComponent<Collider2D>(), collider2d);
@@ -423,7 +424,10 @@ namespace Platformer.Mechanics
 		// called from animation event
 		private void EnablePlayerControl()
 		{
-			controlEnabled = true;
+			if (health.IsAlive)
+			{
+				controlEnabled = true;
+			}
 		}
 	}
 }
