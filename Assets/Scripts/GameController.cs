@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Platformer.Core;
-using Platformer.Mechanics;
 using UnityEngine;
 
 

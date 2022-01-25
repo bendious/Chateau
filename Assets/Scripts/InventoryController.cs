@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Platformer.Mechanics;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.EventSystems;

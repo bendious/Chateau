@@ -2,116 +2,113 @@ using System;
 using System.Collections.Generic;
 
 
-namespace Platformer.Core
+/// <summary>
+/// HeapQueue provides a queue collection that is always ordered.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public class HeapQueue<T> where T : IComparable<T>
 {
-	/// <summary>
-	/// HeapQueue provides a queue collection that is always ordered.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	public class HeapQueue<T> where T : IComparable<T>
+	readonly List<T> items;
+
+	public int Count => items.Count;
+
+	public bool IsEmpty => items.Count == 0;
+
+	public T First => items[0];
+
+	public void Clear() => items.Clear();
+
+	public bool Contains(T item) => items.Contains(item);
+
+	public void Remove(T item) => items.Remove(item);
+
+	public T Peek() => items[0];
+
+	public HeapQueue()
 	{
-		readonly List<T> items;
+		items = new();
+	}
 
-		public int Count => items.Count;
+	public void Push(T item)
+	{
+		//add item to end of tree to extend the list
+		items.Add(item);
+		//find correct position for new item.
+		SiftDown(0, items.Count - 1);
+	}
 
-		public bool IsEmpty => items.Count == 0;
+	public T Pop()
+	{
 
-		public T First => items[0];
-
-		public void Clear() => items.Clear();
-
-		public bool Contains(T item) => items.Contains(item);
-
-		public void Remove(T item) => items.Remove(item);
-
-		public T Peek() => items[0];
-
-		public HeapQueue()
+		//if there are more than 1 items, returned item will be first in tree.
+		//then, add last item to front of tree, shrink the list
+		//and find correct index in tree for first item.
+		T item;
+		T last = items[^1];
+		items.RemoveAt(items.Count - 1);
+		if (items.Count > 0)
 		{
-			items = new();
+			item = items[0];
+			items[0] = last;
+			SiftUp();
 		}
-
-		public void Push(T item)
+		else
 		{
-			//add item to end of tree to extend the list
-			items.Add(item);
-			//find correct position for new item.
-			SiftDown(0, items.Count - 1);
+			item = last;
 		}
+		return item;
+	}
 
-		public T Pop()
+
+	int Compare(T A, T B) => A.CompareTo(B);
+
+	void SiftDown(int startpos, int pos)
+	{
+		//preserve the newly added item.
+		T newitem = items[pos];
+		while (pos > startpos)
 		{
-
-			//if there are more than 1 items, returned item will be first in tree.
-			//then, add last item to front of tree, shrink the list
-			//and find correct index in tree for first item.
-			T item;
-			T last = items[^1];
-			items.RemoveAt(items.Count - 1);
-			if (items.Count > 0)
+			//find parent index in binary tree
+			int parentpos = (pos - 1) >> 1;
+			T parent = items[parentpos];
+			//if new item precedes or equal to parent, pos is new item position.
+			if (Compare(parent, newitem) <= 0)
 			{
-				item = items[0];
-				items[0] = last;
-				SiftUp();
+				break;
 			}
-			else
-			{
-				item = last;
-			}
-			return item;
+			//else move parent into pos, then repeat for grand parent.
+			items[pos] = parent;
+			pos = parentpos;
 		}
+		items[pos] = newitem;
+	}
 
-
-		int Compare(T A, T B) => A.CompareTo(B);
-
-		void SiftDown(int startpos, int pos)
+	void SiftUp()
+	{
+		int endpos = items.Count;
+		int startpos = 0;
+		//preserve the inserted item
+		T newitem = items[0];
+		int childpos = 1;
+		int pos = 0;
+		//find child position to insert into binary tree
+		while (childpos < endpos)
 		{
-			//preserve the newly added item.
-			T newitem = items[pos];
-			while (pos > startpos)
+			//get right branch
+			int rightpos = childpos + 1;
+			//if right branch should precede left branch, move right branch up the tree
+			if (rightpos < endpos && Compare(items[rightpos], items[childpos]) <= 0)
 			{
-				//find parent index in binary tree
-				int parentpos = (pos - 1) >> 1;
-				T parent = items[parentpos];
-				//if new item precedes or equal to parent, pos is new item position.
-				if (Compare(parent, newitem) <= 0)
-				{
-					break;
-				}
-				//else move parent into pos, then repeat for grand parent.
-				items[pos] = parent;
-				pos = parentpos;
+				childpos = rightpos;
 			}
-			items[pos] = newitem;
+			//move child up the tree
+			items[pos] = items[childpos];
+			pos = childpos;
+			//move down the tree and repeat.
+			childpos = 2 * pos + 1;
 		}
-
-		void SiftUp()
-		{
-			int endpos = items.Count;
-			int startpos = 0;
-			//preserve the inserted item
-			T newitem = items[0];
-			int childpos = 1;
-			int pos = 0;
-			//find child position to insert into binary tree
-			while (childpos < endpos)
-			{
-				//get right branch
-				int rightpos = childpos + 1;
-				//if right branch should precede left branch, move right branch up the tree
-				if (rightpos < endpos && Compare(items[rightpos], items[childpos]) <= 0)
-				{
-					childpos = rightpos;
-				}
-				//move child up the tree
-				items[pos] = items[childpos];
-				pos = childpos;
-				//move down the tree and repeat.
-				childpos = 2 * pos + 1;
-			}
-			//the child position for the new item.
-			items[pos] = newitem;
-			SiftDown(startpos, pos);
-		}
+		//the child position for the new item.
+		items[pos] = newitem;
+		SiftDown(startpos, pos);
 	}
 }
