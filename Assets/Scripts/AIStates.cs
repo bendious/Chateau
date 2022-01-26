@@ -50,7 +50,7 @@ public sealed class AIPursue : AIState
 
 		// check for ammo need
 		bool hasItem = m_ai.GetComponentInChildren<ItemController>() != null;
-		if (m_ai.m_maxPickUps > 0 && !hasItem)
+		if (m_ai.MaxPickUps > 0 && !hasItem)
 		{
 			return new AIFindAmmo(m_ai);
 		}

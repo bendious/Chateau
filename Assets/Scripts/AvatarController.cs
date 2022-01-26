@@ -182,7 +182,7 @@ public class AvatarController : AnimationController
 				m_focusObj = null;
 				refreshInventory = true;
 			}
-			IsPickingUp = Input.GetButton("PickUp") && items.Length < m_maxPickUps;
+			IsPickingUp = Input.GetButton("PickUp") && items.Length < MaxPickUps;
 
 			if (Input.GetButtonDown("Drop"))
 			{

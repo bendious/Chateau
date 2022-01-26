@@ -50,11 +50,11 @@ MonoBehaviour:
   m_sizeMin: {x: 1, y: 0.25}
   m_sizeMax: {x: 4, y: 0.5}
   m_itemPrefabs:
-  - m_object: {fileID: 428324771051416576, guid: 02e274307f5a99746876b3c46e36c207, type: 3}
+  - m_object: {fileID: 4892872906617963342, guid: c7eaa25f16cf12a43af6e9177433afc1, type: 3}
     m_weight: 1
-  - m_object: {fileID: 2459957070372375435, guid: 39b798cb29d5544f5ab0c6e530a59042, type: 3}
+  - m_object: {fileID: 1271183342043709178, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
     m_weight: 0.1
-  - m_object: {fileID: 2641665646953640805, guid: e3a0fc76a43d83542b7c97da173f4d95, type: 3}
+  - m_object: {fileID: 4221545259124064584, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
     m_weight: 0.01
   m_itemsMin: 0
   m_itemsMax: 4

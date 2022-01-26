@@ -68,7 +68,7 @@ public class EnemyController : AnimationController
 		base.FixedUpdate();
 
 		// aim items
-		if (m_maxPickUps > 0)
+		if (MaxPickUps > 0)
 		{
 			ArmController[] arms = GetComponentsInChildren<ArmController>();
 			if (arms.Length > 0)

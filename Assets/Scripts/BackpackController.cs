@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-public class BackpackController : ItemController, IHolderController
+public sealed class BackpackController : ItemController, IHolderController
 {
 	public int m_holdCountMax = 2;
 	public /*override*/ int HoldCountMax => m_holdCountMax;
@@ -44,12 +44,9 @@ public class BackpackController : ItemController, IHolderController
 		m_body.angularVelocity = 0.0f;
 		m_body.bodyType = RigidbodyType2D.Kinematic;
 		gameObject.layer = character.gameObject.layer;
-
-		character.m_maxPickUps += HoldCountMax;
 	}
 
 	public void DetachFrom(AnimationController character)
 	{
-		character.m_maxPickUps -= HoldCountMax;
 	}
 }

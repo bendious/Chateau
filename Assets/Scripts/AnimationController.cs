@@ -38,7 +38,7 @@ public abstract class AnimationController : KinematicObject
 	public AudioClip ouchAudio;
 	public AudioClip m_deathAudio;
 
-	public int m_maxPickUps = 0; // TODO: determine based on current inventory/gear
+	public int MaxPickUps => GetComponentsInChildren<IHolderController>().Sum(holder => holder.HoldCountMax);
 
 
 	/// <summary>
@@ -185,7 +185,7 @@ public abstract class AnimationController : KinematicObject
 		}
 
 		ItemController[] heldItems = GetComponentsInChildren<ItemController>().Where(item => item is not IHolderController).ToArray();
-		if (heldItems.Length >= m_maxPickUps)
+		if (heldItems.Length >= MaxPickUps)
 		{
 			// TODO: ensure cycling through items?
 			heldItems.First().Detach();

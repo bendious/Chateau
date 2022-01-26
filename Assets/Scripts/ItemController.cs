@@ -91,7 +91,7 @@ public class ItemController : MonoBehaviour
 		if (isDetached && !causeCanDamage)
 		{
 			AnimationController character = collision.gameObject.GetComponent<AnimationController>();
-			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>().Length < character.m_maxPickUps)
+			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>().Length < character.MaxPickUps)
 			{
 				character.AttachItem(this);
 				AvatarController avatar = collision.gameObject.GetComponent<AvatarController>();
