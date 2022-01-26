@@ -7,9 +7,9 @@ public sealed class ArmController : MonoBehaviour, IHolderController
 
 	public /*override*/ int HoldCountMax => 1;
 
-	public /*override*/ Vector3 AttachPointLocal => Vector3.right * Object.GetComponent<SpriteRenderer>().sprite.bounds.size.x;
-
 	public Vector3 m_offset;
+	public /*override*/ Vector3 AttachOffsetLocal => m_offset;
+	public /*override*/ Vector3 ChildAttachPointLocal => Vector3.right * Object.GetComponent<SpriteRenderer>().sprite.bounds.size.x;
 
 
 	private float m_aimSpringStiffness = 100.0f;

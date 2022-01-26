@@ -160,3 +160,4 @@ MonoBehaviour:
   m_swingThrowAudio: []
   m_collisionAudio: []
   m_holdCountMax: 2
+  m_attachOffsetLocal: {x: 0, y: -0.1, z: 0.2}

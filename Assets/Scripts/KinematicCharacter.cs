@@ -173,11 +173,12 @@ public abstract class KinematicCharacter : KinematicObject
 	{
 		if (item is BackpackController backpack) // TEMP?
 		{
-			IHolderController holderExisting = GetComponentsInChildren<IHolderController>().FirstOrDefault(holder => holder is not ArmController);
-			if (holderExisting != null)
+			// allow only one pack at a time
+			BackpackController packExisting = GetComponentInChildren<BackpackController>();
+			if (packExisting != null)
 			{
-				// TODO: allow upgrading to more spacious holders
-				return;
+				packExisting.Detach();
+				// TODO: transfer items from old to new pack?
 			}
 
 			backpack.AttachTo(this);

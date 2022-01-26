@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 
@@ -8,7 +9,9 @@ public sealed class BackpackController : ItemController, IHolderController
 
 	public /*override*/ GameObject Object => gameObject;
 
-	public /*override*/ Vector3 AttachPointLocal => Vector3.forward * 0.2f/*?*/;
+	public Vector3 m_attachOffsetLocal = Vector3.forward * 0.2f;
+	public /*override*/ Vector3 AttachOffsetLocal => m_attachOffsetLocal;
+	public /*override*/ Vector3 ChildAttachPointLocal => Vector3.forward * 0.2f/*?*/;
 
 
 	public /*override*/ bool ItemAttach(ItemController item)
@@ -36,15 +39,32 @@ public sealed class BackpackController : ItemController, IHolderController
 	public void AttachTo(KinematicCharacter character)
 	{
 		transform.SetParent(character.transform);
-		transform.localPosition = Vector3.forward * 0.2f; // TODO: lerp? use m_armOffset if possible?
 		transform.localRotation = Quaternion.identity; // TODO: lerp?
+		StartCoroutine(UpdateOffset());
+
 		m_body.velocity = Vector2.zero;
 		m_body.angularVelocity = 0.0f;
 		m_body.bodyType = RigidbodyType2D.Kinematic;
+
 		gameObject.layer = character.gameObject.layer;
 	}
 
-	public void DetachFrom(KinematicCharacter character)
+	public override void Detach()
 	{
+		StopAllCoroutines();
+		DetachInternal();
+	}
+
+
+	private IEnumerator UpdateOffset()
+	{
+		while (true)
+		{
+			// TODO: unify {Avatar/Enemy}Controller.m_armOffset
+			AvatarController avatar = transform.parent.GetComponent<AvatarController>();
+			transform.localPosition = (Vector3)(avatar == null ? transform.parent.GetComponent<EnemyController>().m_armOffset : avatar.m_armOffset) + AttachOffsetLocal; // TODO: lerp?
+
+			yield return null;
+		}
 	}
 }

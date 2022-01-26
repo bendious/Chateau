@@ -158,4 +158,10 @@ public class EnemyController : KinematicCharacter
 		}
 		return m_pathfindWaypoints.Count == 0;
 	}
+
+
+	// called from animation event
+	private void EnablePlayerControl()
+	{
+	}
 }

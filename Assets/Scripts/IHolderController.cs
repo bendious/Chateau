@@ -8,7 +8,8 @@ public interface IHolderController
 
 	public abstract GameObject Object { get; }
 
-	public abstract Vector3 AttachPointLocal { get; }
+	public abstract Vector3 AttachOffsetLocal { get; }
+	public abstract Vector3 ChildAttachPointLocal { get; }
 
 	public virtual float Speed => 0.0f; // TODO: move out of IHolderController?
 
@@ -24,7 +25,7 @@ public interface IHolderController
 	}
 
 
-	public static bool ItemAttachInternal(ItemController item, IHolderController holder)
+	protected static bool ItemAttachInternal(ItemController item, IHolderController holder)
 	{
 		// prevent over-holding
 		if (holder.Object.transform.childCount >= holder.HoldCountMax)
@@ -42,7 +43,6 @@ public interface IHolderController
 
 		return true;
 	}
-
 
 	protected static void ItemDetachInternal(ItemController item, IHolderController holder)
 	{
