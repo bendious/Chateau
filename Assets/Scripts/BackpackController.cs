@@ -24,13 +24,11 @@ public sealed class BackpackController : ItemController, IHolderController
 		return true;
 	}
 
-	public /*override*/ bool ItemDetach(ItemController item)
+	public /*override*/ void ItemDetach(ItemController item)
 	{
 		item.enabled = true;
 
-		item.Detach();
-
-		return true;
+		IHolderController.ItemDetachInternal(item, this);
 	}
 
 

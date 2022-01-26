@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 
@@ -17,10 +18,9 @@ public interface IHolderController
 		return ItemAttachInternal(item, this);
 	}
 
-	public virtual bool ItemDetach(ItemController item)
+	public virtual void ItemDetach(ItemController item)
 	{
-		item.Detach();
-		return true;
+		ItemDetachInternal(item, this);
 	}
 
 
@@ -35,15 +35,47 @@ public interface IHolderController
 		if (item.transform.parent != null)
 		{
 			// ensure any special detach logic gets invoked
-			bool detached = item.transform.parent.GetComponent<IHolderController>().ItemDetach(item);
-			if (!detached)
+			item.transform.parent.GetComponent<IHolderController>().ItemDetach(item);
+		}
+
+		item.AttachInternal(holder);
+
+		return true;
+	}
+
+
+	protected static void ItemDetachInternal(ItemController item, IHolderController holder)
+	{
+		item.DetachInternal();
+
+		// maybe attach item from other holder
+		Transform holderTf = holder.Object.transform;
+		if (holderTf.parent != null)
+		{
+			// find any valid other holders
+			int thisSiblingIdx = holderTf.GetSiblingIndex();
+			IHolderController[] lowerHolders = holderTf.parent.GetComponentsInChildren<IHolderController>().Where(otherHolder => otherHolder is not ArmController && otherHolder.Object.transform.GetSiblingIndex() > thisSiblingIdx).ToArray();
+
+			foreach (IHolderController otherHolder in lowerHolders)
 			{
-				return false;
+				// try attaching each child item until one works
+				foreach (ItemController newItem in otherHolder.Object.GetComponentsInChildren<ItemController>().Where(item => item is not IHolderController))
+				{
+					newItem.Detach();
+					bool attached = holder.ItemAttach(newItem);
+					if (attached)
+					{
+						return;
+					}
+					else
+					{
+						// reattach to original to avoid orphaning upon failure
+						otherHolder.ItemAttach(newItem);
+					}
+				}
 			}
 		}
 
-		item.AttachTo(holder);
-
-		return true;
+		return;
 	}
 }

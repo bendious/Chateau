@@ -149,11 +149,12 @@ public class ItemController : MonoBehaviour
 	}
 
 
-	public void AttachTo(IHolderController holder)
+	// this (although public) should only be called by IHolderController.ItemAttachInternal() // TODO?
+	public void AttachInternal(IHolderController holder)
 	{
 		if (m_holder != null)
 		{
-			m_holder.ItemDetach(this);
+			Detach();
 		}
 		m_holder = holder;
 
@@ -167,7 +168,14 @@ public class ItemController : MonoBehaviour
 		SetCause(holder.Object.transform.parent.gameObject);
 	}
 
+	// this is the detachment entry point
 	public void Detach()
+	{
+		m_holder.ItemDetach(this);
+	}
+
+	// this (although public) should only be called by IHolderController.ItemDetachInternal() // TODO?
+	public void DetachInternal()
 	{
 		if (this is BackpackController backpack)
 		{
