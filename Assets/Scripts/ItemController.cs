@@ -90,7 +90,7 @@ public class ItemController : MonoBehaviour
 		bool causeCanDamage = m_cause != null && m_cause != collision.gameObject; // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus
 		if (isDetached && !causeCanDamage)
 		{
-			AnimationController character = collision.gameObject.GetComponent<AnimationController>();
+			KinematicCharacter character = collision.gameObject.GetComponent<KinematicCharacter>();
 			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>().Length < character.MaxPickUps)
 			{
 				character.AttachItem(this);
@@ -171,7 +171,7 @@ public class ItemController : MonoBehaviour
 	{
 		if (this is BackpackController backpack)
 		{
-			backpack.DetachFrom(backpack.transform.parent.GetComponent<AnimationController>());
+			backpack.DetachFrom(backpack.transform.parent.GetComponent<KinematicCharacter>());
 		}
 
 		transform.SetParent(null);

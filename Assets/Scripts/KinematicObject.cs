@@ -62,7 +62,7 @@ public abstract class KinematicObject : MonoBehaviour
 	protected const float shellRadius = 0.01f;
 
 
-	private AnimationController m_character;
+	private KinematicCharacter m_character;
 	private Collider2D m_collider;
 	private AvatarController m_avatar;
 
@@ -101,7 +101,7 @@ public abstract class KinematicObject : MonoBehaviour
 	{
 		body = GetComponent<Rigidbody2D>();
 		body.isKinematic = true;
-		m_character = GetComponent<AnimationController>();
+		m_character = GetComponent<KinematicCharacter>();
 		m_collider = GetComponent<Collider2D>();
 		m_avatar = GetComponent<AvatarController>();
 	}
@@ -160,7 +160,7 @@ public abstract class KinematicObject : MonoBehaviour
 		Vector2 move = moveAlongGround * deltaPosition.x;
 
 		// update our collision mask
-		bool shouldIgnoreOneWays = velocity.y >= 0 || (m_character != null && m_character.IsDropping); // TODO: don't require knowledge of AnimationController
+		bool shouldIgnoreOneWays = velocity.y >= 0 || (m_character != null && m_character.IsDropping); // TODO: don't require knowledge of KinematicCharacter
 		contactFilter.SetLayerMask(shouldIgnoreOneWays ? Physics2D.GetLayerCollisionMask(gameObject.layer) & ~(1 << m_platformLayer) : Physics2D.GetLayerCollisionMask(gameObject.layer));
 
 		Lazy<bool> isNearGround = new(() => Physics2D.Raycast(m_collider.bounds.min, Vector2.down, m_nearGroundDistance).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground? cast whole collider for better detection?

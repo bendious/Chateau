@@ -35,7 +35,7 @@ public sealed class BackpackController : ItemController, IHolderController
 
 
 	// TODO: combine w/ ItemController holder-based version?
-	public void AttachTo(AnimationController character)
+	public void AttachTo(KinematicCharacter character)
 	{
 		transform.SetParent(character.transform);
 		transform.localPosition = Vector3.forward * 0.2f; // TODO: lerp? use m_armOffset if possible?
@@ -46,7 +46,7 @@ public sealed class BackpackController : ItemController, IHolderController
 		gameObject.layer = character.gameObject.layer;
 	}
 
-	public void DetachFrom(AnimationController character)
+	public void DetachFrom(KinematicCharacter character)
 	{
 	}
 }

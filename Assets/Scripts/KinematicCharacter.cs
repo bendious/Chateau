@@ -4,10 +4,10 @@ using UnityEngine.Assertions;
 
 
 /// <summary>
-/// AnimationController integrates physics and animation. It is generally used for simple enemy animation.
+/// KinematicCharacter integrates physics and animation. It is generally used for simple enemy animation.
 /// </summary>
 [RequireComponent(typeof(SpriteRenderer), typeof(Animator), typeof(Collider2D)), RequireComponent(typeof(AudioSource))]
-public abstract class AnimationController : KinematicObject
+public abstract class KinematicCharacter : KinematicObject
 {
 	/// <summary>
 	/// Max horizontal speed.

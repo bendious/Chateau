@@ -10,7 +10,7 @@ using UnityEngine.VFX;
 /// This is the main class used to implement control of the avatar.
 /// </summary>
 [RequireComponent(typeof(Health))]
-public class AvatarController : AnimationController
+public class AvatarController : KinematicCharacter
 {
 	public enum JumpState
 	{

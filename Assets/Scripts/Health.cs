@@ -30,7 +30,7 @@ public class Health : MonoBehaviour
 	float currentHP;
 
 	private Animator m_animator;
-	private AnimationController m_character;
+	private KinematicCharacter m_character;
 
 
 	/// <summary>
@@ -101,7 +101,7 @@ public class Health : MonoBehaviour
 	void Awake()
 	{
 		m_animator = GetComponent<Animator>();
-		m_character = GetComponent<AnimationController>();
+		m_character = GetComponent<KinematicCharacter>();
 		currentHP = maxHP;
 		SyncUI();
 	}

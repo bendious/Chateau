@@ -6,7 +6,7 @@ using UnityEngine;
 /// <summary>
 /// A simple controller for enemies. Provides movement control toward a target object.
 /// </summary>
-public class EnemyController : AnimationController
+public class EnemyController : KinematicCharacter
 {
 	public Vector2 m_targetOffset = Vector2.zero;
 	public Transform m_target;
