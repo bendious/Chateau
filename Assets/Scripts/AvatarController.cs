@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UI;
@@ -92,7 +93,7 @@ public class AvatarController : AnimationController
 
 			// swing
 			bool refreshInventory = false;
-			ItemController[] items = GetComponentsInChildren<ItemController>();
+			ItemController[] items = GetComponentsInChildren<ItemController>().Where(item => item is not IHolderController).ToArray();
 			ItemController primaryItem = items.FirstOrDefault();
 			if (Input.GetButtonDown("Fire1"))
 			{
@@ -312,11 +313,22 @@ public class AvatarController : AnimationController
 		GameObject templateObj = m_inventoryUI.transform.GetChild(0).gameObject;
 		Assert.IsFalse(templateObj.activeSelf);
 
-		int iconIdx = 0;
-		ItemController[] items = GetComponentsInChildren<ItemController>();
-		int iconCount = System.Math.Max(m_maxPickUps, items.Length);
+		// gather all items/slots from child holders
+		Tuple<Transform, Color>[] itemInfos = GetComponentsInChildren<IHolderController>().SelectMany(holder =>
+		{
+			Transform holderTf = holder.Object.transform;
+			Tuple<Transform, Color>[] children = new Tuple<Transform, Color>[holder.HoldCountMax];
+			Color holderColor = holderTf.GetComponent<SpriteRenderer>().color;
+			for (int i = 0; i < holder.HoldCountMax; ++i)
+			{
+				children[i] = Tuple.Create(i < holderTf.childCount ? holderTf.GetChild(i) : null, holderColor);
+			}
+			return children;
+		}).ToArray();
+
+		// create/set one icon per item/slot
 		Vector3 posItr = templateObj.transform.position;
-		for (; iconIdx < iconCount; ++iconIdx)
+		for (int iconIdx = 0; iconIdx < itemInfos.Length; ++iconIdx)
 		{
 			GameObject UIObj;
 			if (iconIdx + 1 < m_inventoryUI.transform.childCount)
@@ -330,21 +342,22 @@ public class AvatarController : AnimationController
 				UIObj.SetActive(true);
 			}
 			Image uiImage = UIObj.GetComponent<Image>();
-			if (iconIdx < items.Length)
+			Tuple<Transform, Color> itemCur = itemInfos[iconIdx];
+			bool nonEmptySlot = itemCur.Item1 != null;
+			if (nonEmptySlot)
 			{
-				SpriteRenderer srcComp = items[iconIdx].GetComponent<SpriteRenderer>();
+				SpriteRenderer srcComp = itemCur.Item1.GetComponent<SpriteRenderer>();
 				uiImage.sprite = srcComp.sprite;
 				uiImage.color = srcComp.color;
 			}
 			else
 			{
-				Image srcComp = templateObj.GetComponent<Image>();
-				uiImage.sprite = srcComp.sprite;
-				uiImage.color = srcComp.color;
+				uiImage.sprite = templateObj.GetComponent<Image>().sprite;
+				uiImage.color = itemCur.Item2;
 			}
-			UIObj.GetComponent<InventoryController>().m_draggable = iconIdx < items.Length;
+			UIObj.GetComponent<InventoryController>().m_draggable = nonEmptySlot;
 		}
-		for (int j = m_inventoryUI.transform.childCount - 1; j > iconCount; --j)
+		for (int j = m_inventoryUI.transform.childCount - 1; j > itemInfos.Length; --j)
 		{
 			Destroy(m_inventoryUI.transform.GetChild(j).gameObject);
 		}
@@ -353,12 +366,12 @@ public class AvatarController : AnimationController
 	public void OnVictory()
 	{
 		m_focusIndicator.SetActive(false);
-		foreach (ItemController item in GetComponentsInChildren<ItemController>())
-		{
-			item.Detach();
-		}
 		foreach (ArmController arm in GetComponentsInChildren<ArmController>())
 		{
+			foreach (ItemController item in arm.GetComponentsInChildren<ItemController>())
+			{
+				item.Detach();
+			}
 			arm.gameObject.SetActive(false);
 		}
 		animator.SetTrigger("victory");

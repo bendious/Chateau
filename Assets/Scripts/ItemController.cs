@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.VFX;
 
 
-[RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(VisualEffect)), RequireComponent(typeof(Collider2D), typeof(SpriteRenderer))]
+[RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), RequireComponent(typeof(SpriteRenderer))]
 public class ItemController : MonoBehaviour
 {
 	public float m_swingDegreesPerSec = 5000.0f;
@@ -23,19 +23,19 @@ public class ItemController : MonoBehaviour
 	public AudioClip[] m_collisionAudio;
 
 
-	public float Speed => m_arm == null ? m_body.velocity.magnitude : m_arm.Speed;
+	public float Speed => m_holder == null ? m_body.velocity.magnitude : m_holder.Speed;
 
 	public Vector2 SpritePivotOffset => -(m_renderer.sprite.pivot / m_renderer.sprite.rect.size * 2.0f - Vector2.one) * m_renderer.sprite.bounds.extents;
 
 
-	private Rigidbody2D m_body;
+	protected Rigidbody2D m_body; // TODO: un-expose?
 	private VisualEffect m_vfx;
 	private AudioSource m_audioSource;
 	private Collider2D m_collider;
 	private SpriteRenderer m_renderer;
 	private Health m_health;
 
-	private ArmController m_arm;
+	private IHolderController m_holder;
 	private GameObject m_cause;
 
 	private static int m_posLocalPrevID;
@@ -56,17 +56,22 @@ public class ItemController : MonoBehaviour
 		m_renderer = GetComponent<SpriteRenderer>();
 		m_health = GetComponent<Health>();
 
-		m_arm = transform.parent == null ? null : transform.parent.GetComponent<ArmController>();
-		SetCause(m_arm == null ? null : m_arm.transform.parent.gameObject);
-		Vector3 size = m_collider.bounds.size;
-		m_vfx.SetFloat("Size", Mathf.Max(size.x, size.y));
-		m_vfx.SetVector3("SpriteOffset", SpritePivotOffset);
+		m_holder = transform.parent == null ? null : transform.parent.GetComponent<IHolderController>();
+#pragma warning disable IDE0031 // NOTE that we don't use null propagation since IHolderControllers can be Unity objects as well, which don't like ?? or ?.
+		SetCause(m_holder == null ? null : m_holder.Object.transform.parent.gameObject);
+#pragma warning restore IDE0031
+		if (m_vfx != null)
+		{
+			Vector3 size = m_collider.bounds.size;
+			m_vfx.SetFloat("Size", Mathf.Max(size.x, size.y));
+			m_vfx.SetVector3("SpriteOffset", SpritePivotOffset);
+		}
 	}
 
 	// TODO: only when VFX is enabled?
 	private void FixedUpdate()
 	{
-		if (Speed >= m_damageThresholdSpeed)
+		if (m_vfx != null && Speed >= m_damageThresholdSpeed)
 		{
 			m_vfx.SetVector3(m_posLocalPrevID, Quaternion.Inverse(transform.rotation) * -(Vector3)m_body.velocity * Time.fixedDeltaTime + Vector3.forward); // NOTE the inclusion of Vector3.forward to put the VFX in the background // TODO: don't assume constant/unchanged velocity across the time step?
 		}
@@ -81,7 +86,7 @@ public class ItemController : MonoBehaviour
 		}
 
 		// maybe attach to character
-		bool isDetached = m_arm == null;
+		bool isDetached = m_holder == null;
 		bool causeCanDamage = m_cause != null && m_cause != collision.gameObject; // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus
 		if (isDetached && !causeCanDamage)
 		{
@@ -144,34 +149,46 @@ public class ItemController : MonoBehaviour
 	}
 
 
-	public void AttachTo(ArmController arm)
+	public void AttachTo(IHolderController holder)
 	{
-		m_arm = arm;
-		arm.OnItemAttachment(this); // NOTE that this needs to be BEFORE changing the item transform
+		if (m_holder != null)
+		{
+			m_holder.ItemDetach(this);
+		}
+		m_holder = holder;
 
-		transform.SetParent(arm.transform);
-		transform.localPosition = Vector3.right * arm.GetComponent<SpriteRenderer>().sprite.bounds.size.x; // TODO: lerp?
+		transform.SetParent(holder.Object.transform);
+		transform.localPosition = holder.AttachPointLocal; // TODO: lerp?
 		transform.localRotation = Quaternion.identity; // TODO: lerp?
 		m_body.velocity = Vector2.zero;
 		m_body.angularVelocity = 0.0f;
 		m_body.bodyType = RigidbodyType2D.Kinematic;
-		gameObject.layer = arm.gameObject.layer;
-		SetCause(arm.transform.parent.gameObject);
+		gameObject.layer = holder.Object.layer;
+		SetCause(holder.Object.transform.parent.gameObject);
 	}
 
 	public void Detach()
 	{
+		if (this is BackpackController backpack)
+		{
+			backpack.DetachFrom(backpack.transform.parent.GetComponent<AnimationController>());
+		}
+
 		transform.SetParent(null);
 		transform.position = (Vector2)transform.position; // nullify any z that may have been applied for rendering order
 		m_body.bodyType = RigidbodyType2D.Dynamic;
-		m_arm = null;
+
+		m_holder = null;
 	}
 
 	public void Swing()
 	{
-		m_arm.Swing(m_swingDegreesPerSec, m_swingRadiusPerSec, m_radiusSpringStiffness, m_radiusSpringDampPct);
+		if (m_holder is ArmController arm)
+		{
+			arm.Swing(m_swingDegreesPerSec, m_swingRadiusPerSec, m_radiusSpringStiffness, m_radiusSpringDampPct);
+		}
 
-		EnableVFX();
+		EnableVFXAndDamage();
 
 		// play audio
 		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
@@ -184,7 +201,7 @@ public class ItemController : MonoBehaviour
 	{
 		if (m_healAmount > 0)
 		{
-			bool healed = m_arm.transform.parent.GetComponent<Health>().Increment(m_healAmount);
+			bool healed = m_holder.Object.transform.parent.GetComponent<Health>().Increment(m_healAmount);
 			if (healed)
 			{
 				Detach(); // so that we can refresh inventory immediately even though object deletion is deferred
@@ -199,12 +216,12 @@ public class ItemController : MonoBehaviour
 	public void Throw()
 	{
 		// temporarily ignore collisions w/ thrower
-		EnableCollision.TemporarilyDisableCollision(m_arm.transform.parent.GetComponent<Collider2D>(), m_collider, 0.1f);
+		EnableCollision.TemporarilyDisableCollision(m_holder.Object.transform.parent.GetComponent<Collider2D>(), m_collider, 0.1f);
 
 		Detach();
 		m_body.velocity = transform.rotation * Vector2.right * m_throwSpeed;
 
-		EnableVFX();
+		EnableVFXAndDamage();
 
 		// play audio
 		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
@@ -223,7 +240,7 @@ public class ItemController : MonoBehaviour
 
 		m_cause = cause;
 
-		if (m_cause == null)
+		if (m_cause == null || m_vfx == null)
 		{
 			return;
 		}
@@ -234,26 +251,35 @@ public class ItemController : MonoBehaviour
 		m_vfx.SetGradient(m_gradientID, gradient);
 	}
 
-	private void EnableVFX()
+	private void EnableVFXAndDamage()
 	{
-		m_vfx.enabled = true;
-		m_vfx.Play();
+		if (m_vfx != null)
+		{
+			m_vfx.enabled = true;
+			m_vfx.Play();
+		}
 		StopAllCoroutines();
-		StartCoroutine(UpdateVFX());
+		StartCoroutine(UpdateVFXAndCause());
 	}
 
-	private IEnumerator UpdateVFX()
+	private IEnumerator UpdateVFXAndCause()
 	{
 		while (true)
 		{
 			if (Speed >= m_damageThresholdSpeed)
 			{
-				m_vfx.SetVector3(m_upVecID, transform.rotation * Vector3.up);
+				if (m_vfx != null)
+				{
+					m_vfx.SetVector3(m_upVecID, transform.rotation * Vector3.up);
+				}
 			}
 			else
 			{
-				m_vfx.Stop();
-				if (m_arm == null)
+				if (m_vfx != null)
+				{
+					m_vfx.Stop();
+				}
+				if (m_holder == null)
 				{
 					SetCause(null);
 				}

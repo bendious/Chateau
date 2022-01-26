@@ -171,15 +171,34 @@ public abstract class AnimationController : KinematicObject
 
 	public void AttachItem(ItemController item)
 	{
-		ItemController[] heldItems = GetComponentsInChildren<ItemController>();
+		if (item is BackpackController backpack) // TEMP?
+		{
+			IHolderController holderExisting = GetComponentsInChildren<IHolderController>().FirstOrDefault(holder => holder is not ArmController);
+			if (holderExisting != null)
+			{
+				// TODO: allow upgrading to more spacious holders
+				return;
+			}
+
+			backpack.AttachTo(this);
+			return;
+		}
+
+		ItemController[] heldItems = GetComponentsInChildren<ItemController>().Where(item => item is not IHolderController).ToArray();
 		if (heldItems.Length >= m_maxPickUps)
 		{
 			// TODO: ensure cycling through items?
 			heldItems.First().Detach();
 		}
 
-		ArmController[] arms = GetComponentsInChildren<ArmController>();
-		item.AttachTo(arms.First().transform.childCount == 0 ? arms.First() : arms.Last()); // TODO: don't assume there's always two arms?
+		foreach (IHolderController holder in GetComponentsInChildren<IHolderController>())
+		{
+			bool held = holder.ItemAttach(item);
+			if (held)
+			{
+				break;
+			}
+		}
 	}
 
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -87,15 +88,31 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 		transform.SetSiblingIndex(index2);
 		element2.transform.SetSiblingIndex(index1);
 
-		// swap avatar hold order
-		// NOTE that the indices are off by one between the inventory and avatar due to the inventory template object
+		// swap avatar hold
+		// get items BEFORE editing attachments
 		AvatarController avatar = Camera.main.GetComponent<GameController>().m_avatar;
-		int idx1Final = index1 - 1;
-		int idx2Final = index2 - 1;
-		Transform tf1 = avatar.transform.GetChild(idx1Final);
-		Transform tf2 = avatar.transform.GetChild(idx2Final);
-		tf1.SetSiblingIndex(idx2Final);
-		tf2.SetSiblingIndex(idx1Final);
+		Tuple<ItemController, IHolderController> itemAndHolder1 = ItemFromIndex(avatar, index1);
+		ItemController item1 = itemAndHolder1.Item1;
+		Tuple<ItemController, IHolderController> itemAndHolder2 = ItemFromIndex(avatar, index2);
+		ItemController item2 = itemAndHolder2.Item1;
+
+		// detach (to prevent too-many-to-hold failed attachment) and then attach
+		if (item1 != null && item1.transform.parent != null)
+		{
+			item1.transform.parent.GetComponent<IHolderController>().ItemDetach(item1);
+		}
+		if (item2 != null && item2.transform.parent != null)
+		{
+			item2.transform.parent.GetComponent<IHolderController>().ItemDetach(item2);
+		}
+		if (item1 != null)
+		{
+			itemAndHolder2.Item2.ItemAttach(item1);
+		}
+		if (item2 != null)
+		{
+			itemAndHolder1.Item2.ItemAttach(item2);
+		}
 
 		// swap icon positions
 		Vector3 tmp = m_restPosition;
@@ -105,6 +122,16 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 		// slide to new positions
 		StartCoroutine(LerpToRest());
 		StartCoroutine(element2.LerpToRest());
+	}
+
+	private Tuple<ItemController, IHolderController> ItemFromIndex(Component character, int index)
+	{
+		// NOTE that the indices are off by one between the inventory and avatar due to the inventory template object
+		int holderIdx = Math.Min(index, character.transform.childCount) - 1;
+		Transform holderTf = character.transform.GetChild(holderIdx);
+		int itemIdx = index - holderIdx - 1;
+		Transform itemTf = holderTf.childCount > itemIdx ? holderTf.GetChild(itemIdx) : null;
+		return Tuple.Create(itemTf == null ? null : itemTf.GetComponent<ItemController>(), holderTf.GetComponent<IHolderController>());
 	}
 
 	private IEnumerator LerpToRest()

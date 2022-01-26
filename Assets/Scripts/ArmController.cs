@@ -1,9 +1,14 @@
 using UnityEngine;
-using UnityEngine.Assertions;
 
 
-public class ArmController : MonoBehaviour
+public sealed class ArmController : MonoBehaviour, IHolderController
 {
+	public /*override*/ GameObject Object => gameObject;
+
+	public /*override*/ int HoldCountMax => 1;
+
+	public /*override*/ Vector3 AttachPointLocal => Vector3.right * Object.GetComponent<SpriteRenderer>().sprite.bounds.size.x;
+
 	public Vector3 m_offset;
 
 
@@ -30,14 +35,23 @@ public class ArmController : MonoBehaviour
 	private bool m_swingDirection;
 
 
-	public void OnItemAttachment(ItemController item)
+	public /*override*/ bool ItemAttach(ItemController item)
 	{
+		bool attached = IHolderController.ItemAttachInternal(item, this);
+		if (!attached)
+		{
+			return false;
+		}
+
 		m_aimSpringStiffness = item.m_aimSpringStiffness; // TODO: reset when detaching?
 		m_aimSpringDampPct = item.m_aimSpringDampPct;
 		m_aimDegrees = AimDegreesRaw(Vector2.zero, item.transform.position); // TODO: lerp? use previous rootOffset?
 		m_aimVelocity = 0.0f;
 		m_aimRadiusVelocity = 0.0f;
+
+		return true;
 	}
+
 
 	public void Swing(float swingDegreesPerSec, float swingRadiusPerSec, float radiusSpringStiffness, float radiusSpringDampPct)
 	{
