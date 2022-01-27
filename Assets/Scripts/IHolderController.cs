@@ -59,7 +59,7 @@ public interface IHolderController
 			foreach (IHolderController otherHolder in lowerHolders)
 			{
 				// try attaching each child item until one works
-				foreach (ItemController newItem in otherHolder.Object.GetComponentsInChildren<ItemController>().Where(item => item is not IHolderController))
+				foreach (ItemController newItem in otherHolder.Object.GetComponentsInChildren<ItemController>())
 				{
 					newItem.Detach();
 					bool attached = holder.ItemAttach(newItem);

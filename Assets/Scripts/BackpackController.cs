@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 
-public sealed class BackpackController : ItemController, IHolderController
+public sealed class BackpackController : MonoBehaviour, IHolderController, IAttachable
 {
 	public int m_holdCountMax = 2;
 	public /*override*/ int HoldCountMax => m_holdCountMax;
@@ -22,14 +22,14 @@ public sealed class BackpackController : ItemController, IHolderController
 			return false;
 		}
 
-		item.enabled = false; // to disable any effects that would be visible despite being behind the backpack
+		item.gameObject.SetActive(false); // to disable collision and any effects that would be visible despite being behind the backpack
 
 		return true;
 	}
 
 	public /*override*/ void ItemDetach(ItemController item)
 	{
-		item.enabled = true;
+		item.gameObject.SetActive(true);
 
 		IHolderController.ItemDetachInternal(item, this);
 	}
@@ -42,17 +42,23 @@ public sealed class BackpackController : ItemController, IHolderController
 		transform.localRotation = Quaternion.identity; // TODO: lerp?
 		StartCoroutine(UpdateOffset());
 
-		m_body.velocity = Vector2.zero;
-		m_body.angularVelocity = 0.0f;
-		m_body.bodyType = RigidbodyType2D.Kinematic;
+		Rigidbody2D body = GetComponent<Rigidbody2D>();
+		body.velocity = Vector2.zero;
+		body.angularVelocity = 0.0f;
+		body.bodyType = RigidbodyType2D.Kinematic;
 
 		gameObject.layer = character.gameObject.layer;
 	}
 
-	public override void Detach()
+	public void Detach()
 	{
 		StopAllCoroutines();
-		DetachInternal();
+
+		// TODO: combine w/ ItemController.DetachInternal()?
+		transform.SetParent(null);
+		transform.position = (Vector2)transform.position; // nullify any z that may have been applied for rendering order
+		Rigidbody2D body = GetComponent<Rigidbody2D>();
+		body.bodyType = RigidbodyType2D.Dynamic;
 	}
 
 

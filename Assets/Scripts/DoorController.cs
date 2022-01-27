@@ -38,7 +38,10 @@ public class DoorController : MonoBehaviour
 		{
 			if (item.gameObject == m_key)
 			{
-				item.Detach(); // so that we can refresh inventory immediately even though object deletion is deferred
+				if (item.transform.parent != null)
+				{
+					item.Detach(); // so that we can refresh inventory immediately even though object deletion is deferred
+				}
 				Destroy(m_key);
 				Destroy(gameObject);
 

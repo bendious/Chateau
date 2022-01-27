@@ -93,7 +93,7 @@ public class AvatarController : KinematicCharacter
 
 			// swing
 			bool refreshInventory = false;
-			ItemController[] items = GetComponentsInChildren<ItemController>().Where(item => item is not IHolderController).ToArray();
+			ItemController[] items = GetComponentsInChildren<ItemController>().ToArray();
 			ItemController primaryItem = items.FirstOrDefault();
 			if (Input.GetButtonDown("Fire1"))
 			{
@@ -167,7 +167,7 @@ public class AvatarController : KinematicCharacter
 			}
 
 			// place focus indicator if appropriate
-			ItemController focusItem = m_focusObj == null ? null : m_focusObj.GetComponent<ItemController>();
+			IAttachable focusItem = m_focusObj == null ? null : m_focusObj.GetComponent<IAttachable>();
 			if (focusItem != null)
 			{
 				m_focusIndicator.transform.SetPositionAndRotation(m_focusObj.transform.position + Vector3.back, m_focusObj.transform.rotation); // NOTE the Z offset to ensure the focus indicator is rendered on top

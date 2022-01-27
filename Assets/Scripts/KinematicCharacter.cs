@@ -169,9 +169,9 @@ public abstract class KinematicCharacter : KinematicObject
 		Bounce(Vector2.zero); // to remove any current forced input
 	}
 
-	public void AttachItem(ItemController item)
+	public void AttachItem(IAttachable attachee)
 	{
-		if (item is BackpackController backpack) // TEMP?
+		if (attachee is BackpackController backpack) // TODO: handle through IAttachable interface?
 		{
 			// allow only one pack at a time
 			BackpackController packExisting = GetComponentInChildren<BackpackController>();
@@ -185,7 +185,10 @@ public abstract class KinematicCharacter : KinematicObject
 			return;
 		}
 
-		ItemController[] heldItems = GetComponentsInChildren<ItemController>().Where(item => item is not IHolderController).ToArray();
+		// TODO: don't assume non-backpack attachables are items?
+		ItemController item = (ItemController)attachee;
+
+		ItemController[] heldItems = GetComponentsInChildren<ItemController>().ToArray();
 		if (heldItems.Length >= MaxPickUps)
 		{
 			// TODO: ensure cycling through items?

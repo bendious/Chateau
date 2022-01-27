@@ -5,7 +5,7 @@ using UnityEngine.VFX;
 
 
 [RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), RequireComponent(typeof(SpriteRenderer))]
-public class ItemController : MonoBehaviour
+public sealed class ItemController : MonoBehaviour, IAttachable
 {
 	public float m_swingDegreesPerSec = 5000.0f;
 	public float m_swingRadiusPerSec = 10.0f;
@@ -23,12 +23,14 @@ public class ItemController : MonoBehaviour
 	public AudioClip[] m_collisionAudio;
 
 
+	public /*override*/ GameObject Object => gameObject;
+
 	public float Speed => m_holder == null ? m_body.velocity.magnitude : m_holder.Speed;
 
 	public Vector2 SpritePivotOffset => -(m_renderer.sprite.pivot / m_renderer.sprite.rect.size * 2.0f - Vector2.one) * m_renderer.sprite.bounds.extents;
 
 
-	protected Rigidbody2D m_body; // TODO: un-expose?
+	private Rigidbody2D m_body;
 	private VisualEffect m_vfx;
 	private AudioSource m_audioSource;
 	private Collider2D m_collider;
@@ -86,6 +88,7 @@ public class ItemController : MonoBehaviour
 		}
 
 		// maybe attach to character
+		// TODO: extend to BackpackController as well?
 		bool isDetached = m_holder == null;
 		bool causeCanDamage = m_cause != null && m_cause != collision.gameObject; // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus
 		if (isDetached && !causeCanDamage)
@@ -169,7 +172,7 @@ public class ItemController : MonoBehaviour
 	}
 
 	// this is the detachment entry point
-	public virtual void Detach()
+	public void Detach()
 	{
 		m_holder.ItemDetach(this);
 	}
@@ -177,6 +180,7 @@ public class ItemController : MonoBehaviour
 	// this (although public) should only be called by IHolderController.ItemDetachInternal() // TODO?
 	public void DetachInternal()
 	{
+		// TODO: combine w/ BackpackController.Detach()?
 		transform.SetParent(null);
 		transform.position = (Vector2)transform.position; // nullify any z that may have been applied for rendering order
 		m_body.bodyType = RigidbodyType2D.Dynamic;
