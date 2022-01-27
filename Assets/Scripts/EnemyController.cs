@@ -15,6 +15,8 @@ public class EnemyController : KinematicCharacter
 
 	public float m_meleeRange = 1.0f;
 
+	public AudioClip[] m_attackSFX;
+
 
 	private AIState m_aiState;
 
@@ -97,6 +99,20 @@ public class EnemyController : KinematicCharacter
 #endif
 
 
+	public override void OnDamage(GameObject source)
+	{
+		base.OnDamage(source);
+
+		AIState stateNew = m_aiState.OnDamage(source);
+		if (stateNew != null)
+		{
+			// NOTE that we can't split this across frames since we might not get another Update() call due to death
+			m_aiState.Exit();
+			m_aiState = stateNew;
+			m_aiState.Enter();
+		}
+	}
+
 	public override void OnDeath()
 	{
 		base.OnDeath();
@@ -157,6 +173,22 @@ public class EnemyController : KinematicCharacter
 			m_pathfindWaypoints.RemoveAt(0);
 		}
 		return m_pathfindWaypoints.Count == 0;
+	}
+
+	public void PlayAttackEffects()
+	{
+		animator.SetBool("attacking", true);
+
+		if (m_attackSFX.Length > 0)
+		{
+			audioSource.PlayOneShot(m_attackSFX[Random.Range(0, m_attackSFX.Length)]);
+		}
+	}
+
+	public void StopAttackEffects()
+	{
+		animator.SetBool("attacking", false);
+		// TODO: cut off SFX if appropriate?
 	}
 
 

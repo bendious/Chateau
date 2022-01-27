@@ -10,6 +10,7 @@ public abstract class AIState
 
 	public virtual void Enter() {}
 	public abstract AIState Update();
+	public virtual AIState OnDamage(GameObject source) { return null; }
 	public virtual void Exit() {}
 
 #if UNITY_EDITOR
@@ -220,20 +221,34 @@ public sealed class AIRamSwoop : AIState
 
 		m_degreesPerSecond = 180.0f / m_durationSeconds;
 
-		// TODO: trigger animation/SFX
+		m_ai.PlayAttackEffects();
 	}
 
 	public override AIState Update()
 	{
-		m_ai.move = Quaternion.AngleAxis(m_angleDegrees, Vector3.back) * Vector2.down * m_targetingScalars;
+		Quaternion rotation = Quaternion.AngleAxis(m_angleDegrees * Mathf.Sign(m_targetingScalars.x), Vector3.back);
+		m_ai.move = rotation * Vector2.down * new Vector2(Mathf.Abs(m_targetingScalars.x), m_targetingScalars.y);
+		if (m_ai.HasFlying)
+		{
+			m_ai.transform.rotation = rotation;
+		}
 
 		m_angleDegrees += m_degreesPerSecond * Time.deltaTime;
 
 		return m_angleDegrees >= 180.0f ? new AIPursue(m_ai) : null;
 	}
 
+	public override AIState OnDamage(GameObject source)
+	{
+		return new AIPursue(m_ai);
+	}
+
 	public override void Exit()
 	{
+		m_ai.transform.rotation = Quaternion.identity;
+
+		m_ai.StopAttackEffects();
+
 		m_ai.maxSpeed /= m_speedScalar;
 	}
 }
