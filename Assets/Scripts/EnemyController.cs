@@ -146,7 +146,7 @@ public class EnemyController : KinematicCharacter
 
 		// left/right
 		Vector2 diff = nextWaypoint - (Vector2)transform.position;
-		bool hasArrivedX = Mathf.Abs(diff.x) <= collider2d.bounds.extents.x + Mathf.Abs(collider2d.offset.x) + arrivalEpsilon;
+		bool hasArrivedX = Mathf.Abs(diff.x) <= m_collider.bounds.extents.x + Mathf.Abs(m_collider.offset.x) + arrivalEpsilon;
 		move.x = hasArrivedX ? 0.0f : Mathf.Clamp(diff.x, -1.0f, 1.0f); // TODO: less slow-down when near waypoints
 
 		if (HasFlying)
@@ -160,7 +160,7 @@ public class EnemyController : KinematicCharacter
 			// TODO: avoid getting stuck on corners?
 			Collider2D targetCollider = target == null ? null : target.GetComponent<Collider2D>();
 			Bounds nextBounds = targetCollider == null || m_pathfindWaypoints.Count > 1 ? new(nextWaypoint, Vector3.zero) : targetCollider.bounds;
-			Bounds selfBounds = collider2d.bounds;
+			Bounds selfBounds = m_collider.bounds;
 			if (IsGrounded && nextBounds.min.y > selfBounds.max.y && Random.value > 0.95f/*?*/)
 			{
 				jump = true;
@@ -168,7 +168,7 @@ public class EnemyController : KinematicCharacter
 			move.y = nextBounds.max.y < selfBounds.min.y ? -1.0f : 0.0f;
 		}
 
-		if (hasArrivedX && Mathf.Abs(diff.y) <= collider2d.bounds.extents.y + Mathf.Abs(collider2d.offset.y) + arrivalEpsilon)
+		if (hasArrivedX && Mathf.Abs(diff.y) <= m_collider.bounds.extents.y + Mathf.Abs(m_collider.offset.y) + arrivalEpsilon)
 		{
 			m_pathfindWaypoints.RemoveAt(0);
 		}

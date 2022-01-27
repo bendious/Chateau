@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -63,7 +64,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 
 	private KinematicCharacter m_character;
-	private Collider2D m_collider;
+	protected Collider2D m_collider; // TODO: handle multi-collider objects?
 	private AvatarController m_avatar;
 
 	private Vector2 m_velocityForced = Vector2.zero;
@@ -171,10 +172,10 @@ public abstract class KinematicObject : MonoBehaviour
 		PerformMovement(move, true, ref isNearGround);
 	}
 
-	public bool ShouldIgnore(Rigidbody2D body, Collider2D collider, bool ignoreStatics, bool ignoreDynamics)
+	public bool ShouldIgnore(Rigidbody2D body, Collider2D[] colliders, bool ignoreStatics, bool ignoreDynamics)
 	{
-		Assert.IsNotNull(collider);
-		GameObject otherObj = collider.gameObject;
+		Assert.IsTrue(colliders != null && colliders.Length > 0);
+		GameObject otherObj = colliders.First().gameObject; // TODO: ensure all colliders are from the same object?
 		if (otherObj == gameObject)
 		{
 			return true; // ignore our own object
@@ -196,21 +197,25 @@ public abstract class KinematicObject : MonoBehaviour
 		}
 
 		// ignore objects flagged to ignore each other and their children
-		if (Physics2D.GetIgnoreCollision(m_collider, collider))
+		// TODO: efficiency?
+		foreach (Collider2D collider in colliders)
 		{
-			return true;
-		}
-		if (transform.parent != null)
-		{
-			Collider2D parentCollider = transform.parent.GetComponent<Collider2D>();
-			if (parentCollider != null && Physics2D.GetIgnoreCollision(parentCollider, collider))
+			if (Physics2D.GetIgnoreCollision(m_collider, collider))
 			{
 				return true;
 			}
+			if (transform.parent != null)
+			{
+				Collider2D parentCollider = transform.parent.GetComponent<Collider2D>();
+				if (parentCollider != null && Physics2D.GetIgnoreCollision(parentCollider, collider))
+				{
+					return true;
+				}
+			}
 		}
-		if (collider.transform.parent != null)
+		if (otherObj.transform.parent != null)
 		{
-			Collider2D parentCollider = collider.transform.parent.GetComponent<Collider2D>();
+			Collider2D parentCollider = otherObj.transform.parent.GetComponent<Collider2D>();
 			if (parentCollider != null && Physics2D.GetIgnoreCollision(m_collider, parentCollider))
 			{
 				return true;
@@ -237,7 +242,7 @@ public abstract class KinematicObject : MonoBehaviour
 			for (int i = 0; i < count; i++)
 			{
 				RaycastHit2D hit = hitBuffer[i];
-				if (ShouldIgnore(hit.rigidbody, hit.collider, false, true))
+				if (ShouldIgnore(hit.rigidbody, new Collider2D[] { hit.collider }, false, true))
 				{
 					continue; // don't get hung up on dynamic/carried/ignored objects
 				}

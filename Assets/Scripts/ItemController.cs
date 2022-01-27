@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -16,6 +17,7 @@ public sealed class ItemController : MonoBehaviour, IAttachable
 	public float m_damageThresholdSpeed = 2.0f;
 	public float m_throwSpeed = 10.0f;
 	public float m_vfxAlphaMax = 0.35f;
+	public Vector3 m_vfxExtraOffsetLocal;
 	public float m_damage = 1.0f;
 	public int m_healAmount = 0;
 
@@ -33,7 +35,7 @@ public sealed class ItemController : MonoBehaviour, IAttachable
 	private Rigidbody2D m_body;
 	private VisualEffect m_vfx;
 	private AudioSource m_audioSource;
-	private Collider2D m_collider;
+	private Collider2D[] m_colliders;
 	private SpriteRenderer m_renderer;
 	private Health m_health;
 
@@ -54,7 +56,7 @@ public sealed class ItemController : MonoBehaviour, IAttachable
 		m_body = GetComponent<Rigidbody2D>();
 		m_vfx = GetComponent<VisualEffect>();
 		m_audioSource = GetComponent<AudioSource>();
-		m_collider = GetComponent<Collider2D>();
+		m_colliders = GetComponents<Collider2D>();
 		m_renderer = GetComponent<SpriteRenderer>();
 		m_health = GetComponent<Health>();
 
@@ -64,9 +66,15 @@ public sealed class ItemController : MonoBehaviour, IAttachable
 #pragma warning restore IDE0031
 		if (m_vfx != null)
 		{
-			Vector3 size = m_collider.bounds.size;
+			Bounds aggregateBounds = m_colliders.First().bounds; // NOTE that we avoid default-initialization in case the aggregate bounds shouldn't include the origin
+			foreach (Collider2D collider in m_colliders)
+			{
+				aggregateBounds.Encapsulate(collider.bounds);
+			}
+			Vector3 size = aggregateBounds.size - m_vfxExtraOffsetLocal;
 			m_vfx.SetFloat("Size", Mathf.Max(size.x, size.y));
 			m_vfx.SetVector3("SpriteOffset", SpritePivotOffset);
+			m_vfx.SetVector3("ExtraOffsetLocal", m_vfxExtraOffsetLocal);
 		}
 	}
 
@@ -82,7 +90,7 @@ public sealed class ItemController : MonoBehaviour, IAttachable
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
 		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
-		if (kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_collider, true, false))
+		if (kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, true, false))
 		{
 			return;
 		}
@@ -184,6 +192,7 @@ public sealed class ItemController : MonoBehaviour, IAttachable
 		transform.SetParent(null);
 		transform.position = (Vector2)transform.position; // nullify any z that may have been applied for rendering order
 		m_body.bodyType = RigidbodyType2D.Dynamic;
+		m_body.WakeUp();
 
 		m_holder = null;
 	}
@@ -223,7 +232,7 @@ public sealed class ItemController : MonoBehaviour, IAttachable
 	public void Throw()
 	{
 		// temporarily ignore collisions w/ thrower
-		EnableCollision.TemporarilyDisableCollision(m_holder.Object.transform.parent.GetComponent<Collider2D>(), m_collider, 0.1f);
+		EnableCollision.TemporarilyDisableCollision(m_holder.Object.transform.parent.GetComponents<Collider2D>(), m_colliders, 0.1f);
 
 		Detach();
 		m_body.velocity = transform.rotation * Vector2.right * m_throwSpeed;

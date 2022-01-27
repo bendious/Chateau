@@ -157,13 +157,13 @@ public class AvatarController : KinematicCharacter
 			// determine current focus object
 			// TODO: more nuanced prioritization?
 			m_focusObj = null;
-			float focusRadius = ((CircleCollider2D)collider2d).radius;
+			float focusRadius = ((CircleCollider2D)m_collider).radius;
 			Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 			Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + (mousePos - (Vector2)transform.position).normalized * focusRadius, focusRadius * 1.5f); // TODO: restrict to certain layers?
 			float distSqFocus = float.MaxValue;
 			foreach (Collider2D candidate in focusCandidates)
 			{
-				if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), candidate, false, false))
+				if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, false, false))
 				{
 					continue; // ignore ourself / attached/ignored objects
 				}
@@ -185,6 +185,9 @@ public class AvatarController : KinematicCharacter
 				SpriteRenderer rendererOrig = m_focusObj.GetComponent<SpriteRenderer>();
 				rendererIndicator.sprite = rendererOrig.sprite;
 				rendererIndicator.flipY = rendererOrig.flipY; // NOTE that items that have been dropped may have been left "backwards"
+				rendererIndicator.drawMode = rendererOrig.drawMode;
+				rendererIndicator.size = rendererOrig.size;
+				m_focusIndicator.transform.localScale = m_focusObj.transform.localScale; // NOTE that w/o this, swapping between renderer draw modes was doing weird things to the indicator's scale...
 			}
 			m_focusIndicator.SetActive(focusItem != null);
 
@@ -259,7 +262,7 @@ public class AvatarController : KinematicCharacter
 			{
 				ItemController primaryItem = GetComponentInChildren<ItemController>();
 				m_aimVfx.SetVector3(m_forwardID, (mousePosWS - (Vector2)transform.position).normalized);
-				m_aimVfx.SetVector3(m_spawnOffsetID, primaryItem.transform.position - transform.position + (Vector3)primaryItem.SpritePivotOffset);
+				m_aimVfx.SetVector3(m_spawnOffsetID, primaryItem.transform.position - transform.position + (Vector3)primaryItem.SpritePivotOffset + primaryItem.transform.rotation * primaryItem.m_vfxExtraOffsetLocal);
 			}
 		}
 
@@ -287,12 +290,12 @@ public class AvatarController : KinematicCharacter
 		controlEnabled = false; // re-enabled via EnablePlayerControl() animation trigger
 
 		// temporarily disable collision to prevent getting stuck
-		EnableCollision.TemporarilyDisableCollision(enemy.GetComponent<Collider2D>(), collider2d);
+		EnableCollision.TemporarilyDisableCollision(enemy.GetComponents<Collider2D>(), new Collider2D[] { m_collider });
 	}
 
 	public void OnSpawn()
 	{
-		collider2d.enabled = true;
+		m_collider.enabled = true;
 		body.simulated = true;
 		controlEnabled = false;
 

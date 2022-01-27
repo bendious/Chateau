@@ -65,7 +65,6 @@ public abstract class KinematicCharacter : KinematicObject
 	private SpriteRenderer spriteRenderer;
 	protected Animator animator;
 	protected AudioSource audioSource;
-	protected Collider2D collider2d;
 
 
 	public bool LeftFacing => spriteRenderer.flipX;
@@ -80,7 +79,6 @@ public abstract class KinematicCharacter : KinematicObject
 		spriteRenderer = GetComponent<SpriteRenderer>();
 		animator = GetComponent<Animator>();
 		audioSource = GetComponent<AudioSource>();
-		collider2d = GetComponent<Collider2D>();
 	}
 
 	protected override void ComputeVelocity()
@@ -127,7 +125,7 @@ public abstract class KinematicCharacter : KinematicObject
 
 	public virtual void OnDamage(GameObject source)
 	{
-		EnableCollision.TemporarilyDisableCollision(source.GetComponent<Collider2D>(), collider2d);
+		EnableCollision.TemporarilyDisableCollision(source.GetComponents<Collider2D>(), new Collider2D[] { m_collider });
 
 		// knock away from source
 		Vector2 bounceVecOriented = transform.position.x < source.transform.position.x ? new(-m_damageBounceMagnitude.x, m_damageBounceMagnitude.y) : m_damageBounceMagnitude;
@@ -163,7 +161,7 @@ public abstract class KinematicCharacter : KinematicObject
 		animator.SetTrigger("startDeath");
 		animator.SetBool("dead", true);
 
-		collider2d.enabled = false;
+		m_collider.enabled = false;
 		body.simulated = false;
 
 		Bounce(Vector2.zero); // to remove any current forced input
