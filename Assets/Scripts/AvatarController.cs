@@ -47,6 +47,7 @@ public class AvatarController : KinematicCharacter
 	private GameObject m_focusObj;
 
 	private VisualEffect m_aimVfx;
+	private bool m_aiming;
 
 	// TODO: class for ease of VFX ID use?
 	private static int m_spriteID;
@@ -106,6 +107,13 @@ public class AvatarController : KinematicCharacter
 				{
 					primaryItem.Swing();
 				}
+
+				// cancel throwing
+				// TODO: separate button to cancel a throw?
+				if (m_aiming)
+				{
+					StopAiming();
+				}
 			}
 
 			if (primaryItem != null)
@@ -120,10 +128,11 @@ public class AvatarController : KinematicCharacter
 					Vector3 itemSize = primaryItem.GetComponent<Collider2D>().bounds.size;
 					m_aimVfx.SetFloat(m_sizeID, Mathf.Max(itemSize.x, itemSize.y));
 					m_aimVfx.SetFloat(m_speedID, primaryItem.m_throwSpeed);
+					m_aiming = true;
 				}
-				else if (Input.GetButtonUp("Fire2"))
+				else if (m_aiming && Input.GetButtonUp("Fire2"))
 				{
-					m_aimVfx.enabled = false; // NOTE that this instantly removes any existing particles, which is fine for this effect
+					StopAiming();
 
 					// release
 					primaryItem.Throw();
@@ -149,7 +158,8 @@ public class AvatarController : KinematicCharacter
 			// TODO: more nuanced prioritization?
 			m_focusObj = null;
 			float focusRadius = ((CircleCollider2D)collider2d).radius;
-			Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + (Vector2)(Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position).normalized * focusRadius, focusRadius * 1.5f); // TODO: restrict to certain layers?
+			Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + (mousePos - (Vector2)transform.position).normalized * focusRadius, focusRadius * 1.5f); // TODO: restrict to certain layers?
 			float distSqFocus = float.MaxValue;
 			foreach (Collider2D candidate in focusCandidates)
 			{
@@ -158,7 +168,7 @@ public class AvatarController : KinematicCharacter
 					continue; // ignore ourself / attached/ignored objects
 				}
 
-				float distSqCur = (transform.position - candidate.transform.position).sqrMagnitude;
+				float distSqCur = (mousePos - (Vector2)candidate.transform.position).sqrMagnitude;
 				if (distSqCur < distSqFocus)
 				{
 					distSqFocus = distSqCur;
@@ -171,7 +181,10 @@ public class AvatarController : KinematicCharacter
 			if (focusItem != null)
 			{
 				m_focusIndicator.transform.SetPositionAndRotation(m_focusObj.transform.position + Vector3.back, m_focusObj.transform.rotation); // NOTE the Z offset to ensure the focus indicator is rendered on top
-				m_focusIndicator.GetComponent<SpriteRenderer>().sprite = m_focusObj.GetComponent<SpriteRenderer>().sprite;
+				SpriteRenderer rendererIndicator = m_focusIndicator.GetComponent<SpriteRenderer>();
+				SpriteRenderer rendererOrig = m_focusObj.GetComponent<SpriteRenderer>();
+				rendererIndicator.sprite = rendererOrig.sprite;
+				rendererIndicator.flipY = rendererOrig.flipY; // NOTE that items that have been dropped may have been left "backwards"
 			}
 			m_focusIndicator.SetActive(focusItem != null);
 
@@ -379,6 +392,12 @@ public class AvatarController : KinematicCharacter
 		controlEnabled = false;
 	}
 
+
+	private void StopAiming()
+	{
+		m_aimVfx.enabled = false; // NOTE that this instantly removes any existing particles, which is fine for this effect
+		m_aiming = false;
+	}
 
 	private void UpdateJumpState()
 	{
