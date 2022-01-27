@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 
-public sealed class BackpackController : MonoBehaviour, IHolderController, IAttachable
+public sealed class BackpackController : MonoBehaviour, IHolder, IAttachable
 {
 	public int m_holdCountMax = 2;
 	public /*override*/ int HoldCountMax => m_holdCountMax;
@@ -16,7 +16,7 @@ public sealed class BackpackController : MonoBehaviour, IHolderController, IAtta
 
 	public /*override*/ bool ItemAttach(ItemController item)
 	{
-		bool attached = IHolderController.ItemAttachInternal(item, this);
+		bool attached = IHolder.ItemAttachInternal(item, this);
 		if (!attached)
 		{
 			return false;
@@ -31,7 +31,7 @@ public sealed class BackpackController : MonoBehaviour, IHolderController, IAtta
 	{
 		item.gameObject.SetActive(true);
 
-		IHolderController.ItemDetachInternal(item, this);
+		IHolder.ItemDetachInternal(item, this);
 	}
 
 

@@ -2,7 +2,7 @@ using System.Linq;
 using UnityEngine;
 
 
-public interface IHolderController
+public interface IHolder
 {
 	public abstract int HoldCountMax { get; }
 
@@ -25,7 +25,7 @@ public interface IHolderController
 	}
 
 
-	protected static bool ItemAttachInternal(ItemController item, IHolderController holder)
+	protected static bool ItemAttachInternal(ItemController item, IHolder holder)
 	{
 		// prevent over-holding
 		if (holder.Object.transform.childCount >= holder.HoldCountMax)
@@ -36,7 +36,7 @@ public interface IHolderController
 		if (item.transform.parent != null)
 		{
 			// ensure any special detach logic gets invoked
-			item.transform.parent.GetComponent<IHolderController>().ItemDetach(item);
+			item.transform.parent.GetComponent<IHolder>().ItemDetach(item);
 		}
 
 		item.AttachInternal(holder);
@@ -44,7 +44,7 @@ public interface IHolderController
 		return true;
 	}
 
-	protected static void ItemDetachInternal(ItemController item, IHolderController holder)
+	protected static void ItemDetachInternal(ItemController item, IHolder holder)
 	{
 		item.DetachInternal();
 
@@ -54,9 +54,9 @@ public interface IHolderController
 		{
 			// find any valid other holders
 			int thisSiblingIdx = holderTf.GetSiblingIndex();
-			IHolderController[] lowerHolders = holderTf.parent.GetComponentsInChildren<IHolderController>().Where(otherHolder => otherHolder is not ArmController && otherHolder.Object.transform.GetSiblingIndex() > thisSiblingIdx).ToArray();
+			IHolder[] lowerHolders = holderTf.parent.GetComponentsInChildren<IHolder>().Where(otherHolder => otherHolder is not ArmController && otherHolder.Object.transform.GetSiblingIndex() > thisSiblingIdx).ToArray();
 
-			foreach (IHolderController otherHolder in lowerHolders)
+			foreach (IHolder otherHolder in lowerHolders)
 			{
 				// try attaching each child item until one works
 				foreach (ItemController newItem in otherHolder.Object.GetComponentsInChildren<ItemController>())

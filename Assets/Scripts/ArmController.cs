@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-public sealed class ArmController : MonoBehaviour, IHolderController
+public sealed class ArmController : MonoBehaviour, IHolder
 {
 	public /*override*/ GameObject Object => gameObject;
 
@@ -37,7 +37,7 @@ public sealed class ArmController : MonoBehaviour, IHolderController
 
 	public /*override*/ bool ItemAttach(ItemController item)
 	{
-		bool attached = IHolderController.ItemAttachInternal(item, this);
+		bool attached = IHolder.ItemAttachInternal(item, this);
 		if (!attached)
 		{
 			return false;

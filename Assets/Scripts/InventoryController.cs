@@ -91,9 +91,9 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 		// swap avatar hold
 		// get items BEFORE editing attachments
 		AvatarController avatar = Camera.main.GetComponent<GameController>().m_avatar;
-		Tuple<ItemController, IHolderController> itemAndHolder1 = ItemFromIndex(avatar, index1);
+		Tuple<ItemController, IHolder> itemAndHolder1 = ItemFromIndex(avatar, index1);
 		ItemController item1 = itemAndHolder1.Item1;
-		Tuple<ItemController, IHolderController> itemAndHolder2 = ItemFromIndex(avatar, index2);
+		Tuple<ItemController, IHolder> itemAndHolder2 = ItemFromIndex(avatar, index2);
 		ItemController item2 = itemAndHolder2.Item1;
 
 		// detach (to prevent too-many-to-hold failed attachment) and then attach
@@ -124,14 +124,14 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 		StartCoroutine(element2.LerpToRest());
 	}
 
-	private Tuple<ItemController, IHolderController> ItemFromIndex(Component character, int index)
+	private Tuple<ItemController, IHolder> ItemFromIndex(Component character, int index)
 	{
 		// NOTE that the indices are off by one between the inventory and avatar due to the inventory template object
 		int holderIdx = Math.Min(index, character.transform.childCount) - 1;
 		Transform holderTf = character.transform.GetChild(holderIdx);
 		int itemIdx = index - holderIdx - 1;
 		Transform itemTf = holderTf.childCount > itemIdx ? holderTf.GetChild(itemIdx) : null;
-		return Tuple.Create(itemTf == null ? null : itemTf.GetComponent<ItemController>(), holderTf.GetComponent<IHolderController>());
+		return Tuple.Create(itemTf == null ? null : itemTf.GetComponent<ItemController>(), holderTf.GetComponent<IHolder>());
 	}
 
 	private IEnumerator LerpToRest()

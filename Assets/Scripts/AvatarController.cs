@@ -314,7 +314,7 @@ public class AvatarController : KinematicCharacter
 		Assert.IsFalse(templateObj.activeSelf);
 
 		// gather all items/slots from child holders
-		Tuple<Transform, Color>[] itemInfos = GetComponentsInChildren<IHolderController>().SelectMany(holder =>
+		Tuple<Transform, Color>[] itemInfos = GetComponentsInChildren<IHolder>().SelectMany(holder =>
 		{
 			Transform holderTf = holder.Object.transform;
 			Tuple<Transform, Color>[] children = new Tuple<Transform, Color>[holder.HoldCountMax];

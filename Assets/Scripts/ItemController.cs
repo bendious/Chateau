@@ -37,7 +37,7 @@ public sealed class ItemController : MonoBehaviour, IAttachable
 	private SpriteRenderer m_renderer;
 	private Health m_health;
 
-	private IHolderController m_holder;
+	private IHolder m_holder;
 	private GameObject m_cause;
 
 	private static int m_posLocalPrevID;
@@ -58,7 +58,7 @@ public sealed class ItemController : MonoBehaviour, IAttachable
 		m_renderer = GetComponent<SpriteRenderer>();
 		m_health = GetComponent<Health>();
 
-		m_holder = transform.parent == null ? null : transform.parent.GetComponent<IHolderController>();
+		m_holder = transform.parent == null ? null : transform.parent.GetComponent<IHolder>();
 #pragma warning disable IDE0031 // NOTE that we don't use null propagation since IHolderControllers can be Unity objects as well, which don't like ?? or ?.
 		SetCause(m_holder == null ? null : m_holder.Object.transform.parent.gameObject);
 #pragma warning restore IDE0031
@@ -153,7 +153,7 @@ public sealed class ItemController : MonoBehaviour, IAttachable
 
 
 	// this (although public) should only be called by IHolderController.ItemAttachInternal() // TODO?
-	public void AttachInternal(IHolderController holder)
+	public void AttachInternal(IHolder holder)
 	{
 		if (m_holder != null)
 		{

@@ -38,7 +38,7 @@ public abstract class KinematicCharacter : KinematicObject
 	public AudioClip ouchAudio;
 	public AudioClip m_deathAudio;
 
-	public int MaxPickUps => GetComponentsInChildren<IHolderController>().Sum(holder => holder.HoldCountMax);
+	public int MaxPickUps => GetComponentsInChildren<IHolder>().Sum(holder => holder.HoldCountMax);
 
 
 	/// <summary>
@@ -195,7 +195,7 @@ public abstract class KinematicCharacter : KinematicObject
 			heldItems.First().Detach();
 		}
 
-		foreach (IHolderController holder in GetComponentsInChildren<IHolderController>())
+		foreach (IHolder holder in GetComponentsInChildren<IHolder>())
 		{
 			bool held = holder.ItemAttach(item);
 			if (held)
