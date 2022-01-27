@@ -285,6 +285,8 @@ public sealed class AIFindAmmo : AIState
 		// move
 		bool hasArrived = m_ai.NavigateTowardTarget(m_target, Vector2.zero);
 
+		// TODO: time-out if taking too long, to prevent getting stuck?
+
 		// pick up target
 		if (hasArrived)
 		{
@@ -312,7 +314,7 @@ public sealed class AIFindAmmo : AIState
 			}
 
 			// prioritize by distance
-			// TODO: use pathfind distance? de-prioritize based on vertical distance / passing through m_ai.m_target?
+			// TODO: use pathfind distance? de-prioritize based on vertical distance / passing through m_ai.m_target? use RandomWeighted() to allow retries to bypass unreachable "closest" options?
 			float distSq = ((Vector2)tf.position - (Vector2)m_ai.transform.position).sqrMagnitude;
 			if (distSq < closestDistSq)
 			{
