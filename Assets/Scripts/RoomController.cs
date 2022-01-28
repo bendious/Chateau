@@ -24,7 +24,7 @@ public class RoomController : MonoBehaviour
 	public int m_tablesMin = 0;
 	public int m_tablesMax = 2;
 
-	public float m_lockedDoorPct = 0.1f;
+	public float m_lockedDoorPct = 0.9f;
 
 	public static readonly Color m_oneWayPlatformColor = new(0.3f, 0.2f, 0.1f);
 

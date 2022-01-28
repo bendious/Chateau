@@ -169,7 +169,7 @@ public abstract class KinematicCharacter : KinematicObject
 		return true;
 	}
 
-	public void AttachItem(IAttachable attachee)
+	public void AttachItem(IInteractable attachee)
 	{
 		if (attachee is BackpackController backpack) // TODO: handle through IAttachable interface?
 		{

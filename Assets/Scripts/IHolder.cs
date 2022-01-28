@@ -4,22 +4,22 @@ using UnityEngine;
 
 public interface IHolder
 {
-	public abstract int HoldCountMax { get; }
+	public int HoldCountMax { get; }
 
-	public abstract GameObject Object { get; }
+	public GameObject Object { get; }
 
-	public abstract Vector3 AttachOffsetLocal { get; }
-	public abstract Vector3 ChildAttachPointLocal { get; }
+	public Vector3 AttachOffsetLocal { get; }
+	public Vector3 ChildAttachPointLocal { get; }
 
-	public virtual float Speed => 0.0f; // TODO: move out of IHolderController?
+	public float Speed => 0.0f; // TODO: move out of IHolderController?
 
 
-	public virtual bool ItemAttach(ItemController item)
+	public bool ItemAttach(ItemController item)
 	{
 		return ItemAttachInternal(item, this);
 	}
 
-	public virtual void ItemDetach(ItemController item)
+	public void ItemDetach(ItemController item)
 	{
 		ItemDetachInternal(item, this);
 	}

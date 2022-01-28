@@ -7,7 +7,7 @@ using UnityEngine.VFX;
 
 
 [RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), RequireComponent(typeof(SpriteRenderer))]
-public sealed class ItemController : MonoBehaviour, IAttachable
+public sealed class ItemController : MonoBehaviour, IInteractable
 {
 	public float m_swingDegreesPerSec = 5000.0f;
 	public float m_swingRadiusPerSec = 10.0f;
@@ -230,15 +230,7 @@ public sealed class ItemController : MonoBehaviour, IAttachable
 
 		if (!string.IsNullOrEmpty(m_overlayText))
 		{
-			GameObject overlayObj = Camera.main.GetComponent<GameController>().m_overlayCanvas.gameObject;
-			if (!overlayObj.activeSelf)
-			{
-				Image overlayImage = overlayObj.GetComponentInChildren<Image>();
-				overlayImage.sprite = m_renderer.sprite;
-				overlayImage.color = m_renderer.color;
-				overlayObj.GetComponentInChildren<TMPro.TMP_Text>().text = m_overlayText;
-			}
-			overlayObj.SetActive(!overlayObj.activeSelf);
+			Camera.main.GetComponent<GameController>().ToggleOverlay(m_renderer, m_overlayText);
 			return true;
 		}
 

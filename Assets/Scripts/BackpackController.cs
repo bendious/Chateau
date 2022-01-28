@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 
-public sealed class BackpackController : MonoBehaviour, IHolder, IAttachable
+public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable
 {
 	public int m_holdCountMax = 2;
 	public /*override*/ int HoldCountMax => m_holdCountMax;

@@ -177,8 +177,9 @@ public class AvatarController : KinematicCharacter
 			}
 
 			// place focus indicator if appropriate
-			IAttachable focusItem = m_focusObj == null ? null : m_focusObj.GetComponent<IAttachable>();
-			if (focusItem != null)
+			IInteractable focusItem = m_focusObj == null ? null : m_focusObj.GetComponent<IInteractable>();
+			bool focusCanInteract = focusItem != null && focusItem.CanInteract(this);
+			if (focusCanInteract)
 			{
 				m_focusIndicator.transform.SetPositionAndRotation(m_focusObj.transform.position + Vector3.back, m_focusObj.transform.rotation); // NOTE the Z offset to ensure the focus indicator is rendered on top
 				SpriteRenderer rendererIndicator = m_focusIndicator.GetComponent<SpriteRenderer>();
@@ -188,17 +189,17 @@ public class AvatarController : KinematicCharacter
 				rendererIndicator.drawMode = rendererOrig.drawMode;
 				rendererIndicator.size = rendererOrig.size;
 				m_focusIndicator.transform.localScale = m_focusObj.transform.localScale; // NOTE that w/o this, swapping between renderer draw modes was doing weird things to the indicator's scale...
-			}
-			m_focusIndicator.SetActive(focusItem != null);
 
-			// pick up / drop items
-			if (focusItem != null && Input.GetButtonDown("PickUp"))
-			{
-				AttachItem(focusItem);
-				m_focusObj = null;
-				refreshInventory = true;
+				// interact
+				if (Input.GetButtonDown("Interact"))
+				{
+					focusItem.Interact(this);
+					refreshInventory = true; // TODO: only if necessary?
+				}
 			}
-			IsPickingUp = Input.GetButton("PickUp") && items.Length < MaxPickUps;
+			m_focusIndicator.SetActive(focusCanInteract);
+
+			IsPickingUp = Input.GetButton("Interact") && items.Length < MaxPickUps;
 
 			if (Input.GetButtonDown("Drop"))
 			{

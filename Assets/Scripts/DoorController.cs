@@ -1,7 +1,10 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.Assertions;
+using UnityEngine.UI;
 
 
-public class DoorController : MonoBehaviour
+public class DoorController : MonoBehaviour, IInteractable
 {
 	[System.Serializable]
 	public struct KeyInfo
@@ -11,8 +14,18 @@ public class DoorController : MonoBehaviour
 	}
 	public WeightedObject<KeyInfo>[] m_keyPrefabs;
 
+	public int m_combinationDigits = 4;
+	public float m_interactDistanceMax = 1.0f; // TODO: combine w/ avatar focus distance?
+
+
+	public /*override*/ GameObject Object => gameObject;
+
 
 	private GameObject m_key;
+
+	private /*readonly*/ int m_combination = 0;
+	private int m_inputCur = 0;
+	private int m_inputIdxCur = 0;
 
 
 	private void Awake()
@@ -25,7 +38,8 @@ public class DoorController : MonoBehaviour
 		// setup key
 		if (keyInfo.m_hasRandomCombinationText)
 		{
-			m_key.GetComponent<ItemController>().m_overlayText = Random.Range(0, 10000).ToString("D4");
+			m_combination = Random.Range(1, 10000);
+			m_key.GetComponent<ItemController>().m_overlayText = m_combination.ToString("D" + m_combinationDigits);
 		}
 
 		// choose color
@@ -45,28 +59,41 @@ public class DoorController : MonoBehaviour
 		m_key.GetComponent<SpriteRenderer>().color = color;
 	}
 
-	// TODO: combination-based unlocking
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		foreach (ItemController item in collision.gameObject.GetComponentsInChildren<ItemController>())
+		if (m_combination != 0)
 		{
-			if (item.gameObject == m_key)
+			return;
+		}
+
+		foreach (Transform tf in collision.gameObject.GetComponentsInChildren<Transform>())
+		{
+			if (tf.gameObject == m_key)
 			{
-				if (item.transform.parent != null)
-				{
-					item.Detach(); // so that we can refresh inventory immediately even though object deletion is deferred
-				}
-				Destroy(m_key);
-				Destroy(gameObject);
-
-				// TODO: unlock SFX/VFX/etc.
-
-				AvatarController avatar = collision.gameObject.GetComponent<AvatarController>();
-				if (avatar != null)
-				{
-					avatar.InventorySync();
-				}
+				Unlock();
 			}
+		}
+	}
+
+
+	public /*override*/ bool CanInteract(KinematicCharacter interactor) => m_combination != 0;
+
+	public /*override*/ void Interact(KinematicCharacter interactor)
+	{
+		if (m_combination == 0)
+		{
+			return;
+		}
+
+		GameController gameController = Camera.main.GetComponent<GameController>();
+		Assert.AreEqual(interactor, gameController.m_avatar);
+
+		StopAllCoroutines();
+
+		bool overlayActive = gameController.ToggleOverlay(GetComponent<SpriteRenderer>(), m_inputCur.ToString("D" + m_combinationDigits));
+		if (overlayActive)
+		{
+			StartCoroutine(UpdateInteraction(interactor));
 		}
 	}
 
@@ -75,5 +102,59 @@ public class DoorController : MonoBehaviour
 	{
 		const float colorEpsilon = 0.2f;
 		return Mathf.Abs(a.r - b.r) < colorEpsilon && Mathf.Abs(a.g - b.g) < colorEpsilon && Mathf.Abs(a.b - b.b) < colorEpsilon; // NOTE that we don't use color subtraction due to not wanting range clamping
+	}
+
+	private void Unlock()
+	{
+		ItemController item = m_key.GetComponent<ItemController>();
+		if (item.transform.parent != null)
+		{
+			item.Detach(); // so that we can refresh inventory immediately even though object deletion is deferred
+
+			AvatarController avatar = item.transform.root.GetComponent<AvatarController>();
+			if (avatar != null)
+			{
+				avatar.InventorySync();
+			}
+		}
+		Destroy(m_key);
+		Destroy(gameObject);
+
+		// TODO: unlock SFX/VFX/etc.
+	}
+
+	private IEnumerator UpdateInteraction(KinematicCharacter interactor)
+	{
+		GameObject overlayObj = Camera.main.GetComponent<GameController>().m_overlayCanvas.gameObject;
+
+		while (Vector2.Distance(interactor.transform.position, transform.position) < m_interactDistanceMax)
+		{
+			// TODO: more general input parsing? visually indicate current digit
+			int xInput = (Input.GetKeyDown(KeyCode.RightArrow) ? 1 : 0) - (Input.GetKeyDown(KeyCode.LeftArrow) ? 1 : 0);
+			m_inputIdxCur = Utility.Modulo(m_inputIdxCur + xInput, m_combinationDigits);
+
+			int yInput = (Input.GetKeyDown(KeyCode.UpArrow) ? 1 : 0) - (Input.GetKeyDown(KeyCode.DownArrow) ? 1 : 0);
+			if (yInput != 0)
+			{
+				m_inputCur = Utility.Modulo(m_inputCur + yInput * (int)Mathf.Pow(10, m_combinationDigits - m_inputIdxCur - 1), 10000); // TODO: restrict to current digit
+
+				overlayObj.GetComponentInChildren<TMPro.TMP_Text>().text = m_inputCur.ToString("D" + m_combinationDigits);
+			}
+
+			if (Input.GetKeyDown(KeyCode.Return))
+			{
+				if (m_inputCur == m_combination)
+				{
+					Unlock();
+					break;
+				}
+
+				// TODO: failure SFX?
+			}
+
+			yield return null;
+		}
+
+		overlayObj.SetActive(false);
 	}
 }
