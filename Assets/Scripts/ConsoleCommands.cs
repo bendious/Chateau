@@ -3,6 +3,8 @@ using UnityEngine;
 
 public /*static*/ class ConsoleCommands : MonoBehaviour
 {
+	public static bool NeverDie { get; private set; }
+
 	public static bool PassiveAI { get; private set; }
 
 	public enum AIDebugLevels
@@ -29,6 +31,11 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 		if (!Input.GetKey(KeyCode.BackQuote))
 		{
 			return;
+		}
+
+		if (Input.GetKeyDown(KeyCode.N))
+		{
+			NeverDie = !NeverDie;
 		}
 
 		if (Input.GetKeyDown(KeyCode.A))

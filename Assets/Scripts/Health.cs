@@ -64,7 +64,7 @@ public class Health : MonoBehaviour
 			m_character.OnDamage(source);
 			if (isDead)
 			{
-				m_character.OnDeath();
+				isDead = m_character.OnDeath();
 			}
 		}
 

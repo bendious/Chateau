@@ -113,10 +113,16 @@ public class EnemyController : KinematicCharacter
 		}
 	}
 
-	public override void OnDeath()
+	public override bool OnDeath()
 	{
-		base.OnDeath();
+		if (!base.OnDeath())
+		{
+			return false;
+		}
+
 		enabled = false;
+
+		return true;
 	}
 
 	protected override void DespawnSelf()

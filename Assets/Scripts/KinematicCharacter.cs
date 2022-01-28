@@ -137,7 +137,7 @@ public abstract class KinematicCharacter : KinematicObject
 		}
 	}
 
-	public virtual void OnDeath()
+	public virtual bool OnDeath()
 	{
 		// TODO: early-out if already dead?
 
@@ -165,6 +165,8 @@ public abstract class KinematicCharacter : KinematicObject
 		body.simulated = false;
 
 		Bounce(Vector2.zero); // to remove any current forced input
+
+		return true;
 	}
 
 	public void AttachItem(IAttachable attachee)

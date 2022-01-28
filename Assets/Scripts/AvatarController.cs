@@ -270,13 +270,19 @@ public class AvatarController : KinematicCharacter
 	}
 
 
-	public override void OnDeath()
+	public override bool OnDeath()
 	{
-		base.OnDeath();
+		if (ConsoleCommands.NeverDie || !base.OnDeath())
+		{
+			return false;
+		}
+
 		controlEnabled = false;
 		m_focusIndicator.SetActive(false);
 		InventorySync();
 		Simulation.Schedule<GameOver>(3.0f); // TODO: animation event?
+
+		return true;
 	}
 
 	protected override void DespawnSelf()
@@ -455,7 +461,7 @@ public class AvatarController : KinematicCharacter
 	// called from animation event
 	private void EnablePlayerControl()
 	{
-		if (health.IsAlive)
+		if (ConsoleCommands.NeverDie || health.IsAlive)
 		{
 			controlEnabled = true;
 		}
