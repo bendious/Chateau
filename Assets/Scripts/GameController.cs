@@ -10,6 +10,8 @@ public class GameController : MonoBehaviour
 
 	public DialogueController m_dialogueController;
 
+	public Canvas m_overlayCanvas;
+
 	public GameObject m_roomPrefab;
 	public WeightedObject<GameObject>[] m_enemyPrefabs;
 	public GameObject m_victoryZonePrefab;

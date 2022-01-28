@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.VFX;
 
 
@@ -20,6 +21,7 @@ public sealed class ItemController : MonoBehaviour, IAttachable
 	public Vector3 m_vfxExtraOffsetLocal;
 	public float m_damage = 1.0f;
 	public int m_healAmount = 0;
+	public string m_overlayText = null;
 
 	public AudioClip[] m_swingThrowAudio;
 	public AudioClip[] m_collisionAudio;
@@ -224,6 +226,20 @@ public sealed class ItemController : MonoBehaviour, IAttachable
 				Destroy(gameObject);
 				return true;
 			}
+		}
+
+		if (!string.IsNullOrEmpty(m_overlayText))
+		{
+			GameObject overlayObj = Camera.main.GetComponent<GameController>().m_overlayCanvas.gameObject;
+			if (!overlayObj.activeSelf)
+			{
+				Image overlayImage = overlayObj.GetComponentInChildren<Image>();
+				overlayImage.sprite = m_renderer.sprite;
+				overlayImage.color = m_renderer.color;
+				overlayObj.GetComponentInChildren<TMPro.TMP_Text>().text = m_overlayText;
+			}
+			overlayObj.SetActive(!overlayObj.activeSelf);
+			return true;
 		}
 
 		return false;
