@@ -16,14 +16,6 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 	public static int AIDebugLevel { get; private set; }
 
 
-	private /*readonly*/ GameController m_gameController;
-
-
-	private void Start()
-	{
-		m_gameController = GameController.Instance;
-	}
-
 #if DEBUG
 	// TODO: callback rather than checking every frame?
 	private void Update()
@@ -50,12 +42,12 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 
 		if (Input.GetKeyDown(KeyCode.W))
 		{
-			m_gameController.SpawnEnemyWave();
+			GameController.Instance.SpawnEnemyWave();
 		}
 
 		if (Input.GetKeyDown(KeyCode.K))
 		{
-			m_gameController.DebugKillAllEnemies();
+			GameController.Instance.DebugKillAllEnemies();
 		}
 
 		// TODO: cleaner way of listening for any number key?
@@ -71,7 +63,7 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 		bool key9 = Input.GetKeyDown(KeyCode.Alpha9);
 		if (key0 || key1 || key2 || key3 || key4 || key5 || key6 || key7 || key8 || key9)
 		{
-			m_gameController.DebugSpawnEnemy(/*(key0 ? 0 : 0) +*/ (key1 ? 1 : 0) + (key2 ? 2 : 0) + (key3 ? 3 : 0) + (key4 ? 4 : 0) + (key5 ? 5 : 0) + (key6 ? 6 : 0) + (key7 ? 7 : 0) + (key8 ? 8 : 0) + (key9 ? 9 : 0));
+			GameController.Instance.DebugSpawnEnemy(/*(key0 ? 0 : 0) +*/ (key1 ? 1 : 0) + (key2 ? 2 : 0) + (key3 ? 3 : 0) + (key4 ? 4 : 0) + (key5 ? 5 : 0) + (key6 ? 6 : 0) + (key7 ? 7 : 0) + (key8 ? 8 : 0) + (key9 ? 9 : 0));
 		}
 	}
 #endif

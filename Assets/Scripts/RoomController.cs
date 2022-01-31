@@ -7,7 +7,6 @@ using UnityEngine.Assertions;
 
 public class RoomController : MonoBehaviour
 {
-	public GameObject m_roomPrefab;
 	public GameObject m_doorPrefab;
 	public GameObject m_tablePrefab;
 
@@ -59,25 +58,19 @@ public class RoomController : MonoBehaviour
 		m_bottomDoorPos = m_doorB.transform.position;
 		m_topDoorPos = m_doorT.transform.position;
 
-		// calculate size info
-		Bounds bounds = CalculateBounds(false);
-		Vector3 offsetMagH = new(bounds.size.x, 0.0f, 0.0f);
-		Vector3 offsetMagV = new(0.0f, bounds.size.y, 0.0f);
-		Vector3 checkSize = bounds.size - new Vector3(0.1f, 0.1f, 0.0f); // NOTE the small reduction to avoid always collecting ourself
-
 		// replace doors / spawn rooms
 		// TODO: randomize order to avoid directional bias?
-		m_leftChild = MaybeReplaceDoor(ref m_leftConnected, bounds, -offsetMagH, checkSize, ref m_leftLock, m_doorL, null, child => child.m_rightConnected = true);
-		m_rightChild = MaybeReplaceDoor(ref m_rightConnected, bounds, offsetMagH, checkSize, ref m_rightLock, m_doorR, null, child => child.m_leftConnected = true);
-		m_bottomChild = MaybeReplaceDoor(ref m_bottomConnected, bounds, -offsetMagV, checkSize, ref m_bottomLock, m_doorB, null, child => child.m_topConnected = true);
-		m_topChild = MaybeReplaceDoor(ref m_topConnected, bounds, offsetMagV, checkSize, ref m_topLock, m_doorT, m_ladderPieces, child => child.m_bottomConnected = true);
+		Bounds bounds = CalculateBounds(false);
+		m_leftChild = MaybeReplaceDoor(ref m_leftConnected, bounds, Vector3.left, ref m_leftLock, m_doorL, null, child => child.m_rightConnected = true);
+		m_rightChild = MaybeReplaceDoor(ref m_rightConnected, bounds, Vector3.right, ref m_rightLock, m_doorR, null, child => child.m_leftConnected = true);
+		m_bottomChild = MaybeReplaceDoor(ref m_bottomConnected, bounds, Vector3.down, ref m_bottomLock, m_doorB, null, child => child.m_topConnected = true);
+		m_topChild = MaybeReplaceDoor(ref m_topConnected, bounds, Vector3.up, ref m_topLock, m_doorT, m_ladderPieces, child => child.m_bottomConnected = true);
 
 		m_childrenCreated = true;
 
 		// spawn tables
 		// TODO: more deliberate spawning
 		int tableCount = UnityEngine.Random.Range(m_tablesMin, m_tablesMax + 1);
-		float extentX = offsetMagH.x * 0.5f;
 		BoxCollider2D tableCollider = m_tablePrefab.GetComponent<BoxCollider2D>();
 		float tableExtentY = tableCollider.size.y * 0.5f + tableCollider.edgeRadius - tableCollider.offset.y;
 		GameObject newTable = null;
@@ -88,7 +81,7 @@ public class RoomController : MonoBehaviour
 				newTable = Instantiate(m_tablePrefab); // NOTE that we have to spawn before placement due to size randomization in Awake()
 			}
 			Bounds newBounds = newTable.GetComponent<Collider2D>().bounds;
-			Vector3 spawnPos = transform.position + new Vector3(UnityEngine.Random.Range(-extentX + newBounds.extents.x, extentX - newBounds.extents.x), tableExtentY, 0.0f);
+			Vector3 spawnPos = transform.position + new Vector3(UnityEngine.Random.Range(-bounds.extents.x + newBounds.extents.x, bounds.extents.x - newBounds.extents.x), tableExtentY, 1.0f);
 			if (Physics2D.OverlapBox(spawnPos + newBounds.center + new Vector3(0.0f, 0.1f, 0.0f), newBounds.size, 0.0f) != null) // NOTE the small offset to avoid collecting the floor; also that this will collect our newly spawned table when at the origin, but that's okay since keeping the start point clear isn't objectionable
 			{
 				continue; // re-place and try again
@@ -225,11 +218,18 @@ public class RoomController : MonoBehaviour
 		return b;
 	}
 
-	private RoomController MaybeReplaceDoor(ref bool isOpen, Bounds bounds, Vector3 replaceOffset, Vector3 checkSize, ref GameObject lockObj, GameObject door, GameObject[] ladderPieces, Action<RoomController> postReplace)
+	private RoomController MaybeReplaceDoor(ref bool isOpen, Bounds bounds, Vector3 replaceDirection, ref GameObject lockObj, GameObject door, GameObject[] ladderPieces, Action<RoomController> postReplace)
 	{
+		Assert.AreApproximatelyEqual(replaceDirection.magnitude, 1.0f);
 		bool spawnedFromThisDirection = isOpen;
-		bool canSpawnRoom = !spawnedFromThisDirection && m_spawnDepthMax > 0 && Physics2D.OverlapBox(bounds.center + replaceOffset, checkSize, 0.0f) == null;
-		Assert.IsTrue(!spawnedFromThisDirection || !canSpawnRoom);
+
+		GameObject roomPrefab = Utility.RandomWeighted(GameController.Instance.m_roomPrefabs);
+		Bounds childBounds = roomPrefab.GetComponent<RoomController>().CalculateBounds(false);
+		Vector3 pivotToCenter = bounds.center - transform.position;
+		Vector3 childPivotToCenter = childBounds.center - roomPrefab.transform.position;
+		Vector3 childOffset = Vector3.Scale(replaceDirection, bounds.extents + childBounds.extents + (Vector2.Dot(pivotToCenter, replaceDirection) >= 0.0f ? pivotToCenter : -pivotToCenter) + (Vector2.Dot(childPivotToCenter, replaceDirection) >= 0.0f ? -childPivotToCenter : childPivotToCenter));
+
+		bool canSpawnRoom = !spawnedFromThisDirection && m_spawnDepthMax > 0 && Physics2D.OverlapBox(bounds.center + childOffset, childBounds.size - new Vector3(0.1f, 0.1f, 0.0f), 0.0f) == null; // NOTE the small size reduction to avoid always collecting ourself
 		isOpen = spawnedFromThisDirection || (canSpawnRoom && UnityEngine.Random.value > m_roomSpawnPct);
 
 		if (!isOpen)
@@ -279,8 +279,7 @@ public class RoomController : MonoBehaviour
 			return null;
 		}
 
-		RoomController newRoom = Instantiate(m_roomPrefab, transform.position + replaceOffset, Quaternion.identity).GetComponent<RoomController>();
-		newRoom.m_roomPrefab = m_roomPrefab; // NOTE that since Unity's method of internal prefab references doesn't allow a script to reference the prefab that contains it, we have to manually update the child's reference here
+		RoomController newRoom = Instantiate(roomPrefab, transform.position + childOffset, Quaternion.identity).GetComponent<RoomController>();
 		newRoom.m_spawnDepthMax = m_spawnDepthMax - 1;
 		postReplace(newRoom);
 		return newRoom;

@@ -1010,7 +1010,15 @@ MonoBehaviour:
   m_avatar: {fileID: 1455061592}
   m_dialogueController: {fileID: 349630815}
   m_overlayCanvas: {fileID: 291119435}
-  m_roomPrefab: {fileID: 7422594126546487761, guid: bc523bdaf3586ea4385e45a9a5838915, type: 3}
+  m_roomPrefabs:
+  - m_object: {fileID: 7422594126546487761, guid: bc523bdaf3586ea4385e45a9a5838915, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 6889197759833524710, guid: 8db8d798ebe82374788bcea51b356028, type: 3}
+    m_weight: 0.5
+  - m_object: {fileID: 4621985994950227315, guid: 573662fa838eb464b9f092bc733dd263, type: 3}
+    m_weight: 0.5
+  - m_object: {fileID: 2271109030920207908, guid: fc7a6c4a34a54c64a92d67f2d36df501, type: 3}
+    m_weight: 0.25
   m_enemyPrefabs:
   - m_object: {fileID: 1661912868639658944, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
     m_weight: 1
@@ -4127,7 +4135,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.6914661, y: 1}
+    m_SensorSize: {x: 1.7064018, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0

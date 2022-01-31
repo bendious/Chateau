@@ -14,7 +14,7 @@ public class GameController : MonoBehaviour
 
 	public Canvas m_overlayCanvas;
 
-	public GameObject m_roomPrefab;
+	public WeightedObject<GameObject>[] m_roomPrefabs;
 	public WeightedObject<GameObject>[] m_enemyPrefabs;
 	public GameObject m_victoryZonePrefab;
 
@@ -49,8 +49,7 @@ public class GameController : MonoBehaviour
 
 	private void Start()
 	{
-		m_startRoom = Instantiate(m_roomPrefab).GetComponent<RoomController>();
-		m_startRoom.m_roomPrefab = m_roomPrefab; // NOTE that since Unity's method of internal prefab references doesn't allow a script to reference the prefab that contains it, we have to manually update the child's reference here
+		m_startRoom = Instantiate(Utility.RandomWeighted(m_roomPrefabs)).GetComponent<RoomController>();
 		StartCoroutine(SpawnVictoryZoneWhenReady());
 
 		if (Random.value > 0.5f)

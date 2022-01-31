@@ -4,10 +4,10 @@ using UnityEngine.Assertions;
 
 
 [Serializable]
-public struct WeightedObject<T>
+public class WeightedObject<T>
 {
 	public T m_object;
-	public float m_weight;
+	public float m_weight = 1.0f;
 }
 
 

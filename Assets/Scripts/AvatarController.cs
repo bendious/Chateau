@@ -270,6 +270,15 @@ public class AvatarController : KinematicCharacter
 		base.FixedUpdate();
 	}
 
+	public override void OnDamage(GameObject source)
+	{
+		base.OnDamage(source);
+
+		if (GameController.Instance.m_overlayCanvas.gameObject.activeSelf)
+		{
+			GameController.Instance.ToggleOverlay(null, null);
+		}
+	}
 
 	public override bool OnDeath()
 	{
