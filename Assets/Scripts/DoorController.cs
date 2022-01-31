@@ -31,7 +31,7 @@ public class DoorController : MonoBehaviour, IInteractable
 	private void Awake()
     {
 		// spawn key
-		Vector3 spawnPos = Camera.main.GetComponent<GameController>().RoomPosition(false, null, true); // NOTE that we don't care about locks since this occurs during the room hierarchy creation
+		Vector3 spawnPos = GameController.Instance.RoomPosition(false, null, true); // NOTE that we don't care about locks since this occurs during the room hierarchy creation
 		KeyInfo keyInfo = Utility.RandomWeighted(m_keyPrefabs);
 		m_key = Instantiate(keyInfo.m_prefab, spawnPos, Quaternion.identity);
 
@@ -85,7 +85,7 @@ public class DoorController : MonoBehaviour, IInteractable
 			return;
 		}
 
-		GameController gameController = Camera.main.GetComponent<GameController>();
+		GameController gameController = GameController.Instance;
 		Assert.AreEqual(interactor, gameController.m_avatar);
 
 		StopAllCoroutines();
@@ -125,7 +125,7 @@ public class DoorController : MonoBehaviour, IInteractable
 
 	private IEnumerator UpdateInteraction(KinematicCharacter interactor)
 	{
-		GameObject overlayObj = Camera.main.GetComponent<GameController>().m_overlayCanvas.gameObject;
+		GameObject overlayObj = GameController.Instance.m_overlayCanvas.gameObject;
 
 		while (Vector2.Distance(interactor.transform.position, transform.position) < m_interactDistanceMax)
 		{

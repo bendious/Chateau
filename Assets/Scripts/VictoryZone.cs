@@ -9,6 +9,6 @@ public class VictoryZone : MonoBehaviour
 		{
 			return;
 		}
-		Camera.main.GetComponent<GameController>().OnVictory();
+		GameController.Instance.OnVictory();
 	}
 }

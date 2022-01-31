@@ -21,7 +21,7 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 
 	private void Start()
 	{
-		m_gameController = Camera.main.GetComponent<GameController>();
+		m_gameController = GameController.Instance;
 	}
 
 #if DEBUG

@@ -47,5 +47,5 @@ public class EnableDamage : Event<EnableDamage>
 /// </summary>
 public class GameOver : Event<GameOver>
 {
-	public override void Execute() => Camera.main.GetComponent<GameController>().OnGameOver();
+	public override void Execute() => GameController.Instance.OnGameOver();
 }

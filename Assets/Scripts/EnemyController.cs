@@ -127,7 +127,7 @@ public class EnemyController : KinematicCharacter
 
 	protected override void DespawnSelf()
 	{
-		Camera.main.GetComponent<GameController>().OnEnemyDespawn(this);
+		GameController.Instance.OnEnemyDespawn(this);
 		base.DespawnSelf();
 	}
 
@@ -141,7 +141,7 @@ public class EnemyController : KinematicCharacter
 		// TODO: efficiency?
 		if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0 || Vector2.Distance(target.position, m_pathfindWaypoints.Last()) > targetOffsetAbs.magnitude + m_meleeRange) // TODO: better re-plan trigger(s)? avoid trying to go past moving targets?
 		{
-			m_pathfindWaypoints = Camera.main.GetComponent<GameController>().Pathfind(transform.position, target.position, targetOffsetAbs);
+			m_pathfindWaypoints = GameController.Instance.Pathfind(transform.position, target.position, targetOffsetAbs);
 			if (m_pathfindWaypoints == null)
 			{
 				// TODO: handle unreachable positions; find closest reachable position?

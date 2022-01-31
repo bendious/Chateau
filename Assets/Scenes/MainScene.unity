@@ -964,7 +964,7 @@ Camera:
   far clip plane: 5000
   field of view: 40
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 3
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -4120,14 +4120,14 @@ MonoBehaviour:
   m_Follow: {fileID: 871473912}
   m_Lens:
     FieldOfView: 40
-    OrthographicSize: 5
+    OrthographicSize: 3
     NearClipPlane: 0.1
     FarClipPlane: 5000
     Dutch: 0
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.6870897, y: 1}
+    m_SensorSize: {x: 1.6914661, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0

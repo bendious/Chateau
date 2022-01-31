@@ -90,7 +90,7 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 
 		// swap avatar hold
 		// get items BEFORE editing attachments
-		AvatarController avatar = Camera.main.GetComponent<GameController>().m_avatar;
+		AvatarController avatar = GameController.Instance.m_avatar;
 		Tuple<ItemController, IHolder> itemAndHolder1 = ItemFromIndex(avatar, index1);
 		ItemController item1 = itemAndHolder1.Item1;
 		Tuple<ItemController, IHolder> itemAndHolder2 = ItemFromIndex(avatar, index2);

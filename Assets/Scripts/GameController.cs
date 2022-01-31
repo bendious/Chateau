@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.UI;
 
 
@@ -29,6 +30,9 @@ public class GameController : MonoBehaviour
 	public float m_waveEscalationMax = 2.0f;
 
 
+	public static GameController Instance { get; private set; }
+
+
 	private RoomController m_startRoom;
 
 	private float m_waveWeight = 0.0f;
@@ -36,6 +40,12 @@ public class GameController : MonoBehaviour
 
 	private readonly List<EnemyController> m_enemies = new();
 
+
+	private GameController()
+	{
+		Assert.IsNull(Instance);
+		Instance = this;
+	}
 
 	private void Start()
 	{
