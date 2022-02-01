@@ -15,8 +15,8 @@ public class GameController : MonoBehaviour
 	public Canvas m_overlayCanvas;
 
 	public WeightedObject<GameObject>[] m_roomPrefabs;
+	public WeightedObject<GameObject>[] m_bossRoomPrefabs;
 	public WeightedObject<GameObject>[] m_enemyPrefabs;
-	public GameObject m_victoryZonePrefab;
 
 	public TMPro.TMP_Text m_timerUI;
 	public Canvas m_pauseUI;
@@ -50,7 +50,7 @@ public class GameController : MonoBehaviour
 	private void Start()
 	{
 		m_startRoom = Instantiate(Utility.RandomWeighted(m_roomPrefabs)).GetComponent<RoomController>();
-		StartCoroutine(SpawnVictoryZoneWhenReady());
+		StartCoroutine(SpawnBossRoomWhenReady());
 
 		if (Random.value > 0.5f)
 		{
@@ -171,13 +171,24 @@ public class GameController : MonoBehaviour
 #endif
 
 
-	private IEnumerator SpawnVictoryZoneWhenReady()
+	private IEnumerator SpawnBossRoomWhenReady()
 	{
 		yield return new WaitUntil(() => m_startRoom.AllChildrenReady());
 
+		// find valid spawn room
+		// TODO: efficiency / guarantee of eventual success?
+		bool spawned = false;
+		List<RoomController> endRoomPath;
+		int failsafe = 100;
+		do
+		{
+			endRoomPath = m_startRoom.RoomPathLongest().Item1;
+			spawned = endRoomPath.Last().SpawnChildRoom(Utility.RandomWeighted(m_bossRoomPrefabs));
+		}
+		while (!spawned && --failsafe > 0);
+
 		// color path to victory
 		Color colorDefault = Color.gray; // TODO: don't hardcode default color
-		List<RoomController> endRoomPath = m_startRoom.RoomPathLongest().Item1;
 		int pathIdx = 0;
 		foreach (RoomController room in endRoomPath)
 		{
@@ -193,9 +204,6 @@ public class GameController : MonoBehaviour
 				}
 			}
 		}
-
-		// create victory zone
-		Instantiate(m_victoryZonePrefab, endRoomPath.Last().transform.position, Quaternion.identity);
 	}
 
 	private IEnumerator SpawnWavesCoroutine()

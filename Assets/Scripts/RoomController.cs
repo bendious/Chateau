@@ -61,10 +61,10 @@ public class RoomController : MonoBehaviour
 		// replace doors / spawn rooms
 		// TODO: randomize order to avoid directional bias?
 		Bounds bounds = CalculateBounds(false);
-		m_leftChild = MaybeReplaceDoor(ref m_leftConnected, bounds, Vector3.left, ref m_leftLock, m_doorL, null, child => child.m_rightConnected = true);
-		m_rightChild = MaybeReplaceDoor(ref m_rightConnected, bounds, Vector3.right, ref m_rightLock, m_doorR, null, child => child.m_leftConnected = true);
-		m_bottomChild = MaybeReplaceDoor(ref m_bottomConnected, bounds, Vector3.down, ref m_bottomLock, m_doorB, null, child => child.m_topConnected = true);
-		m_topChild = MaybeReplaceDoor(ref m_topConnected, bounds, Vector3.up, ref m_topLock, m_doorT, m_ladderPieces, child => child.m_bottomConnected = true);
+		m_leftChild = MaybeReplaceDoor(ref m_leftConnected, Utility.RandomWeighted(GameController.Instance.m_roomPrefabs), bounds, Vector3.left, ref m_leftLock, m_doorL, null, child => child.m_rightConnected = true);
+		m_rightChild = MaybeReplaceDoor(ref m_rightConnected, Utility.RandomWeighted(GameController.Instance.m_roomPrefabs), bounds, Vector3.right, ref m_rightLock, m_doorR, null, child => child.m_leftConnected = true);
+		m_bottomChild = MaybeReplaceDoor(ref m_bottomConnected, Utility.RandomWeighted(GameController.Instance.m_roomPrefabs), bounds, Vector3.down, ref m_bottomLock, m_doorB, null, child => child.m_topConnected = true);
+		m_topChild = MaybeReplaceDoor(ref m_topConnected, Utility.RandomWeighted(GameController.Instance.m_roomPrefabs), bounds, Vector3.up, ref m_topLock, m_doorT, m_ladderPieces, child => child.m_bottomConnected = true);
 
 		m_childrenCreated = true;
 
@@ -197,6 +197,58 @@ public class RoomController : MonoBehaviour
 		return new(pathFinal, maxDistance + 1);
 	}
 
+	public bool SpawnChildRoom(GameObject roomPrefab)
+	{
+		Bounds bounds = CalculateBounds(false);
+
+		int spawnDepthOrig = m_spawnDepthMax;
+		m_spawnDepthMax = Math.Max(m_spawnDepthMax, 1);
+
+		// TODO: randomize order
+		if (m_leftChild == null && m_doorL != null)
+		{
+			m_leftChild = MaybeReplaceDoor(ref m_leftConnected, roomPrefab, bounds, Vector3.left, ref m_leftLock, m_doorL, null, child => child.m_rightConnected = true);
+			if (m_leftChild != null)
+			{
+				m_spawnDepthMax = spawnDepthOrig;
+				return true;
+			}
+		}
+
+		if (m_rightChild == null && m_doorR != null)
+		{
+			m_rightChild = MaybeReplaceDoor(ref m_rightConnected, roomPrefab, bounds, Vector3.right, ref m_rightLock, m_doorR, null, child => child.m_leftConnected = true);
+			if (m_rightChild != null)
+			{
+				m_spawnDepthMax = spawnDepthOrig;
+				return true;
+			}
+		}
+
+		if (m_bottomChild == null && m_doorB != null)
+		{
+			m_bottomChild = MaybeReplaceDoor(ref m_bottomConnected, roomPrefab, bounds, Vector3.down, ref m_bottomLock, m_doorB, null, child => child.m_topConnected = true);
+			if (m_bottomChild != null)
+			{
+				m_spawnDepthMax = spawnDepthOrig;
+				return true;
+			}
+		}
+
+		if (m_topChild == null && m_doorT != null)
+		{
+			m_topChild = MaybeReplaceDoor(ref m_topConnected, roomPrefab, bounds, Vector3.up, ref m_topLock, m_doorT, m_ladderPieces, child => child.m_bottomConnected = true);
+			if (m_topChild != null)
+			{
+				m_spawnDepthMax = spawnDepthOrig;
+				return true;
+			}
+		}
+
+		m_spawnDepthMax = spawnDepthOrig;
+		return false;
+	}
+
 
 	// see https://gamedev.stackexchange.com/questions/86863/calculating-the-bounding-box-of-a-game-object-based-on-its-children
 	private Bounds CalculateBounds(bool interiorOnly)
@@ -218,19 +270,18 @@ public class RoomController : MonoBehaviour
 		return b;
 	}
 
-	private RoomController MaybeReplaceDoor(ref bool isOpen, Bounds bounds, Vector3 replaceDirection, ref GameObject lockObj, GameObject door, GameObject[] ladderPieces, Action<RoomController> postReplace)
+	private RoomController MaybeReplaceDoor(ref bool isOpen, GameObject roomPrefab, Bounds bounds, Vector3 replaceDirection, ref GameObject lockObj, GameObject door, GameObject[] ladderPieces, Action<RoomController> postReplace)
 	{
 		Assert.AreApproximatelyEqual(replaceDirection.magnitude, 1.0f);
 		bool spawnedFromThisDirection = isOpen;
 
-		GameObject roomPrefab = Utility.RandomWeighted(GameController.Instance.m_roomPrefabs);
 		Bounds childBounds = roomPrefab.GetComponent<RoomController>().CalculateBounds(false);
 		Vector3 pivotToCenter = bounds.center - transform.position;
 		Vector3 childPivotToCenter = childBounds.center - roomPrefab.transform.position;
 		Vector3 childOffset = Vector3.Scale(replaceDirection, bounds.extents + childBounds.extents + (Vector2.Dot(pivotToCenter, replaceDirection) >= 0.0f ? pivotToCenter : -pivotToCenter) + (Vector2.Dot(childPivotToCenter, replaceDirection) >= 0.0f ? -childPivotToCenter : childPivotToCenter));
 
 		bool canSpawnRoom = !spawnedFromThisDirection && m_spawnDepthMax > 0 && Physics2D.OverlapBox(bounds.center + childOffset, childBounds.size - new Vector3(0.1f, 0.1f, 0.0f), 0.0f) == null; // NOTE the small size reduction to avoid always collecting ourself
-		isOpen = spawnedFromThisDirection || (canSpawnRoom && UnityEngine.Random.value > m_roomSpawnPct);
+		isOpen = spawnedFromThisDirection || (canSpawnRoom && UnityEngine.Random.value < m_roomSpawnPct);
 
 		if (!isOpen)
 		{

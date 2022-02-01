@@ -66,9 +66,7 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable
 	{
 		while (true)
 		{
-			// TODO: unify {Avatar/Enemy}Controller.m_armOffset
-			AvatarController avatar = transform.parent.GetComponent<AvatarController>();
-			transform.localPosition = (Vector3)(avatar == null ? transform.parent.GetComponent<EnemyController>().m_armOffset : avatar.m_armOffset) + AttachOffsetLocal; // TODO: lerp?
+			transform.localPosition = (Vector3)transform.parent.GetComponent<KinematicCharacter>().m_armOffset + AttachOffsetLocal; // TODO: lerp?
 
 			yield return null;
 		}

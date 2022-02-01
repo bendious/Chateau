@@ -42,6 +42,13 @@ public class EnableDamage : Event<EnableDamage>
 	public override void Execute() => m_health.m_invincible = false;
 }
 
+public class ObjectDespawn : Event<ObjectDespawn>
+{
+	public KinematicObject m_object;
+
+	public override void Execute() => Object.Destroy(m_object.gameObject);
+}
+
 /// <summary>
 /// Fired after the avatar dies.
 /// </summary>

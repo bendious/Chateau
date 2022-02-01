@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEngine.UI;
 
 
 public class DoorController : MonoBehaviour, IInteractable
@@ -29,7 +28,7 @@ public class DoorController : MonoBehaviour, IInteractable
 
 
 	private void Awake()
-    {
+	{
 		// spawn key
 		Vector3 spawnPos = GameController.Instance.RoomPosition(false, null, true); // NOTE that we don't care about locks since this occurs during the room hierarchy creation
 		KeyInfo keyInfo = Utility.RandomWeighted(m_keyPrefabs);
@@ -44,7 +43,7 @@ public class DoorController : MonoBehaviour, IInteractable
 
 		// choose color
 		Color color = new(Random.value, Random.value, Random.value);
-		if (ColorsSimilar(color, Color.black) || ColorsSimilar(color, Color.white) || ColorsSimilar(color, RoomController.m_oneWayPlatformColor))
+		if (Utility.ColorsSimilar(color, Color.black) || Utility.ColorsSimilar(color, Color.white) || Utility.ColorsSimilar(color, RoomController.m_oneWayPlatformColor))
 		{
 			// avoid colors that are too close to the black/white/brown of the background/walls/platforms
 			int swapIdx = Random.Range(0, 3);
@@ -97,12 +96,6 @@ public class DoorController : MonoBehaviour, IInteractable
 		}
 	}
 
-
-	private bool ColorsSimilar(Color a, Color b)
-	{
-		const float colorEpsilon = 0.2f;
-		return Mathf.Abs(a.r - b.r) < colorEpsilon && Mathf.Abs(a.g - b.g) < colorEpsilon && Mathf.Abs(a.b - b.b) < colorEpsilon; // NOTE that we don't use color subtraction due to not wanting range clamping
-	}
 
 	private void Unlock()
 	{

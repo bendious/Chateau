@@ -172,6 +172,8 @@ public sealed class AIThrow : AIState
 
 	public override AIState Update()
 	{
+		m_ai.move = Vector2.zero;
+
 		if (m_startTime == 0.0f)
 		{
 			// pre-throw
@@ -256,6 +258,9 @@ public sealed class AIRamSwoop : AIState
 
 public sealed class AIFindAmmo : AIState
 {
+	public float m_multiFindPct = 0.5f;
+
+
 	private Transform m_target;
 
 
@@ -291,7 +296,11 @@ public sealed class AIFindAmmo : AIState
 		if (hasArrived)
 		{
 			m_ai.AttachItem(m_target.GetComponent<ItemController>());
-			return new AIPursue(m_ai);
+			if (m_ai.GetComponentsInChildren<ItemController>().Length >= m_ai.MaxPickUps || Random.value > m_multiFindPct)
+			{
+				return new AIPursue(m_ai);
+			}
+			m_target = null;
 		}
 
 		return null;

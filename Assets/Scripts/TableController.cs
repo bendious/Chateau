@@ -29,14 +29,13 @@ public class TableController : MonoBehaviour
 		// spawn items
 		// TODO: more deliberate spawning
 		int itemCount = Random.Range(m_itemsMin, m_itemsMax + 1);
-		Vector3 size = GetComponent<Collider2D>().bounds.size;
-		float extentX = size.x * 0.5f;
+		Bounds bounds = GetComponent<Collider2D>().bounds;
 		for (int i = 0; i < itemCount; ++i)
 		{
 			GameObject itemPrefab = Utility.RandomWeighted(m_itemPrefabs);
 			BoxCollider2D itemCollider = itemPrefab.GetComponent<BoxCollider2D>();
-			float offsetY = size.y + itemCollider.size.y * 0.5f + itemCollider.edgeRadius;
-			Vector3 spawnCenterPos = transform.position + new Vector3(Random.Range(-extentX, extentX), offsetY, 0.0f);
+			float offsetY = bounds.size.y + itemCollider.size.y * 0.5f + itemCollider.edgeRadius;
+			Vector3 spawnCenterPos = new Vector3(bounds.center.x, transform.position.y, transform.position.z) + new Vector3(Random.Range(-bounds.extents.x, bounds.extents.x), offsetY, 0.0f);
 			Instantiate(itemPrefab, spawnCenterPos, Quaternion.identity);
 		}
 	}

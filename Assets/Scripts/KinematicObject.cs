@@ -98,18 +98,13 @@ public abstract class KinematicObject : MonoBehaviour
 		body.velocity *= 0;
 	}
 
-	protected virtual void OnEnable()
+	protected virtual void Awake()
 	{
 		body = GetComponent<Rigidbody2D>();
 		body.isKinematic = true;
 		m_character = GetComponent<KinematicCharacter>();
 		m_collider = GetComponent<Collider2D>();
 		m_avatar = GetComponent<AvatarController>();
-	}
-
-	protected virtual void OnDisable()
-	{
-		body.isKinematic = false;
 	}
 
 	protected virtual void Start()
@@ -227,7 +222,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 	protected virtual void DespawnSelf()
 	{
-		Destroy(gameObject);
+		Simulation.Schedule<ObjectDespawn>().m_object = this;
 	}
 
 

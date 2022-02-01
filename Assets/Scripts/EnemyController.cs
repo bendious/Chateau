@@ -11,8 +11,6 @@ public class EnemyController : KinematicCharacter
 	public Vector2 m_targetOffset = Vector2.zero;
 	public Transform m_target;
 
-	public Vector2 m_armOffset; // TODO: combine w/ AvatarController version?
-
 	public float m_meleeRange = 1.0f;
 
 	public AudioClip[] m_attackSFX;
@@ -75,9 +73,21 @@ public class EnemyController : KinematicCharacter
 			ArmController[] arms = GetComponentsInChildren<ArmController>();
 			if (arms.Length > 0)
 			{
-				for (int i = 0; i < arms.Length; ++i)
+				ArmController primaryArm = arms.FirstOrDefault(arm => arm.GetComponentInChildren<ItemController>() != null);
+				if (primaryArm != null)
 				{
-					arms[i].UpdateAim(m_armOffset, m_target.position);
+					primaryArm.UpdateAim(m_armOffset, m_target.position);
+				}
+
+				int i = primaryArm == null ? -1 : 0;
+				foreach (ArmController arm in arms)
+				{
+					if (arm == primaryArm)
+					{
+						continue;
+					}
+					Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, ++i * System.Math.Min(60, 360 / arms.Length)) * (m_target.position - transform.position);
+					arm.UpdateAim(m_armOffset, aimPos);
 				}
 			}
 		}
@@ -86,7 +96,10 @@ public class EnemyController : KinematicCharacter
 #if UNITY_EDITOR
 	private void OnDrawGizmos()
 	{
-		m_aiState.DebugGizmo();
+		if (m_aiState != null)
+		{
+			m_aiState.DebugGizmo();
+		}
 
 		if (ConsoleCommands.AIDebugLevel >= (int)ConsoleCommands.AIDebugLevels.Path && m_pathfindWaypoints?.Count > 0)
 		{

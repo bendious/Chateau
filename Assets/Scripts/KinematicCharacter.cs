@@ -38,6 +38,8 @@ public abstract class KinematicCharacter : KinematicObject
 	public AudioClip ouchAudio;
 	public AudioClip m_deathAudio;
 
+	public Vector2 m_armOffset;
+
 	public int MaxPickUps => GetComponentsInChildren<IHolder>().Sum(holder => holder.HoldCountMax);
 
 
@@ -74,8 +76,9 @@ public abstract class KinematicCharacter : KinematicObject
 	public bool IsDropping => move.y < 0.0f;
 
 
-	protected virtual void Awake()
+	protected override void Awake()
 	{
+		base.Awake();
 		spriteRenderer = GetComponent<SpriteRenderer>();
 		animator = GetComponent<Animator>();
 		audioSource = GetComponent<AudioSource>();

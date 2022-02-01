@@ -32,7 +32,6 @@ public class AvatarController : KinematicCharacter
 
 	public float m_aimRadius = 5.0f;
 
-	public Vector2 m_armOffset; // TODO: combine w/ EnemyController version?
 	public float m_secondaryDegrees = -45.0f;
 
 	public float m_coyoteTime = 0.15f;
@@ -245,7 +244,10 @@ public class AvatarController : KinematicCharacter
 			// primary aim
 			ArmController[] arms = GetComponentsInChildren<ArmController>();
 			ArmController primaryArm = arms.Length == 0 ? null : arms.First().transform.childCount > 0 || arms.Last().transform.childCount == 0 ? arms.First() : arms.Last();
-			primaryArm.UpdateAim(m_armOffset, mousePosWS);
+			if (primaryArm != null)
+			{
+				primaryArm.UpdateAim(m_armOffset, mousePosWS);
+			}
 
 			// secondary hold
 			Vector3 secondaryAimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, LeftFacing ? 180.0f - m_secondaryDegrees : m_secondaryDegrees) * Vector3.right;
@@ -288,6 +290,7 @@ public class AvatarController : KinematicCharacter
 		}
 
 		controlEnabled = false;
+		StopAiming();
 		m_focusIndicator.SetActive(false);
 		InventorySync();
 		Simulation.Schedule<GameOver>(3.0f); // TODO: animation event?

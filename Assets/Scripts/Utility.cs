@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 
@@ -64,5 +65,25 @@ public static class Utility
 			Assert.IsTrue(Enum.IsDefined(typeof(T), i));
 			return (T)Enum.ToObject(typeof(T), i);
 		}).ToArray(), weights);
+	}
+
+	// NOTE that Mathf.Approximately() uses float.Epsilon, which is uselessly strict
+	public static bool FloatEqual(float a, float b, float epsilon = 0.01f)
+	{
+		return Mathf.Abs(a - b) < epsilon;
+	}
+
+	public static bool ColorsSimilar(Color a, Color b, float epsilon = 0.2f)
+	{
+		return FloatEqual(a.r, b.r, epsilon) && FloatEqual(a.g, b.g, epsilon) && FloatEqual(a.b, b.b, epsilon); // NOTE that we don't use color subtraction due to not wanting range clamping
+	}
+
+	public static Color SmoothDamp(Color current, Color target, ref Vector4 currentVelocity, float smoothTime)
+	{
+		current.r = Mathf.SmoothDamp(current.r, target.r, ref currentVelocity.x, smoothTime);
+		current.g = Mathf.SmoothDamp(current.g, target.g, ref currentVelocity.y, smoothTime);
+		current.b = Mathf.SmoothDamp(current.b, target.b, ref currentVelocity.z, smoothTime);
+		current.a = Mathf.SmoothDamp(current.a, target.a, ref currentVelocity.w, smoothTime);
+		return current;
 	}
 }
