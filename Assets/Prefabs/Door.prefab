@@ -134,6 +134,9 @@ MonoBehaviour:
       m_prefab: {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
       m_hasRandomCombinationText: 1
     m_weight: 1
+  m_combinationIndicatorPrefab: {fileID: 7581576132359493611, guid: f35e42329712f004a939999cb3ace575, type: 3}
+  m_combinationDigits: 4
+  m_interactDistanceMax: 1
 --- !u!114 &2462278832316299634
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160,4 +163,4 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 40954
+  m_InstanceId: 57786

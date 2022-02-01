@@ -97,8 +97,9 @@ public class AvatarController : KinematicCharacter
 			{
 				stopJump = true;
 			}
-			move.x = Input.GetAxis("Horizontal");
-			move.y = Input.GetAxis("Vertical");
+			bool canMove = !GameController.Instance.m_overlayCanvas.gameObject.activeSelf;
+			move.x = canMove ? Input.GetAxis("Horizontal") : 0.0f;
+			move.y = canMove ? Input.GetAxis("Vertical") : 0.0f;
 
 			// swing
 			bool refreshInventory = false;

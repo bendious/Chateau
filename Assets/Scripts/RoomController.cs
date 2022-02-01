@@ -299,7 +299,7 @@ public class RoomController : MonoBehaviour
 		if (!spawnedFromThisDirection && UnityEngine.Random.value <= m_lockedDoorPct)
 		{
 			// create locked door
-			lockObj = Instantiate(m_doorPrefab, door.transform.position, Quaternion.identity);
+			lockObj = Instantiate(m_doorPrefab, door.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
 			Vector2 size = door.GetComponent<BoxCollider2D>().size * door.transform.localScale;
 			lockObj.GetComponent<BoxCollider2D>().size = size;
 			lockObj.GetComponent<SpriteRenderer>().size = size;
