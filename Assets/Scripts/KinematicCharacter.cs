@@ -145,9 +145,9 @@ public abstract class KinematicCharacter : KinematicObject
 		// TODO: early-out if already dead?
 
 		// detach all items
-		foreach (ItemController item in GetComponentsInChildren<ItemController>())
+		foreach (IInteractable attachee in GetComponentsInChildren<IInteractable>())
 		{
-			item.Detach();
+			attachee.Detach();
 		}
 
 		foreach (ArmController arm in GetComponentsInChildren<ArmController>())

@@ -50,7 +50,7 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable
 		gameObject.layer = character.gameObject.layer;
 	}
 
-	public void Detach()
+	public /*override*/ void Detach()
 	{
 		StopAllCoroutines();
 

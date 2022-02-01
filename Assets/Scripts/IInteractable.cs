@@ -9,4 +9,6 @@ public interface IInteractable
 	public bool CanInteract(KinematicCharacter interactor) => true;
 
 	public void Interact(KinematicCharacter interactor) => interactor.AttachItem(this);
+
+	public void Detach();
 }

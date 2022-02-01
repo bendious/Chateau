@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.VFX;
 
 
@@ -182,7 +181,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	}
 
 	// this is the detachment entry point
-	public void Detach()
+	public void /*override*/ Detach()
 	{
 		m_holder.ItemDetach(this);
 	}
