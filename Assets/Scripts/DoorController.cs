@@ -104,19 +104,8 @@ public class DoorController : MonoBehaviour, IInteractable
 
 	private void Unlock()
 	{
-		ItemController item = m_key.GetComponent<ItemController>();
-		if (item.transform.parent != null)
-		{
-			item.Detach(); // so that we can refresh inventory immediately even though object deletion is deferred
-
-			AvatarController avatar = item.transform.root.GetComponent<AvatarController>();
-			if (avatar != null)
-			{
-				avatar.InventorySync();
-			}
-		}
-		Destroy(m_key);
-		Destroy(gameObject);
+		Simulation.Schedule<ObjectDespawn>().m_object = m_key;
+		Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
 
 		// TODO: unlock SFX/VFX/etc.
 	}

@@ -42,11 +42,16 @@ public class EnableDamage : Event<EnableDamage>
 	public override void Execute() => m_health.m_invincible = false;
 }
 
+/// <summary>
+/// This event is fired when any game object is destroyed.
+/// </summary>
 public class ObjectDespawn : Event<ObjectDespawn>
 {
-	public KinematicObject m_object;
+	public GameObject m_object;
 
-	public override void Execute() => Object.Destroy(m_object.gameObject);
+	public override bool Precondition() => m_object != null; // TODO: warn about double-deletion of objects?
+
+	public override void Execute() => Object.Destroy(m_object);
 }
 
 /// <summary>

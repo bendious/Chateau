@@ -128,7 +128,7 @@ public class Health : MonoBehaviour
 		// remove excess
 		for (; uiHealthCount > maxHP; --uiHealthCount)
 		{
-			Destroy(m_healthUIParent.transform.GetChild(uiHealthCount).gameObject);
+			Simulation.Schedule<ObjectDespawn>().m_object = m_healthUIParent.transform.GetChild(uiHealthCount).gameObject;
 		}
 
 		// add deficient

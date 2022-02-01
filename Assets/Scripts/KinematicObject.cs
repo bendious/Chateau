@@ -222,7 +222,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 	protected virtual void DespawnSelf()
 	{
-		Simulation.Schedule<ObjectDespawn>().m_object = this;
+		Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
 	}
 
 

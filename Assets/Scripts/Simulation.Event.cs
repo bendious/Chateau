@@ -51,8 +51,8 @@
 		{
 			if (Precondition())
 			{
-				Execute();
 				OnExecute?.Invoke((T)this);
+				Execute();
 			}
 		}
 	}

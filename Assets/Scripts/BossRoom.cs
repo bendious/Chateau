@@ -35,7 +35,7 @@ public class BossRoom : MonoBehaviour
 			// reset room entrance(s)
 			foreach (GameObject gate in m_spawnedGates)
 			{
-				Destroy(gate);
+				Simulation.Schedule<ObjectDespawn>().m_object = gate;
 			}
 			m_spawnedGates.Clear();
 

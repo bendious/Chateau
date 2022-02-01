@@ -91,7 +91,7 @@ public class RoomController : MonoBehaviour
 		}
 		if (newTable != null)
 		{
-			Destroy(newTable);
+			Simulation.Schedule<ObjectDespawn>().m_object = newTable;
 		}
 	}
 
@@ -289,7 +289,7 @@ public class RoomController : MonoBehaviour
 			{
 				foreach (GameObject piece in ladderPieces)
 				{
-					Destroy(piece);
+					Simulation.Schedule<ObjectDespawn>().m_object = piece;
 				}
 			}
 
@@ -309,7 +309,7 @@ public class RoomController : MonoBehaviour
 		PlatformEffector2D effector = door.GetComponent<PlatformEffector2D>();
 		if (effector == null)
 		{
-			Destroy(door);
+			Simulation.Schedule<ObjectDespawn>().m_object = door;
 		}
 		else
 		{

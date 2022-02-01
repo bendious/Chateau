@@ -221,8 +221,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 			bool healed = m_holder.Object.transform.parent.GetComponent<Health>().Increment(m_healAmount);
 			if (healed)
 			{
-				Detach(); // so that we can refresh inventory immediately even though object deletion is deferred
-				Destroy(gameObject);
+				Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
 				return true;
 			}
 		}

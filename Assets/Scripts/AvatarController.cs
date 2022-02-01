@@ -69,6 +69,15 @@ public class AvatarController : KinematicCharacter
 		m_forwardID = Shader.PropertyToID("Forward");
 
 		InventorySync();
+
+		ObjectDespawn.OnExecute += evt =>
+		{
+			if (evt.m_object.transform.root == transform)
+			{
+				evt.m_object.transform.parent = null; // so that we can refresh inventory immediately even though deletion hasn't happened yet
+				InventorySync();
+			}
+		};
 	}
 
 	protected override float IntegrateForcedVelocity(float target, float forced)
@@ -146,7 +155,6 @@ public class AvatarController : KinematicCharacter
 						bool used = item.Use();
 						if (used)
 						{
-							refreshInventory = true;
 							break;
 						}
 					}
@@ -394,7 +402,7 @@ public class AvatarController : KinematicCharacter
 		}
 		for (int j = m_inventoryUI.transform.childCount - 1; j > itemInfos.Length; --j)
 		{
-			Destroy(m_inventoryUI.transform.GetChild(j).gameObject);
+			Simulation.Schedule<ObjectDespawn>().m_object = m_inventoryUI.transform.GetChild(j).gameObject;
 		}
 	}
 

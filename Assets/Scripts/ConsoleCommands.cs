@@ -50,6 +50,19 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 			GameController.Instance.DebugKillAllEnemies();
 		}
 
+		if (Input.GetKeyDown(KeyCode.H))
+		{
+			Health avatarHealth = GameController.Instance.m_avatar.GetComponent<Health>();
+			if (Input.GetKey(KeyCode.LeftShift))
+			{
+				avatarHealth.Increment();
+			}
+			else
+			{
+				avatarHealth.Decrement(gameObject);
+			}
+		}
+
 		// TODO: cleaner way of listening for any number key?
 		bool key0 = Input.GetKeyDown(KeyCode.Alpha0);
 		bool key1 = Input.GetKeyDown(KeyCode.Alpha1);
