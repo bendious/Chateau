@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
@@ -43,7 +44,6 @@ public class GameController : MonoBehaviour
 
 	private GameController()
 	{
-		Assert.IsNull(Instance);
 		Instance = this;
 	}
 
@@ -123,10 +123,21 @@ public class GameController : MonoBehaviour
 
 	public void Retry()
 	{
-		// TODO: re-generate?
+		if (m_pauseUI.isActiveAndEnabled)
+		{
+			TogglePause();
+		}
 
-		m_avatar.OnSpawn();
-		m_gameOverUI.gameObject.SetActive(false);
+		if (ConsoleCommands.RegenerateDisabled)
+		{
+#if DEBUG
+			m_avatar.DebugRespawn();
+#endif
+			m_gameOverUI.gameObject.SetActive(false);
+			return;
+		}
+
+		SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 	}
 
 	public void OnVictory()

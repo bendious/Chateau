@@ -15,6 +15,8 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 	}
 	public static int AIDebugLevel { get; private set; }
 
+	public static bool RegenerateDisabled { get; private set; }
+
 
 #if DEBUG
 	// TODO: callback rather than checking every frame?
@@ -38,6 +40,11 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.D))
 		{
 			AIDebugLevel = (AIDebugLevel + 1) % Utility.EnumNumTypes<AIDebugLevels>();
+		}
+
+		if (Input.GetKeyDown(KeyCode.R))
+		{
+			RegenerateDisabled = !RegenerateDisabled;
 		}
 
 		if (Input.GetKeyDown(KeyCode.W))

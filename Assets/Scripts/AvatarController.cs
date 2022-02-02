@@ -72,14 +72,7 @@ public class AvatarController : KinematicCharacter
 
 		InventorySync();
 
-		ObjectDespawn.OnExecute += evt =>
-		{
-			if (evt.m_object.transform.root == transform)
-			{
-				evt.m_object.transform.parent = null; // so that we can refresh inventory immediately even though deletion hasn't happened yet
-				InventorySync();
-			}
-		};
+		ObjectDespawn.OnExecute += OnObjectDespawn;
 	}
 
 	protected override float IntegrateForcedVelocity(float target, float forced)
@@ -296,6 +289,12 @@ public class AvatarController : KinematicCharacter
 		base.FixedUpdate();
 	}
 
+	private void OnDestroy()
+	{
+		ObjectDespawn.OnExecute -= OnObjectDespawn;
+	}
+
+
 	public override void OnDamage(GameObject source)
 	{
 		base.OnDamage(source);
@@ -316,6 +315,7 @@ public class AvatarController : KinematicCharacter
 		controlEnabled = false;
 		StopAiming();
 		m_focusIndicator.SetActive(false);
+		m_focusPrompt.SetActive(false);
 		InventorySync();
 		Simulation.Schedule<GameOver>(3.0f); // TODO: animation event?
 
@@ -336,11 +336,12 @@ public class AvatarController : KinematicCharacter
 		EnableCollision.TemporarilyDisableCollision(enemy.GetComponents<Collider2D>(), new Collider2D[] { m_collider });
 	}
 
-	public void OnSpawn()
+#if DEBUG
+	public void DebugRespawn()
 	{
 		m_collider.enabled = true;
 		body.simulated = true;
-		controlEnabled = false;
+		controlEnabled = true;
 
 		if (audioSource && respawnAudio)
 		{
@@ -361,6 +362,7 @@ public class AvatarController : KinematicCharacter
 
 		animator.SetBool("dead", false);
 	}
+#endif
 
 	public void InventorySync()
 	{
@@ -425,6 +427,7 @@ public class AvatarController : KinematicCharacter
 	public void OnVictory()
 	{
 		m_focusIndicator.SetActive(false);
+		m_focusPrompt.SetActive(false);
 		foreach (ArmController arm in GetComponentsInChildren<ArmController>())
 		{
 			foreach (ItemController item in arm.GetComponentsInChildren<ItemController>())
@@ -438,6 +441,15 @@ public class AvatarController : KinematicCharacter
 		controlEnabled = false;
 	}
 
+
+	private void OnObjectDespawn(ObjectDespawn evt)
+	{
+		if (evt.m_object.transform.root == transform)
+		{
+			evt.m_object.transform.parent = null; // so that we can refresh inventory immediately even though deletion hasn't happened yet
+			InventorySync();
+		}
+	}
 
 	private void StopAiming()
 	{

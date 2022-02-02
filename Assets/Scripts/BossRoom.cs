@@ -30,36 +30,11 @@ public class BossRoom : MonoBehaviour
 		m_bossStartPos = m_boss.transform.position;
 
 		// add event handlers
-		GameOver.OnExecute += evt =>
-		{
-			// reset room entrance(s)
-			foreach (GameObject gate in m_spawnedGates)
-			{
-				Simulation.Schedule<ObjectDespawn>().m_object = gate;
-			}
-			m_spawnedGates.Clear();
-
-			// reset boss
-			if (m_boss.enabled)
-			{
-				m_boss.enabled = false;
-				m_boss.GetComponent<Health>().m_invincible = true;
-				m_boss.Teleport(m_bossStartPos); // TODO: set goal and navigate rather than snapping
-			}
-
-			// re-enable trigger
-			GetComponent<Collider2D>().enabled = true;
-		};
+#if DEBUG
+		GameOver.OnExecute += DebugOnGameOver;
+#endif
 		// TODO: reset camera zoom upon respawn
-		ObjectDespawn.OnExecute += evt =>
-		{
-			if (evt.m_object.gameObject == m_boss.gameObject)
-			{
-				// TODO: start zoom-in?
-
-				GameController.Instance.OnVictory();
-			}
-		};
+		ObjectDespawn.OnExecute += OnObjectDespawn;
 
 		// track doorways
 		// TODO: generalize?
@@ -98,6 +73,47 @@ public class BossRoom : MonoBehaviour
 		StartCoroutine(UpdateIntro());
 	}
 
+	private void OnDestroy()
+	{
+#if DEBUG
+		GameOver.OnExecute -= DebugOnGameOver;
+#endif
+		ObjectDespawn.OnExecute -= OnObjectDespawn;
+	}
+
+
+#if DEBUG
+	private void DebugOnGameOver(GameOver evt)
+	{
+		// reset room entrance(s)
+		foreach (GameObject gate in m_spawnedGates)
+		{
+			Simulation.Schedule<ObjectDespawn>().m_object = gate;
+		}
+		m_spawnedGates.Clear();
+
+		// reset boss
+		if (m_boss.enabled)
+		{
+			m_boss.enabled = false;
+			m_boss.GetComponent<Health>().m_invincible = true;
+			m_boss.Teleport(m_bossStartPos); // TODO: set goal and navigate rather than snapping
+		}
+
+		// re-enable trigger
+		GetComponent<Collider2D>().enabled = true;
+	}
+#endif
+
+	private void OnObjectDespawn(ObjectDespawn evt)
+	{
+		if (evt.m_object.gameObject == m_boss.gameObject)
+		{
+			// TODO: start zoom-in?
+
+			GameController.Instance.OnVictory();
+		}
+	}
 
 	private IEnumerator UpdateIntro()
 	{
