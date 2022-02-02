@@ -152,7 +152,7 @@ public class EnemyController : KinematicCharacter
 
 		// pathfind
 		// TODO: efficiency?
-		if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0 || Vector2.Distance(target.position, m_pathfindWaypoints.Last()) > targetOffsetAbs.magnitude + m_meleeRange) // TODO: better re-plan trigger(s)? avoid trying to go past moving targets?
+		if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0 || !Utility.FloatEqual(Vector2.Distance(target.position, m_pathfindWaypoints.Last()), targetOffsetAbs.magnitude, m_meleeRange)) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases)? avoid trying to go past moving targets?
 		{
 			m_pathfindWaypoints = GameController.Instance.Pathfind(transform.position, target.position, targetOffsetAbs);
 			if (m_pathfindWaypoints == null)
@@ -163,15 +163,16 @@ public class EnemyController : KinematicCharacter
 		}
 		Vector2 nextWaypoint = m_pathfindWaypoints.First();
 
-		// left/right
 		Vector2 diff = nextWaypoint - (Vector2)transform.position;
-		bool hasArrivedX = Mathf.Abs(diff.x) <= m_collider.bounds.extents.x + Mathf.Abs(m_collider.offset.x) + arrivalEpsilon;
-		move.x = hasArrivedX ? 0.0f : Mathf.Clamp(diff.x, -1.0f, 1.0f); // TODO: less slow-down when near waypoints
+		Vector2 dir = diff.normalized;
+
+		// left/right
+		move.x = HasFlying ? dir.x : Mathf.Sign(dir.x);
 
 		if (HasFlying)
 		{
 			// fly
-			move.y = Mathf.Clamp(diff.y, -1.0f, 1.0f); // TODO: less slow-down when near waypoints
+			move.y = dir.y;
 		}
 		else
 		{
@@ -187,7 +188,7 @@ public class EnemyController : KinematicCharacter
 			move.y = nextBounds.max.y < selfBounds.min.y ? -1.0f : 0.0f;
 		}
 
-		if (hasArrivedX && Mathf.Abs(diff.y) <= m_collider.bounds.extents.y + Mathf.Abs(m_collider.offset.y) + arrivalEpsilon)
+		if (diff.magnitude <= ((Vector2)m_collider.bounds.extents).magnitude + m_collider.offset.magnitude + arrivalEpsilon)
 		{
 			m_pathfindWaypoints.RemoveAt(0);
 		}
