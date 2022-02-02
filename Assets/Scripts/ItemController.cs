@@ -150,6 +150,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		if (isDetached && (m_cause == null || collision.gameObject == GameController.Instance.m_avatar.gameObject))
 		{
 			SetCause(collision.gameObject);
+			EnableVFXAndDamage(); // mostly to prevent m_cause from remaining set and allowing damage if run into fast enough
 		}
 		List<ContactPoint2D> contacts = new();
 		int contactCount = collision.GetContacts(contacts);
@@ -194,6 +195,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		transform.position = (Vector2)transform.position; // nullify any z that may have been applied for rendering order
 		m_body.bodyType = RigidbodyType2D.Dynamic;
 		m_body.WakeUp();
+
+		EnableVFXAndDamage(); // mostly to prevent m_cause from remaining set and allowing damage if run into fast enough
 
 		m_holder = null;
 	}

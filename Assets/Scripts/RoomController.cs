@@ -87,6 +87,7 @@ public class RoomController : MonoBehaviour
 				continue; // re-place and try again
 			}
 			newTable.transform.position = spawnPos;
+			newTable.GetComponent<TableController>().SpawnItems();
 			newTable = null;
 		}
 		if (newTable != null)

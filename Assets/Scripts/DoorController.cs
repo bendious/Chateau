@@ -24,7 +24,7 @@ public class DoorController : MonoBehaviour, IInteractable
 	private GameObject m_key;
 
 	private /*readonly*/ int m_combination = 0;
-	private bool m_interacting = false;
+	private GameObject m_indicator;
 	private int m_inputCur = 0;
 	private int m_inputIdxCur = 0;
 
@@ -89,7 +89,7 @@ public class DoorController : MonoBehaviour, IInteractable
 		GameController gameController = GameController.Instance;
 		Assert.AreEqual(interactor, gameController.m_avatar);
 
-		m_interacting = false; // NOTE that we can't use Stop{All}Coroutine{s}() since UpdateInteraction() has to do cleanup
+		// NOTE that we can't use Stop{All}Coroutine{s}() since UpdateInteraction() has to do cleanup; we rely on it detecting overlay toggling even from other sources
 
 		bool overlayActive = gameController.ToggleOverlay(GetComponent<SpriteRenderer>(), m_inputCur.ToString("D" + m_combinationDigits));
 		if (overlayActive)
@@ -114,23 +114,24 @@ public class DoorController : MonoBehaviour, IInteractable
 
 	private IEnumerator UpdateInteraction(KinematicCharacter interactor)
 	{
-		m_interacting = true;
-
 		GameObject overlayObj = GameController.Instance.m_overlayCanvas.gameObject;
 		TMPro.TMP_Text text = overlayObj.GetComponentInChildren<TMPro.TMP_Text>();
 		text.text = m_inputCur.ToString("D" + m_combinationDigits);
 		yield return null; // NOTE that we have to display at least once before possibly using text.textBounds for indicator positioning
 
-		GameObject indicator = Instantiate(m_combinationIndicatorPrefab, overlayObj.transform);
+		if (m_indicator == null)
+		{
+			m_indicator = Instantiate(m_combinationIndicatorPrefab, overlayObj.transform);
+		}
 
-		while (m_interacting && Vector2.Distance(interactor.transform.position, transform.position) < m_interactDistanceMax)
+		while (overlayObj.activeSelf && Vector2.Distance(interactor.transform.position, transform.position) < m_interactDistanceMax)
 		{
 			// TODO: more general input parsing?
 			int xInput = (Input.GetKeyDown(KeyCode.RightArrow) ? 1 : 0) - (Input.GetKeyDown(KeyCode.LeftArrow) ? 1 : 0);
-			if (Utility.FloatEqual(indicator.transform.localPosition.x, 0.0f) || xInput != 0)
+			if (Utility.FloatEqual(m_indicator.transform.localPosition.x, 0.0f) || xInput != 0)
 			{
 				m_inputIdxCur = Utility.Modulo(m_inputIdxCur + xInput, m_combinationDigits);
-				indicator.transform.localPosition = new Vector3(Mathf.Lerp(text.textBounds.min.x, text.textBounds.max.x, (m_inputIdxCur + 0.5f) / m_combinationDigits), indicator.transform.localPosition.y, indicator.transform.localPosition.z);
+				m_indicator.transform.localPosition = new Vector3(Mathf.Lerp(text.textBounds.min.x, text.textBounds.max.x, (m_inputIdxCur + 0.5f) / m_combinationDigits), m_indicator.transform.localPosition.y, m_indicator.transform.localPosition.z);
 			}
 
 			int yInput = (Input.GetKeyDown(KeyCode.UpArrow) ? 1 : 0) - (Input.GetKeyDown(KeyCode.DownArrow) ? 1 : 0);
@@ -149,7 +150,6 @@ public class DoorController : MonoBehaviour, IInteractable
 				if (m_inputCur == m_combination)
 				{
 					Unlock();
-					m_interacting = false;
 					break;
 				}
 
@@ -159,7 +159,8 @@ public class DoorController : MonoBehaviour, IInteractable
 			yield return null;
 		}
 
-		Simulation.Schedule<ObjectDespawn>().m_object = indicator;
+		Simulation.Schedule<ObjectDespawn>().m_object = m_indicator;
+		m_indicator = null;
 		overlayObj.SetActive(false);
 	}
 }
