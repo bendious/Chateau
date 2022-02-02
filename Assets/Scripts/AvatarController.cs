@@ -27,9 +27,11 @@ public class AvatarController : KinematicCharacter
 	public AudioClip respawnAudio;
 
 	public GameObject m_focusIndicator;
+	public GameObject m_focusPrompt;
 	public GameObject m_aimObject;
 	public GameObject m_inventoryUI;
 
+	public Vector3 m_focusPromptOffset = new Vector3(0.0f, 0.15f, -0.15f);
 	public float m_aimRadius = 5.0f;
 
 	public float m_secondaryDegrees = -45.0f;
@@ -162,13 +164,17 @@ public class AvatarController : KinematicCharacter
 				}
 			}
 
-			// determine current focus object
-			// TODO: more nuanced prioritization?
+			// collect possible focus objects
 			m_focusObj = null;
 			float focusRadius = ((CircleCollider2D)m_collider).radius;
 			Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 			Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + (mousePos - (Vector2)transform.position).normalized * focusRadius, focusRadius * 1.5f); // TODO: restrict to certain layers?
+
+			// determine current focus object
+			// TODO: more nuanced prioritization?
 			float distSqFocus = float.MaxValue;
+			IInteractable focusInteract = null;
+			bool focusCanInteract = false;
 			foreach (Collider2D candidate in focusCandidates)
 			{
 				if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, false, false))
@@ -176,17 +182,23 @@ public class AvatarController : KinematicCharacter
 					continue; // ignore ourself / attached/ignored objects
 				}
 
+				// prioritize interactable objects
+				IInteractable candidateInteract = candidate.GetComponent<IInteractable>();
+				bool candidateCanInteract = candidateInteract != null && candidateInteract.CanInteract(this);
+
+				// prioritize by mouse position
 				float distSqCur = (mousePos - (Vector2)candidate.transform.position).sqrMagnitude;
-				if (distSqCur < distSqFocus)
+
+				if (candidateCanInteract && !focusCanInteract || ((candidateCanInteract || !focusCanInteract) && distSqCur < distSqFocus))
 				{
+					focusInteract = candidateInteract;
+					focusCanInteract = candidateCanInteract;
 					distSqFocus = distSqCur;
 					m_focusObj = candidate.gameObject;
 				}
 			}
 
 			// place focus indicator if appropriate
-			IInteractable focusItem = m_focusObj == null ? null : m_focusObj.GetComponent<IInteractable>();
-			bool focusCanInteract = focusItem != null && focusItem.CanInteract(this);
 			if (focusCanInteract)
 			{
 				m_focusIndicator.transform.SetPositionAndRotation(m_focusObj.transform.position + Vector3.back, m_focusObj.transform.rotation); // NOTE the Z offset to ensure the focus indicator is rendered on top
@@ -198,14 +210,17 @@ public class AvatarController : KinematicCharacter
 				rendererIndicator.size = rendererOrig.size;
 				m_focusIndicator.transform.localScale = m_focusObj.transform.localScale; // NOTE that w/o this, swapping between renderer draw modes was doing weird things to the indicator's scale...
 
+				m_focusPrompt.transform.position = m_focusIndicator.transform.position + m_focusPromptOffset;
+
 				// interact
 				if (Input.GetButtonDown("Interact"))
 				{
-					focusItem.Interact(this);
+					focusInteract.Interact(this);
 					refreshInventory = true; // TODO: only if necessary?
 				}
 			}
 			m_focusIndicator.SetActive(focusCanInteract);
+			m_focusPrompt.SetActive(focusCanInteract);
 
 			IsPickingUp = Input.GetButton("Interact") && items.Length < MaxPickUps;
 
