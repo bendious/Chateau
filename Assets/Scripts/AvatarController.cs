@@ -312,10 +312,7 @@ public class AvatarController : KinematicCharacter
 			return false;
 		}
 
-		controlEnabled = false;
-		StopAiming();
-		m_focusIndicator.SetActive(false);
-		m_focusPrompt.SetActive(false);
+		DeactivateAllControl();
 		InventorySync();
 		Simulation.Schedule<GameOver>(3.0f); // TODO: animation event?
 
@@ -426,8 +423,7 @@ public class AvatarController : KinematicCharacter
 
 	public void OnVictory()
 	{
-		m_focusIndicator.SetActive(false);
-		m_focusPrompt.SetActive(false);
+		DeactivateAllControl();
 		foreach (ArmController arm in GetComponentsInChildren<ArmController>())
 		{
 			foreach (ItemController item in arm.GetComponentsInChildren<ItemController>())
@@ -438,7 +434,6 @@ public class AvatarController : KinematicCharacter
 		}
 		animator.SetTrigger("victory");
 		GetComponent<Health>().m_invincible = true;
-		controlEnabled = false;
 	}
 
 
@@ -449,6 +444,14 @@ public class AvatarController : KinematicCharacter
 			evt.m_object.transform.parent = null; // so that we can refresh inventory immediately even though deletion hasn't happened yet
 			InventorySync();
 		}
+	}
+
+	private void DeactivateAllControl()
+	{
+		controlEnabled = false;
+		m_focusIndicator.SetActive(false);
+		m_focusPrompt.SetActive(false);
+		StopAiming();
 	}
 
 	private void StopAiming()

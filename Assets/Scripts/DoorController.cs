@@ -76,6 +76,11 @@ public class DoorController : MonoBehaviour, IInteractable
 		}
 	}
 
+	private void OnDestroy()
+	{
+		Simulation.Schedule<ObjectDespawn>().m_object = m_key;
+	}
+
 
 	public /*override*/ bool CanInteract(KinematicCharacter interactor) => m_combination != 0;
 
@@ -106,7 +111,6 @@ public class DoorController : MonoBehaviour, IInteractable
 
 	private void Unlock()
 	{
-		Simulation.Schedule<ObjectDespawn>().m_object = m_key;
 		Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
 
 		// TODO: unlock SFX/VFX/etc.
