@@ -149,5 +149,16 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 		}
 
 		transform.position = m_restPosition;
+
+		// refresh inventory if we're the last one done, to update colors/indices/etc.
+		// TODO: efficiency?
+		foreach (InventoryController slot in transform.parent.GetComponentsInChildren<InventoryController>())
+		{
+			if (slot.transform.position != slot.m_restPosition)
+			{
+				yield break;
+			}
+		}
+		GameController.Instance.m_avatar.InventorySync();
 	}
 }
