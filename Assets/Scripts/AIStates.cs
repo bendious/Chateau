@@ -258,7 +258,7 @@ public sealed class AIRamSwoop : AIState
 
 public sealed class AIFindAmmo : AIState
 {
-	public float m_multiFindPct = 0.5f;
+	public float m_multiFindPct = 0.5f; // TODO: determine based on relative distances to other items versus m_ai.m_target?
 
 
 	private Transform m_target;
@@ -323,7 +323,7 @@ public sealed class AIFindAmmo : AIState
 			}
 
 			// prioritize by distance
-			// TODO: use pathfind distance? de-prioritize based on vertical distance / passing through m_ai.m_target? use RandomWeighted() to allow retries to bypass unreachable "closest" options?
+			// TODO: use pathfind distance? also prioritize based on item damage? de-prioritize based on vertical distance / passing through m_ai.m_target? use RandomWeighted() to allow retries to bypass unreachable "closest" options?
 			float distSq = ((Vector2)tf.position - (Vector2)m_ai.transform.position).sqrMagnitude;
 			if (distSq < closestDistSq)
 			{

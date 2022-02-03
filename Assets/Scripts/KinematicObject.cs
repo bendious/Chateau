@@ -51,6 +51,8 @@ public abstract class KinematicObject : MonoBehaviour
 
 	public bool HasFlying => Utility.FloatEqual(gravityModifier, 0.0f);
 
+	public bool HasForcedVelocity => !Utility.FloatEqual(m_velocityForcedWeight.magnitude, 0.0f);
+
 
 	protected Vector2 targetVelocity;
 	protected Vector2 groundNormal = Vector2.up;
@@ -68,7 +70,8 @@ public abstract class KinematicObject : MonoBehaviour
 	private AvatarController m_avatar;
 
 	private Vector2 m_velocityForced = Vector2.zero;
-	private Vector2 m_velocityForcedVel = Vector2.zero;
+	private Vector2 m_velocityForcedWeight = Vector2.zero;
+	private Vector2 m_velocityForcedWeightVel = Vector2.zero;
 
 	private /*readonly*/ int m_platformLayer;
 	private const float m_platformTopEpsilon = 0.1f;
@@ -82,9 +85,9 @@ public abstract class KinematicObject : MonoBehaviour
 	/// <param name="dir"></param>
 	public void Bounce(Vector2 dir)
 	{
-		velocity = dir;
 		m_velocityForced = dir;
-		m_velocityForcedVel = Vector2.zero;
+		m_velocityForcedWeight = Vector2.one;
+		m_velocityForcedWeightVel = Vector2.zero;
 	}
 
 	/// <summary>
@@ -124,8 +127,6 @@ public abstract class KinematicObject : MonoBehaviour
 	{
 	}
 
-	protected abstract float IntegrateForcedVelocity(float target, float forced);
-
 	protected virtual void FixedUpdate()
 	{
 		if (!body.simulated)
@@ -136,15 +137,15 @@ public abstract class KinematicObject : MonoBehaviour
 		//if already falling, fall faster than the jump speed, otherwise use normal gravity.
 		velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0 ? gravityModifier : 1.0f) * Time.fixedDeltaTime * Physics2D.gravity;
 
-		velocity.x = IntegrateForcedVelocity(targetVelocity.x, m_velocityForced.x);
-		if (HasFlying && Mathf.Abs(m_velocityForced.y) <= 0.01f)
+		velocity.x = Mathf.Lerp(targetVelocity.x, m_velocityForced.x, m_velocityForcedWeight.x);
+		if (HasFlying && Utility.FloatEqual(m_velocityForcedWeight.y, 0.0f))
 		{
 			velocity.y = targetVelocity.y;
 		}
 
 		// blend velocity back from forced if necessary
-		m_velocityForced.x = Mathf.SmoothDamp(m_velocityForced.x, 0.0f, ref m_velocityForcedVel.x, m_velocityForcedSmoothTime);
-		m_velocityForced.y = Mathf.SmoothDamp(m_velocityForced.y, 0.0f, ref m_velocityForcedVel.y, m_velocityForcedSmoothTime);
+		m_velocityForcedWeight.x = Mathf.SmoothDamp(m_velocityForcedWeight.x, 0.0f, ref m_velocityForcedWeightVel.x, m_velocityForcedSmoothTime);
+		m_velocityForcedWeight.y = Mathf.SmoothDamp(m_velocityForcedWeight.y, 0.0f, ref m_velocityForcedWeightVel.y, m_velocityForcedSmoothTime);
 
 		IsGrounded = false;
 		IsWallClinging = false;

@@ -37,11 +37,6 @@ public class EnemyController : KinematicCharacter
 		}
 	}
 
-	protected override float IntegrateForcedVelocity(float target, float forced)
-	{
-		return Mathf.Abs(forced) < 0.01f ? target : forced;
-	}
-
 	protected override void Update()
 	{
 		if (ConsoleCommands.PassiveAI)
@@ -149,6 +144,12 @@ public class EnemyController : KinematicCharacter
 	public bool NavigateTowardTarget(Transform target, Vector2 targetOffsetAbs)
 	{
 		const float arrivalEpsilon = 0.1f; // TODO: derive/calculate?
+
+		if (HasForcedVelocity)
+		{
+			move = Vector2.zero;
+			return false;
+		}
 
 		// pathfind
 		// TODO: efficiency?

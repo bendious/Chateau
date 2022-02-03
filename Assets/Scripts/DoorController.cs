@@ -67,7 +67,7 @@ public class DoorController : MonoBehaviour, IInteractable
 			return;
 		}
 
-		foreach (Transform tf in collision.gameObject.GetComponentsInChildren<Transform>())
+		foreach (Transform tf in collision.gameObject.GetComponentsInChildren<Transform>(true))
 		{
 			if (tf.gameObject == m_key)
 			{

@@ -82,11 +82,6 @@ public class AvatarController : KinematicCharacter
 		ObjectDespawn.OnExecute += OnObjectDespawn;
 	}
 
-	protected override float IntegrateForcedVelocity(float target, float forced)
-	{
-		return Mathf.Lerp(target, forced, Mathf.Abs(forced));
-	}
-
 	protected override void Update()
 	{
 		if (controlEnabled)
