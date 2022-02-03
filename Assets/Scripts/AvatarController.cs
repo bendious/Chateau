@@ -61,7 +61,14 @@ public class AvatarController : KinematicCharacter
 	protected override void Awake()
 	{
 		base.Awake();
+
+		m_focusIndicator.transform.SetParent(null);
+		m_focusPrompt.transform.SetParent(null);
+		m_aimObject.transform.SetParent(null);
+		m_inventoryUI.transform.SetParent(null);
+
 		health = GetComponent<Health>();
+		health.m_healthUIParent.transform.parent.transform.SetParent(null);
 
 		m_aimVfx = GetComponent<VisualEffect>();
 		m_spriteID = Shader.PropertyToID("Sprite");

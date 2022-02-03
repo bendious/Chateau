@@ -49,7 +49,7 @@ public abstract class KinematicObject : MonoBehaviour
 	public bool IsWallClinging { get; private set; }
 
 
-	public bool HasFlying => gravityModifier <= 0.01f;
+	public bool HasFlying => Utility.FloatEqual(gravityModifier, 0.0f);
 
 
 	protected Vector2 targetVelocity;
@@ -260,7 +260,7 @@ public abstract class KinematicObject : MonoBehaviour
 						currentNormal.x = 0;
 					}
 				}
-				if (!IsGrounded && currentNormal.y >= m_minWallClingNormalY && !isNearGround.Value)
+				if (!IsGrounded && currentNormal.y >= m_minWallClingNormalY && velocity.y <= 0.0f && !isNearGround.Value)
 				{
 					IsWallClinging = true;
 					m_wallNormal = currentNormal;
@@ -279,9 +279,8 @@ public abstract class KinematicObject : MonoBehaviour
 					}
 					else if (!isNearGround.Value)
 					{
-						//We are airborne, but hit something, so cancel vertical up and horizontal velocity.
+						// airborne, but hit something, so cancel horizontal velocity.
 						velocity.x *= 0;
-						velocity.y = Mathf.Min(velocity.y, 0);
 					}
 				}
 				//remove shellDistance from actual move distance.

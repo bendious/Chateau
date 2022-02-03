@@ -86,16 +86,16 @@ public abstract class KinematicCharacter : KinematicObject
 
 	protected override void ComputeVelocity()
 	{
-		if (jump && (IsGrounded || IsWallClinging))
+		if (jump)
 		{
-			if (IsWallClinging)
+			if (IsGrounded)
+			{
+				velocity.y = jumpTakeOffSpeed; // NOTE that we purposely ignore any existing velocity so that ground-based jumps are always full strength
+			}
+			else if (IsWallClinging || Physics2D.OverlapCircleAll(m_collider.bounds.center, m_collider.bounds.extents.x).FirstOrDefault(collider => collider.GetComponent<Rigidbody2D>() == null /*&& collider.normal.y >= m_minWallClingNormalY*/) != null) // NOTE that we check for a near-enough wall if we haven't entered wall cling already // TODO: get a wall normal to check to exclude ceilings
 			{
 				Bounce(new Vector2(m_wallNormal.x * maxSpeed, 0.0f)); // TODO: fix blending w/ directional input
 				velocity += jumpTakeOffSpeed * new Vector2(move.x < 0.0f ? -m_wallJumpXYRatio : m_wallJumpXYRatio, 1.0f).normalized; // NOTE that we purposely incorporate any existing velocity so that gravity will eventually take over and prevent clinging to the walls forever
-			}
-			else
-			{
-				velocity.y = jumpTakeOffSpeed; // NOTE that we purposely ignore any existing velocity so that ground-based jumps are always full strength
 			}
 			jump = false;
 		}

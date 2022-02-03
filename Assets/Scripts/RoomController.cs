@@ -241,6 +241,10 @@ public class RoomController : MonoBehaviour
 			m_topChild = MaybeReplaceDoor(ref m_topConnected, roomPrefab, bounds, Vector3.up, ref m_topLock, m_doorT, m_ladderPieces, child => child.m_bottomConnected = true);
 			if (m_topChild != null)
 			{
+				foreach (GameObject piece in m_ladderPieces)
+				{
+					piece.SetActive(true);
+				}
 				m_spawnDepthMax = spawnDepthOrig;
 				return true;
 			}
@@ -290,7 +294,7 @@ public class RoomController : MonoBehaviour
 			{
 				foreach (GameObject piece in ladderPieces)
 				{
-					Simulation.Schedule<ObjectDespawn>().m_object = piece;
+					piece.SetActive(false);
 				}
 			}
 
