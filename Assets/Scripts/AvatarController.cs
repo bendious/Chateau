@@ -150,6 +150,8 @@ public class AvatarController : KinematicCharacter
 				{
 					foreach (ItemController item in items)
 					{
+						StopAiming(); // NOTE that we don't care whether the item to be used is currently being aimed; even if it isn't, we treat item use - like swinging - as a throw cancellation
+
 						bool used = item.Use();
 						if (used)
 						{

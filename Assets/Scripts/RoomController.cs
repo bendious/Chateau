@@ -92,6 +92,7 @@ public class RoomController : MonoBehaviour
 		}
 		if (newTable != null)
 		{
+			newTable.SetActive(false); // to prevent being visible for a frame while waiting to despawn
 			Simulation.Schedule<ObjectDespawn>().m_object = newTable;
 		}
 	}
