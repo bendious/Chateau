@@ -103,7 +103,7 @@ public class DoorController : MonoBehaviour, IInteractable
 		}
 	}
 
-	public /*override*/ void Detach()
+	public /*override*/ void Detach(bool noAutoReplace)
 	{
 		Assert.IsNull("This should never be called.");
 	}

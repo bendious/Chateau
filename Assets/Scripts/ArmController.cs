@@ -52,6 +52,11 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		return true;
 	}
 
+	public /*override*/ void ItemDetach(ItemController item, bool noAutoReplace)
+	{
+		IHolder.ItemDetachInternal(item, this, noAutoReplace);
+	}
+
 
 	public void Swing(float swingDegreesPerSec, float swingRadiusPerSec, float radiusSpringStiffness, float radiusSpringDampPct)
 	{

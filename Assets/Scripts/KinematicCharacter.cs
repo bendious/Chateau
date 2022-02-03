@@ -147,7 +147,7 @@ public abstract class KinematicCharacter : KinematicObject
 		// detach all items
 		foreach (IInteractable attachee in GetComponentsInChildren<IInteractable>())
 		{
-			attachee.Detach();
+			attachee.Detach(true);
 		}
 
 		foreach (ArmController arm in GetComponentsInChildren<ArmController>())
@@ -180,7 +180,7 @@ public abstract class KinematicCharacter : KinematicObject
 			BackpackController packExisting = GetComponentInChildren<BackpackController>();
 			if (packExisting != null)
 			{
-				packExisting.Detach();
+				packExisting.Detach(true);
 				// TODO: transfer items from old to new pack?
 			}
 
@@ -191,11 +191,11 @@ public abstract class KinematicCharacter : KinematicObject
 		// TODO: don't assume non-backpack attachables are items?
 		ItemController item = (ItemController)attachee;
 
-		ItemController[] heldItems = GetComponentsInChildren<ItemController>().ToArray();
+		ItemController[] heldItems = GetComponentsInChildren<ItemController>(true).ToArray();
 		if (heldItems.Length >= MaxPickUps)
 		{
 			// TODO: ensure cycling through items?
-			heldItems.First().Detach();
+			heldItems.First().Detach(true);
 		}
 
 		foreach (IHolder holder in GetComponentsInChildren<IHolder>())

@@ -99,11 +99,11 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 		// detach (to prevent too-many-to-hold failed attachment) and then attach
 		if (item1 != null && item1.transform.parent != null)
 		{
-			item1.Detach();
+			item1.Detach(true);
 		}
 		if (item2 != null && item2.transform.parent != null)
 		{
-			item2.Detach();
+			item2.Detach(true);
 		}
 		if (item1 != null)
 		{

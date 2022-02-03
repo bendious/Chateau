@@ -27,11 +27,11 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable
 		return true;
 	}
 
-	public /*override*/ void ItemDetach(ItemController item)
+	public /*override*/ void ItemDetach(ItemController item, bool noAutoReplace)
 	{
 		item.gameObject.SetActive(true);
 
-		IHolder.ItemDetachInternal(item, this);
+		IHolder.ItemDetachInternal(item, this, noAutoReplace);
 	}
 
 
@@ -50,7 +50,7 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable
 		gameObject.layer = character.gameObject.layer;
 	}
 
-	public /*override*/ void Detach()
+	public /*override*/ void Detach(bool noAutoReplace)
 	{
 		StopAllCoroutines();
 

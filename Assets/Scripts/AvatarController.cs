@@ -31,7 +31,7 @@ public class AvatarController : KinematicCharacter
 	public GameObject m_aimObject;
 	public GameObject m_inventoryUI;
 
-	public Vector3 m_focusPromptOffset = new Vector3(0.0f, 0.15f, -0.15f);
+	public Vector3 m_focusPromptOffset = new(0.0f, 0.15f, -0.15f);
 	public float m_aimRadius = 5.0f;
 
 	public float m_secondaryDegrees = -45.0f;
@@ -98,7 +98,7 @@ public class AvatarController : KinematicCharacter
 
 			// swing
 			bool refreshInventory = false;
-			ItemController[] items = GetComponentsInChildren<ItemController>().ToArray();
+			ItemController[] items = GetComponentsInChildren<ItemController>(true).ToArray();
 			ItemController primaryItem = items.FirstOrDefault();
 			if (Input.GetButtonDown("Fire1"))
 			{
@@ -221,7 +221,7 @@ public class AvatarController : KinematicCharacter
 			{
 				if (primaryItem != null)
 				{
-					primaryItem.Detach();
+					primaryItem.Detach(false);
 					refreshInventory = true;
 				}
 			}
@@ -428,7 +428,7 @@ public class AvatarController : KinematicCharacter
 		{
 			foreach (ItemController item in arm.GetComponentsInChildren<ItemController>())
 			{
-				item.Detach();
+				item.Detach(true);
 			}
 			arm.gameObject.SetActive(false);
 		}

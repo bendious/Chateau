@@ -10,5 +10,5 @@ public interface IInteractable
 
 	public void Interact(KinematicCharacter interactor) => interactor.AttachItem(this);
 
-	public void Detach();
+	public void Detach(bool noAutoReplace);
 }

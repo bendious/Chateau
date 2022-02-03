@@ -167,7 +167,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	{
 		if (m_holder != null)
 		{
-			Detach();
+			Detach(false);
 		}
 		m_holder = holder;
 
@@ -182,9 +182,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	}
 
 	// this is the detachment entry point
-	public void /*override*/ Detach()
+	public void /*override*/ Detach(bool noAutoReplace)
 	{
-		m_holder.ItemDetach(this);
+		m_holder.ItemDetach(this, noAutoReplace);
 	}
 
 	// this (although public) should only be called by IHolderController.ItemDetachInternal() // TODO?
@@ -243,7 +243,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		// temporarily ignore collisions w/ thrower
 		EnableCollision.TemporarilyDisableCollision(m_holder.Object.transform.parent.GetComponents<Collider2D>(), m_colliders, 0.1f);
 
-		Detach();
+		Detach(false);
 		m_body.velocity = transform.rotation * Vector2.right * m_throwSpeed;
 
 		EnableVFXAndDamage();

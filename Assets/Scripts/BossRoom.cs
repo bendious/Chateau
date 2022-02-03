@@ -107,7 +107,7 @@ public class BossRoom : MonoBehaviour
 
 	private void OnObjectDespawn(ObjectDespawn evt)
 	{
-		if (evt.m_object.gameObject == m_boss.gameObject)
+		if (m_boss != null && evt.m_object.gameObject == m_boss.gameObject)
 		{
 			// TODO: start zoom-in?
 
