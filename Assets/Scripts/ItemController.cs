@@ -235,6 +235,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 			return true;
 		}
 
+		if (transform.childCount > 0)
+		{
+			GameObject childObj = transform.GetChild(0).gameObject;
+			childObj.SetActive(!childObj.activeSelf);
+			return true;
+		}
+
 		return false;
 	}
 

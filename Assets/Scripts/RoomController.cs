@@ -309,6 +309,7 @@ public class RoomController : MonoBehaviour
 			Vector2 size = door.GetComponent<BoxCollider2D>().size * door.transform.localScale;
 			lockObj.GetComponent<BoxCollider2D>().size = size;
 			lockObj.GetComponent<SpriteRenderer>().size = size;
+			// TODO: update shadow caster shape once it is programmatically accessible
 		}
 
 		// enable one-way movement or destroy
