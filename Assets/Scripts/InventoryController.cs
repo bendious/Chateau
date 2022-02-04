@@ -73,8 +73,29 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 			return;
 		}
 
+		// if far enough outside inventory area, detach
+		if (eventData.position.y > m_restPosition.y + 2.0f * GetComponent<RectTransform>().sizeDelta.y)
+		{
+			AvatarController avatar = GameController.Instance.m_avatar;
+			SlotItemInfo slotItemInfo1 = ItemFromIndex(avatar, transform.GetSiblingIndex());
+			slotItemInfo1.m_item.Detach(false);
+
+			// reset/update display
+			transform.position = m_restPosition; // NOTE that we don't lerp here since the slot is now empty
+			avatar.InventorySync();
+			return;
+		}
+
 		// if no swap, slide to old position
 		StartCoroutine(LerpToRest());
+	}
+
+
+	private struct SlotItemInfo
+	{
+		public ItemController m_item;
+		public IHolder m_holder;
+		public int m_holderIndex;
 	}
 
 
@@ -91,10 +112,10 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 		// swap avatar hold
 		// get items BEFORE editing attachments
 		AvatarController avatar = GameController.Instance.m_avatar;
-		Tuple<ItemController, IHolder> itemAndHolder1 = ItemFromIndex(avatar, index1);
-		ItemController item1 = itemAndHolder1.Item1;
-		Tuple<ItemController, IHolder> itemAndHolder2 = ItemFromIndex(avatar, index2);
-		ItemController item2 = itemAndHolder2.Item1;
+		SlotItemInfo slotItemInfo1 = ItemFromIndex(avatar, index1);
+		ItemController item1 = slotItemInfo1.m_item;
+		SlotItemInfo slotItemInfo2 = ItemFromIndex(avatar, index2);
+		ItemController item2 = slotItemInfo2.m_item;
 
 		// detach (to prevent too-many-to-hold failed attachment) and then attach
 		if (item1 != null && item1.transform.parent != null)
@@ -107,11 +128,19 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 		}
 		if (item1 != null)
 		{
-			itemAndHolder2.Item2.ItemAttach(item1);
+			slotItemInfo2.m_holder.ItemAttach(item1);
 		}
 		if (item2 != null)
 		{
-			itemAndHolder1.Item2.ItemAttach(item2);
+			slotItemInfo1.m_holder.ItemAttach(item2);
+		}
+		if (item1 != null)
+		{
+			item1.transform.SetSiblingIndex(slotItemInfo2.m_holderIndex);
+		}
+		if (item2 != null)
+		{
+			item2.transform.SetSiblingIndex(slotItemInfo1.m_holderIndex);
 		}
 
 		// swap icon positions
@@ -124,14 +153,14 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 		StartCoroutine(element2.LerpToRest());
 	}
 
-	private Tuple<ItemController, IHolder> ItemFromIndex(Component character, int index)
+	private SlotItemInfo ItemFromIndex(Component character, int index)
 	{
 		// NOTE that the indices are off by one between the inventory and avatar due to the inventory template object
 		int holderIdx = Math.Min(index, character.transform.childCount) - 1;
 		Transform holderTf = character.transform.GetChild(holderIdx);
 		int itemIdx = index - holderIdx - 1;
 		Transform itemTf = holderTf.childCount > itemIdx ? holderTf.GetChild(itemIdx) : null;
-		return Tuple.Create(itemTf == null ? null : itemTf.GetComponent<ItemController>(), holderTf.GetComponent<IHolder>());
+		return new SlotItemInfo { m_item = itemTf == null ? null : itemTf.GetComponent<ItemController>(), m_holder = holderTf.GetComponent<IHolder>(), m_holderIndex = itemIdx };
 	}
 
 	private IEnumerator LerpToRest()

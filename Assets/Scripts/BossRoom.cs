@@ -60,9 +60,13 @@ public class BossRoom : MonoBehaviour
 		{
 			if (info.m_object != null)
 			{
-				continue;
+				PlatformEffector2D effector = info.m_object.GetComponent<PlatformEffector2D>();
+				if (effector == null || !effector.enabled)
+				{
+					continue;
+				}
 			}
-			GameObject newGate = Instantiate(m_gatePrefab, info.m_bounds.center, Quaternion.identity, transform);
+			GameObject newGate = Instantiate(m_gatePrefab, info.m_bounds.center + Vector3.back, Quaternion.identity, transform); // NOTE the Z offset in case we need to render on top of a platform
 			m_spawnedGates.Add(newGate);
 			newGate.GetComponent<BoxCollider2D>().size = info.m_bounds.size;
 			newGate.GetComponent<SpriteRenderer>().size = info.m_bounds.size;

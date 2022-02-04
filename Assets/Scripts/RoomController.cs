@@ -284,9 +284,9 @@ public class RoomController : MonoBehaviour
 		Bounds childBounds = roomPrefab.GetComponent<RoomController>().CalculateBounds(false);
 		Vector3 pivotToCenter = bounds.center - transform.position;
 		Vector3 childPivotToCenter = childBounds.center - roomPrefab.transform.position;
-		Vector3 childOffset = Vector3.Scale(replaceDirection, bounds.extents + childBounds.extents + (Vector2.Dot(pivotToCenter, replaceDirection) >= 0.0f ? pivotToCenter : -pivotToCenter) + (Vector2.Dot(childPivotToCenter, replaceDirection) >= 0.0f ? -childPivotToCenter : childPivotToCenter));
+		Vector3 childPivotPos = transform.position + Vector3.Scale(replaceDirection, bounds.extents + childBounds.extents + (Vector2.Dot(pivotToCenter, replaceDirection) >= 0.0f ? pivotToCenter : -pivotToCenter) + (Vector2.Dot(childPivotToCenter, replaceDirection) >= 0.0f ? -childPivotToCenter : childPivotToCenter));
 
-		bool canSpawnRoom = !spawnedFromThisDirection && m_spawnDepthMax > 0 && Physics2D.OverlapBox(bounds.center + childOffset, childBounds.size - new Vector3(0.1f, 0.1f, 0.0f), 0.0f) == null; // NOTE the small size reduction to avoid always collecting ourself
+		bool canSpawnRoom = !spawnedFromThisDirection && m_spawnDepthMax > 0 && Physics2D.OverlapBox(childPivotPos + childPivotToCenter, childBounds.size - new Vector3(0.1f, 0.1f, 0.0f), 0.0f) == null; // NOTE the small size reduction to avoid always collecting ourself
 		isOpen = spawnedFromThisDirection || (canSpawnRoom && UnityEngine.Random.value < m_roomSpawnPct);
 
 		if (!isOpen)
@@ -337,7 +337,7 @@ public class RoomController : MonoBehaviour
 			return null;
 		}
 
-		RoomController newRoom = Instantiate(roomPrefab, transform.position + childOffset, Quaternion.identity).GetComponent<RoomController>();
+		RoomController newRoom = Instantiate(roomPrefab, childPivotPos, Quaternion.identity).GetComponent<RoomController>();
 		newRoom.m_spawnDepthMax = m_spawnDepthMax - 1;
 		postReplace(newRoom);
 		return newRoom;
