@@ -32,6 +32,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 
 	public Vector2 SpritePivotOffset => -(m_renderer.sprite.pivot / m_renderer.sprite.rect.size * 2.0f - Vector2.one) * m_renderer.sprite.bounds.extents;
 
+	public bool IsSwinging { get; private set; }
+
 
 	private Rigidbody2D m_body;
 	private VisualEffect m_vfx;
@@ -99,8 +101,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		// maybe attach to character
 		// TODO: extend to BackpackController as well?
 		bool isDetached = m_holder == null;
-		bool causeCanDamage = m_cause != null && m_cause != collision.gameObject; // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus
-		if (isDetached && !causeCanDamage)
+		bool canDamage = m_cause != null && m_cause != collision.gameObject && collision.otherCollider == m_colliders.First(); // NOTE that we prevent damage from secondary colliders (e.g. spear hafts)
+		if (isDetached && !canDamage) // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus or if it is a secondary (non-damaging) collider making contact
 		{
 			KinematicCharacter character = collision.gameObject.GetComponent<KinematicCharacter>();
 			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>().Length < character.MaxPickUps)
@@ -126,7 +128,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 			}
 
 			// if from a valid source, apply damage
-			if (causeCanDamage)
+			if (canDamage)
 			{
 				Health otherHealth = collision.gameObject.GetComponent<Health>();
 				if (otherHealth != null)
@@ -208,6 +210,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 			arm.Swing(m_swingDegreesPerSec, m_swingRadiusPerSec, m_radiusSpringStiffness, m_radiusSpringDampPct);
 		}
 
+		IsSwinging = true;
 		EnableVFXAndDamage();
 
 		// play audio
@@ -315,6 +318,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 				{
 					SetCause(null);
 				}
+				IsSwinging = false;
 				StopAllCoroutines();
 				break;
 			}

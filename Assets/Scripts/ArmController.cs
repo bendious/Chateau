@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 
@@ -21,15 +22,17 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	private float m_radiusSpringDampPct;
 
 
-	public float Speed => Mathf.Abs(m_aimVelocity) + Mathf.Abs(m_aimRadiusVelocity); // TODO: incorporate aim velocity direction?
+	public float Speed => Mathf.Abs(m_aimVelocityArm + m_aimVelocityItem) + Mathf.Abs(m_aimRadiusVelocity); // TODO: incorporate aim velocity directions?
 
 
-	private bool LeftFacing => Mathf.Cos(Mathf.Deg2Rad * m_aimDegrees) < 0.0f; // TODO: efficiency?
+	private bool LeftFacing => Mathf.Cos(Mathf.Deg2Rad * m_aimDegreesArm) < 0.0f; // TODO: efficiency?
 
 
 
-	private float m_aimDegrees;
-	private float m_aimVelocity;
+	private float m_aimDegreesArm;
+	private float m_aimDegreesItem;
+	private float m_aimVelocityArm;
+	private float m_aimVelocityItem;
 	private float m_aimRadius;
 	private float m_aimRadiusVelocity;
 	private bool m_swingDirection;
@@ -45,8 +48,11 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 		m_aimSpringStiffness = item.m_aimSpringStiffness; // TODO: reset when detaching?
 		m_aimSpringDampPct = item.m_aimSpringDampPct;
-		m_aimDegrees = AimDegreesRaw(Vector2.zero, item.transform.position); // TODO: lerp? use previous rootOffset?
-		m_aimVelocity = 0.0f;
+
+		m_aimDegreesArm = AimDegreesRaw(transform.parent.position, Vector2.zero, item.transform.position); // TODO: lerp? use most recent rootOffset?
+		m_aimVelocityArm = 0.0f;
+		m_aimDegreesItem = item.transform.rotation.eulerAngles.z - m_aimDegreesArm;
+		m_aimVelocityItem = 0.0f;
 		m_aimRadiusVelocity = 0.0f;
 
 		return true;
@@ -65,17 +71,17 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		m_radiusSpringStiffness = radiusSpringStiffness;
 		m_radiusSpringDampPct = radiusSpringDampPct;
 
-		m_aimVelocity += m_swingDirection ? m_swingDegreesPerSec : -m_swingDegreesPerSec;
+		m_aimVelocityArm += m_swingDirection ? m_swingDegreesPerSec : -m_swingDegreesPerSec;
 		m_aimRadiusVelocity += m_swingRadiusPerSec;
 		m_swingDirection = !m_swingDirection;
 	}
 
-	public void UpdateAim(Vector2 rootOffset, Vector2 aimPosition)
+	public void UpdateAim(Vector2 rootOffset, Vector2 aimPositionArm, Vector2 aimPositionItem)
 	{
-		m_aimDegrees = DampedSpring(m_aimDegrees, AimDegreesRaw(rootOffset, aimPosition), m_aimSpringDampPct, true, m_aimSpringStiffness, ref m_aimVelocity);
+		m_aimDegreesArm = DampedSpring(m_aimDegreesArm, AimDegreesRaw(transform.parent.position, rootOffset, aimPositionArm), m_aimSpringDampPct, true, m_aimSpringStiffness, ref m_aimVelocityArm);
 		m_aimRadius = DampedSpring(m_aimRadius, 0.0f, m_radiusSpringDampPct, false, m_radiusSpringStiffness, ref m_aimRadiusVelocity);
 
-		transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegrees);
+		transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesArm);
 		Vector3 localPos = (Vector3)rootOffset + (LeftFacing ? new Vector3(m_offset.x, m_offset.y, -m_offset.z) : m_offset) + transform.localRotation * Vector3.right * m_aimRadius;
 		transform.localPosition = localPos;
 
@@ -83,13 +89,18 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>())
 		{
 			renderer.flipY = leftFacingCached;
+			if (renderer.gameObject != gameObject && !renderer.GetComponent<ItemController>().IsSwinging)
+			{
+				m_aimDegreesItem = DampedSpring(m_aimDegreesItem, AimDegreesRaw(renderer.transform.position, Vector2.zero, aimPositionItem) - m_aimDegreesArm, m_aimSpringDampPct, true, m_aimSpringStiffness, ref m_aimVelocityItem);
+				renderer.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesItem);
+			}
 		}
 	}
 
 
-	private float AimDegreesRaw(Vector2 rootOffset, Vector2 aimPosition)
+	private float AimDegreesRaw(Vector2 rootPos, Vector2 rootOffset, Vector2 aimPosition)
 	{
-		Vector2 aimDiff = aimPosition - ((Vector2)transform.parent.position + rootOffset + (Vector2)m_offset);
+		Vector2 aimDiff = aimPosition - (rootPos + rootOffset + (Vector2)m_offset);
 		return Mathf.Rad2Deg * Mathf.Atan2(aimDiff.y, aimDiff.x);
 	}
 

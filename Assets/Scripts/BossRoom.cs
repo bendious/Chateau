@@ -161,7 +161,7 @@ public class BossRoom : MonoBehaviour
 			Vector2 aimPos = m_boss.transform.position + Quaternion.Euler(0.0f, 0.0f, degrees) * Vector2.right;
 			for (int i = (int)degrees * arms.Length / 360; i < arms.Length; ++i)
 			{
-				arms[i].UpdateAim(m_boss.m_armOffset, aimPos);
+				arms[i].UpdateAim(m_boss.m_armOffset, aimPos, aimPos);
 			}
 			degrees = Mathf.SmoothDamp(degrees, 360.0f, ref angleVel, smoothTimeSlow);
 			yield return null;

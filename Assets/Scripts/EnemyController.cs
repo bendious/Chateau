@@ -71,7 +71,7 @@ public class EnemyController : KinematicCharacter
 				ArmController primaryArm = arms.FirstOrDefault(arm => arm.GetComponentInChildren<ItemController>() != null);
 				if (primaryArm != null)
 				{
-					primaryArm.UpdateAim(m_armOffset, m_target.position);
+					primaryArm.UpdateAim(m_armOffset, m_target.position, m_target.position);
 				}
 
 				int i = primaryArm == null ? -1 : 0;
@@ -82,7 +82,7 @@ public class EnemyController : KinematicCharacter
 						continue;
 					}
 					Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, ++i * System.Math.Min(60, 360 / arms.Length)) * (m_target.position - transform.position);
-					arm.UpdateAim(m_armOffset, aimPos);
+					arm.UpdateAim(m_armOffset, aimPos, m_target.position);
 				}
 			}
 		}
