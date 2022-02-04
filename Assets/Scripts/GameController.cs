@@ -61,7 +61,14 @@ public class GameController : MonoBehaviour
 		StartCoroutine(TimerCoroutine());
 
 		// TODO: dialogue system
-		m_dialogueController.Play(new string[] { "Ah, welcome home.", "You’ve been out for quite a while, haven’t you?", "You’re not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", "But don’t worry about me; you have more pressing concerns at the moment, I believe." });
+		if (!PlayerPrefs.HasKey("IntroDialogueDone"))
+		{
+			m_dialogueController.Play(new string[] { "Ah, welcome home.", "You’ve been out for quite a while, haven’t you?", "You’re not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", "But don’t worry about me; you have more pressing concerns at the moment, I believe." }, () =>
+			{
+				PlayerPrefs.SetInt("IntroDialogueDone", 1);
+				Save(); // TODO: auto-save system?
+			});
+		}
 	}
 
 	private void Update()
@@ -121,6 +128,10 @@ public class GameController : MonoBehaviour
 		m_gameOverUI.gameObject.SetActive(true);
 	}
 
+	public void Save() => PlayerPrefs.Save();
+
+	public void DeleteSave() => PlayerPrefs.DeleteAll(); // TODO: separate setup/configuration from game data?
+
 	public void Retry()
 	{
 		if (m_pauseUI.isActiveAndEnabled)
@@ -152,7 +163,7 @@ public class GameController : MonoBehaviour
 
 	public void Quit()
 	{
-		// TODO: save?
+		Save(); // TODO: prompt player?
 
 #if UNITY_EDITOR
 		UnityEditor.EditorApplication.isPlaying = false;

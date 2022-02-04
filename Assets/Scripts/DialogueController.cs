@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -18,12 +19,15 @@ public class DialogueController : MonoBehaviour
 	private int m_textListIdx;
 	private int m_revealedCharCount;
 
+	private Action m_postDialogue;
 
-	public void Play(string[] textList)
+
+	public void Play(string[] textList, Action postDialogue)
 	{
 		m_textList = textList;
 		m_textListIdx = -1;
 		m_revealedCharCount = 0;
+		m_postDialogue = postDialogue;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
 		StartCoroutine(AdvanceDialogue());
@@ -60,7 +64,7 @@ public class DialogueController : MonoBehaviour
 			{
 				// reveal next letter(s)
 				int numToReveal = (int)((Time.time - nextRevealTime) / revealDurationCur) + 1;
-				m_revealedCharCount = System.Math.Min(m_revealedCharCount + numToReveal, textCurLen);
+				m_revealedCharCount = Math.Min(m_revealedCharCount + numToReveal, textCurLen);
 				lastRevealTime += revealDurationCur * numToReveal;
 
 				// update UI
@@ -80,6 +84,7 @@ public class DialogueController : MonoBehaviour
 			yield return null;
 		}
 
+		m_postDialogue?.Invoke();
 		gameObject.SetActive(false);
 	}
 }
