@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -75,7 +74,7 @@ public class GameController : MonoBehaviour
 	{
 		Simulation.Tick();
 
-		if (!m_gameOverUI.gameObject.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+		if (!m_gameOverUI.gameObject.activeSelf && Input.GetButtonDown("Pause"))
 		{
 			TogglePause();
 		}

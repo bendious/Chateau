@@ -32,7 +32,6 @@ public class AvatarController : KinematicCharacter
 	public GameObject m_inventoryUI;
 
 	public Vector3 m_focusPromptOffset = new(0.0f, 0.15f, -0.15f);
-	public float m_aimRadius = 5.0f;
 
 	public float m_secondaryDegrees = -45.0f;
 
@@ -49,6 +48,10 @@ public class AvatarController : KinematicCharacter
 
 	private VisualEffect m_aimVfx;
 	private bool m_aiming;
+
+	private bool m_usingMouse;
+	private Vector2 m_mousePosPrev;
+	private Vector2 m_joystickDirNonzero;
 
 	// TODO: class for ease of VFX ID use?
 	private static int m_spriteID;
@@ -253,13 +256,29 @@ public class AvatarController : KinematicCharacter
 	{
 		if (controlEnabled)
 		{
+			// determine input source
+			Vector2 joystickDir = new(Input.GetAxis("AimHorizontal"), Input.GetAxis("AimVertical"));
+			if (m_mousePosPrev != (Vector2)Input.mousePosition)
+			{
+				m_usingMouse = true;
+			}
+			else if (joystickDir.sqrMagnitude != 0.0f) // TODO: FloatEqual() despite deadzone?
+			{
+				m_joystickDirNonzero = joystickDir;
+				m_usingMouse = false;
+			}
+
+			// determine aim position(s)
+			Vector2 aimPctsFromCenter = m_usingMouse ? Input.mousePosition / new Vector2(Screen.height, Screen.width) * 2.0f - Vector2.one : m_joystickDirNonzero;
+			aimPctsFromCenter.x = Mathf.Clamp(aimPctsFromCenter.x, -1.0f, 1.0f);
+			aimPctsFromCenter.y = Mathf.Clamp(aimPctsFromCenter.y, -1.0f, 1.0f);
+			Vector2 screenExtentsWS = new(Camera.main.orthographicSize * Camera.main.aspect, Camera.main.orthographicSize);
+			Vector2 aimPosConstrained = transform.position + (Vector3)(screenExtentsWS * aimPctsFromCenter);
+			Vector2 aimPos = m_usingMouse ? Camera.main.ScreenToWorldPoint(Input.mousePosition) : aimPosConstrained;
+
 			// aim camera/sprite
-			Vector2 mousePosWS = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			Vector2 mousePctsFromCenter = Input.mousePosition / new Vector2(Screen.height, Screen.width) * 2.0f - Vector2.one;
-			mousePctsFromCenter.x = Mathf.Clamp(mousePctsFromCenter.x, -1.0f, 1.0f);
-			mousePctsFromCenter.y = Mathf.Clamp(mousePctsFromCenter.y, -1.0f, 1.0f);
-			m_aimObject.transform.position = transform.position + (Vector3)(m_aimRadius * mousePctsFromCenter);
-			m_aimDir = mousePosWS.x > transform.position.x ? 1 : -1;
+			m_aimObject.transform.position = aimPosConstrained;
+			m_aimDir = aimPos.x > transform.position.x ? 1 : -1;
 
 			// aim arms/items
 			// primary aim
@@ -267,7 +286,7 @@ public class AvatarController : KinematicCharacter
 			ArmController primaryArm = arms.Length == 0 ? null : arms.First().transform.childCount > 0 || arms.Last().transform.childCount == 0 ? arms.First() : arms.Last();
 			if (primaryArm != null)
 			{
-				primaryArm.UpdateAim(m_armOffset, mousePosWS, mousePosWS);
+				primaryArm.UpdateAim(m_armOffset, aimPos, aimPos);
 			}
 
 			// secondary hold
@@ -278,16 +297,18 @@ public class AvatarController : KinematicCharacter
 				{
 					continue;
 				}
-				arms[i].UpdateAim(m_armOffset, secondaryAimPos, mousePosWS);
+				arms[i].UpdateAim(m_armOffset, secondaryAimPos, aimPos);
 			}
 
 			// aim VFX
 			if (m_aimVfx.enabled)
 			{
 				ItemController primaryItem = GetComponentInChildren<ItemController>();
-				m_aimVfx.SetVector3(m_forwardID, (mousePosWS - (Vector2)transform.position).normalized);
+				m_aimVfx.SetVector3(m_forwardID, (aimPos - (Vector2)transform.position).normalized);
 				m_aimVfx.SetVector3(m_spawnOffsetID, primaryItem.transform.position - transform.position + (Vector3)primaryItem.SpritePivotOffset + primaryItem.transform.rotation * primaryItem.m_vfxExtraOffsetLocal);
 			}
+
+			m_mousePosPrev = Input.mousePosition;
 		}
 
 		base.FixedUpdate();

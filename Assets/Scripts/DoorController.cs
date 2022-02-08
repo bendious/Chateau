@@ -131,25 +131,27 @@ public class DoorController : MonoBehaviour, IInteractable
 		while (overlayObj.activeSelf && Vector2.Distance(interactor.transform.position, transform.position) < m_interactDistanceMax)
 		{
 			// TODO: more general input parsing?
-			int xInput = (Input.GetKeyDown(KeyCode.RightArrow) ? 1 : 0) - (Input.GetKeyDown(KeyCode.LeftArrow) ? 1 : 0);
-			if (Utility.FloatEqual(m_indicator.transform.localPosition.x, 0.0f) || xInput != 0)
+			float xInput = Input.GetAxis("MenuHorizontal");
+			int xInputDir = Utility.FloatEqual(xInput, 0.0f) ? 0 : (int)Mathf.Sign(xInput);
+			if (Utility.FloatEqual(m_indicator.transform.localPosition.x, 0.0f) || xInputDir != 0)
 			{
-				m_inputIdxCur = Utility.Modulo(m_inputIdxCur + xInput, m_combinationDigits);
+				m_inputIdxCur = Utility.Modulo(m_inputIdxCur + xInputDir, m_combinationDigits);
 				m_indicator.transform.localPosition = new Vector3(Mathf.Lerp(text.textBounds.min.x, text.textBounds.max.x, (m_inputIdxCur + 0.5f) / m_combinationDigits), m_indicator.transform.localPosition.y, m_indicator.transform.localPosition.z);
 			}
 
-			int yInput = (Input.GetKeyDown(KeyCode.UpArrow) ? 1 : 0) - (Input.GetKeyDown(KeyCode.DownArrow) ? 1 : 0);
-			if (yInput != 0)
+			float yInput = Input.GetAxis("MenuVertical");
+			int yInputDir = Utility.FloatEqual(yInput, 0.0f) ? 0 : (int)Mathf.Sign(yInput);
+			if (yInputDir != 0)
 			{
 				int digitScalar = (int)Mathf.Pow(10, m_combinationDigits - m_inputIdxCur - 1);
 				int oldDigit = m_inputCur / digitScalar % 10;
-				int newDigit = Utility.Modulo(oldDigit + yInput, 10);
+				int newDigit = Utility.Modulo(oldDigit + yInputDir, 10);
 				m_inputCur += (newDigit - oldDigit) * digitScalar;
 
 				text.text = m_inputCur.ToString("D" + m_combinationDigits);
 			}
 
-			if (Input.GetKeyDown(KeyCode.Return))
+			if (Input.GetButtonDown("Submit"))
 			{
 				if (m_inputCur == m_combination)
 				{

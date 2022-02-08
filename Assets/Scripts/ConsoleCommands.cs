@@ -22,7 +22,17 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 	// TODO: callback rather than checking every frame?
 	private void Update()
 	{
-		if (!Input.GetKey(KeyCode.BackQuote))
+		bool consoleOpen = Input.GetKey(KeyCode.BackQuote);
+
+#if UNITY_EDITOR
+		// TODO: detect even while editor is paused?
+		if ((consoleOpen && Input.GetKeyDown(KeyCode.P)) || Input.GetKeyDown(KeyCode.Pause)) // NOTE that KeyCode.Pause is the 'Pause/Break' keyboard key, not Esc
+		{
+			UnityEditor.EditorApplication.isPaused = !UnityEditor.EditorApplication.isPaused;
+		}
+#endif
+
+		if (!consoleOpen)
 		{
 			return;
 		}
