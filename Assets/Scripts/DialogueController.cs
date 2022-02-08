@@ -43,9 +43,11 @@ public class DialogueController : MonoBehaviour
 
 		while (notDone)
 		{
+			UnityEngine.InputSystem.InputAction submitKey = GameController.Instance.m_avatar.Controls.UI.Submit;
+
 			// maybe move to next line
 			bool stillRevealing = m_revealedCharCount < textCurLen;
-			if (m_textListIdx < 0 || (Input.GetKeyDown(KeyCode.Return) && !stillRevealing))
+			if (m_textListIdx < 0 || (submitKey.triggered && !stillRevealing))
 			{
 				// next line
 				m_continueIndicator.SetActive(false);
@@ -58,7 +60,7 @@ public class DialogueController : MonoBehaviour
 			}
 
 			// maybe reveal next letter(s)
-			float revealDurationCur = stillRevealing && Input.GetKey(KeyCode.Return) ? m_revealSecondsFast : m_revealSeconds;
+			float revealDurationCur = stillRevealing && submitKey.IsPressed() ? m_revealSecondsFast : m_revealSeconds;
 			float nextRevealTime = lastRevealTime + revealDurationCur;
 			if (stillRevealing && nextRevealTime <= Time.time)
 			{

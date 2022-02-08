@@ -130,8 +130,10 @@ public class DoorController : MonoBehaviour, IInteractable
 
 		while (overlayObj.activeSelf && Vector2.Distance(interactor.transform.position, transform.position) < m_interactDistanceMax)
 		{
-			// TODO: more general input parsing?
-			float xInput = Input.GetAxis("MenuHorizontal");
+			PlayerControls.UIActions controls = GameController.Instance.m_avatar.Controls.UI;
+
+			Vector2 xyInput = controls.Navigate.ReadValue<Vector2>();
+			float xInput = xyInput.x;
 			int xInputDir = Utility.FloatEqual(xInput, 0.0f) ? 0 : (int)Mathf.Sign(xInput);
 			if (Utility.FloatEqual(m_indicator.transform.localPosition.x, 0.0f) || xInputDir != 0)
 			{
@@ -139,7 +141,7 @@ public class DoorController : MonoBehaviour, IInteractable
 				m_indicator.transform.localPosition = new Vector3(Mathf.Lerp(text.textBounds.min.x, text.textBounds.max.x, (m_inputIdxCur + 0.5f) / m_combinationDigits), m_indicator.transform.localPosition.y, m_indicator.transform.localPosition.z);
 			}
 
-			float yInput = Input.GetAxis("MenuVertical");
+			float yInput = xyInput.y;
 			int yInputDir = Utility.FloatEqual(yInput, 0.0f) ? 0 : (int)Mathf.Sign(yInput);
 			if (yInputDir != 0)
 			{
@@ -151,7 +153,7 @@ public class DoorController : MonoBehaviour, IInteractable
 				text.text = m_inputCur.ToString("D" + m_combinationDigits);
 			}
 
-			if (Input.GetButtonDown("Submit"))
+			if (controls.Submit.triggered)
 			{
 				if (m_inputCur == m_combination)
 				{

@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.VFX;
 
@@ -37,6 +38,10 @@ public class AvatarController : KinematicCharacter
 
 	public float m_coyoteTime = 0.15f;
 
+
+	public PlayerControls Controls { get; private set; }
+
+
 	private JumpState jumpState = JumpState.Grounded;
 	private Health health;
 	public bool controlEnabled = true;
@@ -50,7 +55,7 @@ public class AvatarController : KinematicCharacter
 	private bool m_aiming;
 
 	private bool m_usingMouse;
-	private Vector2 m_mousePosPrev;
+	private Vector2 m_mousePosPixels;
 	private Vector2 m_joystickDirNonzero;
 
 	// TODO: class for ease of VFX ID use?
@@ -82,30 +87,41 @@ public class AvatarController : KinematicCharacter
 
 		InventorySync();
 
+		Controls = new();
+
 		ObjectDespawn.OnExecute += OnObjectDespawn;
 	}
 
+	private void OnDisable()
+	{
+		Controls.Disable();
+	}
+
+	private void OnEnable()
+	{
+		Controls.Enable();
+	}
+
+
+	// TODO: use callbacks instead of polling?
 	protected override void Update()
 	{
 		if (controlEnabled)
 		{
-			if ((jumpState == JumpState.Grounded || jumpState == JumpState.WallCling || m_leftGroundTime + m_coyoteTime <= Time.time) && Input.GetButtonDown("Jump"))
+			if ((jumpState == JumpState.Grounded || jumpState == JumpState.WallCling || m_leftGroundTime + m_coyoteTime <= Time.time) && Controls.Avatar.Jump.triggered)
 			{
 				jumpState = JumpState.PrepareToJump;
 			}
-			else if (Input.GetButtonUp("Jump"))
+			else if (Controls.Avatar.Jump.WasReleasedThisFrame())
 			{
 				stopJump = true;
 			}
-			bool canMove = !GameController.Instance.m_overlayCanvas.gameObject.activeSelf;
-			move.x = canMove ? Input.GetAxis("Horizontal") : 0.0f;
-			move.y = canMove ? Input.GetAxis("Vertical") : 0.0f;
 
 			// swing
 			bool refreshInventory = false;
 			ItemController[] items = GetComponentsInChildren<ItemController>(true).ToArray();
 			ItemController primaryItem = items.FirstOrDefault();
-			if (Input.GetButtonDown("Fire1"))
+			if (Controls.Avatar.Swing.triggered)
 			{
 				if (primaryItem == null)
 				{
@@ -128,7 +144,7 @@ public class AvatarController : KinematicCharacter
 			if (primaryItem != null)
 			{
 				// throw
-				if (Input.GetButtonDown("Fire2"))
+				if (Controls.Avatar.Throw.triggered)
 				{
 					// enable/initialize aim VFX
 					m_aimVfx.enabled = true;
@@ -139,7 +155,7 @@ public class AvatarController : KinematicCharacter
 					m_aimVfx.SetFloat(m_speedID, primaryItem.m_throwSpeed);
 					m_aiming = true;
 				}
-				else if (m_aiming && Input.GetButtonUp("Fire2"))
+				else if (m_aiming && Controls.Avatar.Throw.WasReleasedThisFrame())
 				{
 					StopAiming();
 
@@ -149,7 +165,7 @@ public class AvatarController : KinematicCharacter
 					refreshInventory = true;
 				}
 
-				if (Input.GetButtonDown("Fire3"))
+				if (Controls.Avatar.Use.triggered)
 				{
 					foreach (ItemController item in items)
 					{
@@ -167,7 +183,7 @@ public class AvatarController : KinematicCharacter
 			// collect possible focus objects
 			m_focusObj = null;
 			float focusRadius = ((CircleCollider2D)m_collider).radius;
-			Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			Vector2 mousePos = Camera.main.ScreenToWorldPoint(m_mousePosPixels);
 			Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + (mousePos - (Vector2)transform.position).normalized * focusRadius, focusRadius * 1.5f); // TODO: restrict to certain layers?
 
 			// determine current focus object
@@ -213,7 +229,7 @@ public class AvatarController : KinematicCharacter
 				m_focusPrompt.transform.position = m_focusIndicator.transform.position + m_focusPromptOffset;
 
 				// interact
-				if (Input.GetButtonDown("Interact"))
+				if (Controls.Avatar.Interact.triggered)
 				{
 					focusInteract.Interact(this);
 					refreshInventory = true; // TODO: only if necessary?
@@ -222,9 +238,9 @@ public class AvatarController : KinematicCharacter
 			m_focusIndicator.SetActive(focusCanInteract);
 			m_focusPrompt.SetActive(focusCanInteract);
 
-			IsPickingUp = Input.GetButton("Interact") && items.Length < MaxPickUps;
+			IsPickingUp = Controls.Avatar.Interact.IsPressed() && items.Length < MaxPickUps;
 
-			if (Input.GetButtonDown("Drop"))
+			if (Controls.Avatar.Drop.triggered)
 			{
 				if (primaryItem != null)
 				{
@@ -234,7 +250,7 @@ public class AvatarController : KinematicCharacter
 			}
 
 			// show/update inventory
-			if (Input.GetButtonDown("Inventory"))
+			if (Controls.Avatar.Inventory.triggered)
 			{
 				m_inventoryUI.SetActive(!m_inventoryUI.activeSelf);
 				InventorySync();
@@ -256,25 +272,13 @@ public class AvatarController : KinematicCharacter
 	{
 		if (controlEnabled)
 		{
-			// determine input source
-			Vector2 joystickDir = new(Input.GetAxis("AimHorizontal"), Input.GetAxis("AimVertical"));
-			if (m_mousePosPrev != (Vector2)Input.mousePosition)
-			{
-				m_usingMouse = true;
-			}
-			else if (joystickDir.sqrMagnitude != 0.0f) // TODO: FloatEqual() despite deadzone?
-			{
-				m_joystickDirNonzero = joystickDir;
-				m_usingMouse = false;
-			}
-
 			// determine aim position(s)
-			Vector2 aimPctsFromCenter = m_usingMouse ? Input.mousePosition / new Vector2(Screen.height, Screen.width) * 2.0f - Vector2.one : m_joystickDirNonzero;
+			Vector2 aimPctsFromCenter = m_usingMouse ? m_mousePosPixels / new Vector2(Screen.height, Screen.width) * 2.0f - Vector2.one : m_joystickDirNonzero;
 			aimPctsFromCenter.x = Mathf.Clamp(aimPctsFromCenter.x, -1.0f, 1.0f);
 			aimPctsFromCenter.y = Mathf.Clamp(aimPctsFromCenter.y, -1.0f, 1.0f);
 			Vector2 screenExtentsWS = new(Camera.main.orthographicSize * Camera.main.aspect, Camera.main.orthographicSize);
 			Vector2 aimPosConstrained = transform.position + (Vector3)(screenExtentsWS * aimPctsFromCenter);
-			Vector2 aimPos = m_usingMouse ? Camera.main.ScreenToWorldPoint(Input.mousePosition) : aimPosConstrained;
+			Vector2 aimPos = m_usingMouse ? Camera.main.ScreenToWorldPoint(m_mousePosPixels) : aimPosConstrained;
 
 			// aim camera/sprite
 			m_aimObject.transform.position = aimPosConstrained;
@@ -307,8 +311,6 @@ public class AvatarController : KinematicCharacter
 				m_aimVfx.SetVector3(m_forwardID, (aimPos - (Vector2)transform.position).normalized);
 				m_aimVfx.SetVector3(m_spawnOffsetID, primaryItem.transform.position - transform.position + (Vector3)primaryItem.SpritePivotOffset + primaryItem.transform.rotation * primaryItem.m_vfxExtraOffsetLocal);
 			}
-
-			m_mousePosPrev = Input.mousePosition;
 		}
 
 		base.FixedUpdate();
@@ -319,6 +321,32 @@ public class AvatarController : KinematicCharacter
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
 	}
 
+
+	// called by InputSystem / PlayerInput component
+	public void OnMove(InputValue input)
+	{
+		move = GameController.Instance.m_overlayCanvas.gameObject.activeSelf ? Vector2.zero : input.Get<Vector2>();
+	}
+
+	// called by InputSystem / PlayerInput component
+	public void OnLook(InputValue input)
+	{
+		// determine input source
+		m_usingMouse = GetComponent<PlayerInput>().currentControlScheme == "Keyboard&Mouse";
+
+		if (m_usingMouse)
+		{
+			m_mousePosPixels = input.Get<Vector2>();
+		}
+		else
+		{
+			Vector2 joystickDir = input.Get<Vector2>();
+			if (joystickDir.sqrMagnitude != 0.0f) // TODO: FloatEqual() despite deadzone?
+			{
+				m_joystickDirNonzero = joystickDir;
+			}
+		}
+	}
 
 	public override void OnDamage(GameObject source)
 	{

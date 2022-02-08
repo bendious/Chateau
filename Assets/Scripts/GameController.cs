@@ -74,7 +74,7 @@ public class GameController : MonoBehaviour
 	{
 		Simulation.Tick();
 
-		if (!m_gameOverUI.gameObject.activeSelf && Input.GetButtonDown("Pause"))
+		if (!m_gameOverUI.gameObject.activeSelf && m_avatar.Controls.UI.Pause.triggered)
 		{
 			TogglePause();
 		}
