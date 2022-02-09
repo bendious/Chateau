@@ -94,7 +94,7 @@ public class GameController : MonoBehaviour
 	public void TogglePause()
 	{
 		Time.timeScale = Time.timeScale == 0.0f ? 1.0f : 0.0f;
-		m_pauseUI.gameObject.SetActive(!m_pauseUI.gameObject.activeSelf);
+		ActivateMenu(m_pauseUI, !m_pauseUI.gameObject.activeSelf);
 		// NOTE that if the avatar is ever visible while paused, we should disable its script here to avoid continuing to update facing
 	}
 
@@ -124,7 +124,7 @@ public class GameController : MonoBehaviour
 
 	public void OnGameOver()
 	{
-		m_gameOverUI.gameObject.SetActive(true);
+		ActivateMenu(m_gameOverUI, true);
 	}
 
 	public void Save() => PlayerPrefs.Save();
@@ -143,7 +143,7 @@ public class GameController : MonoBehaviour
 #if DEBUG
 			m_avatar.DebugRespawn();
 #endif
-			m_gameOverUI.gameObject.SetActive(false);
+			ActivateMenu(m_gameOverUI, false);
 			return;
 		}
 
@@ -277,6 +277,15 @@ public class GameController : MonoBehaviour
 			yield return new WaitForSeconds(1.0f); // NOTE that we currently don't care whether the UI timer is precise within partial seconds
 			m_timerUI.text = System.TimeSpan.FromSeconds(m_nextWaveTime - Time.time).ToString("m':'ss");
 			m_timerUI.color = EnemiesRemain() ? Color.red : Color.green;
+		}
+	}
+
+	private void ActivateMenu(Canvas menu, bool active)
+	{
+		menu.gameObject.SetActive(active);
+		if (active)
+		{
+			UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(menu.GetComponentInChildren<Button>().gameObject);
 		}
 	}
 }
