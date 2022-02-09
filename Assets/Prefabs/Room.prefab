@@ -138,7 +138,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 1822089061
   m_Mesh: {fileID: 0}
-  m_InstanceId: 68498
+  m_InstanceId: 66200
 --- !u!1 &409852463158594107
 GameObject:
   m_ObjectHideFlags: 0
@@ -153,7 +153,7 @@ GameObject:
   - component: {fileID: 2061465599215914645}
   - component: {fileID: 7470253819734846127}
   m_Layer: 0
-  m_Name: DoorB
+  m_Name: DoorwayB
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -296,7 +296,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 1584342063
   m_Mesh: {fileID: 0}
-  m_InstanceId: 68482
+  m_InstanceId: 66184
 --- !u!1 &2929849760781198063
 GameObject:
   m_ObjectHideFlags: 0
@@ -435,7 +435,7 @@ MonoBehaviour:
   - {x: 0.3, y: -0.5, z: 0}
   m_ShapePathHash: 1342426541
   m_Mesh: {fileID: 0}
-  m_InstanceId: 68392
+  m_InstanceId: 66094
 --- !u!1 &3865645025881897782
 GameObject:
   m_ObjectHideFlags: 0
@@ -450,7 +450,7 @@ GameObject:
   - component: {fileID: 645457930624081958}
   - component: {fileID: 2206376215979539521}
   m_Layer: 0
-  m_Name: DoorT
+  m_Name: DoorwayT
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -593,7 +593,7 @@ MonoBehaviour:
   - {x: 0.5, y: 0.5000038, z: 0}
   m_ShapePathHash: 2074856063
   m_Mesh: {fileID: 0}
-  m_InstanceId: 68406
+  m_InstanceId: 66108
 --- !u!1 &5416165761018516747
 GameObject:
   m_ObjectHideFlags: 0
@@ -607,7 +607,7 @@ GameObject:
   - component: {fileID: 4075267178374846777}
   - component: {fileID: 3815748693814305654}
   m_Layer: 0
-  m_Name: DoorR
+  m_Name: DoorwayR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -732,7 +732,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: -1565154609
   m_Mesh: {fileID: 0}
-  m_InstanceId: 68422
+  m_InstanceId: 66124
 --- !u!1 &5557331281289732181
 GameObject:
   m_ObjectHideFlags: 0
@@ -871,7 +871,7 @@ MonoBehaviour:
   - {x: 0.3, y: -0.47, z: 0}
   m_ShapePathHash: -597353311
   m_Mesh: {fileID: 0}
-  m_InstanceId: 68490
+  m_InstanceId: 66192
 --- !u!1 &5858312614131700818
 GameObject:
   m_ObjectHideFlags: 0
@@ -1010,7 +1010,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.3, z: 0}
   m_ShapePathHash: -1406444283
   m_Mesh: {fileID: 0}
-  m_InstanceId: 68398
+  m_InstanceId: 66100
 --- !u!1 &6422840777706418414
 GameObject:
   m_ObjectHideFlags: 0
@@ -1151,7 +1151,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.48, z: 0}
   m_ShapePathHash: 1694674871
   m_Mesh: {fileID: 0}
-  m_InstanceId: 68464
+  m_InstanceId: 66166
 --- !u!1 &7422594126546487761
 GameObject:
   m_ObjectHideFlags: 0
@@ -1212,10 +1212,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_doorPrefab: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
   m_tablePrefab: {fileID: 5142660895504974057, guid: 717755c04a138404d80679d2c0d06ab5, type: 3}
-  m_doorL: {fileID: 7910571754348373109}
-  m_doorR: {fileID: 5416165761018516747}
-  m_doorB: {fileID: 409852463158594107}
-  m_doorT: {fileID: 3865645025881897782}
+  m_doorways:
+  - {fileID: 409852463158594107}
+  - {fileID: 7910571754348373109}
+  - {fileID: 5416165761018516747}
+  - {fileID: 3865645025881897782}
   m_ladderPieces:
   - {fileID: 6550962419312069795}
   - {fileID: 8902356344618489042}
@@ -1323,7 +1324,7 @@ GameObject:
   - component: {fileID: 8188211040513751824}
   - component: {fileID: 8610177032583988902}
   m_Layer: 0
-  m_Name: DoorL
+  m_Name: DoorwayL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1448,7 +1449,7 @@ MonoBehaviour:
   - {x: 0.3, y: -0.5, z: 0}
   m_ShapePathHash: 446818637
   m_Mesh: {fileID: 0}
-  m_InstanceId: 68500
+  m_InstanceId: 66202
 --- !u!1001 &1075949156331750355
 PrefabInstance:
   m_ObjectHideFlags: 0

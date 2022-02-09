@@ -37,13 +37,13 @@ public class BossRoom : MonoBehaviour
 		ObjectDespawn.OnExecute += OnObjectDespawn;
 
 		// track doorways
-		// TODO: generalize?
 		RoomController roomScript = GetComponent<RoomController>();
-		m_doors = new DoorInfo[4];
-		m_doors[0] = new DoorInfo { m_object = roomScript.m_doorL, m_bounds = roomScript.m_doorL.GetComponent<Collider2D>().bounds };
-		m_doors[1] = new DoorInfo { m_object = roomScript.m_doorR, m_bounds = roomScript.m_doorR.GetComponent<Collider2D>().bounds };
-		m_doors[2] = new DoorInfo { m_object = roomScript.m_doorB, m_bounds = roomScript.m_doorB.GetComponent<Collider2D>().bounds };
-		m_doors[3] = new DoorInfo { m_object = roomScript.m_doorT, m_bounds = roomScript.m_doorT.GetComponent<Collider2D>().bounds };
+		m_doors = new DoorInfo[roomScript.m_doorways.Length];
+		int i = 0;
+		foreach (GameObject doorway in roomScript.m_doorways)
+		{
+			m_doors[i++] = new DoorInfo { m_object = doorway, m_bounds = doorway.GetComponent<Collider2D>().bounds };
+		}
 	}
 
 	private void OnTriggerEnter2D(Collider2D collision)

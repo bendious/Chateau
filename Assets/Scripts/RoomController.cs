@@ -10,10 +10,7 @@ public class RoomController : MonoBehaviour
 	public GameObject m_doorPrefab;
 	public GameObject m_tablePrefab;
 
-	public GameObject m_doorL;
-	public GameObject m_doorR;
-	public GameObject m_doorB;
-	public GameObject m_doorT;
+	public GameObject[] m_doorways;
 
 	public GameObject[] m_ladderPieces;
 
@@ -28,43 +25,50 @@ public class RoomController : MonoBehaviour
 	public static readonly Color m_oneWayPlatformColor = new(0.3f, 0.2f, 0.1f);
 
 
-	private bool m_leftConnected = false;
-	private bool m_rightConnected = false;
-	private bool m_bottomConnected = false;
-	private bool m_topConnected = false;
-
-	private /*readonly*/ RoomController m_leftChild;
-	private /*readonly*/ RoomController m_rightChild;
-	private /*readonly*/ RoomController m_bottomChild;
-	private /*readonly*/ RoomController m_topChild;
-
-	private /*readonly*/ Vector2 m_leftDoorPos;
-	private /*readonly*/ Vector2 m_rightDoorPos;
-	private /*readonly*/ Vector2 m_bottomDoorPos;
-	private /*readonly*/ Vector2 m_topDoorPos;
-
-	private /*readonly*/ GameObject m_leftLock;
-	private /*readonly*/ GameObject m_rightLock;
-	private /*readonly*/ GameObject m_bottomLock;
-	private /*readonly*/ GameObject m_topLock;
+	private struct DoorwayInfo
+	{
+		public Vector2 m_position;
+		public bool m_isConnected; // NOTE that this is true independently of m_childRoom being non-null due to children not tracking their parents // TODO: remove?
+		public RoomController m_childRoom; // TODO: make bidirectional?
+		public GameObject m_lock;
+	}
+	private /*readonly*/ DoorwayInfo[] m_doorwayInfos;
 
 	private bool m_childrenCreated = false;
 
 
 	private void Start()
 	{
-		m_leftDoorPos = m_doorL.transform.position;
-		m_rightDoorPos = m_doorR.transform.position;
-		m_bottomDoorPos = m_doorB.transform.position;
-		m_topDoorPos = m_doorT.transform.position;
+		// initialize/size arrays
+		if (m_doorwayInfos == null) // NOTE that our parent might have already set its connection to us
+		{
+			m_doorwayInfos = new DoorwayInfo[m_doorways.Length];
+		}
 
 		// replace doors / spawn rooms
-		// TODO: randomize order to avoid directional bias?
+		// TODO: combine w/ SpawnChildRoom() logic
 		Bounds bounds = CalculateBounds(false);
-		m_leftChild = MaybeReplaceDoor(ref m_leftConnected, Utility.RandomWeighted(GameController.Instance.m_roomPrefabs), bounds, Vector3.left, ref m_leftLock, m_doorL, null, child => child.m_rightConnected = true);
-		m_rightChild = MaybeReplaceDoor(ref m_rightConnected, Utility.RandomWeighted(GameController.Instance.m_roomPrefabs), bounds, Vector3.right, ref m_rightLock, m_doorR, null, child => child.m_leftConnected = true);
-		m_bottomChild = MaybeReplaceDoor(ref m_bottomConnected, Utility.RandomWeighted(GameController.Instance.m_roomPrefabs), bounds, Vector3.down, ref m_bottomLock, m_doorB, null, child => child.m_topConnected = true);
-		m_topChild = MaybeReplaceDoor(ref m_topConnected, Utility.RandomWeighted(GameController.Instance.m_roomPrefabs), bounds, Vector3.up, ref m_topLock, m_doorT, m_ladderPieces, child => child.m_bottomConnected = true);
+		DoorwaysRandomOrder(doorwayIdx =>
+		{
+			GameObject doorway = m_doorways[doorwayIdx];
+
+			// record doorway position in case the object is removed
+			DoorwayInfo doorwayInfo = m_doorwayInfos[doorwayIdx];
+			doorwayInfo.m_position = doorway.transform.position;
+
+			// determine doorway direction
+			Vector3 doorwaySize = doorway.GetComponent<Collider2D>().bounds.size;
+			bool isTrapdoor = doorwaySize.x > doorwaySize.y;
+			Vector3 pivotToDoorway = doorway.transform.position - transform.position;
+			Vector3 offsetDir = isTrapdoor ? new Vector3(0.0f, Mathf.Sign(pivotToDoorway.y), 0.0f) : new Vector3(Mathf.Sign(pivotToDoorway.x), 0.0f, 0.0f);
+
+			// maybe replace/remove
+			doorwayInfo.m_childRoom = MaybeReplaceDoor(ref doorwayInfo.m_isConnected, Utility.RandomWeighted(GameController.Instance.m_roomPrefabs), bounds, offsetDir, out doorwayInfo.m_lock, doorway);
+
+			m_doorwayInfos[doorwayIdx] = doorwayInfo;
+
+			return false;
+		});
 
 		m_childrenCreated = true;
 
@@ -104,13 +108,13 @@ public class RoomController : MonoBehaviour
 		{
 			return false;
 		}
-		return (new RoomController[] { m_leftChild, m_rightChild, m_bottomChild, m_topChild }).All(child => child == null || child.AllChildrenReady());
+		return m_doorwayInfos.All(info => info.m_childRoom == null || info.m_childRoom.AllChildrenReady());
 	}
 
 	public Vector3 ChildPosition(bool checkLocks, GameObject targetObj, bool onFloor)
 	{
 		// enumerate valid options
-		RoomController[] options = (new[] { new(this, null), new(m_leftChild, m_leftLock), new(m_rightChild, m_rightLock), new(m_bottomChild, m_bottomLock), Tuple.Create(m_topChild, m_topLock) }).Where(child => child.Item1 != null && child.Item1.m_childrenCreated && (!checkLocks || child.Item2 == null)).Select(pair => pair.Item1).ToArray();
+		RoomController[] options = m_doorwayInfos.Where(info => info.m_childRoom != null && info.m_childRoom.m_childrenCreated && (!checkLocks || info.m_lock == null)).Select(pair => pair.m_childRoom).ToArray();
 
 		// weight options based on distance to target
 		float[] optionWeights = targetObj == null ? Enumerable.Repeat(1.0f, options.Length).ToArray() : options.Select(option => 1.0f / Vector3.Distance(option.transform.position, targetObj.transform.position)).ToArray();
@@ -182,7 +186,7 @@ public class RoomController : MonoBehaviour
 	{
 		// enumerate non-null children
 		Assert.IsTrue(m_childrenCreated);
-		Tuple<RoomController, int>[] childrenPreprocess = (new[] { new(m_leftChild, m_leftLock != null ? 1 : 0), new(m_rightChild, m_rightLock != null ? 1 : 0), new(m_bottomChild, m_bottomLock != null ? 1 : 0), Tuple.Create(m_topChild, m_topLock != null ? 1 : 0) }).Where(child => child.Item1 != null).ToArray();
+		Tuple<RoomController, int>[] childrenPreprocess = m_doorwayInfos.Select(info => Tuple.Create(info.m_childRoom, info.m_lock != null ? 1 : 0)).Where(child => child.Item1 != null).ToArray();
 		if (childrenPreprocess.Length == 0)
 		{
 			return new(new List<RoomController> { this }, startDistance);
@@ -206,53 +210,30 @@ public class RoomController : MonoBehaviour
 		int spawnDepthOrig = m_spawnDepthMax;
 		m_spawnDepthMax = Math.Max(m_spawnDepthMax, 1);
 
-		// TODO: randomize order
-		if (m_leftChild == null && m_doorL != null)
+		// TODO: combine w/ Start() logic
+		bool success = DoorwaysRandomOrder(i =>
 		{
-			m_leftChild = MaybeReplaceDoor(ref m_leftConnected, roomPrefab, bounds, Vector3.left, ref m_leftLock, m_doorL, null, child => child.m_rightConnected = true);
-			if (m_leftChild != null)
+			DoorwayInfo info = m_doorwayInfos[i];
+			if (info.m_childRoom == null && m_doorways[i] != null)
 			{
-				m_spawnDepthMax = spawnDepthOrig;
-				return true;
-			}
-		}
+				// determine doorway direction
+				Vector3 doorwaySize = m_doorways[i].GetComponent<Collider2D>().bounds.size;
+				bool isTrapdoor = doorwaySize.x > doorwaySize.y;
+				Vector3 pivotToDoorway = m_doorways[i].transform.position - transform.position;
+				Vector3 offsetDir = isTrapdoor ? new Vector3(0.0f, Mathf.Sign(pivotToDoorway.y), 0.0f) : new Vector3(Mathf.Sign(pivotToDoorway.x), 0.0f, 0.0f);
 
-		if (m_rightChild == null && m_doorR != null)
-		{
-			m_rightChild = MaybeReplaceDoor(ref m_rightConnected, roomPrefab, bounds, Vector3.right, ref m_rightLock, m_doorR, null, child => child.m_leftConnected = true);
-			if (m_rightChild != null)
-			{
-				m_spawnDepthMax = spawnDepthOrig;
-				return true;
-			}
-		}
-
-		if (m_bottomChild == null && m_doorB != null)
-		{
-			m_bottomChild = MaybeReplaceDoor(ref m_bottomConnected, roomPrefab, bounds, Vector3.down, ref m_bottomLock, m_doorB, null, child => child.m_topConnected = true);
-			if (m_bottomChild != null)
-			{
-				m_spawnDepthMax = spawnDepthOrig;
-				return true;
-			}
-		}
-
-		if (m_topChild == null && m_doorT != null)
-		{
-			m_topChild = MaybeReplaceDoor(ref m_topConnected, roomPrefab, bounds, Vector3.up, ref m_topLock, m_doorT, m_ladderPieces, child => child.m_bottomConnected = true);
-			if (m_topChild != null)
-			{
-				foreach (GameObject piece in m_ladderPieces)
+				// maybe replace/remove
+				m_doorwayInfos[i].m_childRoom = MaybeReplaceDoor(ref info.m_isConnected, roomPrefab, bounds, offsetDir, out info.m_lock, m_doorways[i]);
+				if (m_doorwayInfos[i].m_childRoom != null)
 				{
-					piece.SetActive(true);
+					return true;
 				}
-				m_spawnDepthMax = spawnDepthOrig;
-				return true;
 			}
-		}
+			return false;
+		});
 
 		m_spawnDepthMax = spawnDepthOrig;
-		return false;
+		return success;
 	}
 
 
@@ -276,8 +257,23 @@ public class RoomController : MonoBehaviour
 		return b;
 	}
 
-	private RoomController MaybeReplaceDoor(ref bool isOpen, GameObject roomPrefab, Bounds bounds, Vector3 replaceDirection, ref GameObject lockObj, GameObject door, GameObject[] ladderPieces, Action<RoomController> postReplace)
+	private bool DoorwaysRandomOrder(Func<int, bool> f)
 	{
+		int[] order = Enumerable.Range(0, m_doorwayInfos.Length).OrderBy(i => UnityEngine.Random.value).ToArray();
+		foreach (int i in order)
+		{
+			bool done = f(i);
+			if (done)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private RoomController MaybeReplaceDoor(ref bool isOpen, GameObject roomPrefab, Bounds bounds, Vector3 replaceDirection, out GameObject lockObj, GameObject door)
+	{
+		lockObj = null;
 		Assert.AreApproximatelyEqual(replaceDirection.magnitude, 1.0f);
 		bool spawnedFromThisDirection = isOpen;
 
@@ -289,16 +285,17 @@ public class RoomController : MonoBehaviour
 		bool canSpawnRoom = !spawnedFromThisDirection && m_spawnDepthMax > 0 && Physics2D.OverlapBox(childPivotPos + childPivotToCenter, childBounds.size - new Vector3(0.1f, 0.1f, 0.0f), 0.0f) == null; // NOTE the small size reduction to avoid always collecting ourself
 		isOpen = spawnedFromThisDirection || (canSpawnRoom && UnityEngine.Random.value < m_roomSpawnPct);
 
+		// TODO: spawn ladders rather than embedding in prefabs, handle multiple upward doorways?
+		if (replaceDirection.y > 0.0f && m_ladderPieces != null)
+		{
+			foreach (GameObject piece in m_ladderPieces)
+			{
+				piece.SetActive(isOpen);
+			}
+		}
+
 		if (!isOpen)
 		{
-			if (ladderPieces != null)
-			{
-				foreach (GameObject piece in ladderPieces)
-				{
-					piece.SetActive(false);
-				}
-			}
-
 			return null;
 		}
 
@@ -339,7 +336,17 @@ public class RoomController : MonoBehaviour
 
 		RoomController newRoom = Instantiate(roomPrefab, childPivotPos, Quaternion.identity).GetComponent<RoomController>();
 		newRoom.m_spawnDepthMax = m_spawnDepthMax - 1;
-		postReplace(newRoom);
+
+		// set child's parent connection
+		List<DoorwayInfo> infosTmp = new();
+		foreach (GameObject doorway in newRoom.m_doorways)
+		{
+			Vector3 doorwaySize = doorway.GetComponent<Collider2D>().bounds.size;
+			bool isTrapdoor = doorwaySize.x > doorwaySize.y;
+			infosTmp.Add(new DoorwayInfo { m_isConnected = Vector2.Dot((Vector2)newRoom.transform.position - (Vector2)doorway.transform.position, replaceDirection) > 0.0f && isTrapdoor == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y)) }); // TODO: better way of determining reverse direction doorway?
+		}
+		newRoom.m_doorwayInfos = infosTmp.ToArray();
+
 		return newRoom;
 	}
 
@@ -360,10 +367,9 @@ public class RoomController : MonoBehaviour
 		// check non-null children
 		// TODO: prioritize by distance from endPosition?
 		Assert.IsTrue(m_childrenCreated);
-		RoomController[] children = (new RoomController[] { m_leftChild, m_rightChild, m_bottomChild, m_topChild }).Where(child => child != null).ToArray();
-		foreach (RoomController child in children)
+		foreach (DoorwayInfo info in m_doorwayInfos.Where(info => info.m_childRoom != null))
 		{
-			List<RoomController> childPath = child.RoomPathFromRoot(endPosition, prePath);
+			List<RoomController> childPath = info.m_childRoom.RoomPathFromRoot(endPosition, prePath);
 			if (childPath != null)
 			{
 				return childPath;
@@ -376,37 +382,18 @@ public class RoomController : MonoBehaviour
 	private Vector2 RoomConnection(RoomController a, RoomController b)
 	{
 		// TODO: efficiency?
-		if (a.m_leftChild == b)
+		for (int i = 0; i < m_doorwayInfos.Length; ++i)
 		{
-			return a.m_leftDoorPos;
-		}
-		if (a.m_rightChild == b)
-		{
-			return a.m_rightDoorPos;
-		}
-		if (a.m_bottomChild == b)
-		{
-			return a.m_bottomDoorPos;
-		}
-		if (a.m_topChild == b)
-		{
-			return a.m_topDoorPos;
-		}
-		if (b.m_leftChild == a)
-		{
-			return b.m_leftDoorPos;
-		}
-		if (b.m_rightChild == a)
-		{
-			return b.m_rightDoorPos;
-		}
-		if (b.m_bottomChild == a)
-		{
-			return b.m_bottomDoorPos;
-		}
-		if (b.m_topChild == a)
-		{
-			return b.m_topDoorPos;
+			DoorwayInfo infoA = a.m_doorwayInfos[i];
+			if (infoA.m_childRoom == b)
+			{
+				return infoA.m_position;
+			}
+			DoorwayInfo infoB = b.m_doorwayInfos[i];
+			if (infoB.m_childRoom == a)
+			{
+				return infoB.m_position;
+			}
 		}
 
 		return Vector3.zero; // TODO: better no-connection return value?
