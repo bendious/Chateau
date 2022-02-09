@@ -103,6 +103,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ControlsVisualization",
+                    "type": "Button",
+                    "id": "14a9a58d-719c-49db-941e-04f20190a7ac",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -323,6 +332,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Shift",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8a41138a-bfcb-4e03-8591-3cddf9a11344",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ControlsVisualization",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

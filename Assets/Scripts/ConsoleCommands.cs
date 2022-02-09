@@ -3,6 +3,9 @@ using UnityEngine;
 
 public /*static*/ class ConsoleCommands : MonoBehaviour
 {
+	public GameObject[] m_visualizationPrefabs;
+
+
 	public static bool NeverDie { get; private set; }
 
 	public static bool PassiveAI { get; private set; }
@@ -19,6 +22,9 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 
 
 	private ConsoleControls m_controls;
+
+	private int m_controlsVisualizationIdx = -1;
+	private GameObject m_controlsVisualization;
 
 
 #if DEBUG
@@ -40,53 +46,55 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 	// TODO: callback rather than checking every frame?
 	private void Update()
 	{
+		ConsoleControls.ConsoleActions consoleControls = m_controls.Console;
+
 #if UNITY_EDITOR
 		// TODO: detect even while editor is paused?
-		if (m_controls.Console.Pause.triggered) // NOTE that KeyCode.Pause is the 'Pause/Break' keyboard key, not Esc
+		if (consoleControls.Pause.triggered) // NOTE that KeyCode.Pause is the 'Pause/Break' keyboard key, not Esc
 		{
 			UnityEditor.EditorApplication.isPaused = !UnityEditor.EditorApplication.isPaused;
 		}
 #endif
 
-		if (!m_controls.Console.Toggle.IsPressed())
+		if (!consoleControls.Toggle.IsPressed())
 		{
 			return;
 		}
 
-		if (m_controls.Console.NeverDie.triggered)
+		if (consoleControls.NeverDie.triggered)
 		{
 			NeverDie = !NeverDie;
 		}
 
-		if (m_controls.Console.PassiveAI.triggered)
+		if (consoleControls.PassiveAI.triggered)
 		{
 			PassiveAI = !PassiveAI;
 		}
 
-		if (m_controls.Console.AIDebugLevel.triggered)
+		if (consoleControls.AIDebugLevel.triggered)
 		{
 			AIDebugLevel = (AIDebugLevel + 1) % Utility.EnumNumTypes<AIDebugLevels>();
 		}
 
-		if (m_controls.Console.RegenerateDisabled.triggered)
+		if (consoleControls.RegenerateDisabled.triggered)
 		{
 			RegenerateDisabled = !RegenerateDisabled;
 		}
 
-		if (m_controls.Console.SpawnEnemyWave.triggered)
+		if (consoleControls.SpawnEnemyWave.triggered)
 		{
 			GameController.Instance.SpawnEnemyWave();
 		}
 
-		if (m_controls.Console.KillAllEnemies.triggered)
+		if (consoleControls.KillAllEnemies.triggered)
 		{
 			GameController.Instance.DebugKillAllEnemies();
 		}
 
-		if (m_controls.Console.HarmHealAvatar.triggered)
+		if (consoleControls.HarmHealAvatar.triggered)
 		{
 			Health avatarHealth = GameController.Instance.m_avatar.GetComponent<Health>();
-			if (m_controls.Console.Shift.IsPressed())
+			if (consoleControls.Shift.IsPressed())
 			{
 				avatarHealth.Increment();
 			}
@@ -96,10 +104,28 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 			}
 		}
 
-		// TODO: cleaner way of listening for any number key?
-		if (m_controls.Console.SpawnEnemy.triggered)
+		if (consoleControls.SpawnEnemy.triggered)
 		{
-			GameController.Instance.DebugSpawnEnemy(Mathf.RoundToInt(m_controls.Console.SpawnEnemy.ReadValue<float>()) % 10);
+			GameController.Instance.DebugSpawnEnemy(Mathf.RoundToInt(consoleControls.SpawnEnemy.ReadValue<float>()) % 10);
+		}
+
+		if (consoleControls.ControlsVisualization.triggered)
+		{
+			if (m_controlsVisualization != null)
+			{
+				Simulation.Schedule<ObjectDespawn>().m_object = m_controlsVisualization;
+			}
+
+			++m_controlsVisualizationIdx;
+			if (m_controlsVisualizationIdx < m_visualizationPrefabs.Length)
+			{
+				m_controlsVisualization = Instantiate(m_visualizationPrefabs[m_controlsVisualizationIdx]);
+			}
+			else
+			{
+				m_controlsVisualization = null;
+				m_controlsVisualizationIdx = -1;
+			}
 		}
 	}
 #endif
