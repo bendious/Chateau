@@ -64,7 +64,7 @@ public class GameController : MonoBehaviour
 			else
 			{
 				RoomController parentRoom = m_startRoom; // TODO: tight coupling
-				parentRoom.SpawnChildRoom(Utility.RandomWeighted(m_roomPrefabs));
+				parentRoom.SpawnChildRoom(Utility.RandomWeighted(m_roomPrefabs), node.m_type == LayoutGenerator.Node.Type.Lock);
 			}
 		});
 		SpawnBossRoom(); // TODO: spawn via LayoutGenerator.Node.Type.Boss
@@ -220,7 +220,7 @@ public class GameController : MonoBehaviour
 		do
 		{
 			endRoomPath = m_startRoom.RoomPathLongest().Item1;
-			spawned = endRoomPath.Last().SpawnChildRoom(Utility.RandomWeighted(m_bossRoomPrefabs));
+			spawned = endRoomPath.Last().SpawnChildRoom(Utility.RandomWeighted(m_bossRoomPrefabs), true); // TODO: special boss key(s)?
 		}
 		while (!spawned && --failsafe > 0);
 
