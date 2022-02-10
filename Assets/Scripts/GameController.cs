@@ -48,6 +48,10 @@ public class GameController : MonoBehaviour
 
 	private void Start()
 	{
+		LayoutGenerator generator = new();
+		generator.Generate();
+		// TODO: use generator to spawn rooms/locks/keys/items/etc.
+
 		m_startRoom = Instantiate(Utility.RandomWeighted(m_roomPrefabs)).GetComponent<RoomController>();
 		StartCoroutine(SpawnBossRoomWhenReady());
 
