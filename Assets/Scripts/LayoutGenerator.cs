@@ -31,6 +31,22 @@ public class LayoutGenerator
 			m_children = children;
 		}
 
+		public void ForEach(Action<Node> f)
+		{
+			f(this);
+
+			if (m_children == null)
+			{
+				return;
+			}
+
+			foreach (Node child in m_children)
+			{
+				child.ForEach(f);
+			}
+		}
+
+
 		internal Node Clone()
 		{
 			return new Node(m_type, m_children?.Select(node => node.Clone()).ToList());
@@ -46,9 +62,6 @@ public class LayoutGenerator
 			m_children[UnityEngine.Random.Range(0, m_children.Count())].AppendChildren(children);
 		}
 	}
-
-
-	public Node m_rootNode = new(Node.Type.Entrance, new() { new(Node.Type.Sequence, new() { new Node(Node.Type.Boss) }) });
 
 
 	private struct ReplacementRule
@@ -77,6 +90,18 @@ public class LayoutGenerator
 		new(Node.Type.KeyLockPair, new List<Node> { new(Node.Type.Key, new List<Node> { new(Node.Type.Lock) }) }),
 	};
 
+
+	private readonly Node m_rootNode = new(Node.Type.Entrance, new() { new(Node.Type.Sequence, new() { new Node(Node.Type.Boss) }) });
+
+
+	public LayoutGenerator()
+	{
+	}
+
+	public LayoutGenerator(Node rootNode)
+	{
+		m_rootNode = rootNode;
+	}
 
 	public void Generate()
 	{
@@ -114,5 +139,10 @@ public class LayoutGenerator
 				nodeAndParentQueue.Enqueue(Tuple.Create(newNode, nodeAndParentItr.Item2));
 			}
 		}
+	}
+
+	public void ForEachNode(Action<Node> f)
+	{
+		m_rootNode.ForEach(f);
 	}
 }

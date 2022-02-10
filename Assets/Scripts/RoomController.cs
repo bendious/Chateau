@@ -14,9 +14,6 @@ public class RoomController : MonoBehaviour
 
 	public GameObject[] m_ladderPieces;
 
-	public float m_roomSpawnPct = 0.5f;
-	public int m_spawnDepthMax = 5;
-
 	public int m_tablesMin = 0;
 	public int m_tablesMax = 2;
 
@@ -34,47 +31,33 @@ public class RoomController : MonoBehaviour
 	}
 	private /*readonly*/ DoorwayInfo[] m_doorwayInfos;
 
-	private bool m_childrenCreated = false;
 
-
-	private void Start()
+	private void Awake()
 	{
-		// initialize/size arrays
-		if (m_doorwayInfos == null) // NOTE that our parent might have already set its connection to us
-		{
-			m_doorwayInfos = new DoorwayInfo[m_doorways.Length];
-		}
+		m_doorwayInfos = new DoorwayInfo[m_doorways.Length];
+	}
 
-		// replace doors / spawn rooms
-		// TODO: combine w/ SpawnChildRoom() logic
-		Bounds bounds = CalculateBounds(false);
-		DoorwaysRandomOrder(doorwayIdx =>
+	public void Initialize()
+	{
+		// set up doorways
+		for (int doorwayIdx = 0; doorwayIdx < m_doorways.Length; ++doorwayIdx)
 		{
 			GameObject doorway = m_doorways[doorwayIdx];
 
 			// record doorway position in case the object is removed
-			DoorwayInfo doorwayInfo = m_doorwayInfos[doorwayIdx];
-			doorwayInfo.m_position = doorway.transform.position;
+			m_doorwayInfos[doorwayIdx].m_position = doorway.transform.position;
 
-			// determine doorway direction
-			Vector3 doorwaySize = doorway.GetComponent<Collider2D>().bounds.size;
-			bool isTrapdoor = doorwaySize.x > doorwaySize.y;
-			Vector3 pivotToDoorway = doorway.transform.position - transform.position;
-			Vector3 offsetDir = isTrapdoor ? new Vector3(0.0f, Mathf.Sign(pivotToDoorway.y), 0.0f) : new Vector3(Mathf.Sign(pivotToDoorway.x), 0.0f, 0.0f);
-
-			// maybe replace/remove
-			doorwayInfo.m_childRoom = MaybeReplaceDoor(ref doorwayInfo.m_isConnected, Utility.RandomWeighted(GameController.Instance.m_roomPrefabs), bounds, offsetDir, out doorwayInfo.m_lock, doorway);
-
-			m_doorwayInfos[doorwayIdx] = doorwayInfo;
-
-			return false;
-		});
-
-		m_childrenCreated = true;
+			if (m_doorwayInfos[doorwayIdx].m_isConnected)
+			{
+				// open doorway to parent
+				OpenDoorway(doorway, DoorwayDirection(doorway).y > 0.0f);
+			}
+		}
 
 		// spawn tables
-		// TODO: more deliberate spawning
+		// TODO: more deliberate spawning (via LayoutGenerator?)
 		int tableCount = UnityEngine.Random.Range(m_tablesMin, m_tablesMax + 1);
+		Bounds bounds = CalculateBounds(false);
 		BoxCollider2D tableCollider = m_tablePrefab.GetComponent<BoxCollider2D>();
 		float tableExtentY = tableCollider.size.y * 0.5f + tableCollider.edgeRadius - tableCollider.offset.y;
 		GameObject newTable = null;
@@ -102,19 +85,10 @@ public class RoomController : MonoBehaviour
 	}
 
 
-	public bool AllChildrenReady()
-	{
-		if (!m_childrenCreated)
-		{
-			return false;
-		}
-		return m_doorwayInfos.All(info => info.m_childRoom == null || info.m_childRoom.AllChildrenReady());
-	}
-
 	public Vector3 ChildPosition(bool checkLocks, GameObject targetObj, bool onFloor)
 	{
 		// enumerate valid options
-		RoomController[] options = m_doorwayInfos.Where(info => info.m_childRoom != null && info.m_childRoom.m_childrenCreated && (!checkLocks || info.m_lock == null)).Select(pair => pair.m_childRoom).ToArray();
+		RoomController[] options = m_doorwayInfos.Where(info => info.m_childRoom != null && (!checkLocks || info.m_lock == null)).Select(pair => pair.m_childRoom).ToArray();
 
 		// weight options based on distance to target
 		float[] optionWeights = targetObj == null ? Enumerable.Repeat(1.0f, options.Length).ToArray() : options.Select(option => 1.0f / Vector3.Distance(option.transform.position, targetObj.transform.position)).ToArray();
@@ -185,7 +159,6 @@ public class RoomController : MonoBehaviour
 	public Tuple<List<RoomController>, int> RoomPathLongest(int startDistance = 0)
 	{
 		// enumerate non-null children
-		Assert.IsTrue(m_childrenCreated);
 		Tuple<RoomController, int>[] childrenPreprocess = m_doorwayInfos.Select(info => Tuple.Create(info.m_childRoom, info.m_lock != null ? 1 : 0)).Where(child => child.Item1 != null).ToArray();
 		if (childrenPreprocess.Length == 0)
 		{
@@ -207,23 +180,14 @@ public class RoomController : MonoBehaviour
 	{
 		Bounds bounds = CalculateBounds(false);
 
-		int spawnDepthOrig = m_spawnDepthMax;
-		m_spawnDepthMax = Math.Max(m_spawnDepthMax, 1);
-
-		// TODO: combine w/ Start() logic
 		bool success = DoorwaysRandomOrder(i =>
 		{
 			DoorwayInfo info = m_doorwayInfos[i];
-			if (info.m_childRoom == null && m_doorways[i] != null)
+			GameObject doorway = m_doorways[i];
+			if (info.m_childRoom == null && doorway != null)
 			{
-				// determine doorway direction
-				Vector3 doorwaySize = m_doorways[i].GetComponent<Collider2D>().bounds.size;
-				bool isTrapdoor = doorwaySize.x > doorwaySize.y;
-				Vector3 pivotToDoorway = m_doorways[i].transform.position - transform.position;
-				Vector3 offsetDir = isTrapdoor ? new Vector3(0.0f, Mathf.Sign(pivotToDoorway.y), 0.0f) : new Vector3(Mathf.Sign(pivotToDoorway.x), 0.0f, 0.0f);
-
 				// maybe replace/remove
-				m_doorwayInfos[i].m_childRoom = MaybeReplaceDoor(ref info.m_isConnected, roomPrefab, bounds, offsetDir, out info.m_lock, m_doorways[i]);
+				m_doorwayInfos[i].m_childRoom = MaybeReplaceDoor(ref info.m_isConnected, roomPrefab, bounds, DoorwayDirection(doorway), out info.m_lock, doorway);
 				if (m_doorwayInfos[i].m_childRoom != null)
 				{
 					return true;
@@ -232,10 +196,34 @@ public class RoomController : MonoBehaviour
 			return false;
 		});
 
-		m_spawnDepthMax = spawnDepthOrig;
+		if (!success)
+		{
+			// try spawning from children
+			foreach (DoorwayInfo doorway in m_doorwayInfos)
+			{
+				if (doorway.m_childRoom == null)
+				{
+					continue;
+				}
+				success = doorway.m_childRoom.SpawnChildRoom(roomPrefab);
+				if (success)
+				{
+					break;
+				}
+			}
+		}
+
 		return success;
 	}
 
+
+	private Vector3 DoorwayDirection(GameObject doorway)
+	{
+		Vector3 doorwaySize = doorway.GetComponent<Collider2D>().bounds.size;
+		bool isTrapdoor = doorwaySize.x > doorwaySize.y;
+		Vector3 pivotToDoorway = doorway.transform.position - transform.position;
+		return isTrapdoor ? new Vector3(0.0f, Mathf.Sign(pivotToDoorway.y), 0.0f) : new Vector3(Mathf.Sign(pivotToDoorway.x), 0.0f, 0.0f);
+	}
 
 	// see https://gamedev.stackexchange.com/questions/86863/calculating-the-bounding-box-of-a-game-object-based-on-its-children
 	private Bounds CalculateBounds(bool interiorOnly)
@@ -271,7 +259,8 @@ public class RoomController : MonoBehaviour
 		return false;
 	}
 
-	private RoomController MaybeReplaceDoor(ref bool isOpen, GameObject roomPrefab, Bounds bounds, Vector3 replaceDirection, out GameObject lockObj, GameObject door)
+	// TODO: inline?
+	private RoomController MaybeReplaceDoor(ref bool isOpen, GameObject roomPrefab, Bounds bounds, Vector3 replaceDirection, out GameObject lockObj, GameObject doorway)
 	{
 		lockObj = null;
 		Assert.AreApproximatelyEqual(replaceDirection.magnitude, 1.0f);
@@ -282,17 +271,8 @@ public class RoomController : MonoBehaviour
 		Vector3 childPivotToCenter = childBounds.center - roomPrefab.transform.position;
 		Vector3 childPivotPos = transform.position + Vector3.Scale(replaceDirection, bounds.extents + childBounds.extents + (Vector2.Dot(pivotToCenter, replaceDirection) >= 0.0f ? pivotToCenter : -pivotToCenter) + (Vector2.Dot(childPivotToCenter, replaceDirection) >= 0.0f ? -childPivotToCenter : childPivotToCenter));
 
-		bool canSpawnRoom = !spawnedFromThisDirection && m_spawnDepthMax > 0 && Physics2D.OverlapBox(childPivotPos + childPivotToCenter, childBounds.size - new Vector3(0.1f, 0.1f, 0.0f), 0.0f) == null; // NOTE the small size reduction to avoid always collecting ourself
-		isOpen = spawnedFromThisDirection || (canSpawnRoom && UnityEngine.Random.value < m_roomSpawnPct);
-
-		// TODO: spawn ladders rather than embedding in prefabs, handle multiple upward doorways?
-		if (replaceDirection.y > 0.0f && m_ladderPieces != null)
-		{
-			foreach (GameObject piece in m_ladderPieces)
-			{
-				piece.SetActive(isOpen);
-			}
-		}
+		bool canSpawnRoom = !spawnedFromThisDirection && Physics2D.OverlapBox(childPivotPos + childPivotToCenter, childBounds.size - new Vector3(0.1f, 0.1f, 0.0f), 0.0f) == null; // NOTE the small size reduction to avoid always collecting ourself
+		isOpen = spawnedFromThisDirection || canSpawnRoom;
 
 		if (!isOpen)
 		{
@@ -302,32 +282,14 @@ public class RoomController : MonoBehaviour
 		if (!spawnedFromThisDirection && UnityEngine.Random.value <= m_lockedDoorPct)
 		{
 			// create locked door
-			lockObj = Instantiate(m_doorPrefab, door.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
-			Vector2 size = door.GetComponent<BoxCollider2D>().size * door.transform.localScale;
+			lockObj = Instantiate(m_doorPrefab, doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
+			Vector2 size = doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale;
 			lockObj.GetComponent<BoxCollider2D>().size = size;
 			lockObj.GetComponent<SpriteRenderer>().size = size;
 			// TODO: update shadow caster shape once it is programmatically accessible
 		}
 
-		// enable one-way movement or destroy
-		PlatformEffector2D effector = door.GetComponent<PlatformEffector2D>();
-		if (effector == null)
-		{
-			Simulation.Schedule<ObjectDespawn>().m_object = door;
-		}
-		else
-		{
-			// enable effector for dynamic collisions
-			effector.enabled = true;
-			door.GetComponent<Collider2D>().usedByEffector = true;
-
-			// set layer for kinematic movement
-			door.layer = LayerMask.NameToLayer("OneWayPlatforms");
-
-			// change color/shadows for user visibility
-			door.GetComponent<SpriteRenderer>().color = m_oneWayPlatformColor;
-			Destroy(door.GetComponent<UnityEngine.Rendering.Universal.ShadowCaster2D>());
-		}
+		OpenDoorway(doorway, replaceDirection.y > 0.0f);
 
 		if (!canSpawnRoom)
 		{
@@ -335,19 +297,52 @@ public class RoomController : MonoBehaviour
 		}
 
 		RoomController newRoom = Instantiate(roomPrefab, childPivotPos, Quaternion.identity).GetComponent<RoomController>();
-		newRoom.m_spawnDepthMax = m_spawnDepthMax - 1;
 
 		// set child's parent connection
-		List<DoorwayInfo> infosTmp = new();
-		foreach (GameObject doorway in newRoom.m_doorways)
+		int i = 0;
+		foreach (GameObject newDoorway in newRoom.m_doorways)
 		{
-			Vector3 doorwaySize = doorway.GetComponent<Collider2D>().bounds.size;
+			Vector3 doorwaySize = newDoorway.GetComponent<Collider2D>().bounds.size;
 			bool isTrapdoor = doorwaySize.x > doorwaySize.y;
-			infosTmp.Add(new DoorwayInfo { m_isConnected = Vector2.Dot((Vector2)newRoom.transform.position - (Vector2)doorway.transform.position, replaceDirection) > 0.0f && isTrapdoor == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y)) }); // TODO: better way of determining reverse direction doorway?
+			newRoom.m_doorwayInfos[i].m_isConnected = Vector2.Dot((Vector2)newRoom.transform.position - (Vector2)newDoorway.transform.position, replaceDirection) > 0.0f && isTrapdoor == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y)); // TODO: better way of determining reverse direction doorway?
+			++i;
 		}
-		newRoom.m_doorwayInfos = infosTmp.ToArray();
+
+		newRoom.Initialize();
 
 		return newRoom;
+	}
+
+	private void OpenDoorway(GameObject doorway, bool upward)
+	{
+		// TODO: spawn ladders rather than embedding in prefabs, handle multiple upward doorways?
+		if (upward && m_ladderPieces != null)
+		{
+			foreach (GameObject piece in m_ladderPieces)
+			{
+				piece.SetActive(true);
+			}
+		}
+
+		// enable one-way movement or destroy
+		PlatformEffector2D effector = doorway.GetComponent<PlatformEffector2D>();
+		if (effector == null)
+		{
+			Simulation.Schedule<ObjectDespawn>().m_object = doorway;
+		}
+		else
+		{
+			// enable effector for dynamic collisions
+			effector.enabled = true;
+			doorway.GetComponent<Collider2D>().usedByEffector = true;
+
+			// set layer for kinematic movement
+			doorway.layer = LayerMask.NameToLayer("OneWayPlatforms");
+
+			// change color/shadows for user visibility
+			doorway.GetComponent<SpriteRenderer>().color = m_oneWayPlatformColor;
+			Destroy(doorway.GetComponent<UnityEngine.Rendering.Universal.ShadowCaster2D>());
+		}
 	}
 
 	private List<RoomController> RoomPathFromRoot(Vector2 endPosition, List<RoomController> prePath)
@@ -366,7 +361,6 @@ public class RoomController : MonoBehaviour
 
 		// check non-null children
 		// TODO: prioritize by distance from endPosition?
-		Assert.IsTrue(m_childrenCreated);
 		foreach (DoorwayInfo info in m_doorwayInfos.Where(info => info.m_childRoom != null))
 		{
 			List<RoomController> childPath = info.m_childRoom.RoomPathFromRoot(endPosition, prePath);

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -50,10 +51,23 @@ public class GameController : MonoBehaviour
 	{
 		LayoutGenerator generator = new();
 		generator.Generate();
-		// TODO: use generator to spawn rooms/locks/keys/items/etc.
 
-		m_startRoom = Instantiate(Utility.RandomWeighted(m_roomPrefabs)).GetComponent<RoomController>();
-		StartCoroutine(SpawnBossRoomWhenReady());
+		// use generator to spawn rooms/locks/keys/items/etc.
+		generator.ForEachNode(node =>
+		{
+			Assert.AreEqual(node.m_type == LayoutGenerator.Node.Type.Entrance, m_startRoom == null);
+			if (m_startRoom == null)
+			{
+				m_startRoom = Instantiate(Utility.RandomWeighted(m_roomPrefabs)).GetComponent<RoomController>();
+				m_startRoom.Initialize();
+			}
+			else
+			{
+				RoomController parentRoom = m_startRoom; // TODO: tight coupling
+				parentRoom.SpawnChildRoom(Utility.RandomWeighted(m_roomPrefabs));
+			}
+		});
+		SpawnBossRoom(); // TODO: spawn via LayoutGenerator.Node.Type.Boss
 
 		if (Random.value > 0.5f)
 		{
@@ -196,13 +210,11 @@ public class GameController : MonoBehaviour
 #endif
 
 
-	private IEnumerator SpawnBossRoomWhenReady()
+	private void SpawnBossRoom()
 	{
-		yield return new WaitUntil(() => m_startRoom.AllChildrenReady());
-
 		// find valid spawn room
 		// TODO: efficiency / guarantee of eventual success?
-		bool spawned = false;
+		bool spawned;
 		List<RoomController> endRoomPath;
 		int failsafe = 100;
 		do
