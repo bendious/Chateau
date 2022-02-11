@@ -128,29 +128,33 @@ public class DoorController : MonoBehaviour, IInteractable
 			m_indicator = Instantiate(m_combinationIndicatorPrefab, overlayObj.transform);
 		}
 
+		bool firstUpdate = true;
 		while (overlayObj.activeSelf && Vector2.Distance(interactor.transform.position, transform.position) < m_interactDistanceMax)
 		{
 			PlayerControls.UIActions controls = GameController.Instance.m_avatar.Controls.UI;
 
-			Vector2 xyInput = controls.Navigate.ReadValue<Vector2>();
-			float xInput = xyInput.x;
-			int xInputDir = Utility.FloatEqual(xInput, 0.0f) ? 0 : (int)Mathf.Sign(xInput);
-			if (Utility.FloatEqual(m_indicator.transform.localPosition.x, 0.0f) || xInputDir != 0)
+			if (firstUpdate || controls.Navigate.triggered)
 			{
-				m_inputIdxCur = Utility.Modulo(m_inputIdxCur + xInputDir, m_combinationDigits);
-				m_indicator.transform.localPosition = new Vector3(Mathf.Lerp(text.textBounds.min.x, text.textBounds.max.x, (m_inputIdxCur + 0.5f) / m_combinationDigits), m_indicator.transform.localPosition.y, m_indicator.transform.localPosition.z);
-			}
+				Vector2 xyInput = controls.Navigate.ReadValue<Vector2>();
+				float xInput = xyInput.x;
+				int xInputDir = Utility.FloatEqual(xInput, 0.0f) ? 0 : (int)Mathf.Sign(xInput);
+				if (firstUpdate || xInputDir != 0)
+				{
+					m_inputIdxCur = Utility.Modulo(m_inputIdxCur + xInputDir, m_combinationDigits);
+					m_indicator.transform.localPosition = new Vector3(Mathf.Lerp(text.textBounds.min.x, text.textBounds.max.x, (m_inputIdxCur + 0.5f) / m_combinationDigits), m_indicator.transform.localPosition.y, m_indicator.transform.localPosition.z);
+				}
 
-			float yInput = xyInput.y;
-			int yInputDir = Utility.FloatEqual(yInput, 0.0f) ? 0 : (int)Mathf.Sign(yInput);
-			if (yInputDir != 0)
-			{
-				int digitScalar = (int)Mathf.Pow(10, m_combinationDigits - m_inputIdxCur - 1);
-				int oldDigit = m_inputCur / digitScalar % 10;
-				int newDigit = Utility.Modulo(oldDigit + yInputDir, 10);
-				m_inputCur += (newDigit - oldDigit) * digitScalar;
+				float yInput = xyInput.y;
+				int yInputDir = Utility.FloatEqual(yInput, 0.0f) ? 0 : (int)Mathf.Sign(yInput);
+				if (yInputDir != 0)
+				{
+					int digitScalar = (int)Mathf.Pow(10, m_combinationDigits - m_inputIdxCur - 1);
+					int oldDigit = m_inputCur / digitScalar % 10;
+					int newDigit = Utility.Modulo(oldDigit + yInputDir, 10);
+					m_inputCur += (newDigit - oldDigit) * digitScalar;
 
-				text.text = m_inputCur.ToString("D" + m_combinationDigits);
+					text.text = m_inputCur.ToString("D" + m_combinationDigits);
+				}
 			}
 
 			if (controls.Submit.triggered)
@@ -163,6 +167,8 @@ public class DoorController : MonoBehaviour, IInteractable
 
 				// TODO: failure SFX?
 			}
+
+			firstUpdate = false;
 
 			yield return null;
 		}
