@@ -8,7 +8,7 @@ public class TableController : MonoBehaviour
 
 	public WeightedObject<GameObject>[] m_itemPrefabs;
 
-	public int m_itemsMin = 0;
+	public int m_itemsMin = 1;
 	public int m_itemsMax = 4;
 
 

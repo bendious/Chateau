@@ -13,6 +13,7 @@ public class LayoutGenerator
 			Key,
 			Lock,
 			Boss,
+			Items,
 
 			Sequence,
 			SequenceParallel,
@@ -21,29 +22,43 @@ public class LayoutGenerator
 		}
 
 
-		public Type m_type;
+		public readonly Type m_type;
 		public List<Node> m_children;
+
+		public RoomController m_room = null;
+
+
+		public /*readonly*/ Node DirectParent { get; private set; }
+		public /*readonly*/ Node TightCoupleParent { get; private set; }
 
 
 		public Node(Type type, List<Node> children = null)
 		{
 			m_type = type;
-			m_children = children;
+			if (children != null)
+			{
+				AddChildren(children);
+			}
 		}
 
-		public void ForEach(Action<Node> f)
+		public bool ForEach(Func<Node, bool> f)
 		{
-			f(this);
+			bool done = f(this);
 
-			if (m_children == null)
+			if (done || m_children == null)
 			{
-				return;
+				return done;
 			}
 
 			foreach (Node child in m_children)
 			{
-				child.ForEach(f);
+				done = child.ForEach(f);
+				if (done)
+				{
+					break;
+				}
 			}
+			return done;
 		}
 
 
@@ -52,14 +67,32 @@ public class LayoutGenerator
 			return new Node(m_type, m_children?.Select(node => node.Clone()).ToList());
 		}
 
-		internal void AppendChildren(List<Node> children)
+		internal void AddChildren(List<Node> children)
 		{
 			if (m_children == null)
 			{
 				m_children = children;
+			}
+			else
+			{
+				m_children.AddRange(children);
+			}
+
+			foreach (Node child in children)
+			{
+				child.DirectParent = this;
+				child.TightCoupleParent = m_type == Type.Lock || TightCoupleParent == null ? this : TightCoupleParent;
+			}
+		}
+
+		internal void AppendLeafChildren(List<Node> children)
+		{
+			if (m_children == null)
+			{
+				AddChildren(children);
 				return;
 			}
-			m_children[UnityEngine.Random.Range(0, m_children.Count())].AppendChildren(children);
+			m_children[UnityEngine.Random.Range(0, m_children.Count())].AppendLeafChildren(children);
 		}
 	}
 
@@ -87,7 +120,7 @@ public class LayoutGenerator
 		new(Node.Type.SequenceSerial, new List<Node> { new(Node.Type.KeyLockPair, new List<Node> { new(Node.Type.KeyLockPair, new List<Node> { new(Node.Type.KeyLockPair) }) }) }),
 
 		// keys/locks
-		new(Node.Type.KeyLockPair, new List<Node> { new(Node.Type.Key, new List<Node> { new(Node.Type.Lock) }) }),
+		new(Node.Type.KeyLockPair, new List<Node> { new(Node.Type.Key, new List<Node> { new(Node.Type.Lock, new List<Node> { new(Node.Type.Items) }) }) }),
 	};
 
 
@@ -128,11 +161,14 @@ public class LayoutGenerator
 			ReplacementRule replacement = Utility.RandomWeighted(options, options.Select(rule => rule.m_weight).ToArray());
 
 			List<Node> replacementNodes = replacement.m_final.Select(node => node.Clone()).ToList();
-			replacementNodes[UnityEngine.Random.Range(0, replacementNodes.Count())].AppendChildren(nodeAndParentItr.Item1.m_children);
+			if (nodeAndParentItr.Item1.m_children != null)
+			{
+				replacementNodes[UnityEngine.Random.Range(0, replacementNodes.Count())].AppendLeafChildren(nodeAndParentItr.Item1.m_children);
+			}
 
 			UnityEngine.Assertions.Assert.IsNotNull(nodeAndParentItr.Item2); // NOTE that the first node should always be Entrance, which should never be replaced
 			nodeAndParentItr.Item2.m_children.Remove(nodeAndParentItr.Item1);
-			nodeAndParentItr.Item2.m_children.AddRange(replacementNodes);
+			nodeAndParentItr.Item2.AddChildren(replacementNodes);
 
 			foreach (Node newNode in replacementNodes)
 			{
@@ -141,8 +177,8 @@ public class LayoutGenerator
 		}
 	}
 
-	public void ForEachNode(Action<Node> f)
+	public bool ForEachNode(Func<Node, bool> f)
 	{
-		m_rootNode.ForEach(f);
+		return m_rootNode.ForEach(f);
 	}
 }

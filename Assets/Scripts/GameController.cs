@@ -59,15 +59,24 @@ public class GameController : MonoBehaviour
 			if (m_startRoom == null)
 			{
 				m_startRoom = Instantiate(Utility.RandomWeighted(m_roomPrefabs)).GetComponent<RoomController>();
-				m_startRoom.Initialize();
+				m_startRoom.Initialize(node);
 			}
 			else
 			{
-				RoomController parentRoom = m_startRoom; // TODO: tight coupling
-				parentRoom.SpawnChildRoom(Utility.RandomWeighted(m_roomPrefabs), node.m_type == LayoutGenerator.Node.Type.Lock);
+				bool isBoss = node.m_type == LayoutGenerator.Node.Type.Boss;
+				bool spawned = node.TightCoupleParent.m_room.SpawnChildRoom(Utility.RandomWeighted(isBoss ? m_bossRoomPrefabs : m_roomPrefabs), node);
+				if (!spawned)
+				{
+					Retry(); // TODO: more efficient way to guarantee room spawning?
+					return true;
+				}
+				if (isBoss)
+				{
+					ColorBossRoomPath(m_startRoom.ChildRoomPath(Vector2.zero, node.TightCoupleParent.m_room.transform.position));
+				}
 			}
+			return false;
 		});
-		SpawnBossRoom(); // TODO: spawn via LayoutGenerator.Node.Type.Boss
 
 		if (Random.value > 0.5f)
 		{
@@ -106,7 +115,7 @@ public class GameController : MonoBehaviour
 
 	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos, Vector2 offsetMag)
 	{
-		return m_startRoom.ChildRoomPath(startPos, targetPos, offsetMag);
+		return m_startRoom.ChildPositionPath(startPos, targetPos, offsetMag);
 	}
 
 	public void TogglePause()
@@ -165,6 +174,12 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
+		// prevent stale GameController asserts while reloading
+		foreach (EnemyController enemy in m_enemies)
+		{
+			enemy.gameObject.SetActive(false);
+		}
+
 		SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 	}
 
@@ -210,27 +225,14 @@ public class GameController : MonoBehaviour
 #endif
 
 
-	private void SpawnBossRoom()
+	private void ColorBossRoomPath(List<RoomController> path)
 	{
-		// find valid spawn room
-		// TODO: efficiency / guarantee of eventual success?
-		bool spawned;
-		List<RoomController> endRoomPath;
-		int failsafe = 100;
-		do
-		{
-			endRoomPath = m_startRoom.RoomPathLongest().Item1;
-			spawned = endRoomPath.Last().SpawnChildRoom(Utility.RandomWeighted(m_bossRoomPrefabs), true); // TODO: special boss key(s)?
-		}
-		while (!spawned && --failsafe > 0);
-
-		// color path to victory
 		Color colorDefault = Color.gray; // TODO: don't hardcode default color
 		int pathIdx = 0;
-		foreach (RoomController room in endRoomPath)
+		foreach (RoomController room in path)
 		{
 			++pathIdx;
-			float pathPct = (float)pathIdx / endRoomPath.Count;
+			float pathPct = (float)pathIdx / path.Count;
 			Color color = colorDefault;
 			color = Color.Lerp(color, Color.white, pathPct);
 			foreach (SpriteRenderer renderer in room.transform.GetComponentsInChildren<SpriteRenderer>())
