@@ -22,7 +22,7 @@ public class RoomController : MonoBehaviour
 		public Vector2 m_position;
 		public bool m_isConnected; // NOTE that this is true independently of m_childRoom being non-null due to children not tracking their parents // TODO: remove?
 		public RoomController m_childRoom; // TODO: make bidirectional?
-		public GameObject m_lock;
+		public GameObject m_lockObj;
 	}
 	private /*readonly*/ DoorwayInfo[] m_doorwayInfos;
 
@@ -34,11 +34,31 @@ public class RoomController : MonoBehaviour
 		m_doorwayInfos = new DoorwayInfo[m_doorways.Length];
 	}
 
+#if UNITY_EDITOR
+	private void OnDrawGizmos()
+	{
+		if (m_layoutNode != null && ConsoleCommands.LayoutDebug)
+		{
+			Vector3 centerPos = CalculateBounds(false).center; // TODO: efficiency?
+			UnityEditor.Handles.Label(centerPos, m_layoutNode.m_type.ToString());
+			if (m_layoutNode.DirectParent != null)
+			{
+				UnityEditor.Handles.DrawLine(centerPos, m_layoutNode.DirectParent.m_room.transform.position);
+				using (new UnityEditor.Handles.DrawingScope(Color.red))
+				{
+					UnityEditor.Handles.DrawLine(centerPos, m_layoutNode.TightCoupleParent.m_room.transform.position);
+				}
+			}
+		}
+	}
+#endif
+
+
 	public void Initialize(LayoutGenerator.Node layoutNode)
 	{
 		Assert.IsNull(m_layoutNode);
 		m_layoutNode = layoutNode;
-		Assert.IsNull(layoutNode.m_room);
+		Debug.Assert(layoutNode.m_room == null); // TODO: determine why this occasionally fails
 		layoutNode.m_room = this;
 
 		// set up doorways
@@ -56,41 +76,44 @@ public class RoomController : MonoBehaviour
 			}
 		}
 
-		if (m_layoutNode.m_type != LayoutGenerator.Node.Type.Items)
+		// spawn contents
+		switch (m_layoutNode.m_type)
 		{
-			return;
-		}
+			case LayoutGenerator.Node.Type.Items:
+				// spawn table
+				Bounds bounds = CalculateBounds(false);
+				BoxCollider2D tableCollider = m_tablePrefab.GetComponent<BoxCollider2D>();
+				float tableExtentY = tableCollider.size.y * 0.5f + tableCollider.edgeRadius - tableCollider.offset.y;
+				GameObject newTable = Instantiate(m_tablePrefab); // NOTE that we have to spawn before placement due to size randomization in Awake() // TODO: guarantee size will fit in available space?
+				for (int failsafeCount = 0; failsafeCount < 100; ++failsafeCount)
+				{
+					Bounds newBounds = newTable.GetComponent<Collider2D>().bounds;
+					Vector3 spawnPos = new Vector3(bounds.center.x, transform.position.y, transform.position.z) + new Vector3(UnityEngine.Random.Range(-bounds.extents.x + newBounds.extents.x, bounds.extents.x - newBounds.extents.x), tableExtentY, 1.0f);
+					if (Physics2D.OverlapBox(spawnPos + newBounds.center + new Vector3(0.0f, 0.1f, 0.0f), newBounds.size, 0.0f) != null) // NOTE the small offset to avoid collecting the floor; also that this would collect our newly spawned table when at the origin, but that shouldn't happen and would be okay anyway since keeping the start point clear isn't objectionable
+					{
+						continue; // re-place and try again
+					}
+					newTable.transform.position = spawnPos;
+					newTable.GetComponent<TableController>().SpawnItems();
+					newTable = null;
+					break;
+				}
+				if (newTable != null)
+				{
+					newTable.SetActive(false); // to prevent being visible for a frame while waiting to despawn
+					Simulation.Schedule<ObjectDespawn>().m_object = newTable;
+				}
+				break;
 
-		// spawn table
-		Bounds bounds = CalculateBounds(false);
-		BoxCollider2D tableCollider = m_tablePrefab.GetComponent<BoxCollider2D>();
-		float tableExtentY = tableCollider.size.y * 0.5f + tableCollider.edgeRadius - tableCollider.offset.y;
-		GameObject newTable = Instantiate(m_tablePrefab); // NOTE that we have to spawn before placement due to size randomization in Awake() // TODO: guarantee size will fit in available space?
-		for (int failsafeCount = 0; failsafeCount < 100; ++failsafeCount)
-		{
-			Bounds newBounds = newTable.GetComponent<Collider2D>().bounds;
-			Vector3 spawnPos = new Vector3(bounds.center.x, transform.position.y, transform.position.z) + new Vector3(UnityEngine.Random.Range(-bounds.extents.x + newBounds.extents.x, bounds.extents.x - newBounds.extents.x), tableExtentY, 1.0f);
-			if (Physics2D.OverlapBox(spawnPos + newBounds.center + new Vector3(0.0f, 0.1f, 0.0f), newBounds.size, 0.0f) != null) // NOTE the small offset to avoid collecting the floor; also that this would collect our newly spawned table when at the origin, but that shouldn't happen and would be okay anyway since keeping the start point clear isn't objectionable
-			{
-				continue; // re-place and try again
-			}
-			newTable.transform.position = spawnPos;
-			newTable.GetComponent<TableController>().SpawnItems();
-			newTable = null;
-			break;
-		}
-		if (newTable != null)
-		{
-			newTable.SetActive(false); // to prevent being visible for a frame while waiting to despawn
-			Simulation.Schedule<ObjectDespawn>().m_object = newTable;
+			default:
+				break;
 		}
 	}
 
-
-	public Vector3 ChildPosition(bool checkLocks, GameObject targetObj, bool onFloor)
+	public Vector3 ChildPosition(bool checkLocks, GameObject targetObj, bool onFloor, bool recursive)
 	{
 		// enumerate valid options
-		RoomController[] options = m_doorwayInfos.Where(info => info.m_childRoom != null && (!checkLocks || info.m_lock == null)).Select(pair => pair.m_childRoom).ToArray();
+		RoomController[] options = recursive ? m_doorwayInfos.Where(info => info.m_childRoom != null && (!checkLocks || info.m_lockObj == null)).Select(pair => pair.m_childRoom).ToArray() : new RoomController[] { this };
 
 		// weight options based on distance to target
 		float[] optionWeights = targetObj == null ? Enumerable.Repeat(1.0f, options.Length).ToArray() : options.Select(option => 1.0f / Vector3.Distance(option.transform.position, targetObj.transform.position)).ToArray();
@@ -107,7 +130,7 @@ public class RoomController : MonoBehaviour
 		}
 
 		// return position from child room
-		return child.ChildPosition(checkLocks, targetObj, onFloor);
+		return child.ChildPosition(checkLocks, targetObj, onFloor, recursive);
 	}
 
 	public List<RoomController> ChildRoomPath(Vector2 startPosition, Vector2 endPosition)
@@ -172,7 +195,7 @@ public class RoomController : MonoBehaviour
 	public Tuple<List<RoomController>, int> RoomPathLongest(int startDistance = 0)
 	{
 		// enumerate non-null children
-		Tuple<RoomController, int>[] childrenPreprocess = m_doorwayInfos.Select(info => Tuple.Create(info.m_childRoom, info.m_lock != null ? 1 : 0)).Where(child => child.Item1 != null).ToArray();
+		Tuple<RoomController, int>[] childrenPreprocess = m_doorwayInfos.Select(info => Tuple.Create(info.m_childRoom, info.m_lockObj != null ? 1 : 0)).Where(child => child.Item1 != null).ToArray();
 		if (childrenPreprocess.Length == 0)
 		{
 			return new(new List<RoomController> { this }, startDistance);
@@ -195,18 +218,15 @@ public class RoomController : MonoBehaviour
 
 		bool success = DoorwaysRandomOrder(i =>
 		{
-			DoorwayInfo info = m_doorwayInfos[i];
-			if (!info.m_isConnected)
+			if (m_doorwayInfos[i].m_isConnected)
 			{
-				// maybe replace/remove
-				GameObject doorway = m_doorways[i];
-				MaybeReplaceDoor(ref m_doorwayInfos[i], roomPrefab, bounds, DoorwayDirection(doorway), doorway, layoutNode);
-				if (m_doorwayInfos[i].m_childRoom != null)
-				{
-					return true;
-				}
+				return false;
 			}
-			return false;
+
+			// maybe replace/remove
+			GameObject doorway = m_doorways[i];
+			MaybeReplaceDoor(ref m_doorwayInfos[i], roomPrefab, bounds, DoorwayDirection(doorway), doorway, layoutNode);
+			return m_doorwayInfos[i].m_childRoom != null;
 		});
 
 		if (!success)
@@ -270,8 +290,9 @@ public class RoomController : MonoBehaviour
 	}
 
 	// TODO: inline?
-	private void MaybeReplaceDoor(ref DoorwayInfo doorwayInfo, GameObject roomPrefab, Bounds bounds, Vector3 replaceDirection, GameObject doorway, LayoutGenerator.Node layoutNode)
+	private void MaybeReplaceDoor(ref DoorwayInfo doorwayInfo, GameObject roomPrefab, Bounds bounds, Vector3 replaceDirection, GameObject doorway, LayoutGenerator.Node childNode)
 	{
+		Assert.IsFalse(doorwayInfo.m_isConnected);
 		Assert.IsNull(doorwayInfo.m_childRoom);
 		Assert.AreApproximatelyEqual(replaceDirection.magnitude, 1.0f);
 
@@ -286,14 +307,17 @@ public class RoomController : MonoBehaviour
 			return;
 		}
 
-		if (layoutNode.m_type == LayoutGenerator.Node.Type.Lock)
+		if (m_layoutNode.m_type == LayoutGenerator.Node.Type.Lock && childNode.TightCoupleParent == m_layoutNode)
 		{
 			// create locked door
-			doorwayInfo.m_lock = Instantiate(m_doorPrefab, doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
+			doorwayInfo.m_lockObj = Instantiate(m_doorPrefab, doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
 			Vector2 size = doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale;
-			doorwayInfo.m_lock.GetComponent<BoxCollider2D>().size = size;
-			doorwayInfo.m_lock.GetComponent<SpriteRenderer>().size = size;
+			doorwayInfo.m_lockObj.GetComponent<BoxCollider2D>().size = size;
+			doorwayInfo.m_lockObj.GetComponent<SpriteRenderer>().size = size;
 			// TODO: update shadow caster shape once it is programmatically accessible
+
+			Assert.IsTrue(m_layoutNode.DirectParent.m_type == LayoutGenerator.Node.Type.Key);
+			doorwayInfo.m_lockObj.GetComponent<DoorController>().SpawnKey(m_layoutNode.DirectParent.m_room);
 		}
 
 		OpenDoorway(doorway, replaceDirection.y > 0.0f);
@@ -311,7 +335,7 @@ public class RoomController : MonoBehaviour
 			++i;
 		}
 
-		doorwayInfo.m_childRoom.Initialize(layoutNode);
+		doorwayInfo.m_childRoom.Initialize(childNode);
 	}
 
 	private void OpenDoorway(GameObject doorway, bool upward)

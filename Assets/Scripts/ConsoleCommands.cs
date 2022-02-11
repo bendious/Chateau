@@ -18,6 +18,8 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 	}
 	public static int AIDebugLevel { get; private set; }
 
+	public static bool LayoutDebug { get; private set; }
+
 	public static bool RegenerateDisabled { get; private set; }
 
 
@@ -74,6 +76,11 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 		if (consoleControls.AIDebugLevel.triggered)
 		{
 			AIDebugLevel = (AIDebugLevel + 1) % Utility.EnumNumTypes<AIDebugLevels>();
+		}
+
+		if (consoleControls.LayoutDebug.triggered)
+		{
+			LayoutDebug = !LayoutDebug;
 		}
 
 		if (consoleControls.RegenerateDisabled.triggered)

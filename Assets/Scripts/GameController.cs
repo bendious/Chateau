@@ -110,7 +110,7 @@ public class GameController : MonoBehaviour
 
 	public Vector3 RoomPosition(bool checkLocks, GameObject targetObj, bool onFloor)
 	{
-		return m_startRoom.ChildPosition(checkLocks, targetObj, onFloor);
+		return m_startRoom.ChildPosition(checkLocks, targetObj, onFloor, true);
 	}
 
 	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos, Vector2 offsetMag)

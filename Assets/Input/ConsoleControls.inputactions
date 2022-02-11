@@ -60,6 +60,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "LayoutDebug",
+                    "type": "Button",
+                    "id": "378debb7-9103-451d-a1a6-b77a3cc32887",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "RegenerateDisabled",
                     "type": "Button",
                     "id": "22fffc5b-2ccb-4c2a-b3f7-26196c2ffb47",
@@ -343,6 +352,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "ControlsVisualization",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ba30afe3-6375-4df8-b3b7-0684db67a863",
+                    "path": "<Keyboard>/l",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LayoutDebug",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

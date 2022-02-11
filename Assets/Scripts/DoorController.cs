@@ -29,17 +29,17 @@ public class DoorController : MonoBehaviour, IInteractable
 	private int m_inputIdxCur = 0;
 
 
-	private void Awake()
+	public void SpawnKey(RoomController room)
 	{
 		// spawn key
-		Vector3 spawnPos = GameController.Instance.RoomPosition(false, null, true); // NOTE that we don't care about locks since this occurs during the room hierarchy creation
+		Vector3 spawnPos = room.ChildPosition(false, null, true, false); // NOTE that we don't care about locks since this occurs during the room hierarchy creation
 		KeyInfo keyInfo = Utility.RandomWeighted(m_keyPrefabs);
 		m_key = Instantiate(keyInfo.m_prefab, spawnPos, Quaternion.identity);
 
 		// setup key
 		if (keyInfo.m_hasRandomCombinationText)
 		{
-			m_combination = Random.Range(1, 10000);
+			m_combination = Random.Range(1, 10000); // TODO: recognize & act upon "special" combinations (0333, 0666, etc.)?
 			m_key.GetComponent<ItemController>().m_overlayText = m_combination.ToString("D" + m_combinationDigits);
 		}
 

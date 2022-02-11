@@ -29,7 +29,7 @@ public class LayoutGenerator
 
 
 		public /*readonly*/ Node DirectParent { get; private set; }
-		public /*readonly*/ Node TightCoupleParent { get; private set; }
+		public /*readonly*/ Node TightCoupleParent => DirectParent == null ? null : DirectParent.m_type == Type.Lock || DirectParent.DirectParent == null ? DirectParent : DirectParent.TightCoupleParent; // TODO: avoid all children of lock nodes being tightly coupled
 
 
 		public Node(Type type, List<Node> children = null)
@@ -81,7 +81,6 @@ public class LayoutGenerator
 			foreach (Node child in children)
 			{
 				child.DirectParent = this;
-				child.TightCoupleParent = m_type == Type.Lock || TightCoupleParent == null ? this : TightCoupleParent;
 			}
 		}
 
