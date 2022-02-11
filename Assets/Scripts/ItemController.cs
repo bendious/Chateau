@@ -93,7 +93,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
 		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
-		if (kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, true, false))
+		if (kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, false, false))
 		{
 			return;
 		}
@@ -118,7 +118,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		}
 
 		// check speed
-		float collisionSpeed = kinematicObj == null ? collision.relativeVelocity.magnitude : (m_body.velocity - kinematicObj.velocity).magnitude + Speed;
+		float collisionSpeed = (kinematicObj == null ? collision.relativeVelocity.magnitude : (m_body.velocity - kinematicObj.velocity).magnitude) + Speed;
 		if (collisionSpeed > m_damageThresholdSpeed)
 		{
 			// play audio
@@ -179,6 +179,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		m_body.velocity = Vector2.zero;
 		m_body.angularVelocity = 0.0f;
 		m_body.bodyType = RigidbodyType2D.Kinematic;
+		m_body.useFullKinematicContacts = true;
 		gameObject.layer = holder.Object.layer;
 		SetCause(holder.Object.transform.parent.gameObject);
 	}
@@ -196,6 +197,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		transform.SetParent(null);
 		transform.position = (Vector2)transform.position; // nullify any z that may have been applied for rendering order
 		m_body.bodyType = RigidbodyType2D.Dynamic;
+		m_body.useFullKinematicContacts = false;
 		m_body.WakeUp();
 
 		EnableVFXAndDamage(); // mostly to prevent m_cause from remaining set and allowing damage if run into fast enough

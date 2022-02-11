@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.Assertions;
 
 
 public class LayoutGenerator
@@ -12,12 +13,15 @@ public class LayoutGenerator
 			Entrance,
 			Key,
 			Lock,
-			Boss,
+			Secret,
 			Items,
+			Boss,
 
+			Initial,
 			Sequence,
 			SequenceParallel,
 			SequenceSerial,
+			Gate,
 			KeyLockPair,
 		}
 
@@ -29,7 +33,7 @@ public class LayoutGenerator
 
 
 		public /*readonly*/ Node DirectParent { get; private set; }
-		public /*readonly*/ Node TightCoupleParent => DirectParent == null ? null : DirectParent.m_type == Type.Lock || DirectParent.DirectParent == null ? DirectParent : DirectParent.TightCoupleParent; // TODO: avoid all children of lock nodes being tightly coupled
+		public /*readonly*/ Node TightCoupleParent => DirectParent == null ? null : DirectParent.m_type == Type.Lock || DirectParent.m_type == Type.Secret || DirectParent.DirectParent == null ? DirectParent : DirectParent.TightCoupleParent; // TODO: avoid all children of lock/secret nodes being tightly coupled
 
 
 		public Node(Type type, List<Node> children = null)
@@ -107,23 +111,29 @@ public class LayoutGenerator
 
 	private static readonly ReplacementRule[] m_rules =
 	{
+		new(Node.Type.Initial, new() { new(Node.Type.Entrance, new() { new(Node.Type.Sequence, new() { new(Node.Type.Boss) }) }) }),
+
 		// parallel chains
-		new(Node.Type.Sequence, new List<Node> { new(Node.Type.SequenceParallel) }),
-		new(Node.Type.SequenceParallel, new List<Node> { new(Node.Type.SequenceSerial), new(Node.Type.SequenceSerial) }),
-		new(Node.Type.SequenceParallel, new List<Node> { new(Node.Type.SequenceSerial), new(Node.Type.SequenceSerial), new(Node.Type.SequenceSerial) }),
+		new(Node.Type.Sequence, new() { new(Node.Type.SequenceParallel) }),
+		new(Node.Type.SequenceParallel, new() { new(Node.Type.SequenceSerial), new(Node.Type.SequenceSerial) }),
+		new(Node.Type.SequenceParallel, new() { new(Node.Type.SequenceSerial), new(Node.Type.SequenceSerial), new(Node.Type.SequenceSerial) }),
 
 		// serial chains
 		// TODO: allow parallel branches w/i serial chains w/o infinite recursion?
-		new(Node.Type.SequenceSerial, new List<Node> { new(Node.Type.KeyLockPair) }),
-		new(Node.Type.SequenceSerial, new List<Node> { new(Node.Type.KeyLockPair, new List<Node> { new(Node.Type.KeyLockPair) }) }),
-		new(Node.Type.SequenceSerial, new List<Node> { new(Node.Type.KeyLockPair, new List<Node> { new(Node.Type.KeyLockPair, new List<Node> { new(Node.Type.KeyLockPair) }) }) }),
+		new(Node.Type.SequenceSerial, new() { new(Node.Type.Gate) }),
+		new(Node.Type.SequenceSerial, new() { new(Node.Type.Gate, new() { new(Node.Type.Gate) }) }),
+		new(Node.Type.SequenceSerial, new() { new(Node.Type.Gate, new() { new(Node.Type.Gate, new() { new(Node.Type.Gate) }) }) }),
+
+		// gate types
+		new(Node.Type.Gate, new() { new(Node.Type.Secret, new() { new(Node.Type.Items) }) }),
+		new(Node.Type.Gate, new() { new(Node.Type.KeyLockPair, new() { new(Node.Type.Items) }) }),
 
 		// keys/locks
-		new(Node.Type.KeyLockPair, new List<Node> { new(Node.Type.Key, new List<Node> { new(Node.Type.Lock, new List<Node> { new(Node.Type.Items) }) }) }),
+		new(Node.Type.KeyLockPair, new() { new(Node.Type.Key, new() { new(Node.Type.Lock) }) }),
 	};
 
 
-	private readonly Node m_rootNode = new(Node.Type.Entrance, new() { new(Node.Type.Sequence, new() { new Node(Node.Type.Boss) }) });
+	private /*readonly*/ Node m_rootNode = new(Node.Type.Initial);
 
 
 	public LayoutGenerator()
@@ -165,9 +175,16 @@ public class LayoutGenerator
 				replacementNodes[UnityEngine.Random.Range(0, replacementNodes.Count())].AppendLeafChildren(nodeAndParentItr.Item1.m_children);
 			}
 
-			UnityEngine.Assertions.Assert.IsNotNull(nodeAndParentItr.Item2); // NOTE that the first node should always be Entrance, which should never be replaced
-			nodeAndParentItr.Item2.m_children.Remove(nodeAndParentItr.Item1);
-			nodeAndParentItr.Item2.AddChildren(replacementNodes);
+			if (nodeAndParentItr.Item2 == null)
+			{
+				Assert.IsTrue(replacementNodes.Count() == 1);
+				m_rootNode = replacementNodes.First();
+			}
+			else
+			{
+				nodeAndParentItr.Item2.m_children.Remove(nodeAndParentItr.Item1);
+				nodeAndParentItr.Item2.AddChildren(replacementNodes);
+			}
 
 			foreach (Node newNode in replacementNodes)
 			{

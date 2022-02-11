@@ -53,6 +53,7 @@ public class Health : MonoBehaviour
 			return false;
 		}
 
+		// damage
 		IncrementInternal(-1.0f * amount);
 		if (m_animator != null)
 		{
@@ -62,12 +63,22 @@ public class Health : MonoBehaviour
 		if (m_character != null)
 		{
 			m_character.OnDamage(source);
-			if (isDead)
+		}
+
+		// death/despawn
+		if (isDead)
+		{
+			if (m_character != null)
 			{
 				isDead = m_character.OnDeath();
 			}
+			else
+			{
+				Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
+			}
 		}
 
+		// invincibility period
 		m_invincible = true;
 		if (!isDead)
 		{

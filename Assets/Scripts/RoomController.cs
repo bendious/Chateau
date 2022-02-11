@@ -8,6 +8,7 @@ using UnityEngine.Assertions;
 public class RoomController : MonoBehaviour
 {
 	public GameObject m_doorPrefab;
+	public GameObject m_doorSecretPrefab;
 	public GameObject m_tablePrefab;
 
 	public GameObject[] m_doorways;
@@ -22,7 +23,7 @@ public class RoomController : MonoBehaviour
 		public Vector2 m_position;
 		public bool m_isConnected; // NOTE that this is true independently of m_childRoom being non-null due to children not tracking their parents // TODO: remove?
 		public RoomController m_childRoom; // TODO: make bidirectional?
-		public GameObject m_lockObj;
+		public GameObject m_blocker;
 	}
 	private /*readonly*/ DoorwayInfo[] m_doorwayInfos;
 
@@ -113,7 +114,7 @@ public class RoomController : MonoBehaviour
 	public Vector3 ChildPosition(bool checkLocks, GameObject targetObj, bool onFloor, bool recursive)
 	{
 		// enumerate valid options
-		RoomController[] options = recursive ? m_doorwayInfos.Where(info => info.m_childRoom != null && (!checkLocks || info.m_lockObj == null)).Select(pair => pair.m_childRoom).ToArray() : new RoomController[] { this };
+		RoomController[] options = recursive ? m_doorwayInfos.Where(info => info.m_childRoom != null && (!checkLocks || info.m_blocker == null)).Select(pair => pair.m_childRoom).ToArray() : new RoomController[] { this };
 
 		// weight options based on distance to target
 		float[] optionWeights = targetObj == null ? Enumerable.Repeat(1.0f, options.Length).ToArray() : options.Select(option => 1.0f / Vector3.Distance(option.transform.position, targetObj.transform.position)).ToArray();
@@ -195,7 +196,7 @@ public class RoomController : MonoBehaviour
 	public Tuple<List<RoomController>, int> RoomPathLongest(int startDistance = 0)
 	{
 		// enumerate non-null children
-		Tuple<RoomController, int>[] childrenPreprocess = m_doorwayInfos.Select(info => Tuple.Create(info.m_childRoom, info.m_lockObj != null ? 1 : 0)).Where(child => child.Item1 != null).ToArray();
+		Tuple<RoomController, int>[] childrenPreprocess = m_doorwayInfos.Select(info => Tuple.Create(info.m_childRoom, info.m_blocker != null ? 1 : 0)).Where(child => child.Item1 != null).ToArray();
 		if (childrenPreprocess.Length == 0)
 		{
 			return new(new List<RoomController> { this }, startDistance);
@@ -307,17 +308,21 @@ public class RoomController : MonoBehaviour
 			return;
 		}
 
-		if (m_layoutNode.m_type == LayoutGenerator.Node.Type.Lock && childNode.TightCoupleParent == m_layoutNode)
+		bool isLock = m_layoutNode.m_type == LayoutGenerator.Node.Type.Lock;
+		if((isLock || m_layoutNode.m_type == LayoutGenerator.Node.Type.Secret) && childNode.TightCoupleParent == m_layoutNode)
 		{
 			// create locked door
-			doorwayInfo.m_lockObj = Instantiate(m_doorPrefab, doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
+			doorwayInfo.m_blocker = Instantiate(isLock ? m_doorPrefab : m_doorSecretPrefab, doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
 			Vector2 size = doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale;
-			doorwayInfo.m_lockObj.GetComponent<BoxCollider2D>().size = size;
-			doorwayInfo.m_lockObj.GetComponent<SpriteRenderer>().size = size;
+			doorwayInfo.m_blocker.GetComponent<BoxCollider2D>().size = size;
+			doorwayInfo.m_blocker.GetComponent<SpriteRenderer>().size = size;
 			// TODO: update shadow caster shape once it is programmatically accessible
 
-			Assert.IsTrue(m_layoutNode.DirectParent.m_type == LayoutGenerator.Node.Type.Key);
-			doorwayInfo.m_lockObj.GetComponent<DoorController>().SpawnKey(m_layoutNode.DirectParent.m_room);
+			if (isLock)
+			{
+				Assert.IsTrue(m_layoutNode.DirectParent.m_type == LayoutGenerator.Node.Type.Key);
+				doorwayInfo.m_blocker.GetComponent<DoorController>().SpawnKey(m_layoutNode.DirectParent.m_room);
+			}
 		}
 
 		OpenDoorway(doorway, replaceDirection.y > 0.0f);
