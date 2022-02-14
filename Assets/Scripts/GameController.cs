@@ -28,7 +28,7 @@ public class GameController : MonoBehaviour
 	public float m_waveSecondsMin = 30.0f;
 	public float m_waveSecondsMax = 60.0f;
 	public float m_waveEscalationMin = 0.0f;
-	public float m_waveEscalationMax = 2.0f;
+	public float m_waveEscalationMax = 4.0f;
 
 
 	public static GameController Instance { get; private set; }

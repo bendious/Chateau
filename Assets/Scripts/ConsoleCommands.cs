@@ -3,7 +3,7 @@ using UnityEngine;
 
 public /*static*/ class ConsoleCommands : MonoBehaviour
 {
-	public GameObject[] m_visualizationPrefabs;
+	public /*static*/ GameObject[] m_visualizationPrefabs;
 
 
 	public static bool NeverDie { get; private set; }
@@ -23,85 +23,32 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 	public static bool RegenerateDisabled { get; private set; }
 
 
-	private ConsoleControls m_controls;
+	private static ConsoleControls m_controls;
 
-	private int m_controlsVisualizationIdx = -1;
-	private GameObject m_controlsVisualization;
+	private static int m_controlsVisualizationIdx = -1;
+	private static GameObject m_controlsVisualization;
 
 
 #if DEBUG
 	private void Awake()
 	{
 		m_controls = new();
-	}
-
-	private void OnDisable()
-	{
-		m_controls.Disable();
-	}
-
-	private void OnEnable()
-	{
-		m_controls.Enable();
-	}
-
-	// TODO: callback rather than checking every frame?
-	private void Update()
-	{
-		ConsoleControls.ConsoleActions consoleControls = m_controls.Console;
 
 #if UNITY_EDITOR
 		// TODO: detect even while editor is paused?
-		if (consoleControls.Pause.triggered) // NOTE that KeyCode.Pause is the 'Pause/Break' keyboard key, not Esc
-		{
-			UnityEditor.EditorApplication.isPaused = !UnityEditor.EditorApplication.isPaused;
-		}
+		m_controls.Console.Pause.performed += ctx => UnityEditor.EditorApplication.isPaused = !UnityEditor.EditorApplication.isPaused; // NOTE that KeyCode.Pause is the 'Pause/Break' keyboard key, not Esc
 #endif
-
-		if (!consoleControls.Toggle.IsPressed())
-		{
-			return;
-		}
-
-		if (consoleControls.NeverDie.triggered)
-		{
-			NeverDie = !NeverDie;
-		}
-
-		if (consoleControls.PassiveAI.triggered)
-		{
-			PassiveAI = !PassiveAI;
-		}
-
-		if (consoleControls.AIDebugLevel.triggered)
-		{
-			AIDebugLevel = (AIDebugLevel + 1) % Utility.EnumNumTypes<AIDebugLevels>();
-		}
-
-		if (consoleControls.LayoutDebug.triggered)
-		{
-			LayoutDebug = !LayoutDebug;
-		}
-
-		if (consoleControls.RegenerateDisabled.triggered)
-		{
-			RegenerateDisabled = !RegenerateDisabled;
-		}
-
-		if (consoleControls.SpawnEnemyWave.triggered)
-		{
-			GameController.Instance.SpawnEnemyWave();
-		}
-
-		if (consoleControls.KillAllEnemies.triggered)
-		{
-			GameController.Instance.DebugKillAllEnemies();
-		}
-
-		if (consoleControls.HarmHealAvatar.triggered)
+		m_controls.Console.NeverDie.performed += ctx => ExecuteIfConsoleOpen(() => NeverDie = !NeverDie);
+		m_controls.Console.PassiveAI.performed += ctx => ExecuteIfConsoleOpen(() => PassiveAI = !PassiveAI);
+		m_controls.Console.AIDebugLevel.performed += ctx => ExecuteIfConsoleOpen(() => AIDebugLevel = (AIDebugLevel + 1) % Utility.EnumNumTypes<AIDebugLevels>());
+		m_controls.Console.LayoutDebug.performed += ctx => ExecuteIfConsoleOpen(() => LayoutDebug = !LayoutDebug);
+		m_controls.Console.RegenerateDisabled.performed += ctx => ExecuteIfConsoleOpen(() => RegenerateDisabled = !RegenerateDisabled);
+		m_controls.Console.SpawnEnemyWave.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.SpawnEnemyWave());
+		m_controls.Console.KillAllEnemies.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.DebugKillAllEnemies());
+		m_controls.Console.HarmHealAvatar.performed += ctx => ExecuteIfConsoleOpen(() =>
 		{
 			Health avatarHealth = GameController.Instance.m_avatar.GetComponent<Health>();
-			if (consoleControls.Shift.IsPressed())
+			if (m_controls.Console.Shift.IsPressed())
 			{
 				avatarHealth.Increment();
 			}
@@ -109,14 +56,9 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 			{
 				avatarHealth.Decrement(gameObject);
 			}
-		}
-
-		if (consoleControls.SpawnEnemy.triggered)
-		{
-			GameController.Instance.DebugSpawnEnemy(Mathf.RoundToInt(consoleControls.SpawnEnemy.ReadValue<float>()) % 10);
-		}
-
-		if (consoleControls.ControlsVisualization.triggered)
+		});
+		m_controls.Console.SpawnEnemy.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.DebugSpawnEnemy(Mathf.RoundToInt(m_controls.Console.SpawnEnemy.ReadValue<float>()) % 10));
+		m_controls.Console.ControlsVisualization.performed += ctx => ExecuteIfConsoleOpen(() =>
 		{
 			if (m_controlsVisualization != null)
 			{
@@ -133,7 +75,26 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 				m_controlsVisualization = null;
 				m_controlsVisualizationIdx = -1;
 			}
+		});
+	}
+
+	private void OnDisable()
+	{
+		m_controls.Disable();
+	}
+
+	private void OnEnable()
+	{
+		m_controls.Enable();
+	}
+
+
+	private static void ExecuteIfConsoleOpen(System.Action action)
+	{
+		if (m_controls.Console.Toggle.IsPressed())
+		{
+			action();
 		}
 	}
-#endif
+#endif // DEBUG
 }
