@@ -54,21 +54,34 @@ public interface IHolder
 		}
 
 		// find any valid other holders
+		Collider2D[] itemColliders = item.GetComponents<Collider2D>();
 		int thisSiblingIdx = holderTf.GetSiblingIndex();
-		IHolder[] lowerHolders = holderTf.parent.GetComponentsInChildren<IHolder>().Where(otherHolder => otherHolder is not ArmController && otherHolder.Object.transform.GetSiblingIndex() > thisSiblingIdx).ToArray();
-
-		foreach (IHolder otherHolder in lowerHolders)
+		bool foundReplacement = false;
+		foreach (IHolder otherHolder in holderTf.parent.GetComponentsInChildren<IHolder>())
 		{
+			// avoid immediate collision w/ items remaining in other holders(s)
+			ItemController[] items = otherHolder.Object.GetComponentsInChildren<ItemController>(true);
+			foreach (ItemController otherItem in items)
+			{
+				if (otherItem != item && otherItem.Object.activeInHierarchy)
+				{
+					EnableCollision.TemporarilyDisableCollision(itemColliders, otherItem.GetComponents<Collider2D>());
+				}
+			}
+
+			if (foundReplacement || otherHolder is ArmController || otherHolder.Object.transform.GetSiblingIndex() <= thisSiblingIdx)
+			{
+				continue; // don't move items out of hands or down from higher holders
+			}
+
 			// try attaching each child item until one works
-			foreach (ItemController newItem in otherHolder.Object.GetComponentsInChildren<ItemController>(true))
+			foreach (ItemController newItem in items)
 			{
 				newItem.Detach(true);
-				bool attached = holder.ItemAttach(newItem);
-				if (attached)
+				foundReplacement = holder.ItemAttach(newItem);
+				if (foundReplacement)
 				{
-					// disable collision w/ previous item to prevent causing problems w/ throwing/aim
-					EnableCollision.TemporarilyDisableCollision(item.GetComponents<Collider2D>(), newItem.GetComponents<Collider2D>());
-					return;
+					break;
 				}
 
 				// reattach to original to avoid orphaning upon failure
