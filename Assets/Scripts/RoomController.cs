@@ -55,7 +55,7 @@ public class RoomController : MonoBehaviour
 #endif
 
 
-	public void Initialize(LayoutGenerator.Node layoutNode)
+	public GameObject Initialize(LayoutGenerator.Node layoutNode)
 	{
 		Assert.IsNull(m_layoutNode);
 		m_layoutNode = layoutNode;
@@ -63,6 +63,7 @@ public class RoomController : MonoBehaviour
 		layoutNode.m_room = this;
 
 		// set up doorways
+		GameObject blocker = null;
 		for (int doorwayIdx = 0; doorwayIdx < m_doorways.Length; ++doorwayIdx)
 		{
 			GameObject doorway = m_doorways[doorwayIdx];
@@ -76,17 +77,20 @@ public class RoomController : MonoBehaviour
 				if (isLock || m_layoutNode.m_type == LayoutGenerator.Node.Type.Secret)
 				{
 					// create locked door
-					m_doorwayInfos[doorwayIdx].m_blocker = Instantiate(isLock ? m_doorPrefab : m_doorSecretPrefab, doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
+					Assert.IsNull(blocker);
+					blocker = Instantiate(isLock ? m_doorPrefab : m_doorSecretPrefab, doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
 					Vector2 size = doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale;
-					m_doorwayInfos[doorwayIdx].m_blocker.GetComponent<BoxCollider2D>().size = size;
-					m_doorwayInfos[doorwayIdx].m_blocker.GetComponent<SpriteRenderer>().size = size;
+					blocker.GetComponent<BoxCollider2D>().size = size;
+					blocker.GetComponent<SpriteRenderer>().size = size;
 					// TODO: update shadow caster shape once it is programmatically accessible
 
 					if (isLock)
 					{
 						Assert.IsTrue(m_layoutNode.DirectParent.m_type == LayoutGenerator.Node.Type.Key);
-						m_doorwayInfos[doorwayIdx].m_blocker.GetComponent<DoorController>().SpawnKey(m_layoutNode.DirectParent.m_room);
+						blocker.GetComponent<DoorController>().SpawnKey(m_layoutNode.DirectParent.m_room);
 					}
+
+					m_doorwayInfos[doorwayIdx].m_blocker = blocker;
 				}
 
 				// open doorway to parent
@@ -126,6 +130,8 @@ public class RoomController : MonoBehaviour
 			default:
 				break;
 		}
+
+		return blocker;
 	}
 
 	public Vector3 ChildPosition(bool checkLocks, GameObject targetObj, bool onFloor, bool recursive)
@@ -208,26 +214,6 @@ public class RoomController : MonoBehaviour
 		waypointPath.Add(endRoomBounds.Contains(new(endPos.x, endPos.y, endRoomBounds.center.z)) ? endPos : endRoomBounds.ClosestPoint(endPos)); // TODO: flip offset if closest interior point is significantly different from endPos?
 
 		return waypointPath;
-	}
-
-	public Tuple<List<RoomController>, int> RoomPathLongest(int startDistance = 0)
-	{
-		// enumerate non-null children
-		Tuple<RoomController, int>[] childrenPreprocess = m_doorwayInfos.Select(info => Tuple.Create(info.m_childRoom, info.m_blocker != null ? 1 : 0)).Where(child => child.Item1 != null).ToArray();
-		if (childrenPreprocess.Length == 0)
-		{
-			return new(new List<RoomController> { this }, startDistance);
-		}
-
-		// recursively find farthest distance
-		Tuple<List<RoomController>, int>[] childrenPostprocessed = childrenPreprocess.Select(child => child.Item1.RoomPathLongest(child.Item2)).ToArray();
-		int maxDistance = childrenPostprocessed.Max(a => a.Item2);
-
-		// pick random child at farthest distance
-		Tuple<List<RoomController>, int>[] childrenMax = childrenPostprocessed.Where(childTuple => childTuple.Item2 >= maxDistance).ToArray();
-		List<RoomController> pathFinal = childrenMax[UnityEngine.Random.Range(0, childrenMax.Length)].Item1;
-		pathFinal.Insert(0, this);
-		return new(pathFinal, maxDistance + 1);
 	}
 
 	public bool SpawnChildRoom(GameObject roomPrefab, LayoutGenerator.Node layoutNode)
@@ -340,7 +326,7 @@ public class RoomController : MonoBehaviour
 			++i;
 		}
 
-		doorwayInfo.m_childRoom.Initialize(childNode);
+		doorwayInfo.m_blocker = doorwayInfo.m_childRoom.Initialize(childNode);
 	}
 
 	private void OpenDoorway(GameObject doorway, bool upward)
