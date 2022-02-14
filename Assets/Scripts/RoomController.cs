@@ -72,6 +72,23 @@ public class RoomController : MonoBehaviour
 
 			if (m_doorwayInfos[doorwayIdx].m_isConnected)
 			{
+				bool isLock = m_layoutNode.m_type == LayoutGenerator.Node.Type.Lock;
+				if (isLock || m_layoutNode.m_type == LayoutGenerator.Node.Type.Secret)
+				{
+					// create locked door
+					m_doorwayInfos[doorwayIdx].m_blocker = Instantiate(isLock ? m_doorPrefab : m_doorSecretPrefab, doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
+					Vector2 size = doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale;
+					m_doorwayInfos[doorwayIdx].m_blocker.GetComponent<BoxCollider2D>().size = size;
+					m_doorwayInfos[doorwayIdx].m_blocker.GetComponent<SpriteRenderer>().size = size;
+					// TODO: update shadow caster shape once it is programmatically accessible
+
+					if (isLock)
+					{
+						Assert.IsTrue(m_layoutNode.DirectParent.m_type == LayoutGenerator.Node.Type.Key);
+						m_doorwayInfos[doorwayIdx].m_blocker.GetComponent<DoorController>().SpawnKey(m_layoutNode.DirectParent.m_room);
+					}
+				}
+
 				// open doorway to parent
 				OpenDoorway(doorway, DoorwayDirection(doorway).y > 0.0f);
 			}
@@ -306,23 +323,6 @@ public class RoomController : MonoBehaviour
 		if (!isOpen)
 		{
 			return;
-		}
-
-		bool isLock = m_layoutNode.m_type == LayoutGenerator.Node.Type.Lock;
-		if((isLock || m_layoutNode.m_type == LayoutGenerator.Node.Type.Secret) && childNode.TightCoupleParent == m_layoutNode)
-		{
-			// create locked door
-			doorwayInfo.m_blocker = Instantiate(isLock ? m_doorPrefab : m_doorSecretPrefab, doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
-			Vector2 size = doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale;
-			doorwayInfo.m_blocker.GetComponent<BoxCollider2D>().size = size;
-			doorwayInfo.m_blocker.GetComponent<SpriteRenderer>().size = size;
-			// TODO: update shadow caster shape once it is programmatically accessible
-
-			if (isLock)
-			{
-				Assert.IsTrue(m_layoutNode.DirectParent.m_type == LayoutGenerator.Node.Type.Key);
-				doorwayInfo.m_blocker.GetComponent<DoorController>().SpawnKey(m_layoutNode.DirectParent.m_room);
-			}
 		}
 
 		OpenDoorway(doorway, replaceDirection.y > 0.0f);
