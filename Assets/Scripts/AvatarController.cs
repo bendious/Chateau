@@ -494,7 +494,7 @@ public class AvatarController : KinematicCharacter
 	{
 		if (evt.m_object.transform.root == transform)
 		{
-			evt.m_object.transform.parent = null; // so that we can refresh inventory immediately even though deletion hasn't happened yet
+			evt.m_object.transform.SetParent(null); // so that we can refresh inventory immediately even though deletion hasn't happened yet
 			InventorySync();
 		}
 	}
