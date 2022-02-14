@@ -1,16 +1,13 @@
-using System.Linq;
 using UnityEngine;
 
 
 public sealed class ArmController : MonoBehaviour, IHolder
 {
-	public /*override*/ GameObject Object => gameObject;
-
 	public /*override*/ int HoldCountMax => 1;
 
 	public Vector3 m_offset;
 	public /*override*/ Vector3 AttachOffsetLocal => m_offset;
-	public /*override*/ Vector3 ChildAttachPointLocal => Vector3.right * Object.GetComponent<SpriteRenderer>().sprite.bounds.size.x;
+	public /*override*/ Vector3 ChildAttachPointLocal => Vector3.right * GetComponent<SpriteRenderer>().sprite.bounds.size.x;
 
 
 	private float m_aimSpringStiffness = 100.0f;

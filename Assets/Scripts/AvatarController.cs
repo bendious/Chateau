@@ -427,7 +427,7 @@ public class AvatarController : KinematicCharacter
 		// gather all items/slots from child holders
 		Tuple<Transform, Color>[] itemInfos = GetComponentsInChildren<IHolder>().SelectMany(holder =>
 		{
-			Transform holderTf = holder.Object.transform;
+			Transform holderTf = holder.Component.transform;
 			Tuple<Transform, Color>[] children = new Tuple<Transform, Color>[holder.HoldCountMax];
 			Color holderColor = holderTf.GetComponent<SpriteRenderer>().color;
 			for (int i = 0; i < holder.HoldCountMax; ++i)

@@ -18,9 +18,6 @@ public class DoorController : MonoBehaviour, IInteractable
 	public float m_interactDistanceMax = 1.0f; // TODO: combine w/ avatar focus distance?
 
 
-	public /*override*/ GameObject Object => gameObject;
-
-
 	private GameObject m_key;
 
 	private /*readonly*/ int m_combination = 0;

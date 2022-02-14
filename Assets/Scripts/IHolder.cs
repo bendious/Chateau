@@ -1,4 +1,3 @@
-using System.Linq;
 using UnityEngine;
 
 
@@ -6,7 +5,7 @@ public interface IHolder
 {
 	public int HoldCountMax { get; }
 
-	public GameObject Object { get; }
+	public Component Component => this as Component;
 
 	public Vector3 AttachOffsetLocal { get; }
 	public Vector3 ChildAttachPointLocal { get; }
@@ -21,7 +20,7 @@ public interface IHolder
 	protected static bool ItemAttachInternal(ItemController item, IHolder holder)
 	{
 		// prevent over-holding
-		if (holder.Object.transform.childCount >= holder.HoldCountMax)
+		if (holder.Component.transform.childCount >= holder.HoldCountMax)
 		{
 			return false;
 		}
@@ -47,7 +46,7 @@ public interface IHolder
 		}
 
 		// maybe attach item from other holder
-		Transform holderTf = holder.Object.transform;
+		Transform holderTf = holder.Component.transform;
 		if (holderTf.parent == null)
 		{
 			return;
@@ -60,16 +59,17 @@ public interface IHolder
 		foreach (IHolder otherHolder in holderTf.parent.GetComponentsInChildren<IHolder>())
 		{
 			// avoid immediate collision w/ items remaining in other holders(s)
-			ItemController[] items = otherHolder.Object.GetComponentsInChildren<ItemController>(true);
+			Component otherHolderComp = otherHolder.Component;
+			ItemController[] items = otherHolderComp.GetComponentsInChildren<ItemController>(true);
 			foreach (ItemController otherItem in items)
 			{
-				if (otherItem != item && otherItem.Object.activeInHierarchy)
+				if (otherItem != item && otherItem.gameObject.activeInHierarchy)
 				{
 					EnableCollision.TemporarilyDisableCollision(itemColliders, otherItem.GetComponents<Collider2D>());
 				}
 			}
 
-			if (foundReplacement || otherHolder is ArmController || otherHolder.Object.transform.GetSiblingIndex() <= thisSiblingIdx)
+			if (foundReplacement || otherHolder is ArmController || otherHolderComp.transform.GetSiblingIndex() <= thisSiblingIdx)
 			{
 				continue; // don't move items out of hands or down from higher holders
 			}

@@ -26,8 +26,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	public AudioClip[] m_collisionAudio;
 
 
-	public /*override*/ GameObject Object => gameObject;
-
 	public float Speed => m_holder == null ? m_body.velocity.magnitude : m_holder.Speed;
 
 	public Vector2 SpritePivotOffset => -(m_renderer.sprite.pivot / m_renderer.sprite.rect.size * 2.0f - Vector2.one) * m_renderer.sprite.bounds.extents;
@@ -65,7 +63,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 
 		m_holder = transform.parent == null ? null : transform.parent.GetComponent<IHolder>();
 #pragma warning disable IDE0031 // NOTE that we don't use null propagation since IHolderControllers can be Unity objects as well, which don't like ?? or ?.
-		SetCause(m_holder == null ? null : m_holder.Object.transform.parent.gameObject);
+		SetCause(m_holder == null ? null : m_holder.Component.transform.parent.gameObject);
 #pragma warning restore IDE0031
 		if (m_vfx != null)
 		{
@@ -173,15 +171,16 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		}
 		m_holder = holder;
 
-		transform.SetParent(holder.Object.transform);
-		transform.localPosition = holder.ChildAttachPointLocal; // TODO: lerp?
+		Component holderComp = m_holder.Component;
+		transform.SetParent(holderComp.transform);
+		transform.localPosition = m_holder.ChildAttachPointLocal; // TODO: lerp?
 		transform.localRotation = Quaternion.identity; // TODO: lerp?
 		m_body.velocity = Vector2.zero;
 		m_body.angularVelocity = 0.0f;
 		m_body.bodyType = RigidbodyType2D.Kinematic;
 		m_body.useFullKinematicContacts = true;
-		gameObject.layer = holder.Object.layer;
-		SetCause(holder.Object.transform.parent.gameObject);
+		gameObject.layer = holderComp.gameObject.layer;
+		SetCause(holderComp.transform.parent.gameObject);
 	}
 
 	// this is the detachment entry point
@@ -226,7 +225,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	{
 		if (m_healAmount > 0)
 		{
-			bool healed = m_holder.Object.transform.parent.GetComponent<Health>().Increment(m_healAmount);
+			bool healed = m_holder.Component.transform.parent.GetComponent<Health>().Increment(m_healAmount);
 			if (healed)
 			{
 				Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
@@ -253,7 +252,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	public void Throw()
 	{
 		// temporarily ignore collisions w/ thrower
-		EnableCollision.TemporarilyDisableCollision(m_holder.Object.transform.parent.GetComponents<Collider2D>(), m_colliders, 0.1f);
+		EnableCollision.TemporarilyDisableCollision(m_holder.Component.transform.parent.GetComponents<Collider2D>(), m_colliders, 0.1f);
 
 		Detach(false);
 		m_body.velocity = transform.rotation * Vector2.right * m_throwSpeed;
