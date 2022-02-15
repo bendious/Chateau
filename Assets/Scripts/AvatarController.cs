@@ -38,6 +38,8 @@ public class AvatarController : KinematicCharacter
 
 	public float m_coyoteTime = 0.15f;
 
+	public Camera m_camera;
+
 
 	public PlayerControls Controls { get; private set; }
 
@@ -73,10 +75,8 @@ public class AvatarController : KinematicCharacter
 		m_focusIndicator.transform.SetParent(null);
 		m_focusPrompt.transform.SetParent(null);
 		m_aimObject.transform.SetParent(null);
-		m_inventoryUI.transform.SetParent(null);
 
 		health = GetComponent<Health>();
-		health.m_healthUIParent.transform.parent.transform.SetParent(null);
 
 		m_aimVfx = GetComponent<VisualEffect>();
 		m_spriteID = Shader.PropertyToID("Sprite");
@@ -103,93 +103,19 @@ public class AvatarController : KinematicCharacter
 	}
 
 
-	// TODO: use callbacks instead of polling?
 	protected override void Update()
 	{
 		if (controlEnabled)
 		{
-			if ((jumpState == JumpState.Grounded || jumpState == JumpState.WallCling || m_leftGroundTime + m_coyoteTime <= Time.time) && Controls.Avatar.Jump.triggered)
-			{
-				jumpState = JumpState.PrepareToJump;
-			}
-			else if (Controls.Avatar.Jump.WasReleasedThisFrame())
-			{
-				stopJump = true;
-			}
-
-			// swing
-			bool refreshInventory = false;
-			ItemController[] items = GetComponentsInChildren<ItemController>(true).ToArray();
-			ItemController primaryItem = items.FirstOrDefault();
-			if (Controls.Avatar.Swing.triggered)
-			{
-				if (primaryItem == null)
-				{
-					// TODO: add collision handling to arms for knock-back only swings?
-					//GetComponentInChildren<ArmController>().Swing(100.0f, 5.0f, 100.0f, 0.5f)/*?*/;
-				}
-				else
-				{
-					primaryItem.Swing();
-				}
-
-				// cancel throwing
-				// TODO: separate button to cancel a throw?
-				if (m_aiming)
-				{
-					StopAiming();
-				}
-			}
-
-			if (primaryItem != null)
-			{
-				// throw
-				if (Controls.Avatar.Throw.triggered)
-				{
-					// enable/initialize aim VFX
-					m_aimVfx.enabled = true;
-					Sprite itemSprite = primaryItem.GetComponent<SpriteRenderer>().sprite;
-					m_aimVfx.SetTexture(m_spriteID, itemSprite.texture);
-					Vector3 itemSize = primaryItem.GetComponent<Collider2D>().bounds.size;
-					m_aimVfx.SetFloat(m_sizeID, Mathf.Max(itemSize.x, itemSize.y));
-					m_aimVfx.SetFloat(m_speedID, primaryItem.m_throwSpeed);
-					m_aiming = true;
-				}
-				else if (m_aiming && Controls.Avatar.Throw.WasReleasedThisFrame())
-				{
-					StopAiming();
-
-					// release
-					primaryItem.Throw();
-					primaryItem = null;
-					refreshInventory = true;
-				}
-
-				if (Controls.Avatar.Use.triggered)
-				{
-					foreach (ItemController item in items)
-					{
-						StopAiming(); // NOTE that we don't care whether the item to be used is currently being aimed; even if it isn't, we treat item use - like swinging - as a throw cancellation
-
-						bool used = item.Use();
-						if (used)
-						{
-							break;
-						}
-					}
-				}
-			}
-
 			// collect possible focus objects
 			m_focusObj = null;
 			float focusRadius = ((CircleCollider2D)m_collider).radius;
-			Vector2 mousePos = Camera.main.ScreenToWorldPoint(m_mousePosPixels);
+			Vector2 mousePos = m_aimObject.transform.position;
 			Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + (mousePos - (Vector2)transform.position).normalized * focusRadius, focusRadius * 1.5f); // TODO: restrict to certain layers?
 
 			// determine current focus object
 			// TODO: more nuanced prioritization?
 			float distSqFocus = float.MaxValue;
-			IInteractable focusInteract = null;
 			bool focusCanInteract = false;
 			foreach (Collider2D candidate in focusCandidates)
 			{
@@ -207,7 +133,6 @@ public class AvatarController : KinematicCharacter
 
 				if (candidateCanInteract && !focusCanInteract || ((candidateCanInteract || !focusCanInteract) && distSqCur < distSqFocus))
 				{
-					focusInteract = candidateInteract;
 					focusCanInteract = candidateCanInteract;
 					distSqFocus = distSqCur;
 					m_focusObj = candidate.gameObject;
@@ -227,38 +152,9 @@ public class AvatarController : KinematicCharacter
 				m_focusIndicator.transform.localScale = m_focusObj.transform.localScale; // NOTE that w/o this, swapping between renderer draw modes was doing weird things to the indicator's scale...
 
 				m_focusPrompt.transform.position = m_focusIndicator.transform.position + m_focusPromptOffset;
-
-				// interact
-				if (Controls.Avatar.Interact.triggered)
-				{
-					focusInteract.Interact(this);
-					refreshInventory = true; // TODO: only if necessary?
-				}
 			}
 			m_focusIndicator.SetActive(focusCanInteract);
 			m_focusPrompt.SetActive(focusCanInteract);
-
-			IsPickingUp = Controls.Avatar.Interact.IsPressed() && items.Length < MaxPickUps;
-
-			if (Controls.Avatar.Drop.triggered)
-			{
-				if (primaryItem != null)
-				{
-					primaryItem.Detach(false);
-					refreshInventory = true;
-				}
-			}
-
-			// show/update inventory
-			if (Controls.Avatar.Inventory.triggered)
-			{
-				m_inventoryUI.SetActive(!m_inventoryUI.activeSelf);
-				InventorySync();
-			}
-			else if (refreshInventory)
-			{
-				InventorySync();
-			}
 		}
 		else
 		{
@@ -273,12 +169,12 @@ public class AvatarController : KinematicCharacter
 		if (controlEnabled)
 		{
 			// determine aim position(s)
-			Vector2 aimPctsFromCenter = m_usingMouse ? m_mousePosPixels / new Vector2(Screen.height, Screen.width) * 2.0f - Vector2.one : m_joystickDirNonzero;
+			Vector2 aimPctsFromCenter = m_usingMouse ? m_mousePosPixels / new Vector2(Screen.width, Screen.height) * 2.0f - Vector2.one : m_joystickDirNonzero;
 			aimPctsFromCenter.x = Mathf.Clamp(aimPctsFromCenter.x, -1.0f, 1.0f);
 			aimPctsFromCenter.y = Mathf.Clamp(aimPctsFromCenter.y, -1.0f, 1.0f);
-			Vector2 screenExtentsWS = new(Camera.main.orthographicSize * Camera.main.aspect, Camera.main.orthographicSize);
+			Vector2 screenExtentsWS = new(m_camera.orthographicSize * m_camera.aspect, m_camera.orthographicSize);
 			Vector2 aimPosConstrained = transform.position + (Vector3)(screenExtentsWS * aimPctsFromCenter);
-			Vector2 aimPos = m_usingMouse ? Camera.main.ScreenToWorldPoint(m_mousePosPixels) : aimPosConstrained;
+			Vector2 aimPos = m_usingMouse ? m_camera.ScreenToWorldPoint(m_mousePosPixels) : aimPosConstrained;
 
 			// aim camera/sprite
 			m_aimObject.transform.position = aimPosConstrained;
@@ -325,12 +221,21 @@ public class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnMove(InputValue input)
 	{
+		if (!controlEnabled)
+		{
+			return;
+		}
 		move = GameController.Instance.m_overlayCanvas.gameObject.activeSelf ? Vector2.zero : input.Get<Vector2>();
 	}
 
 	// called by InputSystem / PlayerInput component
 	public void OnLook(InputValue input)
 	{
+		if (!controlEnabled)
+		{
+			return;
+		}
+
 		// determine input source
 		m_usingMouse = GetComponent<PlayerInput>().currentControlScheme == "Keyboard&Mouse";
 
@@ -346,6 +251,140 @@ public class AvatarController : KinematicCharacter
 				m_joystickDirNonzero = joystickDir;
 			}
 		}
+	}
+
+	// called by InputSystem / PlayerInput component
+	public void OnSwing(InputValue input)
+	{
+		if (!controlEnabled)
+		{
+			return;
+		}
+
+		ItemController primaryItem = GetComponentInChildren<ItemController>(true);
+		if (primaryItem == null)
+		{
+			// TODO: add collision handling to arms for knock-back only swings?
+			//GetComponentInChildren<ArmController>().Swing(100.0f, 5.0f, 100.0f, 0.5f)/*?*/;
+		}
+		else
+		{
+			primaryItem.Swing();
+		}
+
+		// cancel throwing
+		// TODO: separate button to cancel a throw?
+		StopAiming();
+	}
+
+	// called by InputSystem / PlayerInput component
+	public void OnThrow(InputValue input)
+	{
+		ItemController primaryItem = GetComponentInChildren<ItemController>(true);
+		if (primaryItem == null)
+		{
+			return;
+		}
+
+		if (input.isPressed)
+		{
+			// enable/initialize aim VFX
+			m_aimVfx.enabled = true;
+			Sprite itemSprite = primaryItem.GetComponent<SpriteRenderer>().sprite;
+			m_aimVfx.SetTexture(m_spriteID, itemSprite.texture);
+			Vector3 itemSize = primaryItem.GetComponent<Collider2D>().bounds.size;
+			m_aimVfx.SetFloat(m_sizeID, Mathf.Max(itemSize.x, itemSize.y));
+			m_aimVfx.SetFloat(m_speedID, primaryItem.m_throwSpeed);
+			m_aiming = true;
+		}
+		else if (m_aiming)
+		{
+			StopAiming();
+			primaryItem.Throw();
+			InventorySync();
+		}
+	}
+
+	// called by InputSystem / PlayerInput component
+	public void OnJump(InputValue input)
+	{
+		if (!controlEnabled)
+		{
+			return;
+		}
+
+		if ((jumpState == JumpState.Grounded || jumpState == JumpState.WallCling || m_leftGroundTime + m_coyoteTime <= Time.time) && input.isPressed)
+		{
+			jumpState = JumpState.PrepareToJump;
+		}
+		else
+		{
+			stopJump = true;
+		}
+	}
+
+	// called by InputSystem / PlayerInput component
+	public void OnUse(InputValue input)
+	{
+		if (!controlEnabled)
+		{
+			return;
+		}
+
+		StopAiming(); // NOTE that we don't care whether the item to be used is currently being aimed or even exists; even if it isn't/doesn't, we treat item use - like swinging - as a throw cancellation
+
+		ItemController[] items = GetComponentsInChildren<ItemController>(true).ToArray();
+		foreach (ItemController item in items)
+		{
+			bool used = item.Use();
+			if (used)
+			{
+				break;
+			}
+		}
+	}
+
+	// called by InputSystem / PlayerInput component
+	public void OnInteract(InputValue input)
+	{
+		if (controlEnabled && m_focusObj != null)
+		{
+			IInteractable focusInteract = m_focusObj.GetComponent<IInteractable>();
+			if (focusInteract != null && focusInteract.CanInteract(this))
+			{
+				focusInteract.Interact(this);
+				InventorySync(); // TODO: only if necessary?
+			}
+		}
+
+		IsPickingUp = input.isPressed && GetComponentsInChildren<ItemController>(true).Length < MaxPickUps;
+	}
+
+	// called by InputSystem / PlayerInput component
+	public void OnDrop(InputValue input)
+	{
+		if (!controlEnabled)
+		{
+			return;
+		}
+
+		ItemController primaryItem = GetComponentInChildren<ItemController>(true);
+		if (primaryItem != null)
+		{
+			primaryItem.Detach(false);
+			InventorySync();
+		}
+	}
+
+	// called by InputSystem / PlayerInput component
+	public void OnInventory(InputValue input)
+	{
+		if (!controlEnabled)
+		{
+			return;
+		}
+		m_inventoryUI.SetActive(!m_inventoryUI.activeSelf);
+		InventorySync();
 	}
 
 	public override void OnDamage(GameObject source)
@@ -367,7 +406,10 @@ public class AvatarController : KinematicCharacter
 
 		DeactivateAllControl();
 		InventorySync();
-		Simulation.Schedule<GameOver>(3.0f); // TODO: animation event?
+		if (GameController.Instance.m_avatars.All(avatar => !avatar.GetComponent<Health>().IsAlive))
+		{
+			Simulation.Schedule<GameOver>(3.0f); // TODO: animation event?
+		}
 
 		return true;
 	}
@@ -438,7 +480,8 @@ public class AvatarController : KinematicCharacter
 		}).ToArray();
 
 		// create/set one icon per item/slot
-		Vector3 posItr = templateObj.transform.position;
+		RectTransform templateTf = templateObj.transform.GetComponent<RectTransform>();
+		Vector3 posItr = templateTf.anchoredPosition;
 		for (int iconIdx = 0; iconIdx < itemInfos.Length; ++iconIdx)
 		{
 			GameObject UIObj;
@@ -448,8 +491,9 @@ public class AvatarController : KinematicCharacter
 			}
 			else
 			{
-				posItr.x = templateObj.transform.position.x + (templateObj.GetComponent<RectTransform>().sizeDelta.x + templateObj.transform.position.x) * iconIdx;
-				UIObj = Instantiate(templateObj, posItr, Quaternion.identity, m_inventoryUI.transform);
+				posItr.x = templateTf.anchoredPosition.x + (templateTf.sizeDelta.x + templateTf.anchoredPosition.x) * iconIdx;
+				UIObj = Instantiate(templateObj, Vector3.zero, Quaternion.identity, m_inventoryUI.transform);
+				UIObj.transform.GetComponent<RectTransform>().anchoredPosition = posItr;
 				UIObj.SetActive(true);
 			}
 			Image uiImage = UIObj.GetComponent<Image>();

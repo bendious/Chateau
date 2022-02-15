@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 
@@ -47,7 +48,7 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 		m_controls.Console.KillAllEnemies.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.DebugKillAllEnemies());
 		m_controls.Console.HarmHealAvatar.performed += ctx => ExecuteIfConsoleOpen(() =>
 		{
-			Health avatarHealth = GameController.Instance.m_avatar.GetComponent<Health>();
+			Health avatarHealth = GameController.Instance.m_avatars.First().GetComponent<Health>();
 			if (m_controls.Console.Shift.IsPressed())
 			{
 				avatarHealth.Increment();

@@ -9,12 +9,13 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-	public AvatarController m_avatar;
+	public List<AvatarController> m_avatars;
 
 	public DialogueController m_dialogueController;
 
 	public Canvas m_overlayCanvas;
 
+	public GameObject m_avatarPrefab;
 	public WeightedObject<GameObject>[] m_roomPrefabs;
 	public WeightedObject<GameObject>[] m_bossRoomPrefabs;
 	public WeightedObject<GameObject>[] m_enemyPrefabs;
@@ -49,6 +50,15 @@ public class GameController : MonoBehaviour
 
 	private void Start()
 	{
+		// NOTE that this is not per-avatar since it would then multi-trigger and cancel itself out
+		m_avatars.Last().Controls.UI.Pause.performed += ctx =>
+		{
+			if (!m_gameOverUI.gameObject.activeSelf)
+			{
+				TogglePause();
+			}
+		};
+
 		LayoutGenerator generator = new();
 		generator.Generate();
 
@@ -100,13 +110,32 @@ public class GameController : MonoBehaviour
 	private void Update()
 	{
 		Simulation.Tick();
-
-		if (!m_gameOverUI.gameObject.activeSelf && m_avatar.Controls.UI.Pause.triggered)
-		{
-			TogglePause();
-		}
 	}
 
+
+	public void AddAvatar()
+	{
+		m_avatars.Add(Instantiate(m_avatarPrefab, m_avatars.First().transform.position + Vector3.right, Quaternion.identity).GetComponent<AvatarController>()); // TODO: ensure valid start point
+		Destroy(m_avatars.Last().GetComponentInChildren<AudioListener>()); // TODO: put audio listener at average player position?
+
+		// adjust camera viewports
+		// TODO: unify camera when close together? handle grid layout for more than two avatars? use Player Input Manager for automatic handling?
+		float xStep = 1.0f / m_avatars.Count();
+		float xCur = 0.0f;
+		int layerItr = LayerMask.NameToLayer("Player0Cameras");
+		foreach (AvatarController avatar in m_avatars)
+		{
+			avatar.m_camera.rect = Rect.MinMaxRect(xCur, 0.0f, xCur + xStep, 1.0f);
+
+			avatar.m_camera.gameObject.layer = layerItr;
+			avatar.GetComponentInChildren<Cinemachine.CinemachineVirtualCamera>().gameObject.layer = layerItr;
+			avatar.m_camera.cullingMask |= 1 << layerItr;
+			avatar.m_camera.cullingMask &= ~(int.MaxValue << (layerItr + 1)); // TODO: don't assume all higher layers are player camera layers?
+
+			xCur += xStep;
+			++layerItr; // TODO: don't assume camera layers are sequential?
+		}
+	}
 
 	public Vector3 RoomPosition(bool checkLocks, GameObject targetObj, bool onFloor)
 	{
@@ -168,7 +197,10 @@ public class GameController : MonoBehaviour
 		if (ConsoleCommands.RegenerateDisabled)
 		{
 #if DEBUG
-			m_avatar.DebugRespawn();
+			foreach (AvatarController avatar in m_avatars)
+			{
+				avatar.DebugRespawn();
+			}
 #endif
 			ActivateMenu(m_gameOverUI, false);
 			return;
@@ -185,11 +217,14 @@ public class GameController : MonoBehaviour
 
 	public void OnVictory()
 	{
-		m_avatar.OnVictory();
+		foreach (AvatarController avatar in m_avatars)
+		{
+			avatar.OnVictory();
+		}
 		m_timerUI.text = "WIN!";
 		m_nextWaveTime = -1.0f;
 		StopAllCoroutines();
-		m_avatar.GetComponent<AudioSource>().PlayOneShot(m_victoryAudio);
+		m_avatars.First().GetComponent<AudioSource>().PlayOneShot(m_victoryAudio);
 		// TODO: roll credits / etc.
 	}
 
@@ -281,10 +316,11 @@ public class GameController : MonoBehaviour
 
 	private void SpawnEnemy(GameObject enemyPrefab)
 	{
+		AvatarController targetAvatar = m_avatars[Random.Range(0, m_avatars.Count())];
 		CapsuleCollider2D enemyCollider = enemyPrefab.GetComponent<CapsuleCollider2D>();
-		Vector3 spawnPos = RoomPosition(true, m_avatar.gameObject, !enemyPrefab.GetComponent<KinematicObject>().HasFlying) + Vector3.up * (enemyCollider.size.y * 0.5f - enemyCollider.offset.y);
+		Vector3 spawnPos = RoomPosition(true, targetAvatar.gameObject, !enemyPrefab.GetComponent<KinematicObject>().HasFlying) + Vector3.up * (enemyCollider.size.y * 0.5f - enemyCollider.offset.y);
 		EnemyController enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>();
-		enemy.m_target = m_avatar.transform;
+		enemy.m_target = targetAvatar.transform; // TODO: target switching/management
 		m_enemies.Add(enemy);
 	}
 

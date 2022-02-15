@@ -55,7 +55,7 @@ public class ObjectDespawn : Event<ObjectDespawn>
 }
 
 /// <summary>
-/// Fired after the avatar dies.
+/// Fired after all avatars die.
 /// </summary>
 public class GameOver : Event<GameOver>
 {

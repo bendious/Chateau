@@ -147,7 +147,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		}
 
 		// add upward force to emulate kicking
-		if (isDetached && (m_cause == null || collision.gameObject == GameController.Instance.m_avatar.gameObject))
+		if (isDetached && (m_cause == null || GameController.Instance.m_avatars.Exists(avatar => avatar.gameObject == collision.gameObject)))
 		{
 			SetCause(collision.gameObject);
 			EnableVFXAndDamage(); // mostly to prevent m_cause from remaining set and allowing damage if run into fast enough
@@ -282,7 +282,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		}
 
 		Gradient gradient = new();
-		gradient.colorKeys = new GradientColorKey[] { new(cause == GameController.Instance.m_avatar.gameObject ? Color.white : Color.red, 0.0f) };
+		gradient.colorKeys = new GradientColorKey[] { new(GameController.Instance.m_avatars.Exists(avatar => cause == avatar.gameObject) ? Color.white : Color.red, 0.0f) };
 		gradient.alphaKeys = new GradientAlphaKey[] { new(0.0f, 0.0f), new(m_vfxAlphaMax, 1.0f) }; // TODO: determine how this interacts w/ the VFX's Alpha Over Life node
 		m_vfx.SetGradient(m_gradientID, gradient);
 	}

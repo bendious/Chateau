@@ -88,12 +88,11 @@ public class DoorController : MonoBehaviour, IInteractable
 			return;
 		}
 
-		GameController gameController = GameController.Instance;
-		Assert.AreEqual(interactor, gameController.m_avatar);
+		Assert.IsTrue(GameController.Instance.m_avatars.Contains(interactor as AvatarController));
 
 		// NOTE that we can't use Stop{All}Coroutine{s}() since UpdateInteraction() has to do cleanup; we rely on it detecting overlay toggling even from other sources
 
-		bool overlayActive = gameController.ToggleOverlay(GetComponent<SpriteRenderer>(), m_inputCur.ToString("D" + m_combinationDigits));
+		bool overlayActive = GameController.Instance.ToggleOverlay(GetComponent<SpriteRenderer>(), m_inputCur.ToString("D" + m_combinationDigits));
 		if (overlayActive)
 		{
 			StartCoroutine(UpdateInteraction(interactor));
@@ -128,7 +127,7 @@ public class DoorController : MonoBehaviour, IInteractable
 		bool firstUpdate = true;
 		while (overlayObj.activeSelf && Vector2.Distance(interactor.transform.position, transform.position) < m_interactDistanceMax)
 		{
-			PlayerControls.UIActions controls = GameController.Instance.m_avatar.Controls.UI;
+			PlayerControls.UIActions controls = ((AvatarController)interactor).Controls.UI;
 
 			if (firstUpdate || controls.Navigate.triggered)
 			{

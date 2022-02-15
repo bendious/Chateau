@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +49,8 @@ public class BossRoom : MonoBehaviour
 
 	private void OnTriggerEnter2D(Collider2D collision)
 	{
-		if (collision.gameObject != GameController.Instance.m_avatar.gameObject)
+		// TODO: ensure any co-op players are all present?
+		if (!GameController.Instance.m_avatars.Exists(avatar => collision.gameObject == avatar.gameObject))
 		{
 			return;
 		}
@@ -171,13 +173,16 @@ public class BossRoom : MonoBehaviour
 			yield return null;
 		}
 
-		// zoom camera out
-		Cinemachine.CinemachineVirtualCamera vCam = Camera.main.GetComponent<Cinemachine.CinemachineBrain>().ActiveVirtualCamera.VirtualCameraGameObject.GetComponent<Cinemachine.CinemachineVirtualCamera>();
-		float zoomSpeedCur = 0.0f;
+		// zoom camera(s) out
+		CinemachineVirtualCamera[] vCams = Camera.allCameras.Select(camera => camera.GetComponent<CinemachineBrain>().ActiveVirtualCamera.VirtualCameraGameObject.GetComponent<CinemachineVirtualCamera>()).ToArray();
+		float zoomSpeedCur = 0.0f; // TODO: per-cam?
 		float zoomSizeTarget = 5.0f;
-		while (!Utility.FloatEqual(vCam.m_Lens.OrthographicSize, zoomSizeTarget))
+		while (!Utility.FloatEqual(vCams.First().m_Lens.OrthographicSize, zoomSizeTarget)) // TODO: don't assume cameras are in lockstep?
 		{
-			vCam.m_Lens.OrthographicSize = Mathf.SmoothDamp(vCam.m_Lens.OrthographicSize, zoomSizeTarget, ref zoomSpeedCur, smoothTimeFast);
+			foreach (CinemachineVirtualCamera vCam in vCams)
+			{
+				vCam.m_Lens.OrthographicSize = Mathf.SmoothDamp(vCam.m_Lens.OrthographicSize, zoomSizeTarget, ref zoomSpeedCur, smoothTimeFast);
+			}
 			yield return null;
 		}
 

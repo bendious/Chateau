@@ -76,7 +76,7 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 		// if far enough outside inventory area, detach
 		if (eventData.position.y > m_restPosition.y + 2.0f * GetComponent<RectTransform>().sizeDelta.y)
 		{
-			AvatarController avatar = GameController.Instance.m_avatar;
+			AvatarController avatar = transform.root.GetComponent<AvatarController>();
 			SlotItemInfo slotItemInfo1 = ItemFromIndex(avatar, transform.GetSiblingIndex());
 			slotItemInfo1.m_item.Detach(false);
 
@@ -111,7 +111,7 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 
 		// swap avatar hold
 		// get items BEFORE editing attachments
-		AvatarController avatar = GameController.Instance.m_avatar;
+		AvatarController avatar = transform.root.GetComponent<AvatarController>();
 		SlotItemInfo slotItemInfo1 = ItemFromIndex(avatar, index1);
 		ItemController item1 = slotItemInfo1.m_item;
 		SlotItemInfo slotItemInfo2 = ItemFromIndex(avatar, index2);
@@ -188,6 +188,6 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 				yield break;
 			}
 		}
-		GameController.Instance.m_avatar.InventorySync();
+		transform.root.GetComponent<AvatarController>().InventorySync();
 	}
 }

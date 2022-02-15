@@ -150,7 +150,7 @@ public class Health : MonoBehaviour
 		for (; uiHealthCount < maxHP; ++uiHealthCount, xItr += templateWidth + m_UIPadding)
 		{
 			GameObject uiNew = Instantiate(templateObj, m_healthUIParent.transform);
-			uiNew.transform.position += new Vector3(xItr, 0.0f, 0.0f);
+			uiNew.GetComponent<RectTransform>().anchoredPosition += new Vector2(xItr, 0.0f);
 			uiNew.SetActive(true);
 		}
 
