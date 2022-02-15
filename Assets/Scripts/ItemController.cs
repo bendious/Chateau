@@ -235,7 +235,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 
 		if (!string.IsNullOrEmpty(m_overlayText))
 		{
-			GameController.Instance.ToggleOverlay(m_renderer, m_overlayText);
+			m_holder.Component.transform.parent.GetComponent<AvatarController>().ToggleOverlay(m_renderer, m_overlayText);
 			return true;
 		}
 

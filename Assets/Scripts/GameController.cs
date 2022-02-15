@@ -13,8 +13,6 @@ public class GameController : MonoBehaviour
 
 	public DialogueController m_dialogueController;
 
-	public Canvas m_overlayCanvas;
-
 	public GameObject m_avatarPrefab;
 	public WeightedObject<GameObject>[] m_roomPrefabs;
 	public WeightedObject<GameObject>[] m_bossRoomPrefabs;
@@ -152,20 +150,6 @@ public class GameController : MonoBehaviour
 		Time.timeScale = Time.timeScale == 0.0f ? 1.0f : 0.0f;
 		ActivateMenu(m_pauseUI, !m_pauseUI.gameObject.activeSelf);
 		// NOTE that if the avatar is ever visible while paused, we should disable its script here to avoid continuing to update facing
-	}
-
-	public bool ToggleOverlay(SpriteRenderer sourceRenderer, string text)
-	{
-		GameObject overlayObj = m_overlayCanvas.gameObject;
-		if (!overlayObj.activeSelf)
-		{
-			Image overlayImage = overlayObj.GetComponentInChildren<Image>();
-			overlayImage.sprite = sourceRenderer.sprite;
-			overlayImage.color = sourceRenderer.color;
-			overlayObj.GetComponentInChildren<TMPro.TMP_Text>().text = text;
-		}
-		overlayObj.SetActive(!overlayObj.activeSelf);
-		return overlayObj.activeSelf;
 	}
 
 	public bool EnemiesRemain()

@@ -88,11 +88,12 @@ public class DoorController : MonoBehaviour, IInteractable
 			return;
 		}
 
-		Assert.IsTrue(GameController.Instance.m_avatars.Contains(interactor as AvatarController));
+		AvatarController avatar = (AvatarController)interactor;
+		Assert.IsTrue(GameController.Instance.m_avatars.Contains(avatar));
 
 		// NOTE that we can't use Stop{All}Coroutine{s}() since UpdateInteraction() has to do cleanup; we rely on it detecting overlay toggling even from other sources
 
-		bool overlayActive = GameController.Instance.ToggleOverlay(GetComponent<SpriteRenderer>(), m_inputCur.ToString("D" + m_combinationDigits));
+		bool overlayActive = avatar.ToggleOverlay(GetComponent<SpriteRenderer>(), m_inputCur.ToString("D" + m_combinationDigits));
 		if (overlayActive)
 		{
 			StartCoroutine(UpdateInteraction(interactor));
@@ -114,7 +115,8 @@ public class DoorController : MonoBehaviour, IInteractable
 
 	private IEnumerator UpdateInteraction(KinematicCharacter interactor)
 	{
-		GameObject overlayObj = GameController.Instance.m_overlayCanvas.gameObject;
+		AvatarController avatar = (AvatarController)interactor;
+		GameObject overlayObj = avatar.m_overlayCanvas.gameObject;
 		TMPro.TMP_Text text = overlayObj.GetComponentInChildren<TMPro.TMP_Text>();
 		text.text = m_inputCur.ToString("D" + m_combinationDigits);
 		yield return null; // NOTE that we have to display at least once before possibly using text.textBounds for indicator positioning
@@ -127,7 +129,7 @@ public class DoorController : MonoBehaviour, IInteractable
 		bool firstUpdate = true;
 		while (overlayObj.activeSelf && Vector2.Distance(interactor.transform.position, transform.position) < m_interactDistanceMax)
 		{
-			PlayerControls.UIActions controls = ((AvatarController)interactor).Controls.UI;
+			PlayerControls.UIActions controls = avatar.Controls.UI;
 
 			if (firstUpdate || controls.Navigate.triggered)
 			{

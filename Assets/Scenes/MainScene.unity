@@ -258,11 +258,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 220997518}
   m_CullTransparentMesh: 1
---- !u!223 &291119435 stripped
-Canvas:
-  m_CorrespondingSourceObject: {fileID: 7696693925314575142, guid: 4d20d571ba0aebe47a66bc88f4f1c0a9, type: 3}
-  m_PrefabInstance: {fileID: 6654259643799932726}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &349630810
 GameObject:
   m_ObjectHideFlags: 0
@@ -1655,7 +1650,6 @@ MonoBehaviour:
   m_avatars:
   - {fileID: 1455061592}
   m_dialogueController: {fileID: 349630815}
-  m_overlayCanvas: {fileID: 291119435}
   m_avatarPrefab: {fileID: 6654259642884158821, guid: 4d20d571ba0aebe47a66bc88f4f1c0a9, type: 3}
   m_roomPrefabs:
   - m_object: {fileID: 7422594126546487761, guid: bc523bdaf3586ea4385e45a9a5838915, type: 3}
@@ -3626,6 +3620,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6629118212861341344, guid: 4d20d571ba0aebe47a66bc88f4f1c0a9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6629118212861341344, guid: 4d20d571ba0aebe47a66bc88f4f1c0a9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6654259642884158817, guid: 4d20d571ba0aebe47a66bc88f4f1c0a9, type: 3}
       propertyPath: m_RootOrder
       value: 2

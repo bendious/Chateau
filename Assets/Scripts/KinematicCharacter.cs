@@ -209,7 +209,7 @@ public abstract class KinematicCharacter : KinematicObject
 	}
 
 
-	// called by animation triggers
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called by animation triggers")]
 	private void ProcessAnimEvent(AnimationEvent evt)
 	{
 		Assert.IsNotNull(evt.objectReferenceParameter);

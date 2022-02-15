@@ -31,6 +31,7 @@ public class AvatarController : KinematicCharacter
 	public GameObject m_focusPrompt;
 	public GameObject m_aimObject;
 	public GameObject m_inventoryUI;
+	public Canvas m_overlayCanvas;
 
 	public Vector3 m_focusPromptOffset = new(0.0f, 0.15f, -0.15f);
 
@@ -225,7 +226,7 @@ public class AvatarController : KinematicCharacter
 		{
 			return;
 		}
-		move = GameController.Instance.m_overlayCanvas.gameObject.activeSelf ? Vector2.zero : input.Get<Vector2>();
+		move = m_overlayCanvas.gameObject.activeSelf ? Vector2.zero : input.Get<Vector2>();
 	}
 
 	// called by InputSystem / PlayerInput component
@@ -253,7 +254,7 @@ public class AvatarController : KinematicCharacter
 		}
 	}
 
-	// called by InputSystem / PlayerInput component
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnSwing(InputValue input)
 	{
 		if (!controlEnabled)
@@ -323,7 +324,7 @@ public class AvatarController : KinematicCharacter
 		}
 	}
 
-	// called by InputSystem / PlayerInput component
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnUse(InputValue input)
 	{
 		if (!controlEnabled)
@@ -347,7 +348,7 @@ public class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnInteract(InputValue input)
 	{
-		if (controlEnabled && m_focusObj != null)
+		if (controlEnabled && input.isPressed && m_focusObj != null)
 		{
 			IInteractable focusInteract = m_focusObj.GetComponent<IInteractable>();
 			if (focusInteract != null && focusInteract.CanInteract(this))
@@ -360,7 +361,7 @@ public class AvatarController : KinematicCharacter
 		IsPickingUp = input.isPressed && GetComponentsInChildren<ItemController>(true).Length < MaxPickUps;
 	}
 
-	// called by InputSystem / PlayerInput component
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnDrop(InputValue input)
 	{
 		if (!controlEnabled)
@@ -376,7 +377,7 @@ public class AvatarController : KinematicCharacter
 		}
 	}
 
-	// called by InputSystem / PlayerInput component
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnInventory(InputValue input)
 	{
 		if (!controlEnabled)
@@ -391,9 +392,9 @@ public class AvatarController : KinematicCharacter
 	{
 		base.OnDamage(source);
 
-		if (GameController.Instance.m_overlayCanvas.gameObject.activeSelf)
+		if (m_overlayCanvas.gameObject.activeSelf)
 		{
-			GameController.Instance.ToggleOverlay(null, null);
+			ToggleOverlay(null, null);
 		}
 	}
 
@@ -455,6 +456,20 @@ public class AvatarController : KinematicCharacter
 		animator.SetBool("dead", false);
 	}
 #endif
+
+	public bool ToggleOverlay(SpriteRenderer sourceRenderer, string text)
+	{
+		GameObject overlayObj = m_overlayCanvas.gameObject;
+		if (!overlayObj.activeSelf)
+		{
+			Image overlayImage = overlayObj.GetComponentInChildren<Image>();
+			overlayImage.sprite = sourceRenderer.sprite;
+			overlayImage.color = sourceRenderer.color;
+			overlayObj.GetComponentInChildren<TMPro.TMP_Text>().text = text;
+		}
+		overlayObj.SetActive(!overlayObj.activeSelf);
+		return overlayObj.activeSelf;
+	}
 
 	public void InventorySync()
 	{
@@ -607,7 +622,7 @@ public class AvatarController : KinematicCharacter
 		}
 	}
 
-	// called from animation event
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called from animation event")]
 	private void EnablePlayerControl()
 	{
 		if (ConsoleCommands.NeverDie || health.IsAlive)

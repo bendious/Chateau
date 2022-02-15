@@ -72,7 +72,7 @@ namespace UnityEngine.InputSystem.Samples
         [SerializeField] internal string m_Label;
         [SerializeField] internal int m_HistorySamples = 500;
         [SerializeField] internal float m_TimeWindow = 3;
-        [SerializeField] internal Rect m_Rect = new Rect(10, 10, 300, 30);
+        [SerializeField] internal Rect m_Rect = new(10, 10, 300, 30);
 
         [NonSerialized] internal GUIContent m_LabelContent;
         [NonSerialized] internal VisualizationHelpers.Visualizer m_Visualizer;
