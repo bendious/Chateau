@@ -106,11 +106,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>().Length < character.MaxPickUps)
 			{
 				character.AttachItem(this);
-				AvatarController avatar = collision.gameObject.GetComponent<AvatarController>();
-				if (avatar != null)
-				{
-					avatar.InventorySync();
-				}
 				return;
 			}
 		}

@@ -46,10 +46,18 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable
 		body.bodyType = RigidbodyType2D.Kinematic;
 
 		gameObject.layer = character.gameObject.layer;
+
+		AvatarController avatar = character.GetComponent<AvatarController>();
+		if (avatar != null)
+		{
+			avatar.InventorySync();
+		}
 	}
 
 	public /*override*/ void Detach(bool noAutoReplace)
 	{
+		AvatarController avatar = transform.parent.GetComponent<AvatarController>(); // NOTE that we have to grab this BEFORE detaching, but sync the inventory AFTER
+
 		StopAllCoroutines();
 
 		// TODO: combine w/ ItemController.DetachInternal()?
@@ -57,6 +65,11 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable
 		transform.position = (Vector2)transform.position; // nullify any z that may have been applied for rendering order
 		Rigidbody2D body = GetComponent<Rigidbody2D>();
 		body.bodyType = RigidbodyType2D.Dynamic;
+
+		if (avatar != null)
+		{
+			avatar.InventorySync();
+		}
 	}
 
 

@@ -33,6 +33,12 @@ public interface IHolder
 
 		item.AttachInternal(holder);
 
+		AvatarController avatar = holder.Component.transform.parent.GetComponent<AvatarController>();
+		if (avatar != null)
+		{
+			avatar.InventorySync();
+		}
+
 		return true;
 	}
 
@@ -87,6 +93,12 @@ public interface IHolder
 				// reattach to original to avoid orphaning upon failure
 				otherHolder.ItemAttach(newItem);
 			}
+		}
+
+		AvatarController avatar = holderTf.parent.GetComponent<AvatarController>();
+		if (avatar != null)
+		{
+			avatar.InventorySync(); // TODO: avoid multi-sync when detaching multiple (e.g. upon death)?
 		}
 
 		return;

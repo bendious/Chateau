@@ -170,7 +170,15 @@ public class AvatarController : KinematicCharacter
 		if (controlEnabled)
 		{
 			// determine aim position(s)
-			Vector2 aimPctsFromCenter = m_usingMouse ? m_mousePosPixels / new Vector2(Screen.width, Screen.height) * 2.0f - Vector2.one : m_joystickDirNonzero;
+			Vector2 aimPctsFromCenter = m_joystickDirNonzero;
+			if (m_usingMouse)
+			{
+				Rect cameraRectPixels = m_camera.rect;
+				Vector2 screenSize = new(Screen.width, Screen.height);
+				cameraRectPixels.position *= screenSize;
+				cameraRectPixels.size *= screenSize;
+				aimPctsFromCenter = (m_mousePosPixels - cameraRectPixels.center) / (cameraRectPixels.size * 0.5f);
+			}
 			aimPctsFromCenter.x = Mathf.Clamp(aimPctsFromCenter.x, -1.0f, 1.0f);
 			aimPctsFromCenter.y = Mathf.Clamp(aimPctsFromCenter.y, -1.0f, 1.0f);
 			Vector2 screenExtentsWS = new(m_camera.orthographicSize * m_camera.aspect, m_camera.orthographicSize);
@@ -232,7 +240,8 @@ public class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnLook(InputValue input)
 	{
-		if (!controlEnabled)
+		Vector2 value = input.Get<Vector2>();
+		if (!controlEnabled || value.sqrMagnitude == 0.0f) // TODO: FloatEqual() despite deadzone?
 		{
 			return;
 		}
@@ -242,15 +251,11 @@ public class AvatarController : KinematicCharacter
 
 		if (m_usingMouse)
 		{
-			m_mousePosPixels = input.Get<Vector2>();
+			m_mousePosPixels = value;
 		}
 		else
 		{
-			Vector2 joystickDir = input.Get<Vector2>();
-			if (joystickDir.sqrMagnitude != 0.0f) // TODO: FloatEqual() despite deadzone?
-			{
-				m_joystickDirNonzero = joystickDir;
-			}
+			m_joystickDirNonzero = value;
 		}
 	}
 
@@ -262,7 +267,7 @@ public class AvatarController : KinematicCharacter
 			return;
 		}
 
-		ItemController primaryItem = GetComponentInChildren<ItemController>(true);
+		ItemController primaryItem = GetComponentInChildren<ItemController>();
 		if (primaryItem == null)
 		{
 			// TODO: add collision handling to arms for knock-back only swings?
@@ -302,7 +307,6 @@ public class AvatarController : KinematicCharacter
 		{
 			StopAiming();
 			primaryItem.Throw();
-			InventorySync();
 		}
 	}
 
@@ -354,7 +358,6 @@ public class AvatarController : KinematicCharacter
 			if (focusInteract != null && focusInteract.CanInteract(this))
 			{
 				focusInteract.Interact(this);
-				InventorySync(); // TODO: only if necessary?
 			}
 		}
 
@@ -373,7 +376,6 @@ public class AvatarController : KinematicCharacter
 		if (primaryItem != null)
 		{
 			primaryItem.Detach(false);
-			InventorySync();
 		}
 	}
 
@@ -406,7 +408,6 @@ public class AvatarController : KinematicCharacter
 		}
 
 		DeactivateAllControl();
-		InventorySync();
 		if (GameController.Instance.m_avatars.All(avatar => !avatar.GetComponent<Health>().IsAlive))
 		{
 			Simulation.Schedule<GameOver>(3.0f); // TODO: animation event?
@@ -471,6 +472,7 @@ public class AvatarController : KinematicCharacter
 		return overlayObj.activeSelf;
 	}
 
+	// TODO: move to event handler?
 	public void InventorySync()
 	{
 		if (!m_inventoryUI.activeSelf)

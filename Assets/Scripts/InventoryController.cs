@@ -13,14 +13,14 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 	public float m_smoothEpsilon = 0.01f;
 	public GraphicRaycaster m_raycaster;
 	public bool m_draggable = false;
-	private Vector3 m_restPosition;
+	private Vector2 m_restPosition;
 	private Vector2 m_mouseOffset;
 	private Vector3 m_lerpVelocity;
 
 
 	private void Start()
 	{
-		m_restPosition = transform.position;
+		m_restPosition = GetComponent<RectTransform>().anchoredPosition;
 	}
 
 	public void OnPointerClick(PointerEventData eventData)
@@ -44,12 +44,12 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 			eventData.pointerDrag = null; // this cancels OnDrag{End}() being called
 			return;
 		}
-		m_mouseOffset = (Vector2)transform.position - eventData.position;
+		m_mouseOffset = GetComponent<RectTransform>().anchoredPosition - eventData.position;
 	}
 
 	public void OnDrag(PointerEventData eventData)
 	{
-		transform.position = eventData.position + m_mouseOffset;
+		GetComponent<RectTransform>().anchoredPosition = eventData.position + m_mouseOffset;
 	}
 
 	public void OnEndDrag(PointerEventData eventData)
@@ -74,15 +74,15 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 		}
 
 		// if far enough outside inventory area, detach
-		if (eventData.position.y > m_restPosition.y + 2.0f * GetComponent<RectTransform>().sizeDelta.y)
+		RectTransform rectTf = GetComponent<RectTransform>();
+		if (eventData.position.y > m_restPosition.y + 2.0f * rectTf.sizeDelta.y)
 		{
 			AvatarController avatar = transform.root.GetComponent<AvatarController>();
 			SlotItemInfo slotItemInfo1 = ItemFromIndex(avatar, transform.GetSiblingIndex());
 			slotItemInfo1.m_item.Detach(false);
 
 			// reset/update display
-			transform.position = m_restPosition; // NOTE that we don't lerp here since the slot is now empty
-			avatar.InventorySync();
+			rectTf.anchoredPosition = m_restPosition; // NOTE that we don't lerp here since the slot is now empty
 			return;
 		}
 
@@ -156,34 +156,36 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 	private SlotItemInfo ItemFromIndex(Component character, int index)
 	{
 		// NOTE that the indices are off by one between the inventory and avatar due to the inventory template object
-		int holderIdx = Math.Min(index, character.transform.childCount) - 1;
-		Transform holderTf = character.transform.GetChild(holderIdx);
+		IHolder[] holders = character.GetComponentsInChildren<IHolder>();
+		int holderIdx = Math.Min(index, holders.Length) - 1;
+		IHolder holder = holders[holderIdx];
+		Transform holderTf = holder.Component.transform;
 		int itemIdx = index - holderIdx - 1;
 		Transform itemTf = holderTf.childCount > itemIdx ? holderTf.GetChild(itemIdx) : null;
-		return new SlotItemInfo { m_item = itemTf == null ? null : itemTf.GetComponent<ItemController>(), m_holder = holderTf.GetComponent<IHolder>(), m_holderIndex = itemIdx };
+		return new SlotItemInfo { m_item = itemTf == null ? null : itemTf.GetComponent<ItemController>(), m_holder = holder, m_holderIndex = itemIdx };
 	}
 
 	private IEnumerator LerpToRest()
 	{
 		m_lerpVelocity = Vector3.zero;
 
-		while ((transform.position - m_restPosition).sqrMagnitude > m_smoothEpsilon)
+		RectTransform rectTf = GetComponent<RectTransform>();
+		while ((rectTf.anchoredPosition - m_restPosition).sqrMagnitude > m_smoothEpsilon)
 		{
-			Vector3 newPos;
-			newPos.x = Mathf.SmoothDamp(transform.position.x, m_restPosition.x, ref m_lerpVelocity.x, m_smoothTime);
-			newPos.y = Mathf.SmoothDamp(transform.position.y, m_restPosition.y, ref m_lerpVelocity.y, m_smoothTime);
-			newPos.z = Mathf.SmoothDamp(transform.position.z, m_restPosition.z, ref m_lerpVelocity.z, m_smoothTime);
-			transform.position = newPos;
+			Vector2 newPos;
+			newPos.x = Mathf.SmoothDamp(rectTf.anchoredPosition.x, m_restPosition.x, ref m_lerpVelocity.x, m_smoothTime);
+			newPos.y = Mathf.SmoothDamp(rectTf.anchoredPosition.y, m_restPosition.y, ref m_lerpVelocity.y, m_smoothTime);
+			rectTf.anchoredPosition = newPos;
 			yield return null;
 		}
 
-		transform.position = m_restPosition;
+		rectTf.anchoredPosition = m_restPosition;
 
 		// refresh inventory if we're the last one done, to update colors/indices/etc.
 		// TODO: efficiency?
 		foreach (InventoryController slot in transform.parent.GetComponentsInChildren<InventoryController>())
 		{
-			if (slot.transform.position != slot.m_restPosition)
+			if (slot.GetComponent<RectTransform>().anchoredPosition != slot.m_restPosition)
 			{
 				yield break;
 			}
