@@ -192,7 +192,7 @@ public class AvatarController : KinematicCharacter
 			// aim arms/items
 			// primary aim
 			ArmController[] arms = GetComponentsInChildren<ArmController>();
-			ArmController primaryArm = arms.Length == 0 ? null : arms.First().transform.childCount > 0 || arms.Last().transform.childCount == 0 ? arms.First() : arms.Last();
+			ArmController primaryArm = arms.Length == 0 ? null : arms.First().transform.childCount > 0 || (arms.Last().transform.childCount == 0 && !LeftFacing) ? arms.First() : arms.Last();
 			if (primaryArm != null)
 			{
 				primaryArm.UpdateAim(m_armOffset, aimPos, aimPos);
@@ -270,8 +270,7 @@ public class AvatarController : KinematicCharacter
 		ItemController primaryItem = GetComponentInChildren<ItemController>();
 		if (primaryItem == null)
 		{
-			// TODO: add collision handling to arms for knock-back only swings?
-			//GetComponentInChildren<ArmController>().Swing(100.0f, 5.0f, 100.0f, 0.5f)/*?*/;
+			(LeftFacing ? GetComponentsInChildren<ArmController>().Last() : GetComponentInChildren<ArmController>()).Swing();
 		}
 		else
 		{

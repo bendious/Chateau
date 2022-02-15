@@ -148,7 +148,7 @@ PrefabInstance:
       value: Spear
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_damage
+      propertyPath: m_swingInfo.m_damage
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
@@ -156,27 +156,27 @@ PrefabInstance:
       value: 7.5
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_aimSpringDampPct
+      propertyPath: m_swingInfo.m_aimSpringDampPct
       value: 0.75
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_swingRadiusPerSec
+      propertyPath: m_swingInfo.m_swingRadiusPerSec
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_aimSpringStiffness
+      propertyPath: m_swingInfo.m_aimSpringStiffness
       value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_swingDegreesPerSec
+      propertyPath: m_swingInfo.m_swingDegreesPerSec
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_radiusSpringDampPct
+      propertyPath: m_swingInfo.m_radiusSpringDampPct
       value: 0.75
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_radiusSpringStiffness
+      propertyPath: m_swingInfo.m_radiusSpringStiffness
       value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}

@@ -177,7 +177,7 @@ public sealed class AIThrow : AIState
 		if (m_startTime == 0.0f)
 		{
 			// pre-throw
-			if (m_item.Speed < m_item.m_damageThresholdSpeed) // TODO: better aimReady flag?
+			if (m_item.Speed < m_item.m_swingInfo.m_damageThresholdSpeed) // TODO: better aimReady flag?
 			{
 				m_item.Throw();
 				m_startTime = Time.time;

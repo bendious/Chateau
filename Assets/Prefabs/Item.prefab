@@ -168,17 +168,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef543e37377452d4d8a2467c198f80ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_swingDegreesPerSec: 5000
-  m_swingRadiusPerSec: 10
-  m_aimSpringStiffness: 100
-  m_aimSpringDampPct: 0.5
-  m_radiusSpringStiffness: 25
-  m_radiusSpringDampPct: 0.5
-  m_damageThresholdSpeed: 2
+  m_swingInfo:
+    m_aimSpringStiffness: 100
+    m_aimSpringDampPct: 0.5
+    m_swingDegreesPerSec: 5000
+    m_swingRadiusPerSec: 10
+    m_radiusSpringStiffness: 25
+    m_radiusSpringDampPct: 0.5
+    m_damageThresholdSpeed: 2
+    m_damage: 1
   m_throwSpeed: 10
   m_vfxAlphaMax: 0.35
-  m_damage: 1
+  m_vfxExtraOffsetLocal: {x: 0, y: 0, z: 0}
   m_healAmount: 0
+  m_overlayText: 
   m_swingThrowAudio:
   - {fileID: 8300000, guid: bd75c6b6ef0eb684e8159da49bdc2be8, type: 3}
   - {fileID: 8300000, guid: 0ad195f3e50a81f4d87df76997aed45a, type: 3}
