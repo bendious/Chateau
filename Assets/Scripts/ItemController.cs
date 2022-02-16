@@ -43,7 +43,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	private Health m_health;
 
 	private IHolder m_holder;
-	private GameObject m_cause;
+	private KinematicCharacter m_cause;
 
 	private static int m_posLocalPrevID;
 	private static int m_upVecID;
@@ -65,7 +65,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 
 		m_holder = transform.parent == null ? null : transform.parent.GetComponent<IHolder>();
 #pragma warning disable IDE0031 // NOTE that we don't use null propagation since IHolderControllers can be Unity objects as well, which don't like ?? or ?.
-		SetCause(m_holder == null ? null : m_holder.Component.transform.parent.gameObject);
+		SetCause(m_holder == null ? null : m_holder.Component.transform.parent.GetComponent<KinematicCharacter>());
 #pragma warning restore IDE0031
 		if (m_vfx != null)
 		{
@@ -94,7 +94,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
 		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
-		if (kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, false, false))
+		if (kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, false, false, false))
 		{
 			return;
 		}
@@ -102,10 +102,10 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		// maybe attach to character
 		// TODO: extend to BackpackController as well?
 		bool isDetached = m_holder == null;
-		bool canDamage = m_cause != null && m_cause != collision.gameObject && collision.otherCollider == m_colliders.First(); // NOTE that we prevent damage from secondary colliders (e.g. spear hafts)
+		bool canDamage = m_cause != null && m_cause.CanDamage(collision.gameObject) && collision.otherCollider == m_colliders.First(); // NOTE that we prevent damage from secondary colliders (e.g. spear hafts)
+		KinematicCharacter character = kinematicObj as KinematicCharacter; // NOTE that this works since objects shouldn't ever have multiple different KinematicObject-derived components
 		if (isDetached && !canDamage) // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus or if it is a secondary (non-damaging) collider making contact
 		{
-			KinematicCharacter character = collision.gameObject.GetComponent<KinematicCharacter>();
 			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>().Length < character.MaxPickUps)
 			{
 				character.AttachItem(this);
@@ -145,9 +145,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		}
 
 		// add upward force to emulate kicking
-		if (isDetached && (m_cause == null || GameController.Instance.m_avatars.Exists(avatar => avatar.gameObject == collision.gameObject)))
+		if (isDetached && !canDamage && character != null && (m_cause == null || GameController.Instance.m_avatars.Contains(character)))
 		{
-			SetCause(collision.gameObject);
+			SetCause(character);
 			EnableVFXAndDamage(); // mostly to prevent m_cause from remaining set and allowing damage if run into fast enough
 		}
 		List<ContactPoint2D> contacts = new();
@@ -178,7 +178,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		m_body.bodyType = RigidbodyType2D.Kinematic;
 		m_body.useFullKinematicContacts = true;
 		gameObject.layer = holderComp.gameObject.layer;
-		SetCause(holderComp.transform.parent.gameObject);
+		SetCause(holderComp.transform.parent.GetComponent<KinematicCharacter>());
 	}
 
 	// this is the detachment entry point
@@ -265,7 +265,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	}
 
 
-	private void SetCause(GameObject cause)
+	private void SetCause(KinematicCharacter cause)
 	{
 		if (m_cause == cause)
 		{
@@ -280,7 +280,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		}
 
 		Gradient gradient = new();
-		gradient.colorKeys = new GradientColorKey[] { new(GameController.Instance.m_avatars.Exists(avatar => cause == avatar.gameObject) ? Color.white : Color.red, 0.0f) };
+		gradient.colorKeys = new GradientColorKey[] { new(GameController.Instance.m_avatars.Contains(m_cause) ? Color.white : Color.red, 0.0f) };
 		gradient.alphaKeys = new GradientAlphaKey[] { new(0.0f, 0.0f), new(m_vfxAlphaMax, 1.0f) }; // TODO: determine how this interacts w/ the VFX's Alpha Over Life node
 		m_vfx.SetGradient(m_gradientID, gradient);
 	}

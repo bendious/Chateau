@@ -52,7 +52,12 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	{
 		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
 		Rigidbody2D m_body = GetComponent<Rigidbody2D>();
-		if (kinematicObj != null && kinematicObj.ShouldIgnore(m_body, GetComponents<Collider2D>(), false, false))
+		if (kinematicObj != null && kinematicObj.ShouldIgnore(m_body, GetComponents<Collider2D>(), false, false, false))
+		{
+			return;
+		}
+
+		if (!transform.parent.GetComponent<KinematicCharacter>().CanDamage(collision.gameObject))
 		{
 			return;
 		}

@@ -33,7 +33,7 @@ public class EnemyController : KinematicCharacter
 		var avatar = collision.gameObject.GetComponent<AvatarController>();
 		if (avatar != null)
 		{
-			avatar.OnCollision(this);
+			avatar.OnEnemyCollision(this);
 		}
 	}
 

@@ -122,7 +122,7 @@ public class AvatarController : KinematicCharacter
 			bool focusCanInteract = false;
 			foreach (Collider2D candidate in focusCandidates)
 			{
-				if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, false, false))
+				if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, false, false, false))
 				{
 					continue; // ignore ourself / attached/ignored objects
 				}
@@ -417,13 +417,23 @@ public class AvatarController : KinematicCharacter
 		return true;
 	}
 
+	public override bool CanDamage(GameObject target)
+	{
+		return base.CanDamage(target) && !GameController.Instance.m_avatars.Exists(avatar => avatar.gameObject == target);
+	}
+
 	protected override void DespawnSelf()
 	{
 		// NOTE that we purposely don't call base.DespawnSelf() since the avatar should never despawn
 	}
 
-	public void OnCollision(EnemyController enemy)
+	public void OnEnemyCollision(EnemyController enemy)
 	{
+		if (!enemy.CanDamage(gameObject))
+		{
+			return;
+		}
+
 		health.Decrement(enemy.gameObject);
 		controlEnabled = false; // re-enabled via EnablePlayerControl() animation trigger
 

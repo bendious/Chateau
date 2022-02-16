@@ -233,6 +233,11 @@ public abstract class KinematicCharacter : KinematicObject
 		}
 	}
 
+	public virtual bool CanDamage(GameObject target)
+	{
+		return gameObject != target;
+	}
+
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called by animation triggers")]
 	private void ProcessAnimEvent(AnimationEvent evt)

@@ -168,7 +168,7 @@ public abstract class KinematicObject : MonoBehaviour
 		PerformMovement(move, true, ref isNearGround);
 	}
 
-	public bool ShouldIgnore(Rigidbody2D body, Collider2D[] colliders, bool ignoreStatics, bool ignoreDynamics)
+	public bool ShouldIgnore(Rigidbody2D body, Collider2D[] colliders, bool ignoreStatics, bool ignoreDynamics, bool ignoreChildren)
 	{
 		Assert.IsTrue(colliders != null && colliders.Length > 0);
 		GameObject otherObj = colliders.First().gameObject; // TODO: ensure all colliders are from the same object?
@@ -183,6 +183,10 @@ public abstract class KinematicObject : MonoBehaviour
 		if (ignoreDynamics && body != null && body.bodyType == RigidbodyType2D.Dynamic)
 		{
 			return true;
+		}
+		if (ignoreChildren && body != null && body.transform.parent != null)
+		{
+			return true; // ignore non-root bodies (e.g. arms)
 		}
 		for (Transform transformItr = otherObj.transform; transformItr != null; transformItr = transformItr.parent)
 		{
@@ -238,7 +242,7 @@ public abstract class KinematicObject : MonoBehaviour
 			for (int i = 0; i < count; i++)
 			{
 				RaycastHit2D hit = hitBuffer[i];
-				if (ShouldIgnore(hit.rigidbody, new Collider2D[] { hit.collider }, false, true))
+				if (ShouldIgnore(hit.rigidbody, new Collider2D[] { hit.collider }, false, true, true))
 				{
 					continue; // don't get hung up on dynamic/carried/ignored objects
 				}
