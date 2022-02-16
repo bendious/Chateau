@@ -36,6 +36,12 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable
 	// TODO: combine w/ ItemController holder-based version?
 	public void AttachTo(KinematicCharacter character)
 	{
+		if (transform.parent != null)
+		{
+			// ensure any special detach logic gets invoked
+			Detach(false);
+		}
+
 		transform.SetParent(character.transform);
 		transform.localRotation = Quaternion.identity; // TODO: lerp?
 		StartCoroutine(UpdateOffset());

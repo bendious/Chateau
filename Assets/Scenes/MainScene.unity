@@ -1670,6 +1670,9 @@ MonoBehaviour:
     m_weight: 5
   - m_object: {fileID: 8176166786061933274, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
     m_weight: 10
+  m_cameraLayers:
+    serializedVersion: 2
+    m_Bits: 384
   m_timerUI: {fileID: 890711136}
   m_pauseUI: {fileID: 2025162744}
   m_gameOverUI: {fileID: 690702301}

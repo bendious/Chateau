@@ -18,6 +18,8 @@ public class GameController : MonoBehaviour
 	public WeightedObject<GameObject>[] m_bossRoomPrefabs;
 	public WeightedObject<GameObject>[] m_enemyPrefabs;
 
+	public LayerMask m_cameraLayers;
+
 	public TMPro.TMP_Text m_timerUI;
 	public Canvas m_pauseUI;
 	public Canvas m_gameOverUI;
@@ -115,6 +117,13 @@ public class GameController : MonoBehaviour
 
 	public void AddAvatar()
 	{
+		const int layerMax = 32; // set by Unity
+		int cameraLayerCount = Enumerable.Range(0, layerMax).Count(i => ((1 << i) & m_cameraLayers) != 0);
+		if (m_avatars.Count() >= cameraLayerCount)
+		{
+			return;
+		}
+
 		m_avatars.Add(Instantiate(m_avatarPrefab, m_avatars.First().transform.position + Vector3.right, Quaternion.identity).GetComponent<AvatarController>()); // TODO: ensure valid start point
 		Destroy(m_avatars.Last().GetComponentInChildren<AudioListener>()); // TODO: put audio listener at average player position?
 
@@ -122,18 +131,26 @@ public class GameController : MonoBehaviour
 		// TODO: unify camera when close together? handle grid layout for more than two avatars? use Player Input Manager for automatic handling?
 		float xStep = 1.0f / m_avatars.Count();
 		float xCur = 0.0f;
-		int layerItr = LayerMask.NameToLayer("Player0Cameras");
+		int layerItr = 0;
 		foreach (AvatarController avatar in m_avatars)
 		{
+			// find next set bit in m_cameraLayers
+			while ((m_cameraLayers & (1 << ++layerItr)) == 0)
+			{
+				Assert.IsTrue(layerItr <= layerMax);
+			}
+
 			avatar.m_camera.rect = Rect.MinMaxRect(xCur, 0.0f, xCur + xStep, 1.0f);
 
 			avatar.m_camera.gameObject.layer = layerItr;
 			avatar.GetComponentInChildren<Cinemachine.CinemachineVirtualCamera>().gameObject.layer = layerItr;
+			avatar.m_focusIndicator.gameObject.layer = layerItr;
+			avatar.m_focusPrompt.gameObject.layer = layerItr;
+
+			avatar.m_camera.cullingMask &= ~m_cameraLayers;
 			avatar.m_camera.cullingMask |= 1 << layerItr;
-			avatar.m_camera.cullingMask &= ~(int.MaxValue << (layerItr + 1)); // TODO: don't assume all higher layers are player camera layers?
 
 			xCur += xStep;
-			++layerItr; // TODO: don't assume camera layers are sequential?
 		}
 	}
 
