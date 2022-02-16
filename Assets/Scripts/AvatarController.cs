@@ -44,6 +44,8 @@ public class AvatarController : KinematicCharacter
 
 	public PlayerControls Controls { get; private set; }
 
+	public bool IsAlive => health.IsAlive;
+
 
 	private JumpState jumpState = JumpState.Grounded;
 	private Health health;
@@ -407,7 +409,7 @@ public class AvatarController : KinematicCharacter
 		}
 
 		DeactivateAllControl();
-		if (GameController.Instance.m_avatars.All(avatar => !avatar.GetComponent<Health>().IsAlive))
+		if (GameController.Instance.m_avatars.All(avatar => !avatar.IsAlive))
 		{
 			Simulation.Schedule<GameOver>(3.0f); // TODO: animation event?
 		}
@@ -626,7 +628,7 @@ public class AvatarController : KinematicCharacter
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called from animation event")]
 	private void EnablePlayerControl()
 	{
-		if (ConsoleCommands.NeverDie || health.IsAlive)
+		if (ConsoleCommands.NeverDie || IsAlive)
 		{
 			controlEnabled = true;
 		}

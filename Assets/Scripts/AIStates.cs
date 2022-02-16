@@ -27,26 +27,25 @@ public abstract class AIState
 
 public sealed class AIPursue : AIState
 {
-	private readonly Transform m_target;
 	private readonly Vector2 m_targetOffset;
 
 
 	public AIPursue(EnemyController ai)
 		: base(ai)
 	{
-		m_target = m_ai.m_target;
 		m_targetOffset = Random.value > 0.9f ? 0.75f/*?*/ * m_ai.m_meleeRange * Vector2.right : m_ai.m_targetOffset; // NOTE that even enemies w/ range go in for melee sometimes // TODO: EnemyController.disallowMelee flag?
 	}
 
 	public override AIState Update()
 	{
-		bool hasArrived = m_ai.NavigateTowardTarget(m_target, m_targetOffset);
+		bool hasArrived = m_ai.NavigateTowardTarget(m_targetOffset);
 
 		// check for target death
-		AvatarController targetAvatar = m_target.GetComponent<AvatarController>();
+		AvatarController targetAvatar = m_ai.m_target == null ? null : m_ai.m_target.GetComponent<AvatarController>();
 		if (targetAvatar != null && !targetAvatar.controlEnabled)
 		{
-			return new AIFlee(m_ai);
+			m_ai.m_target = null;
+			return null;
 		}
 
 		// check for ammo need
@@ -79,21 +78,17 @@ public sealed class AIFlee : AIState
 	public Vector2 m_fleeOffset = 12.0f * Vector2.right;
 
 
-	private readonly Transform m_target;
-
-
 	public AIFlee(EnemyController ai)
 		: base(ai)
 	{
-		m_target = m_ai.m_target;
 	}
 
 	public override AIState Update()
 	{
-		m_ai.NavigateTowardTarget(m_target, m_fleeOffset);
+		m_ai.NavigateTowardTarget(m_fleeOffset);
 
 		// check target availability
-		AvatarController targetAvatar = m_target.GetComponent<AvatarController>();
+		AvatarController targetAvatar = m_ai.m_target.GetComponent<AvatarController>();
 		if (targetAvatar == null || targetAvatar.controlEnabled)
 		{
 			return new AIPursue(m_ai);
@@ -132,7 +127,7 @@ public sealed class AIMelee : AIState
 
 	public override AIState Update()
 	{
-		m_ai.NavigateTowardTarget(m_ai.m_target, Vector2.zero);
+		m_ai.NavigateTowardTarget(Vector2.zero);
 
 		if (Time.time >= m_swingTime + m_swingTimeSeconds)
 		{
@@ -234,6 +229,10 @@ public sealed class AIRamSwoop : AIState
 		{
 			m_ai.transform.rotation = rotation;
 		}
+		else
+		{
+			m_ai.move.y = 0.0f;
+		}
 
 		m_angleDegrees += m_degreesPerSecond * Time.deltaTime;
 
@@ -261,9 +260,6 @@ public sealed class AIFindAmmo : AIState
 	public float m_multiFindPct = 0.5f; // TODO: determine based on relative distances to other items versus m_ai.m_target?
 
 
-	private Transform m_target;
-
-
 	public AIFindAmmo(EnemyController ai)
 		: base(ai)
 	{
@@ -271,16 +267,17 @@ public sealed class AIFindAmmo : AIState
 
 	public override void Enter()
 	{
-		m_target = FindTarget();
+		m_ai.m_target = FindTarget();
 	}
 
 	public override AIState Update()
 	{
 		// validate target
-		if (m_target == null || (m_target.parent != null && m_target.parent != m_ai.transform))
+		// TODO: switch targets if a different one is now closer? ensure valid pathfind path accounting for blockers?
+		if (m_ai.m_target == null || (m_ai.m_target.parent != null && m_ai.m_target.parent != m_ai.transform))
 		{
-			m_target = FindTarget();
-			if (m_target == null)
+			m_ai.m_target = FindTarget();
+			if (m_ai.m_target == null)
 			{
 				// no items anywhere? fallback on pursuit
 				return new AIPursue(m_ai);
@@ -288,19 +285,19 @@ public sealed class AIFindAmmo : AIState
 		}
 
 		// move
-		bool hasArrived = m_ai.NavigateTowardTarget(m_target, Vector2.zero);
+		bool hasArrived = m_ai.NavigateTowardTarget(Vector2.zero);
 
 		// TODO: time-out if taking too long, to prevent getting stuck?
 
 		// pick up target
 		if (hasArrived)
 		{
-			m_ai.AttachItem(m_target.GetComponent<ItemController>());
+			m_ai.AttachItem(m_ai.m_target.GetComponent<ItemController>());
 			if (m_ai.GetComponentsInChildren<ItemController>().Length >= m_ai.MaxPickUps || Random.value > m_multiFindPct)
 			{
 				return new AIPursue(m_ai);
 			}
-			m_target = null;
+			m_ai.m_target = null;
 		}
 
 		return null;

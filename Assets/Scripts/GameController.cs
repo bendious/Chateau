@@ -300,12 +300,9 @@ public class GameController : MonoBehaviour
 
 	private void SpawnEnemy(GameObject enemyPrefab)
 	{
-		AvatarController targetAvatar = m_avatars[Random.Range(0, m_avatars.Count())];
 		CapsuleCollider2D enemyCollider = enemyPrefab.GetComponent<CapsuleCollider2D>();
-		Vector3 spawnPos = RoomPosition(true, targetAvatar.gameObject, !enemyPrefab.GetComponent<KinematicObject>().HasFlying) + Vector3.up * (enemyCollider.size.y * 0.5f - enemyCollider.offset.y);
-		EnemyController enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>();
-		enemy.m_target = targetAvatar.transform; // TODO: target switching/management
-		m_enemies.Add(enemy);
+		Vector3 spawnPos = RoomPosition(true, m_avatars[Random.Range(0, m_avatars.Count())].gameObject, !enemyPrefab.GetComponent<KinematicObject>().HasFlying) + Vector3.up * (enemyCollider.size.y * 0.5f - enemyCollider.offset.y);
+		m_enemies.Add(Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>());
 	}
 
 	private IEnumerator TimerCoroutine()

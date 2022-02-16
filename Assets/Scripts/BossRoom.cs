@@ -74,8 +74,6 @@ public class BossRoom : MonoBehaviour
 			newGate.GetComponent<SpriteRenderer>().size = info.m_bounds.size;
 		}
 
-		m_boss.m_target = collision.gameObject.transform;
-
 		StartCoroutine(UpdateIntro());
 	}
 

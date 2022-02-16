@@ -63,7 +63,7 @@ public class EnemyController : KinematicCharacter
 		base.FixedUpdate();
 
 		// aim items
-		if (MaxPickUps > 0)
+		if (m_target != null && MaxPickUps > 0)
 		{
 			ArmController[] arms = GetComponentsInChildren<ArmController>();
 			if (arms.Length > 0)
@@ -141,34 +141,70 @@ public class EnemyController : KinematicCharacter
 
 
 	// TODO: un-expose?
-	public bool NavigateTowardTarget(Transform target, Vector2 targetOffsetAbs)
+	public bool NavigateTowardTarget(Vector2 targetOffsetAbs)
 	{
-		const float arrivalEpsilon = 0.1f; // TODO: derive/calculate?
+		move = Vector2.zero;
+
+		if (m_target == null)
+		{
+			// choose appropriate target
+			// TODO: use pathfind distances?
+			float sqDistClosest = float.MaxValue;
+			foreach (AvatarController avatar in GameController.Instance.m_avatars)
+			{
+				if (!avatar.IsAlive)
+				{
+					continue;
+				}
+				Transform avatarTf = avatar.transform;
+				float sqDist = Vector2.Distance(transform.position, avatarTf.position);
+				if (sqDist < sqDistClosest)
+				{
+					sqDistClosest = sqDist;
+					m_target = avatarTf;
+				}
+			}
+
+			if (m_target == null)
+			{
+				return false; // TODO: flag to trigger idle behavior?
+			}
+		}
 
 		if (HasForcedVelocity)
 		{
-			move = Vector2.zero;
 			return false;
 		}
 
 		// pathfind
 		// TODO: efficiency?
-		if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0 || !Utility.FloatEqual(Vector2.Distance(target.position, m_pathfindWaypoints.Last()), targetOffsetAbs.magnitude, m_meleeRange)) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases)? avoid trying to go past moving targets?
+		if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0 || !Utility.FloatEqual(Vector2.Distance(m_target.position, m_pathfindWaypoints.Last()), targetOffsetAbs.magnitude, m_meleeRange)) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases)? avoid trying to go past moving targets?
 		{
-			m_pathfindWaypoints = GameController.Instance.Pathfind(transform.position, target.position, targetOffsetAbs);
+			m_pathfindWaypoints = GameController.Instance.Pathfind(transform.position, m_target.position, targetOffsetAbs);
 			if (m_pathfindWaypoints == null)
 			{
 				// TODO: handle unreachable positions; find closest reachable position?
-				m_pathfindWaypoints = new List<Vector2> { target.position };
+				m_pathfindWaypoints = new List<Vector2> { m_target.position };
 			}
 		}
 		Vector2 nextWaypoint = m_pathfindWaypoints.First();
 
+		// determine current direction
 		Vector2 diff = nextWaypoint - (Vector2)transform.position;
+		Collider2D targetCollider = m_target.GetComponent<Collider2D>(); // TODO: efficiency?
+		Vector2 extentsCombined = m_collider.bounds.extents + targetCollider.bounds.extents;
+		if (Mathf.Abs(diff.x) < extentsCombined.x)
+		{
+			diff.x = 0.0f;
+		}
+		if (Mathf.Abs(diff.y) < extentsCombined.y)
+		{
+			diff.y = 0.0f;
+		}
 		Vector2 dir = diff.normalized;
 
 		// left/right
-		move.x = HasFlying ? dir.x : Mathf.Sign(dir.x);
+		move.x = HasFlying ? dir.x : System.Math.Sign(dir.x); // NOTE that Mathf's version of Sign() treats zero as positive...
 
 		if (HasFlying)
 		{
@@ -178,8 +214,7 @@ public class EnemyController : KinematicCharacter
 		else
 		{
 			// jump/drop
-			// TODO: avoid getting stuck on corners?
-			Collider2D targetCollider = target == null ? null : target.GetComponent<Collider2D>();
+			// TODO: only jump when directly below, but w/o getting stuck?
 			Bounds nextBounds = targetCollider == null || m_pathfindWaypoints.Count > 1 ? new(nextWaypoint, Vector3.zero) : targetCollider.bounds;
 			Bounds selfBounds = m_collider.bounds;
 			if (IsGrounded && nextBounds.min.y > selfBounds.max.y && Random.value > 0.95f/*?*/)
@@ -189,6 +224,7 @@ public class EnemyController : KinematicCharacter
 			move.y = nextBounds.max.y < selfBounds.min.y ? -1.0f : 0.0f;
 		}
 
+		const float arrivalEpsilon = 0.1f; // TODO: derive/calculate?
 		if (diff.magnitude <= ((Vector2)m_collider.bounds.extents).magnitude + m_collider.offset.magnitude + arrivalEpsilon)
 		{
 			m_pathfindWaypoints.RemoveAt(0);
@@ -213,7 +249,7 @@ public class EnemyController : KinematicCharacter
 	}
 
 
-	// called from animation event
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called from animation event")]
 	private void EnablePlayerControl()
 	{
 	}
