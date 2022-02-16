@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -92,10 +93,34 @@ public abstract class KinematicCharacter : KinematicObject
 			{
 				velocity.y = jumpTakeOffSpeed; // NOTE that we purposely ignore any existing velocity so that ground-based jumps are always full strength
 			}
-			else if (IsWallClinging || Physics2D.OverlapCircleAll(m_collider.bounds.center, m_collider.bounds.extents.x).FirstOrDefault(collider => collider.GetComponent<Rigidbody2D>() == null /*&& collider.normal.y >= m_minWallClingNormalY*/) != null) // NOTE that we check for a near-enough wall if we haven't entered wall cling already // TODO: get a wall normal to check to exclude ceilings
+			else
 			{
-				Bounce(new Vector2(m_wallNormal.x * maxSpeed, 0.0f)); // TODO: fix blending w/ directional input
-				velocity += jumpTakeOffSpeed * new Vector2(move.x < 0.0f ? -m_wallJumpXYRatio : m_wallJumpXYRatio, 1.0f).normalized; // NOTE that we purposely incorporate any existing velocity so that gravity will eventually take over and prevent clinging to the walls forever
+				// wall jump if we are in wall cling or find a near-enough wall
+				bool canWallJump = IsWallClinging;
+				if (!canWallJump) // TODO: also skip when only slightly above ground/platform?
+				{
+					List<ContactPoint2D> contacts = new();
+					m_collider.GetContacts(contacts);
+					Vector2 wallNormal = contacts.FirstOrDefault(contact =>
+					{
+						if (contact.rigidbody != null || contact.normal.y < m_minWallClingNormalY)
+						{
+							return false;
+						}
+						PlatformEffector2D effector = contact.collider.GetComponent<PlatformEffector2D>();
+						return effector == null || !effector.enabled;
+					}).normal;
+					if (wallNormal != Vector2.zero && wallNormal.y >= m_minWallClingNormalY)
+					{
+						m_wallNormal = wallNormal;
+						canWallJump = true;
+					}
+				}
+				if (canWallJump)
+				{
+					Bounce(new Vector2(m_wallNormal.x * maxSpeed, 0.0f));
+					velocity += jumpTakeOffSpeed * new Vector2(move.x < 0.0f ? -m_wallJumpXYRatio : m_wallJumpXYRatio, 1.0f).normalized; // NOTE that we purposely incorporate any existing velocity so that gravity will eventually take over and prevent clinging to the walls forever
+				}
 			}
 			jump = false;
 		}
