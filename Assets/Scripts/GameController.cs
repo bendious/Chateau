@@ -63,6 +63,8 @@ public class GameController : MonoBehaviour
 		// use generator to spawn rooms/locks/keys/items/etc.
 		generator.ForEachNode(node =>
 		{
+			Debug.Assert(node.m_room == null);
+
 			Assert.AreEqual(node.m_type == LayoutGenerator.Node.Type.Entrance, m_startRoom == null);
 			if (m_startRoom == null)
 			{

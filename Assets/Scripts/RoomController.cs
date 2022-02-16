@@ -59,7 +59,7 @@ public class RoomController : MonoBehaviour
 	{
 		Assert.IsNull(m_layoutNode);
 		m_layoutNode = layoutNode;
-		Debug.Assert(layoutNode.m_room == null); // TODO: determine why this occasionally fails
+		Debug.Assert(layoutNode.m_room == null);
 		layoutNode.m_room = this;
 
 		// set up doorways
@@ -218,6 +218,8 @@ public class RoomController : MonoBehaviour
 
 	public bool SpawnChildRoom(GameObject roomPrefab, LayoutGenerator.Node layoutNode)
 	{
+		Debug.Assert(layoutNode.m_room == null);
+
 		Bounds bounds = CalculateBounds(false);
 
 		bool success = DoorwaysRandomOrder(i =>
@@ -236,7 +238,7 @@ public class RoomController : MonoBehaviour
 		if (!success)
 		{
 			// try spawning from children
-			DoorwaysRandomOrder(i =>
+			success = DoorwaysRandomOrder(i =>
 			{
 				DoorwayInfo doorway = m_doorwayInfos[i];
 				if (doorway.m_childRoom == null)
