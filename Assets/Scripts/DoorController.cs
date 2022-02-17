@@ -53,7 +53,7 @@ public class DoorController : MonoBehaviour, IInteractable
 			m_combination = Random.Range(1, Mathf.RoundToInt(Mathf.Pow(10, m_combinationDigits))); // TODO: recognize & act upon "special" combinations (0333, 0666, etc.)?
 			int digitsPerKey = m_combinationDigits / m_keys.Count;
 			Assert.AreEqual(digitsPerKey * m_keys.Count, m_combinationDigits); // ensure digits aren't lost to truncation
-			string comboStr = m_combination.ToString("D" + digitsPerKey);
+			string comboStr = m_combination.ToString("D" + m_combinationDigits);
 			int i = 0;
 			foreach (GameObject key in m_keys)
 			{

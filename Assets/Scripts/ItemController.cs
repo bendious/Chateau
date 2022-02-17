@@ -184,6 +184,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	// this is the detachment entry point
 	public void /*override*/ Detach(bool noAutoReplace)
 	{
+		// ensure our overlay doesn't get stuck on
+		AvatarController avatar = m_holder.Component.transform.parent.GetComponent<AvatarController>();
+		if (avatar != null)
+		{
+			avatar.m_overlayCanvas.gameObject.SetActive(false);
+		}
+
 		m_holder.ItemDetach(this, noAutoReplace);
 	}
 

@@ -10,7 +10,7 @@ public class Health : MonoBehaviour
 	/// <summary>
 	/// The maximum hit points for the entity.
 	/// </summary>
-	public int maxHP = 1;
+	public float maxHP = 1.0f;
 
 	public GameObject m_healthUIParent;
 	public Sprite m_healthSprite;
@@ -121,7 +121,7 @@ public class Health : MonoBehaviour
 	private bool IncrementInternal(float diff)
 	{
 		float hpPrev = currentHP;
-		currentHP = Mathf.Clamp(currentHP + diff, 0, maxHP);
+		currentHP = Mathf.Clamp(currentHP + diff, 0.0f, maxHP);
 		return !Mathf.Approximately(currentHP, hpPrev);
 	}
 

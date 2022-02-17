@@ -103,8 +103,8 @@ MonoBehaviour:
   m_swingInfoDefault:
     m_aimSpringStiffness: 100
     m_aimSpringDampPct: 0.5
-    m_swingDegreesPerSec: 5000
-    m_swingRadiusPerSec: 1
+    m_degreesPerSec: 5000
+    m_radiusPerSec: 1
     m_radiusSpringStiffness: 50
     m_radiusSpringDampPct: 0.75
     m_damageThresholdSpeed: 2
@@ -135,7 +135,7 @@ Rigidbody2D:
   m_GameObject: {fileID: 3060130244721252944}
   m_BodyType: 1
   m_Simulated: 1
-  m_UseFullKinematicContacts: 0
+  m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
   m_Mass: 0.1
   m_LinearDrag: 0
