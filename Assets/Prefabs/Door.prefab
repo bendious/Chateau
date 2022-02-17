@@ -127,12 +127,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_keyPrefabs:
   - m_object:
-      m_prefab: {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      m_doorSprites: []
+      m_prefabs:
+      - {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
       m_hasRandomCombinationText: 0
     m_weight: 1
   - m_object:
-      m_prefab: {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
+      m_doorSprites:
+      - {fileID: 21300000, guid: 2b60367463fe92a4eb1952f0d5303ef9, type: 3}
+      m_prefabs:
+      - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
       m_hasRandomCombinationText: 1
+    m_weight: 1
+  - m_object:
+      m_doorSprites:
+      - {fileID: 21300000, guid: 8750a038d3cfd0a44a80d6a3d1576512, type: 3}
+      - {fileID: 21300000, guid: 6d1cd00ec54403244b1a073b88bb94ee, type: 3}
+      - {fileID: 21300000, guid: 80f33a7549f6b8342b5ba55f3e17c9cd, type: 3}
+      m_prefabs:
+      - {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      - {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      - {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      m_hasRandomCombinationText: 0
+    m_weight: 1
+  - m_object:
+      m_doorSprites:
+      - {fileID: 21300000, guid: 2b60367463fe92a4eb1952f0d5303ef9, type: 3}
+      m_prefabs:
+      - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
+      - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
+      m_hasRandomCombinationText: 1
+    m_weight: 1
+  - m_object:
+      m_doorSprites:
+      - {fileID: 21300000, guid: 2b60367463fe92a4eb1952f0d5303ef9, type: 3}
+      m_prefabs:
+      - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
+      - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
+      - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
+      - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
+      m_hasRandomCombinationText: 1
+    m_weight: 1000000
+  - m_object:
+      m_doorSprites:
+      - {fileID: 21300000, guid: 66bdf94a45599b3428de6df06b1b1e01, type: 3}
+      - {fileID: 21300000, guid: 158074da4efb7454bb4505cc290ae327, type: 3}
+      - {fileID: 21300000, guid: 1dfa1241b11a2c347b29ccf3debeabf2, type: 3}
+      m_prefabs:
+      - {fileID: 2985935573955904460, guid: d0f5470f46df30c4b9004f62adc55cc9, type: 3}
+      - {fileID: 2985935573955904460, guid: d0f5470f46df30c4b9004f62adc55cc9, type: 3}
+      - {fileID: 2985935573955904460, guid: d0f5470f46df30c4b9004f62adc55cc9, type: 3}
+      m_hasRandomCombinationText: 0
     m_weight: 1
   m_combinationIndicatorPrefab: {fileID: 7581576132359493611, guid: f35e42329712f004a939999cb3ace575, type: 3}
   m_combinationDigits: 4
@@ -163,4 +208,4 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 57786
+  m_InstanceId: 43348

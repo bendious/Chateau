@@ -7,8 +7,8 @@ using UnityEngine.Assertions;
 
 public class RoomController : MonoBehaviour
 {
-	public GameObject m_doorPrefab;
-	public GameObject m_doorSecretPrefab;
+	public WeightedObject<GameObject>[] m_doorPrefabs;
+	public WeightedObject<GameObject>[] m_doorSecretPrefabs;
 	public GameObject m_tablePrefab;
 
 	public GameObject[] m_doorways;
@@ -78,7 +78,7 @@ public class RoomController : MonoBehaviour
 				{
 					// create locked door
 					Assert.IsNull(blocker);
-					blocker = Instantiate(isLock ? m_doorPrefab : m_doorSecretPrefab, doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
+					blocker = Instantiate(Utility.RandomWeighted(isLock ? m_doorPrefabs : m_doorSecretPrefabs), doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
 					Vector2 size = doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale;
 					blocker.GetComponent<BoxCollider2D>().size = size;
 					blocker.GetComponent<SpriteRenderer>().size = size;
@@ -87,7 +87,7 @@ public class RoomController : MonoBehaviour
 					if (isLock)
 					{
 						Assert.IsTrue(m_layoutNode.DirectParent.m_type == LayoutGenerator.Node.Type.Key);
-						blocker.GetComponent<DoorController>().SpawnKey(m_layoutNode.DirectParent.m_room);
+						blocker.GetComponent<DoorController>().SpawnKeys(m_layoutNode.DirectParent.m_room);
 					}
 
 					m_doorwayInfos[doorwayIdx].m_blocker = blocker;

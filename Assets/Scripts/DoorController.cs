@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -8,17 +10,19 @@ public class DoorController : MonoBehaviour, IInteractable
 	[System.Serializable]
 	public struct KeyInfo
 	{
-		public GameObject m_prefab;
+		public Sprite[] m_doorSprites;
+		public GameObject[] m_prefabs;
 		public bool m_hasRandomCombinationText;
 	}
 	public WeightedObject<KeyInfo>[] m_keyPrefabs;
 
 	public GameObject m_combinationIndicatorPrefab;
-	public int m_combinationDigits = 4;
+	public int m_combinationDigits = 4; // TODO: vary?
 	public float m_interactDistanceMax = 1.0f; // TODO: combine w/ avatar focus distance?
 
 
-	private GameObject m_key;
+	private readonly List<GameObject> m_keys = new();
+	private Sprite[] m_doorSprites;
 
 	private /*readonly*/ int m_combination = 0;
 	private GameObject m_indicator;
@@ -26,18 +30,36 @@ public class DoorController : MonoBehaviour, IInteractable
 	private int m_inputIdxCur = 0;
 
 
-	public void SpawnKey(RoomController room)
+	public void SpawnKeys(RoomController room)
 	{
-		// spawn key
-		Vector3 spawnPos = room.ChildPosition(false, null, true, false); // NOTE that we don't care about locks since this occurs during the room hierarchy creation
+		// spawn key(s)
 		KeyInfo keyInfo = Utility.RandomWeighted(m_keyPrefabs);
-		m_key = Instantiate(keyInfo.m_prefab, spawnPos, Quaternion.identity);
+		foreach (GameObject keyPrefab in keyInfo.m_prefabs)
+		{
+			Vector3 spawnPos = room.ChildPosition(false, null, true, false); // NOTE that we don't care about locks since this occurs during the room hierarchy creation
+			m_keys.Add(Instantiate(keyPrefab, spawnPos, Quaternion.identity));
+		}
 
-		// setup key
+		// door setup based on key
+		if (keyInfo.m_doorSprites != null && keyInfo.m_doorSprites.Length > 0)
+		{
+			m_doorSprites = keyInfo.m_doorSprites;
+			GetComponent<SpriteRenderer>().sprite = m_doorSprites.First();
+		}
+
+		// setup key(s)
 		if (keyInfo.m_hasRandomCombinationText)
 		{
-			m_combination = Random.Range(1, 10000); // TODO: recognize & act upon "special" combinations (0333, 0666, etc.)?
-			m_key.GetComponent<ItemController>().m_overlayText = m_combination.ToString("D" + m_combinationDigits);
+			m_combination = Random.Range(1, Mathf.RoundToInt(Mathf.Pow(10, m_combinationDigits))); // TODO: recognize & act upon "special" combinations (0333, 0666, etc.)?
+			int digitsPerKey = m_combinationDigits / m_keys.Count;
+			Assert.AreEqual(digitsPerKey * m_keys.Count, m_combinationDigits); // ensure digits aren't lost to truncation
+			string comboStr = m_combination.ToString("D" + digitsPerKey);
+			int i = 0;
+			foreach (GameObject key in m_keys)
+			{
+				key.GetComponent<ItemController>().m_overlayText = (i == 0 ? "" : "*") + comboStr.Substring(i * digitsPerKey, digitsPerKey) + (i == m_keys.Count - 1 ? "" : "*");
+				++i;
+			}
 		}
 
 		// choose color
@@ -49,12 +71,15 @@ public class DoorController : MonoBehaviour, IInteractable
 			color[swapIdx] = (color[swapIdx] + 0.5f) % 1.0f;
 		}
 
-		// match color w/ key
+		// match color w/ key(s)
 		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
 		renderer.color = color;
 		renderer.enabled = false;
 		renderer.enabled = true;
-		m_key.GetComponent<SpriteRenderer>().color = color;
+		foreach (GameObject key in m_keys)
+		{
+			key.GetComponent<SpriteRenderer>().color = color;
+		}
 	}
 
 	private void OnCollisionEnter2D(Collision2D collision)
@@ -66,16 +91,19 @@ public class DoorController : MonoBehaviour, IInteractable
 
 		foreach (Transform tf in collision.gameObject.GetComponentsInChildren<Transform>(true))
 		{
-			if (tf.gameObject == m_key)
+			if (m_keys.Contains(tf.gameObject))
 			{
-				Unlock();
+				Unlock(tf.gameObject);
 			}
 		}
 	}
 
 	private void OnDestroy()
 	{
-		Simulation.Schedule<ObjectDespawn>().m_object = m_key;
+		foreach (GameObject key in m_keys)
+		{
+			Simulation.Schedule<ObjectDespawn>().m_object = key;
+		}
 	}
 
 
@@ -106,9 +134,24 @@ public class DoorController : MonoBehaviour, IInteractable
 	}
 
 
-	private void Unlock()
+	private void Unlock(GameObject key)
 	{
-		Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
+		if (key != null)
+		{
+			m_keys.Remove(key);
+			Simulation.Schedule<ObjectDespawn>().m_object = key;
+		}
+		if (key == null || m_keys.Count <= 0)
+		{
+			Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
+		}
+
+		// update sprite
+		// TODO: support arbitrary key placement?
+		if (m_doorSprites != null && m_keys.Count > 0 && m_keys.Count <= m_doorSprites.Length)
+		{
+			GetComponent<SpriteRenderer>().sprite = m_doorSprites[^m_keys.Count];
+		}
 
 		// TODO: unlock SFX/VFX/etc.
 	}
@@ -131,7 +174,7 @@ public class DoorController : MonoBehaviour, IInteractable
 		{
 			PlayerControls.UIActions controls = avatar.Controls.UI;
 
-			if (firstUpdate || controls.Navigate.triggered)
+			if (firstUpdate || controls.Navigate.triggered) // TODO: differentiate between co-op players
 			{
 				Vector2 xyInput = controls.Navigate.ReadValue<Vector2>();
 				float xInput = xyInput.x;
@@ -159,7 +202,7 @@ public class DoorController : MonoBehaviour, IInteractable
 			{
 				if (m_inputCur == m_combination)
 				{
-					Unlock();
+					Unlock(null);
 					break;
 				}
 
