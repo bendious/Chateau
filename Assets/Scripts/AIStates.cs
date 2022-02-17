@@ -293,11 +293,11 @@ public sealed class AIFindAmmo : AIState
 		if (hasArrived)
 		{
 			m_ai.AttachItem(m_ai.m_target.GetComponent<ItemController>());
+			m_ai.m_target = null;
 			if (m_ai.GetComponentsInChildren<ItemController>().Length >= m_ai.MaxPickUps || Random.value > m_multiFindPct)
 			{
 				return new AIPursue(m_ai);
 			}
-			m_ai.m_target = null;
 		}
 
 		return null;

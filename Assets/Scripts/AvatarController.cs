@@ -44,7 +44,7 @@ public class AvatarController : KinematicCharacter
 
 	public PlayerControls Controls { get; private set; }
 
-	public bool IsAlive => health.IsAlive;
+	public bool IsAlive => ConsoleCommands.NeverDie || health.IsAlive;
 
 
 	private JumpState jumpState = JumpState.Grounded;
@@ -638,7 +638,7 @@ public class AvatarController : KinematicCharacter
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called from animation event")]
 	private void EnablePlayerControl()
 	{
-		if (ConsoleCommands.NeverDie || IsAlive)
+		if (IsAlive)
 		{
 			controlEnabled = true;
 		}

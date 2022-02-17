@@ -379,10 +379,10 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 66ce8ac3d26a2c0468edc3a8d88698e0, type: 3}
-  m_Type: 0
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 4
+  m_FillMethod: 0
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
@@ -789,7 +789,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e9c1bd3b458dfc4ab7a9c66b6782439, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 3
+  m_maxHP: 3
   m_healthUIParent: {fileID: 6654259644173391003}
   m_healthSprite: {fileID: 21300000, guid: 66ce8ac3d26a2c0468edc3a8d88698e0, type: 3}
   m_healthMissingSprite: {fileID: 21300000, guid: 2581a037f6f73f84b98c2af8eaaf9d1d, type: 3}

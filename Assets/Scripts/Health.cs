@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.UI;
 
 
 /// <summary>
@@ -10,7 +11,7 @@ public class Health : MonoBehaviour
 	/// <summary>
 	/// The maximum hit points for the entity.
 	/// </summary>
-	public float maxHP = 1.0f;
+	public float m_maxHP = 1.0f;
 
 	public GameObject m_healthUIParent;
 	public Sprite m_healthSprite;
@@ -24,10 +25,10 @@ public class Health : MonoBehaviour
 	/// <summary>
 	/// Indicates if the entity should be considered 'alive'.
 	/// </summary>
-	public bool IsAlive => currentHP > 0;
+	public bool IsAlive => m_currentHP > 0;
 
 
-	float currentHP;
+	float m_currentHP;
 
 	private Animator m_animator;
 	private KinematicCharacter m_character;
@@ -59,7 +60,7 @@ public class Health : MonoBehaviour
 		{
 			m_animator.SetTrigger("hurt");
 		}
-		bool isDead = Mathf.Approximately(currentHP, 0.0f);
+		bool isDead = Mathf.Approximately(m_currentHP, 0.0f);
 		if (m_character != null)
 		{
 			m_character.OnDamage(source);
@@ -95,7 +96,7 @@ public class Health : MonoBehaviour
 	/// </summary>
 	public void Die()
 	{
-		Decrement(gameObject, currentHP); // NOTE that we can't use IncrementInternal() directly since that skips the death logic
+		Decrement(gameObject, m_currentHP); // NOTE that we can't use IncrementInternal() directly since that skips the death logic
 	}
 
 	/// <summary>
@@ -103,7 +104,7 @@ public class Health : MonoBehaviour
 	/// </summary>
 	public void Respawn()
 	{
-		IncrementInternal(maxHP - currentHP);
+		IncrementInternal(m_maxHP - m_currentHP);
 		SyncUI();
 		m_invincible = false;
 	}
@@ -113,16 +114,16 @@ public class Health : MonoBehaviour
 	{
 		m_animator = GetComponent<Animator>();
 		m_character = GetComponent<KinematicCharacter>();
-		currentHP = maxHP;
+		m_currentHP = m_maxHP;
 		SyncUI();
 	}
 
 
 	private bool IncrementInternal(float diff)
 	{
-		float hpPrev = currentHP;
-		currentHP = Mathf.Clamp(currentHP + diff, 0.0f, maxHP);
-		return !Mathf.Approximately(currentHP, hpPrev);
+		float hpPrev = m_currentHP;
+		m_currentHP = Mathf.Clamp(m_currentHP + diff, 0.0f, m_maxHP);
+		return !Mathf.Approximately(m_currentHP, hpPrev);
 	}
 
 	private void SyncUI()
@@ -137,7 +138,7 @@ public class Health : MonoBehaviour
 		Assert.IsTrue(uiHealthCount >= 0);
 
 		// remove excess
-		for (; uiHealthCount > maxHP; --uiHealthCount)
+		for (; uiHealthCount > m_maxHP; --uiHealthCount)
 		{
 			Simulation.Schedule<ObjectDespawn>().m_object = m_healthUIParent.transform.GetChild(uiHealthCount).gameObject;
 		}
@@ -147,7 +148,7 @@ public class Health : MonoBehaviour
 		float templateWidth = templateObj.GetComponent<RectTransform>().sizeDelta.x;
 		float xItr = (templateWidth + m_UIPadding) * uiHealthCount;
 		Assert.IsFalse(templateObj.activeSelf);
-		for (; uiHealthCount < maxHP; ++uiHealthCount, xItr += templateWidth + m_UIPadding)
+		for (; uiHealthCount < m_maxHP; ++uiHealthCount, xItr += templateWidth + m_UIPadding)
 		{
 			GameObject uiNew = Instantiate(templateObj, m_healthUIParent.transform);
 			uiNew.GetComponent<RectTransform>().anchoredPosition += new Vector2(xItr, 0.0f);
@@ -155,10 +156,12 @@ public class Health : MonoBehaviour
 		}
 
 		// set sprites
-		// TODO: handle partial hit points
-		for (int i = 1; i <= maxHP; ++i)
+		for (int i = 0; i < m_maxHP; ++i)
 		{
-			m_healthUIParent.transform.GetChild(i).GetComponent<UnityEngine.UI.Image>().sprite = i <= currentHP ? m_healthSprite : m_healthMissingSprite;
+			Image image = m_healthUIParent.transform.GetChild(i + 1).GetComponent<Image>(); // NOTE +1 due to template object
+			bool notEmpty = i < m_currentHP;
+			image.sprite = notEmpty ? m_healthSprite : m_healthMissingSprite;
+			image.fillAmount = notEmpty ? Mathf.Clamp01(m_currentHP - i) : 1.0f;
 		}
 
 		// TODO: adjust size of parent if its width is ever visible/used
