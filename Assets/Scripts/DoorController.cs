@@ -12,21 +12,22 @@ public class DoorController : MonoBehaviour, IInteractable
 	{
 		public Sprite[] m_doorSprites;
 		public GameObject[] m_prefabs;
-		public bool m_hasRandomCombinationText;
+		public int m_combinationDigits;
 	}
 	public WeightedObject<KeyInfo>[] m_keyPrefabs;
+	public WeightedObject<string>[] m_combinationSets;
 
 	public GameObject m_combinationIndicatorPrefab;
-	public int m_combinationDigits = 4; // TODO: vary?
 	public float m_interactDistanceMax = 1.0f; // TODO: combine w/ avatar focus distance?
 
 
 	private readonly List<GameObject> m_keys = new();
-	private Sprite[] m_doorSprites;
+	private KeyInfo m_keyInfo;
+	private string m_combinationSet;
 
-	private /*readonly*/ int m_combination = 0;
+	private /*readonly*/ string m_combination;
 	private GameObject m_indicator;
-	private int m_inputCur = 0;
+	private string m_inputCur;
 	private int m_inputIdxCur = 0;
 
 
@@ -43,22 +44,30 @@ public class DoorController : MonoBehaviour, IInteractable
 		// door setup based on key
 		if (keyInfo.m_doorSprites != null && keyInfo.m_doorSprites.Length > 0)
 		{
-			m_doorSprites = keyInfo.m_doorSprites;
-			GetComponent<SpriteRenderer>().sprite = m_doorSprites.First();
+			m_keyInfo = keyInfo;
+			GetComponent<SpriteRenderer>().sprite = m_keyInfo.m_doorSprites.First();
 		}
 
 		// setup key(s)
-		if (keyInfo.m_hasRandomCombinationText)
+		if (keyInfo.m_combinationDigits > 0)
 		{
-			m_combination = Random.Range(1, Mathf.RoundToInt(Mathf.Pow(10, m_combinationDigits))); // TODO: recognize & act upon "special" combinations (0333, 0666, etc.)?
-			int digitsPerKey = m_combinationDigits / m_keys.Count;
-			Assert.AreEqual(digitsPerKey * m_keys.Count, m_combinationDigits); // ensure digits aren't lost to truncation
-			string comboStr = m_combination.ToString("D" + m_combinationDigits);
-			int i = 0;
+			// assign combination
+			m_combinationSet = Utility.RandomWeighted(m_combinationSets);
+			m_combination = "";
+			for (int digitIdx = 0; digitIdx < m_keyInfo.m_combinationDigits; ++digitIdx)
+			{
+				m_combination += m_combinationSet[Random.Range(0, m_combinationSet.Length)]; // TODO: recognize & act upon "special" combinations (0333, 0666, real words, etc.)?
+			}
+			m_inputCur = new string(Enumerable.Repeat(m_combinationSet.First(), m_keyInfo.m_combinationDigits).ToArray());
+
+			// distribute combination among keys
+			int digitsPerKey = m_keyInfo.m_combinationDigits / m_keys.Count;
+			Assert.AreEqual(digitsPerKey * m_keys.Count, m_keyInfo.m_combinationDigits); // ensure digits aren't lost to truncation
+			int keyIdx = 0;
 			foreach (GameObject key in m_keys)
 			{
-				key.GetComponent<ItemController>().m_overlayText = (i == 0 ? "" : "*") + comboStr.Substring(i * digitsPerKey, digitsPerKey) + (i == m_keys.Count - 1 ? "" : "*");
-				++i;
+				key.GetComponent<ItemController>().m_overlayText = (keyIdx == 0 ? "" : "*") + m_combination.Substring(keyIdx * digitsPerKey, digitsPerKey) + (keyIdx == m_keys.Count - 1 ? "" : "*");
+				++keyIdx;
 			}
 		}
 
@@ -84,7 +93,7 @@ public class DoorController : MonoBehaviour, IInteractable
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		if (m_combination != 0)
+		if (!string.IsNullOrEmpty(m_combination))
 		{
 			return;
 		}
@@ -107,11 +116,11 @@ public class DoorController : MonoBehaviour, IInteractable
 	}
 
 
-	public /*override*/ bool CanInteract(KinematicCharacter interactor) => m_combination != 0;
+	public /*override*/ bool CanInteract(KinematicCharacter interactor) => !string.IsNullOrEmpty(m_combination);
 
 	public /*override*/ void Interact(KinematicCharacter interactor)
 	{
-		if (m_combination == 0)
+		if (string.IsNullOrEmpty(m_combination))
 		{
 			return;
 		}
@@ -121,7 +130,7 @@ public class DoorController : MonoBehaviour, IInteractable
 
 		// NOTE that we can't use Stop{All}Coroutine{s}() since UpdateInteraction() has to do cleanup; we rely on it detecting overlay toggling even from other sources
 
-		bool overlayActive = avatar.ToggleOverlay(GetComponent<SpriteRenderer>(), m_inputCur.ToString("D" + m_combinationDigits));
+		bool overlayActive = avatar.ToggleOverlay(GetComponent<SpriteRenderer>(), m_inputCur);
 		if (overlayActive)
 		{
 			StartCoroutine(UpdateInteraction(interactor));
@@ -148,9 +157,9 @@ public class DoorController : MonoBehaviour, IInteractable
 
 		// update sprite
 		// TODO: support arbitrary key placement?
-		if (m_doorSprites != null && m_keys.Count > 0 && m_keys.Count <= m_doorSprites.Length)
+		if (m_keyInfo.m_doorSprites != null && m_keys.Count > 0 && m_keys.Count <= m_keyInfo.m_doorSprites.Length)
 		{
-			GetComponent<SpriteRenderer>().sprite = m_doorSprites[^m_keys.Count];
+			GetComponent<SpriteRenderer>().sprite = m_keyInfo.m_doorSprites[^m_keys.Count];
 		}
 
 		// TODO: unlock SFX/VFX/etc.
@@ -161,7 +170,7 @@ public class DoorController : MonoBehaviour, IInteractable
 		AvatarController avatar = (AvatarController)interactor;
 		GameObject overlayObj = avatar.m_overlayCanvas.gameObject;
 		TMPro.TMP_Text text = overlayObj.GetComponentInChildren<TMPro.TMP_Text>();
-		text.text = m_inputCur.ToString("D" + m_combinationDigits);
+		text.text = m_inputCur;
 		yield return null; // NOTE that we have to display at least once before possibly using text.textBounds for indicator positioning
 
 		if (m_indicator == null)
@@ -181,20 +190,24 @@ public class DoorController : MonoBehaviour, IInteractable
 				int xInputDir = Utility.FloatEqual(xInput, 0.0f) ? 0 : (int)Mathf.Sign(xInput);
 				if (firstUpdate || xInputDir != 0)
 				{
-					m_inputIdxCur = Utility.Modulo(m_inputIdxCur + xInputDir, m_combinationDigits);
-					m_indicator.transform.localPosition = new Vector3(Mathf.Lerp(text.textBounds.min.x, text.textBounds.max.x, (m_inputIdxCur + 0.5f) / m_combinationDigits), m_indicator.transform.localPosition.y, m_indicator.transform.localPosition.z);
+					m_inputIdxCur = Utility.Modulo(m_inputIdxCur + xInputDir, m_keyInfo.m_combinationDigits);
+					m_indicator.transform.localPosition = new Vector3(Mathf.Lerp(text.textBounds.min.x, text.textBounds.max.x, (m_inputIdxCur + 0.5f) / m_keyInfo.m_combinationDigits), m_indicator.transform.localPosition.y, m_indicator.transform.localPosition.z);
 				}
 
 				float yInput = xyInput.y;
 				int yInputDir = Utility.FloatEqual(yInput, 0.0f) ? 0 : (int)Mathf.Sign(yInput);
 				if (yInputDir != 0)
 				{
-					int digitScalar = (int)Mathf.Pow(10, m_combinationDigits - m_inputIdxCur - 1);
-					int oldDigit = m_inputCur / digitScalar % 10;
-					int newDigit = Utility.Modulo(oldDigit + yInputDir, 10);
-					m_inputCur += (newDigit - oldDigit) * digitScalar;
+					char oldChar = m_inputCur[m_inputIdxCur];
+					Assert.IsTrue(m_combinationSet.Count(setChar => setChar == oldChar) == 1); // TODO: handle duplicate characters?
+					int oldSetIdx = m_combinationSet.IndexOf(oldChar);
+					char newDigit = m_combinationSet[Utility.Modulo(oldSetIdx + yInputDir, m_combinationSet.Length)];
 
-					text.text = m_inputCur.ToString("D" + m_combinationDigits);
+					char[] inputArray = m_inputCur.ToCharArray();
+					inputArray[m_inputIdxCur] = newDigit;
+					m_inputCur = new string(inputArray);
+
+					text.text = m_inputCur;
 				}
 			}
 

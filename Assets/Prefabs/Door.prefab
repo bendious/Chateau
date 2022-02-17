@@ -130,14 +130,14 @@ MonoBehaviour:
       m_doorSprites: []
       m_prefabs:
       - {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
-      m_hasRandomCombinationText: 0
+      m_combinationDigits: 0
     m_weight: 1
   - m_object:
       m_doorSprites:
       - {fileID: 21300000, guid: 2b60367463fe92a4eb1952f0d5303ef9, type: 3}
       m_prefabs:
       - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
-      m_hasRandomCombinationText: 1
+      m_combinationDigits: 4
     m_weight: 1
   - m_object:
       m_doorSprites:
@@ -148,7 +148,7 @@ MonoBehaviour:
       - {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
       - {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
       - {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
-      m_hasRandomCombinationText: 0
+      m_combinationDigits: 0
     m_weight: 1
   - m_object:
       m_doorSprites:
@@ -156,7 +156,7 @@ MonoBehaviour:
       m_prefabs:
       - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
       - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
-      m_hasRandomCombinationText: 1
+      m_combinationDigits: 4
     m_weight: 1
   - m_object:
       m_doorSprites:
@@ -166,7 +166,7 @@ MonoBehaviour:
       - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
       - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
       - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
-      m_hasRandomCombinationText: 1
+      m_combinationDigits: 4
     m_weight: 1000000
   - m_object:
       m_doorSprites:
@@ -177,10 +177,18 @@ MonoBehaviour:
       - {fileID: 2985935573955904460, guid: d0f5470f46df30c4b9004f62adc55cc9, type: 3}
       - {fileID: 2985935573955904460, guid: d0f5470f46df30c4b9004f62adc55cc9, type: 3}
       - {fileID: 2985935573955904460, guid: d0f5470f46df30c4b9004f62adc55cc9, type: 3}
-      m_hasRandomCombinationText: 0
+      m_combinationDigits: 0
+    m_weight: 1
+  m_combinationSets:
+  - m_object: 0123456789
+    m_weight: 1
+  - m_object: ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    m_weight: 0.5
+  - m_object: abcdefghijklmnopqrstuvwxyz
+    m_weight: 0.5
+  - m_object: "\u2192\u2190\u2191\u2193"
     m_weight: 1
   m_combinationIndicatorPrefab: {fileID: 7581576132359493611, guid: f35e42329712f004a939999cb3ace575, type: 3}
-  m_combinationDigits: 4
   m_interactDistanceMax: 1
 --- !u!114 &2462278832316299634
 MonoBehaviour:
@@ -208,4 +216,4 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 43348
+  m_InstanceId: 70854

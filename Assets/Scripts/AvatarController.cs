@@ -108,7 +108,7 @@ public class AvatarController : KinematicCharacter
 
 	protected override void Update()
 	{
-		if (controlEnabled)
+		if (controlEnabled && !m_overlayCanvas.gameObject.activeSelf)
 		{
 			// collect possible focus objects
 			m_focusObj = null;
@@ -243,7 +243,7 @@ public class AvatarController : KinematicCharacter
 	public void OnLook(InputValue input)
 	{
 		Vector2 value = input.Get<Vector2>();
-		if (!controlEnabled || value.sqrMagnitude == 0.0f) // TODO: FloatEqual() despite deadzone?
+		if (!controlEnabled || m_overlayCanvas.gameObject.activeSelf || value.sqrMagnitude == 0.0f) // TODO: FloatEqual() despite deadzone?
 		{
 			return;
 		}
