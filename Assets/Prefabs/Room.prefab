@@ -138,7 +138,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 1822089061
   m_Mesh: {fileID: 0}
-  m_InstanceId: 44662
+  m_InstanceId: 40666
 --- !u!1 &409852463158594107
 GameObject:
   m_ObjectHideFlags: 0
@@ -296,7 +296,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 1584342063
   m_Mesh: {fileID: 0}
-  m_InstanceId: 44646
+  m_InstanceId: 40650
 --- !u!1 &2929849760781198063
 GameObject:
   m_ObjectHideFlags: 0
@@ -435,7 +435,7 @@ MonoBehaviour:
   - {x: 0.3, y: -0.5, z: 0}
   m_ShapePathHash: 1342426541
   m_Mesh: {fileID: 0}
-  m_InstanceId: 44556
+  m_InstanceId: 40560
 --- !u!1 &3865645025881897782
 GameObject:
   m_ObjectHideFlags: 0
@@ -593,7 +593,7 @@ MonoBehaviour:
   - {x: 0.5, y: 0.5000038, z: 0}
   m_ShapePathHash: 2074856063
   m_Mesh: {fileID: 0}
-  m_InstanceId: 44570
+  m_InstanceId: 40574
 --- !u!1 &5416165761018516747
 GameObject:
   m_ObjectHideFlags: 0
@@ -732,7 +732,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: -1565154609
   m_Mesh: {fileID: 0}
-  m_InstanceId: 44586
+  m_InstanceId: 40590
 --- !u!1 &5557331281289732181
 GameObject:
   m_ObjectHideFlags: 0
@@ -871,7 +871,7 @@ MonoBehaviour:
   - {x: 0.3, y: -0.47, z: 0}
   m_ShapePathHash: -597353311
   m_Mesh: {fileID: 0}
-  m_InstanceId: 44654
+  m_InstanceId: 40658
 --- !u!1 &5858312614131700818
 GameObject:
   m_ObjectHideFlags: 0
@@ -1010,7 +1010,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.3, z: 0}
   m_ShapePathHash: -1406444283
   m_Mesh: {fileID: 0}
-  m_InstanceId: 44562
+  m_InstanceId: 40566
 --- !u!1 &6422840777706418414
 GameObject:
   m_ObjectHideFlags: 0
@@ -1151,7 +1151,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.48, z: 0}
   m_ShapePathHash: 1694674871
   m_Mesh: {fileID: 0}
-  m_InstanceId: 44628
+  m_InstanceId: 40632
 --- !u!1 &7422594126546487761
 GameObject:
   m_ObjectHideFlags: 0
@@ -1212,6 +1212,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_doorPrefabs:
   - m_object: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 3346888056824497695, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
     m_weight: 1
   m_doorSecretPrefabs:
   - m_object: {fileID: 2530109060553961877, guid: b214be9997254b949af66fe5a19fae4f, type: 3}
@@ -1449,7 +1451,7 @@ MonoBehaviour:
   - {x: 0.3, y: -0.5, z: 0}
   m_ShapePathHash: 446818637
   m_Mesh: {fileID: 0}
-  m_InstanceId: 44664
+  m_InstanceId: 40668
 --- !u!1001 &1075949156331750355
 PrefabInstance:
   m_ObjectHideFlags: 0

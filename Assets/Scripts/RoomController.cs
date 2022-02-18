@@ -87,7 +87,7 @@ public class RoomController : MonoBehaviour
 					if (isLock)
 					{
 						Assert.IsTrue(m_layoutNode.DirectParent.m_type == LayoutGenerator.Node.Type.Key);
-						blocker.GetComponent<DoorController>().SpawnKeys(m_layoutNode.DirectParent.m_room);
+						blocker.GetComponent<IUnlockable>().SpawnKeys(this, m_layoutNode.DirectParent.m_room);
 					}
 
 					m_doorwayInfos[doorwayIdx].m_blocker = blocker;
