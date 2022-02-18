@@ -58,7 +58,7 @@ public class RoomController : MonoBehaviour
 #endif
 
 
-	public GameObject Initialize(LayoutGenerator.Node layoutNode)
+	public void Initialize(LayoutGenerator.Node layoutNode)
 	{
 		Assert.IsNull(m_layoutNode);
 		m_layoutNode = layoutNode;
@@ -66,7 +66,6 @@ public class RoomController : MonoBehaviour
 		layoutNode.m_room = this;
 
 		// set up doorways
-		GameObject blocker = null;
 		for (int doorwayIdx = 0; doorwayIdx < m_doorways.Length; ++doorwayIdx)
 		{
 			GameObject doorway = m_doorways[doorwayIdx];
@@ -76,25 +75,6 @@ public class RoomController : MonoBehaviour
 
 			if (m_doorwayInfos[doorwayIdx].m_isConnected)
 			{
-				bool isLock = m_layoutNode.m_type == LayoutGenerator.Node.Type.Lock;
-				if (isLock || m_layoutNode.m_type == LayoutGenerator.Node.Type.Secret)
-				{
-					// create locked door
-					Assert.IsNull(blocker);
-					blocker = Instantiate(Utility.RandomWeighted(isLock ? m_doorPrefabs : m_doorSecretPrefabs), doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
-					Vector2 size = doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale;
-					blocker.GetComponent<BoxCollider2D>().size = size;
-					blocker.GetComponent<SpriteRenderer>().size = size;
-					// TODO: update shadow caster shape once it is programmatically accessible
-
-					if (isLock)
-					{
-						blocker.GetComponent<IUnlockable>().SpawnKeys(this, m_layoutNode.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray());
-					}
-
-					m_doorwayInfos[doorwayIdx].m_blocker = blocker;
-				}
-
 				// open doorway to parent
 				OpenDoorway(doorway, DoorwayDirection(doorway).y > 0.0f);
 			}
@@ -132,8 +112,6 @@ public class RoomController : MonoBehaviour
 			default:
 				break;
 		}
-
-		return blocker;
 	}
 
 	public Vector3 ChildPosition(bool checkLocks, GameObject targetObj, bool onFloor, bool recursive)
@@ -152,7 +130,7 @@ public class RoomController : MonoBehaviour
 			Bounds bounds = CalculateBounds(true);
 			float xDiffMax = bounds.extents.x;
 			float yMax = onFloor ? 0.0f : bounds.size.y;
-			return transform.position + new Vector3(UnityEngine.Random.Range(-xDiffMax, xDiffMax), UnityEngine.Random.Range(0, yMax), 0.0f);
+			return new Vector3(bounds.center.x + UnityEngine.Random.Range(-xDiffMax, xDiffMax), transform.position.y + UnityEngine.Random.Range(0, yMax), transform.position.z); // NOTE the assumptions that the object position is on the floor of the room but not necessarily centered
 		}
 
 		// return position from child room
@@ -326,11 +304,38 @@ public class RoomController : MonoBehaviour
 		{
 			Vector3 doorwaySize = newDoorway.GetComponent<Collider2D>().bounds.size;
 			bool isTrapdoor = doorwaySize.x > doorwaySize.y;
-			doorwayInfo.m_childRoom.m_doorwayInfos[i].m_isConnected = Vector2.Dot((Vector2)doorwayInfo.m_childRoom.transform.position - (Vector2)newDoorway.transform.position, replaceDirection) > 0.0f && isTrapdoor == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y)); // TODO: better way of determining reverse direction doorway?
+			bool isChildParentDoorway = Vector2.Dot((Vector2)doorwayInfo.m_childRoom.transform.position - (Vector2)newDoorway.transform.position, replaceDirection) > 0.0f && isTrapdoor == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y)); // TODO: better way of determining reverse direction doorway?
+
+			if (isChildParentDoorway)
+			{
+				doorwayInfo.m_childRoom.m_doorwayInfos[i].m_isConnected = true;
+
+				bool isLock = m_layoutNode.m_type == LayoutGenerator.Node.Type.Lock;
+				if ((isLock || m_layoutNode.m_type == LayoutGenerator.Node.Type.Secret) && childNode.DirectParents.Exists(node => node == m_layoutNode))
+				{
+					// create gate
+					Assert.IsNull(doorwayInfo.m_blocker);
+					doorwayInfo.m_blocker = Instantiate(Utility.RandomWeighted(isLock ? m_doorPrefabs : m_doorSecretPrefabs), doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
+					doorwayInfo.m_childRoom.m_doorwayInfos[i].m_blocker = doorwayInfo.m_blocker;
+
+					// resize gate to fit doorway
+					Vector2 size = doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale;
+					doorwayInfo.m_blocker.GetComponent<BoxCollider2D>().size = size;
+					doorwayInfo.m_blocker.GetComponent<SpriteRenderer>().size = size;
+					// TODO: update shadow caster shape once it is programmatically accessible
+
+					// spawn key(s)
+					if (isLock)
+					{
+						doorwayInfo.m_blocker.GetComponent<IUnlockable>().SpawnKeys(this, m_layoutNode.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray());
+					}
+				}
+			}
+
 			++i;
 		}
 
-		doorwayInfo.m_blocker = doorwayInfo.m_childRoom.Initialize(childNode);
+		doorwayInfo.m_childRoom.Initialize(childNode);
 	}
 
 	private void OpenDoorway(GameObject doorway, bool upward)

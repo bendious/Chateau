@@ -171,14 +171,16 @@ public class LayoutGenerator
 		new(Node.Type.SequenceParallel, new() { new(Node.Type.SequenceSerial), new(Node.Type.SequenceSerial), new(Node.Type.SequenceSerial), new(Node.Type.SequenceSerial) }),
 
 		// serial chains
+		// NOTE that the leaf Keys are required for the boss Lock
 		// TODO: allow parallel branches w/i serial chains w/o infinite recursion?
 		new(Node.Type.SequenceSerial, new() { new(Node.Type.Gate, new() { new(Node.Type.Key) }) }),
 		new(Node.Type.SequenceSerial, new() { new(Node.Type.Gate, new() { new(Node.Type.Gate, new() { new(Node.Type.Key) }) }) }),
 		new(Node.Type.SequenceSerial, new() { new(Node.Type.Gate, new() { new(Node.Type.Gate, new() { new(Node.Type.Gate, new() { new(Node.Type.Key) }) }) }) }),
 
 		// gate types
-		new(Node.Type.Gate, new() { new(Node.Type.Secret, new() { new(Node.Type.Items) }) }),
-		new(Node.Type.Gate, new() { new(Node.Type.Key, new() { new(Node.Type.Lock, new() { new(Node.Type.Items) }) }) }),
+		// NOTE that lock/secret needs to be a leaf node and any children attached need a singular root in order to avoid multi-{lock/secret/key} rooms
+		new(Node.Type.Gate, new() { new(Node.Type.Items, new() { new(Node.Type.Secret) }) }),
+		new(Node.Type.Gate, new() { new(Node.Type.Key, new() { new(Node.Type.Lock), new(Node.Type.Items) }) }),
 	};
 
 
