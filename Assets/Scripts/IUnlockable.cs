@@ -1,4 +1,4 @@
 public interface IUnlockable
 {
-	public void SpawnKeys(RoomController lockRoom, RoomController keyRoom);
+	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms);
 }

@@ -33,14 +33,16 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	private int m_inputIdxCur = 0;
 
 
-	public void SpawnKeys(RoomController lockRoom, RoomController keyRoom)
+	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
 	{
 		// spawn key(s)
-		KeyInfo keyInfo = Utility.RandomWeighted(m_keyPrefabs);
+		KeyInfo keyInfo = Utility.RandomWeighted(m_keyPrefabs.Where(info => info.m_object.m_prefabs.Length == keyRooms.Length).ToArray());
+		int i = 0;
 		foreach (GameObject keyPrefab in keyInfo.m_prefabs)
 		{
-			Vector3 spawnPos = keyRoom.ChildPosition(false, null, true, false);
+			Vector3 spawnPos = keyRooms[i].ChildPosition(false, null, true, false);
 			m_keys.Add(Instantiate(keyPrefab, spawnPos, Quaternion.identity));
+			++i;
 		}
 
 		// door setup based on key

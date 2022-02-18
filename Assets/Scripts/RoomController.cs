@@ -42,9 +42,12 @@ public class RoomController : MonoBehaviour
 		{
 			Vector3 centerPos = CalculateBounds(false).center; // TODO: efficiency?
 			UnityEditor.Handles.Label(centerPos, m_layoutNode.m_type.ToString());
-			if (m_layoutNode.DirectParent != null)
+			if (m_layoutNode.DirectParents != null)
 			{
-				UnityEditor.Handles.DrawLine(centerPos, m_layoutNode.DirectParent.m_room.transform.position);
+				foreach (LayoutGenerator.Node node in m_layoutNode.DirectParents)
+				{
+					UnityEditor.Handles.DrawLine(centerPos, node.m_room.transform.position);
+				}
 				using (new UnityEditor.Handles.DrawingScope(Color.red))
 				{
 					UnityEditor.Handles.DrawLine(centerPos, m_layoutNode.TightCoupleParent.m_room.transform.position);
@@ -86,8 +89,7 @@ public class RoomController : MonoBehaviour
 
 					if (isLock)
 					{
-						Assert.IsTrue(m_layoutNode.DirectParent.m_type == LayoutGenerator.Node.Type.Key);
-						blocker.GetComponent<IUnlockable>().SpawnKeys(this, m_layoutNode.DirectParent.m_room);
+						blocker.GetComponent<IUnlockable>().SpawnKeys(this, m_layoutNode.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray());
 					}
 
 					m_doorwayInfos[doorwayIdx].m_blocker = blocker;
