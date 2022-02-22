@@ -551,7 +551,7 @@ MonoBehaviour:
   m_wallClingGravityScalar: 0.1
   m_velocityForcedSmoothTime: 0.25
   velocity: {x: 0, y: 0}
-  maxSpeed: 7
+  maxSpeed: 5
   jumpTakeOffSpeed: 7.5
   m_wallJumpXYRatio: 1
   jumpDeceleration: 0.5

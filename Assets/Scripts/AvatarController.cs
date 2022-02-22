@@ -145,7 +145,7 @@ public class AvatarController : KinematicCharacter
 			// place focus indicator if appropriate
 			if (focusCanInteract)
 			{
-				m_focusIndicator.transform.SetPositionAndRotation(m_focusObj.transform.position + Vector3.back, m_focusObj.transform.rotation); // NOTE the Z offset to ensure the focus indicator is rendered on top
+				m_focusIndicator.transform.SetPositionAndRotation(m_focusObj.transform.position + Vector3.back * 0.1f, m_focusObj.transform.rotation); // NOTE the Z offset to ensure the focus indicator is rendered on top
 				SpriteRenderer rendererIndicator = m_focusIndicator.GetComponent<SpriteRenderer>();
 				SpriteRenderer rendererOrig = m_focusObj.GetComponent<SpriteRenderer>();
 				rendererIndicator.sprite = rendererOrig.sprite;
