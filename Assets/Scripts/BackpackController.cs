@@ -68,7 +68,6 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable
 
 		// TODO: combine w/ ItemController.DetachInternal()?
 		transform.SetParent(null);
-		transform.position = (Vector2)transform.position; // nullify any z that may have been applied for rendering order
 		Rigidbody2D body = GetComponent<Rigidbody2D>();
 		body.bodyType = RigidbodyType2D.Dynamic;
 

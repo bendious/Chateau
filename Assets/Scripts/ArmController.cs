@@ -51,8 +51,8 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
 		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
-		Rigidbody2D m_body = GetComponent<Rigidbody2D>();
-		if (kinematicObj != null && kinematicObj.ShouldIgnore(m_body, GetComponents<Collider2D>(), false, false, false))
+		Rigidbody2D body = GetComponent<Rigidbody2D>();
+		if (kinematicObj != null && kinematicObj.ShouldIgnore(body, GetComponents<Collider2D>(), false, false, false))
 		{
 			return;
 		}
@@ -63,7 +63,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		}
 
 		// check speed
-		float collisionSpeed = (kinematicObj == null ? collision.relativeVelocity.magnitude : (m_body.velocity - kinematicObj.velocity).magnitude) + Speed;
+		float collisionSpeed = (kinematicObj == null ? collision.relativeVelocity.magnitude : (body.velocity - kinematicObj.velocity).magnitude) + Speed;
 		if (collisionSpeed > m_swingInfoCur.m_damageThresholdSpeed)
 		{
 			Health otherHealth = collision.gameObject.GetComponent<Health>();

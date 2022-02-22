@@ -173,11 +173,12 @@ MonoBehaviour:
   m_damageBounceMagnitude: {x: 3.5, y: 3.5}
   ouchAudio: {fileID: 8300000, guid: b7f741588644cd64bbee6387cb54a96d, type: 3}
   m_deathAudio: {fileID: 8300000, guid: b7f741588644cd64bbee6387cb54a96d, type: 3}
-  m_maxPickUps: 0
+  m_armOffset: {x: 0, y: 0}
   move: {x: 0, y: 0}
   m_targetOffset: {x: 0, y: 0}
   m_target: {fileID: 0}
   m_meleeRange: 1
+  m_attackSFX: []
 --- !u!82 &5843668731025413174
 AudioSource:
   m_ObjectHideFlags: 0
@@ -199,7 +200,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 20
+  MaxDistance: 30
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
@@ -234,7 +235,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -249,6 +250,15 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
+      value: 0.5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
       value: 0
       inSlope: 0
       outSlope: 0
@@ -286,7 +296,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e9c1bd3b458dfc4ab7a9c66b6782439, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 1
+  m_maxHP: 1
   m_healthUIParent: {fileID: 0}
   m_healthSprite: {fileID: 0}
   m_healthMissingSprite: {fileID: 0}

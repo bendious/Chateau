@@ -94,19 +94,30 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
 		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
-		if (kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, false, false, false))
+		if ((kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, false, false, false)) || collision.gameObject.transform.root == transform.root)
 		{
 			return;
 		}
 
+		// ignore non-destructible static objects when held
+		bool isDetached = m_holder == null;
+		Health otherHealth = collision.gameObject.GetComponent<Health>();
+		if (!isDetached && otherHealth == null)
+		{
+			Rigidbody2D otherBody = collision.gameObject.GetComponent<Rigidbody2D>();
+			if (otherBody == null || otherBody.bodyType != RigidbodyType2D.Dynamic)
+			{
+				return;
+			}
+		}
+
 		// maybe attach to character
 		// TODO: extend to BackpackController as well?
-		bool isDetached = m_holder == null;
 		bool canDamage = m_cause != null && m_cause.CanDamage(collision.gameObject) && collision.otherCollider == m_colliders.First(); // NOTE that we prevent damage from secondary colliders (e.g. spear hafts)
 		KinematicCharacter character = kinematicObj as KinematicCharacter; // NOTE that this works since objects shouldn't ever have multiple different KinematicObject-derived components
 		if (isDetached && !canDamage) // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus or if it is a secondary (non-damaging) collider making contact
 		{
-			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>().Length < character.MaxPickUps)
+			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>(true).Length < character.MaxPickUps)
 			{
 				character.AttachItem(this);
 				return;
@@ -126,7 +137,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 			// if from a valid source, apply damage
 			if (canDamage)
 			{
-				Health otherHealth = collision.gameObject.GetComponent<Health>();
 				if (otherHealth != null)
 				{
 					otherHealth.Decrement(gameObject, m_swingInfo.m_damage); // TODO: round if damaging avatar?
@@ -199,7 +209,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	{
 		// TODO: combine w/ BackpackController.Detach()?
 		transform.SetParent(null);
-		transform.position = (Vector2)transform.position; // nullify any z that may have been applied for rendering order
 		m_body.bodyType = RigidbodyType2D.Dynamic;
 		m_body.useFullKinematicContacts = false;
 		m_body.WakeUp();

@@ -319,7 +319,7 @@ public class AvatarController : KinematicCharacter
 			return;
 		}
 
-		if ((jumpState == JumpState.Grounded || jumpState == JumpState.WallCling || m_leftGroundTime + m_coyoteTime <= Time.time) && input.isPressed)
+		if ((jumpState == JumpState.Grounded || jumpState == JumpState.WallCling || m_leftGroundTime + m_coyoteTime >= Time.time) && input.isPressed)
 		{
 			jumpState = JumpState.PrepareToJump;
 		}
@@ -362,7 +362,7 @@ public class AvatarController : KinematicCharacter
 			}
 		}
 
-		IsPickingUp = input.isPressed && GetComponentsInChildren<ItemController>(true).Length < MaxPickUps;
+		IsPickingUp = input.isPressed;
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
@@ -598,6 +598,7 @@ public class AvatarController : KinematicCharacter
 				}
 				break;
 			case JumpState.PrepareToJump:
+				m_leftGroundTime = -1.0f;
 				jumpState = JumpState.Jumping;
 				jump = true;
 				stopJump = false;
