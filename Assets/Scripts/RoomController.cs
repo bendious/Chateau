@@ -295,47 +295,42 @@ public class RoomController : MonoBehaviour
 
 		OpenDoorway(doorway, replaceDirection.y > 0.0f);
 
-		doorwayInfo.m_childRoom = Instantiate(roomPrefab, childPivotPos, Quaternion.identity).GetComponent<RoomController>();
+		RoomController childRoom = Instantiate(roomPrefab, childPivotPos, Quaternion.identity).GetComponent<RoomController>();
+		doorwayInfo.m_childRoom = childRoom;
 		doorwayInfo.m_isConnected = true;
 
 		// set child's parent connection
-		int i = 0;
-		foreach (GameObject newDoorway in doorwayInfo.m_childRoom.m_doorways)
+		int returnIdx = childRoom.m_doorways.Zip(childRoom.m_doorwayInfos, (newDoorway, info) =>
 		{
 			Vector3 doorwaySize = newDoorway.GetComponent<Collider2D>().bounds.size;
 			bool isTrapdoor = doorwaySize.x > doorwaySize.y;
-			bool isChildParentDoorway = Vector2.Dot((Vector2)doorwayInfo.m_childRoom.transform.position - (Vector2)newDoorway.transform.position, replaceDirection) > 0.0f && isTrapdoor == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y)); // TODO: better way of determining reverse direction doorway?
+			return Vector2.Dot((Vector2)childRoom.transform.position - (Vector2)newDoorway.transform.position, replaceDirection) > 0.0f && isTrapdoor == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y)); // TODO: better way of determining reverse direction doorway?
+		}).ToList().IndexOf(true);
 
-			if (isChildParentDoorway)
+		doorwayInfo.m_childRoom.m_doorwayInfos[returnIdx].m_isConnected = true;
+
+		bool isLock = m_layoutNode.m_type == LayoutGenerator.Node.Type.Lock;
+		if ((isLock || m_layoutNode.m_type == LayoutGenerator.Node.Type.Secret) && childNode.DirectParents.Exists(node => node == m_layoutNode))
+		{
+			// create gate
+			Assert.IsNull(doorwayInfo.m_blocker);
+			doorwayInfo.m_blocker = Instantiate(Utility.RandomWeighted(isLock ? m_doorPrefabs : m_doorSecretPrefabs), doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
+			doorwayInfo.m_childRoom.m_doorwayInfos[returnIdx].m_blocker = doorwayInfo.m_blocker;
+
+			// resize gate to fit doorway
+			Vector2 size = doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale;
+			doorwayInfo.m_blocker.GetComponent<BoxCollider2D>().size = size;
+			doorwayInfo.m_blocker.GetComponent<SpriteRenderer>().size = size;
+			// TODO: update shadow caster shape once it is programmatically accessible
+
+			// spawn key(s)
+			if (isLock)
 			{
-				doorwayInfo.m_childRoom.m_doorwayInfos[i].m_isConnected = true;
-
-				bool isLock = m_layoutNode.m_type == LayoutGenerator.Node.Type.Lock;
-				if ((isLock || m_layoutNode.m_type == LayoutGenerator.Node.Type.Secret) && childNode.DirectParents.Exists(node => node == m_layoutNode))
-				{
-					// create gate
-					Assert.IsNull(doorwayInfo.m_blocker);
-					doorwayInfo.m_blocker = Instantiate(Utility.RandomWeighted(isLock ? m_doorPrefabs : m_doorSecretPrefabs), doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
-					doorwayInfo.m_childRoom.m_doorwayInfos[i].m_blocker = doorwayInfo.m_blocker;
-
-					// resize gate to fit doorway
-					Vector2 size = doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale;
-					doorwayInfo.m_blocker.GetComponent<BoxCollider2D>().size = size;
-					doorwayInfo.m_blocker.GetComponent<SpriteRenderer>().size = size;
-					// TODO: update shadow caster shape once it is programmatically accessible
-
-					// spawn key(s)
-					if (isLock)
-					{
-						doorwayInfo.m_blocker.GetComponent<IUnlockable>().SpawnKeys(this, m_layoutNode.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray());
-					}
-				}
+				doorwayInfo.m_blocker.GetComponent<IUnlockable>().SpawnKeys(this, m_layoutNode.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray());
 			}
-
-			++i;
 		}
 
-		doorwayInfo.m_childRoom.Initialize(childNode);
+		childRoom.Initialize(childNode);
 	}
 
 	private void OpenDoorway(GameObject doorway, bool upward)
