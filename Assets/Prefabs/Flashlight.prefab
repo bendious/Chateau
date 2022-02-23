@@ -173,6 +173,10 @@ PrefabInstance:
       propertyPath: m_Mass
       value: 0.2
       objectReference: {fileID: 0}
+    - target: {fileID: 2239154967666002716, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: 448cd1b924f918643b17c77e4777d707, type: 2}
     - target: {fileID: 4373438507227804510, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_Size.x
       value: 0.4
@@ -209,6 +213,10 @@ PrefabInstance:
       propertyPath: m_Size.y
       value: 0.05
       objectReference: {fileID: 0}
+    - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: 448cd1b924f918643b17c77e4777d707, type: 2}
     - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_SpriteTilingProperty.pivot.x
       value: 0.5
@@ -250,7 +258,7 @@ BoxCollider2D:
   m_GameObject: {fileID: 6048625821855157070}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 6200000, guid: 65f85a0b14295e647865f344b3250a49, type: 2}
+  m_Material: {fileID: 6200000, guid: 448cd1b924f918643b17c77e4777d707, type: 2}
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0

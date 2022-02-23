@@ -63,6 +63,10 @@ PrefabInstance:
       propertyPath: m_Mass
       value: 0.25
       objectReference: {fileID: 0}
+    - target: {fileID: 2239154967666002716, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: bbb542596eba8a84e81e2a2259cdc30f, type: 2}
     - target: {fileID: 2907253195876467281, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_Color.b
       value: 0.5019608
@@ -92,6 +96,10 @@ PrefabInstance:
       value: 0.175
       objectReference: {fileID: 0}
     - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: bbb542596eba8a84e81e2a2259cdc30f, type: 2}
+    - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_EdgeRadius
       value: 0.01
       objectReference: {fileID: 0}
@@ -104,10 +112,6 @@ PrefabInstance:
       value: MedKit
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_swingInfo.m_damage
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_healAmount
       value: 1
       objectReference: {fileID: 0}
@@ -116,20 +120,24 @@ PrefabInstance:
       value: 7.5
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_swingInfo.m_aimSpringDampPct
-      value: 0.25
+      propertyPath: m_swingInfo.m_damage
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_swingInfo.m_radiusPerSec
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_swingInfo.m_aimSpringStiffness
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_swingInfo.m_degreesPerSec
       value: 1250
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_swingInfo.m_aimSpringDampPct
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_swingInfo.m_aimSpringStiffness
+      value: 50
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}

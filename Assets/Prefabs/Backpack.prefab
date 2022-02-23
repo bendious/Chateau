@@ -16,6 +16,10 @@ PrefabInstance:
       value: 0.12
       objectReference: {fileID: 0}
     - target: {fileID: 1689761168478489728, guid: 9ecf75cb82e6b5b4da0fb23b27cb2a1f, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: 448cd1b924f918643b17c77e4777d707, type: 2}
+    - target: {fileID: 1689761168478489728, guid: 9ecf75cb82e6b5b4da0fb23b27cb2a1f, type: 3}
       propertyPath: m_Offset.y
       value: -0.01
       objectReference: {fileID: 0}
@@ -54,7 +58,7 @@ PrefabInstance:
     - target: {fileID: 4687997385606884743, guid: 9ecf75cb82e6b5b4da0fb23b27cb2a1f, type: 3}
       propertyPath: m_Material
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 6200000, guid: 448cd1b924f918643b17c77e4777d707, type: 2}
     - target: {fileID: 6037178001319151839, guid: 9ecf75cb82e6b5b4da0fb23b27cb2a1f, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -146,18 +150,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 443d22aa45adee7438b62585af4ce343, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_swingDegreesPerSec: 0
-  m_swingRadiusPerSec: 0
-  m_aimSpringStiffness: 100
-  m_aimSpringDampPct: 1
-  m_radiusSpringStiffness: 25
-  m_radiusSpringDampPct: 1
-  m_damageThresholdSpeed: 2
-  m_throwSpeed: 2.5
-  m_vfxAlphaMax: 0.35
-  m_damage: 0.5
-  m_healAmount: 0
-  m_swingThrowAudio: []
-  m_collisionAudio: []
   m_holdCountMax: 2
   m_attachOffsetLocal: {x: 0, y: -0.1, z: 0.2}
