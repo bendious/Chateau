@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 
@@ -32,6 +33,8 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 
 
+	private Collider2D[] m_colliders;
+
 	private float m_aimDegreesArm;
 	private float m_aimDegreesItem;
 	private float m_aimVelocityArm;
@@ -44,7 +47,13 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	private void Start()
 	{
 		m_swingInfoCur = m_swingInfoDefault;
-		Physics2D.IgnoreCollision(transform.parent.GetComponent<Collider2D>(), GetComponent<Collider2D>()); // TODO: handle multi-colliders?
+
+		m_colliders = GetComponents<Collider2D>();
+		Collider2D parentCollider = transform.parent.GetComponent<Collider2D>();
+		foreach (Collider2D collider in m_colliders)
+		{
+			Physics2D.IgnoreCollision(parentCollider, collider);
+		}
 	}
 
 	// TODO: combine w/ ItemController version?
@@ -52,7 +61,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	{
 		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
 		Rigidbody2D body = GetComponent<Rigidbody2D>();
-		if (kinematicObj != null && kinematicObj.ShouldIgnore(body, GetComponents<Collider2D>(), false, false, false))
+		if (kinematicObj != null && kinematicObj.ShouldIgnore(body, m_colliders, false, false, false))
 		{
 			return;
 		}
@@ -84,7 +93,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		}
 
 		m_swingInfoCur = item.m_swingInfo;
-		foreach (Collider2D collider in GetComponents<Collider2D>())
+		foreach (Collider2D collider in m_colliders)
 		{
 			collider.enabled = false;
 		}
@@ -102,7 +111,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	{
 		IHolder.ItemDetachInternal(item, this, noAutoReplace);
 		m_swingInfoCur = m_swingInfoDefault;
-		foreach (Collider2D collider in GetComponents<Collider2D>())
+		foreach (Collider2D collider in m_colliders)
 		{
 			collider.enabled = true;
 		}
@@ -118,7 +127,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		// play audio if not holding anything (any held item will play audio for itself)
 		if (GetComponentInChildren<ItemController>() == null)
 		{
-			GetComponent<AudioSource>().PlayOneShot(GameController.Instance.m_materialSystem.Find(GetComponent<Collider2D>().sharedMaterial).RandomMovementAudio());
+			GetComponent<AudioSource>().PlayOneShot(GameController.Instance.m_materialSystem.Find(m_colliders.First().sharedMaterial).RandomMovementAudio()); // TODO: don't assume first collider is main material?
 		}
 	}
 
