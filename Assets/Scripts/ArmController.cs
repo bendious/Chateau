@@ -114,6 +114,12 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		m_aimVelocityArm += m_swingDirection ? m_swingInfoCur.m_degreesPerSec : -m_swingInfoCur.m_degreesPerSec;
 		m_aimRadiusVelocity += m_swingInfoCur.m_radiusPerSec;
 		m_swingDirection = !m_swingDirection;
+
+		// play audio if not holding anything (any held item will play audio for itself)
+		if (GetComponentInChildren<ItemController>() == null)
+		{
+			GetComponent<AudioSource>().PlayOneShot(GameController.Instance.m_materialSystem.Find(GetComponent<Collider2D>().sharedMaterial).RandomMovementAudio());
+		}
 	}
 
 	public void UpdateAim(Vector2 rootOffset, Vector2 aimPositionArm, Vector2 aimPositionItem)

@@ -1676,6 +1676,7 @@ MonoBehaviour:
   m_timerUI: {fileID: 890711136}
   m_pauseUI: {fileID: 2025162744}
   m_gameOverUI: {fileID: 690702301}
+  m_materialSystem: {fileID: 11400000, guid: 17f41ccd08cb0cb40a164c155fdf365d, type: 2}
   m_victoryAudio: {fileID: 8300000, guid: 5833894e2899f1840ac04193ca462e39, type: 3}
   m_waveSecondsMin: 30
   m_waveSecondsMax: 60

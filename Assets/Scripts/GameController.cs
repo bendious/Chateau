@@ -24,6 +24,8 @@ public class GameController : MonoBehaviour
 	public Canvas m_pauseUI;
 	public Canvas m_gameOverUI;
 
+	public MaterialSystem m_materialSystem;
+
 	public AudioClip m_victoryAudio;
 
 	public float m_waveSecondsMin = 30.0f;

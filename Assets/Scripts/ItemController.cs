@@ -24,9 +24,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	public int m_healAmount = 0;
 	public string m_overlayText = null;
 
-	public AudioClip[] m_swingThrowAudio;
-	public AudioClip[] m_collisionAudio;
-
 
 	public float Speed => m_holder == null ? m_body.velocity.magnitude : m_holder.Speed;
 
@@ -128,10 +125,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		float collisionSpeed = (kinematicObj == null ? collision.relativeVelocity.magnitude : (m_body.velocity - kinematicObj.velocity).magnitude) + Speed;
 		if (collisionSpeed > m_swingInfo.m_damageThresholdSpeed)
 		{
-			// play audio
-			if (m_collisionAudio != null && m_collisionAudio.Length > 0 && m_audioSource.enabled)
+			if (m_audioSource.enabled)
 			{
-				m_audioSource.PlayOneShot(m_collisionAudio[Random.Range(0, m_collisionAudio.Length)]);
+				m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.PairBestMatch(collision.collider.sharedMaterial, collision.otherCollider.sharedMaterial).RandomCollisionAudio());
 			}
 
 			// if from a valid source, apply damage
@@ -228,11 +224,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		IsSwinging = true;
 		EnableVFXAndDamage();
 
-		// play audio
-		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
-		{
-			m_audioSource.PlayOneShot(m_swingThrowAudio[Random.Range(0, m_swingThrowAudio.Length)]);
-		}
+		PlayMovementAudio();
 	}
 
 	public bool Use()
@@ -273,11 +265,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 
 		EnableVFXAndDamage();
 
-		// play audio
-		if (m_swingThrowAudio != null && m_swingThrowAudio.Length > 0)
-		{
-			m_audioSource.PlayOneShot(m_swingThrowAudio[Random.Range(0, m_swingThrowAudio.Length)]);
-		}
+		PlayMovementAudio();
 	}
 
 
@@ -339,5 +327,14 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 			}
 			yield return null;
 		}
+	}
+
+	private void PlayMovementAudio()
+	{
+		if (!m_audioSource.enabled)
+		{
+			return;
+		}
+		m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.Find(m_colliders.First().sharedMaterial).RandomMovementAudio()); // TODO: don't assume first collider is main material?
 	}
 }
