@@ -91,6 +91,7 @@ public class AvatarController : KinematicCharacter
 		InventorySync();
 
 		Controls = GetComponent<PlayerInput>();
+		Controls.actions.FindActionMap("AlwaysOn").Enable();
 
 		ObjectDespawn.OnExecute += OnObjectDespawn;
 	}
@@ -522,7 +523,7 @@ public class AvatarController : KinematicCharacter
 
 		// create/set one icon per item/slot
 		RectTransform templateTf = templateObj.transform.GetComponent<RectTransform>();
-		Vector3 posItr = templateTf.anchoredPosition;
+		Vector3 posItr = templateTf.anchoredPosition3D;
 		for (int iconIdx = 0; iconIdx < itemInfos.Length; ++iconIdx)
 		{
 			GameObject UIObj;
@@ -534,7 +535,7 @@ public class AvatarController : KinematicCharacter
 			{
 				posItr.x = templateTf.anchoredPosition.x + (templateTf.sizeDelta.x + templateTf.anchoredPosition.x) * iconIdx;
 				UIObj = Instantiate(templateObj, Vector3.zero, Quaternion.identity, m_inventoryUI.transform);
-				UIObj.transform.GetComponent<RectTransform>().anchoredPosition = posItr;
+				UIObj.transform.GetComponent<RectTransform>().anchoredPosition3D = posItr;
 				UIObj.SetActive(true);
 			}
 			Image uiImage = UIObj.GetComponent<Image>();
