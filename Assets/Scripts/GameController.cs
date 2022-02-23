@@ -50,15 +50,6 @@ public class GameController : MonoBehaviour
 
 	private void Start()
 	{
-		// NOTE that this is not per-avatar since it would then multi-trigger and cancel itself out
-		m_avatars.Last().Controls.UI.Pause.performed += ctx =>
-		{
-			if (!m_gameOverUI.gameObject.activeSelf)
-			{
-				TogglePause();
-			}
-		};
-
 		LayoutGenerator generator = new();
 		generator.Generate();
 
@@ -144,8 +135,8 @@ public class GameController : MonoBehaviour
 
 			avatar.m_camera.gameObject.layer = layerItr;
 			avatar.GetComponentInChildren<Cinemachine.CinemachineVirtualCamera>().gameObject.layer = layerItr;
-			avatar.m_focusIndicator.gameObject.layer = layerItr;
-			avatar.m_focusPrompt.gameObject.layer = layerItr;
+			avatar.m_focusIndicator.layer = layerItr;
+			avatar.m_focusPrompt.layer = layerItr;
 
 			avatar.m_camera.cullingMask &= ~m_cameraLayers;
 			avatar.m_camera.cullingMask |= 1 << layerItr;
@@ -166,6 +157,11 @@ public class GameController : MonoBehaviour
 
 	public void TogglePause()
 	{
+		if (m_gameOverUI.gameObject.activeSelf)
+		{
+			return;
+		}
+
 		Time.timeScale = Time.timeScale == 0.0f ? 1.0f : 0.0f;
 		ActivateMenu(m_pauseUI, !m_pauseUI.gameObject.activeSelf);
 		// NOTE that if the avatar is ever visible while paused, we should disable its script here to avoid continuing to update facing
@@ -340,6 +336,10 @@ public class GameController : MonoBehaviour
 		if (active)
 		{
 			UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(menu.GetComponentInChildren<Button>().gameObject);
+		}
+		foreach (AvatarController avatar in m_avatars)
+		{
+			avatar.Controls.SwitchCurrentActionMap(m_pauseUI.gameObject.activeSelf || m_gameOverUI.gameObject.activeSelf || avatar.m_overlayCanvas.gameObject.activeSelf ? "UI" : "Avatar"); // TODO: account for other UI instances?
 		}
 	}
 }

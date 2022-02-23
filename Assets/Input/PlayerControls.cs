@@ -107,6 +107,15 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""24f392e8-8fd8-4741-9f70-7b296662c58a"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -415,6 +424,28 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""325f5b3e-8be0-475e-b6eb-903ed7777733"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4a7e7e63-a7bf-4a31-b91e-28bbd48ace9c"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -921,6 +952,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         m_Avatar_Interact = m_Avatar.FindAction("Interact", throwIfNotFound: true);
         m_Avatar_Drop = m_Avatar.FindAction("Drop", throwIfNotFound: true);
         m_Avatar_Inventory = m_Avatar.FindAction("Inventory", throwIfNotFound: true);
+        m_Avatar_Pause = m_Avatar.FindAction("Pause", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1002,6 +1034,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Avatar_Interact;
     private readonly InputAction m_Avatar_Drop;
     private readonly InputAction m_Avatar_Inventory;
+    private readonly InputAction m_Avatar_Pause;
     public struct AvatarActions
     {
         private @PlayerControls m_Wrapper;
@@ -1015,6 +1048,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         public InputAction @Interact => m_Wrapper.m_Avatar_Interact;
         public InputAction @Drop => m_Wrapper.m_Avatar_Drop;
         public InputAction @Inventory => m_Wrapper.m_Avatar_Inventory;
+        public InputAction @Pause => m_Wrapper.m_Avatar_Pause;
         public InputActionMap Get() { return m_Wrapper.m_Avatar; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1051,6 +1085,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Inventory.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnInventory;
                 @Inventory.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnInventory;
                 @Inventory.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnInventory;
+                @Pause.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnPause;
+                @Pause.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnPause;
+                @Pause.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnPause;
             }
             m_Wrapper.m_AvatarActionsCallbackInterface = instance;
             if (instance != null)
@@ -1082,6 +1119,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Inventory.started += instance.OnInventory;
                 @Inventory.performed += instance.OnInventory;
                 @Inventory.canceled += instance.OnInventory;
+                @Pause.started += instance.OnPause;
+                @Pause.performed += instance.OnPause;
+                @Pause.canceled += instance.OnPause;
             }
         }
     }
@@ -1237,6 +1277,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         void OnInteract(InputAction.CallbackContext context);
         void OnDrop(InputAction.CallbackContext context);
         void OnInventory(InputAction.CallbackContext context);
+        void OnPause(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

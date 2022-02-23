@@ -95,6 +95,58 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		}
 	}
 
+	public void OnNavigate(GameObject overlayObj, UnityEngine.InputSystem.InputValue input)
+	{
+		TMPro.TMP_Text text = overlayObj.GetComponentInChildren<TMPro.TMP_Text>();
+
+		Vector2 xyInput = input.Get<Vector2>();
+		float xInput = xyInput.x;
+		int xInputDir = Utility.FloatEqual(xInput, 0.0f) ? 0 : (int)Mathf.Sign(xInput);
+		if (xInputDir != 0)
+		{
+			m_inputIdxCur = Utility.Modulo(m_inputIdxCur + xInputDir, m_keyInfo.m_combinationDigits);
+			UpdateUIIndicator(text);
+		}
+
+		float yInput = xyInput.y;
+		int yInputDir = Utility.FloatEqual(yInput, 0.0f) ? 0 : (int)Mathf.Sign(yInput);
+		if (yInputDir != 0)
+		{
+			char oldChar = m_inputCur[m_inputIdxCur];
+			Assert.IsTrue(m_combinationSet.Count(setChar => setChar == oldChar) == 1); // TODO: handle duplicate characters?
+			int oldSetIdx = m_combinationSet.IndexOf(oldChar);
+			char newDigit = m_combinationSet[Utility.Modulo(oldSetIdx + yInputDir, m_combinationSet.Length)];
+
+			char[] inputArray = m_inputCur.ToCharArray();
+			inputArray[m_inputIdxCur] = newDigit;
+			m_inputCur = new string(inputArray);
+
+			text.text = m_inputCur;
+		}
+	}
+
+	public void OnSelect(AvatarController avatar)
+	{
+		if (m_inputCur == m_combination)
+		{
+			Unlock(null);
+			UICleanup(avatar);
+			return;
+		}
+
+		// TODO: failure SFX?
+	}
+
+	public void UICleanup(AvatarController avatar)
+	{
+		Simulation.Schedule<ObjectDespawn>().m_object = m_indicator;
+		m_indicator = null;
+		GameObject overlayObj = avatar.m_overlayCanvas.gameObject;
+		overlayObj.SetActive(false);
+		avatar.Controls.SwitchCurrentActionMap("Avatar");
+	}
+
+
 	private void OnTriggerEnter2D(Collider2D collider)
 	{
 		if (!string.IsNullOrEmpty(m_combination))
@@ -141,12 +193,16 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		AvatarController avatar = (AvatarController)interactor;
 		Assert.IsTrue(GameController.Instance.m_avatars.Contains(avatar));
 
-		// NOTE that we can't use Stop{All}Coroutine{s}() since UpdateInteraction() has to do cleanup; we rely on it detecting overlay toggling even from other sources
+		StopAllCoroutines();
 
 		bool overlayActive = avatar.ToggleOverlay(GetComponent<SpriteRenderer>(), m_inputCur);
 		if (overlayActive)
 		{
-			StartCoroutine(UpdateInteraction(interactor));
+			StartCoroutine(UpdateInteraction(avatar));
+		}
+		else
+		{
+			UICleanup(avatar);
 		}
 	}
 
@@ -184,9 +240,15 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		// TODO: unlock SFX/VFX/etc.
 	}
 
-	private IEnumerator UpdateInteraction(KinematicCharacter interactor)
+	private void UpdateUIIndicator(TMPro.TMP_Text text)
 	{
-		AvatarController avatar = (AvatarController)interactor;
+		m_indicator.transform.localPosition = new Vector3(Mathf.Lerp(text.textBounds.min.x, text.textBounds.max.x, (m_inputIdxCur + 0.5f) / m_keyInfo.m_combinationDigits), m_indicator.transform.localPosition.y, m_indicator.transform.localPosition.z);
+	}
+
+	private IEnumerator UpdateInteraction(AvatarController avatar)
+	{
+		avatar.Controls.SwitchCurrentActionMap("UI");
+
 		GameObject overlayObj = avatar.m_overlayCanvas.gameObject;
 		TMPro.TMP_Text text = overlayObj.GetComponentInChildren<TMPro.TMP_Text>();
 		text.text = m_inputCur;
@@ -196,58 +258,13 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		{
 			m_indicator = Instantiate(m_combinationIndicatorPrefab, overlayObj.transform);
 		}
+		UpdateUIIndicator(text);
 
-		bool firstUpdate = true;
-		while (overlayObj.activeSelf && Vector2.Distance(interactor.transform.position, transform.position) < m_interactDistanceMax)
+		// TODO: necessary? better way of ensuring UICleanup() is invoked?
+		while (overlayObj.activeSelf && Vector2.Distance(avatar.transform.position, transform.position) < m_interactDistanceMax)
 		{
-			PlayerControls.UIActions controls = avatar.Controls.UI;
-
-			if (firstUpdate || controls.Navigate.triggered) // TODO: differentiate between co-op players
-			{
-				Vector2 xyInput = controls.Navigate.ReadValue<Vector2>();
-				float xInput = xyInput.x;
-				int xInputDir = Utility.FloatEqual(xInput, 0.0f) ? 0 : (int)Mathf.Sign(xInput);
-				if (firstUpdate || xInputDir != 0)
-				{
-					m_inputIdxCur = Utility.Modulo(m_inputIdxCur + xInputDir, m_keyInfo.m_combinationDigits);
-					m_indicator.transform.localPosition = new Vector3(Mathf.Lerp(text.textBounds.min.x, text.textBounds.max.x, (m_inputIdxCur + 0.5f) / m_keyInfo.m_combinationDigits), m_indicator.transform.localPosition.y, m_indicator.transform.localPosition.z);
-				}
-
-				float yInput = xyInput.y;
-				int yInputDir = Utility.FloatEqual(yInput, 0.0f) ? 0 : (int)Mathf.Sign(yInput);
-				if (yInputDir != 0)
-				{
-					char oldChar = m_inputCur[m_inputIdxCur];
-					Assert.IsTrue(m_combinationSet.Count(setChar => setChar == oldChar) == 1); // TODO: handle duplicate characters?
-					int oldSetIdx = m_combinationSet.IndexOf(oldChar);
-					char newDigit = m_combinationSet[Utility.Modulo(oldSetIdx + yInputDir, m_combinationSet.Length)];
-
-					char[] inputArray = m_inputCur.ToCharArray();
-					inputArray[m_inputIdxCur] = newDigit;
-					m_inputCur = new string(inputArray);
-
-					text.text = m_inputCur;
-				}
-			}
-
-			if (controls.Submit.triggered)
-			{
-				if (m_inputCur == m_combination)
-				{
-					Unlock(null);
-					break;
-				}
-
-				// TODO: failure SFX?
-			}
-
-			firstUpdate = false;
-
 			yield return null;
 		}
-
-		Simulation.Schedule<ObjectDespawn>().m_object = m_indicator;
-		m_indicator = null;
-		overlayObj.SetActive(false);
+		UICleanup(avatar);
 	}
 }

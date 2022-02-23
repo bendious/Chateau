@@ -42,7 +42,7 @@ public class AvatarController : KinematicCharacter
 	public Camera m_camera;
 
 
-	public PlayerControls Controls { get; private set; }
+	public PlayerInput Controls { get; private set; }
 
 	public bool IsAlive => ConsoleCommands.NeverDie || health.IsAlive;
 
@@ -90,19 +90,9 @@ public class AvatarController : KinematicCharacter
 
 		InventorySync();
 
-		Controls = new();
+		Controls = GetComponent<PlayerInput>();
 
 		ObjectDespawn.OnExecute += OnObjectDespawn;
-	}
-
-	private void OnDisable()
-	{
-		Controls.Disable();
-	}
-
-	private void OnEnable()
-	{
-		Controls.Enable();
 	}
 
 
@@ -236,20 +226,20 @@ public class AvatarController : KinematicCharacter
 		{
 			return;
 		}
-		move = m_overlayCanvas.gameObject.activeSelf ? Vector2.zero : input.Get<Vector2>();
+		move = input.Get<Vector2>();
 	}
 
 	// called by InputSystem / PlayerInput component
 	public void OnLook(InputValue input)
 	{
 		Vector2 value = input.Get<Vector2>();
-		if (!controlEnabled || m_overlayCanvas.gameObject.activeSelf || value.sqrMagnitude == 0.0f) // TODO: FloatEqual() despite deadzone?
+		if (!controlEnabled || value.sqrMagnitude == 0.0f) // TODO: FloatEqual() despite deadzone?
 		{
 			return;
 		}
 
 		// determine input source
-		m_usingMouse = GetComponent<PlayerInput>().currentControlScheme == "Keyboard&Mouse";
+		m_usingMouse = Controls.currentControlScheme == "Keyboard&Mouse";
 
 		if (m_usingMouse)
 		{
@@ -353,7 +343,8 @@ public class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnInteract(InputValue input)
 	{
-		if (controlEnabled && input.isPressed && m_focusObj != null)
+		IsPickingUp = input.isPressed;
+		if (controlEnabled && IsPickingUp && m_focusObj != null)
 		{
 			IInteractable focusInteract = m_focusObj.GetComponent<IInteractable>();
 			if (focusInteract != null && focusInteract.CanInteract(this))
@@ -361,8 +352,6 @@ public class AvatarController : KinematicCharacter
 				focusInteract.Interact(this);
 			}
 		}
-
-		IsPickingUp = input.isPressed;
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
@@ -389,6 +378,30 @@ public class AvatarController : KinematicCharacter
 		}
 		m_inventoryUI.SetActive(!m_inventoryUI.activeSelf);
 		InventorySync();
+	}
+
+	// called by InputSystem / PlayerInput component
+	public void OnNavigate(InputValue input)
+	{
+		InteractUIAction(lockController => lockController.OnNavigate(m_overlayCanvas.gameObject, input));
+	}
+
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
+	public void OnSelect(InputValue input)
+	{
+		InteractUIAction(lockController => lockController.OnSelect(this));
+	}
+
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
+	public void OnCancel(InputValue input)
+	{
+		InteractUIAction(lockController => lockController.UICleanup(this));
+	}
+
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
+	public void OnPause(InputValue input)
+	{
+		GameController.Instance.TogglePause();
 	}
 
 	public override void OnDamage(GameObject source)
@@ -569,6 +582,20 @@ public class AvatarController : KinematicCharacter
 			evt.m_object.transform.SetParent(null); // so that we can refresh inventory immediately even though deletion hasn't happened yet
 			InventorySync();
 		}
+	}
+
+	private void InteractUIAction(Action<LockController> f)
+	{
+		if (Controls.currentActionMap.name != "UI" || m_focusObj == null) // TODO: cleaner way of checking enabled action map?
+		{
+			return;
+		}
+		LockController lockController = m_focusObj.GetComponent<LockController>();
+		if (lockController == null)
+		{
+			return;
+		}
+		f(lockController);
 	}
 
 	private void DeactivateAllControl()

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 
 public class DialogueController : MonoBehaviour
@@ -44,7 +45,7 @@ public class DialogueController : MonoBehaviour
 
 		while (notDone)
 		{
-			UnityEngine.InputSystem.InputAction submitKey = GameController.Instance.m_avatars.First().Controls.UI.Submit;
+			InputAction submitKey = GameController.Instance.m_avatars.First().Controls.actions["Submit"];
 
 			// maybe move to next line
 			bool stillRevealing = m_revealedCharCount < textCurLen;
