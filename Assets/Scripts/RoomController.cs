@@ -21,7 +21,7 @@ public class RoomController : MonoBehaviour
 	private struct DoorwayInfo
 	{
 		public Vector2 m_position;
-		public bool m_isConnected; // NOTE that this is true independently of m_childRoom being non-null due to children not tracking their parents // TODO: remove?
+		public RoomController m_parentRoom;
 		public RoomController m_childRoom; // TODO: make bidirectional?
 		public GameObject m_blocker;
 	}
@@ -73,7 +73,7 @@ public class RoomController : MonoBehaviour
 			// record doorway position in case the object is removed
 			m_doorwayInfos[doorwayIdx].m_position = doorway.transform.position;
 
-			if (m_doorwayInfos[doorwayIdx].m_isConnected)
+			if (m_doorwayInfos[doorwayIdx].m_parentRoom != null)
 			{
 				// open doorway to parent
 				OpenDoorway(doorway, DoorwayDirection(doorway).y > 0.0f);
@@ -182,9 +182,9 @@ public class RoomController : MonoBehaviour
 		List<Vector2> waypointPath = new();
 		for (int i = 0, n = roomPath.Count - 1; i < n; ++i)
 		{
-			Vector2 connectionPos = RoomConnection(roomPath[i], roomPath[i + 1]);
-			Assert.IsFalse(connectionPos == Vector2.zero);
-			waypointPath.Add(connectionPos);
+			Vector2[] connectionPoints = RoomConnection(roomPath[i], roomPath[i + 1]);
+			Assert.IsTrue(connectionPoints.Length > 0 && !connectionPoints.Contains(Vector2.zero));
+			waypointPath.AddRange(connectionPoints);
 		}
 
 		// add valid end point
@@ -204,7 +204,7 @@ public class RoomController : MonoBehaviour
 
 		bool success = DoorwaysRandomOrder(i =>
 		{
-			if (m_doorwayInfos[i].m_isConnected)
+			if (m_doorwayInfos[i].m_childRoom != null || m_doorwayInfos[i].m_parentRoom != null)
 			{
 				return false;
 			}
@@ -278,7 +278,7 @@ public class RoomController : MonoBehaviour
 	// TODO: inline?
 	private void MaybeReplaceDoor(ref DoorwayInfo doorwayInfo, GameObject roomPrefab, Bounds bounds, Vector3 replaceDirection, GameObject doorway, LayoutGenerator.Node childNode)
 	{
-		Assert.IsFalse(doorwayInfo.m_isConnected);
+		Assert.IsNull(doorwayInfo.m_parentRoom);
 		Assert.IsNull(doorwayInfo.m_childRoom);
 		Assert.AreApproximatelyEqual(replaceDirection.magnitude, 1.0f);
 
@@ -297,7 +297,6 @@ public class RoomController : MonoBehaviour
 
 		RoomController childRoom = Instantiate(roomPrefab, childPivotPos, Quaternion.identity).GetComponent<RoomController>();
 		doorwayInfo.m_childRoom = childRoom;
-		doorwayInfo.m_isConnected = true;
 
 		// set child's parent connection
 		int returnIdx = childRoom.m_doorways.Zip(childRoom.m_doorwayInfos, (newDoorway, info) =>
@@ -307,7 +306,7 @@ public class RoomController : MonoBehaviour
 			return Vector2.Dot((Vector2)childRoom.transform.position - (Vector2)newDoorway.transform.position, replaceDirection) > 0.0f && isTrapdoor == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y)); // TODO: better way of determining reverse direction doorway?
 		}).ToList().IndexOf(true);
 
-		doorwayInfo.m_childRoom.m_doorwayInfos[returnIdx].m_isConnected = true;
+		doorwayInfo.m_childRoom.m_doorwayInfos[returnIdx].m_parentRoom = this;
 
 		bool isLock = m_layoutNode.m_type == LayoutGenerator.Node.Type.Lock;
 		if ((isLock || m_layoutNode.m_type == LayoutGenerator.Node.Type.Secret) && childNode.DirectParents.Exists(node => node == m_layoutNode))
@@ -393,23 +392,24 @@ public class RoomController : MonoBehaviour
 		return null;
 	}
 
-	private Vector2 RoomConnection(RoomController a, RoomController b)
+	private Vector2[] RoomConnection(RoomController from, RoomController to)
 	{
 		// TODO: efficiency?
+		Vector2[] connectionPoints = new Vector2[2];
 		for (int i = 0; i < m_doorwayInfos.Length; ++i)
 		{
-			DoorwayInfo infoA = a.m_doorwayInfos[i];
-			if (infoA.m_childRoom == b)
+			DoorwayInfo infoFrom = from.m_doorwayInfos[i];
+			if (infoFrom.m_childRoom == to || infoFrom.m_parentRoom == to)
 			{
-				return infoA.m_position;
+				connectionPoints[0] = infoFrom.m_position;
 			}
-			DoorwayInfo infoB = b.m_doorwayInfos[i];
-			if (infoB.m_childRoom == a)
+			DoorwayInfo infoTo = to.m_doorwayInfos[i];
+			if (infoTo.m_childRoom == from || infoTo.m_parentRoom == from)
 			{
-				return infoB.m_position;
+				connectionPoints[1] = infoTo.m_position;
 			}
 		}
 
-		return Vector3.zero; // TODO: better no-connection return value?
+		return connectionPoints;
 	}
 }
