@@ -125,7 +125,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		}
 	}
 
-	public void OnSelect(AvatarController avatar)
+	public void OnSubmit(AvatarController avatar)
 	{
 		if (m_inputCur == m_combination)
 		{

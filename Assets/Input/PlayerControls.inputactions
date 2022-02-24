@@ -697,7 +697,7 @@
                     "path": "<Keyboard>/z",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard&Mouse;KeyboardOnly",
                     "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false

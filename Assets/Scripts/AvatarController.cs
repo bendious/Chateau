@@ -388,9 +388,9 @@ public class AvatarController : KinematicCharacter
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
-	public void OnSelect(InputValue input)
+	public void OnSubmit(InputValue input)
 	{
-		InteractUIAction(lockController => lockController.OnSelect(this));
+		InteractUIAction(lockController => lockController.OnSubmit(this));
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
