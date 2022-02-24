@@ -15,7 +15,7 @@ public class EnableCollision : Event<EnableCollision>
 	public override void Execute() => Physics2D.IgnoreCollision(m_collider1, m_collider2, false);
 
 
-	public static void TemporarilyDisableCollision(Collider2D[] aList, Collider2D[] bList, float durationSeconds = Health.m_invincibilityTime)
+	public static void TemporarilyDisableCollision(Collider2D[] aList, Collider2D[] bList, float durationSeconds = Health.m_invincibilityTimeDefault)
 	{
 		// TODO: efficiency?
 		foreach (Collider2D a in aList)

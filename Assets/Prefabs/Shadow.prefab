@@ -250,6 +250,14 @@ PrefabInstance:
       propertyPath: m_maxHP
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 2596667095425139531, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_deathAudio
+      value: 
+      objectReference: {fileID: 8300000, guid: e18959d46b63f3c4c8cc020a433cf848, type: 3}
+    - target: {fileID: 2596667095425139531, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_damageAudio
+      value: 
+      objectReference: {fileID: 8300000, guid: 6c05149e5a2fba64ba172e25a61074b7, type: 3}
     - target: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
       propertyPath: maxSpeed
       value: 2.5

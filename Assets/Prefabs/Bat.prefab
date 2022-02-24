@@ -75,14 +75,14 @@ PrefabInstance:
       propertyPath: m_Offset.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
-      propertyPath: ouchAudio
-      value: 
-      objectReference: {fileID: 8300000, guid: b6570672e0bc5184bbbd21ea0749235d, type: 3}
-    - target: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+    - target: {fileID: 2596667095425139531, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
       propertyPath: m_deathAudio
       value: 
       objectReference: {fileID: 8300000, guid: 5b2316d1dba2f164e81c9eea814fbe91, type: 3}
+    - target: {fileID: 2596667095425139531, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_damageAudio
+      value: 
+      objectReference: {fileID: 8300000, guid: b6570672e0bc5184bbbd21ea0749235d, type: 3}
     - target: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
       propertyPath: gravityModifier
       value: 0

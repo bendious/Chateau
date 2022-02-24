@@ -13,13 +13,19 @@ public class Health : MonoBehaviour
 	/// </summary>
 	public float m_maxHP = 1.0f;
 
+	public Vector4 m_damageColorScalar = Vector4.one;
+
 	public GameObject m_healthUIParent;
 	public Sprite m_healthSprite;
 	public Sprite m_healthMissingSprite;
 	public float m_UIPadding = 5.0f;
 
+	public AudioClip m_damageAudio;
+	public AudioClip m_deathAudio;
+
+	public const float m_invincibilityTimeDefault = 1.0f;
+	public float m_invincibilityTime = m_invincibilityTimeDefault; // TODO: vary by animation played?
 	public bool m_invincible;
-	public const float m_invincibilityTime = 1.0f; // TODO: vary by character type / animation played?
 
 
 	/// <summary>
@@ -47,7 +53,7 @@ public class Health : MonoBehaviour
 	/// <summary>
 	/// Decrement the HP of the entity.
 	/// </summary>
-	public bool Decrement(GameObject source, float amount = 1)
+	public bool Decrement(GameObject source, float amount = 1.0f)
 	{
 		if (m_invincible)
 		{
@@ -56,6 +62,13 @@ public class Health : MonoBehaviour
 
 		// damage
 		IncrementInternal(-1.0f * amount);
+		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+		renderer.color *= Utility.Pow(m_damageColorScalar, amount);
+		AudioSource audioSource = GetComponent<AudioSource>();
+		if (m_damageAudio != null)
+		{
+			audioSource.PlayOneShot(m_damageAudio);
+		}
 		if (m_animator != null)
 		{
 			m_animator.SetTrigger("hurt");
@@ -72,10 +85,18 @@ public class Health : MonoBehaviour
 			if (m_character != null)
 			{
 				isDead = m_character.OnDeath();
+				if (m_deathAudio != null)
+				{
+					audioSource.PlayOneShot(m_deathAudio);
+				}
 			}
 			else
 			{
 				Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
+				if (m_deathAudio != null)
+				{
+					AudioSource.PlayClipAtPoint(m_deathAudio, transform.position); // NOTE that we can't use audioSource since we're despawning immediately // TODO: efficiency? hide & delay despawn until after audio?
+				}
 			}
 		}
 

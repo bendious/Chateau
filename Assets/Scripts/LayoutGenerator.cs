@@ -179,7 +179,7 @@ public class LayoutGenerator
 
 		// gate types
 		// NOTE that lock/secret needs to be a leaf node and any children attached need a singular root in order to avoid multi-{lock/secret/key} rooms
-		new(Node.Type.Gate, new() { new(Node.Type.Items, new() { new(Node.Type.Secret) }) }),
+		new(Node.Type.Gate, new() { new(Node.Type.Items, new() { new(Node.Type.Secret) }) }, 0.5f),
 		new(Node.Type.Gate, new() { new(Node.Type.Key, new() { new(Node.Type.Lock), new(Node.Type.Items) }) }),
 	};
 

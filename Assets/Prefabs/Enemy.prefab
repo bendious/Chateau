@@ -171,8 +171,6 @@ MonoBehaviour:
   m_wallJumpXYRatio: 1
   jumpDeceleration: 0.5
   m_damageBounceMagnitude: {x: 3.5, y: 3.5}
-  ouchAudio: {fileID: 8300000, guid: b7f741588644cd64bbee6387cb54a96d, type: 3}
-  m_deathAudio: {fileID: 8300000, guid: b7f741588644cd64bbee6387cb54a96d, type: 3}
   m_armOffset: {x: 0, y: 0}
   move: {x: 0, y: 0}
   m_targetOffset: {x: 0, y: 0}
@@ -297,10 +295,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_maxHP: 1
+  m_damageColorScalar: {x: 1, y: 1, z: 1, w: 1}
   m_healthUIParent: {fileID: 0}
   m_healthSprite: {fileID: 0}
   m_healthMissingSprite: {fileID: 0}
   m_UIPadding: 5
+  m_damageAudio: {fileID: 8300000, guid: b7f741588644cd64bbee6387cb54a96d, type: 3}
+  m_deathAudio: {fileID: 8300000, guid: b7f741588644cd64bbee6387cb54a96d, type: 3}
   m_invincible: 0
 --- !u!114 &5933622131622539874
 MonoBehaviour:

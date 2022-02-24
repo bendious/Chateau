@@ -36,9 +36,6 @@ public abstract class KinematicCharacter : KinematicObject
 	/// </summary>
 	public Vector2 m_damageBounceMagnitude = new(3.5f, 3.5f);
 
-	public AudioClip ouchAudio;
-	public AudioClip m_deathAudio;
-
 	public Vector2 m_armOffset;
 
 	public int MaxPickUps => GetComponentsInChildren<IHolder>().Sum(holder => holder.HoldCountMax);
@@ -158,11 +155,6 @@ public abstract class KinematicCharacter : KinematicObject
 		// knock away from source
 		Vector2 bounceVecOriented = transform.position.x < source.transform.position.x ? new(-m_damageBounceMagnitude.x, m_damageBounceMagnitude.y) : m_damageBounceMagnitude;
 		Bounce(bounceVecOriented);
-
-		if (audioSource && ouchAudio)
-		{
-			audioSource.PlayOneShot(ouchAudio);
-		}
 	}
 
 	public virtual bool OnDeath()
@@ -178,11 +170,6 @@ public abstract class KinematicCharacter : KinematicObject
 		foreach (ArmController arm in GetComponentsInChildren<ArmController>())
 		{
 			arm.gameObject.SetActive(false);
-		}
-
-		if (audioSource && m_deathAudio)
-		{
-			audioSource.PlayOneShot(m_deathAudio);
 		}
 
 		animator.SetTrigger("hurt");

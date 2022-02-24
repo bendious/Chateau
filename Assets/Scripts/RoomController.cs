@@ -88,7 +88,7 @@ public class RoomController : MonoBehaviour
 				Bounds bounds = CalculateBounds(false);
 				BoxCollider2D tableCollider = m_tablePrefab.GetComponent<BoxCollider2D>();
 				float tableExtentY = tableCollider.size.y * 0.5f + tableCollider.edgeRadius - tableCollider.offset.y;
-				GameObject newTable = Instantiate(m_tablePrefab); // NOTE that we have to spawn before placement due to size randomization in Awake() // TODO: guarantee size will fit in available space?
+				GameObject newTable = Instantiate(m_tablePrefab, transform); // NOTE that we have to spawn before placement due to size randomization in Awake() // TODO: guarantee size will fit in available space?
 				for (int failsafeCount = 0; failsafeCount < 100; ++failsafeCount)
 				{
 					Bounds newBounds = newTable.GetComponent<Collider2D>().bounds;
@@ -313,7 +313,7 @@ public class RoomController : MonoBehaviour
 		{
 			// create gate
 			Assert.IsNull(doorwayInfo.m_blocker);
-			doorwayInfo.m_blocker = Instantiate(Utility.RandomWeighted(isLock ? m_doorPrefabs : m_doorSecretPrefabs), doorway.transform.position + Vector3.back, Quaternion.identity); // NOTE the depth decrease to ensure rendering on top of platforms
+			doorwayInfo.m_blocker = Instantiate(Utility.RandomWeighted(isLock ? m_doorPrefabs : m_doorSecretPrefabs), doorway.transform.position + Vector3.back, Quaternion.identity, transform); // NOTE the depth decrease to ensure rendering on top of platforms
 			doorwayInfo.m_childRoom.m_doorwayInfos[returnIdx].m_blocker = doorwayInfo.m_blocker;
 
 			// resize gate to fit doorway

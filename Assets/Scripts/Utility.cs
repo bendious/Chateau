@@ -78,6 +78,15 @@ public static class Utility
 		return FloatEqual(a.r, b.r, epsilon) && FloatEqual(a.g, b.g, epsilon) && FloatEqual(a.b, b.b, epsilon); // NOTE that we don't use color subtraction due to not wanting range clamping
 	}
 
+	public static Vector4 Pow(Vector4 v, float p)
+	{
+		v.x = Mathf.Pow(v.x, p);
+		v.y = Mathf.Pow(v.y, p);
+		v.z = Mathf.Pow(v.z, p);
+		v.w = Mathf.Pow(v.w, p);
+		return v;
+	}
+
 	public static Color SmoothDamp(Color current, Color target, ref Vector4 currentVelocity, float smoothTime)
 	{
 		current.r = Mathf.SmoothDamp(current.r, target.r, ref currentVelocity.x, smoothTime);
