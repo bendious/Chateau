@@ -399,6 +399,45 @@ public class AvatarController : KinematicCharacter
 		InteractUIAction(lockController => lockController.UICleanup(this));
 	}
 
+	// called by InputSystem / PlayerInput component
+	public void OnScroll(InputValue input)
+	{
+		Vector2 scroll = input.Get<Vector2>();
+		if (scroll.y == 0.0f)
+		{
+			return;
+		}
+
+		// cycle inventory
+		// detach
+		IHolder[] holdersSingle = GetComponentsInChildren<IHolder>();
+		ItemController[] itemsSlotted = holdersSingle.SelectMany(holder =>
+		{
+			System.Collections.Generic.List<ItemController> heldItems = holder.Component.GetComponentsInChildren<ItemController>(true).ToList();
+			return heldItems.Concat(Enumerable.Repeat<ItemController>(null, holder.HoldCountMax - heldItems.Count));
+		}).ToArray();
+		foreach (ItemController item in itemsSlotted.Where(item => item != null))
+		{
+			item.Detach(true);
+		}
+
+		// re-attach
+		bool reverse = scroll.y > 0.0f;
+		IHolder[] holdersRepeated = holdersSingle.SelectMany(holder => Enumerable.Repeat(holder, holder.HoldCountMax)).ToArray();
+		int itemIdx = reverse ? holdersRepeated.Length - 1 : 1;
+		foreach (IHolder holder in holdersRepeated)
+		{
+			ItemController item = itemsSlotted[itemIdx];
+			if (item != null)
+			{
+				holder.ItemAttach(item);
+			}
+			itemIdx = Utility.Modulo(itemIdx + 1, holdersRepeated.Length);
+		}
+
+		InventorySync(); // TODO: lerp to new positions?
+	}
+
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnPause(InputValue input)
 	{
@@ -552,6 +591,7 @@ public class AvatarController : KinematicCharacter
 				uiImage.sprite = templateObj.GetComponent<Image>().sprite;
 				uiImage.color = itemCur.Item2;
 			}
+			uiImage.color *= new Color(1.0f, 1.0f, 1.0f, 0.5f); // TODO: un-hardcode?
 			UIObj.GetComponent<InventoryController>().m_draggable = nonEmptySlot;
 		}
 		for (int j = m_inventoryUI.transform.childCount - 1; j > itemInfos.Length; --j)

@@ -767,7 +767,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""ScrollWheel"",
+                    ""name"": ""Scroll"",
                     ""type"": ""PassThrough"",
                     ""id"": ""392654af-87a3-4924-9266-586da681bd31"",
                     ""expectedControlType"": ""Vector2"",
@@ -804,9 +804,64 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""ScrollWheel"",
+                    ""action"": ""Scroll"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""f7f8eecb-f61b-4290-92e9-1390f51b2d2c"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Scroll"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""7f426551-b730-441d-9ee0-cb30ef2ad444"",
+                    ""path"": ""<Gamepad>/rightStickPress"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Scroll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""6b61580b-2951-48c3-91fb-cfd22c3dee25"",
+                    ""path"": ""<Gamepad>/leftStickPress"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Scroll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""e49e3638-4445-4b4b-91fa-6a6db31e437e"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Scroll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""13c3415b-f5df-4fb8-a35e-0b9689ffb725"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Scroll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 },
                 {
                     ""name"": """",
@@ -953,7 +1008,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         m_AlwaysOn_Click = m_AlwaysOn.FindAction("Click", throwIfNotFound: true);
         m_AlwaysOn_MiddleClick = m_AlwaysOn.FindAction("MiddleClick", throwIfNotFound: true);
         m_AlwaysOn_RightClick = m_AlwaysOn.FindAction("RightClick", throwIfNotFound: true);
-        m_AlwaysOn_ScrollWheel = m_AlwaysOn.FindAction("ScrollWheel", throwIfNotFound: true);
+        m_AlwaysOn_Scroll = m_AlwaysOn.FindAction("Scroll", throwIfNotFound: true);
         m_AlwaysOn_Pause = m_AlwaysOn.FindAction("Pause", throwIfNotFound: true);
     }
 
@@ -1180,7 +1235,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_AlwaysOn_Click;
     private readonly InputAction m_AlwaysOn_MiddleClick;
     private readonly InputAction m_AlwaysOn_RightClick;
-    private readonly InputAction m_AlwaysOn_ScrollWheel;
+    private readonly InputAction m_AlwaysOn_Scroll;
     private readonly InputAction m_AlwaysOn_Pause;
     public struct AlwaysOnActions
     {
@@ -1190,7 +1245,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         public InputAction @Click => m_Wrapper.m_AlwaysOn_Click;
         public InputAction @MiddleClick => m_Wrapper.m_AlwaysOn_MiddleClick;
         public InputAction @RightClick => m_Wrapper.m_AlwaysOn_RightClick;
-        public InputAction @ScrollWheel => m_Wrapper.m_AlwaysOn_ScrollWheel;
+        public InputAction @Scroll => m_Wrapper.m_AlwaysOn_Scroll;
         public InputAction @Pause => m_Wrapper.m_AlwaysOn_Pause;
         public InputActionMap Get() { return m_Wrapper.m_AlwaysOn; }
         public void Enable() { Get().Enable(); }
@@ -1213,9 +1268,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @RightClick.started -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnRightClick;
                 @RightClick.performed -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnRightClick;
                 @RightClick.canceled -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnRightClick;
-                @ScrollWheel.started -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnScrollWheel;
-                @ScrollWheel.performed -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnScrollWheel;
-                @ScrollWheel.canceled -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnScrollWheel;
+                @Scroll.started -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnScroll;
+                @Scroll.performed -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnScroll;
+                @Scroll.canceled -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnScroll;
                 @Pause.started -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnPause;
                 @Pause.performed -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnPause;
                 @Pause.canceled -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnPause;
@@ -1235,9 +1290,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @RightClick.started += instance.OnRightClick;
                 @RightClick.performed += instance.OnRightClick;
                 @RightClick.canceled += instance.OnRightClick;
-                @ScrollWheel.started += instance.OnScrollWheel;
-                @ScrollWheel.performed += instance.OnScrollWheel;
-                @ScrollWheel.canceled += instance.OnScrollWheel;
+                @Scroll.started += instance.OnScroll;
+                @Scroll.performed += instance.OnScroll;
+                @Scroll.canceled += instance.OnScroll;
                 @Pause.started += instance.OnPause;
                 @Pause.performed += instance.OnPause;
                 @Pause.canceled += instance.OnPause;
@@ -1298,7 +1353,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         void OnClick(InputAction.CallbackContext context);
         void OnMiddleClick(InputAction.CallbackContext context);
         void OnRightClick(InputAction.CallbackContext context);
-        void OnScrollWheel(InputAction.CallbackContext context);
+        void OnScroll(InputAction.CallbackContext context);
         void OnPause(InputAction.CallbackContext context);
     }
 }

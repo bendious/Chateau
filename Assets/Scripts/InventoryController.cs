@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 
-public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
 	public float m_smoothTime = 0.05f;
 	public float m_smoothEpsilon = 0.01f;
@@ -23,6 +24,24 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 		m_restPosition = GetComponent<RectTransform>().anchoredPosition;
 	}
 
+	public void OnPointerEnter(PointerEventData eventData)
+	{
+		if (m_draggable)
+		{
+			transform.root.GetComponent<PlayerInput>().actions.FindActionMap("Avatar").Disable(); // to avoid double-processing inventory clicks
+			GetComponent<Image>().color *= new Color(1.0f, 1.0f, 1.0f, 2.0f); // TODO: un-hardcode?
+		}
+	}
+
+	public void OnPointerExit(PointerEventData eventData)
+	{
+		if (m_draggable)
+		{
+			transform.root.GetComponent<PlayerInput>().actions.FindActionMap("Avatar").Enable(); // TODO: check for active menus/overlays?
+			GetComponent<Image>().color *= new Color(1.0f, 1.0f, 1.0f, 0.5f); // TODO: un-hardcode?
+		}
+	}
+
 	public void OnPointerClick(PointerEventData eventData)
 	{
 		// ignore if we're empty or the player is dragging
@@ -31,9 +50,34 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 			return;
 		}
 
-		if (transform.GetSiblingIndex() > 1) // NOTE the 1-based indexing due to template object
+		switch (eventData.button)
 		{
-			SwapWithIndex(1);
+			case PointerEventData.InputButton.Left:
+				{
+					ItemController item = ItemFromIndex(transform.root, transform.GetSiblingIndex()).m_item;
+					if (item != null && item.gameObject.activeSelf)
+					{
+						item.Swing();
+					}
+				}
+				break;
+			case PointerEventData.InputButton.Right:
+				{
+					ItemController item = ItemFromIndex(transform.root, transform.GetSiblingIndex()).m_item;
+					if (item != null)
+					{
+						item.Use();
+					}
+				}
+				break;
+			case PointerEventData.InputButton.Middle:
+				if (transform.GetSiblingIndex() > 1) // NOTE the 1-based indexing due to template object
+				{
+					SwapWithIndex(1);
+				}
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -77,8 +121,7 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 		RectTransform rectTf = GetComponent<RectTransform>();
 		if (eventData.position.y > m_restPosition.y + 2.0f * rectTf.sizeDelta.y)
 		{
-			AvatarController avatar = transform.root.GetComponent<AvatarController>();
-			SlotItemInfo slotItemInfo1 = ItemFromIndex(avatar, transform.GetSiblingIndex());
+			SlotItemInfo slotItemInfo1 = ItemFromIndex(transform.root, transform.GetSiblingIndex());
 			slotItemInfo1.m_item.Detach(false);
 
 			// reset/update display
@@ -111,10 +154,10 @@ public class InventoryController : MonoBehaviour, IPointerClickHandler, IBeginDr
 
 		// swap avatar hold
 		// get items BEFORE editing attachments
-		AvatarController avatar = transform.root.GetComponent<AvatarController>();
-		SlotItemInfo slotItemInfo1 = ItemFromIndex(avatar, index1);
+		Transform avatarTf = transform.root;
+		SlotItemInfo slotItemInfo1 = ItemFromIndex(avatarTf, index1);
 		ItemController item1 = slotItemInfo1.m_item;
-		SlotItemInfo slotItemInfo2 = ItemFromIndex(avatar, index2);
+		SlotItemInfo slotItemInfo2 = ItemFromIndex(avatarTf, index2);
 		ItemController item2 = slotItemInfo2.m_item;
 
 		// detach (to prevent too-many-to-hold failed attachment) and then attach
