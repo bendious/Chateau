@@ -596,7 +596,9 @@ public class AvatarController : KinematicCharacter
 		}
 		for (int j = m_inventoryUI.transform.childCount - 1; j > itemInfos.Length; --j)
 		{
-			Simulation.Schedule<ObjectDespawn>().m_object = m_inventoryUI.transform.GetChild(j).gameObject;
+			Transform childTf = m_inventoryUI.transform.GetChild(j);
+			childTf.SetParent(null); // in case we re-sync before the despawn is completed (e.g. backpack swapping)
+			Simulation.Schedule<ObjectDespawn>().m_object = childTf.gameObject;
 		}
 	}
 
