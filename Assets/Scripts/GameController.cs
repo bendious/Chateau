@@ -34,6 +34,8 @@ public class GameController : MonoBehaviour
 	public float m_waveEscalationMax = 4.0f;
 
 
+	public static bool IsReloading { get; private set; }
+
 	public static GameController Instance { get; private set; }
 
 
@@ -100,6 +102,8 @@ public class GameController : MonoBehaviour
 				Save(); // TODO: auto-save system?
 			});
 		}
+
+		IsReloading = false;
 	}
 
 	private void Update()
@@ -202,10 +206,13 @@ public class GameController : MonoBehaviour
 			{
 				avatar.DebugRespawn();
 			}
+			Simulation.Schedule<DebugRespawn>();
 #endif
 			ActivateMenu(m_gameOverUI, false);
 			return;
 		}
+
+		IsReloading = true;
 
 		// prevent stale GameController asserts while reloading
 		foreach (EnemyController enemy in m_enemies)

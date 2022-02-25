@@ -61,3 +61,13 @@ public class GameOver : Event<GameOver>
 {
 	public override void Execute() => GameController.Instance.OnGameOver();
 }
+
+#if DEBUG
+/// <summary>
+/// Debug event for resetting when retrying w/o regenerating.
+/// </summary>
+public class DebugRespawn : Event<DebugRespawn>
+{
+	public override void Execute() { }
+}
+#endif
