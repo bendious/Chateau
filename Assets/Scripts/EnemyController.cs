@@ -10,14 +10,17 @@ public class EnemyController : KinematicCharacter
 {
 	public Vector2 m_targetOffset = Vector2.zero;
 	public Transform m_target;
+	public float m_replanSecondsMax = 2.0f;
 
 	public float m_meleeRange = 1.0f;
 
 	public AudioClip[] m_attackSFX;
 
 
+	private float m_targetSelectTimeNext;
 	private AIState m_aiState;
 
+	private float m_pathfindTimeNext;
 	private List<Vector2> m_pathfindWaypoints;
 
 
@@ -145,9 +148,9 @@ public class EnemyController : KinematicCharacter
 	{
 		move = Vector2.zero;
 
-		if (m_target == null)
+		if (m_target == null || (m_targetSelectTimeNext <= Time.time && m_target.GetComponent<AvatarController>() != null))
 		{
-			// choose appropriate target
+			// choose appropriate avatar to target
 			// TODO: use pathfind distances?
 			float sqDistClosest = float.MaxValue;
 			foreach (AvatarController avatar in GameController.Instance.m_avatars)
@@ -169,6 +172,7 @@ public class EnemyController : KinematicCharacter
 			{
 				return false; // TODO: flag to trigger idle behavior?
 			}
+			m_targetSelectTimeNext = Time.time + Random.Range(m_replanSecondsMax * 0.5f, m_replanSecondsMax); // TODO: parameterize "min" time even though it's not a hard minimum?
 		}
 
 		if (HasForcedVelocity)
@@ -178,7 +182,7 @@ public class EnemyController : KinematicCharacter
 
 		// pathfind
 		// TODO: efficiency?
-		if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0 || !Utility.FloatEqual(Vector2.Distance(m_target.position, m_pathfindWaypoints.Last()), targetOffsetAbs.magnitude, m_meleeRange)) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases)? avoid trying to go past moving targets?
+		if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0 || m_pathfindTimeNext <= Time.time || !Utility.FloatEqual(Vector2.Distance(m_target.position, m_pathfindWaypoints.Last()), targetOffsetAbs.magnitude, m_meleeRange)) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases)? avoid trying to go past moving targets?
 		{
 			m_pathfindWaypoints = GameController.Instance.Pathfind(transform.position, m_target.position, targetOffsetAbs);
 			if (m_pathfindWaypoints == null)
@@ -186,6 +190,7 @@ public class EnemyController : KinematicCharacter
 				// TODO: handle unreachable positions; find closest reachable position?
 				m_pathfindWaypoints = new List<Vector2> { m_target.position };
 			}
+			m_pathfindTimeNext = Time.time + Random.Range(m_replanSecondsMax * 0.5f, m_replanSecondsMax); // TODO: parameterize "min" time even though it's not a hard minimum?
 		}
 		Vector2 nextWaypoint = m_pathfindWaypoints.First();
 
