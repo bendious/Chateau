@@ -13,7 +13,8 @@ public class RoomController : MonoBehaviour
 
 	public GameObject[] m_doorways;
 
-	public GameObject[] m_ladderPieces;
+	public GameObject m_ladderRungPrefab;
+	public float m_ladderRungSkewMax = 0.2f;
 
 	public static readonly Color m_oneWayPlatformColor = new(0.3f, 0.2f, 0.1f);
 
@@ -334,12 +335,30 @@ public class RoomController : MonoBehaviour
 
 	private void OpenDoorway(GameObject doorway, bool upward)
 	{
-		// TODO: spawn ladders rather than embedding in prefabs, handle multiple upward doorways?
-		if (upward && m_ladderPieces != null)
+		// spawn ladder rungs
+		if (upward && m_ladderRungPrefab != null)
 		{
-			foreach (GameObject piece in m_ladderPieces)
+			// determine rung count/height
+			float yTop = doorway.transform.position.y - 0.75f; // TODO: base top distance on character height
+			float heightDiff = yTop - transform.position.y; // TODO: don't assume pivot point is always the place to stop?
+			int rungCount = Mathf.RoundToInt(heightDiff / m_ladderRungPrefab.GetComponent<BoxCollider2D>().size.y);
+			float rungHeight = heightDiff / rungCount;
+
+			Vector3 posItr = doorway.transform.position;
+			posItr.y = yTop - rungHeight;
+			for (int i = 0; i < rungCount; ++i)
 			{
-				piece.SetActive(true);
+				// create and resize
+				GameObject ladder = Instantiate(m_ladderRungPrefab, posItr, Quaternion.identity, transform);
+				SpriteRenderer renderer = ladder.GetComponent<SpriteRenderer>();
+				renderer.size = new Vector2(renderer.size.x, rungHeight);
+				BoxCollider2D collider = ladder.GetComponent<BoxCollider2D>();
+				collider.size = new Vector2(collider.size.x, rungHeight);
+				collider.offset = new Vector2(collider.offset.x, rungHeight * 0.5f);
+
+				// iterate
+				posItr.x += UnityEngine.Random.Range(-m_ladderRungSkewMax, m_ladderRungSkewMax); // TODO: guarantee AI navigability? clamp to room size?
+				posItr.y -= rungHeight;
 			}
 		}
 

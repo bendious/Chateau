@@ -16,6 +16,8 @@ public class Boss : MonoBehaviour
 	private bool m_started = false;
 	private bool m_activatedFully = false;
 
+	private bool m_isQuitting = false;
+
 
 	private void Awake()
 	{
@@ -61,7 +63,7 @@ public class Boss : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (GameController.IsReloading)
+		if (m_isQuitting || GameController.IsReloading)
 		{
 			return;
 		}
@@ -70,6 +72,11 @@ public class Boss : MonoBehaviour
 
 		m_room.EndMusic();
 		GameController.Instance.OnVictory();
+	}
+
+	private void OnApplicationQuit()
+	{
+		m_isQuitting = true;
 	}
 
 
