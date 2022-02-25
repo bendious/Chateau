@@ -222,7 +222,11 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		if (key == null || m_keys.Count <= 0)
 		{
 			m_combination = null; // to disable interaction for consoles
-			Simulation.Schedule<ObjectDespawn>().m_object = m_door != null ? m_door : gameObject;
+			if (m_door != null)
+			{
+				m_door.GetComponentInChildren<Cinemachine.CinemachineVirtualCamera>().enabled = true;
+			}
+			Simulation.Schedule<ObjectDespawn>(m_door != null ? 1.0f : 0.5f).m_object = m_door != null ? m_door : gameObject; // TODO: guarantee camera reaches m_door?
 			foreach (GameObject keyRemaining in m_keys)
 			{
 				Simulation.Schedule<ObjectDespawn>().m_object = keyRemaining;
@@ -237,7 +241,8 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 			GetComponent<SpriteRenderer>().sprite = m_keyInfo.m_doorSprites[^(m_keys.Count + 1)];
 		}
 
-		// TODO: unlock SFX/VFX/etc.
+		// TODO: unlock animation/VFX/etc.
+		GetComponent<AudioSource>().Play();
 	}
 
 	private void UpdateUIIndicator(TMPro.TMP_Text text)
