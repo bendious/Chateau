@@ -36,6 +36,8 @@ public class AvatarController : KinematicCharacter
 
 	public Vector3 m_focusPromptOffset = new(0.0f, 0.15f, -0.15f);
 
+	public float m_moveSpringDampTime = 0.15f;
+
 	public float m_secondaryDegrees = -45.0f;
 
 	public float m_coyoteTime = 0.15f;
@@ -58,10 +60,13 @@ public class AvatarController : KinematicCharacter
 	private VisualEffect m_aimVfx;
 	private bool m_aiming;
 
+	private Vector2 m_moveDesired;
+	private Vector2 m_moveVel;
+
 	private bool m_usingMouse;
 	private Vector2 m_mousePosPixels;
-	private Vector2 m_analogDirCurrent;
-	private Vector2 m_analogDirRecent;
+	private Vector2 m_analogCurrent;
+	private Vector2 m_analogRecent;
 
 	// TODO: class for ease of VFX ID use?
 	private static int m_spriteID;
@@ -101,6 +106,9 @@ public class AvatarController : KinematicCharacter
 	{
 		if (controlEnabled && !m_overlayCanvas.gameObject.activeSelf)
 		{
+			// update velocity
+			move = Utility.SmoothDamp(move, m_moveDesired, ref m_moveVel, m_moveSpringDampTime);
+
 			// collect possible focus objects
 			m_focusObj = null;
 			float focusRadius = ((CircleCollider2D)m_collider).radius;
@@ -152,7 +160,7 @@ public class AvatarController : KinematicCharacter
 		}
 		else
 		{
-			move.x = 0;
+			move = Vector2.zero;
 		}
 		UpdateJumpState();
 		base.Update();
@@ -163,7 +171,7 @@ public class AvatarController : KinematicCharacter
 		if (controlEnabled)
 		{
 			// determine aim position(s)
-			Vector2 aimPctsFromCenter = m_analogDirCurrent.sqrMagnitude == 0.0f ? m_analogDirRecent : m_analogDirCurrent; // TODO: FloatEqual() despite deadzone?
+			Vector2 aimPctsFromCenter = m_analogCurrent.sqrMagnitude == 0.0f ? m_analogRecent : m_analogCurrent; // TODO: FloatEqual() despite deadzone?
 			Camera camera = Camera.main; // TODO: cache?
 			if (m_usingMouse)
 			{
@@ -229,7 +237,7 @@ public class AvatarController : KinematicCharacter
 		{
 			return;
 		}
-		move = input.Get<Vector2>();
+		m_moveDesired = input.Get<Vector2>();
 	}
 
 	// called by InputSystem / PlayerInput component
@@ -250,10 +258,10 @@ public class AvatarController : KinematicCharacter
 		}
 		else
 		{
-			m_analogDirCurrent = value;
-			if (value.sqrMagnitude > 0.1f) // TODO: determine input percent that results in a worldspace distance equal to the character's radius?
+			m_analogCurrent = value;
+			if (value.sqrMagnitude > 0.0f)
 			{
-				m_analogDirRecent = value;
+				m_analogRecent = value.normalized * 0.2f; // NOTE that we don't want the rest distance to be right at the character's radius since that does not aim secondary items very well
 			}
 		}
 	}

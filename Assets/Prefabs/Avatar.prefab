@@ -252,6 +252,7 @@ MonoBehaviour:
   m_inventoryUI: {fileID: 6654259643996970170}
   m_overlayCanvas: {fileID: 7696693925314575142}
   m_focusPromptOffset: {x: 0, y: 0.15, z: -0.15}
+  m_moveSpringDampTime: 0.15
   m_secondaryDegrees: -45
   m_coyoteTime: 0.15
   controlEnabled: 1

@@ -92,6 +92,9 @@ public class Boss : MonoBehaviour
 
 		m_activatedFully = true;
 
+		// adjust camera
+		GameController.Instance.AddCameraTarget(transform);
+
 		// recolor
 		SpriteRenderer[] bossRenderers = GetComponentsInChildren<SpriteRenderer>().Where(renderer => renderer.GetComponent<ItemController>() == null).ToArray();
 		Light2D bossLight = GetComponent<Light2D>();
@@ -135,9 +138,6 @@ public class Boss : MonoBehaviour
 		}
 
 		m_room.AmbianceToMusic();
-
-		// adjust camera
-		GameController.Instance.AddCameraTarget(transform);
 
 		// enable boss
 		GetComponent<Health>().m_invincible = false;

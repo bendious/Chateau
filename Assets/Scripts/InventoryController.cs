@@ -16,7 +16,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 	public bool m_draggable = false;
 	private Vector2 m_restPosition;
 	private Vector2 m_mouseOffset;
-	private Vector3 m_lerpVelocity;
+	private Vector2 m_lerpVelocity;
 
 
 	private void Start()
@@ -210,15 +210,12 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 
 	private IEnumerator LerpToRest()
 	{
-		m_lerpVelocity = Vector3.zero;
+		m_lerpVelocity = Vector2.zero;
 
 		RectTransform rectTf = GetComponent<RectTransform>();
 		while ((rectTf.anchoredPosition - m_restPosition).sqrMagnitude > m_smoothEpsilon)
 		{
-			Vector2 newPos;
-			newPos.x = Mathf.SmoothDamp(rectTf.anchoredPosition.x, m_restPosition.x, ref m_lerpVelocity.x, m_smoothTime);
-			newPos.y = Mathf.SmoothDamp(rectTf.anchoredPosition.y, m_restPosition.y, ref m_lerpVelocity.y, m_smoothTime);
-			rectTf.anchoredPosition = newPos;
+			rectTf.anchoredPosition = Utility.SmoothDamp(rectTf.anchoredPosition, m_restPosition, ref m_lerpVelocity, m_smoothTime);
 			yield return null;
 		}
 

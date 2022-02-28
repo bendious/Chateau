@@ -144,8 +144,7 @@ public abstract class KinematicObject : MonoBehaviour
 		}
 
 		// blend velocity back from forced if necessary
-		m_velocityForcedWeight.x = Mathf.SmoothDamp(m_velocityForcedWeight.x, 0.0f, ref m_velocityForcedWeightVel.x, m_velocityForcedSmoothTime);
-		m_velocityForcedWeight.y = Mathf.SmoothDamp(m_velocityForcedWeight.y, 0.0f, ref m_velocityForcedWeightVel.y, m_velocityForcedSmoothTime);
+		m_velocityForcedWeight = Utility.SmoothDamp(m_velocityForcedWeight, Vector2.zero, ref m_velocityForcedWeightVel, m_velocityForcedSmoothTime);
 
 		IsGrounded = false;
 		IsWallClinging = false;

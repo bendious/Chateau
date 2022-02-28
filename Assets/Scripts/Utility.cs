@@ -87,6 +87,13 @@ public static class Utility
 		return v;
 	}
 
+	public static Vector2 SmoothDamp(Vector2 current, Vector2 target, ref Vector2 currentVelocity, float smoothTime)
+	{
+		current.x = Mathf.SmoothDamp(current.x, target.x, ref currentVelocity.x, smoothTime);
+		current.y = Mathf.SmoothDamp(current.y, target.y, ref currentVelocity.y, smoothTime);
+		return current;
+	}
+
 	public static Color SmoothDamp(Color current, Color target, ref Vector4 currentVelocity, float smoothTime)
 	{
 		current.r = Mathf.SmoothDamp(current.r, target.r, ref currentVelocity.x, smoothTime);
