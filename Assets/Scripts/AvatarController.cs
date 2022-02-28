@@ -61,7 +61,8 @@ public class AvatarController : KinematicCharacter
 
 	private bool m_usingMouse;
 	private Vector2 m_mousePosPixels;
-	private Vector2 m_joystickDirNonzero;
+	private Vector2 m_analogDirCurrent;
+	private Vector2 m_analogDirRecent;
 
 	// TODO: class for ease of VFX ID use?
 	private static int m_spriteID;
@@ -163,7 +164,7 @@ public class AvatarController : KinematicCharacter
 		if (controlEnabled)
 		{
 			// determine aim position(s)
-			Vector2 aimPctsFromCenter = m_joystickDirNonzero;
+			Vector2 aimPctsFromCenter = m_analogDirCurrent.sqrMagnitude == 0.0f ? m_analogDirRecent : m_analogDirCurrent; // TODO: FloatEqual() despite deadzone?
 			if (m_usingMouse)
 			{
 				Rect cameraRectPixels = m_camera.rect;
@@ -234,7 +235,7 @@ public class AvatarController : KinematicCharacter
 	public void OnLook(InputValue input)
 	{
 		Vector2 value = input.Get<Vector2>();
-		if (!controlEnabled || value.sqrMagnitude == 0.0f) // TODO: FloatEqual() despite deadzone?
+		if (!controlEnabled)
 		{
 			return;
 		}
@@ -248,7 +249,11 @@ public class AvatarController : KinematicCharacter
 		}
 		else
 		{
-			m_joystickDirNonzero = value;
+			m_analogDirCurrent = value;
+			if (value.sqrMagnitude > 0.1f) // TODO: determine input percent that results in a worldspace distance equal to the character's radius?
+			{
+				m_analogDirRecent = value;
+			}
 		}
 	}
 

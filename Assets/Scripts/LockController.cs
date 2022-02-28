@@ -212,7 +212,12 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	}
 
 
-	private void Unlock(GameObject key)
+#if DEBUG
+	public
+#else
+	private
+#endif
+		void Unlock(GameObject key)
 	{
 		if (key != null)
 		{

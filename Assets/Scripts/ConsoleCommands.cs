@@ -79,6 +79,13 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 				m_controlsVisualizationIdx = -1;
 			}
 		});
+		m_controls.Console.UnlockAll.performed += ctx =>
+		{
+			foreach (LockController lockObj in FindObjectsOfType<LockController>())
+			{
+				lockObj.Unlock(null);
+			}
+		};
 	}
 
 	private void OnDisable()

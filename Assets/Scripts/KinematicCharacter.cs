@@ -71,7 +71,7 @@ public abstract class KinematicCharacter : KinematicObject
 
 	public bool IsPickingUp { get; protected set; }
 
-	public bool IsDropping => move.y < 0.0f;
+	public bool IsDropping => move.y < -0.5f;
 
 
 	protected override void Awake()

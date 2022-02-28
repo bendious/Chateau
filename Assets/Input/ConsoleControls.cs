@@ -143,6 +143,15 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""UnlockAll"",
+                    ""type"": ""Button"",
+                    ""id"": ""93660787-2b93-4809-8000-3d9f9afe7c64"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -387,6 +396,17 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""action"": ""LayoutDebug"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""526e7716-0f23-4f6a-b736-c79dd705bfc2"",
+                    ""path"": ""<Keyboard>/u"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UnlockAll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -408,6 +428,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         m_Console_HarmHealAvatar = m_Console.FindAction("HarmHealAvatar", throwIfNotFound: true);
         m_Console_SpawnEnemy = m_Console.FindAction("SpawnEnemy", throwIfNotFound: true);
         m_Console_ControlsVisualization = m_Console.FindAction("ControlsVisualization", throwIfNotFound: true);
+        m_Console_UnlockAll = m_Console.FindAction("UnlockAll", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -480,6 +501,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Console_HarmHealAvatar;
     private readonly InputAction m_Console_SpawnEnemy;
     private readonly InputAction m_Console_ControlsVisualization;
+    private readonly InputAction m_Console_UnlockAll;
     public struct ConsoleActions
     {
         private @ConsoleControls m_Wrapper;
@@ -497,6 +519,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         public InputAction @HarmHealAvatar => m_Wrapper.m_Console_HarmHealAvatar;
         public InputAction @SpawnEnemy => m_Wrapper.m_Console_SpawnEnemy;
         public InputAction @ControlsVisualization => m_Wrapper.m_Console_ControlsVisualization;
+        public InputAction @UnlockAll => m_Wrapper.m_Console_UnlockAll;
         public InputActionMap Get() { return m_Wrapper.m_Console; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -545,6 +568,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @ControlsVisualization.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnControlsVisualization;
                 @ControlsVisualization.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnControlsVisualization;
                 @ControlsVisualization.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnControlsVisualization;
+                @UnlockAll.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnUnlockAll;
+                @UnlockAll.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnUnlockAll;
+                @UnlockAll.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnUnlockAll;
             }
             m_Wrapper.m_ConsoleActionsCallbackInterface = instance;
             if (instance != null)
@@ -588,6 +614,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @ControlsVisualization.started += instance.OnControlsVisualization;
                 @ControlsVisualization.performed += instance.OnControlsVisualization;
                 @ControlsVisualization.canceled += instance.OnControlsVisualization;
+                @UnlockAll.started += instance.OnUnlockAll;
+                @UnlockAll.performed += instance.OnUnlockAll;
+                @UnlockAll.canceled += instance.OnUnlockAll;
             }
         }
     }
@@ -607,5 +636,6 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         void OnHarmHealAvatar(InputAction.CallbackContext context);
         void OnSpawnEnemy(InputAction.CallbackContext context);
         void OnControlsVisualization(InputAction.CallbackContext context);
+        void OnUnlockAll(InputAction.CallbackContext context);
     }
 }
