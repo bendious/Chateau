@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +12,15 @@ public class GameController : MonoBehaviour
 {
 	public List<AvatarController> m_avatars;
 
+	public CinemachineVirtualCamera m_virtualCamera;
+	public CinemachineTargetGroup m_cameraTargetGroup;
+
 	public DialogueController m_dialogueController;
 
 	public GameObject m_avatarPrefab;
 	public WeightedObject<GameObject>[] m_roomPrefabs;
 	public WeightedObject<GameObject>[] m_bossRoomPrefabs;
 	public WeightedObject<GameObject>[] m_enemyPrefabs;
-
-	public LayerMask m_cameraLayers;
 
 	public TMPro.TMP_Text m_timerUI;
 	public Canvas m_pauseUI;
@@ -114,41 +116,39 @@ public class GameController : MonoBehaviour
 
 	public void AddAvatar()
 	{
-		const int layerMax = 32; // set by Unity
-		int cameraLayerCount = Enumerable.Range(0, layerMax).Count(i => ((1 << i) & m_cameraLayers) != 0);
-		if (m_avatars.Count() >= cameraLayerCount)
-		{
-			return;
-		}
-
 		m_avatars.Add(Instantiate(m_avatarPrefab, m_avatars.First().transform.position + Vector3.right, Quaternion.identity).GetComponent<AvatarController>()); // TODO: ensure valid start point
-		Destroy(m_avatars.Last().GetComponentInChildren<AudioListener>()); // TODO: put audio listener at average player position?
 
-		// adjust camera viewports
-		// TODO: unify camera when close together? handle grid layout for more than two avatars? use Player Input Manager for automatic handling?
-		float xStep = 1.0f / m_avatars.Count();
-		float xCur = 0.0f;
-		int layerItr = 0;
+		// adjust camera UI/targeting
+		// TODO: split screen when far apart?
+		bool isFirst = true;
 		foreach (AvatarController avatar in m_avatars)
 		{
-			// find next set bit in m_cameraLayers
-			while ((m_cameraLayers & (1 << ++layerItr)) == 0)
+			if (!isFirst)
 			{
-				Assert.IsTrue(layerItr <= layerMax);
+				// re-anchor left-aligned UI elements to the right
+				foreach (RectTransform tf in avatar.GetComponentsInChildren<RectTransform>(true))
+				{
+					if (tf.anchorMin.x == 0.0f && tf.anchorMax.x == 0.0f)
+					{
+						tf.anchorMin = new Vector2(1.0f, tf.anchorMin.y);
+						tf.anchorMax = new Vector2(1.0f, tf.anchorMax.y);
+						tf.pivot = new Vector2(1.0f, tf.pivot.y);
+						tf.anchoredPosition *= new Vector2(-1.0f, 1.0f);
+					}
+				}
 			}
 
-			avatar.m_camera.rect = Rect.MinMaxRect(xCur, 0.0f, xCur + xStep, 1.0f);
+			AddCameraTarget(avatar.m_aimObject.transform); // NOTE that we don't replace the whole m_Targets array in case a non-avatar object is also present
 
-			avatar.m_camera.gameObject.layer = layerItr;
-			avatar.GetComponentInChildren<Cinemachine.CinemachineVirtualCamera>().gameObject.layer = layerItr;
-			avatar.m_focusIndicator.layer = layerItr;
-			avatar.m_focusPrompt.layer = layerItr;
-
-			avatar.m_camera.cullingMask &= ~m_cameraLayers;
-			avatar.m_camera.cullingMask |= 1 << layerItr;
-
-			xCur += xStep;
+			isFirst = false;
 		}
+	}
+
+	public void AddCameraTarget(Transform tf)
+	{
+		m_cameraTargetGroup.RemoveMember(tf); // prevent duplication // TODO: necessary?
+		m_cameraTargetGroup.AddMember(tf, 1.0f, 1.5f); // TODO: blend weight in? calculate/expose radius?
+		// TODO: remove on target destruction?
 	}
 
 	public Vector3 RoomPosition(bool checkLocks, GameObject targetObj, bool onFloor)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cinemachine;
+using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -38,8 +39,6 @@ public class AvatarController : KinematicCharacter
 	public float m_secondaryDegrees = -45.0f;
 
 	public float m_coyoteTime = 0.15f;
-
-	public Camera m_camera;
 
 
 	public PlayerInput Controls { get; private set; }
@@ -165,9 +164,10 @@ public class AvatarController : KinematicCharacter
 		{
 			// determine aim position(s)
 			Vector2 aimPctsFromCenter = m_analogDirCurrent.sqrMagnitude == 0.0f ? m_analogDirRecent : m_analogDirCurrent; // TODO: FloatEqual() despite deadzone?
+			Camera camera = Camera.main; // TODO: cache?
 			if (m_usingMouse)
 			{
-				Rect cameraRectPixels = m_camera.rect;
+				Rect cameraRectPixels = camera.rect;
 				Vector2 screenSize = new(Screen.width, Screen.height);
 				cameraRectPixels.position *= screenSize;
 				cameraRectPixels.size *= screenSize;
@@ -175,9 +175,10 @@ public class AvatarController : KinematicCharacter
 			}
 			aimPctsFromCenter.x = Mathf.Clamp(aimPctsFromCenter.x, -1.0f, 1.0f);
 			aimPctsFromCenter.y = Mathf.Clamp(aimPctsFromCenter.y, -1.0f, 1.0f);
-			Vector2 screenExtentsWS = new(m_camera.orthographicSize * m_camera.aspect, m_camera.orthographicSize);
+			CinemachineVirtualCamera vCam = GameController.Instance.m_virtualCamera;
+			Vector2 screenExtentsWS = new(vCam.m_Lens.OrthographicSize * vCam.m_Lens.Aspect, vCam.m_Lens.OrthographicSize);
 			Vector2 aimPosConstrained = transform.position + (Vector3)(screenExtentsWS * aimPctsFromCenter);
-			Vector2 aimPos = m_usingMouse ? m_camera.ScreenToWorldPoint(m_mousePosPixels) : aimPosConstrained;
+			Vector2 aimPos = m_usingMouse ? camera.ScreenToWorldPoint(m_mousePosPixels) : aimPosConstrained;
 
 			// aim camera/sprite
 			m_aimObject.transform.position = aimPosConstrained;

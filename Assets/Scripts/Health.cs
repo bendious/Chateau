@@ -166,10 +166,12 @@ public class Health : MonoBehaviour
 
 		// add deficient
 		GameObject templateObj = m_healthUIParent.transform.GetChild(0).gameObject;
-		float templateWidth = templateObj.GetComponent<RectTransform>().sizeDelta.x;
-		float xItr = (templateWidth + m_UIPadding) * uiHealthCount;
+		RectTransform rectTf = templateObj.GetComponent<RectTransform>();
+		float templateWidth = rectTf.sizeDelta.x;
+		float xInc = (templateWidth + m_UIPadding) * (Utility.FloatEqual(rectTf.anchorMin.x, 1.0f) ? -1.0f : 1.0f);
+		float xItr = xInc * uiHealthCount;
 		Assert.IsFalse(templateObj.activeSelf);
-		for (; uiHealthCount < m_maxHP; ++uiHealthCount, xItr += templateWidth + m_UIPadding)
+		for (; uiHealthCount < m_maxHP; ++uiHealthCount, xItr += xInc)
 		{
 			GameObject uiNew = Instantiate(templateObj, m_healthUIParent.transform);
 			uiNew.GetComponent<RectTransform>().anchoredPosition += new Vector2(xItr, 0.0f);

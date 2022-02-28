@@ -1,6 +1,4 @@
-using Cinemachine;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -26,22 +24,15 @@ public class Boss : MonoBehaviour
 
 	private void OnWillRenderObject()
 	{
-		if (m_started)
+		if (m_started || GameController.IsReloading)
 		{
 			return;
 		}
 
 		// ignore until we are well within camera view
-		if (GameController.IsReloading || !GameController.Instance.m_avatars.Exists(avatar =>
-		{
-			if (!avatar.IsAlive)
-			{
-				return false;
-			}
-			Vector2 screenPos = avatar.m_camera.WorldToViewportPoint(transform.position);
-			const float edgePct = 0.1f; // TODO: parameterize?
-			return screenPos.x > edgePct && screenPos.x < 1.0f - edgePct && screenPos.y > edgePct && screenPos.y < 1.0f - edgePct;
-		}))
+		Vector2 screenPos = Camera.main.WorldToViewportPoint(transform.position);
+		const float edgePct = 0.1f; // TODO: parameterize?
+		if (screenPos.x < edgePct || screenPos.x > 1.0f - edgePct || screenPos.y < edgePct || screenPos.y > 1.0f - edgePct)
 		{
 			return;
 		}
@@ -68,8 +59,6 @@ public class Boss : MonoBehaviour
 			return;
 		}
 
-		// TODO: start zoom-in?
-
 		m_room.EndMusic();
 		GameController.Instance.OnVictory();
 	}
@@ -90,10 +79,6 @@ public class Boss : MonoBehaviour
 		controller.enabled = false;
 		controller.Teleport(m_startPos); // TODO: set goal and navigate rather than snapping?
 		GetComponent<Health>().m_invincible = true;
-		foreach (CinemachineVirtualCamera vCam in AllVirtualCameras())
-		{
-			vCam.m_Lens.OrthographicSize = 3.0f; // TODO: un-hardcode?
-		}
 	}
 #endif
 
@@ -101,7 +86,6 @@ public class Boss : MonoBehaviour
 	private IEnumerator UpdateIntro()
 	{
 		const float smoothTimeSlow = 0.5f;
-		const float smoothTimeFast = 0.25f;
 
 		// pause
 		yield return new WaitForSeconds(2.0f);
@@ -152,26 +136,11 @@ public class Boss : MonoBehaviour
 
 		m_room.AmbianceToMusic();
 
-		// zoom camera(s) out
-		IEnumerable<CinemachineVirtualCamera> vCams = AllVirtualCameras();
-		float zoomSpeedCur = 0.0f; // TODO: per-cam?
-		float zoomSizeTarget = 5.0f;
-		while (!Utility.FloatEqual(vCams.First().m_Lens.OrthographicSize, zoomSizeTarget)) // TODO: don't assume cameras are in lockstep?
-		{
-			foreach (CinemachineVirtualCamera vCam in vCams)
-			{
-				vCam.m_Lens.OrthographicSize = Mathf.SmoothDamp(vCam.m_Lens.OrthographicSize, zoomSizeTarget, ref zoomSpeedCur, smoothTimeFast);
-			}
-			yield return null;
-		}
+		// adjust camera
+		GameController.Instance.AddCameraTarget(transform);
 
 		// enable boss
 		GetComponent<Health>().m_invincible = false;
 		GetComponent<EnemyController>().enabled = true;
-	}
-
-	private IEnumerable<CinemachineVirtualCamera> AllVirtualCameras()
-	{
-		return Camera.allCameras.Select(camera => camera.GetComponent<CinemachineBrain>().ActiveVirtualCamera.VirtualCameraGameObject.GetComponent<CinemachineVirtualCamera>());
 	}
 }
