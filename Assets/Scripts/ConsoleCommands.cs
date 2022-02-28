@@ -1,4 +1,6 @@
+#if DEBUG
 using System.Linq;
+#endif
 using UnityEngine;
 
 
@@ -24,13 +26,13 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 	public static bool RegenerateDisabled { get; private set; }
 
 
+#if DEBUG
 	private static ConsoleControls m_controls;
 
 	private static int m_controlsVisualizationIdx = -1;
 	private static GameObject m_controlsVisualization;
 
 
-#if DEBUG
 	private void Awake()
 	{
 		m_controls = new();
