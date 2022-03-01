@@ -27,6 +27,8 @@ public class EnemyController : KinematicCharacter
 	protected override void Start()
 	{
 		base.Start();
+		m_targetSelectTimeNext = Time.time + Random.Range(0.0f, m_replanSecondsMax);
+		m_pathfindTimeNext = Time.time + Random.Range(0.0f, m_replanSecondsMax);
 		m_aiState = new AIPursue(this);
 		m_aiState.Enter();
 	}
@@ -148,10 +150,10 @@ public class EnemyController : KinematicCharacter
 	{
 		move = Vector2.zero;
 
-		if (m_target == null || (m_targetSelectTimeNext <= Time.time && m_target.GetComponent<AvatarController>() != null))
+		if (m_targetSelectTimeNext <= Time.time && (m_target == null || m_target.GetComponent<AvatarController>() != null))
 		{
 			// choose appropriate avatar to target
-			// TODO: use pathfind distances?
+			// TODO: use pathfind distances? allow re-targeting other types of targets?
 			float sqDistClosest = float.MaxValue;
 			foreach (AvatarController avatar in GameController.Instance.m_avatars)
 			{
@@ -168,11 +170,11 @@ public class EnemyController : KinematicCharacter
 				}
 			}
 
-			if (m_target == null)
-			{
-				return false; // TODO: flag to trigger idle behavior?
-			}
 			m_targetSelectTimeNext = Time.time + Random.Range(m_replanSecondsMax * 0.5f, m_replanSecondsMax); // TODO: parameterize "min" time even though it's not a hard minimum?
+		}
+		if (m_target == null)
+		{
+			return false; // TODO: flag to trigger idle behavior?
 		}
 
 		if (HasForcedVelocity)
@@ -182,15 +184,15 @@ public class EnemyController : KinematicCharacter
 
 		// pathfind
 		// TODO: efficiency?
-		if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0 || m_pathfindTimeNext <= Time.time || !Utility.FloatEqual(Vector2.Distance(m_target.position, m_pathfindWaypoints.Last()), targetOffsetAbs.magnitude, m_meleeRange)) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases)? avoid trying to go past moving targets?
+		if (m_pathfindTimeNext <= Time.time || (m_pathfindWaypoints != null && m_pathfindWaypoints.Count > 0 && !Utility.FloatEqual(Vector2.Distance(m_target.position, m_pathfindWaypoints.Last()), targetOffsetAbs.magnitude, m_meleeRange))) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases)? avoid trying to go past moving targets?
 		{
 			m_pathfindWaypoints = GameController.Instance.Pathfind(transform.position, m_target.position, targetOffsetAbs);
-			if (m_pathfindWaypoints == null)
-			{
-				// TODO: handle unreachable positions; find closest reachable position?
-				m_pathfindWaypoints = new List<Vector2> { m_target.position };
-			}
+			// TODO: handle unreachable positions; idle? find closest reachable position?
 			m_pathfindTimeNext = Time.time + Random.Range(m_replanSecondsMax * 0.5f, m_replanSecondsMax); // TODO: parameterize "min" time even though it's not a hard minimum?
+		}
+		if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0)
+		{
+			return false;
 		}
 		Vector2 nextWaypoint = m_pathfindWaypoints.First();
 

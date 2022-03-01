@@ -81,7 +81,7 @@ public class GameController : MonoBehaviour
 				}
 				if (isBoss)
 				{
-					ColorBossRoomPath(m_startRoom.ChildRoomPath(Vector2.zero, node.TightCoupleParent.m_room.transform.position));
+					ColorBossRoomPath(m_startRoom.ChildRoomPath(Vector2.zero, node.TightCoupleParent.m_room.transform.position, false));
 				}
 			}
 			return false;
@@ -158,7 +158,7 @@ public class GameController : MonoBehaviour
 
 	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos, Vector2 offsetMag)
 	{
-		return m_startRoom.ChildPositionPath(startPos, targetPos, offsetMag);
+		return m_startRoom.ChildPositionPath(startPos, targetPos, offsetMag, true);
 	}
 
 	public void TogglePause()

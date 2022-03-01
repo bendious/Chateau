@@ -51,7 +51,7 @@ public class BossRoom : MonoBehaviour
 		GetComponent<Collider2D>().enabled = false;
 
 		// seal room
-		// TODO: inform RoomController of gates for pathfinding correctness?
+		int i = 0;
 		foreach (DoorInfo info in m_doors)
 		{
 			if (info.m_object != null)
@@ -59,6 +59,7 @@ public class BossRoom : MonoBehaviour
 				PlatformEffector2D effector = info.m_object.GetComponent<PlatformEffector2D>();
 				if (effector == null || !effector.enabled)
 				{
+					++i;
 					continue;
 				}
 			}
@@ -66,6 +67,11 @@ public class BossRoom : MonoBehaviour
 			m_spawnedGates.Add(newGate);
 			newGate.GetComponent<BoxCollider2D>().size = info.m_bounds.size;
 			newGate.GetComponent<SpriteRenderer>().size = info.m_bounds.size;
+
+			// inform RoomController of gate for pathfinding correctness
+			GetComponent<RoomController>().SetBlocker(i, newGate);
+
+			++i;
 		}
 
 		// play ambiance SFX

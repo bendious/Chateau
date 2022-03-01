@@ -52,6 +52,7 @@ public sealed class AIPursue : AIState
 		bool hasItem = m_ai.GetComponentInChildren<ItemController>() != null;
 		if (m_ai.MaxPickUps > 0 && !hasItem)
 		{
+			// TODO: prevent thrashing between AIPursue/AIFindAmmo when no ammo is reachable
 			return new AIFindAmmo(m_ai);
 		}
 
@@ -273,13 +274,14 @@ public sealed class AIFindAmmo : AIState
 	public override AIState Update()
 	{
 		// validate target
-		// TODO: switch targets if a different one is now closer? ensure valid pathfind path accounting for blockers?
+		// TODO: switch targets if a different one is now closer?
 		if (m_ai.m_target == null || (m_ai.m_target.parent != null && m_ai.m_target.parent != m_ai.transform))
 		{
 			m_ai.m_target = FindTarget();
 			if (m_ai.m_target == null)
 			{
 				// no items anywhere? fallback on pursuit
+				// TODO: prevent thrashing between AIPursue/AIFindAmmo when no ammo is reachable
 				return new AIPursue(m_ai);
 			}
 		}
@@ -319,9 +321,18 @@ public sealed class AIFindAmmo : AIState
 				continue; // ignore held items
 			}
 
-			// prioritize by distance
-			// TODO: use pathfind distance? also prioritize based on item damage? de-prioritize based on vertical distance / passing through m_ai.m_target? use RandomWeighted() to allow retries to bypass unreachable "closest" options?
-			float distSq = ((Vector2)tf.position - (Vector2)m_ai.transform.position).sqrMagnitude;
+			// prioritize by pathfind distance
+			// TODO: efficiency? also prioritize based on item damage? de-prioritize based on vertical distance / passing through m_ai.m_target? use RandomWeighted() to allow retries to bypass unreachable "closest" options?
+			System.Collections.Generic.List<Vector2> path = GameController.Instance.Pathfind(m_ai.transform.position, tf.position, Vector2.zero);
+			if (path == null)
+			{
+				continue; // ignore unreachable items
+			}
+			float distSq = 0.0f;
+			for (int i = 0; i < path.Count - 1; ++i)
+			{
+				distSq += (path[i + 1] - path[i]).sqrMagnitude;
+			}
 			if (distSq < closestDistSq)
 			{
 				closest = tf;

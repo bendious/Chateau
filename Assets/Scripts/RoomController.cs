@@ -21,7 +21,8 @@ public class RoomController : MonoBehaviour
 
 	private struct DoorwayInfo
 	{
-		public Vector2 m_position;
+		public Vector3 m_position;
+		public bool m_isTrapdoor;
 		public RoomController m_parentRoom;
 		public RoomController m_childRoom; // TODO: make bidirectional?
 		public GameObject m_blocker;
@@ -34,6 +35,16 @@ public class RoomController : MonoBehaviour
 	private void Awake()
 	{
 		m_doorwayInfos = new DoorwayInfo[m_doorways.Length];
+
+		// set up doorways
+		for (int doorwayIdx = 0; doorwayIdx < m_doorways.Length; ++doorwayIdx)
+		{
+			// record doorway info in case the object is removed
+			GameObject doorway = m_doorways[doorwayIdx];
+			m_doorwayInfos[doorwayIdx].m_position = doorway.transform.position;
+			Vector3 doorwaySize = doorway.GetComponent<Collider2D>().bounds.size;
+			m_doorwayInfos[doorwayIdx].m_isTrapdoor = doorwaySize.x > doorwaySize.y;
+		}
 	}
 
 #if UNITY_EDITOR
@@ -66,18 +77,12 @@ public class RoomController : MonoBehaviour
 		Debug.Assert(layoutNode.m_room == null);
 		layoutNode.m_room = this;
 
-		// set up doorways
 		for (int doorwayIdx = 0; doorwayIdx < m_doorways.Length; ++doorwayIdx)
 		{
-			GameObject doorway = m_doorways[doorwayIdx];
-
-			// record doorway position in case the object is removed
-			m_doorwayInfos[doorwayIdx].m_position = doorway.transform.position;
-
 			if (m_doorwayInfos[doorwayIdx].m_parentRoom != null)
 			{
 				// open doorway to parent
-				OpenDoorway(doorway, DoorwayDirection(doorway).y > 0.0f);
+				OpenDoorway(m_doorways[doorwayIdx], DoorwayDirection(doorwayIdx).y > 0.0f);
 			}
 		}
 
@@ -138,9 +143,9 @@ public class RoomController : MonoBehaviour
 		return child.ChildPosition(checkLocks, targetObj, onFloor, recursive);
 	}
 
-	public List<RoomController> ChildRoomPath(Vector2 startPosition, Vector2 endPosition)
+	public List<RoomController> ChildRoomPath(Vector2 startPosition, Vector2 endPosition, bool unobstructed)
 	{
-		// TODO: efficiency?
+		// TODO: efficiency? handle multiple possible paths?
 		// find root-->start and root-->end paths
 		List<RoomController> startPath = RoomPathFromRoot(startPosition, new());
 		if (startPath == null)
@@ -168,12 +173,24 @@ public class RoomController : MonoBehaviour
 		startPath.Add(lastSharedRoom);
 		startPath.AddRange(endPath);
 
+		if (unobstructed)
+		{
+			// check for obstructions
+			for (int i = 0; i < startPath.Count - 1; ++i)
+			{
+				if (startPath[i].RoomConnection(startPath[i + 1], true) == null)
+				{
+					return null;
+				}
+			}
+		}
+
 		return startPath;
 	}
 
-	public List<Vector2> ChildPositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag)
+	public List<Vector2> ChildPositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag, bool unobstructed)
 	{
-		List<RoomController> roomPath = ChildRoomPath(startPosition, endPositionPreoffset);
+		List<RoomController> roomPath = ChildRoomPath(startPosition, endPositionPreoffset, unobstructed);
 		if (roomPath == null)
 		{
 			return null;
@@ -183,7 +200,7 @@ public class RoomController : MonoBehaviour
 		List<Vector2> waypointPath = new();
 		for (int i = 0, n = roomPath.Count - 1; i < n; ++i)
 		{
-			Vector2[] connectionPoints = RoomConnection(roomPath[i], roomPath[i + 1]);
+			Vector2[] connectionPoints = roomPath[i].RoomConnection(roomPath[i + 1], unobstructed);
 			Assert.IsTrue(connectionPoints.Length > 0 && !connectionPoints.Contains(Vector2.zero));
 			waypointPath.AddRange(connectionPoints);
 		}
@@ -212,7 +229,7 @@ public class RoomController : MonoBehaviour
 
 			// maybe replace/remove
 			GameObject doorway = m_doorways[i];
-			MaybeReplaceDoor(ref m_doorwayInfos[i], roomPrefab, bounds, DoorwayDirection(doorway), doorway, layoutNode);
+			MaybeReplaceDoor(ref m_doorwayInfos[i], roomPrefab, bounds, DoorwayDirection(i), doorway, layoutNode);
 			return m_doorwayInfos[i].m_childRoom != null;
 		});
 
@@ -233,13 +250,29 @@ public class RoomController : MonoBehaviour
 		return success;
 	}
 
-
-	private Vector3 DoorwayDirection(GameObject doorway)
+	public void SetBlocker(int doorwayIndex, GameObject blocker)
 	{
-		Vector3 doorwaySize = doorway.GetComponent<Collider2D>().bounds.size;
-		bool isTrapdoor = doorwaySize.x > doorwaySize.y;
-		Vector3 pivotToDoorway = doorway.transform.position - transform.position;
-		return isTrapdoor ? new Vector3(0.0f, Mathf.Sign(pivotToDoorway.y), 0.0f) : new Vector3(Mathf.Sign(pivotToDoorway.x), 0.0f, 0.0f);
+		Assert.IsNull(m_doorwayInfos[doorwayIndex].m_blocker);
+		m_doorwayInfos[doorwayIndex].m_blocker = blocker;
+
+		RoomController otherRoom = m_doorwayInfos[doorwayIndex].m_childRoom != null ? m_doorwayInfos[doorwayIndex].m_childRoom : m_doorwayInfos[doorwayIndex].m_parentRoom;
+		int returnIdx = DoorwayReverseIndex(otherRoom, DoorwayDirection(doorwayIndex));
+		otherRoom.m_doorwayInfos[returnIdx].m_blocker = blocker;
+	}
+
+
+	private Vector3 DoorwayDirection(int index)
+	{
+		Vector2 pivotToDoorway = (Vector2)m_doorwayInfos[index].m_position - (Vector2)transform.position;
+		return m_doorwayInfos[index].m_isTrapdoor ? new Vector3(0.0f, Mathf.Sign(pivotToDoorway.y), 0.0f) : new Vector3(Mathf.Sign(pivotToDoorway.x), 0.0f, 0.0f);
+	}
+
+	private int DoorwayReverseIndex(RoomController otherRoom, Vector2 replaceDirection)
+	{
+		return otherRoom.m_doorways.Zip(otherRoom.m_doorwayInfos, (otherDoorway, otherInfo) =>
+		{
+			return Vector2.Dot((Vector2)otherRoom.transform.position - (Vector2)otherInfo.m_position, replaceDirection) > 0.0f && otherInfo.m_isTrapdoor == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y)); // TODO: better way of determining reverse direction doorway?
+		}).ToList().IndexOf(true);
 	}
 
 	// see https://gamedev.stackexchange.com/questions/86863/calculating-the-bounding-box-of-a-game-object-based-on-its-children
@@ -300,12 +333,7 @@ public class RoomController : MonoBehaviour
 		doorwayInfo.m_childRoom = childRoom;
 
 		// set child's parent connection
-		int returnIdx = childRoom.m_doorways.Zip(childRoom.m_doorwayInfos, (newDoorway, info) =>
-		{
-			Vector3 doorwaySize = newDoorway.GetComponent<Collider2D>().bounds.size;
-			bool isTrapdoor = doorwaySize.x > doorwaySize.y;
-			return Vector2.Dot((Vector2)childRoom.transform.position - (Vector2)newDoorway.transform.position, replaceDirection) > 0.0f && isTrapdoor == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y)); // TODO: better way of determining reverse direction doorway?
-		}).ToList().IndexOf(true);
+		int returnIdx = DoorwayReverseIndex(childRoom, replaceDirection);
 
 		doorwayInfo.m_childRoom.m_doorwayInfos[returnIdx].m_parentRoom = this;
 
@@ -314,7 +342,7 @@ public class RoomController : MonoBehaviour
 		{
 			// create gate
 			Assert.IsNull(doorwayInfo.m_blocker);
-			doorwayInfo.m_blocker = Instantiate(Utility.RandomWeighted(isLock ? m_doorPrefabs : m_doorSecretPrefabs), doorway.transform.position + Vector3.back, Quaternion.identity, transform); // NOTE the depth decrease to ensure rendering on top of platforms
+			doorwayInfo.m_blocker = Instantiate(Utility.RandomWeighted(isLock ? m_doorPrefabs : m_doorSecretPrefabs), doorwayInfo.m_position + Vector3.back, Quaternion.identity, transform); // NOTE the depth decrease to ensure rendering on top of platforms
 			doorwayInfo.m_childRoom.m_doorwayInfos[returnIdx].m_blocker = doorwayInfo.m_blocker;
 
 			// resize gate to fit doorway
@@ -411,20 +439,28 @@ public class RoomController : MonoBehaviour
 		return null;
 	}
 
-	private Vector2[] RoomConnection(RoomController from, RoomController to)
+	private Vector2[] RoomConnection(RoomController to, bool unobstructed)
 	{
 		// TODO: efficiency?
 		Vector2[] connectionPoints = new Vector2[2];
 		for (int i = 0; i < m_doorwayInfos.Length; ++i)
 		{
-			DoorwayInfo infoFrom = from.m_doorwayInfos[i];
+			DoorwayInfo infoFrom = m_doorwayInfos[i];
 			if (infoFrom.m_childRoom == to || infoFrom.m_parentRoom == to)
 			{
+				if (unobstructed && infoFrom.m_blocker != null)
+				{
+					return null;
+				}
 				connectionPoints[0] = infoFrom.m_position;
 			}
 			DoorwayInfo infoTo = to.m_doorwayInfos[i];
-			if (infoTo.m_childRoom == from || infoTo.m_parentRoom == from)
+			if (infoTo.m_childRoom == this || infoTo.m_parentRoom == this)
 			{
+				if (unobstructed && infoTo.m_blocker != null)
+				{
+					return null;
+				}
 				connectionPoints[1] = infoTo.m_position;
 			}
 		}
