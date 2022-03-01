@@ -34,7 +34,7 @@ public class AvatarController : KinematicCharacter
 	public GameObject m_inventoryUI;
 	public Canvas m_overlayCanvas;
 
-	public Vector3 m_focusPromptOffset = new(0.0f, 0.15f, -0.15f);
+	public Vector3 m_focusPromptOffset = new(0.0f, 0.3f, -0.15f);
 
 	public float m_moveSpringDampTime = 0.15f;
 

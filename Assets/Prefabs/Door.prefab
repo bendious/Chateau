@@ -103,9 +103,9 @@ BoxCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
-    border: {x: 0.16, y: 0.37, z: 0.21, w: 0.16}
+    border: {x: 0.32, y: 0.74, z: 0.42, w: 0.32}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.64, y: 0.64}
+    oldSize: {x: 1.28, y: 1.28}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 1
@@ -194,7 +194,7 @@ MonoBehaviour:
   - m_object: "\u2192\u2190\u2191\u2193"
     m_weight: 1
   m_combinationIndicatorPrefab: {fileID: 7581576132359493611, guid: f35e42329712f004a939999cb3ace575, type: 3}
-  m_interactDistanceMax: 1
+  m_interactDistanceMax: 2
   m_door: {fileID: 0}
 --- !u!114 &2462278832316299634
 MonoBehaviour:
@@ -222,7 +222,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 49856
+  m_InstanceId: 59778
 --- !u!82 &6978962022123711710
 AudioSource:
   m_ObjectHideFlags: 0

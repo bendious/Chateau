@@ -145,8 +145,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.1602}
-  m_Size: {x: 0.45, y: 0.45}
+  m_Offset: {x: 0, y: -0.32}
+  m_Size: {x: 0.9, y: 0.9}
   m_Direction: 0
 --- !u!114 &2651140156555518892
 MonoBehaviour:
@@ -166,11 +166,11 @@ MonoBehaviour:
   m_wallClingGravityScalar: 0.1
   m_velocityForcedSmoothTime: 0.25
   velocity: {x: 0, y: 0}
-  maxSpeed: 1
-  jumpTakeOffSpeed: 5
+  maxSpeed: 2
+  jumpTakeOffSpeed: 10
   m_wallJumpXYRatio: 1
   jumpDeceleration: 0.5
-  m_damageBounceMagnitude: {x: 3.5, y: 3.5}
+  m_damageBounceMagnitude: {x: 7, y: 7}
   m_armOffset: {x: 0, y: 0}
   move: {x: 0, y: 0}
   m_targetOffset: {x: 0, y: 0}
@@ -372,7 +372,7 @@ MonoBehaviour:
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0
-  m_PointLightOuterRadius: 0.25
+  m_PointLightOuterRadius: 0.5
   m_ShapeLightParametricSides: 5
   m_ShapeLightParametricAngleOffset: 0
   m_ShapeLightParametricRadius: 1

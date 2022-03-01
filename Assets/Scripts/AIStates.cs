@@ -214,7 +214,7 @@ public sealed class AIRamSwoop : AIState
 	{
 		m_targetingScalars = (Vector2)m_ai.transform.position - (Vector2)m_ai.m_target.position; // this stretches circular movement into an ellipse based on the target offset
 
-		m_speedScalar = Mathf.PI * 0.5f * Mathf.Max(Mathf.Abs(m_targetingScalars.x), Mathf.Abs(m_targetingScalars.y)) / m_durationSeconds; // this scales the movement speed in order to move through one-quarter of a circle in the allotted time
+		m_speedScalar = Mathf.PI * 0.5f * Mathf.Max(Mathf.Abs(m_targetingScalars.x), Mathf.Abs(m_targetingScalars.y)) / (m_ai.maxSpeed * m_durationSeconds); // this scales the movement speed in order to move through one-quarter of a circle in the allotted time // TODO: fix
 		m_ai.maxSpeed *= m_speedScalar;
 
 		m_degreesPerSecond = 180.0f / m_durationSeconds;

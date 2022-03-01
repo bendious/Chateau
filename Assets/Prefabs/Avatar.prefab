@@ -204,7 +204,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6654259642884158821}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.25, z: 0}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -237,12 +237,12 @@ MonoBehaviour:
   m_wallClingGravityScalar: 0.1
   m_velocityForcedSmoothTime: 0.25
   velocity: {x: 0, y: 0}
-  maxSpeed: 5
-  jumpTakeOffSpeed: 7.5
+  maxSpeed: 10
+  jumpTakeOffSpeed: 15
   m_wallJumpXYRatio: 1
   jumpDeceleration: 0.5
-  m_damageBounceMagnitude: {x: 3.5, y: 3.5}
-  m_armOffset: {x: 0, y: 0.075}
+  m_damageBounceMagnitude: {x: 7, y: 7}
+  m_armOffset: {x: 0, y: 0.15}
   move: {x: 0, y: 0}
   jumpAudio: {fileID: 8300000, guid: 67975c08d56ceb147bad38572d805aa8, type: 3}
   respawnAudio: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
@@ -251,7 +251,7 @@ MonoBehaviour:
   m_aimObject: {fileID: 6654259643467443649}
   m_inventoryUI: {fileID: 6654259643996970170}
   m_overlayCanvas: {fileID: 7696693925314575142}
-  m_focusPromptOffset: {x: 0, y: 0.15, z: -0.15}
+  m_focusPromptOffset: {x: 0, y: 0.3, z: -0.15}
   m_moveSpringDampTime: 0.15
   m_secondaryDegrees: -45
   m_coyoteTime: 0.15
@@ -323,7 +323,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 0.25
+  m_Radius: 0.5
 --- !u!50 &6654259642884158818
 Rigidbody2D:
   serializedVersion: 4
@@ -385,7 +385,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 1
+  MinDistance: 2
   MaxDistance: 30
   Pan2D: 0
   rolloffMode: 0
@@ -559,7 +559,7 @@ MonoBehaviour:
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0
-  m_PointLightOuterRadius: 5
+  m_PointLightOuterRadius: 10
   m_ShapeLightParametricSides: 5
   m_ShapeLightParametricAngleOffset: 0
   m_ShapeLightParametricRadius: 1
@@ -1660,11 +1660,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3060130244721252947, guid: 3952ab59ee4e664418beab08d7c4492c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.09
+      value: -0.18
       objectReference: {fileID: 0}
     - target: {fileID: 3060130244721252947, guid: 3952ab59ee4e664418beab08d7c4492c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.075
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 3060130244721252947, guid: 3952ab59ee4e664418beab08d7c4492c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1700,7 +1700,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3060130244721252949, guid: 3952ab59ee4e664418beab08d7c4492c, type: 3}
       propertyPath: m_offset.x
-      value: -0.09
+      value: -0.18
       objectReference: {fileID: 0}
     - target: {fileID: 3060130244721252949, guid: 3952ab59ee4e664418beab08d7c4492c, type: 3}
       propertyPath: m_offset.z
@@ -1730,11 +1730,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3060130244721252947, guid: 3952ab59ee4e664418beab08d7c4492c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.09
+      value: 0.18
       objectReference: {fileID: 0}
     - target: {fileID: 3060130244721252947, guid: 3952ab59ee4e664418beab08d7c4492c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.075
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 3060130244721252947, guid: 3952ab59ee4e664418beab08d7c4492c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1770,7 +1770,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3060130244721252949, guid: 3952ab59ee4e664418beab08d7c4492c, type: 3}
       propertyPath: m_offset.x
-      value: 0.09
+      value: 0.18
       objectReference: {fileID: 0}
     - target: {fileID: 3060130244721252949, guid: 3952ab59ee4e664418beab08d7c4492c, type: 3}
       propertyPath: m_offset.z

@@ -74,8 +74,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c83d356385acccd4d979024f1b1b3694, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_sizeMin: {x: 1, y: 0.25}
-  m_sizeMax: {x: 4, y: 0.5}
+  m_sizeMin: {x: 2, y: 0.5}
+  m_sizeMax: {x: 8, y: 1}
   m_itemPrefabs:
   - m_object: {fileID: 4892872906617963342, guid: c7eaa25f16cf12a43af6e9177433afc1, type: 3}
     m_weight: 1

@@ -9,11 +9,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 97266852510040727, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
       propertyPath: m_Size.x
-      value: 0.2
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 97266852510040727, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
       propertyPath: m_Size.y
-      value: 0.01
+      value: 0.04
       objectReference: {fileID: 0}
     - target: {fileID: 97266852510040727, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
       propertyPath: m_Offset.y
@@ -21,15 +21,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 97266852510040727, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
       propertyPath: m_EdgeRadius
-      value: 0.025
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 97266852510040727, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
       propertyPath: m_SpriteTilingProperty.oldSize.x
-      value: 0.24
+      value: 0.48
       objectReference: {fileID: 0}
     - target: {fileID: 97266852510040727, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
       propertyPath: m_SpriteTilingProperty.oldSize.y
-      value: 0.11
+      value: 0.22
       objectReference: {fileID: 0}
     - target: {fileID: 2548474356318102515, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
       propertyPath: m_holdCountMax
@@ -37,11 +37,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2548474356318102515, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
       propertyPath: m_attachOffsetLocal.y
-      value: -0.2
+      value: -0.4
       objectReference: {fileID: 0}
     - target: {fileID: 2548474356318102515, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
       propertyPath: m_attachOffsetLocal.z
-      value: -0.05
+      value: -0.1
       objectReference: {fileID: 0}
     - target: {fileID: 4221545259124064584, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
       propertyPath: m_Name
@@ -97,7 +97,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6948525667695766237, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
       propertyPath: m_PointLightOuterRadius
-      value: 0.05
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 8396731715450919890, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
       propertyPath: m_Sprite

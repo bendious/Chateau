@@ -367,7 +367,7 @@ public class RoomController : MonoBehaviour
 		if (upward && m_ladderRungPrefab != null)
 		{
 			// determine rung count/height
-			float yTop = doorway.transform.position.y - 0.75f; // TODO: base top distance on character height
+			float yTop = doorway.transform.position.y - 1.5f; // TODO: base top distance on character height
 			float heightDiff = yTop - transform.position.y; // TODO: don't assume pivot point is always the place to stop?
 			int rungCount = Mathf.RoundToInt(heightDiff / m_ladderRungPrefab.GetComponent<BoxCollider2D>().size.y);
 			float rungHeight = heightDiff / rungCount;
