@@ -134,14 +134,16 @@ public class RoomController : MonoBehaviour
 			// TODO: prevent overlap
 			GameObject decoration = Instantiate(Utility.RandomWeighted(m_decorationPrefabs), spawnPos, Quaternion.identity, transform);
 
-			Color color = new(Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f));
+			Color color = new(Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f)); // TODO: correlate w/ room?
 			foreach (SpriteRenderer renderer in decoration.GetComponentsInChildren<SpriteRenderer>(true))
 			{
 				renderer.color = color * 2.0f; // TODO: unhardcode?
+				renderer.flipX = Random.Range(0, 2) != 0;
 			}
 			foreach (Light2D renderer in decoration.GetComponentsInChildren<Light2D>(true))
 			{
 				renderer.color = color;
+				renderer.intensity = Random.Range(0.0f, 1.0f); // TODO: base on area/progress?
 			}
 		}
 	}
