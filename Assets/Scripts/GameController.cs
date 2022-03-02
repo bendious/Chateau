@@ -18,6 +18,7 @@ public class GameController : MonoBehaviour
 	public DialogueController m_dialogueController;
 
 	public GameObject m_avatarPrefab;
+	public WeightedObject<GameObject>[] m_entryRoomPrefabs;
 	public WeightedObject<GameObject>[] m_roomPrefabs;
 	public WeightedObject<GameObject>[] m_bossRoomPrefabs;
 	public WeightedObject<GameObject>[] m_enemyPrefabs;
@@ -67,7 +68,7 @@ public class GameController : MonoBehaviour
 			Assert.AreEqual(node.m_type == LayoutGenerator.Node.Type.Entrance, m_startRoom == null);
 			if (m_startRoom == null)
 			{
-				m_startRoom = Instantiate(Utility.RandomWeighted(m_roomPrefabs)).GetComponent<RoomController>();
+				m_startRoom = Instantiate(Utility.RandomWeighted(m_entryRoomPrefabs)).GetComponent<RoomController>();
 				m_startRoom.Initialize(node);
 			}
 			else

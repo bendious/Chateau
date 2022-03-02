@@ -1741,6 +1741,11 @@ MonoBehaviour:
   m_cameraTargetGroup: {fileID: 1180753109}
   m_dialogueController: {fileID: 349630815}
   m_avatarPrefab: {fileID: 6654259642884158821, guid: 4d20d571ba0aebe47a66bc88f4f1c0a9, type: 3}
+  m_entryRoomPrefabs:
+  - m_object: {fileID: 3064922269630218972, guid: 875cea8ea28ce664db617d8b73fe2adb, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 718886785481287406, guid: 59aba3142642cde47a43b3aa316178fc, type: 3}
+    m_weight: 1
   m_roomPrefabs:
   - m_object: {fileID: 7422594126546487761, guid: bc523bdaf3586ea4385e45a9a5838915, type: 3}
     m_weight: 1

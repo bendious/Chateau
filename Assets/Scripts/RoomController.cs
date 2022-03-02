@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Rendering.Universal;
 
 
 public class RoomController : MonoBehaviour
@@ -10,6 +10,12 @@ public class RoomController : MonoBehaviour
 	public WeightedObject<GameObject>[] m_doorPrefabs;
 	public WeightedObject<GameObject>[] m_doorSecretPrefabs;
 	public GameObject m_tablePrefab;
+
+	public WeightedObject<GameObject>[] m_decorationPrefabs;
+	public int m_decorationsMin = 0;
+	public int m_decorationsMax = 2;
+	public float m_decorationHeightMin = 0.5f;
+	public float m_decorationHeightMax = 2.0f;
 
 	public GameObject[] m_doorways;
 
@@ -98,7 +104,7 @@ public class RoomController : MonoBehaviour
 				for (int failsafeCount = 0; failsafeCount < 100; ++failsafeCount)
 				{
 					Bounds newBounds = newTable.GetComponent<Collider2D>().bounds;
-					Vector3 spawnPos = new Vector3(bounds.center.x, transform.position.y, transform.position.z) + new Vector3(UnityEngine.Random.Range(-bounds.extents.x + newBounds.extents.x, bounds.extents.x - newBounds.extents.x), tableExtentY, 1.0f);
+					Vector3 spawnPos = new Vector3(bounds.center.x, transform.position.y, transform.position.z) + new Vector3(Random.Range(-bounds.extents.x + newBounds.extents.x, bounds.extents.x - newBounds.extents.x), tableExtentY, 1.0f);
 					if (Physics2D.OverlapBox(spawnPos + newBounds.center + new Vector3(0.0f, 0.1f, 0.0f), newBounds.size, 0.0f) != null) // NOTE the small offset to avoid collecting the floor; also that this would collect our newly spawned table when at the origin, but that shouldn't happen and would be okay anyway since keeping the start point clear isn't objectionable
 					{
 						continue; // re-place and try again
@@ -118,6 +124,26 @@ public class RoomController : MonoBehaviour
 			default:
 				break;
 		}
+
+		// spawn decoration(s)
+		// TODO: prioritize by area?
+		int numDecorations = Random.Range(m_decorationsMin, m_decorationsMax + 1);
+		for (int i = 0; i < numDecorations; ++i)
+		{
+			Vector3 spawnPos = ChildPosition(false, null, true, false) + new Vector3(0.0f, Random.Range(m_decorationHeightMin, m_decorationHeightMax), 1.0f); // TODO: uniform height per room?
+			// TODO: prevent overlap
+			GameObject decoration = Instantiate(Utility.RandomWeighted(m_decorationPrefabs), spawnPos, Quaternion.identity, transform);
+
+			Color color = new(Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f));
+			foreach (SpriteRenderer renderer in decoration.GetComponentsInChildren<SpriteRenderer>(true))
+			{
+				renderer.color = color * 2.0f; // TODO: unhardcode?
+			}
+			foreach (Light2D renderer in decoration.GetComponentsInChildren<Light2D>(true))
+			{
+				renderer.color = color;
+			}
+		}
 	}
 
 	public Vector3 ChildPosition(bool checkLocks, GameObject targetObj, bool onFloor, bool recursive)
@@ -136,7 +162,7 @@ public class RoomController : MonoBehaviour
 			Bounds bounds = CalculateBounds(true);
 			float xDiffMax = bounds.extents.x;
 			float yMax = onFloor ? 0.0f : bounds.size.y;
-			return new Vector3(bounds.center.x + UnityEngine.Random.Range(-xDiffMax, xDiffMax), transform.position.y + UnityEngine.Random.Range(0, yMax), transform.position.z); // NOTE the assumptions that the object position is on the floor of the room but not necessarily centered
+			return new Vector3(bounds.center.x + Random.Range(-xDiffMax, xDiffMax), transform.position.y + Random.Range(0, yMax), transform.position.z); // NOTE the assumptions that the object position is on the floor of the room but not necessarily centered
 		}
 
 		// return position from child room
@@ -256,48 +282,71 @@ public class RoomController : MonoBehaviour
 		m_doorwayInfos[doorwayIndex].m_blocker = blocker;
 
 		RoomController otherRoom = m_doorwayInfos[doorwayIndex].m_childRoom != null ? m_doorwayInfos[doorwayIndex].m_childRoom : m_doorwayInfos[doorwayIndex].m_parentRoom;
-		int returnIdx = DoorwayReverseIndex(otherRoom, DoorwayDirection(doorwayIndex));
+		int returnIdx = otherRoom.DoorwayReverseIndex(DoorwayDirection(doorwayIndex));
 		otherRoom.m_doorwayInfos[returnIdx].m_blocker = blocker;
 	}
 
 
-	private Vector3 DoorwayDirection(int index)
+	private Vector2 DoorwayDirection(int index)
 	{
 		Vector2 pivotToDoorway = (Vector2)m_doorwayInfos[index].m_position - (Vector2)transform.position;
 		return m_doorwayInfos[index].m_isTrapdoor ? new Vector3(0.0f, Mathf.Sign(pivotToDoorway.y), 0.0f) : new Vector3(Mathf.Sign(pivotToDoorway.x), 0.0f, 0.0f);
 	}
 
-	private int DoorwayReverseIndex(RoomController otherRoom, Vector2 replaceDirection)
+	private int DoorwayReverseIndex(Vector2 replaceDirection)
 	{
-		return otherRoom.m_doorways.Zip(otherRoom.m_doorwayInfos, (otherDoorway, otherInfo) =>
+		// NOTE that we can't assume m_doorwayInfos[] is filled out since this can be called on un-instantiated prefab objects
+		System.Tuple<Vector3, bool>[] doorwayInfosSafe = (m_doorwayInfos != null ? m_doorwayInfos.Select(info => System.Tuple.Create(info.m_position, info.m_isTrapdoor)) : m_doorways.Select(doorway =>
 		{
-			return Vector2.Dot((Vector2)otherRoom.transform.position - (Vector2)otherInfo.m_position, replaceDirection) > 0.0f && otherInfo.m_isTrapdoor == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y)); // TODO: better way of determining reverse direction doorway?
+			Vector2 size = doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale; // NOTE that we can't use Collider2D.bounds since a physics frame may not have run yet
+			return System.Tuple.Create(doorway.transform.position, size.x > size.y);
+		})).ToArray();
+		return doorwayInfosSafe.Select(pair =>
+		{
+			return Vector2.Dot((Vector2)transform.position - (Vector2)pair.Item1, replaceDirection) > 0.0f && pair.Item2 == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y)); // TODO: better way of determining reverse direction doorway?
 		}).ToList().IndexOf(true);
 	}
 
 	// see https://gamedev.stackexchange.com/questions/86863/calculating-the-bounding-box-of-a-game-object-based-on-its-children
 	private Bounds CalculateBounds(bool interiorOnly)
 	{
-		Renderer[] renderers = GetComponentsInChildren<Renderer>();
+		Renderer[] renderers = GetComponentsInChildren<Renderer>(); // NOTE that we can't use Collider2D.bounds since they are not set until after the first active physics frame
 		if (renderers.Length == 0)
 		{
 			return new(transform.position, Vector3.zero);
 		}
-		Bounds b = renderers[0].bounds;
+		Bounds? b = null;
 		foreach (Renderer r in renderers)
 		{
-			b.Encapsulate(r.bounds);
+			Collider2D c = r.GetComponent<Collider2D>();
+			Rigidbody2D body = c == null ? null : c.attachedRigidbody;
+			if (c == null || (body != null && body.bodyType != RigidbodyType2D.Static))
+			{
+				continue;
+			}
+			if (b == null)
+			{
+				b = r.bounds;
+			}
+			else
+			{
+				Bounds newB = b.Value;
+				newB.Encapsulate(r.bounds);
+				b = newB;
+			}
 		}
 		if (interiorOnly)
 		{
-			b.Expand(new Vector3(-1.0f, -1.0f, 0.0f)); // TODO: dynamically determine wall/floor thickness
+			Bounds newB = b.Value;
+			newB.Expand(new Vector3(-1.0f, -1.0f, 0.0f)); // TODO: dynamically determine wall/floor thickness
+			b = newB;
 		}
-		return b;
+		return b.Value;
 	}
 
-	private bool DoorwaysRandomOrder(Func<int, bool> f)
+	private bool DoorwaysRandomOrder(System.Func<int, bool> f)
 	{
-		int[] order = Enumerable.Range(0, m_doorwayInfos.Length).OrderBy(i => UnityEngine.Random.value).ToArray();
+		int[] order = Enumerable.Range(0, m_doorwayInfos.Length).OrderBy(i => Random.value).ToArray();
 		foreach (int i in order)
 		{
 			bool done = f(i);
@@ -310,17 +359,24 @@ public class RoomController : MonoBehaviour
 	}
 
 	// TODO: inline?
-	private void MaybeReplaceDoor(ref DoorwayInfo doorwayInfo, GameObject roomPrefab, Bounds bounds, Vector3 replaceDirection, GameObject doorway, LayoutGenerator.Node childNode)
+	private void MaybeReplaceDoor(ref DoorwayInfo doorwayInfo, GameObject roomPrefab, Bounds bounds, Vector2 replaceDirection, GameObject doorway, LayoutGenerator.Node childNode)
 	{
 		Assert.IsNull(doorwayInfo.m_parentRoom);
 		Assert.IsNull(doorwayInfo.m_childRoom);
 		Assert.AreApproximatelyEqual(replaceDirection.magnitude, 1.0f);
 
-		Bounds childBounds = roomPrefab.GetComponent<RoomController>().CalculateBounds(false);
-		Vector3 pivotToCenter = bounds.center - transform.position;
-		Vector3 childPivotToCenter = childBounds.center - roomPrefab.transform.position;
-		Vector3 childPivotPos = transform.position + Vector3.Scale(replaceDirection, bounds.extents + childBounds.extents + (Vector2.Dot(pivotToCenter, replaceDirection) >= 0.0f ? pivotToCenter : -pivotToCenter) + (Vector2.Dot(childPivotToCenter, replaceDirection) >= 0.0f ? -childPivotToCenter : childPivotToCenter));
+		// determine child position
+		RoomController otherRoom = roomPrefab.GetComponent<RoomController>();
+		Bounds childBounds = otherRoom.CalculateBounds(false);
+		Vector2 doorwayPos = doorwayInfo.m_position;
+		int reverseIdx = otherRoom.DoorwayReverseIndex(replaceDirection);
+		Vector2 childDoorwayPosLocal = otherRoom.m_doorwayInfos != null ? otherRoom.m_doorwayInfos[reverseIdx].m_position : otherRoom.m_doorways[reverseIdx].transform.position;
+		float doorwayToEdge = Mathf.Min(bounds.max.x - doorwayPos.x, bounds.max.y - doorwayPos.y, doorwayPos.x - bounds.min.x, doorwayPos.y - bounds.min.y); // TODO: don't assume convex rooms?
+		float childDoorwayToEdge = Mathf.Min(childBounds.max.x - childDoorwayPosLocal.x, childBounds.max.y - childDoorwayPosLocal.y, childDoorwayPosLocal.x - childBounds.min.x, childDoorwayPosLocal.y - childBounds.min.y);
+		Vector2 childPivotPos = doorwayPos + replaceDirection * (doorwayToEdge + childDoorwayToEdge) - childDoorwayPosLocal;
 
+		// check for obstructions
+		Vector2 childPivotToCenter = childBounds.center - roomPrefab.transform.position;
 		bool isOpen = Physics2D.OverlapBox(childPivotPos + childPivotToCenter, childBounds.size - new Vector3(0.1f, 0.1f, 0.0f), 0.0f) == null; // NOTE the small size reduction to avoid always collecting ourself
 		if (!isOpen)
 		{
@@ -333,7 +389,7 @@ public class RoomController : MonoBehaviour
 		doorwayInfo.m_childRoom = childRoom;
 
 		// set child's parent connection
-		int returnIdx = DoorwayReverseIndex(childRoom, replaceDirection);
+		int returnIdx = childRoom.DoorwayReverseIndex(replaceDirection);
 
 		doorwayInfo.m_childRoom.m_doorwayInfos[returnIdx].m_parentRoom = this;
 
@@ -385,7 +441,7 @@ public class RoomController : MonoBehaviour
 				collider.offset = new Vector2(collider.offset.x, rungHeight * 0.5f);
 
 				// iterate
-				posItr.x += UnityEngine.Random.Range(-m_ladderRungSkewMax, m_ladderRungSkewMax); // TODO: guarantee AI navigability? clamp to room size?
+				posItr.x += Random.Range(-m_ladderRungSkewMax, m_ladderRungSkewMax); // TODO: guarantee AI navigability? clamp to room size?
 				posItr.y -= rungHeight;
 			}
 		}
@@ -407,7 +463,7 @@ public class RoomController : MonoBehaviour
 
 			// change color/shadows for user visibility
 			doorway.GetComponent<SpriteRenderer>().color = m_oneWayPlatformColor;
-			Destroy(doorway.GetComponent<UnityEngine.Rendering.Universal.ShadowCaster2D>());
+			Destroy(doorway.GetComponent<ShadowCaster2D>());
 		}
 	}
 
@@ -443,26 +499,25 @@ public class RoomController : MonoBehaviour
 	{
 		// TODO: efficiency?
 		Vector2[] connectionPoints = new Vector2[2];
-		for (int i = 0; i < m_doorwayInfos.Length; ++i)
+		int outputIdx = 0;
+		foreach (DoorwayInfo[] infoArray in new DoorwayInfo[][] { m_doorwayInfos, to.m_doorwayInfos })
 		{
-			DoorwayInfo infoFrom = m_doorwayInfos[i];
-			if (infoFrom.m_childRoom == to || infoFrom.m_parentRoom == to)
+			foreach (DoorwayInfo info in infoArray)
 			{
-				if (unobstructed && infoFrom.m_blocker != null)
+				if (info.m_childRoom != to && info.m_parentRoom != to && info.m_childRoom != this && info.m_parentRoom != this)
+				{
+					continue;
+				}
+
+				if (unobstructed && info.m_blocker != null)
 				{
 					return null;
 				}
-				connectionPoints[0] = infoFrom.m_position;
+
+				connectionPoints[outputIdx] = info.m_position;
+				break;
 			}
-			DoorwayInfo infoTo = to.m_doorwayInfos[i];
-			if (infoTo.m_childRoom == this || infoTo.m_parentRoom == this)
-			{
-				if (unobstructed && infoTo.m_blocker != null)
-				{
-					return null;
-				}
-				connectionPoints[1] = infoTo.m_position;
-			}
+			++outputIdx;
 		}
 
 		return connectionPoints;
