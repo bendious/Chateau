@@ -112,7 +112,7 @@ public class Boss : MonoBehaviour
 		}
 
 		// float into air
-		float yTarget = transform.position.y + 3.0f;
+		float yTarget = transform.position.y + 4.5f; // TODO: unhardcode?
 		float ySpeedCur = 0.0f;
 		while (!Utility.FloatEqual(transform.position.y, yTarget))
 		{
