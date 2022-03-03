@@ -56,21 +56,33 @@ public class RoomController : MonoBehaviour
 #if UNITY_EDITOR
 	private void OnDrawGizmos()
 	{
-		if (m_layoutNode != null && ConsoleCommands.LayoutDebug)
+		if (m_layoutNode == null || ConsoleCommands.LayoutDebugLevel == (int)ConsoleCommands.LayoutDebugLevels.None)
 		{
-			Vector3 centerPos = CalculateBounds(false).center; // TODO: efficiency?
-			UnityEditor.Handles.Label(centerPos, m_layoutNode.m_type.ToString());
-			List<LayoutGenerator.Node> parentsCached = m_layoutNode.DirectParents;
-			if (parentsCached != null)
+			return;
+		}
+
+		Vector3 centerPos = CalculateBounds(false).center; // TODO: efficiency?
+		UnityEditor.Handles.Label(centerPos, m_layoutNode.m_type.ToString()); // TODO: prevent drift from Scene camera?
+
+		List<LayoutGenerator.Node> parentsCached = m_layoutNode.DirectParents;
+		if (parentsCached == null)
+		{
+			return;
+		}
+
+		if (ConsoleCommands.LayoutDebugLevel == ConsoleCommands.LayoutDebugLevels.DirectParents || ConsoleCommands.LayoutDebugLevel == ConsoleCommands.LayoutDebugLevels.All)
+		{
+			foreach (LayoutGenerator.Node node in parentsCached)
 			{
-				foreach (LayoutGenerator.Node node in parentsCached)
-				{
-					UnityEditor.Handles.DrawLine(centerPos, node.m_room.transform.position);
-				}
-				using (new UnityEditor.Handles.DrawingScope(Color.red))
-				{
-					UnityEditor.Handles.DrawLine(centerPos, m_layoutNode.TightCoupleParent.m_room.transform.position);
-				}
+				UnityEditor.Handles.DrawLine(centerPos, node.m_room.transform.position);
+			}
+		}
+
+		if (ConsoleCommands.LayoutDebugLevel == ConsoleCommands.LayoutDebugLevels.TightParents || ConsoleCommands.LayoutDebugLevel == ConsoleCommands.LayoutDebugLevels.All)
+		{
+			using (new UnityEditor.Handles.DrawingScope(Color.red))
+			{
+				UnityEditor.Handles.DrawLine(centerPos, m_layoutNode.TightCoupleParent.m_room.transform.position);
 			}
 		}
 	}
@@ -92,6 +104,10 @@ public class RoomController : MonoBehaviour
 				OpenDoorway(m_doorways[doorwayIdx], DoorwayDirection(doorwayIdx).y > 0.0f);
 			}
 		}
+
+		// color walls based on area
+		Color color = m_layoutNode.AreaParent.m_color;
+		ForEachWall(renderer => renderer.color = color); // TODO: slight variation?
 
 		// spawn contents
 		switch (m_layoutNode.m_type)
@@ -135,10 +151,9 @@ public class RoomController : MonoBehaviour
 			// TODO: prevent overlap
 			GameObject decoration = Instantiate(Utility.RandomWeighted(m_decorationPrefabs), spawnPos, Quaternion.identity, transform);
 
-			Color color = new(Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f)); // TODO: correlate w/ room?
 			foreach (SpriteRenderer renderer in decoration.GetComponentsInChildren<SpriteRenderer>(true))
 			{
-				renderer.color = color * 2.0f; // TODO: unhardcode?
+				renderer.color = color * 2.0f; // TODO: unhardcode? vary?
 				renderer.flipX = Random.Range(0, 2) != 0;
 			}
 			foreach (Light2D renderer in decoration.GetComponentsInChildren<Light2D>(true))
@@ -290,6 +305,30 @@ public class RoomController : MonoBehaviour
 	}
 
 
+	private void ForEachWall(System.Action<SpriteRenderer> f)
+	{
+		foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>(true))
+		{
+			Collider2D collider = renderer.GetComponent<Collider2D>();
+			if (collider == null)
+			{
+				continue; // ignore non-physics objects
+			}
+			Rigidbody2D body = collider.attachedRigidbody;
+			if (body != null && body.bodyType != RigidbodyType2D.Static)
+			{
+				continue; // ignore non-static objects
+			}
+			PlatformEffector2D platform = renderer.GetComponent<PlatformEffector2D>();
+			if (platform != null && platform.enabled)
+			{
+				continue; // ignore one-way platforms
+			}
+
+			f(renderer);
+		}
+	}
+
 	private Vector2 DoorwayDirection(int index)
 	{
 		Vector2 pivotToDoorway = (Vector2)m_doorwayInfos[index].m_position - (Vector2)transform.position;
@@ -313,20 +352,10 @@ public class RoomController : MonoBehaviour
 	// see https://gamedev.stackexchange.com/questions/86863/calculating-the-bounding-box-of-a-game-object-based-on-its-children
 	private Bounds CalculateBounds(bool interiorOnly)
 	{
-		Renderer[] renderers = GetComponentsInChildren<Renderer>(); // NOTE that we can't use Collider2D.bounds since they are not set until after the first active physics frame
-		if (renderers.Length == 0)
-		{
-			return new(transform.position, Vector3.zero);
-		}
+		// NOTE that we use render bounds rather than Collider2D.bounds since they are not set until after the first active physics frame
 		Bounds? b = null;
-		foreach (Renderer r in renderers)
+		ForEachWall(r =>
 		{
-			Collider2D c = r.GetComponent<Collider2D>();
-			Rigidbody2D body = c == null ? null : c.attachedRigidbody;
-			if (c == null || (body != null && body.bodyType != RigidbodyType2D.Static))
-			{
-				continue;
-			}
 			if (b == null)
 			{
 				b = r.bounds;
@@ -337,7 +366,8 @@ public class RoomController : MonoBehaviour
 				newB.Encapsulate(r.bounds);
 				b = newB;
 			}
-		}
+		});
+
 		if (interiorOnly)
 		{
 			Bounds newB = b.Value;

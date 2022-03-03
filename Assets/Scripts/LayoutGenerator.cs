@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 
@@ -48,13 +49,27 @@ public class LayoutGenerator
 				Assert.IsTrue(parentCoupling.DirectParentsInternal.Count == 1);
 				return parentCoupling.m_children.First() != this ? parentCoupling.m_children.First() : parentCoupling.DirectParentsInternal.First();
 			}
-			Node parentRoom = DirectParentsInternal.FirstOrDefault(node => node.DirectParentsInternal == null || node.DirectParentsInternal.Exists(node => node.m_type == Type.TightCoupling));
-			if (parentRoom != null)
-			{
-				return parentRoom;
-			}
-			return DirectParentsInternal.First().TightCoupleParent; // TODO: don't assume that all branches will have the same tight coupling parent?
+			Node firstParent = DirectParentsInternal.First(); // TODO: don't assume that all branches will have the same tight coupling parent?
+			Node firstParentTight = firstParent.TightCoupleParent;
+			return firstParentTight ?? firstParent;
 		} }
+
+		public Node AreaParent { get
+		{
+			Node tightCoupleParent = TightCoupleParent;
+			if (tightCoupleParent == null)
+			{
+				return this;
+			}
+			List<Node> tcParentDirectParents = tightCoupleParent.DirectParentsInternal;
+			if (tcParentDirectParents == null)
+			{
+				return tightCoupleParent;
+			}
+			return tcParentDirectParents.Count > 1 ? tightCoupleParent : tightCoupleParent.AreaParent;
+		} }
+
+		public readonly Color m_color = new(UnityEngine.Random.Range(0.0f, 0.5f), UnityEngine.Random.Range(0.0f, 0.5f), UnityEngine.Random.Range(0.0f, 0.5f)); // TODO: tend brighter based on progress?
 
 
 		internal List<Node> DirectParentsInternal;
@@ -173,20 +188,20 @@ public class LayoutGenerator
 
 	private static readonly ReplacementRule[] m_rules =
 	{
-		new(Node.Type.Initial, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceIntro, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss) }) }) }) }) }) }) }),
+		new(Node.Type.Initial, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceIntro, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss) }) }) }) }) }) }) }) }),
 
-		new(Node.Type.SequenceIntro, new() { new(Node.Type.Key, new() { new(Node.Type.GateLock) }) }),
-		new(Node.Type.SequenceMedium, new() { new(Node.Type.Sequence), new(Node.Type.Sequence) }),
-		new(Node.Type.SequenceLarge, new() { new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
-		new(Node.Type.SequenceLarge, new() { new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
+		new(Node.Type.SequenceIntro, new() { new(Node.Type.Items), new(Node.Type.Key) }),
+		new(Node.Type.SequenceMedium, new() { new(Node.Type.Items), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
+		new(Node.Type.SequenceLarge, new() { new(Node.Type.Items), new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
+		new(Node.Type.SequenceLarge, new() { new(Node.Type.Items), new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
 
 		// serial chains
 		// NOTE that the leaf Keys are required for the following Locks
 		new(Node.Type.Sequence, new() { new(Node.Type.Gate, new() { new(Node.Type.Key) }) }),
 
 		// gate types
-		new(Node.Type.GateLock, new() { new(Node.Type.Lock, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Items) }) }) }),
-		new(Node.Type.Gate, new() { new(Node.Type.Secret, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Items) }) }) }, 0.5f),
+		new(Node.Type.GateLock, new() { new(Node.Type.Lock, new() { new(Node.Type.TightCoupling) }) }),
+		new(Node.Type.Gate, new() { new(Node.Type.Secret, new() { new(Node.Type.TightCoupling) }) }, 0.5f),
 		new(Node.Type.Gate, new() { new(Node.Type.Key, new() { new(Node.Type.GateLock) }) }),
 	};
 

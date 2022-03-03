@@ -75,16 +75,11 @@ public class GameController : MonoBehaviour
 			}
 			else
 			{
-				bool isBoss = node.m_type == LayoutGenerator.Node.Type.Boss;
-				bool spawned = node.TightCoupleParent.m_room.SpawnChildRoom(Utility.RandomWeighted(isBoss ? m_bossRoomPrefabs : m_roomPrefabs), node);
+				bool spawned = node.TightCoupleParent.m_room.SpawnChildRoom(Utility.RandomWeighted(node.m_type == LayoutGenerator.Node.Type.Boss ? m_bossRoomPrefabs : m_roomPrefabs), node);
 				if (!spawned)
 				{
 					Retry(); // TODO: more efficient way to guarantee room spawning?
 					return true;
-				}
-				if (isBoss)
-				{
-					ColorBossRoomPath(m_startRoom.ChildRoomPath(Vector2.zero, node.TightCoupleParent.m_room.transform.position, false));
 				}
 			}
 			return false;
@@ -270,26 +265,6 @@ public class GameController : MonoBehaviour
 	}
 #endif
 
-
-	private void ColorBossRoomPath(List<RoomController> path)
-	{
-		Color colorDefault = Color.gray; // TODO: don't hardcode default color
-		int pathIdx = 0;
-		foreach (RoomController room in path)
-		{
-			++pathIdx;
-			float pathPct = (float)pathIdx / path.Count;
-			Color color = colorDefault;
-			color = Color.Lerp(color, Color.white, pathPct);
-			foreach (SpriteRenderer renderer in room.transform.GetComponentsInChildren<SpriteRenderer>())
-			{
-				if (renderer.color == colorDefault)
-				{
-					renderer.color = color;
-				}
-			}
-		}
-	}
 
 	private IEnumerator SpawnWavesCoroutine()
 	{
