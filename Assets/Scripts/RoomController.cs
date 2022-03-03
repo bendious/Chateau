@@ -60,9 +60,10 @@ public class RoomController : MonoBehaviour
 		{
 			Vector3 centerPos = CalculateBounds(false).center; // TODO: efficiency?
 			UnityEditor.Handles.Label(centerPos, m_layoutNode.m_type.ToString());
-			if (m_layoutNode.DirectParents != null)
+			List<LayoutGenerator.Node> parentsCached = m_layoutNode.DirectParents;
+			if (parentsCached != null)
 			{
-				foreach (LayoutGenerator.Node node in m_layoutNode.DirectParents)
+				foreach (LayoutGenerator.Node node in parentsCached)
 				{
 					UnityEditor.Handles.DrawLine(centerPos, node.m_room.transform.position);
 				}

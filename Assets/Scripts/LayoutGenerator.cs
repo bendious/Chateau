@@ -16,6 +16,7 @@ public class LayoutGenerator
 			Secret,
 			Items,
 			Boss,
+			TightCoupling,
 
 			Initial,
 			Sequence,
@@ -31,22 +32,30 @@ public class LayoutGenerator
 		public RoomController m_room = null;
 
 
-		public List<Node> DirectParents { get; internal set; }
+		public List<Node> DirectParents => DirectParentsInternal == null ? null : DirectParentsInternal.SelectMany(node => node.m_type == Type.TightCoupling ? node.DirectParents : new List<Node> { node }).ToList();
 
 		public Node TightCoupleParent { get
 		{
-			if (DirectParents == null)
+			if (DirectParentsInternal == null)
 			{
 				return null;
 			}
-			Node parent = DirectParents.FirstOrDefault(node => node.m_type == Type.Lock || node.m_type == Type.Secret || node.DirectParents == null); // TODO: avoid all children of lock/secret nodes being tightly coupled?
-			if (parent != null)
+			Node parentCoupling = DirectParentsInternal.FirstOrDefault(node => node.m_type == Type.TightCoupling);
+			if (parentCoupling != null)
 			{
-				return parent;
+				Assert.IsTrue(parentCoupling.DirectParentsInternal.Count == 1);
+				return parentCoupling.DirectParentsInternal.First();
 			}
-			return DirectParents.First().TightCoupleParent; // TODO: don't assume that all branches will have the same tight coupling parent?
+			Node parentRoom = DirectParentsInternal.FirstOrDefault(node => node.DirectParentsInternal == null || node.DirectParentsInternal.Exists(node => node.m_type == Type.TightCoupling));
+			if (parentRoom != null)
+			{
+				return parentRoom;
+			}
+			return DirectParentsInternal.First().TightCoupleParent; // TODO: don't assume that all branches will have the same tight coupling parent?
 		} }
 
+
+		internal List<Node> DirectParentsInternal;
 
 		internal bool m_processed = false;
 
@@ -68,7 +77,7 @@ public class LayoutGenerator
 			{
 				parents.Add(new Node(type, childList));
 			}
-			child.DirectParents = parents;
+			child.DirectParentsInternal = parents;
 			return parents;
 		}
 
@@ -83,7 +92,7 @@ public class LayoutGenerator
 				return false;
 			}
 
-			bool done = f(this);
+			bool done = m_type != Type.TightCoupling && f(this); // NOTE the deliberate skip of internal-only nodes
 			processedNodes.Add(this);
 
 			if (done || m_children == null)
@@ -127,11 +136,11 @@ public class LayoutGenerator
 
 			foreach (Node child in children)
 			{
-				if (child.DirectParents == null)
+				if (child.DirectParentsInternal == null)
 				{
-					child.DirectParents = new();
+					child.DirectParentsInternal = new();
 				}
-				child.DirectParents.Add(this);
+				child.DirectParentsInternal.Add(this);
 			}
 		}
 
@@ -162,7 +171,7 @@ public class LayoutGenerator
 
 	private static readonly ReplacementRule[] m_rules =
 	{
-		new(Node.Type.Initial, new() { new(Node.Type.Entrance, new() { new(Node.Type.Sequence, new() { new Node(Node.Type.Lock, new() { new(Node.Type.Boss) }) }) }) }),
+		new(Node.Type.Initial, new() { new(Node.Type.Entrance, new() { new(Node.Type.Sequence, new() { new Node(Node.Type.Lock, new() { new Node(Node.Type.TightCoupling, new() { new(Node.Type.Boss) }) }) }) }) }),
 
 		// parallel chains
 		new(Node.Type.Sequence, new() { new(Node.Type.SequenceParallel) }),
@@ -178,9 +187,8 @@ public class LayoutGenerator
 		new(Node.Type.SequenceSerial, new() { new(Node.Type.Gate, new() { new(Node.Type.Gate, new() { new(Node.Type.Gate, new() { new(Node.Type.Key) }) }) }) }),
 
 		// gate types
-		// NOTE that lock/secret needs to be a leaf node and any children attached need a singular root in order to avoid multi-{lock/secret/key} rooms
-		new(Node.Type.Gate, new() { new(Node.Type.Items, new() { new(Node.Type.Secret) }) }, 0.5f),
-		new(Node.Type.Gate, new() { new(Node.Type.Key, new() { new(Node.Type.Lock), new(Node.Type.Items) }) }),
+		new(Node.Type.Gate, new() { new(Node.Type.Secret, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Items) }) }) }, 0.5f),
+		new(Node.Type.Gate, new() { new(Node.Type.Key, new() { new(Node.Type.Lock, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Items) }) }) }) }),
 	};
 
 
@@ -202,7 +210,7 @@ public class LayoutGenerator
 
 		while (nodeAndParentQueue.TryDequeue(out Tuple<Node, Node> nodeAndParentItr))
 		{
-			if (nodeAndParentItr.Item1.DirectParents != null && Enumerable.Intersect(nodeAndParentItr.Item1.DirectParents, nodeAndParentQueue.Select(pair => pair.Item1)).Count() > 0)
+			if (nodeAndParentItr.Item1.DirectParentsInternal != null && Enumerable.Intersect(nodeAndParentItr.Item1.DirectParentsInternal, nodeAndParentQueue.Select(pair => pair.Item1)).Count() > 0)
 			{
 				// haven't placed all our parents yet; try again later
 				nodeAndParentQueue.Enqueue(nodeAndParentItr);
@@ -238,7 +246,7 @@ public class LayoutGenerator
 			{
 				foreach (Node child in nodeAndParentItr.Item1.m_children)
 				{
-					child.DirectParents.Remove(nodeAndParentItr.Item1);
+					child.DirectParentsInternal.Remove(nodeAndParentItr.Item1);
 				}
 				foreach (Node replacementNode in replacementNodes)
 				{
@@ -260,7 +268,7 @@ public class LayoutGenerator
 				// preserve any existing multi-parenting
 				foreach (Node replacementNode in replacementNodes)
 				{
-					replacementNode.DirectParents = replacementNode.DirectParents.Union(nodeAndParentItr.Item1.DirectParents).ToList();
+					replacementNode.DirectParentsInternal = replacementNode.DirectParentsInternal.Union(nodeAndParentItr.Item1.DirectParentsInternal).ToList();
 				}
 			}
 
