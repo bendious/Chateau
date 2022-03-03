@@ -254,7 +254,10 @@ public class AvatarController : KinematicCharacter
 
 		if (m_usingMouse)
 		{
-			m_mousePosPixels = value;
+			if (value.sqrMagnitude > 0.0f)
+			{
+				m_mousePosPixels = value;
+			}
 		}
 		else
 		{
