@@ -149,9 +149,9 @@ public class GameController : MonoBehaviour
 		// TODO: remove on target destruction?
 	}
 
-	public Vector3 RoomPosition(bool checkLocks, GameObject targetObj, bool onFloor)
+	public Vector3 RoomPosition(bool checkLocks, GameObject targetObj, float targetMinDistance, bool onFloor)
 	{
-		return m_startRoom.ChildPosition(checkLocks, targetObj, onFloor, true);
+		return m_startRoom.ChildPosition(checkLocks, targetObj, targetMinDistance, onFloor, true);
 	}
 
 	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos, Vector2 offsetMag)
@@ -303,7 +303,7 @@ public class GameController : MonoBehaviour
 	private void SpawnEnemy(GameObject enemyPrefab)
 	{
 		CapsuleCollider2D enemyCollider = enemyPrefab.GetComponent<CapsuleCollider2D>();
-		Vector3 spawnPos = RoomPosition(true, m_avatars[Random.Range(0, m_avatars.Count())].gameObject, !enemyPrefab.GetComponent<KinematicObject>().HasFlying) + Vector3.up * (enemyCollider.size.y * 0.5f - enemyCollider.offset.y);
+		Vector3 spawnPos = RoomPosition(true, m_avatars[Random.Range(0, m_avatars.Count())].gameObject, 2.0f, !enemyPrefab.GetComponent<KinematicObject>().HasFlying) + Vector3.up * (enemyCollider.size.y * 0.5f - enemyCollider.offset.y); // TODO: base min distance on avatar/enemy size?
 		m_enemies.Add(Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>());
 	}
 

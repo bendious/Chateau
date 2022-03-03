@@ -106,8 +106,8 @@ public class RoomController : MonoBehaviour
 		}
 
 		// color walls based on area
-		Color color = m_layoutNode.AreaParent.m_color;
-		ForEachWall(renderer => renderer.color = color); // TODO: slight variation?
+		Color roomColor = m_layoutNode.AreaParent.m_color;
+		ForEachWall(renderer => renderer.color = roomColor); // TODO: slight variation?
 
 		// spawn contents
 		switch (m_layoutNode.m_type)
@@ -145,46 +145,57 @@ public class RoomController : MonoBehaviour
 		// spawn decoration(s)
 		// TODO: prioritize by area?
 		int numDecorations = Random.Range(m_decorationsMin, m_decorationsMax + 1);
+		Color decoColor = roomColor * 2.0f;
 		for (int i = 0; i < numDecorations; ++i)
 		{
-			Vector3 spawnPos = ChildPosition(false, null, true, false) + new Vector3(0.0f, Random.Range(m_decorationHeightMin, m_decorationHeightMax), 1.0f); // TODO: uniform height per room?
+			Vector3 spawnPos = ChildPosition(false, null, 0.0f, true, false) + new Vector3(0.0f, Random.Range(m_decorationHeightMin, m_decorationHeightMax), 1.0f); // TODO: uniform height per room?
 			// TODO: prevent overlap
 			GameObject decoration = Instantiate(Utility.RandomWeighted(m_decorationPrefabs), spawnPos, Quaternion.identity, transform);
 
 			foreach (SpriteRenderer renderer in decoration.GetComponentsInChildren<SpriteRenderer>(true))
 			{
-				renderer.color = color * 2.0f; // TODO: unhardcode? vary?
+				renderer.color = decoColor * 2.0f; // TODO: unhardcode? vary?
 				renderer.flipX = Random.Range(0, 2) != 0;
 			}
 			foreach (Light2D renderer in decoration.GetComponentsInChildren<Light2D>(true))
 			{
-				renderer.color = color;
+				renderer.color = decoColor;
 				renderer.intensity = Random.Range(0.0f, 1.0f); // TODO: base on area/progress?
 			}
 		}
 	}
 
-	public Vector3 ChildPosition(bool checkLocks, GameObject targetObj, bool onFloor, bool recursive)
+	public Vector3 ChildPosition(bool checkLocks, GameObject targetObj, float targetMinDistance, bool onFloor, bool recursive)
 	{
 		// enumerate valid options
-		RoomController[] options = recursive ? m_doorwayInfos.Where(info => info.m_childRoom != null && (!checkLocks || info.m_blocker == null)).Select(pair => pair.m_childRoom).ToArray() : new RoomController[] { this };
+		List<RoomController> options = new() { this };
+		if (recursive)
+		{
+			options.AddRange(m_doorwayInfos.Where(info => info.m_childRoom != null && (!checkLocks || info.m_blocker == null)).Select(pair => pair.m_childRoom));
+		}
 
 		// weight options based on distance to target
-		float[] optionWeights = targetObj == null ? Enumerable.Repeat(1.0f, options.Length).ToArray() : options.Select(option => 1.0f / Vector3.Distance(option.transform.position, targetObj.transform.position)).ToArray();
-		RoomController child = options.Length == 0 ? this : Utility.RandomWeighted(options, optionWeights);
+		float[] optionWeights = targetObj == null ? Enumerable.Repeat(1.0f, options.Count).ToArray() : options.Select(option => 1.0f / Vector3.Distance(option.transform.position, targetObj.transform.position)).ToArray();
+		RoomController child = Utility.RandomWeighted(options.ToArray(), optionWeights);
 
 		if (child == this)
 		{
 			// return interior position
-			// TODO: avoid spawning right on top of targetObj
 			Bounds bounds = CalculateBounds(true);
 			float xDiffMax = bounds.extents.x;
 			float yMax = onFloor ? 0.0f : bounds.size.y;
-			return new Vector3(bounds.center.x + Random.Range(-xDiffMax, xDiffMax), transform.position.y + Random.Range(0, yMax), transform.position.z); // NOTE the assumptions that the object position is on the floor of the room but not necessarily centered
+			Vector3 posFinal;
+			int failsafe = 100;
+			do // TODO: more efficient minDistance method?
+			{
+				posFinal = new(bounds.center.x + Random.Range(-xDiffMax, xDiffMax), transform.position.y + Random.Range(0, yMax), transform.position.z); // NOTE the assumptions that the object position is on the floor of the room but not necessarily centered
+			}
+			while (targetObj != null && Vector2.Distance(targetObj.transform.position, posFinal) < targetMinDistance && --failsafe > 0); // TODO: pick different room if necessary & possible?
+			return posFinal;
 		}
 
 		// return position from child room
-		return child.ChildPosition(checkLocks, targetObj, onFloor, recursive);
+		return child.ChildPosition(checkLocks, targetObj, targetMinDistance, onFloor, recursive);
 	}
 
 	public List<RoomController> ChildRoomPath(Vector2 startPosition, Vector2 endPosition, bool unobstructed)
