@@ -138,7 +138,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 1625049187
   m_Mesh: {fileID: 0}
-  m_InstanceId: 30554
+  m_InstanceId: 48398
 --- !u!1 &409852463158594107
 GameObject:
   m_ObjectHideFlags: 0
@@ -167,8 +167,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 409852463158594107}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.1, z: 1}
-  m_LocalScale: {x: 3, y: 0.2, z: 1}
+  m_LocalPosition: {x: 0, y: -0.25, z: 1}
+  m_LocalScale: {x: 3, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5360507845101692224}
@@ -292,11 +292,12 @@ MonoBehaviour:
   m_ApplyToSortingLayers: 00000000
   m_ShapePath:
   - {x: -0.5, y: -0.5, z: 0}
-  - {x: 0, y: -0.499, z: 0}
+  - {x: -0.5, y: 0.1, z: 0}
+  - {x: 0.5, y: 0.1, z: 0}
   - {x: 0.5, y: -0.5, z: 0}
-  m_ShapePathHash: 1584342063
+  m_ShapePathHash: 957203933
   m_Mesh: {fileID: 0}
-  m_InstanceId: 30540
+  m_InstanceId: 48384
 --- !u!1 &1710067748473859646
 GameObject:
   m_ObjectHideFlags: 0
@@ -437,7 +438,7 @@ MonoBehaviour:
   - {x: 0.45, y: -0.1, z: 0}
   m_ShapePathHash: -743758333
   m_Mesh: {fileID: 0}
-  m_InstanceId: 30454
+  m_InstanceId: 48298
 --- !u!1 &2929849760781198063
 GameObject:
   m_ObjectHideFlags: 0
@@ -576,7 +577,7 @@ MonoBehaviour:
   - {x: 0.475, y: -0.5, z: 0}
   m_ShapePathHash: -1299028345
   m_Mesh: {fileID: 0}
-  m_InstanceId: 30460
+  m_InstanceId: 48304
 --- !u!1 &3865645025881897782
 GameObject:
   m_ObjectHideFlags: 0
@@ -588,7 +589,6 @@ GameObject:
   - component: {fileID: 6081418798544490895}
   - component: {fileID: 2891822024208479606}
   - component: {fileID: 4815514491016833494}
-  - component: {fileID: 645457930624081958}
   - component: {fileID: 2206376215979539521}
   m_Layer: 0
   m_Name: DoorwayT
@@ -605,8 +605,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3865645025881897782}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 8.1, z: 1}
-  m_LocalScale: {x: 3, y: 0.2, z: 1}
+  m_LocalPosition: {x: 0, y: 8.25, z: 1}
+  m_LocalScale: {x: 3, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5360507845101692224}
@@ -690,25 +690,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!251 &645457930624081958
-PlatformEffector2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3865645025881897782}
-  m_Enabled: 0
-  m_UseColliderMask: 1
-  m_ColliderMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_RotationalOffset: 0
-  m_UseOneWay: 1
-  m_UseOneWayGrouping: 0
-  m_SurfaceArc: 180
-  m_UseSideFriction: 0
-  m_UseSideBounce: 0
-  m_SideArc: 1
 --- !u!114 &2206376215979539521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -729,12 +710,13 @@ MonoBehaviour:
   m_SelfShadows: 1
   m_ApplyToSortingLayers: 00000000
   m_ShapePath:
-  - {x: 0, y: 0.499, z: 0}
+  - {x: -0.5, y: -0.099999994, z: 0}
   - {x: -0.5, y: 0.5000038, z: 0}
   - {x: 0.5, y: 0.5000038, z: 0}
-  m_ShapePathHash: 2074856063
+  - {x: 0.5, y: -0.099999994, z: 0}
+  m_ShapePathHash: -414024203
   m_Mesh: {fileID: 0}
-  m_InstanceId: 30476
+  m_InstanceId: 48320
 --- !u!1 &5416165761018516747
 GameObject:
   m_ObjectHideFlags: 0
@@ -873,7 +855,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: -1965950227
   m_Mesh: {fileID: 0}
-  m_InstanceId: 30490
+  m_InstanceId: 48334
 --- !u!1 &5557331281289732181
 GameObject:
   m_ObjectHideFlags: 0
@@ -1012,7 +994,7 @@ MonoBehaviour:
   - {x: 0.099999994, y: -0.455, z: 0}
   m_ShapePathHash: 540311278
   m_Mesh: {fileID: 0}
-  m_InstanceId: 30548
+  m_InstanceId: 48392
 --- !u!1 &5858312614131700818
 GameObject:
   m_ObjectHideFlags: 0
@@ -1153,7 +1135,7 @@ MonoBehaviour:
   - {x: -0.45, y: -0.5, z: 0}
   m_ShapePathHash: -1914503589
   m_Mesh: {fileID: 0}
-  m_InstanceId: 30466
+  m_InstanceId: 48310
 --- !u!1 &6422840777706418414
 GameObject:
   m_ObjectHideFlags: 0
@@ -1292,7 +1274,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.45, z: 0}
   m_ShapePathHash: -789003563
   m_Mesh: {fileID: 0}
-  m_InstanceId: 30528
+  m_InstanceId: 48372
 --- !u!1 &7422594126546487761
 GameObject:
   m_ObjectHideFlags: 0
@@ -1370,6 +1352,8 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 8852922857223391415, guid: 3ad08329e9fd1bc47ac830284d62f36d, type: 3}
     m_weight: 1
+  m_decorationsMin: 0
+  m_decorationsMax: 2
   m_decorationHeightMin: 0.5
   m_decorationHeightMax: 2
   m_doorways:
@@ -1601,4 +1585,4 @@ MonoBehaviour:
   - {x: 0.1, y: -0.5, z: 0}
   m_ShapePathHash: -715297341
   m_Mesh: {fileID: 0}
-  m_InstanceId: 30556
+  m_InstanceId: 48400
