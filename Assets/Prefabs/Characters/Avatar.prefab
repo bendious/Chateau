@@ -482,7 +482,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e9c1bd3b458dfc4ab7a9c66b6782439, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_maxHP: 3
+  m_maxHP: 5
   m_damageColorScalar: {x: 1, y: 1, z: 1, w: 1}
   m_healthUIParent: {fileID: 6654259644173391003}
   m_healthSprite: {fileID: 21300000, guid: 66ce8ac3d26a2c0468edc3a8d88698e0, type: 3}
