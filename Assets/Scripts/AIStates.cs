@@ -195,14 +195,14 @@ public sealed class AIThrow : AIState
 
 public sealed class AIRamSwoop : AIState
 {
-	public float m_durationSeconds = 1.0f;
+	public float m_speed = 8.0f; // TODO: build up speed in Update() based on angle
 
 
-	private /*readonly*/ Vector2 m_targetingScalars;
-	private /*readonly*/ float m_speedScalar;
-	private /*readonly*/ float m_degreesPerSecond;
+	private /*readonly*/ Vector2 m_startPosToTarget;
+	private /*readonly*/ float m_speedOrig;
+	private /*readonly*/ float m_radiansPerSecond;
 
-	private float m_angleDegrees = 0.0f;
+	private float m_angleRadians = 0.0f;
 
 
 	public AIRamSwoop(EnemyController ai)
@@ -212,32 +212,38 @@ public sealed class AIRamSwoop : AIState
 
 	public override void Enter()
 	{
-		m_targetingScalars = (Vector2)m_ai.transform.position - (Vector2)m_ai.m_target.position; // this stretches circular movement into an ellipse based on the target offset
+		m_startPosToTarget = (Vector2)m_ai.m_target.position - (Vector2)m_ai.transform.position;
 
-		m_speedScalar = Mathf.PI * 0.5f * Mathf.Max(Mathf.Abs(m_targetingScalars.x), Mathf.Abs(m_targetingScalars.y)) / (m_ai.maxSpeed * m_durationSeconds); // this scales the movement speed in order to move through one-quarter of a circle in the allotted time // TODO: fix
-		m_ai.maxSpeed *= m_speedScalar;
+		m_speedOrig = m_ai.maxSpeed;
+		m_ai.maxSpeed = m_speed;
 
-		m_degreesPerSecond = 180.0f / m_durationSeconds;
+		float travelDist = Mathf.PI * Mathf.Sqrt((m_startPosToTarget.x * m_startPosToTarget.x + m_startPosToTarget.y * m_startPosToTarget.y) * 0.5f); // perimeter of ellipse = 2pi*sqrt((a^2+b^2)/2), and we're traveling half that
+		float durationSec = travelDist / m_speed;
+		m_radiansPerSecond = Mathf.PI / durationSec;
 
 		m_ai.PlayAttackEffects();
 	}
 
 	public override AIState Update()
 	{
-		Quaternion rotation = Quaternion.AngleAxis(m_angleDegrees * Mathf.Sign(m_targetingScalars.x), Vector3.back);
-		m_ai.move = rotation * Vector2.down * new Vector2(Mathf.Abs(m_targetingScalars.x), m_targetingScalars.y);
+		// given m_startPosToTarget == (a,b),
+		// we want position equation: (x,y) = (a - a*cos(theta), b*sin(theta))
+		// so, the velocity equation is the derivative: (x',y') = (a*sin(theta), b*cos(theta))
+		// this then needs to be normalized to scale to exactly m_ai.maxSpeed later
+		m_ai.move = (m_startPosToTarget * new Vector2(Mathf.Sin(m_angleRadians), Mathf.Cos(m_angleRadians))).normalized;
+
 		if (m_ai.HasFlying)
 		{
-			m_ai.transform.rotation = rotation;
+			m_ai.transform.rotation = Quaternion.AngleAxis(Mathf.Rad2Deg * m_angleRadians * Mathf.Sign(m_startPosToTarget.x), Vector3.forward);
 		}
 		else
 		{
 			m_ai.move.y = 0.0f;
 		}
 
-		m_angleDegrees += m_degreesPerSecond * Time.deltaTime;
+		m_angleRadians += m_radiansPerSecond * Time.deltaTime;
 
-		return m_angleDegrees >= 180.0f ? new AIPursue(m_ai) : null;
+		return m_angleRadians >= Mathf.PI ? new AIPursue(m_ai) : null;
 	}
 
 	public override AIState OnDamage(GameObject source)
@@ -251,7 +257,7 @@ public sealed class AIRamSwoop : AIState
 
 		m_ai.StopAttackEffects();
 
-		m_ai.maxSpeed /= m_speedScalar;
+		m_ai.maxSpeed = m_speedOrig;
 	}
 }
 

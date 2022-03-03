@@ -233,10 +233,6 @@ public class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnMove(InputValue input)
 	{
-		if (!controlEnabled)
-		{
-			return;
-		}
 		m_moveDesired = input.Get<Vector2>();
 	}
 

@@ -35,7 +35,7 @@ public class LayoutGenerator
 		public RoomController m_room = null;
 
 
-		public List<Node> DirectParents => DirectParentsInternal == null ? null : DirectParentsInternal.SelectMany(node => node.m_type == Type.TightCoupling ? node.DirectParents : new List<Node> { node }).ToList();
+		public List<Node> DirectParents => DirectParentsInternal?.SelectMany(node => node.m_type == Type.TightCoupling ? node.DirectParents : new List<Node> { node }).ToList();
 
 		public Node TightCoupleParent { get
 		{
