@@ -31,10 +31,10 @@ public class GameController : MonoBehaviour
 
 	public AudioClip m_victoryAudio;
 
-	public float m_waveSecondsMin = 30.0f;
-	public float m_waveSecondsMax = 60.0f;
+	public float m_waveSecondsMin = 60.0f;
+	public float m_waveSecondsMax = 120.0f;
 	public float m_waveEscalationMin = 0.0f;
-	public float m_waveEscalationMax = 4.0f;
+	public float m_waveEscalationMax = 2.0f;
 
 
 	public static bool IsReloading { get; private set; }
@@ -114,7 +114,7 @@ public class GameController : MonoBehaviour
 
 	public void AddAvatar()
 	{
-		m_avatars.Add(Instantiate(m_avatarPrefab, m_avatars.First().transform.position + Vector3.right, Quaternion.identity).GetComponent<AvatarController>()); // TODO: ensure valid start point
+		m_avatars.Add(Instantiate(m_avatarPrefab, RoomPosition(true, m_avatars.First().gameObject, 0.0f, true), Quaternion.identity).GetComponent<AvatarController>()); // TODO: ensure spawn point is clear of enemies/etc.
 
 		// adjust camera UI/targeting
 		// TODO: split screen when far apart?
@@ -136,17 +136,29 @@ public class GameController : MonoBehaviour
 				}
 			}
 
-			AddCameraTarget(avatar.m_aimObject.transform); // NOTE that we don't replace the whole m_Targets array in case a non-avatar object is also present
+			// NOTE that we don't replace the whole m_Targets array in case a non-avatar object is also present
+			AddCameraTargets(avatar.m_aimObject.transform, avatar.transform);
 
 			isFirst = false;
 		}
 	}
 
-	public void AddCameraTarget(Transform tf)
+	public void AddCameraTargets(params Transform[] transforms)
 	{
-		m_cameraTargetGroup.RemoveMember(tf); // prevent duplication // TODO: necessary?
-		m_cameraTargetGroup.AddMember(tf, 1.0f, 1.5f); // TODO: blend weight in? calculate/expose radius?
-		// TODO: remove on target destruction?
+		foreach (Transform tf in transforms)
+		{
+			m_cameraTargetGroup.RemoveMember(tf); // prevent duplication // TODO: necessary?
+			m_cameraTargetGroup.AddMember(tf, 1.0f, 0.0f); // TODO: blend weight in? calculate/expose radius?
+			// TODO: auto-remove on target destruction?
+		}
+	}
+
+	public void RemoveCameraTargets(params Transform[] transforms)
+	{
+		foreach (Transform tf in transforms)
+		{
+			m_cameraTargetGroup.RemoveMember(tf); // TODO: blend weight out?
+		}
 	}
 
 	public Vector3 RoomPosition(bool checkLocks, GameObject targetObj, float targetMinDistance, bool onFloor)
@@ -199,13 +211,11 @@ public class GameController : MonoBehaviour
 
 		if (ConsoleCommands.RegenerateDisabled)
 		{
-#if DEBUG
 			foreach (AvatarController avatar in m_avatars)
 			{
-				avatar.DebugRespawn();
+				avatar.Respawn();
 			}
 			Simulation.Schedule<DebugRespawn>();
-#endif
 			ActivateMenu(m_gameOverUI, false);
 			return;
 		}
@@ -303,7 +313,7 @@ public class GameController : MonoBehaviour
 	private void SpawnEnemy(GameObject enemyPrefab)
 	{
 		CapsuleCollider2D enemyCollider = enemyPrefab.GetComponent<CapsuleCollider2D>();
-		Vector3 spawnPos = RoomPosition(true, m_avatars[Random.Range(0, m_avatars.Count())].gameObject, 2.0f, !enemyPrefab.GetComponent<KinematicObject>().HasFlying) + Vector3.up * (enemyCollider.size.y * 0.5f - enemyCollider.offset.y); // TODO: base min distance on avatar/enemy size?
+		Vector3 spawnPos = RoomPosition(true, m_avatars[Random.Range(0, m_avatars.Count())].gameObject, 4.0f, !enemyPrefab.GetComponent<KinematicObject>().HasFlying) + Vector3.up * (enemyCollider.size.y * 0.5f - enemyCollider.offset.y); // TODO: base min distance on avatar/enemy size & speed?
 		m_enemies.Add(Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>());
 	}
 

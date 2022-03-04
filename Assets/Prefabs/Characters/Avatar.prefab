@@ -189,7 +189,7 @@ GameObject:
   - component: {fileID: 6654259642884158824}
   - component: {fileID: 6654259642884158827}
   - component: {fileID: 8122682930851135015}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Avatar
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -255,6 +255,7 @@ MonoBehaviour:
   m_moveSpringDampTime: 0.15
   m_secondaryDegrees: -45
   m_coyoteTime: 0.15
+  m_respawnSeconds: 30
   controlEnabled: 1
 --- !u!212 &6654259642884158816
 SpriteRenderer:
@@ -900,7 +901,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6654259643467443662}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Aim
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1654,6 +1655,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ArmR
       objectReference: {fileID: 0}
+    - target: {fileID: 3060130244721252944, guid: 3952ab59ee4e664418beab08d7c4492c, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 3060130244721252947, guid: 3952ab59ee4e664418beab08d7c4492c, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -1723,6 +1728,10 @@ PrefabInstance:
     - target: {fileID: 3060130244721252944, guid: 3952ab59ee4e664418beab08d7c4492c, type: 3}
       propertyPath: m_Name
       value: ArmL
+      objectReference: {fileID: 0}
+    - target: {fileID: 3060130244721252944, guid: 3952ab59ee4e664418beab08d7c4492c, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 3060130244721252947, guid: 3952ab59ee4e664418beab08d7c4492c, type: 3}
       propertyPath: m_RootOrder

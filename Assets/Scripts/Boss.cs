@@ -24,7 +24,7 @@ public class Boss : MonoBehaviour
 
 	private void OnWillRenderObject()
 	{
-		if (m_started || GameController.IsReloading)
+		if (!m_room.Sealed || m_started || GameController.IsReloading)
 		{
 			return;
 		}
@@ -93,7 +93,7 @@ public class Boss : MonoBehaviour
 		m_activatedFully = true;
 
 		// adjust camera
-		GameController.Instance.AddCameraTarget(transform);
+		GameController.Instance.AddCameraTargets(transform);
 
 		// recolor
 		SpriteRenderer[] bossRenderers = GetComponentsInChildren<SpriteRenderer>().Where(renderer => renderer.GetComponent<ItemController>() == null).ToArray();

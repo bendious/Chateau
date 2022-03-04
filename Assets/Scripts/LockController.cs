@@ -229,7 +229,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 			m_combination = null; // to disable interaction for consoles
 			if (m_door != null)
 			{
-				GameController.Instance.AddCameraTarget(m_door.transform);
+				GameController.Instance.AddCameraTargets(m_door.transform);
 			}
 			Simulation.Schedule<ObjectDespawn>(m_door != null ? 1.0f : 0.5f).m_object = m_door != null ? m_door : gameObject; // TODO: guarantee camera reaches m_door?
 			foreach (GameObject keyRemaining in m_keys)

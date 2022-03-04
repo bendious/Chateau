@@ -33,6 +33,16 @@ public class EnableCollision : Event<EnableCollision>
 }
 
 /// <summary>
+/// This event is fired when player control of an avatar should be re-enabled.
+/// </summary>
+public class EnableControl : Event<EnableControl>
+{
+	public AvatarController m_avatar;
+
+	public override void Execute() => m_avatar.EnablePlayerControl();
+}
+
+/// <summary>
 /// This event is fired when damage to an object should be re-enabled.
 /// </summary>
 public class EnableDamage : Event<EnableDamage>
@@ -52,6 +62,18 @@ public class ObjectDespawn : Event<ObjectDespawn>
 	public override bool Precondition() => m_object != null; // TODO: warn about double-deletion of objects?
 
 	public override void Execute() => Object.Destroy(m_object);
+}
+
+/// <summary>
+/// Fired to respawn a non-final avatar.
+/// </summary>
+public class AvatarRespawn : Event<AvatarRespawn>
+{
+	public AvatarController m_avatar;
+
+	public override bool Precondition() => GameController.Instance.m_avatars.Exists(avatar => avatar.IsAlive);
+
+	public override void Execute() => m_avatar.Respawn();
 }
 
 /// <summary>

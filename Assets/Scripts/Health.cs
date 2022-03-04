@@ -104,6 +104,7 @@ public class Health : MonoBehaviour
 		m_invincible = true;
 		if (!isDead)
 		{
+			// TODO: disable from animation trigger & make timer a fallback?
 			Simulation.Schedule<EnableDamage>(m_invincibilityTime).m_health = this;
 		}
 

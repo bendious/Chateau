@@ -46,12 +46,16 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	private static int m_upVecID;
 	private static int m_gradientID;
 
+	private static int m_layerDefault;
+
 
 	private void Awake()
 	{
 		m_posLocalPrevID = Shader.PropertyToID("PosLocalPrev");
 		m_upVecID = Shader.PropertyToID("UpVec");
 		m_gradientID = Shader.PropertyToID("Gradient");
+
+		m_layerDefault = LayerMask.NameToLayer("Default");
 
 		m_body = GetComponent<Rigidbody2D>();
 		m_vfx = GetComponent<VisualEffect>();
@@ -142,6 +146,12 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 					m_health.Decrement(gameObject);
 				}
 			}
+		}
+
+		if (isDetached)
+		{
+			// set layer back to default to re-enable default collisions
+			gameObject.layer = m_layerDefault;
 		}
 
 		// done for fully-dynamic collisions

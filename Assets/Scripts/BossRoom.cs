@@ -12,12 +12,17 @@ public class BossRoom : MonoBehaviour
 	public AudioClip m_audioOutro;
 
 
+	public bool Sealed { get; private set; }
+
+
 	private struct DoorInfo
 	{
 		public GameObject m_object;
 		public Bounds m_bounds;
 	};
 	private DoorInfo[] m_doors;
+
+	private readonly List<GameObject> m_avatarsPresent = new();
 
 	private readonly List<GameObject> m_spawnedGates = new();
 
@@ -43,11 +48,19 @@ public class BossRoom : MonoBehaviour
 
 	private void OnTriggerEnter2D(Collider2D collider)
 	{
-		// TODO: ensure any co-op players are all present?
 		if (!GameController.Instance.m_avatars.Exists(avatar => collider.gameObject == avatar.gameObject))
 		{
 			return;
 		}
+		m_avatarsPresent.Add(collider.gameObject);
+
+		// ensure all co-op players are present
+		// TODO: allow sealing while awaiting respawn, once sealed room spawn positions are handled?
+		if (GameController.Instance.m_avatars.Exists(avatar => !avatar.IsAlive || !m_avatarsPresent.Contains(avatar.gameObject)))
+		{
+			return;
+		}
+
 		GetComponent<Collider2D>().enabled = false;
 
 		// seal room
@@ -73,12 +86,18 @@ public class BossRoom : MonoBehaviour
 
 			++i;
 		}
+		Sealed = true;
 
 		// play ambiance SFX
 		AudioSource[] sources = GetComponents<AudioSource>();
 		AudioSource source0 = sources.First();
 		source0.Play();
 		sources[1].PlayScheduled(AudioSettings.dspTime + source0.clip.length);
+	}
+
+	private void OnTriggerExit2D(Collider2D collider)
+	{
+		m_avatarsPresent.Remove(collider.gameObject);
 	}
 
 	private void OnDestroy()
@@ -118,6 +137,7 @@ public class BossRoom : MonoBehaviour
 			Simulation.Schedule<ObjectDespawn>().m_object = gate;
 		}
 		m_spawnedGates.Clear();
+		Sealed = false;
 
 		// reset boss
 		m_boss.GetComponent<Boss>().DebugReset();

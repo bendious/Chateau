@@ -42,6 +42,8 @@ public class AvatarController : KinematicCharacter
 
 	public float m_coyoteTime = 0.15f;
 
+	public float m_respawnSeconds = 30.0f;
+
 
 	public PlayerInput Controls { get; private set; }
 
@@ -184,8 +186,8 @@ public class AvatarController : KinematicCharacter
 			aimPctsFromCenter.x = Mathf.Clamp(aimPctsFromCenter.x, -1.0f, 1.0f);
 			aimPctsFromCenter.y = Mathf.Clamp(aimPctsFromCenter.y, -1.0f, 1.0f);
 			CinemachineVirtualCamera vCam = GameController.Instance.m_virtualCamera;
-			Vector2 screenExtentsWS = vCam == null ? Vector2.zero : new(vCam.m_Lens.OrthographicSize * vCam.m_Lens.Aspect, vCam.m_Lens.OrthographicSize);
-			Vector2 aimPosConstrained = transform.position + (Vector3)(screenExtentsWS * aimPctsFromCenter);
+			Vector2 screenSizeWS = vCam == null ? Vector2.zero : new Vector2(vCam.m_Lens.OrthographicSize * vCam.m_Lens.Aspect, vCam.m_Lens.OrthographicSize) * 2.0f;
+			Vector2 aimPosConstrained = transform.position + (Vector3)(screenSizeWS * aimPctsFromCenter);
 			Vector2 aimPos = m_usingMouse ? camera.ScreenToWorldPoint(m_mousePosPixels) : aimPosConstrained;
 
 			// aim camera/sprite
@@ -479,6 +481,13 @@ public class AvatarController : KinematicCharacter
 		{
 			Simulation.Schedule<GameOver>(3.0f); // TODO: animation event?
 		}
+		else
+		{
+			// TODO: delay camera removal until end of animation?
+			GameController.Instance.RemoveCameraTargets(m_aimObject.transform, transform);
+
+			Simulation.Schedule<AvatarRespawn>(m_respawnSeconds).m_avatar = this;
+		}
 
 		return true;
 	}
@@ -500,15 +509,20 @@ public class AvatarController : KinematicCharacter
 			return;
 		}
 
-		health.Decrement(enemy.gameObject);
+		bool hurt = health.Decrement(enemy.gameObject);
+		if (!hurt)
+		{
+			return;
+		}
+
 		controlEnabled = false; // re-enabled via EnablePlayerControl() animation trigger
+		Simulation.Schedule<EnableControl>(1.0f).m_avatar = this; // NOTE that this is only a timer-based fallback
 
 		// temporarily disable collision to prevent getting stuck
 		EnableCollision.TemporarilyDisableCollision(enemy.GetComponents<Collider2D>(), new Collider2D[] { m_collider });
 	}
 
-#if DEBUG
-	public void DebugRespawn()
+	public void Respawn()
 	{
 		m_collider.enabled = true;
 		body.simulated = true;
@@ -527,13 +541,25 @@ public class AvatarController : KinematicCharacter
 
 		health.Respawn();
 
-		Teleport(Vector3.zero);
-		m_aimObject.transform.position = Vector3.zero;
+		Vector3 spawnPos = Vector3.zero;
+		foreach (AvatarController avatar in GameController.Instance.m_avatars)
+		{
+			if (avatar == this || !avatar.IsAlive)
+			{
+				continue;
+			}
+			spawnPos = GameController.Instance.RoomPosition(true, avatar.gameObject, 0.0f, true);
+			break;
+		}
+		Teleport(spawnPos);
+		m_aimObject.transform.position = spawnPos;
+
+		GameController.Instance.AddCameraTargets(m_aimObject.transform, transform);
+
 		jumpState = JumpState.Grounded;
 
 		animator.SetBool("dead", false);
 	}
-#endif
 
 	public bool ToggleOverlay(SpriteRenderer sourceRenderer, string text)
 	{
@@ -630,6 +656,15 @@ public class AvatarController : KinematicCharacter
 		GetComponent<Health>().m_invincible = true;
 	}
 
+	// called from animation trigger as well as the EnableControl event
+	public void EnablePlayerControl()
+	{
+		if (IsAlive)
+		{
+			controlEnabled = true;
+		}
+	}
+
 
 	private void OnObjectDespawn(ObjectDespawn evt)
 	{
@@ -716,15 +751,6 @@ public class AvatarController : KinematicCharacter
 			case JumpState.Landed:
 				jumpState = JumpState.Grounded;
 				break;
-		}
-	}
-
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called from animation event")]
-	private void EnablePlayerControl()
-	{
-		if (IsAlive)
-		{
-			controlEnabled = true;
 		}
 	}
 }
