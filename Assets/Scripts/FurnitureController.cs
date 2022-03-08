@@ -1,12 +1,13 @@
 using UnityEngine;
 
 
-public class TableController : MonoBehaviour
+public class FurnitureController : MonoBehaviour
 {
 	public Vector2 m_sizeMin = new(1.0f, 0.25f);
 	public Vector2 m_sizeMax = new(4.0f, 0.5f);
 
 	public WeightedObject<GameObject>[] m_itemPrefabs;
+	public WeightedObject<GameObject>[] m_itemRarePrefabs;
 
 	public int m_itemsMin = 1;
 	public int m_itemsMax = 4;
@@ -25,7 +26,7 @@ public class TableController : MonoBehaviour
 	}
 
 
-	public void SpawnItems()
+	public void SpawnItems(bool rare)
 	{
 		// TODO: more deliberate spawning
 		int itemCount = Random.Range(m_itemsMin, m_itemsMax + 1);
@@ -33,7 +34,7 @@ public class TableController : MonoBehaviour
 		float extentX = size.x * 0.5f;
 		for (int i = 0; i < itemCount; ++i)
 		{
-			GameObject itemPrefab = Utility.RandomWeighted(m_itemPrefabs);
+			GameObject itemPrefab = Utility.RandomWeighted(rare ? m_itemRarePrefabs : m_itemPrefabs);
 			BoxCollider2D itemCollider = itemPrefab.GetComponent<BoxCollider2D>();
 			float offsetY = size.y + itemCollider.size.y * 0.5f + itemCollider.edgeRadius;
 			Vector3 spawnCenterPos = transform.position + new Vector3(Random.Range(-extentX, extentX), offsetY, 0.0f); // TODO: don't assume the pivot point is centered, but also don't use stale Collider2D bounds?

@@ -61,29 +61,34 @@ public class GameController : MonoBehaviour
 		generator.Generate();
 
 		// use generator to spawn rooms/locks/keys/items/etc.
-		// TODO: multi-node rooms
-		generator.ForEachNode(node =>
+		LayoutGenerator.Node parentPending = null;
+		List<LayoutGenerator.Node> nodesPending = new();
+		bool failed = generator.ForEachNode(node =>
 		{
 			Debug.Assert(node.m_room == null);
 			Assert.AreNotEqual(node.m_type, LayoutGenerator.Node.Type.TightCoupling);
 
-			Assert.AreEqual(node.m_type == LayoutGenerator.Node.Type.Entrance, m_startRoom == null);
-			if (m_startRoom == null)
+			LayoutGenerator.Node parent = node.TightCoupleParent;
+			if (nodesPending.Count > 0 && parent != parentPending)
 			{
-				m_startRoom = Instantiate(Utility.RandomWeighted(m_entryRoomPrefabs)).GetComponent<RoomController>();
-				m_startRoom.Initialize(node);
-			}
-			else
-			{
-				bool spawned = node.TightCoupleParent.m_room.SpawnChildRoom(Utility.RandomWeighted(node.m_type == LayoutGenerator.Node.Type.Boss ? m_bossRoomPrefabs : m_roomPrefabs), node);
+				bool spawned = AddRoomForNodes(nodesPending.ToArray());
 				if (!spawned)
 				{
-					Retry(); // TODO: more efficient way to guarantee room spawning?
 					return true;
 				}
+				nodesPending.Clear();
 			}
+
+			parentPending = parent;
+			nodesPending.Add(node);
 			return false;
 		});
+		if (failed)
+		{
+			Retry(); // TODO: more efficient way to guarantee room spawning?
+			return;
+		}
+		AddRoomForNodes(nodesPending.ToArray());
 
 		if (Random.value > 0.5f)
 		{
@@ -275,6 +280,21 @@ public class GameController : MonoBehaviour
 	}
 #endif
 
+
+	private bool AddRoomForNodes(LayoutGenerator.Node[] nodes)
+	{
+		Assert.AreEqual(System.Array.Exists(nodes, node => node.m_type == LayoutGenerator.Node.Type.Entrance), m_startRoom == null);
+		if (m_startRoom == null)
+		{
+			m_startRoom = Instantiate(Utility.RandomWeighted(m_entryRoomPrefabs)).GetComponent<RoomController>();
+			m_startRoom.Initialize(nodes);
+			return true;
+		}
+		else
+		{
+			return nodes.First().TightCoupleParent.m_room.SpawnChildRoom(Utility.RandomWeighted(System.Array.Exists(nodes, node => node.m_type == LayoutGenerator.Node.Type.Boss) ? m_bossRoomPrefabs : m_roomPrefabs), nodes);
+		}
+	}
 
 	private IEnumerator SpawnWavesCoroutine()
 	{

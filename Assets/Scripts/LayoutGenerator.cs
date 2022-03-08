@@ -15,7 +15,7 @@ public class LayoutGenerator
 			Key,
 			Lock,
 			Secret,
-			Items,
+			BonusItems,
 			Boss,
 			TightCoupling,
 
@@ -190,10 +190,10 @@ public class LayoutGenerator
 	{
 		new(Node.Type.Initial, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceIntro, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss) }) }) }) }) }) }) }) }),
 
-		new(Node.Type.SequenceIntro, new() { new(Node.Type.Items), new(Node.Type.Key) }),
-		new(Node.Type.SequenceMedium, new() { new(Node.Type.Items), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
-		new(Node.Type.SequenceLarge, new() { new(Node.Type.Items), new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
-		new(Node.Type.SequenceLarge, new() { new(Node.Type.Items), new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
+		new(Node.Type.SequenceIntro, new() { new(Node.Type.BonusItems), new(Node.Type.Key) }),
+		new(Node.Type.SequenceMedium, new() { new(Node.Type.BonusItems), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
+		new(Node.Type.SequenceLarge, new() { new(Node.Type.BonusItems), new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
+		new(Node.Type.SequenceLarge, new() { new(Node.Type.BonusItems), new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
 
 		// serial chains
 		// NOTE that the leaf Keys are required for the following Locks
