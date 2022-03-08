@@ -41,7 +41,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2548474356318102515, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
       propertyPath: m_attachOffsetLocal.z
-      value: -0.1
+      value: -0.05
       objectReference: {fileID: 0}
     - target: {fileID: 4221545259124064584, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
       propertyPath: m_Name

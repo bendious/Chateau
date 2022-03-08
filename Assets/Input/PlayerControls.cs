@@ -73,24 +73,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Use"",
-                    ""type"": ""Button"",
-                    ""id"": ""894543a6-d5b1-4fe0-826b-597ee4b95b17"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Interact"",
-                    ""type"": ""Button"",
-                    ""id"": ""01905719-8e5f-4b0d-abff-dda735fe64c0"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": ""Press(behavior=2)"",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""Drop"",
                     ""type"": ""Button"",
                     ""id"": ""3e361fe1-f608-4ca8-bef4-cb2dd2a2e02d"",
@@ -332,28 +314,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""c5b05114-c745-4992-a40d-bca6d04e124b"",
-                    ""path"": ""<Keyboard>/shift"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
-                    ""action"": ""Use"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""64907014-96a6-490f-abfa-b277ef067e8b"",
-                    ""path"": ""<Gamepad>/leftShoulder"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Gamepad"",
-                    ""action"": ""Use"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""309fa7ef-a809-44bf-86c5-30306dea34a4"",
                     ""path"": ""<Keyboard>/x"",
                     ""interactions"": """",
@@ -393,28 +353,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Inventory"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""9fe36085-fc02-4c85-b200-2e478b0f8142"",
-                    ""path"": ""<Keyboard>/z"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
-                    ""action"": ""Interact"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""2cedd88c-a0bc-4389-bda5-637ff20420d4"",
-                    ""path"": ""<Gamepad>/buttonWest"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Gamepad"",
-                    ""action"": ""Interact"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -783,6 +721,24 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Interact"",
+                    ""type"": ""Button"",
+                    ""id"": ""246e4e86-5875-4ff2-839c-70f54a4dd191"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Press(behavior=2)"",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Use"",
+                    ""type"": ""Button"",
+                    ""id"": ""eb840304-70cb-44f2-b417-cd22e9f4c21d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -939,6 +895,50 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""action"": ""Point"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""46badb10-d0cc-4347-976d-80d857f68093"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2e0750f0-be62-4923-8836-f583226f4aaa"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""dea0e022-ff0f-4181-8beb-547c8de42417"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
+                    ""action"": ""Use"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2957f91c-593d-4899-9238-c1cfd75db95f"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Use"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -991,8 +991,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         m_Avatar_Swing = m_Avatar.FindAction("Swing", throwIfNotFound: true);
         m_Avatar_Throw = m_Avatar.FindAction("Throw", throwIfNotFound: true);
         m_Avatar_Jump = m_Avatar.FindAction("Jump", throwIfNotFound: true);
-        m_Avatar_Use = m_Avatar.FindAction("Use", throwIfNotFound: true);
-        m_Avatar_Interact = m_Avatar.FindAction("Interact", throwIfNotFound: true);
         m_Avatar_Drop = m_Avatar.FindAction("Drop", throwIfNotFound: true);
         m_Avatar_Inventory = m_Avatar.FindAction("Inventory", throwIfNotFound: true);
         // UI
@@ -1010,6 +1008,8 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         m_AlwaysOn_RightClick = m_AlwaysOn.FindAction("RightClick", throwIfNotFound: true);
         m_AlwaysOn_Scroll = m_AlwaysOn.FindAction("Scroll", throwIfNotFound: true);
         m_AlwaysOn_Pause = m_AlwaysOn.FindAction("Pause", throwIfNotFound: true);
+        m_AlwaysOn_Interact = m_AlwaysOn.FindAction("Interact", throwIfNotFound: true);
+        m_AlwaysOn_Use = m_AlwaysOn.FindAction("Use", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -1074,8 +1074,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Avatar_Swing;
     private readonly InputAction m_Avatar_Throw;
     private readonly InputAction m_Avatar_Jump;
-    private readonly InputAction m_Avatar_Use;
-    private readonly InputAction m_Avatar_Interact;
     private readonly InputAction m_Avatar_Drop;
     private readonly InputAction m_Avatar_Inventory;
     public struct AvatarActions
@@ -1087,8 +1085,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         public InputAction @Swing => m_Wrapper.m_Avatar_Swing;
         public InputAction @Throw => m_Wrapper.m_Avatar_Throw;
         public InputAction @Jump => m_Wrapper.m_Avatar_Jump;
-        public InputAction @Use => m_Wrapper.m_Avatar_Use;
-        public InputAction @Interact => m_Wrapper.m_Avatar_Interact;
         public InputAction @Drop => m_Wrapper.m_Avatar_Drop;
         public InputAction @Inventory => m_Wrapper.m_Avatar_Inventory;
         public InputActionMap Get() { return m_Wrapper.m_Avatar; }
@@ -1115,12 +1111,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Jump.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnJump;
                 @Jump.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnJump;
                 @Jump.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnJump;
-                @Use.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnUse;
-                @Use.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnUse;
-                @Use.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnUse;
-                @Interact.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnInteract;
-                @Interact.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnInteract;
-                @Interact.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnInteract;
                 @Drop.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnDrop;
                 @Drop.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnDrop;
                 @Drop.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnDrop;
@@ -1146,12 +1136,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Jump.started += instance.OnJump;
                 @Jump.performed += instance.OnJump;
                 @Jump.canceled += instance.OnJump;
-                @Use.started += instance.OnUse;
-                @Use.performed += instance.OnUse;
-                @Use.canceled += instance.OnUse;
-                @Interact.started += instance.OnInteract;
-                @Interact.performed += instance.OnInteract;
-                @Interact.canceled += instance.OnInteract;
                 @Drop.started += instance.OnDrop;
                 @Drop.performed += instance.OnDrop;
                 @Drop.canceled += instance.OnDrop;
@@ -1237,6 +1221,8 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_AlwaysOn_RightClick;
     private readonly InputAction m_AlwaysOn_Scroll;
     private readonly InputAction m_AlwaysOn_Pause;
+    private readonly InputAction m_AlwaysOn_Interact;
+    private readonly InputAction m_AlwaysOn_Use;
     public struct AlwaysOnActions
     {
         private @PlayerControls m_Wrapper;
@@ -1247,6 +1233,8 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         public InputAction @RightClick => m_Wrapper.m_AlwaysOn_RightClick;
         public InputAction @Scroll => m_Wrapper.m_AlwaysOn_Scroll;
         public InputAction @Pause => m_Wrapper.m_AlwaysOn_Pause;
+        public InputAction @Interact => m_Wrapper.m_AlwaysOn_Interact;
+        public InputAction @Use => m_Wrapper.m_AlwaysOn_Use;
         public InputActionMap Get() { return m_Wrapper.m_AlwaysOn; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1274,6 +1262,12 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Pause.started -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnPause;
                 @Pause.performed -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnPause;
                 @Pause.canceled -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnPause;
+                @Interact.started -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnInteract;
+                @Interact.performed -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnInteract;
+                @Interact.canceled -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnInteract;
+                @Use.started -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnUse;
+                @Use.performed -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnUse;
+                @Use.canceled -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnUse;
             }
             m_Wrapper.m_AlwaysOnActionsCallbackInterface = instance;
             if (instance != null)
@@ -1296,6 +1290,12 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Pause.started += instance.OnPause;
                 @Pause.performed += instance.OnPause;
                 @Pause.canceled += instance.OnPause;
+                @Interact.started += instance.OnInteract;
+                @Interact.performed += instance.OnInteract;
+                @Interact.canceled += instance.OnInteract;
+                @Use.started += instance.OnUse;
+                @Use.performed += instance.OnUse;
+                @Use.canceled += instance.OnUse;
             }
         }
     }
@@ -1334,8 +1334,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         void OnSwing(InputAction.CallbackContext context);
         void OnThrow(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
-        void OnUse(InputAction.CallbackContext context);
-        void OnInteract(InputAction.CallbackContext context);
         void OnDrop(InputAction.CallbackContext context);
         void OnInventory(InputAction.CallbackContext context);
     }
@@ -1355,5 +1353,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         void OnRightClick(InputAction.CallbackContext context);
         void OnScroll(InputAction.CallbackContext context);
         void OnPause(InputAction.CallbackContext context);
+        void OnInteract(InputAction.CallbackContext context);
+        void OnUse(InputAction.CallbackContext context);
     }
 }

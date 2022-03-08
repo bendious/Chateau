@@ -125,25 +125,28 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		}
 	}
 
-	public void OnSubmit(AvatarController avatar)
+	public bool OnSubmit(AvatarController avatar)
 	{
 		if (m_inputCur == m_combination)
 		{
 			Unlock(null);
 			UICleanup(avatar);
-			return;
+			return true;
 		}
 
 		// TODO: failure SFX?
+
+		return false;
 	}
 
 	public void UICleanup(AvatarController avatar)
 	{
-		avatar.Controls.SwitchCurrentActionMap("Avatar"); // NOTE that this is BEFORE clearing m_indicator since we were getting occasional OnNavigate() calls after clearing m_indicator
+		if (avatar.m_overlayCanvas.gameObject.activeSelf)
+		{
+			avatar.ToggleOverlay(null, null); // NOTE that this is BEFORE clearing m_indicator since we were getting occasional OnNavigate() calls after clearing m_indicator
+		}
 		Simulation.Schedule<ObjectDespawn>().m_object = m_indicator;
 		m_indicator = null;
-		GameObject overlayObj = avatar.m_overlayCanvas.gameObject;
-		overlayObj.SetActive(false);
 	}
 
 

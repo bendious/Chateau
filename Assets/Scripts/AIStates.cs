@@ -42,7 +42,7 @@ public sealed class AIPursue : AIState
 
 		// check for target death
 		AvatarController targetAvatar = m_ai.m_target == null ? null : m_ai.m_target.GetComponent<AvatarController>();
-		if (targetAvatar != null && !targetAvatar.controlEnabled)
+		if (targetAvatar != null && !targetAvatar.IsAlive)
 		{
 			m_ai.m_target = null;
 			return null;
@@ -90,7 +90,7 @@ public sealed class AIFlee : AIState
 
 		// check target availability
 		AvatarController targetAvatar = m_ai.m_target.GetComponent<AvatarController>();
-		if (targetAvatar == null || targetAvatar.controlEnabled)
+		if (targetAvatar == null || targetAvatar.IsAlive)
 		{
 			return new AIPursue(m_ai);
 		}

@@ -52,8 +52,8 @@ public class AvatarController : KinematicCharacter
 
 	private JumpState jumpState = JumpState.Grounded;
 	private Health health;
-	public bool controlEnabled = true;
 
+	private bool controlEnabled = true; // TODO: remove?
 
 	private float m_leftGroundTime = -1.0f;
 
@@ -106,7 +106,7 @@ public class AvatarController : KinematicCharacter
 
 	protected override void Update()
 	{
-		if (controlEnabled && !m_overlayCanvas.gameObject.activeSelf)
+		if (controlEnabled)
 		{
 			// update velocity
 			move = Utility.SmoothDamp(move, m_moveDesired, ref m_moveVel, m_moveSpringDampTime);
@@ -405,13 +405,21 @@ public class AvatarController : KinematicCharacter
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnSubmit(InputValue input)
 	{
-		InteractUIAction(lockController => lockController.OnSubmit(this));
+		bool consumed = InteractUIAction(lockController => lockController.OnSubmit(this));
+		if (!consumed && m_overlayCanvas.gameObject.activeSelf)
+		{
+			ToggleOverlay(null, null);
+		}
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnCancel(InputValue input)
 	{
-		InteractUIAction(lockController => lockController.UICleanup(this));
+		bool consumed = InteractUIAction(lockController => lockController.UICleanup(this));
+		if (!consumed && m_overlayCanvas.gameObject.activeSelf)
+		{
+			ToggleOverlay(null, null);
+		}
 	}
 
 	// called by InputSystem / PlayerInput component
@@ -572,6 +580,7 @@ public class AvatarController : KinematicCharacter
 			overlayObj.GetComponentInChildren<TMPro.TMP_Text>().text = text;
 		}
 		overlayObj.SetActive(!overlayObj.activeSelf);
+		Controls.SwitchCurrentActionMap(m_overlayCanvas.gameObject.activeSelf ? "UI" : "Avatar"); // TODO: account for other UI instances?
 		return overlayObj.activeSelf;
 	}
 
@@ -611,7 +620,7 @@ public class AvatarController : KinematicCharacter
 			}
 			else
 			{
-				posItr.x = templateTf.anchoredPosition.x + (templateTf.sizeDelta.x + templateTf.anchoredPosition.x) * iconIdx;
+				posItr.x = templateTf.anchoredPosition.x + (templateTf.sizeDelta.x + Mathf.Abs(templateTf.anchoredPosition.x)) * iconIdx * (Utility.FloatEqual(templateTf.anchorMin.x, 1.0f) ? -1.0f : 1.0f);
 				UIObj = Instantiate(templateObj, Vector3.zero, Quaternion.identity, m_inventoryUI.transform);
 				UIObj.transform.GetComponent<RectTransform>().anchoredPosition3D = posItr;
 				UIObj.SetActive(true);
@@ -668,25 +677,33 @@ public class AvatarController : KinematicCharacter
 
 	private void OnObjectDespawn(ObjectDespawn evt)
 	{
-		if (evt.m_object.transform.root == transform)
+		if (evt.m_object.transform.root != transform)
 		{
-			evt.m_object.transform.SetParent(null); // so that we can refresh inventory immediately even though deletion hasn't happened yet
-			InventorySync();
+			return;
 		}
+		ItemController item = evt.m_object.GetComponent<ItemController>();
+		if (item == null)
+		{
+			return;
+		}
+
+		item.Detach(false); // to swap in new items and so that we can refresh inventory immediately even though deletion hasn't happened yet
+		InventorySync();
 	}
 
-	private void InteractUIAction(Action<LockController> f)
+	private bool InteractUIAction(Action<LockController> f)
 	{
 		if (Controls.currentActionMap.name != "UI" || m_focusObj == null) // TODO: cleaner way of checking enabled action map?
 		{
-			return;
+			return false;
 		}
 		LockController lockController = m_focusObj.GetComponent<LockController>();
 		if (lockController == null)
 		{
-			return;
+			return false;
 		}
 		f(lockController);
+		return true;
 	}
 
 	private void DeactivateAllControl()

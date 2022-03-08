@@ -202,9 +202,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	{
 		// ensure our overlay doesn't get stuck on
 		AvatarController avatar = m_holder.Component.transform.parent.GetComponent<AvatarController>();
-		if (avatar != null)
+		if (avatar != null && avatar.m_overlayCanvas.gameObject.activeSelf)
 		{
-			avatar.m_overlayCanvas.gameObject.SetActive(false);
+			avatar.ToggleOverlay(null, null);
 		}
 
 		m_holder.ItemDetach(this, noAutoReplace);
