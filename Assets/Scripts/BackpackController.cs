@@ -12,6 +12,12 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable
 	public /*override*/ Vector3 ChildAttachPointLocal => Vector3.forward * 0.2f/*?*/;
 
 
+	private void Awake()
+	{
+		GetComponent<SpriteRenderer>().color = new Color(Random.Range(0.5f, 1.0f), Random.Range(0.5f, 1.0f), Random.Range(0.5f, 1.0f)); // TODO: more deliberate choice?
+	}
+
+
 	public /*override*/ bool ItemAttach(ItemController item)
 	{
 		bool attached = IHolder.ItemAttachInternal(item, this);

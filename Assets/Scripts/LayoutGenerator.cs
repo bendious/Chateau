@@ -69,7 +69,7 @@ public class LayoutGenerator
 			return tcParentDirectParents.Count > 1 ? tightCoupleParent : tightCoupleParent.AreaParent;
 		} }
 
-		public readonly Color m_color = new(UnityEngine.Random.Range(0.0f, 0.5f), UnityEngine.Random.Range(0.0f, 0.5f), UnityEngine.Random.Range(0.0f, 0.5f)); // TODO: tend brighter based on progress?
+		public readonly Color m_color = new(UnityEngine.Random.Range(0.25f, 0.5f), UnityEngine.Random.Range(0.25f, 0.5f), UnityEngine.Random.Range(0.25f, 0.5f)); // TODO: tend brighter based on progress?
 
 
 		internal List<Node> DirectParentsInternal;

@@ -77,9 +77,9 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 
 		// choose color
 		Color color = new(Random.value, Random.value, Random.value);
-		if (Utility.ColorsSimilar(color, Color.black) || Utility.ColorsSimilar(color, Color.white) || Utility.ColorsSimilar(color, RoomController.m_oneWayPlatformColor))
+		if (Utility.ColorsSimilar(color, Color.black) || Utility.ColorsSimilar(color, RoomController.m_oneWayPlatformColor))
 		{
-			// avoid colors that are too close to the black/white/brown of the background/walls/platforms
+			// avoid colors that are too close to the black/brown of the background/platforms
 			int swapIdx = Random.Range(0, 3);
 			color[swapIdx] = (color[swapIdx] + 0.5f) % 1.0f;
 		}

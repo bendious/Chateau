@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 
@@ -17,12 +18,25 @@ public class FurnitureController : MonoBehaviour
 	{
 		// randomize size
 		float width = Random.Range(m_sizeMin.x, m_sizeMax.x);
-		float height = Random.Range(m_sizeMin.y, m_sizeMax.y);
-		Vector2 size = new(width, height);
-		GetComponent<SpriteRenderer>().size = size;
-		BoxCollider2D collider2d = GetComponent<BoxCollider2D>(); // NOTE that Unity doesn't like naming variables 'collider' w/i a MonoBehaviour...
-		collider2d.size = size;
-		collider2d.offset = new(0.0f, height * 0.5f);
+		float heightTotal = Random.Range(m_sizeMin.y, m_sizeMax.y);
+
+		// apply size evenly across pieces
+		// TODO: don't assume even stacking?
+		Transform[] pieces = GetComponentsInChildren<Transform>();
+		float heightPiece = heightTotal / pieces.Length;
+		Vector2 sizePiece = new(width, heightPiece);
+
+		float heightItr = pieces.First().localPosition.y;
+		foreach (Transform piece in pieces)
+		{
+			piece.localPosition = new(piece.localPosition.x, heightItr, piece.localPosition.z);
+			piece.GetComponent<SpriteRenderer>().size = sizePiece;
+			BoxCollider2D collider2d = piece.GetComponent<BoxCollider2D>(); // NOTE that Unity doesn't like naming variables 'collider' w/i a MonoBehaviour...
+			collider2d.size = sizePiece;
+			collider2d.offset = new(0.0f, heightPiece * 0.5f);
+
+			heightItr += heightPiece;
+		}
 	}
 
 
@@ -36,8 +50,8 @@ public class FurnitureController : MonoBehaviour
 		{
 			GameObject itemPrefab = Utility.RandomWeighted(rare ? m_itemRarePrefabs : m_itemPrefabs);
 			BoxCollider2D itemCollider = itemPrefab.GetComponent<BoxCollider2D>();
-			float offsetY = size.y + itemCollider.size.y * 0.5f + itemCollider.edgeRadius;
-			Vector3 spawnCenterPos = transform.position + new Vector3(Random.Range(-extentX, extentX), offsetY, 0.0f); // TODO: don't assume the pivot point is centered, but also don't use stale Collider2D bounds?
+			float offsetY = (size.y + itemCollider.edgeRadius) * 0.5f + itemCollider.size.y * Random.Range(1, transform.childCount + 2);
+			Vector3 spawnCenterPos = transform.position + new Vector3(Random.Range(-extentX, extentX), offsetY, -0.1f); // NOTE the slight z offset to render items in front of higher shelves // TODO: don't assume the pivot point is at bottom center, but also don't use stale Collider2D bounds?
 			Instantiate(itemPrefab, spawnCenterPos, Quaternion.identity);
 		}
 	}

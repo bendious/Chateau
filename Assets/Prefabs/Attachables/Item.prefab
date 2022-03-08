@@ -7,10 +7,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1689761168478489728, guid: 9ecf75cb82e6b5b4da0fb23b27cb2a1f, type: 3}
-      propertyPath: m_Material
-      value: 
-      objectReference: {fileID: 6200000, guid: 65f85a0b14295e647865f344b3250a49, type: 2}
     - target: {fileID: 3224368909162631007, guid: 9ecf75cb82e6b5b4da0fb23b27cb2a1f, type: 3}
       propertyPath: m_Name
       value: Item
@@ -86,10 +82,7 @@ VisualEffect:
   m_ResourceVersion: 1
   m_PropertySheet:
     m_Float:
-      m_Array:
-      - m_Value: 0.2
-        m_Name: Size
-        m_Overridden: 0
+      m_Array: []
     m_Vector2f:
       m_Array: []
     m_Vector3f:
@@ -111,9 +104,6 @@ VisualEffect:
       - m_Value: {fileID: 2800000, guid: 276d9e395ae18fe40a9b4988549f2349, type: 3}
         m_Name: Sprite
         m_Overridden: 0
-      - m_Value: {fileID: 2800000, guid: 6acd4003d6610d94e9908756d65eaff1, type: 3}
-        m_Name: Trail
-        m_Overridden: 1
     m_Bool:
       m_Array: []
 --- !u!73398921 &2953117417523570808

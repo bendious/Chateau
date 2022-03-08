@@ -31,10 +31,10 @@ public class GameController : MonoBehaviour
 
 	public AudioClip m_victoryAudio;
 
-	public float m_waveSecondsMin = 60.0f;
-	public float m_waveSecondsMax = 120.0f;
+	public float m_waveSecondsMin = 45.0f;
+	public float m_waveSecondsMax = 90.0f;
 	public float m_waveEscalationMin = 0.0f;
-	public float m_waveEscalationMax = 2.0f;
+	public float m_waveEscalationMax = 4.0f;
 
 
 	public static bool IsReloading { get; private set; }
@@ -83,12 +83,12 @@ public class GameController : MonoBehaviour
 			nodesPending.Add(node);
 			return false;
 		});
+		failed = failed || !AddRoomForNodes(nodesPending.ToArray());
 		if (failed)
 		{
 			Retry(); // TODO: more efficient way to guarantee room spawning?
 			return;
 		}
-		AddRoomForNodes(nodesPending.ToArray());
 
 		if (Random.value > 0.5f)
 		{
