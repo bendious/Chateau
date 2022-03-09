@@ -9,6 +9,10 @@ public class RoomController : MonoBehaviour
 {
 	public WeightedObject<GameObject>[] m_doorPrefabs;
 	public WeightedObject<GameObject>[] m_doorSecretPrefabs;
+
+	public WeightedObject<GameObject>[] m_spawnPointPrefabs;
+	public int m_spawnPointsMax = 4;
+
 	public WeightedObject<GameObject>[] m_furniturePrefabs;
 
 	public WeightedObject<GameObject>[] m_decorationPrefabs;
@@ -36,6 +40,8 @@ public class RoomController : MonoBehaviour
 	private /*readonly*/ DoorwayInfo[] m_doorwayInfos;
 
 	private /*readonly*/ LayoutGenerator.Node[] m_layoutNodes;
+
+	private /*readonly*/ Vector3[] m_spawnPoints;
 
 
 	private void Awake()
@@ -116,6 +122,18 @@ public class RoomController : MonoBehaviour
 		Color roomColor = m_layoutNodes.First().AreaParent.m_color; // NOTE that all nodes w/i a single room should have the same area parent
 		ForEachWall(renderer => renderer.color = roomColor); // TODO: slight variation?
 
+		// TODO: prevent overlap of spawned prefabs
+
+		// spawn enemy spawn points
+		m_spawnPoints = new Vector3[Random.Range(1, m_spawnPointsMax + 1)]; // TODO: base on room size?
+		for (int spawnIdx = 0; spawnIdx < m_spawnPoints.Length; ++spawnIdx)
+		{
+			Vector3 spawnPosBG = ChildPosition(false, null, 0.0f, false, false) + Vector3.forward; // TODO: account for spawn point / largest enemy size?
+			Instantiate(Utility.RandomWeighted(m_spawnPointPrefabs), spawnPosBG, Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f)), transform);
+			m_spawnPoints[spawnIdx] = spawnPosBG;
+			m_spawnPoints[spawnIdx].z = transform.position.z; // NOTE that we instantiate the visuals in the background but make sure the spawn point is at the same depth as the room
+		}
+
 		// spawn furniture
 		Bounds bounds = CalculateBounds(false);
 		GameObject furniturePrefab = Utility.RandomWeighted(m_furniturePrefabs);
@@ -164,6 +182,32 @@ public class RoomController : MonoBehaviour
 		}
 	}
 
+	public RoomController RoomFromPosition(Vector2 position)
+	{
+		// TODO: efficiency?
+		Bounds bounds = CalculateBounds(false);
+		Vector3 pos3D = position;
+		pos3D.z = bounds.center.z;
+		if (bounds.Contains(pos3D))
+		{
+			return this;
+		}
+		foreach (DoorwayInfo info in m_doorwayInfos)
+		{
+			if (info.m_childRoom == null)
+			{
+				// TODO: allow searching parents, too?
+				continue;
+			}
+			RoomController childRoom = info.m_childRoom.RoomFromPosition(position);
+			if (childRoom != null)
+			{
+				return childRoom;
+			}
+		}
+		return null;
+	}
+
 	public Vector3 ChildPosition(bool checkLocks, GameObject targetObj, float targetMinDistance, bool onFloor, bool recursive)
 	{
 		// enumerate valid options
@@ -196,6 +240,8 @@ public class RoomController : MonoBehaviour
 		// return position from child room
 		return child.ChildPosition(checkLocks, targetObj, targetMinDistance, onFloor, recursive);
 	}
+
+	public Vector3 SpawnPointRandom() => m_spawnPoints[Random.Range(0, m_spawnPoints.Length)];
 
 	public List<RoomController> ChildRoomPath(Vector2 startPosition, Vector2 endPosition, bool unobstructed)
 	{

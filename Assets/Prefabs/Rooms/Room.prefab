@@ -138,7 +138,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 1625049187
   m_Mesh: {fileID: 0}
-  m_InstanceId: 48064
+  m_InstanceId: 67758
 --- !u!1 &409852463158594107
 GameObject:
   m_ObjectHideFlags: 0
@@ -297,7 +297,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 957203933
   m_Mesh: {fileID: 0}
-  m_InstanceId: 48050
+  m_InstanceId: 67744
 --- !u!1 &1710067748473859646
 GameObject:
   m_ObjectHideFlags: 0
@@ -438,7 +438,7 @@ MonoBehaviour:
   - {x: 0.45, y: -0.1, z: 0}
   m_ShapePathHash: -743758333
   m_Mesh: {fileID: 0}
-  m_InstanceId: 47966
+  m_InstanceId: 67660
 --- !u!1 &2929849760781198063
 GameObject:
   m_ObjectHideFlags: 0
@@ -577,7 +577,7 @@ MonoBehaviour:
   - {x: 0.475, y: -0.5, z: 0}
   m_ShapePathHash: -1299028345
   m_Mesh: {fileID: 0}
-  m_InstanceId: 47970
+  m_InstanceId: 67664
 --- !u!1 &3865645025881897782
 GameObject:
   m_ObjectHideFlags: 0
@@ -716,7 +716,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.099999994, z: 0}
   m_ShapePathHash: -414024203
   m_Mesh: {fileID: 0}
-  m_InstanceId: 47986
+  m_InstanceId: 67680
 --- !u!1 &5416165761018516747
 GameObject:
   m_ObjectHideFlags: 0
@@ -855,7 +855,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: -1965950227
   m_Mesh: {fileID: 0}
-  m_InstanceId: 48000
+  m_InstanceId: 67694
 --- !u!1 &5557331281289732181
 GameObject:
   m_ObjectHideFlags: 0
@@ -994,7 +994,7 @@ MonoBehaviour:
   - {x: 0.099999994, y: -0.455, z: 0}
   m_ShapePathHash: 540311278
   m_Mesh: {fileID: 0}
-  m_InstanceId: 48058
+  m_InstanceId: 67752
 --- !u!1 &5858312614131700818
 GameObject:
   m_ObjectHideFlags: 0
@@ -1135,7 +1135,7 @@ MonoBehaviour:
   - {x: -0.45, y: -0.5, z: 0}
   m_ShapePathHash: -1914503589
   m_Mesh: {fileID: 0}
-  m_InstanceId: 47976
+  m_InstanceId: 67670
 --- !u!1 &6422840777706418414
 GameObject:
   m_ObjectHideFlags: 0
@@ -1274,7 +1274,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.45, z: 0}
   m_ShapePathHash: -789003563
   m_Mesh: {fileID: 0}
-  m_InstanceId: 48038
+  m_InstanceId: 67732
 --- !u!1 &7422594126546487761
 GameObject:
   m_ObjectHideFlags: 0
@@ -1338,6 +1338,10 @@ MonoBehaviour:
   m_doorSecretPrefabs:
   - m_object: {fileID: 2530109060553961877, guid: b214be9997254b949af66fe5a19fae4f, type: 3}
     m_weight: 1
+  m_spawnPointPrefabs:
+  - m_object: {fileID: 7287174281192745631, guid: 196ada7618954f24ab2fd50f97411481, type: 3}
+    m_weight: 1
+  m_spawnPointsMax: 4
   m_furniturePrefabs:
   - m_object: {fileID: 3500915504940809235, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
     m_weight: 1
@@ -1589,4 +1593,4 @@ MonoBehaviour:
   - {x: 0.1, y: -0.5, z: 0}
   m_ShapePathHash: -715297341
   m_Mesh: {fileID: 0}
-  m_InstanceId: 48066
+  m_InstanceId: 67760

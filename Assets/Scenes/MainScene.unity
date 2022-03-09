@@ -1774,6 +1774,8 @@ MonoBehaviour:
   m_waveSecondsMax: 90
   m_waveEscalationMin: 0
   m_waveEscalationMax: 4
+  m_waveEnemyDelayMin: 0.5
+  m_waveEnemyDelayMax: 2
 --- !u!4 &904057266
 Transform:
   m_ObjectHideFlags: 0

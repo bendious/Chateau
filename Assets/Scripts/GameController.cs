@@ -35,6 +35,8 @@ public class GameController : MonoBehaviour
 	public float m_waveSecondsMax = 90.0f;
 	public float m_waveEscalationMin = 0.0f;
 	public float m_waveEscalationMax = 4.0f;
+	public float m_waveEnemyDelayMin = 0.5f;
+	public float m_waveEnemyDelayMax = 2.0f;
 
 
 	public static bool IsReloading { get; private set; }
@@ -313,6 +315,12 @@ public class GameController : MonoBehaviour
 #endif
 		void SpawnEnemyWave()
 	{
+		// TODO: ensure the previous wave is over?
+		StartCoroutine(SpawnEnemyWaveCoroutine());
+	}
+
+	private IEnumerator SpawnEnemyWaveCoroutine()
+	{
 		m_waveWeight += Random.Range(m_waveEscalationMin, m_waveEscalationMax); // TODO: exponential/logistic escalation?
 
 		WeightedObject<GameObject>[] options = m_enemyPrefabs;
@@ -327,13 +335,14 @@ public class GameController : MonoBehaviour
 			SpawnEnemy(weightedEnemyPrefab.m_object);
 
 			weightRemaining -= weightedEnemyPrefab.m_weight;
+
+			yield return new WaitForSeconds(Random.Range(m_waveEnemyDelayMin, m_waveEnemyDelayMax));
 		}
 	}
 
 	private void SpawnEnemy(GameObject enemyPrefab)
 	{
-		CapsuleCollider2D enemyCollider = enemyPrefab.GetComponent<CapsuleCollider2D>();
-		Vector3 spawnPos = RoomPosition(true, m_avatars[Random.Range(0, m_avatars.Count())].gameObject, 4.0f, !enemyPrefab.GetComponent<KinematicObject>().HasFlying) + Vector3.up * (enemyCollider.size.y * 0.5f - enemyCollider.offset.y); // TODO: base min distance on avatar/enemy size & speed?
+		Vector3 spawnPos = m_startRoom.RoomFromPosition(m_avatars[Random.Range(0, m_avatars.Count())].transform.position).SpawnPointRandom();
 		m_enemies.Add(Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>());
 	}
 
