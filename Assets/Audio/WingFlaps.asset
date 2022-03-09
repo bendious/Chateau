@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89fc1dc911c6b2646a27018952036436, type: 3}
+  m_Name: WingFlaps
+  m_EditorClassIdentifier: 
+  m_collection:
+  - m_object: {fileID: 8300000, guid: 4e00e87aff7c60140923788bc10b733f, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 6791360a84a241e4b95234b8ca485ffb, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: c48ae54d8cee6754d9f73dad02f85921, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 942510a45386b1e429f0caf94dc98948, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: dc667021e89cd4e49adeb520e9dc22b1, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: a8eb6c5829b60d94892a84b5f0d3adb6, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 691794e5c2f51744e8775270aad73aa2, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 490fffb1e42e2724fa78a8db7be6dc34, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 5f8945e99cd18864a935e493769ab891, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 92b935a7285f2a24d86708cd53275676, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: d4a85472b8fb8314ca7c3092c9b8642c, type: 3}
+    m_weight: 1

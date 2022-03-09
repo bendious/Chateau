@@ -123,6 +123,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 		{
 			SlotItemInfo slotItemInfo1 = ItemFromIndex(transform.root, transform.GetSiblingIndex());
 			slotItemInfo1.m_item.Detach(false);
+			transform.root.GetComponent<PlayerInput>().actions.FindActionMap("Avatar").Enable(); // TODO: check for active menus/overlays?
 
 			// reset/update display
 			rectTf.anchoredPosition = m_restPosition; // NOTE that we don't lerp here since the slot is now empty

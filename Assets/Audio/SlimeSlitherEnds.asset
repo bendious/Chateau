@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89fc1dc911c6b2646a27018952036436, type: 3}
+  m_Name: SlimeSlitherEnds
+  m_EditorClassIdentifier: 
+  m_collection:
+  - m_object: {fileID: 8300000, guid: cc1a9fdfc23a7ad47a3406fd00f71e5c, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 0e5d5d56b77b127419f855ebe87fed49, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: b95b136dd8bd3eb4c990fdacbc02a816, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 8e4bfccb41e7e3d4a93edc1d34b01ec5, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 767886e3e1c774b45a85881712f5574f, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 51be0010d72e95f4f87e2261b0174f3b, type: 3}
+    m_weight: 1

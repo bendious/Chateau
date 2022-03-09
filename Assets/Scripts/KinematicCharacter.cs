@@ -190,7 +190,7 @@ public abstract class KinematicCharacter : KinematicObject
 		{
 			// allow only one pack at a time
 			BackpackController packExisting = GetComponentInChildren<BackpackController>();
-			if (packExisting != null)
+			if (packExisting != null && packExisting.m_attachOffsetLocal == backpack.m_attachOffsetLocal)
 			{
 				packExisting.Detach(true);
 				// TODO: transfer items from old to new pack?
@@ -230,10 +230,17 @@ public abstract class KinematicCharacter : KinematicObject
 	private void ProcessAnimEvent(AnimationEvent evt)
 	{
 		Assert.IsNotNull(evt.objectReferenceParameter);
-		Assert.IsTrue(evt.objectReferenceParameter.GetType() == typeof(AudioClip));
-		if (audioSource)
+		if (evt.objectReferenceParameter is AudioClip clip)
 		{
-			audioSource.PlayOneShot((AudioClip)evt.objectReferenceParameter);
+			audioSource.PlayOneShot(clip);
+		}
+		else if (evt.objectReferenceParameter is AudioCollection collection)
+		{
+			audioSource.PlayOneShot(collection.Random());
+		}
+		else
+		{
+			Assert.IsTrue(false);
 		}
 	}
 }

@@ -384,14 +384,14 @@ AnimationClip:
   - time: 0.125
     functionName: ProcessAnimEvent
     data: 
-    objectReferenceParameter: {fileID: 8300000, guid: bdb49257b73be764a8c04e4f37302e0e, type: 3}
+    objectReferenceParameter: {fileID: 11400000, guid: b772d2c292214ed4e8b8c98a5bbf6f98, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.39583334
     functionName: ProcessAnimEvent
     data: 
-    objectReferenceParameter: {fileID: 8300000, guid: 3318e557ea5714340abb5376ce7fb8c6, type: 3}
+    objectReferenceParameter: {fileID: 11400000, guid: b772d2c292214ed4e8b8c98a5bbf6f98, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
