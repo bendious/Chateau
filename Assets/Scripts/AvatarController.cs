@@ -150,9 +150,10 @@ public class AvatarController : KinematicCharacter
 				SpriteRenderer rendererIndicator = m_focusIndicator.GetComponent<SpriteRenderer>();
 				SpriteRenderer rendererOrig = m_focusObj.GetComponent<SpriteRenderer>();
 				rendererIndicator.sprite = rendererOrig.sprite;
-				rendererIndicator.flipY = rendererOrig.flipY; // NOTE that items that have been dropped may have been left "backwards"
 				rendererIndicator.drawMode = rendererOrig.drawMode;
 				rendererIndicator.size = rendererOrig.size;
+				rendererIndicator.color = rendererOrig.color * 2.0f; // ensure good visibility on nearly-white objects?
+				rendererIndicator.flipY = rendererOrig.flipY; // NOTE that items that have been dropped may have been left "backwards"
 				m_focusIndicator.transform.localScale = m_focusObj.transform.localScale; // NOTE that w/o this, swapping between renderer draw modes was doing weird things to the indicator's scale...
 
 				m_focusPrompt.transform.position = m_focusIndicator.transform.position + m_focusPromptOffset;

@@ -14,6 +14,8 @@ public class EnemyController : KinematicCharacter
 
 	public float m_meleeRange = 1.0f;
 
+	public float m_dropDecayTime = 0.2f;
+
 	public AudioClip[] m_attackSFX;
 
 
@@ -22,6 +24,8 @@ public class EnemyController : KinematicCharacter
 
 	private float m_pathfindTimeNext;
 	private List<Vector2> m_pathfindWaypoints;
+
+	private float m_dropDecayVel;
 
 
 	protected override void Start()
@@ -148,8 +152,6 @@ public class EnemyController : KinematicCharacter
 	// TODO: un-expose?
 	public bool NavigateTowardTarget(Vector2 targetOffsetAbs)
 	{
-		move = Vector2.zero;
-
 		if (m_targetSelectTimeNext <= Time.time && (m_target == null || m_target.GetComponent<AvatarController>() != null))
 		{
 			// choose appropriate avatar to target
@@ -174,11 +176,13 @@ public class EnemyController : KinematicCharacter
 		}
 		if (m_target == null)
 		{
+			move = Vector2.zero;
 			return false; // TODO: flag to trigger idle behavior?
 		}
 
 		if (HasForcedVelocity)
 		{
+			move = Vector2.zero;
 			return false;
 		}
 
@@ -192,6 +196,7 @@ public class EnemyController : KinematicCharacter
 		}
 		if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0)
 		{
+			move = Vector2.zero;
 			return false;
 		}
 		Vector2 nextWaypoint = m_pathfindWaypoints.First();
@@ -228,7 +233,7 @@ public class EnemyController : KinematicCharacter
 			{
 				jump = true;
 			}
-			move.y = nextBounds.max.y < selfBounds.min.y ? -1.0f : 0.0f;
+			move.y = IsGrounded && nextBounds.max.y < selfBounds.min.y ? -1.0f : Mathf.SmoothDamp(move.y, 0.0f, ref m_dropDecayVel, m_dropDecayTime * 2.0f); // NOTE the IsGrounded check and damped decay (x2 since IsDropping's threshold is -0.5) to cause stopping at each ladder rung when descending
 		}
 
 		const float arrivalEpsilon = 0.1f; // TODO: derive/calculate?
