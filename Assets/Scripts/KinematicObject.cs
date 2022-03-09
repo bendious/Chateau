@@ -170,7 +170,7 @@ public abstract class KinematicObject : MonoBehaviour
 	public bool ShouldIgnore(Rigidbody2D body, Collider2D[] colliders, bool ignoreStatics, bool ignoreDynamics, bool ignoreChildren)
 	{
 		Assert.IsTrue(colliders != null && colliders.Length > 0);
-		GameObject otherObj = colliders.First().gameObject; // TODO: ensure all colliders are from the same object?
+		GameObject otherObj = colliders.First().gameObject; // NOTE that we don't use the rigid body's object since that can be separate from the collider object (e.g. characters and arms) // TODO: ensure all colliders are from the same object & body?
 		if (otherObj == gameObject)
 		{
 			return true; // ignore our own object
@@ -183,7 +183,7 @@ public abstract class KinematicObject : MonoBehaviour
 		{
 			return true;
 		}
-		if (ignoreChildren && body != null && body.transform.parent != null)
+		if (ignoreChildren && body != null && (body.transform.parent != null || body.gameObject != otherObj))
 		{
 			return true; // ignore non-root bodies (e.g. arms)
 		}
@@ -237,7 +237,7 @@ public abstract class KinematicObject : MonoBehaviour
 		if (yMovement || distance >= minMoveDistance) // NOTE that even if we aren't moving vertically, we may still need to push out of the ground
 		{
 			//check if we hit anything in current direction of travel
-			int count = body.Cast(move, contactFilter, hitBuffer, distance + shellRadius);
+			int count = m_collider.Cast(move, contactFilter, hitBuffer, distance + shellRadius, true); // NOTE that we ignore child colliders such as arms
 			for (int i = 0; i < count; i++)
 			{
 				RaycastHit2D hit = hitBuffer[i];

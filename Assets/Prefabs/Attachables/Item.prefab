@@ -165,7 +165,7 @@ MonoBehaviour:
     m_radiusPerSec: 10
     m_radiusSpringStiffness: 25
     m_radiusSpringDampPct: 0.5
-    m_damageThresholdSpeed: 2
+    m_damageThresholdSpeed: 4
     m_damage: 1
   m_throwSpeed: 20
   m_vfxAlphaMax: 0.35

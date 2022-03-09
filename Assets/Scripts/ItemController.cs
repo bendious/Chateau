@@ -15,7 +15,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		m_aimSpringDampPct = 0.5f,
 		m_radiusSpringStiffness = 25.0f,
 		m_radiusSpringDampPct = 0.5f,
-		m_damageThresholdSpeed = 2.0f,
+		m_damageThresholdSpeed = 4.0f,
 		m_damage = 1.0f
 	};
 	public float m_throwSpeed = 10.0f;

@@ -2,7 +2,7 @@ using System.Linq;
 using UnityEngine;
 
 
-[RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))] // NOTE that the rigid body is used only to keep the collider from being aggregated into the character's rigid body
+[RequireComponent(typeof(Collider2D))]
 public sealed class ArmController : MonoBehaviour, IHolder
 {
 	public /*override*/ int HoldCountMax => 1;
@@ -18,7 +18,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		m_aimSpringDampPct = 0.5f,
 		m_radiusSpringStiffness = 50.0f,
 		m_radiusSpringDampPct = 0.75f,
-		m_damageThresholdSpeed = 2.0f,
+		m_damageThresholdSpeed = 4.0f,
 		m_damage = 0.1f
 	};
 
@@ -26,7 +26,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	private SwingInfo m_swingInfoCur;
 
 
-	public float Speed => Mathf.Abs(m_aimVelocityArm + m_aimVelocityItem) + Mathf.Abs(m_aimRadiusVelocity); // TODO: incorporate aim velocity directions?
+	public float Speed => Mathf.Abs(Mathf.Deg2Rad * (m_aimVelocityArm + m_aimVelocityItem) * ((Vector2)transform.parent.position - (Vector2)transform.position).magnitude) + Mathf.Abs(m_aimRadiusVelocity); // NOTE the conversion from angular velocity to linear speed via arclength=radians*radius // TODO: incorporate aim velocity directions?
 
 
 	private bool LeftFacing => Mathf.Cos(Mathf.Deg2Rad * m_aimDegreesArm) < 0.0f; // TODO: efficiency?
@@ -44,7 +44,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	private bool m_swingDirection;
 
 
-	private void Start()
+	private void Awake()
 	{
 		m_swingInfoCur = m_swingInfoDefault;
 
@@ -60,7 +60,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
 		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
-		Rigidbody2D body = GetComponent<Rigidbody2D>();
+		Rigidbody2D body = m_colliders.First().attachedRigidbody;
 		if (kinematicObj != null && kinematicObj.ShouldIgnore(body, m_colliders, false, false, false))
 		{
 			return;
@@ -78,7 +78,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 			Health otherHealth = collision.gameObject.GetComponent<Health>();
 			if (otherHealth != null)
 			{
-				otherHealth.Decrement(gameObject, m_swingInfoCur.m_damage); // TODO: round if damaging avatar?
+				otherHealth.Decrement(gameObject, m_swingInfoCur.m_damage);
 			}
 		}
 	}
@@ -115,6 +115,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		{
 			collider.enabled = true;
 		}
+		m_aimVelocityItem = 0.0f;
 	}
 
 

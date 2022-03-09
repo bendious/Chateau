@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 3060130244721252946}
   - component: {fileID: 3060130244721252949}
   - component: {fileID: 4030274311394631088}
-  - component: {fileID: 3076402773020200186}
   - component: {fileID: 5513054168261979483}
   m_Layer: 0
   m_Name: Arm
@@ -108,7 +107,7 @@ MonoBehaviour:
     m_radiusPerSec: 1
     m_radiusSpringStiffness: 50
     m_radiusSpringDampPct: 0.75
-    m_damageThresholdSpeed: 2
+    m_damageThresholdSpeed: 4
     m_damage: 0.1
 --- !u!70 &4030274311394631088
 CapsuleCollider2D:
@@ -126,27 +125,6 @@ CapsuleCollider2D:
   m_Offset: {x: 0.3, y: 0}
   m_Size: {x: 0.6, y: 0.3}
   m_Direction: 1
---- !u!50 &3076402773020200186
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3060130244721252944}
-  m_BodyType: 1
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 1
-  m_UseAutoMass: 0
-  m_Mass: 0.1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 1
-  m_Material: {fileID: 6200000, guid: 5c45e442394b4ab42af037ccb3c5d669, type: 2}
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
 --- !u!82 &5513054168261979483
 AudioSource:
   m_ObjectHideFlags: 0

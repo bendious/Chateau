@@ -37,9 +37,9 @@ public class EnemyController : KinematicCharacter
 		m_aiState.Enter();
 	}
 
-	void OnCollisionEnter2D(Collision2D collision)
+	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		var avatar = collision.gameObject.GetComponent<AvatarController>();
+		var avatar = collision.collider.GetComponent<AvatarController>(); // NOTE that we use the collider object rather than collision.gameObject since w/ characters & arms, they are not always the same
 		if (avatar != null)
 		{
 			avatar.OnEnemyCollision(this);
