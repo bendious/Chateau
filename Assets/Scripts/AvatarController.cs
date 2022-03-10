@@ -426,6 +426,11 @@ public class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnScroll(InputValue input)
 	{
+		if (!controlEnabled)
+		{
+			return;
+		}
+
 		Vector2 scroll = input.Get<Vector2>();
 		if (scroll.y == 0.0f)
 		{
@@ -570,7 +575,7 @@ public class AvatarController : KinematicCharacter
 			{
 				continue;
 			}
-			spawnPos = GameController.Instance.RoomPosition(true, avatar.gameObject, 0.0f, true);
+			spawnPos = GameController.Instance.RoomSpawnPosition(avatar.transform.position);
 			break;
 		}
 		Teleport(spawnPos);

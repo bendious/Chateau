@@ -38,6 +38,8 @@ public class GameController : MonoBehaviour
 	public float m_waveEnemyDelayMin = 0.5f;
 	public float m_waveEnemyDelayMax = 2.0f;
 
+	public bool m_bossRoomSealed = false;
+
 
 	public static bool IsReloading { get; private set; }
 
@@ -48,6 +50,7 @@ public class GameController : MonoBehaviour
 
 	private float m_waveWeight = 0.0f;
 	private float m_nextWaveTime = 0.0f;
+	private bool m_waveSpawningInProgress = false;
 
 	private readonly List<EnemyController> m_enemies = new();
 
@@ -121,7 +124,7 @@ public class GameController : MonoBehaviour
 
 	public void AddAvatar()
 	{
-		m_avatars.Add(Instantiate(m_avatarPrefab, RoomPosition(true, m_avatars.First().gameObject, 0.0f, true), Quaternion.identity).GetComponent<AvatarController>()); // TODO: ensure spawn point is clear of enemies/etc.
+		m_avatars.Add(Instantiate(m_avatarPrefab, RoomSpawnPosition(m_avatars.First().transform.position), Quaternion.identity).GetComponent<AvatarController>()); // TODO: ensure spawn point is clear of enemies/etc.
 
 		// adjust camera UI/targeting
 		// TODO: split screen when far apart?
@@ -168,9 +171,9 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	public Vector3 RoomPosition(bool checkLocks, GameObject targetObj, float targetMinDistance, bool onFloor)
+	public Vector3 RoomSpawnPosition(Vector2 position)
 	{
-		return m_startRoom.ChildPosition(checkLocks, targetObj, targetMinDistance, onFloor, true);
+		return m_startRoom.RoomFromPosition(position).SpawnPointRandom();
 	}
 
 	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos, Vector2 offsetMag)
@@ -198,6 +201,15 @@ public class GameController : MonoBehaviour
 	public void OnEnemyDespawn(EnemyController enemy)
 	{
 		m_enemies.Remove(enemy);
+
+		if (m_enemies.Count == 0 && !m_waveSpawningInProgress && !m_bossRoomSealed)
+		{
+			// TODO: slight time delay?
+			foreach (RoomController room in m_avatars.Select(avatar => m_startRoom.RoomFromPosition(avatar.transform.position)))
+			{
+				room.SealRoom(false);
+			}
+		}
 	}
 
 	public void OnGameOver()
@@ -321,6 +333,14 @@ public class GameController : MonoBehaviour
 
 	private IEnumerator SpawnEnemyWaveCoroutine()
 	{
+		m_waveSpawningInProgress = true;
+
+		RoomController[] rooms = m_avatars.Select(avatar => m_startRoom.RoomFromPosition(avatar.transform.position)).ToArray();
+		foreach (RoomController room in rooms) // TODO: seal all rooms?
+		{
+			room.SealRoom(true);
+		}
+
 		m_waveWeight += Random.Range(m_waveEscalationMin, m_waveEscalationMax); // TODO: exponential/logistic escalation?
 
 		WeightedObject<GameObject>[] options = m_enemyPrefabs;
@@ -337,6 +357,17 @@ public class GameController : MonoBehaviour
 			weightRemaining -= weightedEnemyPrefab.m_weight;
 
 			yield return new WaitForSeconds(Random.Range(m_waveEnemyDelayMin, m_waveEnemyDelayMax));
+		}
+
+		m_waveSpawningInProgress = false;
+
+		// unseal rooms if the last enemy was killed immediately
+		if (m_enemies.Count == 0 && !m_bossRoomSealed)
+		{
+			foreach (RoomController room in rooms)
+			{
+				room.SealRoom(false);
+			}
 		}
 	}
 

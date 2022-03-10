@@ -7,12 +7,7 @@ public class BossRoom : MonoBehaviour
 {
 	public Boss m_boss;
 
-	public GameObject m_gatePrefab;
-
 	public AudioClip m_audioOutro;
-
-
-	public bool Sealed { get; private set; }
 
 
 	private struct DoorInfo
@@ -64,35 +59,13 @@ public class BossRoom : MonoBehaviour
 		GetComponent<Collider2D>().enabled = false;
 
 		// seal room
-		int i = 0;
-		foreach (DoorInfo info in m_doors)
-		{
-			if (info.m_object != null)
-			{
-				PlatformEffector2D effector = info.m_object.GetComponent<PlatformEffector2D>();
-				if (effector == null || !effector.enabled)
-				{
-					++i;
-					continue;
-				}
-			}
-			GameObject newGate = Instantiate(m_gatePrefab, info.m_bounds.center + Vector3.back, Quaternion.identity, transform); // NOTE the Z offset in case we need to render on top of a platform
-			m_spawnedGates.Add(newGate);
-			newGate.GetComponent<BoxCollider2D>().size = info.m_bounds.size;
-			newGate.GetComponent<SpriteRenderer>().size = info.m_bounds.size;
-
-			// inform RoomController of gate for pathfinding correctness
-			GetComponent<RoomController>().SetBlocker(i, newGate);
-
-			++i;
-		}
-		Sealed = true;
+		GetComponent<RoomController>().SealRoom(true);
+		GameController.Instance.m_bossRoomSealed = true;
 
 		// play ambiance SFX
+		// NOTE that the first source should have been played by RoomController.SealRoom()
 		AudioSource[] sources = GetComponents<AudioSource>();
-		AudioSource source0 = sources.First();
-		source0.Play();
-		sources[1].PlayScheduled(AudioSettings.dspTime + source0.clip.length);
+		sources[1].PlayScheduled(AudioSettings.dspTime + sources.First().clip.length);
 	}
 
 	private void OnTriggerExit2D(Collider2D collider)
@@ -137,7 +110,7 @@ public class BossRoom : MonoBehaviour
 			Simulation.Schedule<ObjectDespawn>().m_object = gate;
 		}
 		m_spawnedGates.Clear();
-		Sealed = false;
+		GameController.Instance.m_bossRoomSealed = false;
 
 		// reset boss
 		m_boss.GetComponent<Boss>().DebugReset();

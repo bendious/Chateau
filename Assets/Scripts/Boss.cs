@@ -24,7 +24,7 @@ public class Boss : MonoBehaviour
 
 	private void OnWillRenderObject()
 	{
-		if (!m_room.Sealed || m_started || GameController.IsReloading)
+		if (!GameController.Instance.m_bossRoomSealed || m_started || GameController.IsReloading)
 		{
 			return;
 		}

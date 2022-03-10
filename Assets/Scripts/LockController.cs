@@ -40,7 +40,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		int i = 0;
 		foreach (GameObject keyPrefab in keyInfo.m_prefabs)
 		{
-			Vector3 spawnPos = keyRooms[i].ChildPosition(false, null, 0.0f, true, false); // TODO: spawn on furniture
+			Vector3 spawnPos = keyRooms[i].InteriorPosition(true);
 			m_keys.Add(Instantiate(keyPrefab, spawnPos, Quaternion.identity));
 			++i;
 		}
