@@ -433,25 +433,38 @@ public class AvatarController : KinematicCharacter
 		}
 
 		// cycle inventory
-		// detach
+		// prep item/holder lists
+		ItemController[] items = GetComponentsInChildren<ItemController>(true);
+		if (items.Length == 0)
+		{
+			return;
+		}
 		IHolder[] holdersSingle = GetComponentsInChildren<IHolder>();
-		ItemController[] itemsSlotted = holdersSingle.SelectMany(holder =>
+		ItemController[] itemsWithEmptyArms = items.Length >= 2 ? items : holdersSingle.SelectMany(holder => // TODO: don't assume two arms?
 		{
 			System.Collections.Generic.List<ItemController> heldItems = holder.Component.GetComponentsInChildren<ItemController>(true).ToList();
 			return heldItems.Concat(Enumerable.Repeat<ItemController>(null, holder.HoldCountMax - heldItems.Count));
 		}).ToArray();
-		foreach (ItemController item in itemsSlotted.Where(item => item != null))
+
+		// detach
+		foreach (ItemController item in items)
 		{
 			item.Detach(true);
 		}
 
 		// re-attach
 		bool reverse = scroll.y > 0.0f;
-		IHolder[] holdersRepeated = holdersSingle.SelectMany(holder => Enumerable.Repeat(holder, holder.HoldCountMax)).ToArray();
-		int itemIdx = reverse ? holdersRepeated.Length - 1 : 1;
+		int itemsRemaining = itemsWithEmptyArms.Length;
+		IHolder[] holdersRepeated = holdersSingle.SelectMany(holder =>
+		{
+			int count = Mathf.Min(holder.HoldCountMax, itemsRemaining);
+			itemsRemaining -= count;
+			return Enumerable.Repeat(holder, count);
+		}).ToArray();
+		int itemIdx = reverse ? itemsWithEmptyArms.Length - 1 : 1;
 		foreach (IHolder holder in holdersRepeated)
 		{
-			ItemController item = itemsSlotted[itemIdx];
+			ItemController item = itemsWithEmptyArms[itemIdx];
 			if (item != null)
 			{
 				holder.ItemAttach(item);
