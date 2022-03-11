@@ -1772,10 +1772,12 @@ MonoBehaviour:
   m_victoryAudio: {fileID: 8300000, guid: 5833894e2899f1840ac04193ca462e39, type: 3}
   m_waveSecondsMin: 45
   m_waveSecondsMax: 90
+  m_waveStartWeight: 1
   m_waveEscalationMin: 0
   m_waveEscalationMax: 4
   m_waveEnemyDelayMin: 0.5
   m_waveEnemyDelayMax: 2
+  m_bossRoomSealed: 0
 --- !u!4 &904057266
 Transform:
   m_ObjectHideFlags: 0

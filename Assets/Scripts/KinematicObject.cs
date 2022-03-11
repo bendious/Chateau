@@ -65,6 +65,8 @@ public abstract class KinematicObject : MonoBehaviour
 	protected const float shellRadius = 0.01f;
 
 
+	private int m_spawnCheckFrameCount = 2; // NOTE that since we use Collider2D.GetContacts(), we can't just check immediately in Start() or FixedUpdate() before physics first runs...
+
 	private KinematicCharacter m_character;
 	protected Collider2D m_collider; // TODO: handle multi-collider objects?
 	private AvatarController m_avatar;
@@ -73,7 +75,7 @@ public abstract class KinematicObject : MonoBehaviour
 	private Vector2 m_velocityForcedWeight = Vector2.zero;
 	private Vector2 m_velocityForcedWeightVel = Vector2.zero;
 
-	private /*readonly*/ int m_platformLayer;
+	private static /*readonly*/ int m_platformLayer;
 	private const float m_platformTopEpsilon = 0.1f;
 
 	private const float m_nearGroundDistance = 1.0f;
@@ -132,6 +134,28 @@ public abstract class KinematicObject : MonoBehaviour
 		if (!body.simulated)
 		{
 			return;
+		}
+
+		if (m_spawnCheckFrameCount > 0)
+		{
+			// if spawned partially overlapping other geometry, separate
+			System.Collections.Generic.List<ContactPoint2D> contacts = new();
+			m_collider.GetContacts(contacts);
+
+			Vector2 totalOverlap = Vector2.zero;
+			foreach (ContactPoint2D contact in contacts)
+			{
+				if (ShouldIgnore(contact.rigidbody, new Collider2D[] { contact.collider }, false, true, true))
+				{
+					continue;
+				}
+				Vector2 newOverlap = contact.normal * -contact.separation;
+				totalOverlap.x = Mathf.Abs(newOverlap.x) > Math.Abs(totalOverlap.x) ? newOverlap.x : totalOverlap.x;
+				totalOverlap.y = Mathf.Abs(newOverlap.y) > Math.Abs(totalOverlap.y) ? newOverlap.y : totalOverlap.y;
+			}
+			transform.position += (Vector3)totalOverlap;
+
+			--m_spawnCheckFrameCount;
 		}
 
 		//if already falling, fall faster than the jump speed, otherwise use normal gravity.

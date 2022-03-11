@@ -41,7 +41,7 @@ public class RoomController : MonoBehaviour
 
 	private /*readonly*/ LayoutGenerator.Node[] m_layoutNodes;
 
-	private /*readonly*/ Vector3[] m_spawnPoints;
+	private /*readonly*/ GameObject[] m_spawnPoints;
 
 
 	public RoomController()
@@ -128,7 +128,7 @@ public class RoomController : MonoBehaviour
 			if (m_doorwayInfos[doorwayIdx].m_parentRoom != null)
 			{
 				// open doorway to parent
-				OpenDoorway(m_doorways[doorwayIdx], true, DoorwayDirection(doorwayIdx).y > 0.0f);
+				OpenDoorway(doorwayIdx, true, DoorwayDirection(doorwayIdx).y > 0.0f);
 			}
 		}
 
@@ -139,13 +139,11 @@ public class RoomController : MonoBehaviour
 		// TODO: prevent overlap of spawned prefabs
 
 		// spawn enemy spawn points
-		m_spawnPoints = new Vector3[Random.Range(1, m_spawnPointsMax + 1)]; // TODO: base on room size?
+		m_spawnPoints = new GameObject[Random.Range(1, m_spawnPointsMax + 1)]; // TODO: base on room size?
 		for (int spawnIdx = 0; spawnIdx < m_spawnPoints.Length; ++spawnIdx)
 		{
 			Vector3 spawnPosBG = InteriorPosition(false) + Vector3.forward; // TODO: account for spawn point / largest enemy size?
-			Instantiate(Utility.RandomWeighted(m_spawnPointPrefabs), spawnPosBG, Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f)), transform);
-			m_spawnPoints[spawnIdx] = spawnPosBG;
-			m_spawnPoints[spawnIdx].z = transform.position.z; // NOTE that we instantiate the visuals in the background but make sure the spawn point is at the same depth as the room
+			m_spawnPoints[spawnIdx] = Instantiate(Utility.RandomWeighted(m_spawnPointPrefabs), spawnPosBG, Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f)), transform);
 		}
 
 		// spawn furniture
@@ -231,7 +229,12 @@ public class RoomController : MonoBehaviour
 		return new(boundsInterior.center.x + Random.Range(-xDiffMax, xDiffMax), transform.position.y + Random.Range(0, yMax), transform.position.z); // NOTE the assumptions that the object position is on the floor of the room but not necessarily centered
 	}
 
-	public Vector3 SpawnPointRandom() => m_spawnPoints[Random.Range(0, m_spawnPoints.Length)];
+	public Vector3 SpawnPointRandom()
+	{
+		Vector3 pos = m_spawnPoints[Random.Range(0, m_spawnPoints.Length)].transform.position;
+		pos.z = transform.position.z; // NOTE that we instantiate the visuals in the background but make sure spawning is at the same depth as the room
+		return pos;
+	}
 
 	public List<RoomController> ChildRoomPath(Vector2 startPosition, Vector2 endPosition, bool unobstructed)
 	{
@@ -316,7 +319,7 @@ public class RoomController : MonoBehaviour
 
 			// maybe replace/remove
 			GameObject doorway = m_doorways[i];
-			MaybeReplaceDoor(ref m_doorwayInfos[i], roomPrefab, DoorwayDirection(i), doorway, layoutNodes);
+			MaybeReplaceDoor(i, roomPrefab, layoutNodes);
 			return m_doorwayInfos[i].m_childRoom != null;
 		});
 
@@ -345,7 +348,7 @@ public class RoomController : MonoBehaviour
 			{
 				continue;
 			}
-			OpenDoorway(m_doorways[i], !seal, false);
+			OpenDoorway(i, !seal, false);
 		}
 
 		GetComponent<AudioSource>().Play();
@@ -377,12 +380,14 @@ public class RoomController : MonoBehaviour
 		}
 	}
 
+	private Vector2 DoorwaySize(GameObject doorway) => doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale; // NOTE that we can't use Collider2D.bounds since this can be called before physics has run
+
 	private Vector2 DoorwayDirection(int index)
 	{
 		GameObject doorway = m_doorways[index];
 		Vector2 pivotToDoorway = (Vector2)doorway.transform.position - (Vector2)transform.position;
-		Vector3 doorwaySize = doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale; // NOTE that we can't use Collider2D.bounds since this can be called before physics has run
-		return doorwaySize.x > doorwaySize.y ? new Vector3(0.0f, Mathf.Sign(pivotToDoorway.y), 0.0f) : new Vector3(Mathf.Sign(pivotToDoorway.x), 0.0f, 0.0f);
+		Vector3 doorwaySize = DoorwaySize(doorway);
+		return doorwaySize.x > doorwaySize.y ? new Vector2(0.0f, Mathf.Sign(pivotToDoorway.y)) : new Vector2(Mathf.Sign(pivotToDoorway.x), 0.0f);
 	}
 
 	private int DoorwayReverseIndex(Vector2 replaceDirection)
@@ -390,7 +395,7 @@ public class RoomController : MonoBehaviour
 		for (int i = 0; i < m_doorways.Length; ++i)
 		{
 			GameObject doorway = m_doorways[i];
-			Vector3 doorwaySize = doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale; // NOTE that we can't use Collider2D.bounds since this can be called before physics has run
+			Vector3 doorwaySize = DoorwaySize(doorway);
 			if (Vector2.Dot((Vector2)transform.position - (Vector2)doorway.transform.position, replaceDirection) > 0.0f && doorwaySize.x > doorwaySize.y == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y))) // TODO: better way of determining reverse direction doorway?
 			{
 				return i;
@@ -414,8 +419,11 @@ public class RoomController : MonoBehaviour
 	}
 
 	// TODO: inline?
-	private void MaybeReplaceDoor(ref DoorwayInfo doorwayInfo, GameObject roomPrefab, Vector2 replaceDirection, GameObject doorway, LayoutGenerator.Node[] childNodes)
+	private void MaybeReplaceDoor(int index, GameObject roomPrefab, LayoutGenerator.Node[] childNodes)
 	{
+		Vector2 replaceDirection = DoorwayDirection(index);
+		GameObject doorway = m_doorways[index];
+		ref DoorwayInfo doorwayInfo = ref m_doorwayInfos[index];
 		Assert.IsNull(doorwayInfo.m_parentRoom);
 		Assert.IsNull(doorwayInfo.m_childRoom);
 		Assert.AreApproximatelyEqual(replaceDirection.magnitude, 1.0f);
@@ -438,7 +446,7 @@ public class RoomController : MonoBehaviour
 			return;
 		}
 
-		OpenDoorway(doorway, true, replaceDirection.y > 0.0f);
+		OpenDoorway(index, true, replaceDirection.y > 0.0f);
 
 		RoomController childRoom = Instantiate(roomPrefab, childPivotPos, Quaternion.identity).GetComponent<RoomController>();
 		doorwayInfo.m_childRoom = childRoom;
@@ -462,7 +470,7 @@ public class RoomController : MonoBehaviour
 			doorwayInfo.m_childRoom.m_doorwayInfos[returnIdx].m_blocker = doorwayInfo.m_blocker;
 
 			// resize gate to fit doorway
-			Vector2 size = doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale;
+			Vector2 size = DoorwaySize(doorway);
 			doorwayInfo.m_blocker.GetComponent<BoxCollider2D>().size = size;
 			doorwayInfo.m_blocker.GetComponent<SpriteRenderer>().size = size;
 			// TODO: update shadow caster shape once it is programmatically accessible
@@ -477,8 +485,10 @@ public class RoomController : MonoBehaviour
 		childRoom.Initialize(childNodes);
 	}
 
-	private void OpenDoorway(GameObject doorway, bool open, bool spawnLadders)
+	private void OpenDoorway(int index, bool open, bool spawnLadders)
 	{
+		GameObject doorway = m_doorways[index];
+
 		// spawn ladder rungs
 		if (spawnLadders && m_ladderRungPrefab != null)
 		{
@@ -506,7 +516,7 @@ public class RoomController : MonoBehaviour
 			}
 		}
 
-		// enable one-way movement or destroy
+		// enable/disable doorway
 		PlatformEffector2D effector = doorway.GetComponent<PlatformEffector2D>();
 		if (effector == null)
 		{
@@ -524,6 +534,22 @@ public class RoomController : MonoBehaviour
 			// change color/shadows for user visibility
 			doorway.GetComponent<SpriteRenderer>().color = open ? m_oneWayPlatformColor : m_layoutNodes.First().AreaParent.m_color; // TODO: cache room color?
 			doorway.GetComponent<ShadowCaster2D>().enabled = !open;
+		}
+
+		if (!open)
+		{
+			// move any newly colliding objects into room
+			Vector2 doorwaySize = DoorwaySize(doorway);
+			Collider2D[] colliders = Physics2D.OverlapBoxAll(doorway.transform.position, doorwaySize, 0.0f);
+			Vector2 intoRoom = -DoorwayDirection(index);
+			foreach (Collider2D collider in colliders)
+			{
+				if (collider.attachedRigidbody == null || collider.attachedRigidbody.bodyType == RigidbodyType2D.Static || collider.transform.parent != null)
+				{
+					continue; // ignore statics/children
+				}
+				collider.transform.position += (Vector3)(((Vector2)doorway.transform.position - (Vector2)collider.bounds.center + (Vector2)collider.bounds.extents + doorwaySize * 0.5f) * intoRoom);
+			}
 		}
 	}
 

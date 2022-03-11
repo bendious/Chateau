@@ -24,6 +24,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	public int m_healAmount = 0;
 	public string m_overlayText = null;
 
+	public Collider2D[] m_nondamageColliders;
+
 
 	public float Speed => m_holder == null ? m_body.velocity.magnitude : m_holder.Speed;
 
@@ -116,7 +118,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 
 		// maybe attach to character
 		// TODO: extend to BackpackController as well?
-		bool canDamage = m_cause != null && m_cause.CanDamage(collision.gameObject) && collision.otherCollider == m_colliders.First(); // NOTE that we prevent damage from secondary colliders (e.g. spear hafts)
+		bool canDamage = m_cause != null && m_cause.CanDamage(collision.gameObject) && !m_nondamageColliders.Contains(collision.otherCollider);
 		KinematicCharacter character = kinematicObj as KinematicCharacter; // NOTE that this works since objects shouldn't ever have multiple different KinematicObject-derived components
 		if (isDetached && !canDamage) // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus or if it is a secondary (non-damaging) collider making contact
 		{

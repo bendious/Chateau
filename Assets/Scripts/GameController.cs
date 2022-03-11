@@ -33,11 +33,13 @@ public class GameController : MonoBehaviour
 
 	public float m_waveSecondsMin = 45.0f;
 	public float m_waveSecondsMax = 90.0f;
+	public float m_waveStartWeight = 1.0f;
 	public float m_waveEscalationMin = 0.0f;
 	public float m_waveEscalationMax = 4.0f;
 	public float m_waveEnemyDelayMin = 0.5f;
 	public float m_waveEnemyDelayMax = 2.0f;
 
+	[HideInInspector]
 	public bool m_bossRoomSealed = false;
 
 
@@ -48,7 +50,7 @@ public class GameController : MonoBehaviour
 
 	private RoomController m_startRoom;
 
-	private float m_waveWeight = 0.0f;
+	private float m_waveWeight;
 	private float m_nextWaveTime = 0.0f;
 	private bool m_waveSpawningInProgress = false;
 
@@ -62,6 +64,8 @@ public class GameController : MonoBehaviour
 
 	private void Start()
 	{
+		m_waveWeight = m_waveStartWeight;
+
 		LayoutGenerator generator = new();
 		generator.Generate();
 
