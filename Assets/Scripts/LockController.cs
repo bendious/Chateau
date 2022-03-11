@@ -13,7 +13,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	{
 		public Sprite[] m_doorSprites;
 		public WeightedObject<GameObject>[] m_prefabs;
-		public int m_keyCount;
+		public int m_keyCountMax;
 		public int m_combinationDigits;
 	}
 	public WeightedObject<KeyInfo>[] m_keyPrefabs;
@@ -22,8 +22,8 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	public GameObject m_combinationIndicatorPrefab;
 	public float m_interactDistanceMax = 1.0f; // TODO: combine w/ avatar focus distance?
 
-	[HideInInspector]
-	public GameObject m_door;
+
+	public IUnlockable Parent { get; set; }
 
 
 	private readonly List<GameObject> m_keys = new();
@@ -39,25 +39,29 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
 	{
 		// spawn key(s)
-		KeyInfo keyInfo = Utility.RandomWeighted(m_keyPrefabs.Where(info => info.m_object.m_keyCount == keyRooms.Length).ToArray());
-		Assert.IsTrue(keyInfo.m_keyCount > 0);
-		for (int i = 0; i < keyInfo.m_keyCount; ++i)
+		m_keyInfo = Utility.RandomWeighted(m_keyPrefabs.Where(info => info.m_object.m_keyCountMax >= keyRooms.Length).ToArray());
+		Assert.IsTrue(m_keyInfo.m_keyCountMax > 0);
+		for (int i = 0; i < keyRooms.Length; ++i)
 		{
-			GameObject keyPrefab = Utility.RandomWeighted(keyInfo.m_prefabs);
+			GameObject keyPrefab = Utility.RandomWeighted(m_keyInfo.m_prefabs);
 			bool isItem = keyPrefab.GetComponent<Rigidbody2D>() != null;
 			Vector3 spawnPos = keyRooms[i].InteriorPosition(isItem) + (isItem ? Vector3.zero : Vector3.forward);
 			m_keys.Add(Instantiate(keyPrefab, spawnPos, Quaternion.identity));
+			ButtonController button = m_keys.Last().GetComponent<ButtonController>(); // TODO: generalize?
+			if (button != null)
+			{
+				button.Parent = this;
+			}
 		}
 
 		// door setup based on key
-		if (keyInfo.m_doorSprites != null && keyInfo.m_doorSprites.Length > 0)
+		if (m_keyInfo.m_doorSprites != null && m_keyInfo.m_doorSprites.Length > 0)
 		{
-			m_keyInfo = keyInfo;
-			GetComponent<SpriteRenderer>().sprite = m_keyInfo.m_doorSprites.First();
+			GetComponent<SpriteRenderer>().sprite = m_keyInfo.m_doorSprites[^Mathf.Min(m_keyInfo.m_doorSprites.Length, m_keys.Count + 1)];
 		}
 
 		// setup key(s)
-		if (keyInfo.m_combinationDigits > 0)
+		if (m_keyInfo.m_combinationDigits > 0)
 		{
 			// assign combination
 			m_combinationSet = Utility.RandomWeighted(m_combinationSets);
@@ -69,12 +73,14 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 			m_inputCur = new string(Enumerable.Repeat(m_combinationSet.First(), m_keyInfo.m_combinationDigits).ToArray());
 
 			// distribute combination among keys
-			int digitsPerKey = m_keyInfo.m_combinationDigits / m_keys.Count;
+			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / m_keys.Count;
 			Assert.AreEqual(digitsPerKey * m_keys.Count, m_keyInfo.m_combinationDigits); // ensure digits aren't lost to truncation
 			int keyIdx = 0;
 			foreach (GameObject key in m_keys)
 			{
-				key.GetComponentInChildren<TMP_Text>().text = (keyIdx == 0 ? "" : "*") + m_combination.Substring(keyIdx * digitsPerKey, digitsPerKey) + (keyIdx == m_keys.Count - 1 ? "" : "*");
+				int startIdx = Mathf.RoundToInt(keyIdx * digitsPerKey);
+				int endIdx = Mathf.RoundToInt((keyIdx + 1) * digitsPerKey);
+				key.GetComponentInChildren<TMP_Text>().text = (keyIdx == 0 ? "" : "*") + m_combination[startIdx..endIdx] + (keyIdx == m_keys.Count - 1 ? "" : "*");
 				++keyIdx;
 			}
 		}
@@ -179,11 +185,11 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	{
 		foreach (GameObject key in m_keys)
 		{
-			Simulation.Schedule<ObjectDespawn>().m_object = key;
+			DeactivateKey(key);
 		}
-		if (m_door != null)
+		if (Parent != null)
 		{
-			Simulation.Schedule<ObjectDespawn>().m_object = m_door;
+			Parent.Unlock(null);
 		}
 	}
 
@@ -229,26 +235,24 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		if (key != null)
 		{
 			m_keys.Remove(key);
-			Simulation.Schedule<ObjectDespawn>().m_object = key;
+			DeactivateKey(key);
 		}
 		if (key == null || m_keys.Count <= 0)
 		{
 			m_combination = null; // to disable interaction for consoles
-			if (m_door != null)
+			if (Parent != null)
 			{
-				GameController.Instance.AddCameraTargets(m_door.transform);
+				Parent.Unlock(key);
+				Parent = null;
 			}
-			Simulation.Schedule<ObjectDespawn>(m_door != null ? 1.0f : 0.5f).m_object = m_door != null ? m_door : gameObject; // TODO: guarantee camera reaches m_door?
+			else
+			{
+				Simulation.Schedule<ObjectDespawn>(0.5f).m_object = gameObject;
+			}
+
 			foreach (GameObject keyRemaining in m_keys)
 			{
-				if (keyRemaining.GetComponent<Rigidbody2D>() == null)
-				{
-					// leave non-item keys in place, just turning off their light/text
-					keyRemaining.GetComponent<UnityEngine.Rendering.Universal.Light2D>().enabled = false;
-					keyRemaining.GetComponentInChildren<Canvas>().enabled = false;
-					continue;
-				}
-				Simulation.Schedule<ObjectDespawn>().m_object = keyRemaining;
+				DeactivateKey(keyRemaining);
 			}
 			m_keys.Clear();
 		}
@@ -262,6 +266,25 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 
 		// TODO: unlock animation/VFX/etc.
 		GetComponent<AudioSource>().Play();
+	}
+
+	private void DeactivateKey(GameObject key)
+	{
+		Rigidbody2D keyBody = key.GetComponent<Rigidbody2D>();
+		if (keyBody != null && keyBody.bodyType != RigidbodyType2D.Static)
+		{
+			// destroy item keys
+			Simulation.Schedule<ObjectDespawn>().m_object = key;
+			return;
+		}
+
+		// leave non-item keys in place, just turning off their light/text
+		key.GetComponent<UnityEngine.Rendering.Universal.Light2D>().enabled = false;
+		Canvas canvas = key.GetComponentInChildren<Canvas>();
+		if (canvas != null)
+		{
+			canvas.enabled = false;
+		}
 	}
 
 	private void UpdateUIIndicator(TMP_Text text)
