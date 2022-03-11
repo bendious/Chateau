@@ -1,6 +1,7 @@
 ﻿using Cinemachine;
 using System;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.InputSystem;
@@ -596,7 +597,7 @@ public class AvatarController : KinematicCharacter
 			Image overlayImage = overlayObj.GetComponentInChildren<Image>();
 			overlayImage.sprite = sourceRenderer.sprite;
 			overlayImage.color = sourceRenderer.color;
-			overlayObj.GetComponentInChildren<TMPro.TMP_Text>().text = text;
+			overlayObj.GetComponentInChildren<TMP_Text>().text = text;
 		}
 		overlayObj.SetActive(!overlayObj.activeSelf);
 		Controls.SwitchCurrentActionMap(m_overlayCanvas.gameObject.activeSelf ? "UI" : "Avatar"); // TODO: account for other UI instances?
@@ -659,6 +660,8 @@ public class AvatarController : KinematicCharacter
 				uiImage.color = itemCur.Item2;
 			}
 			uiImage.color *= new Color(1.0f, 1.0f, 1.0f, 0.5f); // TODO: un-hardcode?
+			TMP_Text text = nonEmptySlot ? itemCur.Item1.GetComponentInChildren<TMP_Text>() : null;
+			UIObj.GetComponentInChildren<TMP_Text>().text = text == null ? null : text.text;
 			UIObj.GetComponent<InventoryController>().m_draggable = nonEmptySlot;
 		}
 		for (int j = m_inventoryUI.transform.childCount - 1; j > itemInfos.Length; --j)

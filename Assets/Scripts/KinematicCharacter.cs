@@ -189,11 +189,14 @@ public abstract class KinematicCharacter : KinematicObject
 		if (attachee is BackpackController backpack) // TODO: handle through IAttachable interface?
 		{
 			// allow only one pack at a time
-			BackpackController packExisting = GetComponentInChildren<BackpackController>();
-			if (packExisting != null && packExisting.m_attachOffsetLocal == backpack.m_attachOffsetLocal)
+			BackpackController[] packsExisting = GetComponentsInChildren<BackpackController>();
+			foreach (BackpackController packExisting in packsExisting)
 			{
-				packExisting.Detach(true);
-				// TODO: transfer items from old to new pack?
+				if (packExisting.m_attachOffsetLocal == backpack.m_attachOffsetLocal)
+				{
+					packExisting.Detach(true);
+					// TODO: transfer items from old to new pack?
+				}
 			}
 
 			backpack.AttachTo(this);

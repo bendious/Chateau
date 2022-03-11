@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -22,7 +23,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	public float m_vfxAlphaMax = 0.35f;
 	public Vector3 m_vfxExtraOffsetLocal;
 	public int m_healAmount = 0;
-	public string m_overlayText = null;
 
 	public Collider2D[] m_nondamageColliders;
 
@@ -253,9 +253,10 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 			}
 		}
 
-		if (!string.IsNullOrEmpty(m_overlayText))
+		TMP_Text text = GetComponentInChildren<TMP_Text>();
+		if (text != null && !string.IsNullOrEmpty(text.text))
 		{
-			m_holder.Component.transform.parent.GetComponent<AvatarController>().ToggleOverlay(m_renderer, m_overlayText);
+			m_holder.Component.transform.parent.GetComponent<AvatarController>().ToggleOverlay(m_renderer, text.text);
 			return true;
 		}
 

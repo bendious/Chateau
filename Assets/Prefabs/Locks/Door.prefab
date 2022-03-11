@@ -132,14 +132,31 @@ MonoBehaviour:
       - {fileID: 21300000, guid: d82a34aadf46f447ab682d6a53173335, type: 3}
       - {fileID: 21300000, guid: 029789b1d61f84549abf81907c956e51, type: 3}
       m_prefabs:
-      - {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      - m_object: {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+        m_weight: 1
+      m_keyCount: 1
       m_combinationDigits: 0
     m_weight: 1
   - m_object:
       m_doorSprites:
       - {fileID: 21300000, guid: 2b60367463fe92a4eb1952f0d5303ef9, type: 3}
       m_prefabs:
-      - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
+      - m_object: {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
+        m_weight: 1
+      - m_object: {fileID: 706043663315506005, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
+        m_weight: 1
+      m_keyCount: 1
+      m_combinationDigits: 4
+    m_weight: 1
+  - m_object:
+      m_doorSprites:
+      - {fileID: 21300000, guid: 2b60367463fe92a4eb1952f0d5303ef9, type: 3}
+      m_prefabs:
+      - m_object: {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
+        m_weight: 1
+      - m_object: {fileID: 706043663315506005, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
+        m_weight: 1
+      m_keyCount: 2
       m_combinationDigits: 4
     m_weight: 1
   - m_object:
@@ -149,27 +166,20 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 80f33a7549f6b8342b5ba55f3e17c9cd, type: 3}
       - {fileID: 21300000, guid: 97bbf82937b87144b99f45fd6a72b4e9, type: 3}
       m_prefabs:
-      - {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
-      - {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
-      - {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      - m_object: {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+        m_weight: 1
+      m_keyCount: 3
       m_combinationDigits: 0
     m_weight: 1
   - m_object:
       m_doorSprites:
       - {fileID: 21300000, guid: 2b60367463fe92a4eb1952f0d5303ef9, type: 3}
       m_prefabs:
-      - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
-      - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
-      m_combinationDigits: 4
-    m_weight: 1
-  - m_object:
-      m_doorSprites:
-      - {fileID: 21300000, guid: 2b60367463fe92a4eb1952f0d5303ef9, type: 3}
-      m_prefabs:
-      - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
-      - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
-      - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
-      - {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
+      - m_object: {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
+        m_weight: 1
+      - m_object: {fileID: 706043663315506005, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
+        m_weight: 1
+      m_keyCount: 4
       m_combinationDigits: 4
     m_weight: 1
   - m_object:
@@ -179,9 +189,9 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 1dfa1241b11a2c347b29ccf3debeabf2, type: 3}
       - {fileID: 21300000, guid: dacf45f013846f642a0d42b1c6785e0d, type: 3}
       m_prefabs:
-      - {fileID: 2985935573955904460, guid: d0f5470f46df30c4b9004f62adc55cc9, type: 3}
-      - {fileID: 2985935573955904460, guid: d0f5470f46df30c4b9004f62adc55cc9, type: 3}
-      - {fileID: 2985935573955904460, guid: d0f5470f46df30c4b9004f62adc55cc9, type: 3}
+      - m_object: {fileID: 2985935573955904460, guid: d0f5470f46df30c4b9004f62adc55cc9, type: 3}
+        m_weight: 1
+      m_keyCount: 3
       m_combinationDigits: 0
     m_weight: 1
   m_combinationSets:
@@ -222,7 +232,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 59778
+  m_InstanceId: 50210
 --- !u!82 &6978962022123711710
 AudioSource:
   m_ObjectHideFlags: 0

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -11,7 +12,8 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	public struct KeyInfo
 	{
 		public Sprite[] m_doorSprites;
-		public GameObject[] m_prefabs;
+		public WeightedObject<GameObject>[] m_prefabs;
+		public int m_keyCount;
 		public int m_combinationDigits;
 	}
 	public WeightedObject<KeyInfo>[] m_keyPrefabs;
@@ -20,6 +22,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	public GameObject m_combinationIndicatorPrefab;
 	public float m_interactDistanceMax = 1.0f; // TODO: combine w/ avatar focus distance?
 
+	[HideInInspector]
 	public GameObject m_door;
 
 
@@ -36,13 +39,14 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
 	{
 		// spawn key(s)
-		KeyInfo keyInfo = Utility.RandomWeighted(m_keyPrefabs.Where(info => info.m_object.m_prefabs.Length == keyRooms.Length).ToArray());
-		int i = 0;
-		foreach (GameObject keyPrefab in keyInfo.m_prefabs)
+		KeyInfo keyInfo = Utility.RandomWeighted(m_keyPrefabs.Where(info => info.m_object.m_keyCount == keyRooms.Length).ToArray());
+		Assert.IsTrue(keyInfo.m_keyCount > 0);
+		for (int i = 0; i < keyInfo.m_keyCount; ++i)
 		{
-			Vector3 spawnPos = keyRooms[i].InteriorPosition(true);
+			GameObject keyPrefab = Utility.RandomWeighted(keyInfo.m_prefabs);
+			bool isItem = keyPrefab.GetComponent<Rigidbody2D>() != null;
+			Vector3 spawnPos = keyRooms[i].InteriorPosition(isItem) + (isItem ? Vector3.zero : Vector3.forward);
 			m_keys.Add(Instantiate(keyPrefab, spawnPos, Quaternion.identity));
-			++i;
 		}
 
 		// door setup based on key
@@ -70,7 +74,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 			int keyIdx = 0;
 			foreach (GameObject key in m_keys)
 			{
-				key.GetComponent<ItemController>().m_overlayText = (keyIdx == 0 ? "" : "*") + m_combination.Substring(keyIdx * digitsPerKey, digitsPerKey) + (keyIdx == m_keys.Count - 1 ? "" : "*");
+				key.GetComponentInChildren<TMP_Text>().text = (keyIdx == 0 ? "" : "*") + m_combination.Substring(keyIdx * digitsPerKey, digitsPerKey) + (keyIdx == m_keys.Count - 1 ? "" : "*");
 				++keyIdx;
 			}
 		}
@@ -97,7 +101,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 
 	public void OnNavigate(GameObject overlayObj, UnityEngine.InputSystem.InputValue input)
 	{
-		TMPro.TMP_Text text = overlayObj.GetComponentInChildren<TMPro.TMP_Text>();
+		TMP_Text text = overlayObj.GetComponentInChildren<TMP_Text>();
 
 		Vector2 xyInput = input.Get<Vector2>();
 		float xInput = xyInput.x;
@@ -237,6 +241,13 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 			Simulation.Schedule<ObjectDespawn>(m_door != null ? 1.0f : 0.5f).m_object = m_door != null ? m_door : gameObject; // TODO: guarantee camera reaches m_door?
 			foreach (GameObject keyRemaining in m_keys)
 			{
+				if (keyRemaining.GetComponent<Rigidbody2D>() == null)
+				{
+					// leave non-item keys in place, just turning off their light/text
+					keyRemaining.GetComponent<UnityEngine.Rendering.Universal.Light2D>().enabled = false;
+					keyRemaining.GetComponentInChildren<Canvas>().enabled = false;
+					continue;
+				}
 				Simulation.Schedule<ObjectDespawn>().m_object = keyRemaining;
 			}
 			m_keys.Clear();
@@ -253,7 +264,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		GetComponent<AudioSource>().Play();
 	}
 
-	private void UpdateUIIndicator(TMPro.TMP_Text text)
+	private void UpdateUIIndicator(TMP_Text text)
 	{
 		m_indicator.transform.localPosition = new Vector3(Mathf.Lerp(text.textBounds.min.x, text.textBounds.max.x, (m_inputIdxCur + 0.5f) / m_keyInfo.m_combinationDigits), m_indicator.transform.localPosition.y, m_indicator.transform.localPosition.z);
 	}
@@ -263,7 +274,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		avatar.Controls.SwitchCurrentActionMap("UI");
 
 		GameObject overlayObj = avatar.m_overlayCanvas.gameObject;
-		TMPro.TMP_Text text = overlayObj.GetComponentInChildren<TMPro.TMP_Text>();
+		TMP_Text text = overlayObj.GetComponentInChildren<TMP_Text>();
 		text.text = m_inputCur;
 		yield return null; // NOTE that we have to display at least once before possibly using text.textBounds for indicator positioning
 
