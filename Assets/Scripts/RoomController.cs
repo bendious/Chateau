@@ -193,6 +193,27 @@ public class RoomController : MonoBehaviour
 		}
 	}
 
+	public void SpawnKeysRecursive()
+	{
+		foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
+		{
+			if (doorwayInfo.m_childRoom == null)
+			{
+				continue;
+			}
+
+			doorwayInfo.m_childRoom.SpawnKeysRecursive();
+
+			LayoutGenerator.Node lockNode = GateNodeToChild(LayoutGenerator.Node.Type.Lock, doorwayInfo.m_childRoom.m_layoutNodes);
+			if (lockNode == null)
+			{
+				continue;
+			}
+
+			doorwayInfo.m_blocker.GetComponent<IUnlockable>().SpawnKeys(this, lockNode.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray());
+		}
+	}
+
 	public RoomController RoomFromPosition(Vector2 position)
 	{
 		// TODO: efficiency?
@@ -310,6 +331,13 @@ public class RoomController : MonoBehaviour
 
 	public bool SpawnChildRoom(GameObject roomPrefab, LayoutGenerator.Node[] layoutNodes)
 	{
+		// prevent putting keys behind their lock
+		// NOTE that we check all nodes' depth even though all nodes w/i a single room should be at the same depth
+		if (layoutNodes.Max(node => node.Depth) < m_layoutNodes.Min(node => node.Depth))
+		{
+			return false;
+		}
+
 		bool success = DoorwaysRandomOrder(i =>
 		{
 			if (m_doorwayInfos[i].m_childRoom != null || m_doorwayInfos[i].m_parentRoom != null)
@@ -323,7 +351,8 @@ public class RoomController : MonoBehaviour
 			return m_doorwayInfos[i].m_childRoom != null;
 		});
 
-		if (!success)
+		bool requireImmediateChild = System.Array.Exists(layoutNodes, node => System.Array.Exists(m_layoutNodes, parentNode => (parentNode.m_type == LayoutGenerator.Node.Type.Lock || parentNode.m_type == LayoutGenerator.Node.Type.Secret) && parentNode == node.TightCoupleParent));
+		if (!success && !requireImmediateChild)
 		{
 			// try spawning from children
 			success = DoorwaysRandomOrder(i =>
@@ -418,6 +447,11 @@ public class RoomController : MonoBehaviour
 		return false;
 	}
 
+	private LayoutGenerator.Node GateNodeToChild(LayoutGenerator.Node.Type gateType, LayoutGenerator.Node[] childNodes)
+	{
+		return m_layoutNodes.FirstOrDefault(node => node.m_type == gateType && System.Array.Exists(childNodes, childNode => childNode.DirectParents.Exists(childParentNode => node == childParentNode)));
+	}
+
 	// TODO: inline?
 	private void MaybeReplaceDoor(int index, GameObject roomPrefab, LayoutGenerator.Node[] childNodes)
 	{
@@ -454,32 +488,26 @@ public class RoomController : MonoBehaviour
 		// set child's parent connection
 		int returnIdx = childRoom.DoorwayReverseIndex(replaceDirection);
 
-		doorwayInfo.m_childRoom.m_doorwayInfos[returnIdx].m_parentRoom = this;
+		childRoom.m_doorwayInfos[returnIdx].m_parentRoom = this;
 
-		LayoutGenerator.Node blockerNode = m_layoutNodes.FirstOrDefault(node => node.m_type == LayoutGenerator.Node.Type.Lock);
+		LayoutGenerator.Node blockerNode = GateNodeToChild(LayoutGenerator.Node.Type.Lock, childNodes);
 		bool isLock = blockerNode != null;
 		if (!isLock)
 		{
-			blockerNode = m_layoutNodes.FirstOrDefault(node => node.m_type == LayoutGenerator.Node.Type.Secret);
+			blockerNode = GateNodeToChild(LayoutGenerator.Node.Type.Secret, childNodes);
 		}
-		if (blockerNode != null && System.Array.Exists(childNodes, node => node.DirectParents.Exists(childParentNode => m_layoutNodes.Contains(childParentNode))))
+		if (blockerNode != null)
 		{
 			// create gate
 			Assert.IsNull(doorwayInfo.m_blocker);
 			doorwayInfo.m_blocker = Instantiate(Utility.RandomWeighted(isLock ? m_doorPrefabs : m_doorSecretPrefabs), doorway.transform.position + Vector3.back, Quaternion.identity, transform); // NOTE the depth decrease to ensure rendering on top of platforms
-			doorwayInfo.m_childRoom.m_doorwayInfos[returnIdx].m_blocker = doorwayInfo.m_blocker;
+			childRoom.m_doorwayInfos[returnIdx].m_blocker = doorwayInfo.m_blocker;
 
 			// resize gate to fit doorway
 			Vector2 size = DoorwaySize(doorway);
 			doorwayInfo.m_blocker.GetComponent<BoxCollider2D>().size = size;
 			doorwayInfo.m_blocker.GetComponent<SpriteRenderer>().size = size;
 			// TODO: update shadow caster shape once it is programmatically accessible
-
-			// spawn key(s)
-			if (isLock)
-			{
-				doorwayInfo.m_blocker.GetComponent<IUnlockable>().SpawnKeys(this, blockerNode.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray());
-			}
 		}
 
 		childRoom.Initialize(childNodes);

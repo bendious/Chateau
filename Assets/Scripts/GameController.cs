@@ -72,15 +72,15 @@ public class GameController : MonoBehaviour
 		// use generator to spawn rooms/locks/keys/items/etc.
 		LayoutGenerator.Node parentPending = null;
 		List<LayoutGenerator.Node> nodesPending = new();
-		bool failed = generator.ForEachNode(node =>
+		bool failed = generator.ForEachNodeDepthFirst(node =>
 		{
 			Debug.Assert(node.m_room == null);
 			Assert.AreNotEqual(node.m_type, LayoutGenerator.Node.Type.TightCoupling);
 
 			LayoutGenerator.Node parent = node.TightCoupleParent;
-			if (nodesPending.Count > 0 && parent != parentPending)
+			if (parentPending != null && parent != parentPending)
 			{
-				bool spawned = AddRoomForNodes(nodesPending.ToArray());
+				bool spawned = AddRoomsForNodes(nodesPending.ToArray());
 				if (!spawned)
 				{
 					return true;
@@ -92,12 +92,14 @@ public class GameController : MonoBehaviour
 			nodesPending.Add(node);
 			return false;
 		});
-		failed = failed || !AddRoomForNodes(nodesPending.ToArray());
+		failed = failed || !AddRoomsForNodes(nodesPending.ToArray());
 		if (failed)
 		{
 			Retry(); // TODO: more efficient way to guarantee room spawning?
 			return;
 		}
+
+		m_startRoom.SpawnKeysRecursive();
 
 		if (Random.value > 0.5f)
 		{
@@ -299,19 +301,48 @@ public class GameController : MonoBehaviour
 #endif
 
 
-	private bool AddRoomForNodes(LayoutGenerator.Node[] nodes)
+	private bool AddRoomsForNodes(LayoutGenerator.Node[] nodes)
 	{
 		Assert.AreEqual(System.Array.Exists(nodes, node => node.m_type == LayoutGenerator.Node.Type.Entrance), m_startRoom == null);
-		if (m_startRoom == null)
+
+		List<LayoutGenerator.Node> nodesShuffled = nodes.OrderBy(node => Random.value).ToList();
+		List<List<LayoutGenerator.Node>> nodesSplit = new();
+		for (int i = 0; i < nodesShuffled.Count; )
 		{
-			m_startRoom = Instantiate(Utility.RandomWeighted(m_entryRoomPrefabs)).GetComponent<RoomController>();
-			m_startRoom.Initialize(nodes);
-			return true;
+			nodesSplit.Add(new());
+			int numDoors = 0;
+			const int doorsMax = 4; // TODO: determine based on room?
+			bool isDoor = false;
+			do
+			{
+				LayoutGenerator.Node node = nodesShuffled[i];
+				nodesSplit.Last().Add(node);
+				isDoor = node.m_type == LayoutGenerator.Node.Type.Lock || node.m_type == LayoutGenerator.Node.Type.Secret; // TODO: function?
+				if (isDoor)
+				{
+					++numDoors;
+				}
+				++i;
+			} while ((!isDoor || numDoors < doorsMax) && i < nodesShuffled.Count);
 		}
-		else
+
+		foreach (List<LayoutGenerator.Node> nodesList in nodesSplit)
 		{
-			return nodes.First().TightCoupleParent.m_room.SpawnChildRoom(Utility.RandomWeighted(System.Array.Exists(nodes, node => node.m_type == LayoutGenerator.Node.Type.Boss) ? m_bossRoomPrefabs : m_roomPrefabs), nodes);
+			if (m_startRoom == null)
+			{
+				m_startRoom = Instantiate(Utility.RandomWeighted(m_entryRoomPrefabs)).GetComponent<RoomController>();
+				m_startRoom.Initialize(nodesList.ToArray());
+			}
+			else
+			{
+				bool success = nodesList.First().TightCoupleParent.m_room.SpawnChildRoom(Utility.RandomWeighted(nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? m_bossRoomPrefabs : m_roomPrefabs), nodesList.ToArray());
+				if (!success)
+				{
+					return false;
+				}
+			}
 		}
+		return true;
 	}
 
 	private IEnumerator SpawnWavesCoroutine()

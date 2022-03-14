@@ -74,7 +74,6 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 
 			// distribute combination among keys
 			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / m_keys.Count;
-			Assert.AreEqual(digitsPerKey * m_keys.Count, m_keyInfo.m_combinationDigits); // ensure digits aren't lost to truncation
 			int keyIdx = 0;
 			foreach (GameObject key in m_keys)
 			{

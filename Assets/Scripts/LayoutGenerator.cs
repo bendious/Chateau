@@ -69,6 +69,12 @@ public class LayoutGenerator
 			return tcParentDirectParents.Count > 1 ? tightCoupleParent : tightCoupleParent.AreaParent;
 		} }
 
+		public int Depth { get
+		{
+			Node parent = TightCoupleParent;
+			return parent == null ? 0 : parent.Depth + 1;
+		} }
+
 		public readonly Color m_color = new(UnityEngine.Random.Range(0.25f, 0.5f), UnityEngine.Random.Range(0.25f, 0.5f), UnityEngine.Random.Range(0.25f, 0.5f)); // TODO: tend brighter based on progress?
 
 
@@ -98,42 +104,22 @@ public class LayoutGenerator
 			return parents;
 		}
 
-		public bool ForEach(Func<Node, bool> f, List<Node> processedNodes = null)
+
+		internal void DepthFirstQueue(Queue<Node> queue)
 		{
-			if (processedNodes == null)
+			if (m_children != null)
 			{
-				processedNodes = new();
-			}
-			if (processedNodes.Contains(this))
-			{
-				return false;
-			}
-
-			bool done = m_type != Type.TightCoupling && f(this); // NOTE the deliberate skip of internal-only nodes
-			processedNodes.Add(this);
-
-			if (done || m_children == null)
-			{
-				return done;
-			}
-
-			foreach (Node child in m_children)
-			{
-				if (!child.DirectParents.All(parent => processedNodes.Contains(parent)))
+				foreach (Node child in m_children)
 				{
-					// haven't processed all our parents yet; we'll try again later when the next parent comes around
-					continue;
-				}
-
-				done = child.ForEach(f, processedNodes);
-				if (done)
-				{
-					break;
+					child.DepthFirstQueue(queue);
 				}
 			}
-			return done;
+
+			if (!queue.Contains(this)) // NOTE that this check is necessary due to multi-parenting
+			{
+				queue.Enqueue(this);
+			}
 		}
-
 
 		internal Node Clone()
 		{
@@ -144,10 +130,11 @@ public class LayoutGenerator
 		{
 			if (m_children == null)
 			{
-				m_children = children;
+				m_children = new(children); // NOTE the manual copy to prevent nodes sharing edits to each others' m_children
 			}
 			else
 			{
+				Assert.IsTrue(m_children.Intersect(children).Count() == 0);
 				m_children.AddRange(children);
 			}
 
@@ -157,6 +144,7 @@ public class LayoutGenerator
 				{
 					child.DirectParentsInternal = new();
 				}
+				Assert.IsTrue(!child.DirectParentsInternal.Contains(this));
 				child.DirectParentsInternal.Add(this);
 			}
 		}
@@ -220,32 +208,26 @@ public class LayoutGenerator
 
 	public void Generate()
 	{
-		Queue<Tuple<Node, Node>> nodeAndParentQueue = new(new List<Tuple<Node, Node>> { new(m_rootNode, null) });
+		Queue<Node> nodeQueue = new(new List<Node> { m_rootNode });
 
-		while (nodeAndParentQueue.TryDequeue(out Tuple<Node, Node> nodeAndParentItr))
+		while (nodeQueue.TryDequeue(out Node nodeItr))
 		{
-			if (nodeAndParentItr.Item1.DirectParentsInternal != null && Enumerable.Intersect(nodeAndParentItr.Item1.DirectParentsInternal, nodeAndParentQueue.Select(pair => pair.Item1)).Count() > 0)
+			if (nodeItr.m_processed)
 			{
-				// haven't placed all our parents yet; try again later
-				nodeAndParentQueue.Enqueue(nodeAndParentItr);
 				continue;
 			}
+			nodeItr.m_processed = true;
 
-			ReplacementRule[] options = m_rules.Where(rule => rule.m_initial == nodeAndParentItr.Item1.m_type).ToArray();
+			ReplacementRule[] options = m_rules.Where(rule => rule.m_initial == nodeItr.m_type).ToArray();
 
 			if (options.Length == 0)
 			{
 				// next node
-				if (nodeAndParentItr.Item1.m_children != null)
+				if (nodeItr.m_children != null)
 				{
-					foreach (Node child in nodeAndParentItr.Item1.m_children)
+					foreach (Node child in nodeItr.m_children)
 					{
-						if (child.m_processed)
-						{
-							continue;
-						}
-						child.m_processed = true;
-						nodeAndParentQueue.Enqueue(Tuple.Create(child, nodeAndParentItr.Item1));
+						nodeQueue.Enqueue(child);
 					}
 				}
 				continue;
@@ -256,46 +238,69 @@ public class LayoutGenerator
 
 			// move children
 			List<Node> replacementNodes = replacement.m_final.Select(node => node.Clone()).ToList();
-			if (nodeAndParentItr.Item1.m_children != null)
+			if (nodeItr.m_children != null)
 			{
-				foreach (Node child in nodeAndParentItr.Item1.m_children)
+				foreach (Node child in nodeItr.m_children)
 				{
-					child.DirectParentsInternal.Remove(nodeAndParentItr.Item1);
+					child.DirectParentsInternal.Remove(nodeItr);
 				}
 				foreach (Node replacementNode in replacementNodes)
 				{
-					replacementNode.AppendLeafChildren(nodeAndParentItr.Item1.m_children);
+					replacementNode.AppendLeafChildren(nodeItr.m_children);
 				}
 			}
 
 			// hook in replacement tree
-			if (nodeAndParentItr.Item2 == null)
+			if (nodeItr.DirectParentsInternal == null)
 			{
 				Assert.IsTrue(replacementNodes.Count() == 1);
 				m_rootNode = replacementNodes.First();
 			}
 			else
 			{
-				nodeAndParentItr.Item2.m_children.Remove(nodeAndParentItr.Item1);
-				nodeAndParentItr.Item2.AddChildren(replacementNodes);
+				foreach (Node parent in nodeItr.DirectParentsInternal)
+				{
+					parent.m_children.Remove(nodeItr);
+					parent.AddChildren(replacementNodes);
+				}
 
 				// preserve any existing multi-parenting
 				foreach (Node replacementNode in replacementNodes)
 				{
-					replacementNode.DirectParentsInternal = replacementNode.DirectParentsInternal.Union(nodeAndParentItr.Item1.DirectParentsInternal).ToList();
+					replacementNode.DirectParentsInternal = replacementNode.DirectParentsInternal.Union(nodeItr.DirectParentsInternal).ToList();
 				}
 			}
 
 			// iterate
 			foreach (Node newNode in replacementNodes)
 			{
-				nodeAndParentQueue.Enqueue(Tuple.Create(newNode, nodeAndParentItr.Item2));
+				Assert.IsFalse(newNode.m_processed);
+				nodeQueue.Enqueue(newNode);
 			}
 		}
 	}
 
-	public bool ForEachNode(Func<Node, bool> f)
+	public bool ForEachNodeDepthFirst(Func<Node, bool> f)
 	{
-		return m_rootNode.ForEach(f);
+		Queue<Node> queue = new();
+		m_rootNode.DepthFirstQueue(queue);
+
+		while (queue.TryDequeue(out Node next))
+		{
+			if (queue.Contains(next.TightCoupleParent))
+			{
+				// haven't processed our parent yet; try again later
+				queue.Enqueue(next);
+				continue;
+			}
+
+			bool done = next.m_type != Node.Type.TightCoupling && f(next); // NOTE the deliberate skip of internal-only nodes
+			if (done)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
