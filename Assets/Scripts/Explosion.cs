@@ -9,12 +9,17 @@ public class Explosion : MonoBehaviour
 
 	public float m_lifetime = 3.0f;
 
+	public WeightedObject<AudioClip>[] m_sfx;
+
 	public KinematicCharacter m_source;
 
 
     private void Start()
     {
-		// TODO: SFX
+		// SFX
+		AudioSource audio = GetComponent<AudioSource>();
+		audio.clip = Utility.RandomWeighted(m_sfx);
+		audio.Play();
 
 		// damage
 		Collider2D[] objects = Physics2D.OverlapCircleAll(transform.position, m_radius, Physics2D.GetLayerCollisionMask((m_source == null ? gameObject : m_source.gameObject).layer));
