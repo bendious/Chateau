@@ -42,7 +42,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	private Health m_health;
 
 	private IHolder m_holder;
-	private KinematicCharacter m_cause;
+	public KinematicCharacter Cause { get; private set; }
 
 	private static int m_posLocalPrevID;
 	private static int m_upVecID;
@@ -98,6 +98,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	// TODO: combine w/ ArmController version?
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
+		if (!gameObject.activeSelf) // e.g. we're a bomb that has just gone off
+		{
+			return;
+		}
+
 		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
 		if ((kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, false, false, false)) || collision.gameObject.transform.root == transform.root)
 		{
@@ -118,7 +123,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 
 		// maybe attach to character
 		// TODO: extend to BackpackController as well?
-		bool canDamage = m_cause != null && m_cause.CanDamage(collision.gameObject) && !m_nondamageColliders.Contains(collision.otherCollider);
+		bool canDamage = Cause != null && Cause.CanDamage(collision.gameObject) && !m_nondamageColliders.Contains(collision.otherCollider);
 		KinematicCharacter character = kinematicObj as KinematicCharacter; // NOTE that this works since objects shouldn't ever have multiple different KinematicObject-derived components
 		if (isDetached && !canDamage) // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus or if it is a secondary (non-damaging) collider making contact
 		{
@@ -165,7 +170,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		}
 
 		// add upward force to emulate kicking
-		if (isDetached && !canDamage && character != null && (m_cause == null || GameController.Instance.m_avatars.Contains(character)))
+		if (isDetached && !canDamage && character != null && (Cause == null || GameController.Instance.m_avatars.Contains(character)))
 		{
 			SetCause(character);
 			EnableVFXAndDamage(); // mostly to prevent m_cause from remaining set and allowing damage if run into fast enough
@@ -223,7 +228,10 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		m_body.useFullKinematicContacts = false;
 		m_body.WakeUp();
 
-		EnableVFXAndDamage(); // mostly to prevent m_cause from remaining set and allowing damage if run into fast enough
+		if (gameObject.activeSelf)
+		{
+			EnableVFXAndDamage(); // mostly to prevent m_cause from remaining set and allowing damage if run into fast enough
+		}
 
 		m_holder = null;
 	}
@@ -286,20 +294,20 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 
 	private void SetCause(KinematicCharacter cause)
 	{
-		if (m_cause == cause)
+		if (Cause == cause)
 		{
 			return;
 		}
 
-		m_cause = cause;
+		Cause = cause;
 
-		if (m_cause == null || m_vfx == null)
+		if (Cause == null || m_vfx == null)
 		{
 			return;
 		}
 
 		Gradient gradient = new();
-		gradient.colorKeys = new GradientColorKey[] { new(GameController.Instance.m_avatars.Contains(m_cause) ? Color.white : Color.red, 0.0f) };
+		gradient.colorKeys = new GradientColorKey[] { new(GameController.Instance.m_avatars.Contains(Cause) ? Color.white : Color.red, 0.0f) };
 		gradient.alphaKeys = new GradientAlphaKey[] { new(0.0f, 0.0f), new(m_vfxAlphaMax, 1.0f) }; // TODO: determine how this interacts w/ the VFX's Alpha Over Life node
 		m_vfx.SetGradient(m_gradientID, gradient);
 	}

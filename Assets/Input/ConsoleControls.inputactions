@@ -60,7 +60,16 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "LayoutDebug",
+                    "name": "ExplosionDebug",
+                    "type": "Button",
+                    "id": "39d672eb-38a4-4286-826f-d7171840f2b6",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "LayoutDebugLevel",
                     "type": "Button",
                     "id": "378debb7-9103-451d-a1a6-b77a3cc32887",
                     "expectedControlType": "Button",
@@ -371,7 +380,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "LayoutDebug",
+                    "action": "LayoutDebugLevel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -383,6 +392,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "UnlockAll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "150dedc4-e550-4c66-85b6-2b3463527631",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ExplosionDebug",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

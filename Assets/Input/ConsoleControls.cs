@@ -82,7 +82,16 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""LayoutDebug"",
+                    ""name"": ""ExplosionDebug"",
+                    ""type"": ""Button"",
+                    ""id"": ""39d672eb-38a4-4286-826f-d7171840f2b6"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LayoutDebugLevel"",
                     ""type"": ""Button"",
                     ""id"": ""378debb7-9103-451d-a1a6-b77a3cc32887"",
                     ""expectedControlType"": ""Button"",
@@ -393,7 +402,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""LayoutDebug"",
+                    ""action"": ""LayoutDebugLevel"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -405,6 +414,17 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""UnlockAll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""150dedc4-e550-4c66-85b6-2b3463527631"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ExplosionDebug"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -421,7 +441,8 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         m_Console_NeverDie = m_Console.FindAction("NeverDie", throwIfNotFound: true);
         m_Console_PassiveAI = m_Console.FindAction("PassiveAI", throwIfNotFound: true);
         m_Console_AIDebugLevel = m_Console.FindAction("AIDebugLevel", throwIfNotFound: true);
-        m_Console_LayoutDebug = m_Console.FindAction("LayoutDebug", throwIfNotFound: true);
+        m_Console_ExplosionDebug = m_Console.FindAction("ExplosionDebug", throwIfNotFound: true);
+        m_Console_LayoutDebugLevel = m_Console.FindAction("LayoutDebugLevel", throwIfNotFound: true);
         m_Console_RegenerateDisabled = m_Console.FindAction("RegenerateDisabled", throwIfNotFound: true);
         m_Console_SpawnEnemyWave = m_Console.FindAction("SpawnEnemyWave", throwIfNotFound: true);
         m_Console_KillAllEnemies = m_Console.FindAction("KillAllEnemies", throwIfNotFound: true);
@@ -494,7 +515,8 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Console_NeverDie;
     private readonly InputAction m_Console_PassiveAI;
     private readonly InputAction m_Console_AIDebugLevel;
-    private readonly InputAction m_Console_LayoutDebug;
+    private readonly InputAction m_Console_ExplosionDebug;
+    private readonly InputAction m_Console_LayoutDebugLevel;
     private readonly InputAction m_Console_RegenerateDisabled;
     private readonly InputAction m_Console_SpawnEnemyWave;
     private readonly InputAction m_Console_KillAllEnemies;
@@ -512,7 +534,8 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         public InputAction @NeverDie => m_Wrapper.m_Console_NeverDie;
         public InputAction @PassiveAI => m_Wrapper.m_Console_PassiveAI;
         public InputAction @AIDebugLevel => m_Wrapper.m_Console_AIDebugLevel;
-        public InputAction @LayoutDebug => m_Wrapper.m_Console_LayoutDebug;
+        public InputAction @ExplosionDebug => m_Wrapper.m_Console_ExplosionDebug;
+        public InputAction @LayoutDebugLevel => m_Wrapper.m_Console_LayoutDebugLevel;
         public InputAction @RegenerateDisabled => m_Wrapper.m_Console_RegenerateDisabled;
         public InputAction @SpawnEnemyWave => m_Wrapper.m_Console_SpawnEnemyWave;
         public InputAction @KillAllEnemies => m_Wrapper.m_Console_KillAllEnemies;
@@ -547,9 +570,12 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @AIDebugLevel.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnAIDebugLevel;
                 @AIDebugLevel.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnAIDebugLevel;
                 @AIDebugLevel.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnAIDebugLevel;
-                @LayoutDebug.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnLayoutDebug;
-                @LayoutDebug.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnLayoutDebug;
-                @LayoutDebug.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnLayoutDebug;
+                @ExplosionDebug.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnExplosionDebug;
+                @ExplosionDebug.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnExplosionDebug;
+                @ExplosionDebug.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnExplosionDebug;
+                @LayoutDebugLevel.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnLayoutDebugLevel;
+                @LayoutDebugLevel.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnLayoutDebugLevel;
+                @LayoutDebugLevel.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnLayoutDebugLevel;
                 @RegenerateDisabled.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnRegenerateDisabled;
                 @RegenerateDisabled.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnRegenerateDisabled;
                 @RegenerateDisabled.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnRegenerateDisabled;
@@ -593,9 +619,12 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @AIDebugLevel.started += instance.OnAIDebugLevel;
                 @AIDebugLevel.performed += instance.OnAIDebugLevel;
                 @AIDebugLevel.canceled += instance.OnAIDebugLevel;
-                @LayoutDebug.started += instance.OnLayoutDebug;
-                @LayoutDebug.performed += instance.OnLayoutDebug;
-                @LayoutDebug.canceled += instance.OnLayoutDebug;
+                @ExplosionDebug.started += instance.OnExplosionDebug;
+                @ExplosionDebug.performed += instance.OnExplosionDebug;
+                @ExplosionDebug.canceled += instance.OnExplosionDebug;
+                @LayoutDebugLevel.started += instance.OnLayoutDebugLevel;
+                @LayoutDebugLevel.performed += instance.OnLayoutDebugLevel;
+                @LayoutDebugLevel.canceled += instance.OnLayoutDebugLevel;
                 @RegenerateDisabled.started += instance.OnRegenerateDisabled;
                 @RegenerateDisabled.performed += instance.OnRegenerateDisabled;
                 @RegenerateDisabled.canceled += instance.OnRegenerateDisabled;
@@ -629,7 +658,8 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         void OnNeverDie(InputAction.CallbackContext context);
         void OnPassiveAI(InputAction.CallbackContext context);
         void OnAIDebugLevel(InputAction.CallbackContext context);
-        void OnLayoutDebug(InputAction.CallbackContext context);
+        void OnExplosionDebug(InputAction.CallbackContext context);
+        void OnLayoutDebugLevel(InputAction.CallbackContext context);
         void OnRegenerateDisabled(InputAction.CallbackContext context);
         void OnSpawnEnemyWave(InputAction.CallbackContext context);
         void OnKillAllEnemies(InputAction.CallbackContext context);

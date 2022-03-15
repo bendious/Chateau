@@ -21,6 +21,8 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 	}
 	public static int AIDebugLevel { get; private set; }
 
+	public static bool ExplosionDebug { get; private set; }
+
 	public enum LayoutDebugLevels
 	{
 		None,
@@ -51,7 +53,8 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 		m_controls.Console.NeverDie.performed += ctx => ExecuteIfConsoleOpen(() => NeverDie = !NeverDie);
 		m_controls.Console.PassiveAI.performed += ctx => ExecuteIfConsoleOpen(() => PassiveAI = !PassiveAI);
 		m_controls.Console.AIDebugLevel.performed += ctx => ExecuteIfConsoleOpen(() => AIDebugLevel = (AIDebugLevel + 1) % Utility.EnumNumTypes<AIDebugLevels>());
-		m_controls.Console.LayoutDebug.performed += ctx => ExecuteIfConsoleOpen(() => LayoutDebugLevel = (LayoutDebugLevels)(((int)LayoutDebugLevel + 1) % Utility.EnumNumTypes<LayoutDebugLevels>()));
+		m_controls.Console.ExplosionDebug.performed += ctx => ExecuteIfConsoleOpen(() => ExplosionDebug = !ExplosionDebug);
+		m_controls.Console.LayoutDebugLevel.performed += ctx => ExecuteIfConsoleOpen(() => LayoutDebugLevel = (LayoutDebugLevels)(((int)LayoutDebugLevel + 1) % Utility.EnumNumTypes<LayoutDebugLevels>()));
 		m_controls.Console.RegenerateDisabled.performed += ctx => ExecuteIfConsoleOpen(() => RegenerateDisabled = !RegenerateDisabled);
 		m_controls.Console.SpawnEnemyWave.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.SpawnEnemyWave());
 		m_controls.Console.KillAllEnemies.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.DebugKillAllEnemies());
