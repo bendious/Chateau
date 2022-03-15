@@ -142,7 +142,7 @@ public class RoomController : MonoBehaviour
 		m_spawnPoints = new GameObject[Random.Range(1, m_spawnPointsMax + 1)]; // TODO: base on room size?
 		for (int spawnIdx = 0; spawnIdx < m_spawnPoints.Length; ++spawnIdx)
 		{
-			Vector3 spawnPosBG = InteriorPosition(false) + Vector3.forward; // TODO: account for spawn point / largest enemy size?
+			Vector3 spawnPosBG = InteriorPosition(float.MaxValue) + Vector3.forward; // NOTE that we don't account for spawn point or enemy size, relying on KinematicObject's spawn checks to prevent getting stuck in walls
 			m_spawnPoints[spawnIdx] = Instantiate(Utility.RandomWeighted(m_spawnPointPrefabs), spawnPosBG, Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f)), transform);
 		}
 
@@ -176,7 +176,7 @@ public class RoomController : MonoBehaviour
 		Color decoColor = roomColor * 2.0f;
 		for (int i = 0; i < numDecorations; ++i)
 		{
-			Vector3 spawnPos = InteriorPosition(true) + new Vector3(0.0f, Random.Range(m_decorationHeightMin, m_decorationHeightMax), 1.0f); // TODO: uniform height per room?
+			Vector3 spawnPos = InteriorPosition(Random.Range(m_decorationHeightMin, m_decorationHeightMax)) + Vector3.forward; // TODO: uniform height per room?
 			// TODO: prevent overlap
 			GameObject decoration = Instantiate(Utility.RandomWeighted(m_decorationPrefabs), spawnPos, Quaternion.identity, transform);
 
@@ -239,15 +239,20 @@ public class RoomController : MonoBehaviour
 		return null;
 	}
 
-	public Vector3 InteriorPosition(bool onFloor)
+	public Vector3 InteriorPosition(float heightMax)
+	{
+		return InteriorPosition(0.0f, heightMax);
+	}
+
+	public Vector3 InteriorPosition(float heightMin, float heightMax)
 	{
 		Bounds boundsInterior = m_bounds.Value;
 		boundsInterior.Expand(new Vector3(-1.0f, -1.0f, 0.0f)); // TODO: dynamically determine wall thickness?
 
 		float xDiffMax = boundsInterior.extents.x;
-		float yMax = onFloor ? 0.0f : boundsInterior.size.y; // TODO: also count furniture surfaces as "floor"
+		float yMaxFinal = Mathf.Min(heightMax, boundsInterior.size.y); // TODO: also count furniture surfaces as "floor"
 
-		return new(boundsInterior.center.x + Random.Range(-xDiffMax, xDiffMax), transform.position.y + Random.Range(0, yMax), transform.position.z); // NOTE the assumptions that the object position is on the floor of the room but not necessarily centered
+		return new(boundsInterior.center.x + Random.Range(-xDiffMax, xDiffMax), transform.position.y + Random.Range(heightMin, yMaxFinal), transform.position.z); // NOTE the assumptions that the object position is on the floor of the room but not necessarily centered
 	}
 
 	public Vector3 SpawnPointRandom()

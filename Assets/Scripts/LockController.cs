@@ -19,6 +19,8 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	public WeightedObject<KeyInfo>[] m_keyPrefabs;
 	public WeightedObject<string>[] m_combinationSets;
 
+	public float m_keyHeightMax = 8.0f;
+
 	public GameObject m_combinationIndicatorPrefab;
 	public float m_interactDistanceMax = 1.0f; // TODO: combine w/ avatar focus distance?
 
@@ -45,7 +47,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		{
 			GameObject keyPrefab = Utility.RandomWeighted(m_keyInfo.m_prefabs);
 			bool isItem = keyPrefab.GetComponent<Rigidbody2D>() != null;
-			Vector3 spawnPos = keyRooms[i].InteriorPosition(isItem) + (isItem ? Vector3.zero : Vector3.forward);
+			Vector3 spawnPos = keyRooms[i].InteriorPosition(isItem ? 0.0f : m_keyHeightMax) + (isItem ? Vector3.zero : Vector3.forward);
 			m_keys.Add(Instantiate(keyPrefab, spawnPos, Quaternion.identity));
 			ButtonController button = m_keys.Last().GetComponent<ButtonController>(); // TODO: generalize?
 			if (button != null)
