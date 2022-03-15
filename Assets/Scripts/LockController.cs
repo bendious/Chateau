@@ -184,6 +184,11 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 
 	private void OnDestroy()
 	{
+		if (GameController.IsReloading)
+		{
+			return;
+		}
+
 		foreach (GameObject key in m_keys)
 		{
 			DeactivateKey(key);
