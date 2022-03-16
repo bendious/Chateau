@@ -25,7 +25,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	public float m_interactDistanceMax = 1.0f; // TODO: combine w/ avatar focus distance?
 
 
-	public IUnlockable Parent { get; set; }
+	public GameObject Parent { get; set; }
 
 
 	private readonly List<GameObject> m_keys = new();
@@ -40,20 +40,29 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
 	{
+		// determine key type
+		WeightedObject<KeyInfo>[] prefabCandidates = m_keyPrefabs.Where(info => info.m_object.m_keyCountMax >= keyRooms.Length).ToArray();
+		if (prefabCandidates.Length <= 0)
+		{
+			prefabCandidates = m_keyPrefabs;
+		}
+		m_keyInfo = Utility.RandomWeighted(prefabCandidates);
+
 		// spawn key(s)
-		m_keyInfo = Utility.RandomWeighted(m_keyPrefabs.Where(info => info.m_object.m_keyCountMax >= keyRooms.Length).ToArray());
+		// TODO: convert any empty key rooms into bonus item rooms?
 		Assert.IsTrue(m_keyInfo.m_keyCountMax > 0);
-		for (int i = 0; i < keyRooms.Length; ++i)
+		for (int i = 0; i < keyRooms.Length && i < m_keyInfo.m_keyCountMax; ++i)
 		{
 			GameObject keyPrefab = Utility.RandomWeighted(m_keyInfo.m_prefabs);
 			bool isItem = keyPrefab.GetComponent<Rigidbody2D>() != null;
 			Vector3 spawnPos = keyRooms[i].InteriorPosition(isItem ? 0.0f : m_keyHeightMax) + (isItem ? Vector3.zero : Vector3.forward);
-			m_keys.Add(Instantiate(keyPrefab, spawnPos, Quaternion.identity));
-			ButtonController button = m_keys.Last().GetComponent<ButtonController>(); // TODO: generalize?
-			if (button != null)
+			GameObject keyObj = Instantiate(keyPrefab, spawnPos, Quaternion.identity);
+			IUnlockable childLock = keyObj.GetComponent<IUnlockable>();
+			if (childLock != null)
 			{
-				button.Parent = this;
+				childLock.Parent = gameObject;
 			}
+			m_keys.Add(keyObj);
 		}
 
 		// door setup based on key
@@ -104,6 +113,11 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		{
 			key.GetComponent<SpriteRenderer>().color = color;
 		}
+	}
+
+	public bool IsKey(GameObject obj)
+	{
+		return m_keys.Contains(obj);
 	}
 
 	public void OnNavigate(GameObject overlayObj, UnityEngine.InputSystem.InputValue input)
@@ -195,7 +209,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		}
 		if (Parent != null)
 		{
-			Parent.Unlock(null);
+			Parent.GetComponent<IUnlockable>().Unlock(null);
 		}
 	}
 
@@ -238,24 +252,31 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 #endif
 		void Unlock(GameObject key)
 	{
+		// handle given key
 		if (key != null)
 		{
 			m_keys.Remove(key);
 			DeactivateKey(key);
 		}
+
+		// check for full unlocking
 		if (key == null || m_keys.Count <= 0)
 		{
 			m_combination = null; // to disable interaction for consoles
-			if (Parent != null)
+
+			// unlock parent or remove ourself
+			IUnlockable parentLock = Parent == null ? null : Parent.GetComponent<IUnlockable>();
+			if (parentLock != null)
 			{
-				Parent.Unlock(key);
-				Parent = null;
+				parentLock.Unlock(key);
 			}
 			else
 			{
 				Simulation.Schedule<ObjectDespawn>(0.5f).m_object = gameObject;
 			}
+			Parent = null;
 
+			// handle any non-deliverable keys
 			foreach (GameObject keyRemaining in m_keys)
 			{
 				DeactivateKey(keyRemaining);

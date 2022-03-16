@@ -7,7 +7,16 @@ using UnityEngine.Rendering.Universal;
 
 public class RoomController : MonoBehaviour
 {
+	[System.Serializable]
+	public struct DirectionalDoors
+	{
+		public Vector2 m_direction;
+		public WeightedObject<GameObject>[] m_prefabs;
+	};
+
+
 	public WeightedObject<GameObject>[] m_doorPrefabs;
+	public DirectionalDoors[] m_doorDirectionalPrefabs;
 	public WeightedObject<GameObject>[] m_doorSecretPrefabs;
 
 	public WeightedObject<GameObject>[] m_spawnPointPrefabs;
@@ -35,7 +44,7 @@ public class RoomController : MonoBehaviour
 		public RoomController m_childRoom; // TODO: make bidirectional?
 		public GameObject m_blocker;
 	}
-	private /*readonly*/ DoorwayInfo[] m_doorwayInfos;
+	private /*readonly*/ DoorwayInfo[] m_doorwayInfos; // TODO: combine w/ m_doorways[]?
 
 	private readonly System.Lazy<Bounds> m_bounds;
 
@@ -334,7 +343,7 @@ public class RoomController : MonoBehaviour
 		return waypointPath;
 	}
 
-	public bool SpawnChildRoom(GameObject roomPrefab, LayoutGenerator.Node[] layoutNodes)
+	public bool SpawnChildRoom(GameObject roomPrefab, LayoutGenerator.Node[] layoutNodes, Vector2? forcedDirection = null)
 	{
 		// prevent putting keys behind their lock
 		// NOTE that we check all nodes' depth even though all nodes w/i a single room should be at the same depth
@@ -352,7 +361,7 @@ public class RoomController : MonoBehaviour
 
 			// maybe replace/remove
 			GameObject doorway = m_doorways[i];
-			MaybeReplaceDoor(i, roomPrefab, layoutNodes);
+			MaybeReplaceDoor(i, roomPrefab, layoutNodes, forcedDirection.GetValueOrDefault());
 			return m_doorwayInfos[i].m_childRoom != null;
 		});
 
@@ -367,11 +376,39 @@ public class RoomController : MonoBehaviour
 				{
 					return false;
 				}
-				return doorway.m_childRoom.SpawnChildRoom(roomPrefab, layoutNodes);
+				return doorway.m_childRoom.SpawnChildRoom(roomPrefab, layoutNodes, forcedDirection);
 			});
 		}
 
 		return success;
+	}
+
+	public void SpawnLadder(GameObject doorway)
+	{
+		Assert.IsTrue(m_doorways.Contains(doorway) || System.Array.Exists(m_doorwayInfos, info => info.m_blocker == doorway));
+
+		// determine rung count/height
+		float yTop = doorway.transform.position.y - 1.5f; // TODO: base top distance on character height
+		float heightDiff = yTop - transform.position.y; // TODO: don't assume pivot point is always the place to stop?
+		int rungCount = Mathf.RoundToInt(heightDiff / m_ladderRungPrefab.GetComponent<BoxCollider2D>().size.y);
+		float rungHeight = heightDiff / rungCount;
+
+		Vector3 posItr = doorway.transform.position;
+		posItr.y = yTop - rungHeight;
+		for (int i = 0; i < rungCount; ++i)
+		{
+			// create and resize
+			GameObject ladder = Instantiate(m_ladderRungPrefab, posItr, Quaternion.identity, transform);
+			SpriteRenderer renderer = ladder.GetComponent<SpriteRenderer>();
+			renderer.size = new Vector2(renderer.size.x, rungHeight);
+			BoxCollider2D collider = ladder.GetComponent<BoxCollider2D>();
+			collider.size = new Vector2(collider.size.x, rungHeight);
+			collider.offset = new Vector2(collider.offset.x, rungHeight * 0.5f);
+
+			// iterate
+			posItr.x += Random.Range(-m_ladderRungSkewMax, m_ladderRungSkewMax); // TODO: guarantee AI navigability? clamp to room size?
+			posItr.y -= rungHeight;
+		}
 	}
 
 	public void SealRoom(bool seal)
@@ -458,9 +495,14 @@ public class RoomController : MonoBehaviour
 	}
 
 	// TODO: inline?
-	private void MaybeReplaceDoor(int index, GameObject roomPrefab, LayoutGenerator.Node[] childNodes)
+	private void MaybeReplaceDoor(int index, GameObject roomPrefab, LayoutGenerator.Node[] childNodes, Vector2 forcedDirection)
 	{
 		Vector2 replaceDirection = DoorwayDirection(index);
+		if (forcedDirection != Vector2.zero && replaceDirection != forcedDirection)
+		{
+			return;
+		}
+
 		GameObject doorway = m_doorways[index];
 		ref DoorwayInfo doorwayInfo = ref m_doorwayInfos[index];
 		Assert.IsNull(doorwayInfo.m_parentRoom);
@@ -485,8 +527,6 @@ public class RoomController : MonoBehaviour
 			return;
 		}
 
-		OpenDoorway(index, true, replaceDirection.y > 0.0f);
-
 		RoomController childRoom = Instantiate(roomPrefab, childPivotPos, Quaternion.identity).GetComponent<RoomController>();
 		doorwayInfo.m_childRoom = childRoom;
 
@@ -501,11 +541,19 @@ public class RoomController : MonoBehaviour
 		{
 			blockerNode = GateNodeToChild(LayoutGenerator.Node.Type.Secret, childNodes);
 		}
+		bool noLadder = false;
 		if (blockerNode != null)
 		{
 			// create gate
 			Assert.IsNull(doorwayInfo.m_blocker);
-			doorwayInfo.m_blocker = Instantiate(Utility.RandomWeighted(isLock ? m_doorPrefabs : m_doorSecretPrefabs), doorway.transform.position + Vector3.back, Quaternion.identity, transform); // NOTE the depth decrease to ensure rendering on top of platforms
+			WeightedObject<GameObject>[] directionalBlockerPrefabs = isLock ? m_doorDirectionalPrefabs.FirstOrDefault(pair => pair.m_direction == replaceDirection).m_prefabs : null; // TODO: don't assume that secrets will never be directional?
+			GameObject blockerPrefab = Utility.RandomWeighted(isLock ? (directionalBlockerPrefabs != null ? directionalBlockerPrefabs.Concat(m_doorPrefabs).ToArray() : m_doorPrefabs) : m_doorSecretPrefabs);
+			noLadder = directionalBlockerPrefabs != null && System.Array.Exists(directionalBlockerPrefabs, pair => blockerPrefab == pair.m_object); // TODO: don't assume directional gates will never want default ladders?
+			doorwayInfo.m_blocker = Instantiate(blockerPrefab, doorway.transform.position + Vector3.back, Quaternion.identity, transform); // NOTE the depth decrease to ensure rendering on top of platforms
+			if (isLock)
+			{
+				doorwayInfo.m_blocker.GetComponent<IUnlockable>().Parent = gameObject;
+			}
 			childRoom.m_doorwayInfos[returnIdx].m_blocker = doorwayInfo.m_blocker;
 
 			// resize gate to fit doorway
@@ -516,6 +564,8 @@ public class RoomController : MonoBehaviour
 		}
 
 		childRoom.Initialize(childNodes);
+
+		OpenDoorway(index, true, !noLadder && replaceDirection.y > 0.0f);
 	}
 
 	private void OpenDoorway(int index, bool open, bool spawnLadders)
@@ -525,28 +575,7 @@ public class RoomController : MonoBehaviour
 		// spawn ladder rungs
 		if (spawnLadders && m_ladderRungPrefab != null)
 		{
-			// determine rung count/height
-			float yTop = doorway.transform.position.y - 1.5f; // TODO: base top distance on character height
-			float heightDiff = yTop - transform.position.y; // TODO: don't assume pivot point is always the place to stop?
-			int rungCount = Mathf.RoundToInt(heightDiff / m_ladderRungPrefab.GetComponent<BoxCollider2D>().size.y);
-			float rungHeight = heightDiff / rungCount;
-
-			Vector3 posItr = doorway.transform.position;
-			posItr.y = yTop - rungHeight;
-			for (int i = 0; i < rungCount; ++i)
-			{
-				// create and resize
-				GameObject ladder = Instantiate(m_ladderRungPrefab, posItr, Quaternion.identity, transform);
-				SpriteRenderer renderer = ladder.GetComponent<SpriteRenderer>();
-				renderer.size = new Vector2(renderer.size.x, rungHeight);
-				BoxCollider2D collider = ladder.GetComponent<BoxCollider2D>();
-				collider.size = new Vector2(collider.size.x, rungHeight);
-				collider.offset = new Vector2(collider.offset.x, rungHeight * 0.5f);
-
-				// iterate
-				posItr.x += Random.Range(-m_ladderRungSkewMax, m_ladderRungSkewMax); // TODO: guarantee AI navigability? clamp to room size?
-				posItr.y -= rungHeight;
-			}
+			SpawnLadder(doorway);
 		}
 
 		// enable/disable doorway

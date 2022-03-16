@@ -1,9 +1,14 @@
+using UnityEngine;
+
+
 public interface IUnlockable
 {
-	public IUnlockable Parent { get; set; }
+	public GameObject Parent { get; set; }
 
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms);
 
-	public void Unlock(UnityEngine.GameObject key);
+	public bool IsKey(GameObject obj);
+
+	public void Unlock(GameObject key);
 }
