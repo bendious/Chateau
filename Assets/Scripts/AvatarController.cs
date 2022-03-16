@@ -30,7 +30,7 @@ public class AvatarController : KinematicCharacter
 	public AudioClip respawnAudio;
 
 	public GameObject m_focusIndicator;
-	public GameObject m_focusPrompt;
+	public ButtonPrompt m_focusPrompt;
 	public GameObject m_aimObject;
 	public GameObject m_inventoryUI;
 	public Canvas m_overlayCanvas;
@@ -85,6 +85,7 @@ public class AvatarController : KinematicCharacter
 
 		m_focusIndicator.transform.SetParent(null);
 		m_focusPrompt.transform.SetParent(null);
+		m_focusPrompt.SetSprite(); // TODO: listen for control scheme changes if that is ever allowed
 		m_aimObject.transform.SetParent(null);
 
 		health = GetComponent<Health>();
@@ -160,7 +161,7 @@ public class AvatarController : KinematicCharacter
 				m_focusPrompt.transform.position = m_focusIndicator.transform.position + m_focusPromptOffset;
 			}
 			m_focusIndicator.SetActive(focusCanInteract);
-			m_focusPrompt.SetActive(focusCanInteract);
+			m_focusPrompt.gameObject.SetActive(focusCanInteract);
 		}
 		else
 		{
@@ -732,7 +733,7 @@ public class AvatarController : KinematicCharacter
 	{
 		controlEnabled = false;
 		m_focusIndicator.SetActive(false);
-		m_focusPrompt.SetActive(false);
+		m_focusPrompt.gameObject.SetActive(false);
 		StopAiming();
 	}
 
