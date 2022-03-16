@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
 public class GameController : MonoBehaviour
 {
-	public List<AvatarController> m_avatars;
+	public List<AvatarController> m_avatars = new();
 
 	public CinemachineVirtualCamera m_virtualCamera;
 	public CinemachineTargetGroup m_cameraTargetGroup;
@@ -101,14 +102,6 @@ public class GameController : MonoBehaviour
 
 		m_startRoom.SpawnKeysRecursive();
 
-		if (Random.value > 0.5f)
-		{
-			m_nextWaveTime = Random.Range(m_waveSecondsMin, m_waveSecondsMax);
-		}
-		StartCoroutine(SpawnWavesCoroutine());
-
-		StartCoroutine(TimerCoroutine());
-
 		// TODO: dialogue system
 		if (!PlayerPrefs.HasKey("IntroDialogueDone"))
 		{
@@ -127,10 +120,22 @@ public class GameController : MonoBehaviour
 		Simulation.Tick();
 	}
 
-
-	public void AddAvatar()
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Called via SendMessage() from PlayerInputManager component")]
+	private void OnPlayerJoined(PlayerInput player)
 	{
-		m_avatars.Add(Instantiate(m_avatarPrefab, RoomSpawnPosition(m_avatars.First().transform.position), Quaternion.identity).GetComponent<AvatarController>()); // TODO: ensure spawn point is clear of enemies/etc.
+		if (m_avatars.Count == 0)
+		{
+			if (Random.value > 0.5f)
+			{
+				m_nextWaveTime = Random.Range(m_waveSecondsMin, m_waveSecondsMax);
+			}
+			StopAllCoroutines();
+			StartCoroutine(SpawnWavesCoroutine());
+			StartCoroutine(TimerCoroutine());
+		}
+
+		m_avatars.Add(player.GetComponent<AvatarController>());
+		// TODO: move closer to existing avatar(s)?
 
 		// adjust camera UI/targeting
 		// TODO: split screen when far apart?
@@ -157,6 +162,14 @@ public class GameController : MonoBehaviour
 
 			isFirst = false;
 		}
+	}
+
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Called via SendMessage() from PlayerInputManager component")]
+	private void OnPlayerLeft(PlayerInput player)
+	{
+		Simulation.Schedule<ObjectDespawn>().m_object = player.gameObject;
+		m_avatars.Remove(player.GetComponent<AvatarController>());
+		// TODO: clean up camera targeting?
 	}
 
 	public void AddCameraTargets(params Transform[] transforms)

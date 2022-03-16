@@ -43,7 +43,7 @@ public class BossRoom : MonoBehaviour
 
 	private void OnTriggerEnter2D(Collider2D collider)
 	{
-		if (!GameController.Instance.m_avatars.Exists(avatar => collider.gameObject == avatar.gameObject))
+		if (GameController.Instance.m_avatars.Count <= 0 || !GameController.Instance.m_avatars.Exists(avatar => collider.gameObject == avatar.gameObject))
 		{
 			return;
 		}

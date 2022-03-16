@@ -45,11 +45,11 @@ public class DialogueController : MonoBehaviour
 
 		while (notDone)
 		{
-			InputAction submitKey = GameController.Instance.m_avatars.First().Controls.actions["Submit"];
+			InputAction submitKey = GameController.Instance.m_avatars.Count <= 0 ? null : GameController.Instance.m_avatars.First().Controls.actions["Submit"];
 
 			// maybe move to next line
 			bool stillRevealing = m_revealedCharCount < textCurLen;
-			if (m_textListIdx < 0 || (submitKey.triggered && !stillRevealing))
+			if (m_textListIdx < 0 || (submitKey != null && submitKey.triggered && !stillRevealing))
 			{
 				// next line
 				m_continueIndicator.SetActive(false);
@@ -62,7 +62,7 @@ public class DialogueController : MonoBehaviour
 			}
 
 			// maybe reveal next letter(s)
-			float revealDurationCur = stillRevealing && submitKey.IsPressed() ? m_revealSecondsFast : m_revealSeconds;
+			float revealDurationCur = stillRevealing && submitKey != null && submitKey.IsPressed() ? m_revealSecondsFast : m_revealSeconds;
 			float nextRevealTime = lastRevealTime + revealDurationCur;
 			if (stillRevealing && nextRevealTime <= Time.time)
 			{
