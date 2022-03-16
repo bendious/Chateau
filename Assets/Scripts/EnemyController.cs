@@ -31,6 +31,7 @@ public class EnemyController : KinematicCharacter
 	protected override void Start()
 	{
 		base.Start();
+		// TODO: spawn animation / fade-in?
 		m_targetSelectTimeNext = Time.time + Random.Range(0.0f, m_replanSecondsMax);
 		m_pathfindTimeNext = Time.time + Random.Range(0.0f, m_replanSecondsMax);
 		m_aiState = new AIPursue(this);
