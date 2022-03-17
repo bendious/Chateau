@@ -160,11 +160,7 @@ PrefabInstance:
       value: 1.445
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_swingInfo.m_radiusPerSec
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_swingInfo.m_degreesPerSec
+      propertyPath: m_swingInfo.m_linearNewtons
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
@@ -176,10 +172,6 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_swingInfo.m_aimSpringStiffness
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_swingInfo.m_radiusSpringDampPct
       value: 0.75
       objectReference: {fileID: 0}
@@ -188,7 +180,7 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 5932813649041771114}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_swingInfo.m_radiusSpringStiffness
+      propertyPath: m_swingInfo.m_angularNewtonmeters
       value: 100
       objectReference: {fileID: 0}
     m_RemovedComponents: []

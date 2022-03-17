@@ -10,11 +10,9 @@ using UnityEngine.VFX;
 public sealed class ItemController : MonoBehaviour, IInteractable
 {
 	public SwingInfo m_swingInfo = new() {
-		m_degreesPerSec = 5000.0f,
-		m_radiusPerSec = 10.0f,
-		m_aimSpringStiffness = 100.0f,
-		m_aimSpringDampPct = 0.5f,
-		m_radiusSpringStiffness = 25.0f,
+		m_angularNewtonmeters = 300.0f,
+		m_linearNewtons = 1.0f,
+		m_aimSpringDampPct = 0.25f,
 		m_radiusSpringDampPct = 0.5f,
 		m_damageThresholdSpeed = 4.0f,
 		m_damage = 1.0f

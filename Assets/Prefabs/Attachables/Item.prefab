@@ -159,16 +159,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_swingInfo:
-    m_aimSpringStiffness: 100
-    m_aimSpringDampPct: 0.5
-    m_degreesPerSec: 5000
-    m_radiusPerSec: 10
-    m_radiusSpringStiffness: 25
+    m_aimSpringDampPct: 0.25
     m_radiusSpringDampPct: 0.5
+    m_angularNewtonmeters: 300
+    m_linearNewtons: 1
     m_damageThresholdSpeed: 4
     m_damage: 1
   m_throwSpeed: 20
   m_vfxAlphaMax: 0.35
   m_vfxExtraOffsetLocal: {x: 0, y: 0, z: 0}
   m_healAmount: 0
-  m_overlayText: 
+  m_nondamageColliders: []

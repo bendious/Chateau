@@ -103,12 +103,18 @@ MonoBehaviour:
   m_swingInfoDefault:
     m_aimSpringStiffness: 100
     m_aimSpringDampPct: 0.5
-    m_degreesPerSec: 5000
-    m_radiusPerSec: 1
+    m_angularNewtonmeters: 300
+    m_linearNewtons: 0.1
     m_radiusSpringStiffness: 50
     m_radiusSpringDampPct: 0.75
     m_damageThresholdSpeed: 4
     m_damage: 0.1
+  m_mass: 0.1
+  m_aimStiffnessMin: 25
+  m_aimStiffnessMax: 100
+  m_radiusStiffnessMin: 100
+  m_radiusStiffnessMax: 150
+  m_springMassMax: 1
 --- !u!70 &4030274311394631088
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
