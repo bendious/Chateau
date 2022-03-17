@@ -109,8 +109,8 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 	public /*override*/ void ItemDetach(ItemController item, bool noAutoReplace)
 	{
+		m_swingInfoCur = m_swingInfoDefault; // NOTE that this has to be BEFORE ItemDetachInternal(), which might re-attach a replacement w/ a non-default SwingInfo
 		IHolder.ItemDetachInternal(item, this, noAutoReplace);
-		m_swingInfoCur = m_swingInfoDefault;
 		foreach (Collider2D collider in m_colliders)
 		{
 			collider.enabled = true;

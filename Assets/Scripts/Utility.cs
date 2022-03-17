@@ -78,6 +78,17 @@ public static class Utility
 		return FloatEqual(a.r, b.r, epsilon) && FloatEqual(a.g, b.g, epsilon) && FloatEqual(a.b, b.b, epsilon); // NOTE that we don't use color subtraction due to not wanting range clamping
 	}
 
+	public static Color ColorRandom(float min, float max)
+	{
+		Color color = new(UnityEngine.Random.Range(min, max), UnityEngine.Random.Range(min, max), UnityEngine.Random.Range(min, max));
+		if (ColorsSimilar(color, RoomController.m_oneWayPlatformColor) || ColorsSimilar(color, Color.black))
+		{
+			int idx = UnityEngine.Random.Range(0, 3);
+			color[idx] = (color[idx] + 0.5f) % 1.0f;
+		}
+		return color;
+	}
+
 	public static Vector4 Pow(Vector4 v, float p)
 	{
 		v.x = Mathf.Pow(v.x, p);

@@ -66,7 +66,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		m_renderer = GetComponent<SpriteRenderer>();
 		m_health = GetComponent<Health>();
 
-		m_renderer.color = new Color(Random.Range(0.5f, 1.0f), Random.Range(0.5f, 1.0f), Random.Range(0.5f, 1.0f)); // NOTE that this has to be in Awake() and not Start() since LockController re-assigns key color after spawning // TODO: more deliberate choice?
+		m_renderer.color = Utility.ColorRandom(0.1f, 0.9f); // NOTE that this has to be in Awake() and not Start() since LockController re-assigns key color after spawning // TODO: more deliberate choice?
 
 		m_holder = transform.parent == null ? null : transform.parent.GetComponent<IHolder>();
 #pragma warning disable IDE0031 // NOTE that we don't use null propagation since IHolderControllers can be Unity objects as well, which don't like ?? or ?.

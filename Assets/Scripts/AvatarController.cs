@@ -771,6 +771,10 @@ public class AvatarController : KinematicCharacter
 					}
 					jumpState = JumpState.InFlight;
 				}
+				else
+				{
+					jumpState = JumpState.Grounded;
+				}
 				break;
 			case JumpState.InFlight:
 				if (IsGrounded)
