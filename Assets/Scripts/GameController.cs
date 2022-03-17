@@ -65,6 +65,8 @@ public class GameController : MonoBehaviour
 
 	private void Start()
 	{
+		ObjectDespawn.OnExecute += OnObjectDespawn;
+
 		m_waveWeight = m_waveStartWeight;
 
 		LayoutGenerator generator = new();
@@ -113,6 +115,11 @@ public class GameController : MonoBehaviour
 		}
 
 		IsReloading = false;
+	}
+
+	private void OnDestroy()
+	{
+		ObjectDespawn.OnExecute -= OnObjectDespawn;
 	}
 
 	private void Update()
@@ -172,6 +179,7 @@ public class GameController : MonoBehaviour
 		// TODO: clean up camera targeting?
 	}
 
+
 	public void AddCameraTargets(params Transform[] transforms)
 	{
 		foreach (Transform tf in transforms)
@@ -217,17 +225,18 @@ public class GameController : MonoBehaviour
 		return m_enemies.Count > 0;
 	}
 
-	public void OnEnemyDespawn(EnemyController enemy)
+	public void RemoveUnreachableEnemies()
 	{
-		m_enemies.Remove(enemy);
+		// TODO: don't assume we're locked into individual rooms?
+		RoomController[] reachableRooms = m_avatars.Where(avatar => avatar.IsAlive).Select(avatar => m_startRoom.RoomFromPosition(avatar.transform.position)).ToArray();
 
-		if (m_enemies.Count == 0 && !m_waveSpawningInProgress && !m_bossRoomSealed)
+		foreach (EnemyController enemy in m_enemies)
 		{
-			// TODO: slight time delay?
-			foreach (RoomController room in m_avatars.Select(avatar => m_startRoom.RoomFromPosition(avatar.transform.position)))
+			if (reachableRooms.Contains(m_startRoom.RoomFromPosition(enemy.transform.position)))
 			{
-				room.SealRoom(false);
+				continue;
 			}
+			Simulation.Schedule<ObjectDespawn>().m_object = enemy.gameObject;
 		}
 	}
 
@@ -423,6 +432,26 @@ public class GameController : MonoBehaviour
 	{
 		Vector3 spawnPos = m_startRoom.RoomFromPosition(m_avatars[Random.Range(0, m_avatars.Count())].transform.position).SpawnPointRandom();
 		m_enemies.Add(Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>());
+	}
+
+	private void OnObjectDespawn(ObjectDespawn evt)
+	{
+		EnemyController enemy = evt.m_object.GetComponent<EnemyController>();
+		if (enemy == null)
+		{
+			return;
+		}
+
+		m_enemies.Remove(enemy);
+
+		if (m_enemies.Count == 0 && !m_waveSpawningInProgress && !m_bossRoomSealed)
+		{
+			// TODO: slight time delay?
+			foreach (RoomController room in m_avatars.Select(avatar => m_startRoom.RoomFromPosition(avatar.transform.position)))
+			{
+				room.SealRoom(false);
+			}
+		}
 	}
 
 	private IEnumerator TimerCoroutine()

@@ -143,12 +143,6 @@ public class EnemyController : KinematicCharacter
 		return true;
 	}
 
-	protected override void DespawnSelf()
-	{
-		GameController.Instance.OnEnemyDespawn(this);
-		base.DespawnSelf();
-	}
-
 
 	// TODO: un-expose?
 	public bool NavigateTowardTarget(Vector2 targetOffsetAbs)

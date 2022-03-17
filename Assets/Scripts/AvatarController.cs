@@ -514,6 +514,7 @@ public class AvatarController : KinematicCharacter
 		{
 			// TODO: delay camera removal until end of animation?
 			GameController.Instance.RemoveCameraTargets(m_aimObject.transform, transform);
+			GameController.Instance.RemoveUnreachableEnemies();
 
 			Simulation.Schedule<AvatarRespawn>(m_respawnSeconds).m_avatar = this;
 		}
@@ -528,7 +529,7 @@ public class AvatarController : KinematicCharacter
 
 	protected override void DespawnSelf()
 	{
-		// NOTE that we purposely don't call base.DespawnSelf() since the avatar should never despawn
+		// NOTE that we purposely don't call base.DespawnSelf() since the avatar shouldn't despawn on death
 	}
 
 	public void OnEnemyCollision(EnemyController enemy)
