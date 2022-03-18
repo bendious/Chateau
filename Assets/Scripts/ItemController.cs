@@ -17,7 +17,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		m_damageThresholdSpeed = 4.0f,
 		m_damage = 1.0f
 	};
-	public float m_throwSpeed = 10.0f;
+	public float m_throwSpeed = 20.0f;
 	public float m_vfxAlphaMax = 0.35f;
 	public Vector3 m_vfxExtraOffsetLocal;
 	public int m_healAmount = 0;
