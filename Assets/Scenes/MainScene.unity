@@ -793,6 +793,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SceneMin
       objectReference: {fileID: 0}
+    - target: {fileID: 5271682946291878117, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_type
       value: 9
@@ -868,6 +872,26 @@ PrefabInstance:
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_bossRoomPrefabs.Array.data[0].m_weight
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6215138850667383998, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6215138850667383998, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7600255308707768572, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7600255308707768572, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7600255308707768572, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8982816860446960670, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_RootOrder

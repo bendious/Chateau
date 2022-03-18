@@ -966,8 +966,8 @@ Transform:
   - {fileID: 6556903693735923299}
   - {fileID: 3830908599309727142}
   - {fileID: 6399228973321699352}
-  - {fileID: 7600255308707768572}
   - {fileID: 330209411227674620}
+  - {fileID: 7600255308707768572}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1586,7 +1586,7 @@ RectTransform:
   m_Children:
   - {fileID: 542007012611653682}
   m_Father: {fileID: 8982816860446960670}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1610,7 +1610,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 25
+  m_AdditionalShaderChannelsFlag: 1
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -2210,7 +2210,7 @@ RectTransform:
   - {fileID: 6289955519222941017}
   - {fileID: 8494391376400586852}
   m_Father: {fileID: 8982816860446960670}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
