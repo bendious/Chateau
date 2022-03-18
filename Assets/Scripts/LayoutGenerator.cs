@@ -12,6 +12,7 @@ public class LayoutGenerator
 		public enum Type
 		{
 			Entrance,
+			Zone1Door,
 			Key,
 			Lock,
 			Secret,
@@ -19,7 +20,8 @@ public class LayoutGenerator
 			Boss,
 			TightCoupling,
 
-			Initial,
+			Entryway,
+			Zone1,
 			Sequence,
 			SequenceIntro,
 			SequenceMedium,
@@ -176,7 +178,8 @@ public class LayoutGenerator
 
 	private static readonly ReplacementRule[] m_rules =
 	{
-		new(Node.Type.Initial, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceIntro, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss) }) }) }) }) }) }) }) }),
+		new(Node.Type.Entryway, new() { new(Node.Type.Zone1Door) }),
+		new(Node.Type.Zone1, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceIntro, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss) }) }) }) }) }) }) }) }),
 
 		new(Node.Type.SequenceIntro, new() { new(Node.Type.BonusItems), new(Node.Type.Key) }),
 		new(Node.Type.SequenceMedium, new() { new(Node.Type.BonusItems), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
@@ -194,12 +197,8 @@ public class LayoutGenerator
 	};
 
 
-	private /*readonly*/ Node m_rootNode = new(Node.Type.Initial);
+	private /*readonly*/ Node m_rootNode;
 
-
-	public LayoutGenerator()
-	{
-	}
 
 	public LayoutGenerator(Node rootNode)
 	{

@@ -2,6 +2,7 @@ using UnityEngine;
 
 
 // TODO: merge w/ LockController?
+[RequireComponent(typeof(Collider2D))]
 public class ButtonController : MonoBehaviour, IInteractable, IUnlockable
 {
 	public GameObject Parent { get; set; }

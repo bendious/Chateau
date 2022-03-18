@@ -15,6 +15,8 @@ public class RoomController : MonoBehaviour
 	};
 
 
+	public WeightedObject<GameObject>[] m_doorInteractPrefabs;
+
 	public WeightedObject<GameObject>[] m_doorPrefabs;
 	public DirectionalDoors[] m_doorDirectionalPrefabs;
 	public WeightedObject<GameObject>[] m_doorSecretPrefabs;
@@ -153,6 +155,18 @@ public class RoomController : MonoBehaviour
 		{
 			Vector3 spawnPosBG = InteriorPosition(float.MaxValue) + Vector3.forward; // NOTE that we don't account for spawn point or enemy size, relying on KinematicObject's spawn checks to prevent getting stuck in walls
 			m_spawnPoints[spawnIdx] = Instantiate(Utility.RandomWeighted(m_spawnPointPrefabs), spawnPosBG, Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f)), transform);
+		}
+
+		// spawn node-specific architecture
+		bool isZoneEntrance = System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.Entrance);
+		if (isZoneEntrance || System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.Zone1Door))
+		{
+			DoorInteract door = Instantiate(Utility.RandomWeighted(m_doorInteractPrefabs), transform.position + Vector3.forward, Quaternion.identity, transform).GetComponent<DoorInteract>();
+			if (!isZoneEntrance)
+			{
+				door.m_sceneName = "MainScene";//TODO
+				return;
+			}
 		}
 
 		// spawn furniture

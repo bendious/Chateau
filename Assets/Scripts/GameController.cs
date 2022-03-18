@@ -11,6 +11,8 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
+	public LayoutGenerator.Node.Type m_type;
+
 	public List<AvatarController> m_avatars = new();
 
 	public CinemachineVirtualCamera m_virtualCamera;
@@ -69,7 +71,7 @@ public class GameController : MonoBehaviour
 
 		m_waveWeight = m_waveStartWeight;
 
-		LayoutGenerator generator = new();
+		LayoutGenerator generator = new(new LayoutGenerator.Node(m_type));
 		generator.Generate();
 
 		// use generator to spawn rooms/locks/keys/items/etc.
@@ -130,7 +132,7 @@ public class GameController : MonoBehaviour
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Called via SendMessage() from PlayerInputManager component")]
 	private void OnPlayerJoined(PlayerInput player)
 	{
-		if (m_avatars.Count == 0)
+		if (m_avatars.Count == 0 && m_enemyPrefabs.Length > 0)
 		{
 			if (Random.value > 0.5f)
 			{
@@ -139,6 +141,10 @@ public class GameController : MonoBehaviour
 			StopAllCoroutines();
 			StartCoroutine(SpawnWavesCoroutine());
 			StartCoroutine(TimerCoroutine());
+		}
+		else
+		{
+			m_timerUI.text = null;
 		}
 
 		m_avatars.Add(player.GetComponent<AvatarController>());
@@ -210,7 +216,7 @@ public class GameController : MonoBehaviour
 
 	public void TogglePause()
 	{
-		if (m_gameOverUI.gameObject.activeSelf)
+		if (m_gameOverUI != null && m_gameOverUI.gameObject.activeSelf)
 		{
 			return;
 		}
@@ -251,13 +257,12 @@ public class GameController : MonoBehaviour
 
 	public void Retry()
 	{
-		if (m_pauseUI.isActiveAndEnabled)
-		{
-			TogglePause();
-		}
-
 		if (ConsoleCommands.RegenerateDisabled)
 		{
+			if (m_pauseUI.isActiveAndEnabled)
+			{
+				TogglePause();
+			}
 			foreach (AvatarController avatar in m_avatars)
 			{
 				avatar.Respawn();
@@ -265,6 +270,16 @@ public class GameController : MonoBehaviour
 			Simulation.Schedule<DebugRespawn>();
 			ActivateMenu(m_gameOverUI, false);
 			return;
+		}
+
+		LoadScene(SceneManager.GetActiveScene().name);
+	}
+
+	public void LoadScene(string name)
+	{
+		if (m_pauseUI.isActiveAndEnabled)
+		{
+			TogglePause();
 		}
 
 		IsReloading = true;
@@ -275,7 +290,7 @@ public class GameController : MonoBehaviour
 			enemy.gameObject.SetActive(false);
 		}
 
-		SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+		SceneManager.LoadScene(name);
 	}
 
 	public void OnVictory()
@@ -325,8 +340,6 @@ public class GameController : MonoBehaviour
 
 	private bool AddRoomsForNodes(LayoutGenerator.Node[] nodes)
 	{
-		Assert.AreEqual(System.Array.Exists(nodes, node => node.m_type == LayoutGenerator.Node.Type.Entrance), m_startRoom == null);
-
 		List<LayoutGenerator.Node> nodesShuffled = nodes.OrderBy(node => Random.value).ToList();
 		List<List<LayoutGenerator.Node>> nodesSplit = new();
 		for (int i = 0; i < nodesShuffled.Count; )
@@ -473,7 +486,7 @@ public class GameController : MonoBehaviour
 		}
 		foreach (AvatarController avatar in m_avatars)
 		{
-			avatar.Controls.SwitchCurrentActionMap(m_pauseUI.gameObject.activeSelf || m_gameOverUI.gameObject.activeSelf || avatar.m_overlayCanvas.gameObject.activeSelf ? "UI" : "Avatar"); // TODO: account for other UI instances?
+			avatar.Controls.SwitchCurrentActionMap(m_pauseUI.gameObject.activeSelf || (m_gameOverUI != null && m_gameOverUI.gameObject.activeSelf) || avatar.m_overlayCanvas.gameObject.activeSelf ? "UI" : "Avatar"); // TODO: account for other UI instances?
 		}
 	}
 }

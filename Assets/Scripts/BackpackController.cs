@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 
+[RequireComponent(typeof(Collider2D))]
 public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable
 {
 	public int m_holdCountMax = 2;
