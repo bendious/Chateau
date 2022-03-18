@@ -33,6 +33,8 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 	public float Speed => Mathf.Abs(Mathf.Deg2Rad * (m_aimVelocityArm + m_aimVelocityItem) * ((Vector2)transform.parent.position - (Vector2)transform.position).magnitude) + Mathf.Abs(m_aimRadiusVelocity); // NOTE the conversion from angular velocity to linear speed via arclength=radians*radius // TODO: incorporate aim velocity directions?
 
+	public bool IsSwinging => !Utility.FloatEqual(m_aimVelocityContinuing, 0.0f, m_swingInfoCur.m_damageThresholdSpeed) || !Utility.FloatEqual(m_radiusVelocityContinuing, 0.0f, m_swingInfoCur.m_damageThresholdSpeed);
+
 
 	private bool LeftFacing => Mathf.Cos(Mathf.Deg2Rad * m_aimDegreesArm) < 0.0f; // TODO: efficiency?
 
@@ -204,7 +206,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 			renderer.flipY = leftFacingCached;
 			if (renderer.gameObject != gameObject)
 			{
-				m_aimDegreesItem = DampedSpring(m_aimDegreesItem, renderer.GetComponent<ItemController>().IsSwinging ? 0.0f : AimDegreesRaw(renderer.transform.position, Vector2.zero, aimPositionItem) - m_aimDegreesArm + (LeftFacing ? -m_aimDegreesItemRestOffsetAbs : m_aimDegreesItemRestOffsetAbs), m_swingInfoCur.m_aimSpringDampPct, true, m_aimStiffness, ref m_aimVelocityItem);
+				m_aimDegreesItem = DampedSpring(m_aimDegreesItem, IsSwinging ? 0.0f : AimDegreesRaw(renderer.transform.position, Vector2.zero, aimPositionItem) - m_aimDegreesArm + (LeftFacing ? -m_aimDegreesItemRestOffsetAbs : m_aimDegreesItemRestOffsetAbs), m_swingInfoCur.m_aimSpringDampPct, true, m_aimStiffness, ref m_aimVelocityItem);
 				renderer.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesItem);
 			}
 		}

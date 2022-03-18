@@ -12,6 +12,8 @@ public interface IHolder
 
 	public float Speed => 0.0f; // TODO: move out of IHolderController?
 
+	public bool IsSwinging => false;
+
 
 	public bool ItemAttach(ItemController item);
 	public void ItemDetach(ItemController item, bool noAutoReplace);

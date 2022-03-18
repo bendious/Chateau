@@ -30,7 +30,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 
 	public Vector2 SpritePivotOffset => -(m_renderer.sprite.pivot / m_renderer.sprite.rect.size * 2.0f - Vector2.one) * m_renderer.sprite.bounds.extents;
 
-	public bool IsSwinging { get; private set; }
+	public bool IsSwinging => m_holder != null && m_holder.IsSwinging;
 
 
 	private Rigidbody2D m_body;
@@ -242,7 +242,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 			arm.Swing(isRelease);
 		}
 
-		IsSwinging = true;
 		EnableVFXAndDamage();
 
 		PlayMovementAudio();
@@ -327,7 +326,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	{
 		while (true)
 		{
-			if (Speed >= m_swingInfo.m_damageThresholdSpeed)
+			if (IsSwinging || Speed >= m_swingInfo.m_damageThresholdSpeed)
 			{
 				if (m_vfx != null)
 				{
@@ -344,7 +343,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 				{
 					SetCause(null);
 				}
-				IsSwinging = false;
 				StopAllCoroutines();
 				break;
 			}
