@@ -1,5 +1,8 @@
 fileFormatVersion: 2
 guid: 327486484d1ef7e468913ff039c0d692
+labels:
+- Effect
+- Weapon
 VisualEffectImporter:
   externalObjects: {}
   userData: 
