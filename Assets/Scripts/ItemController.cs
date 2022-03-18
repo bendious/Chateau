@@ -10,13 +10,14 @@ using UnityEngine.VFX;
 public sealed class ItemController : MonoBehaviour, IInteractable
 {
 	public SwingInfo m_swingInfo = new() {
-		m_angularNewtonmeters = 300.0f,
-		m_linearNewtons = 1.0f,
+		m_angularNewtonmeters = 150.0f,
+		m_linearNewtons = 0.5f,
 		m_aimSpringDampPct = 0.25f,
 		m_radiusSpringDampPct = 0.5f,
 		m_damageThresholdSpeed = 4.0f,
 		m_damage = 1.0f
 	};
+	public float m_restDegreesOffset = 0.0f;
 	public float m_throwSpeed = 20.0f;
 	public float m_vfxAlphaMax = 0.35f;
 	public Vector3 m_vfxExtraOffsetLocal;
@@ -234,11 +235,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		m_holder = null;
 	}
 
-	public void Swing()
+	public void Swing(bool isRelease)
 	{
 		if (m_holder is ArmController arm)
 		{
-			arm.Swing();
+			arm.Swing(isRelease);
 		}
 
 		IsSwinging = true;
@@ -281,8 +282,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		// temporarily ignore collisions w/ thrower
 		EnableCollision.TemporarilyDisableCollision(m_holder.Component.transform.parent.GetComponents<Collider2D>(), m_colliders, 0.1f);
 
+		Quaternion holderRotation = m_holder.Component.transform.rotation;
 		Detach(false);
-		m_body.velocity = transform.rotation * Vector2.right * m_throwSpeed;
+		m_body.velocity = holderRotation * Vector2.right * m_throwSpeed;
 
 		EnableVFXAndDamage();
 

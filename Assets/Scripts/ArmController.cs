@@ -28,6 +28,8 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	public float m_radiusStiffnessMax = 150.0f;
 	public float m_springMassMax = 1.0f;
 
+	public float m_swingDecayStiffness = 100.0f;
+
 
 	public float Speed => Mathf.Abs(Mathf.Deg2Rad * (m_aimVelocityArm + m_aimVelocityItem) * ((Vector2)transform.parent.position - (Vector2)transform.position).magnitude) + Mathf.Abs(m_aimRadiusVelocity); // NOTE the conversion from angular velocity to linear speed via arclength=radians*radius // TODO: incorporate aim velocity directions?
 
@@ -46,10 +48,15 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 	private float m_aimDegreesArm;
 	private float m_aimDegreesItem;
+	private float m_aimDegreesItemRestOffsetAbs;
 	private float m_aimVelocityArm;
+	private float m_aimVelocityContinuing;
+	private float m_aimVelocityContinuingVel;
 	private float m_aimVelocityItem;
 	private float m_aimRadius;
 	private float m_aimRadiusVelocity;
+	private float m_radiusVelocityContinuing;
+	private float m_radiusVelocityContinuingVel;
 	private bool m_swingDirection;
 
 
@@ -109,6 +116,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		float massPctInv = Mathf.InverseLerp(m_springMassMax, m_mass, m_massTotal); // NOTE that the stiffness goes from max to min as the mass goes from min to max
 		m_aimStiffness = Mathf.Lerp(m_aimStiffnessMin, m_aimStiffnessMax, massPctInv);
 		m_radiusStiffness = Mathf.Lerp(m_radiusStiffnessMin, m_radiusStiffnessMax, massPctInv);
+		m_aimDegreesItemRestOffsetAbs = item.m_restDegreesOffset;
 
 		foreach (Collider2D collider in m_colliders)
 		{
@@ -141,11 +149,18 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	}
 
 
-	public void Swing()
+	public void Swing(bool isRelease)
 	{
+		if (isRelease)
+		{
+			m_aimVelocityContinuing = 0.0f;
+			m_radiusVelocityContinuing = 0.0f;
+			return;
+		}
+
 		float torqueArmLength = GetComponentsInChildren<SpriteRenderer>().Max(renderer => Mathf.Max(((Vector2)renderer.bounds.min - (Vector2)transform.position).magnitude, ((Vector2)renderer.bounds.max - (Vector2)transform.position).magnitude));
-		m_aimVelocityArm += (m_swingDirection ? m_swingInfoCur.m_angularNewtonmeters : -m_swingInfoCur.m_angularNewtonmeters) / m_massTotal / torqueArmLength;
-		m_aimRadiusVelocity += m_swingInfoCur.m_linearNewtons / m_massTotal;
+		m_aimVelocityContinuing = (m_swingDirection ? m_swingInfoCur.m_angularNewtonmeters : -m_swingInfoCur.m_angularNewtonmeters) / m_massTotal / torqueArmLength;
+		m_radiusVelocityContinuing = m_swingInfoCur.m_linearNewtons / m_massTotal;
 		m_swingDirection = !m_swingDirection;
 
 		// play audio if not holding anything (any held item will play audio for itself)
@@ -157,13 +172,22 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 	public void UpdateAim(Vector2 rootOffset, Vector2 aimPositionArm, Vector2 aimPositionItem)
 	{
+		// update current speed
+		m_aimVelocityArm += m_aimVelocityContinuing;
+		m_aimRadiusVelocity += m_radiusVelocityContinuing;
+		m_aimVelocityContinuing = DampedSpring(m_aimVelocityContinuing, 0.0f, 1.0f, false, m_swingDecayStiffness, ref m_aimVelocityContinuingVel);
+		m_radiusVelocityContinuing = DampedSpring(m_radiusVelocityContinuing, 0.0f, 1.0f, false, m_swingDecayStiffness, ref m_radiusVelocityContinuingVel);
+
+		// update current rotation
 		m_aimDegreesArm = DampedSpring(m_aimDegreesArm, AimDegreesRaw(transform.parent.position, rootOffset, aimPositionArm), m_swingInfoCur.m_aimSpringDampPct, true, m_aimStiffness, ref m_aimVelocityArm);
 		m_aimRadius = DampedSpring(m_aimRadius, 0.0f, m_swingInfoCur.m_radiusSpringDampPct, false, m_radiusStiffness, ref m_aimRadiusVelocity);
 
+		// apply
 		transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesArm);
 		Vector3 localPos = (Vector3)rootOffset + (LeftFacing ? new Vector3(m_offset.x, m_offset.y, -m_offset.z) : m_offset) + transform.localRotation * Vector3.right * m_aimRadius;
 		transform.localPosition = localPos;
 
+		// update held items
 		bool leftFacingCached = LeftFacing;
 		foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>())
 		{
@@ -178,9 +202,9 @@ public sealed class ArmController : MonoBehaviour, IHolder
 			}
 
 			renderer.flipY = leftFacingCached;
-			if (renderer.gameObject != gameObject && !renderer.GetComponent<ItemController>().IsSwinging)
+			if (renderer.gameObject != gameObject)
 			{
-				m_aimDegreesItem = DampedSpring(m_aimDegreesItem, AimDegreesRaw(renderer.transform.position, Vector2.zero, aimPositionItem) - m_aimDegreesArm, m_swingInfoCur.m_aimSpringDampPct, true, m_aimStiffness, ref m_aimVelocityItem);
+				m_aimDegreesItem = DampedSpring(m_aimDegreesItem, renderer.GetComponent<ItemController>().IsSwinging ? 0.0f : AimDegreesRaw(renderer.transform.position, Vector2.zero, aimPositionItem) - m_aimDegreesArm + (LeftFacing ? -m_aimDegreesItemRestOffsetAbs : m_aimDegreesItemRestOffsetAbs), m_swingInfoCur.m_aimSpringDampPct, true, m_aimStiffness, ref m_aimVelocityItem);
 				renderer.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesItem);
 			}
 		}

@@ -56,7 +56,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 					ItemController item = ItemFromIndex(transform.root, transform.GetSiblingIndex()).m_item;
 					if (item != null && item.gameObject.activeSelf)
 					{
-						item.Swing();
+						item.Swing(false); // TODO: send both events?
 					}
 				}
 				break;

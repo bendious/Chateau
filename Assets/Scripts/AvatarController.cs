@@ -77,6 +77,7 @@ public class AvatarController : KinematicCharacter
 	private static int m_spawnOffsetID;
 	private static int m_speedID;
 	private static int m_forwardID;
+	private static int m_forwardToUpID;
 
 
 	protected override void Awake()
@@ -96,6 +97,7 @@ public class AvatarController : KinematicCharacter
 		m_spawnOffsetID = Shader.PropertyToID("SpawnOffset");
 		m_speedID = Shader.PropertyToID("Speed");
 		m_forwardID = Shader.PropertyToID("Forward");
+		m_forwardToUpID = Shader.PropertyToID("ForwardToUpRadians");
 
 		InventorySync();
 
@@ -221,8 +223,10 @@ public class AvatarController : KinematicCharacter
 			if (m_aimVfx.enabled)
 			{
 				ItemController primaryItem = GetComponentInChildren<ItemController>();
-				m_aimVfx.SetVector3(m_forwardID, (aimPos - (Vector2)transform.position).normalized);
-				m_aimVfx.SetVector3(m_spawnOffsetID, primaryItem.transform.position - transform.position + (Vector3)primaryItem.SpritePivotOffset + primaryItem.transform.rotation * primaryItem.m_vfxExtraOffsetLocal);
+				Vector3 forward = (aimPos - (Vector2)transform.position).normalized;
+				m_aimVfx.SetVector3(m_forwardID, forward);
+				m_aimVfx.SetFloat(m_forwardToUpID, primaryItem.transform.rotation.eulerAngles.z * Mathf.Deg2Rad + Mathf.PI * 0.5f - Mathf.Atan2(forward.y, forward.x));
+				m_aimVfx.SetVector3(m_spawnOffsetID, primaryItem.transform.position - transform.position + primaryItem.transform.rotation * ((Vector3)primaryItem.SpritePivotOffset + primaryItem.m_vfxExtraOffsetLocal));
 			}
 		}
 
@@ -281,11 +285,11 @@ public class AvatarController : KinematicCharacter
 		ItemController primaryItem = GetComponentInChildren<ItemController>();
 		if (primaryItem == null)
 		{
-			(LeftFacing ? GetComponentsInChildren<ArmController>().Last() : GetComponentInChildren<ArmController>()).Swing();
+			(LeftFacing ? GetComponentsInChildren<ArmController>().Last() : GetComponentInChildren<ArmController>()).Swing(!input.isPressed);
 		}
 		else
 		{
-			primaryItem.Swing();
+			primaryItem.Swing(!input.isPressed);
 		}
 
 		// cancel throwing

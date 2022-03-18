@@ -123,7 +123,7 @@ public sealed class AIMelee : AIState
 		m_startTime = Time.time;
 
 		m_item = m_ai.GetComponentInChildren<ItemController>();
-		m_item.Swing();
+		m_item.Swing(false);
 	}
 
 	public override AIState Update()
@@ -132,7 +132,7 @@ public sealed class AIMelee : AIState
 
 		if (Time.time >= m_swingTime + m_swingTimeSeconds)
 		{
-			m_item.Swing();
+			m_item.Swing(false);
 			m_swingTime = Time.time;
 		}
 
