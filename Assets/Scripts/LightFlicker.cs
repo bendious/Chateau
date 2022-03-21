@@ -16,7 +16,8 @@ public class LightFlicker : MonoBehaviour
 	};
 
 
-	public float m_intensityPctMin = 0.5f;
+	public AnimationCurve m_intensityCurve = new() { keys = new Keyframe[] { new(0.0f, 0.5f, 0.0f, 0.0f), new(1.0f, 1.0f, 0.0f, 0.0f) }, preWrapMode = WrapMode.PingPong, postWrapMode = WrapMode.PingPong };
+	public bool m_fullCurveFlicker = false;
 
 	public PeriodInfo m_nonFlickerInfo = new()
 	{
@@ -32,6 +33,8 @@ public class LightFlicker : MonoBehaviour
 		m_periodSecondsMin = 0.1f,
 		m_periodSecondsMax = 0.5f,
 	};
+
+	public WeightedObject<Sprite>[] m_lightSprites;
 
 
 	private struct LightInfo
@@ -55,6 +58,7 @@ public class LightFlicker : MonoBehaviour
 
 	private bool m_isFlickering;
 	private float m_flickerToggleTime;
+	private float m_flickerLength;
 
 
 	private void OnEnable()
@@ -65,6 +69,7 @@ public class LightFlicker : MonoBehaviour
 		m_phase = Random.Range(0.0f, 1.0f);
 		m_flickerToggleTime = Time.time + Random.Range(m_nonFlickerInfo.m_secondsMin, m_nonFlickerInfo.m_secondsMax);
 
+		RandomizeLightSprite();
 		StartCoroutine(UpdateIntensity());
 	}
 
@@ -84,37 +89,71 @@ public class LightFlicker : MonoBehaviour
 	}
 
 
+	private void RandomizeLightSprite()
+	{
+		if (m_lightSprites.Length <= 0 || m_lights.Length <= 0)
+		{
+			return;
+		}
+
+		Sprite lightSpriteNew = Utility.RandomWeighted(m_lightSprites);
+		foreach (LightInfo info in m_lights)
+		{
+			if (info.m_light.lightType != Light2D.LightType.Sprite)
+			{
+				continue;
+			}
+
+			// see https://forum.unity.com/threads/lwrp-light-2d-change-sprite-in-script.753542/ for explanation of workaround for Light2D.lightCookieSprite not having a public setter
+			System.Reflection.FieldInfo spriteSetterWorkaround = typeof(Light2D).GetField("m_LightCookieSprite", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+			spriteSetterWorkaround.SetValue(info.m_light, lightSpriteNew);
+		}
+	}
+
 	private IEnumerator UpdateIntensity()
 	{
 		PeriodInfo infoCur = m_isFlickering ? m_flickerInfo : m_nonFlickerInfo;
 
+		yield return null; // to prevent initial values being stomped on for some reason
+
 		while (true)
 		{
 			// start/end flickers
+			// TODO: allow syncronization across instances
 			if (m_flickerToggleTime <= Time.time)
 			{
 				m_isFlickering = !m_isFlickering;
 				infoCur = m_isFlickering ? m_flickerInfo : m_nonFlickerInfo;
-				m_flickerToggleTime = Time.time + Random.Range(infoCur.m_secondsMin, infoCur.m_secondsMax); // TODO: take health into account if destructible?
+				m_flickerLength = Random.Range(infoCur.m_secondsMin, infoCur.m_secondsMax); // TODO: take health into account if destructible?
+				m_flickerToggleTime = Time.time + m_flickerLength;
 
-				// TODO: SFX?
+				// TODO: SFX
+
+				RandomizeLightSprite();
 			}
 
-			// advance phase
-			m_phase += Time.deltaTime / Random.Range(infoCur.m_periodSecondsMin, infoCur.m_periodSecondsMax); // TODO: take health into account if destructible?
-			float intensityT = Mathf.Cos(m_phase * Mathf.PI * 2.0f) * 0.5f + 0.5f;
+			// maybe advance phase
+			if (m_fullCurveFlicker && !m_isFlickering)
+			{
+				m_phase = 0.0f;
+			}
+			else
+			{
+				m_phase += Time.deltaTime / (m_fullCurveFlicker && m_isFlickering ? m_flickerLength : Random.Range(infoCur.m_periodSecondsMin, infoCur.m_periodSecondsMax)); // TODO: take health into account if destructible?
+			}
 
 			// set intensity
+			float intensityT = m_intensityCurve.Evaluate(m_phase);
 			foreach (LightInfo info in m_lights)
 			{
-				info.m_light.intensity = Mathf.Lerp(m_intensityPctMin, info.m_intensityMax, intensityT);
+				info.m_light.intensity = Mathf.Lerp(0.0f, info.m_intensityMax, intensityT);
 			}
 			foreach (RendererInfo info in m_renderers)
 			{
-				info.m_renderer.color = Color.Lerp(new Color(m_intensityPctMin, m_intensityPctMin, m_intensityPctMin) * info.m_colorMax, info.m_colorMax, intensityT);
+				info.m_renderer.color = info.m_colorMax * new Color(intensityT, intensityT, intensityT, 1.0f);
 			}
 
-			yield return null; // TODO: non-constant updating for long-period lights?
+			yield return m_fullCurveFlicker && !m_isFlickering ? new WaitForSeconds(m_flickerToggleTime - Time.time) : null; // TODO: non-constant updating also for long-period lights?
 		}
 	}
 }
