@@ -8,7 +8,7 @@ using UnityEngine.Assertions;
 /// KinematicCharacter integrates physics and animation. It is generally used for simple enemy animation.
 /// </summary>
 [RequireComponent(typeof(SpriteRenderer), typeof(Animator), typeof(Collider2D)), RequireComponent(typeof(AudioSource))]
-public abstract class KinematicCharacter : KinematicObject
+public abstract class KinematicCharacter : KinematicObject, IHolder
 {
 	/// <summary>
 	/// Max horizontal speed.
@@ -38,8 +38,6 @@ public abstract class KinematicCharacter : KinematicObject
 
 	public Vector2 m_armOffset;
 
-	public int MaxPickUps => GetComponentsInChildren<IHolder>().Sum(holder => holder.HoldCountMax);
-
 
 	/// <summary>
 	/// Used to indicate desired direction of travel.
@@ -66,6 +64,11 @@ public abstract class KinematicCharacter : KinematicObject
 	protected Animator animator;
 	protected AudioSource audioSource;
 
+
+	public int HoldCountMax => GetComponentsInChildren<IHolder>().Where(holder => holder.Component != this).Sum(holder => holder.HoldCountMax);
+
+	public Vector3 AttachOffsetLocal => Vector3.zero;
+	public Vector3 ChildAttachPointLocal => Vector3.zero;
 
 	public bool LeftFacing => spriteRenderer.flipX;
 
@@ -162,7 +165,7 @@ public abstract class KinematicCharacter : KinematicObject
 		// TODO: early-out if already dead?
 
 		// detach all items
-		foreach (IInteractable attachee in GetComponentsInChildren<IInteractable>())
+		foreach (IAttachable attachee in GetComponentsInChildren<IAttachable>())
 		{
 			attachee.Detach(true);
 		}
@@ -184,9 +187,9 @@ public abstract class KinematicCharacter : KinematicObject
 		return true;
 	}
 
-	public void AttachItem(IInteractable attachee)
+	public bool ChildAttach(IAttachable attachee)
 	{
-		if (attachee is BackpackController backpack) // TODO: handle through IAttachable interface?
+		if (attachee is BackpackController backpack) // TODO: handle through IAttachable?
 		{
 			// allow only one pack at a time
 			BackpackController[] packsExisting = GetComponentsInChildren<BackpackController>();
@@ -199,28 +202,31 @@ public abstract class KinematicCharacter : KinematicObject
 				}
 			}
 
-			backpack.AttachTo(this);
-			return;
+			backpack.AttachInternal(this);
+			return true;
 		}
 
-		// TODO: don't assume non-backpack attachables are items?
-		ItemController item = (ItemController)attachee;
-
-		ItemController[] heldItems = GetComponentsInChildren<ItemController>(true).ToArray();
-		if (heldItems.Length >= MaxPickUps)
+		IAttachable[] heldAttachables = GetComponentsInChildren<IAttachable>(true).Where(attachable => attachable is not IHolder).ToArray();
+		if (heldAttachables.Length >= HoldCountMax)
 		{
 			// TODO: ensure cycling through items?
-			heldItems.First().Detach(true);
+			heldAttachables.First().Detach(true);
 		}
 
-		foreach (IHolder holder in GetComponentsInChildren<IHolder>())
+		foreach (IHolder holder in GetComponentsInChildren<IHolder>().Where(holder => holder.Component != this))
 		{
-			bool held = holder.ItemAttach(item);
+			bool held = holder.ChildAttach(attachee);
 			if (held)
 			{
-				break;
+				return true;
 			}
 		}
+		return false;
+	}
+
+	public void ChildDetach(IAttachable attachable, bool noAutoReplace)
+	{
+		IHolder.ChildDetachInternal(attachable, this, noAutoReplace);
 	}
 
 	public virtual bool CanDamage(GameObject target)

@@ -50,7 +50,7 @@ public sealed class AIPursue : AIState
 
 		// check for ammo need
 		bool hasItem = m_ai.GetComponentInChildren<ItemController>() != null;
-		if (m_ai.MaxPickUps > 0 && !hasItem)
+		if (m_ai.HoldCountMax > 0 && !hasItem)
 		{
 			// TODO: prevent thrashing between AIPursue/AIFindAmmo when no ammo is reachable
 			return new AIFindAmmo(m_ai);
@@ -300,9 +300,9 @@ public sealed class AIFindAmmo : AIState
 		// pick up target
 		if (hasArrived)
 		{
-			m_ai.AttachItem(m_ai.m_target.GetComponent<ItemController>());
+			m_ai.ChildAttach(m_ai.m_target.GetComponent<ItemController>());
 			m_ai.m_target = null;
-			if (m_ai.GetComponentsInChildren<ItemController>().Length >= m_ai.MaxPickUps || Random.value > m_multiFindPct)
+			if (m_ai.GetComponentsInChildren<ItemController>().Length >= m_ai.HoldCountMax || Random.value > m_multiFindPct)
 			{
 				return new AIPursue(m_ai);
 			}

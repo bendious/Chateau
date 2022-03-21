@@ -105,43 +105,53 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	}
 
 
-	public /*override*/ bool ItemAttach(ItemController item)
+	public /*override*/ bool ChildAttach(IAttachable attachable)
 	{
-		bool attached = IHolder.ItemAttachInternal(item, this);
+		bool attached = IHolder.ChildAttachInternal(attachable, this);
 		if (!attached)
 		{
 			return false;
 		}
 
-		m_swingInfoCur = item.m_swingInfo;
-		m_massTotal = m_mass + item.GetComponents<Rigidbody2D>().Sum(body => body.mass);
+		if (attachable is ItemController item)
+		{
+			m_swingInfoCur = item.m_swingInfo;
+			m_aimDegreesItemRestOffsetAbs = item.m_restDegreesOffset;
+		}
+		else
+		{
+			m_swingInfoCur = m_swingInfoDefault;
+			m_aimDegreesItemRestOffsetAbs = 0.0f;
+		}
+
+		Component attachableComp = attachable.Component;
+		m_massTotal = m_mass + attachableComp.GetComponents<Rigidbody2D>().Sum(body => body.mass);
 		float massPctInv = Mathf.InverseLerp(m_springMassMax, m_mass, m_massTotal); // NOTE that the stiffness goes from max to min as the mass goes from min to max
 		m_aimStiffness = Mathf.Lerp(m_aimStiffnessMin, m_aimStiffnessMax, massPctInv);
 		m_radiusStiffness = Mathf.Lerp(m_radiusStiffnessMin, m_radiusStiffnessMax, massPctInv);
-		m_aimDegreesItemRestOffsetAbs = item.m_restDegreesOffset;
 
 		foreach (Collider2D collider in m_colliders)
 		{
 			collider.enabled = false;
 		}
 
-		m_aimDegreesArm = AimDegreesRaw(transform.parent.position, Vector2.zero, item.transform.position); // TODO: lerp? use most recent rootOffset?
+		m_aimDegreesArm = AimDegreesRaw(transform.parent.position, Vector2.zero, attachableComp.transform.position); // TODO: lerp? use most recent rootOffset?
 		m_aimVelocityArm = 0.0f;
-		m_aimDegreesItem = item.transform.rotation.eulerAngles.z - m_aimDegreesArm;
+		m_aimDegreesItem = attachableComp.transform.rotation.eulerAngles.z - m_aimDegreesArm;
 		m_aimVelocityItem = 0.0f;
 		m_aimRadiusVelocity = 0.0f;
 
 		return true;
 	}
 
-	public /*override*/ void ItemDetach(ItemController item, bool noAutoReplace)
+	public /*override*/ void ChildDetach(IAttachable attachable, bool noAutoReplace)
 	{
 		m_swingInfoCur = m_swingInfoDefault; // NOTE that this has to be BEFORE ItemDetachInternal(), which might re-attach a replacement w/ a non-default SwingInfo
 		m_massTotal = m_mass;
 		m_aimStiffness = m_aimStiffnessMax;
 		m_radiusStiffness = m_radiusStiffnessMax;
 
-		IHolder.ItemDetachInternal(item, this, noAutoReplace);
+		IHolder.ChildDetachInternal(attachable, this, noAutoReplace);
 
 		foreach (Collider2D collider in m_colliders)
 		{
@@ -166,7 +176,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		m_swingDirection = !m_swingDirection;
 
 		// play audio if not holding anything (any held item will play audio for itself)
-		if (GetComponent<ItemController>() == null)
+		if (GetComponentInChildren<IAttachable>() == null)
 		{
 			GetComponent<AudioSource>().PlayOneShot(GameController.Instance.m_materialSystem.Find(m_colliders.First().sharedMaterial).RandomMovementAudio()); // TODO: don't assume first collider is main material?
 		}

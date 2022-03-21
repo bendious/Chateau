@@ -240,11 +240,6 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		}
 	}
 
-	public /*override*/ void Detach(bool noAutoReplace)
-	{
-		Assert.IsNull("This should never be called.");
-	}
-
 
 #if DEBUG
 	public

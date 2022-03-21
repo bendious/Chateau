@@ -445,42 +445,42 @@ public class AvatarController : KinematicCharacter
 
 		// cycle inventory
 		// prep item/holder lists
-		ItemController[] items = GetComponentsInChildren<ItemController>(true);
-		if (items.Length == 0)
+		IAttachable[] attachables = GetComponentsInChildren<IAttachable>(true).Where(attachable => attachable is not IHolder).ToArray();
+		if (attachables.Length == 0)
 		{
 			return;
 		}
-		IHolder[] holdersSingle = GetComponentsInChildren<IHolder>();
-		ItemController[] itemsWithEmptyArms = items.Length >= 2 ? items : holdersSingle.SelectMany(holder => // TODO: don't assume two arms?
+		IHolder[] holdersSingle = GetComponentsInChildren<IHolder>().Where(holder => holder.Component != this).ToArray();
+		IAttachable[] attachablesAndEmptyArms = attachables.Length >= 2 ? attachables : holdersSingle.SelectMany(holder => // TODO: don't assume two arms?
 		{
-			System.Collections.Generic.List<ItemController> heldItems = holder.Component.GetComponentsInChildren<ItemController>(true).ToList();
-			return heldItems.Concat(Enumerable.Repeat<ItemController>(null, holder.HoldCountMax - heldItems.Count));
+			System.Collections.Generic.List<IAttachable> heldAttachables = holder.Component.GetComponentsInChildren<IAttachable>(true).Where(attachable => attachable is not IHolder).ToList();
+			return heldAttachables.Concat(Enumerable.Repeat<IAttachable>(null, holder.HoldCountMax - heldAttachables.Count));
 		}).ToArray();
 
 		// detach
-		foreach (ItemController item in items)
+		foreach (IAttachable attachable in attachables)
 		{
-			item.Detach(true);
+			attachable.Detach(true);
 		}
 
 		// re-attach
 		bool reverse = scroll.y > 0.0f;
-		int itemsRemaining = itemsWithEmptyArms.Length;
+		int attachablesRemaining = attachablesAndEmptyArms.Length;
 		IHolder[] holdersRepeated = holdersSingle.SelectMany(holder =>
 		{
-			int count = Mathf.Min(holder.HoldCountMax, itemsRemaining);
-			itemsRemaining -= count;
+			int count = Mathf.Min(holder.HoldCountMax, attachablesRemaining);
+			attachablesRemaining -= count;
 			return Enumerable.Repeat(holder, count);
 		}).ToArray();
-		int itemIdx = reverse ? itemsWithEmptyArms.Length - 1 : 1;
+		int attachableIdx = reverse ? attachablesAndEmptyArms.Length - 1 : 1;
 		foreach (IHolder holder in holdersRepeated)
 		{
-			ItemController item = itemsWithEmptyArms[itemIdx];
-			if (item != null)
+			IAttachable attachable = attachablesAndEmptyArms[attachableIdx];
+			if (attachable != null)
 			{
-				holder.ItemAttach(item);
+				holder.ChildAttach(attachable);
 			}
-			itemIdx = Utility.Modulo(itemIdx + 1, holdersRepeated.Length);
+			attachableIdx = Utility.Modulo(attachableIdx + 1, holdersRepeated.Length);
 		}
 
 		InventorySync(); // TODO: lerp to new positions?
@@ -622,7 +622,7 @@ public class AvatarController : KinematicCharacter
 		Assert.IsFalse(templateObj.activeSelf);
 
 		// gather all items/slots from child holders
-		Tuple<Transform, Color>[] itemInfos = GetComponentsInChildren<IHolder>().SelectMany(holder =>
+		Tuple<Transform, Color>[] itemInfos = GetComponentsInChildren<IHolder>().Where(holder => holder.Component != this).SelectMany(holder =>
 		{
 			Transform holderTf = holder.Component.transform;
 			Tuple<Transform, Color>[] children = new Tuple<Transform, Color>[holder.HoldCountMax];
@@ -683,9 +683,9 @@ public class AvatarController : KinematicCharacter
 		DeactivateAllControl();
 		foreach (ArmController arm in GetComponentsInChildren<ArmController>())
 		{
-			foreach (ItemController item in arm.GetComponentsInChildren<ItemController>())
+			foreach (IAttachable attachable in arm.GetComponentsInChildren<IAttachable>())
 			{
-				item.Detach(true);
+				attachable.Detach(true);
 			}
 			arm.gameObject.SetActive(false);
 		}
@@ -709,13 +709,13 @@ public class AvatarController : KinematicCharacter
 		{
 			return;
 		}
-		ItemController item = evt.m_object.GetComponent<ItemController>();
-		if (item == null)
+		IAttachable attachable = evt.m_object.GetComponent<IAttachable>();
+		if (attachable == null)
 		{
 			return;
 		}
 
-		item.Detach(false); // to swap in new items and so that we can refresh inventory immediately even though deletion hasn't happened yet
+		attachable.Detach(false); // to swap in new items and so that we can refresh inventory immediately even though deletion hasn't happened yet
 		InventorySync();
 	}
 

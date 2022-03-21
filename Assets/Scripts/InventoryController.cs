@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.EventSystems;
@@ -171,11 +172,11 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 		}
 		if (item1 != null)
 		{
-			slotItemInfo2.m_holder.ItemAttach(item1);
+			slotItemInfo2.m_holder.ChildAttach(item1);
 		}
 		if (item2 != null)
 		{
-			slotItemInfo1.m_holder.ItemAttach(item2);
+			slotItemInfo1.m_holder.ChildAttach(item2);
 		}
 		if (item1 != null)
 		{
@@ -199,7 +200,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 	private SlotItemInfo ItemFromIndex(Component character, int index)
 	{
 		// split index into holder/item indices
-		IHolder[] holders = character.GetComponentsInChildren<IHolder>();
+		IHolder[] holders = character.GetComponentsInChildren<IHolder>().Where(holder => holder.Component != character).ToArray();
 		int itemIdx = index - 1; // NOTE that the indices are off by one between the inventory and avatar due to the inventory template object
 		int holderIdx = 0;
 		foreach (IHolder holderItr in holders)

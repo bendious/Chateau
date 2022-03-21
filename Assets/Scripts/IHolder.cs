@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 
@@ -15,27 +16,29 @@ public interface IHolder
 	public bool IsSwinging => false;
 
 
-	public bool ItemAttach(ItemController item);
-	public void ItemDetach(ItemController item, bool noAutoReplace);
+	public bool ChildAttach(IAttachable attachable);
+	public void ChildDetach(IAttachable attachable, bool noAutoReplace);
 
 
-	protected static bool ItemAttachInternal(ItemController item, IHolder holder)
+	protected static bool ChildAttachInternal(IAttachable attachable, IHolder holder)
 	{
 		// prevent over-holding
-		if (holder.Component.transform.childCount >= holder.HoldCountMax)
+		Component holderComp = holder.Component;
+		if (holderComp.transform.childCount >= holder.HoldCountMax)
 		{
 			return false;
 		}
 
-		if (item.transform.parent != null)
+		Component attachableComp = attachable.Component;
+		if (attachableComp.transform.parent != null)
 		{
 			// ensure any special detach logic gets invoked
-			item.transform.parent.GetComponent<IHolder>().ItemDetach(item, false);
+			attachableComp.transform.parent.GetComponent<IHolder>().ChildDetach(attachable, false);
 		}
 
-		item.AttachInternal(holder);
+		attachable.AttachInternal(holder);
 
-		AvatarController avatar = holder.Component.transform.parent.GetComponent<AvatarController>();
+		AvatarController avatar = holderComp.transform.parent.GetComponent<AvatarController>();
 		if (avatar != null)
 		{
 			avatar.InventorySync();
@@ -44,9 +47,9 @@ public interface IHolder
 		return true;
 	}
 
-	protected static void ItemDetachInternal(ItemController item, IHolder holder, bool noAutoReplace)
+	protected static void ChildDetachInternal(IAttachable attachable, IHolder holder, bool noAutoReplace)
 	{
-		item.DetachInternal();
+		attachable.DetachInternal();
 
 		if (noAutoReplace)
 		{
@@ -61,19 +64,25 @@ public interface IHolder
 		}
 
 		// find any valid other holders
-		Collider2D[] itemColliders = item.GetComponents<Collider2D>();
+		Collider2D[] attachableColliders = attachable.Component.GetComponents<Collider2D>();
 		int thisSiblingIdx = holderTf.GetSiblingIndex();
 		bool foundReplacement = false;
 		foreach (IHolder otherHolder in holderTf.parent.GetComponentsInChildren<IHolder>())
 		{
-			// avoid immediate collision w/ items remaining in other holders(s)
 			Component otherHolderComp = otherHolder.Component;
-			ItemController[] items = otherHolderComp.GetComponentsInChildren<ItemController>(true);
-			foreach (ItemController otherItem in items)
+			if (otherHolderComp.gameObject == holderTf.parent.gameObject)
 			{
-				if (otherItem != item && otherItem.gameObject.activeInHierarchy)
+				continue;
+			}
+
+			// avoid immediate collision w/ items remaining in other holders(s)
+			IAttachable[] otherAttachables = otherHolderComp.GetComponentsInChildren<IAttachable>(true).Where(attachable => attachable is not IHolder).ToArray();
+			foreach (IAttachable otherAttachable in otherAttachables)
+			{
+				Component otherAttachableComp = otherAttachable.Component;
+				if (otherAttachable != attachable && otherAttachableComp.gameObject.activeInHierarchy)
 				{
-					EnableCollision.TemporarilyDisableCollision(itemColliders, otherItem.GetComponents<Collider2D>());
+					EnableCollision.TemporarilyDisableCollision(attachableColliders, otherAttachableComp.GetComponents<Collider2D>());
 				}
 			}
 
@@ -83,17 +92,17 @@ public interface IHolder
 			}
 
 			// try attaching each child item until one works
-			foreach (ItemController newItem in items)
+			foreach (IAttachable newAttachable in otherAttachables)
 			{
-				newItem.Detach(true);
-				foundReplacement = holder.ItemAttach(newItem);
+				newAttachable.Detach(true);
+				foundReplacement = holder.ChildAttach(newAttachable);
 				if (foundReplacement)
 				{
 					break;
 				}
 
 				// reattach to original to avoid orphaning upon failure
-				otherHolder.ItemAttach(newItem);
+				otherHolder.ChildAttach(newAttachable);
 			}
 		}
 

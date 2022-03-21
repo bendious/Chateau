@@ -13,9 +13,4 @@ public class DoorInteract : MonoBehaviour, IInteractable
 	{
 		GameController.Instance.LoadScene(m_sceneName);
 	}
-
-	public void Detach(bool noAutoReplace)
-	{
-		throw new System.NotImplementedException();
-	}
 }

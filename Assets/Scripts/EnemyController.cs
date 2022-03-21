@@ -73,7 +73,7 @@ public class EnemyController : KinematicCharacter
 		base.FixedUpdate();
 
 		// aim items
-		if (m_target != null && MaxPickUps > 0)
+		if (m_target != null && HoldCountMax > 0)
 		{
 			ArmController[] arms = GetComponentsInChildren<ArmController>();
 			if (arms.Length > 0)

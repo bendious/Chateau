@@ -7,7 +7,7 @@ using UnityEngine.VFX;
 
 
 [RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), RequireComponent(typeof(SpriteRenderer))]
-public sealed class ItemController : MonoBehaviour, IInteractable
+public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 {
 	public SwingInfo m_swingInfo = new() {
 		m_angularNewtonmeters = 150.0f,
@@ -126,9 +126,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 		KinematicCharacter character = kinematicObj as KinematicCharacter; // NOTE that this works since objects shouldn't ever have multiple different KinematicObject-derived components
 		if (isDetached && !canDamage) // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus or if it is a secondary (non-damaging) collider making contact
 		{
-			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>(true).Length < character.MaxPickUps)
+			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>(true).Length < character.HoldCountMax)
 			{
-				character.AttachItem(this);
+				character.ChildAttach(this);
 				return;
 			}
 		}
@@ -184,6 +184,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 	}
 
 
+	public void Interact(KinematicCharacter interactor) => interactor.ChildAttach(this);
+
 	// this (although public) should only be called by IHolderController.ItemAttachInternal() // TODO?
 	public void AttachInternal(IHolder holder)
 	{
@@ -215,7 +217,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable
 			avatar.ToggleOverlay(null, null);
 		}
 
-		m_holder.ItemDetach(this, noAutoReplace);
+		m_holder.ChildDetach(this, noAutoReplace);
 	}
 
 	// this (although public) should only be called by IHolderController.ItemDetachInternal() // TODO?

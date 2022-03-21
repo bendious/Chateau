@@ -18,11 +18,6 @@ public class ButtonController : MonoBehaviour, IInteractable, IUnlockable
 		Unlock(gameObject);
 	}
 
-	public void Detach(bool noAutoReplace)
-	{
-		UnityEngine.Assertions.Assert.IsTrue(false); // this should never be called
-	}
-
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
 	{
 		// no-op; we are our own key
