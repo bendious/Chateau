@@ -5,40 +5,46 @@ using UnityEngine;
 
 public class BossRoom : MonoBehaviour
 {
-	public Boss m_boss;
+	public WeightedObject<GameObject>[] m_bossPrefabs;
 
 	public AudioClip m_audioOutro;
 
 
-	private struct DoorInfo
-	{
-		public GameObject m_object;
-		public Bounds m_bounds;
-	};
-	private DoorInfo[] m_doors;
+	private Boss m_boss;
 
 	private readonly List<GameObject> m_avatarsPresent = new();
 
 	private readonly List<GameObject> m_spawnedGates = new();
 
 
-	private void Awake()
+	private void Start()
 	{
-		m_boss.transform.SetParent(null); // necessary since all prefab contents have to start as children of the main object
+		// determine entrance
+		// TODO: don't assume exactly one open doorway?
+		Vector3 entrancePos = Vector3.zero;
+		foreach (GameObject doorway in GetComponent<RoomController>().m_doorways)
+		{
+			if (!doorway.activeSelf)
+			{
+				entrancePos = doorway.transform.position;
+				break;
+			}
+		}
+
+		// determine farthest valid position from entrance
+		GameObject bossPrefab = Utility.RandomWeighted(m_bossPrefabs);
+		Vector3 spawnPos = transform.position + new Vector3(0.0f, -bossPrefab.GetComponents<CapsuleCollider2D>().Min(collider => collider.offset.y - collider.size.y * 0.5f), 0.0f); // NOTE that we can't use Collider2D.bounds on an uninstantiated prefab // TODO: don't assume capsule-shaped collider?
+		Bounds triggerBounds = GetComponent<Collider2D>().bounds;
+		spawnPos.x = entrancePos.x <= spawnPos.x ? triggerBounds.max.x : triggerBounds.min.x; // TODO: don't assume bottom/top doors are closer to the left?
+
+		// spawn boss
+		m_boss = Instantiate(bossPrefab, spawnPos, Quaternion.identity).GetComponent<Boss>();
+		m_boss.m_room = this;
 
 		// add event handlers
 #if DEBUG
 		DebugRespawn.OnExecute += DebugOnRespawn;
 #endif
-
-		// track doorways
-		RoomController roomScript = GetComponent<RoomController>();
-		m_doors = new DoorInfo[roomScript.m_doorways.Length];
-		int i = 0;
-		foreach (GameObject doorway in roomScript.m_doorways)
-		{
-			m_doors[i++] = new DoorInfo { m_object = doorway, m_bounds = doorway.GetComponent<Collider2D>().bounds };
-		}
 	}
 
 	private void OnTriggerEnter2D(Collider2D collider)
