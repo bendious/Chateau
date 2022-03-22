@@ -17,6 +17,9 @@ public class DialogueController : MonoBehaviour
 	public float m_indicatorSpacing = 10.0f;
 
 
+	public bool IsPlaying => gameObject.activeSelf;
+
+
 	private string[] m_textList;
 	private int m_textListIdx;
 	private int m_revealedCharCount;
@@ -38,6 +41,8 @@ public class DialogueController : MonoBehaviour
 
 	private IEnumerator AdvanceDialogue()
 	{
+		m_text.text = null;
+
 		// iterative info
 		bool notDone = true;
 		float lastRevealTime = Time.time;

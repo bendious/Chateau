@@ -94,7 +94,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 		// check speed
 		float collisionSpeed = (kinematicObj == null ? collision.relativeVelocity.magnitude : (body.velocity - kinematicObj.velocity).magnitude) + Speed;
-		if (collisionSpeed > m_swingInfoCur.m_damageThresholdSpeed)
+		if (collisionSpeed > m_swingInfoCur.m_damageThresholdSpeed && !Utility.FloatEqual(m_swingInfoCur.m_damage, 0.0f))
 		{
 			Health otherHealth = collision.gameObject.GetComponent<Health>();
 			if (otherHealth != null)

@@ -83,7 +83,7 @@ public class GameController : MonoBehaviour
 			Assert.AreNotEqual(node.m_type, LayoutGenerator.Node.Type.TightCoupling);
 
 			LayoutGenerator.Node parent = node.TightCoupleParent;
-			if (parentPending != null && parent != parentPending)
+			if (parentPending != null && parent != parentPending && nodesPending.Count > 0 && nodesPending.First().DirectParentsInternal != parent?.DirectParentsInternal)
 			{
 				bool spawned = AddRoomsForNodes(nodesPending.ToArray());
 				if (!spawned)
@@ -346,7 +346,7 @@ public class GameController : MonoBehaviour
 		{
 			nodesSplit.Add(new());
 			int numDoors = 0;
-			const int doorsMax = 4; // TODO: determine based on room?
+			int doorsMax = m_startRoom == null ? 4 : 3; // TODO: determine based on room prefab?
 			bool isDoor = false;
 			do
 			{
@@ -370,7 +370,13 @@ public class GameController : MonoBehaviour
 			}
 			else
 			{
-				bool success = nodesList.First().TightCoupleParent.m_room.SpawnChildRoom(Utility.RandomWeighted(nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? m_bossRoomPrefabs : m_roomPrefabs), nodesList.ToArray());
+				LayoutGenerator.Node ancestorSpawned = nodesList.First();
+				do
+				{
+					ancestorSpawned = ancestorSpawned.TightCoupleParent;
+				}
+				while (ancestorSpawned.m_room == null);
+				bool success = ancestorSpawned.m_room.SpawnChildRoom(Utility.RandomWeighted(nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? m_bossRoomPrefabs : m_roomPrefabs), nodesList.ToArray()); // TODO: try each prefab in random order?
 				if (!success)
 				{
 					return false;

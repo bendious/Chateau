@@ -767,7 +767,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5cfd923f2d1be345bd6931a1535b111, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_type: 8
+  m_type: 0
   m_avatars: []
   m_virtualCamera: {fileID: 5811658771368823199}
   m_cameraTargetGroup: {fileID: 5409020713053798366}

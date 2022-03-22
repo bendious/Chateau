@@ -18,6 +18,8 @@ public class RoomController : MonoBehaviour
 	public WeightedObject<GameObject>[] m_doorInteractPrefabs;
 	public string m_doorInteractSceneName = "MainScene"; // TODO: determine dynamically?
 
+	public WeightedObject<GameObject>[] m_npcPrefabs;
+
 	public WeightedObject<GameObject>[] m_doorPrefabs;
 	public DirectionalDoors[] m_doorDirectionalPrefabs;
 	public WeightedObject<GameObject>[] m_doorSecretPrefabs;
@@ -159,15 +161,32 @@ public class RoomController : MonoBehaviour
 		}
 
 		// spawn node-specific architecture
-		bool isZoneEntrance = System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.Entrance);
-		if (isZoneEntrance || System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.Zone1Door))
+		bool emptyRoom = false;
+		foreach (LayoutGenerator.Node node in m_layoutNodes)
 		{
-			DoorInteract door = Instantiate(Utility.RandomWeighted(m_doorInteractPrefabs), transform.position + Vector3.forward, Quaternion.identity, transform).GetComponent<DoorInteract>();
-			if (!isZoneEntrance)
+			switch (node.m_type)
 			{
-				door.m_sceneName = m_doorInteractSceneName;
-				return;
+				case LayoutGenerator.Node.Type.Entrance:
+				case LayoutGenerator.Node.Type.Zone1Door:
+					InteractSimple door = Instantiate(Utility.RandomWeighted(m_doorInteractPrefabs), (node.m_type == LayoutGenerator.Node.Type.Entrance ? transform.position : InteriorPosition(0.0f, 0.0f)) + Vector3.forward, Quaternion.identity, transform).GetComponent<InteractSimple>();
+					if (node.m_type != LayoutGenerator.Node.Type.Entrance)
+					{
+						door.m_sceneName = m_doorInteractSceneName;
+						emptyRoom = true;
+					}
+					break;
+
+				case LayoutGenerator.Node.Type.Npc:
+					Instantiate(Utility.RandomWeighted(m_npcPrefabs), InteriorPosition(0.0f, 0.0f), Quaternion.identity);
+					break;
+
+				default:
+					break;
 			}
+		}
+		if (emptyRoom)
+		{
+			return;
 		}
 
 		// spawn furniture
@@ -380,22 +399,27 @@ public class RoomController : MonoBehaviour
 			return m_doorwayInfos[i].m_childRoom != null;
 		});
 
-		bool requireImmediateChild = System.Array.Exists(layoutNodes, node => System.Array.Exists(m_layoutNodes, parentNode => (parentNode.m_type == LayoutGenerator.Node.Type.Lock || parentNode.m_type == LayoutGenerator.Node.Type.Secret) && parentNode == node.TightCoupleParent));
-		if (!success && !requireImmediateChild)
+		if (success)
 		{
-			// try spawning from children
-			success = DoorwaysRandomOrder(i =>
-			{
-				DoorwayInfo doorway = m_doorwayInfos[i];
-				if (doorway.m_childRoom == null)
-				{
-					return false;
-				}
-				return doorway.m_childRoom.SpawnChildRoom(roomPrefab, layoutNodes, forcedDirection);
-			});
+			return true;
 		}
 
-		return success;
+		bool requireImmediateChild = System.Array.Exists(layoutNodes, node => System.Array.Exists(m_layoutNodes, parentNode => (parentNode.m_type == LayoutGenerator.Node.Type.Lock || parentNode.m_type == LayoutGenerator.Node.Type.Secret) && parentNode == node.TightCoupleParent));
+		if (requireImmediateChild)
+		{
+			return false;
+		}
+
+		// try spawning from children
+		return DoorwaysRandomOrder(i =>
+		{
+			DoorwayInfo doorway = m_doorwayInfos[i];
+			if (doorway.m_childRoom == null)
+			{
+				return false;
+			}
+			return doorway.m_childRoom.SpawnChildRoom(roomPrefab, layoutNodes, forcedDirection);
+		});
 	}
 
 	public void SpawnLadder(GameObject doorway)

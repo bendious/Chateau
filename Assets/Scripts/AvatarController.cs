@@ -157,10 +157,11 @@ public class AvatarController : KinematicCharacter
 				rendererIndicator.drawMode = rendererOrig.drawMode;
 				rendererIndicator.size = rendererOrig.size;
 				rendererIndicator.color = rendererOrig.color * 2.0f; // ensure good visibility on nearly-white objects?
+				rendererIndicator.flipX = rendererOrig.flipX;
 				rendererIndicator.flipY = rendererOrig.flipY; // NOTE that items that have been dropped may have been left "backwards"
 				m_focusIndicator.transform.localScale = m_focusObj.transform.localScale; // NOTE that w/o this, swapping between renderer draw modes was doing weird things to the indicator's scale...
 
-				m_focusPrompt.transform.position = m_focusIndicator.transform.position + m_focusPromptOffset;
+				m_focusPrompt.transform.position = new Vector3(m_focusIndicator.transform.position.x, rendererIndicator.bounds.max.y, m_focusIndicator.transform.position.z) + m_focusPromptOffset;
 			}
 			m_focusIndicator.SetActive(focusCanInteract);
 			m_focusPrompt.gameObject.SetActive(focusCanInteract);
@@ -536,14 +537,15 @@ public class AvatarController : KinematicCharacter
 		// NOTE that we purposely don't call base.DespawnSelf() since the avatar shouldn't despawn on death
 	}
 
+	// TODO: replace w/ more generic handling
 	public void OnEnemyCollision(EnemyController enemy)
 	{
-		if (!enemy.CanDamage(gameObject))
+		if (!enemy.CanDamage(gameObject) || Utility.FloatEqual(enemy.m_contactDamage, 0.0f))
 		{
 			return;
 		}
 
-		bool hurt = health.Decrement(enemy.gameObject);
+		bool hurt = health.Decrement(enemy.gameObject, enemy.m_contactDamage);
 		if (!hurt)
 		{
 			return;

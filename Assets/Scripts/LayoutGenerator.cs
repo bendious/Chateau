@@ -11,8 +11,12 @@ public class LayoutGenerator
 	{
 		public enum Type
 		{
+			Entryway,
+			Zone1,
+
 			Entrance,
 			Zone1Door,
+			Npc,
 			Key,
 			Lock,
 			Secret,
@@ -20,8 +24,6 @@ public class LayoutGenerator
 			Boss,
 			TightCoupling,
 
-			Entryway,
-			Zone1,
 			Sequence,
 			SequenceIntro,
 			SequenceMedium,
@@ -178,7 +180,7 @@ public class LayoutGenerator
 
 	private static readonly ReplacementRule[] m_rules =
 	{
-		new(Node.Type.Entryway, new() { new(Node.Type.Zone1Door) }),
+		new(Node.Type.Entryway, new() { new(Node.Type.Entrance, new() { new(Node.Type.Zone1Door), new(Node.Type.Npc) }) }),
 		new(Node.Type.Zone1, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceIntro, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss) }) }) }) }) }) }) }) }),
 
 		new(Node.Type.SequenceIntro, new() { new(Node.Type.BonusItems), new(Node.Type.Key) }),

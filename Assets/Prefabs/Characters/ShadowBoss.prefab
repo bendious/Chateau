@@ -682,6 +682,10 @@ PrefabInstance:
       propertyPath: m_invincible
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_invincibilityTime
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: maxSpeed
       value: 10

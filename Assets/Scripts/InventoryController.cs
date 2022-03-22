@@ -200,7 +200,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 	private SlotItemInfo ItemFromIndex(Component character, int index)
 	{
 		// split index into holder/item indices
-		IHolder[] holders = character.GetComponentsInChildren<IHolder>().Where(holder => holder.Component != character).ToArray();
+		IHolder[] holders = character.GetComponentsInChildren<IHolder>().Where(holder => holder.Component.gameObject != character.gameObject).ToArray();
 		int itemIdx = index - 1; // NOTE that the indices are off by one between the inventory and avatar due to the inventory template object
 		int holderIdx = 0;
 		foreach (IHolder holderItr in holders)

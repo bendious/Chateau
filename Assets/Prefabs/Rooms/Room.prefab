@@ -138,7 +138,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 1625049187
   m_Mesh: {fileID: 0}
-  m_InstanceId: 119512
+  m_InstanceId: 103050
 --- !u!1 &409852463158594107
 GameObject:
   m_ObjectHideFlags: 0
@@ -297,7 +297,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 957203933
   m_Mesh: {fileID: 0}
-  m_InstanceId: 119498
+  m_InstanceId: 103036
 --- !u!1 &1710067748473859646
 GameObject:
   m_ObjectHideFlags: 0
@@ -438,7 +438,7 @@ MonoBehaviour:
   - {x: 0.45, y: -0.1, z: 0}
   m_ShapePathHash: -743758333
   m_Mesh: {fileID: 0}
-  m_InstanceId: 119412
+  m_InstanceId: 102950
 --- !u!1 &2929849760781198063
 GameObject:
   m_ObjectHideFlags: 0
@@ -577,7 +577,7 @@ MonoBehaviour:
   - {x: 0.475, y: -0.5, z: 0}
   m_ShapePathHash: -1299028345
   m_Mesh: {fileID: 0}
-  m_InstanceId: 119416
+  m_InstanceId: 102954
 --- !u!1 &3865645025881897782
 GameObject:
   m_ObjectHideFlags: 0
@@ -716,7 +716,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.099999994, z: 0}
   m_ShapePathHash: -414024203
   m_Mesh: {fileID: 0}
-  m_InstanceId: 119434
+  m_InstanceId: 102972
 --- !u!1 &5416165761018516747
 GameObject:
   m_ObjectHideFlags: 0
@@ -855,7 +855,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: -1965950227
   m_Mesh: {fileID: 0}
-  m_InstanceId: 119448
+  m_InstanceId: 102986
 --- !u!1 &5557331281289732181
 GameObject:
   m_ObjectHideFlags: 0
@@ -994,7 +994,7 @@ MonoBehaviour:
   - {x: 0.099999994, y: -0.455, z: 0}
   m_ShapePathHash: 540311278
   m_Mesh: {fileID: 0}
-  m_InstanceId: 119506
+  m_InstanceId: 103044
 --- !u!1 &5858312614131700818
 GameObject:
   m_ObjectHideFlags: 0
@@ -1135,7 +1135,7 @@ MonoBehaviour:
   - {x: -0.45, y: -0.5, z: 0}
   m_ShapePathHash: -1914503589
   m_Mesh: {fileID: 0}
-  m_InstanceId: 119422
+  m_InstanceId: 102960
 --- !u!1 &6422840777706418414
 GameObject:
   m_ObjectHideFlags: 0
@@ -1274,7 +1274,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.45, z: 0}
   m_ShapePathHash: -789003563
   m_Mesh: {fileID: 0}
-  m_InstanceId: 119486
+  m_InstanceId: 103024
 --- !u!1 &7422594126546487761
 GameObject:
   m_ObjectHideFlags: 0
@@ -1333,6 +1333,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_doorInteractPrefabs:
   - m_object: {fileID: 5746196675388104066, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
+    m_weight: 1
+  m_doorInteractSceneName: MainScene
+  m_npcPrefabs:
+  - m_object: {fileID: 3111020654554313216, guid: 286335db291a89e4a861600f39917758, type: 3}
     m_weight: 1
   m_doorPrefabs:
   - m_object: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
@@ -1707,4 +1711,4 @@ MonoBehaviour:
   - {x: 0.1, y: -0.5, z: 0}
   m_ShapePathHash: -715297341
   m_Mesh: {fileID: 0}
-  m_InstanceId: 119514
+  m_InstanceId: 103052

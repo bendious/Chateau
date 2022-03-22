@@ -8,6 +8,8 @@ using UnityEngine;
 /// </summary>
 public class EnemyController : KinematicCharacter
 {
+	public float m_contactDamage = 1.0f;
+
 	public Vector2 m_targetOffset = Vector2.zero;
 	public Transform m_target;
 	public float m_replanSecondsMax = 2.0f;
@@ -147,7 +149,7 @@ public class EnemyController : KinematicCharacter
 	// TODO: un-expose?
 	public bool NavigateTowardTarget(Vector2 targetOffsetAbs)
 	{
-		if (m_targetSelectTimeNext <= Time.time && (m_target == null || m_target.GetComponent<AvatarController>() != null))
+		if (m_contactDamage > 0.0f && m_targetSelectTimeNext <= Time.time && (m_target == null || m_target.GetComponent<AvatarController>() != null))
 		{
 			// choose appropriate avatar to target
 			// TODO: use pathfind distances? allow re-targeting other types of targets?
