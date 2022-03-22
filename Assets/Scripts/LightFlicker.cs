@@ -36,6 +36,9 @@ public class LightFlicker : MonoBehaviour
 
 	public WeightedObject<Sprite>[] m_lightSprites;
 
+	public WeightedObject<AudioClip>[] m_flickerSfx;
+	public float m_flickerSfxDelayMax = 0.0f;
+
 
 	private struct LightInfo
 	{
@@ -127,7 +130,21 @@ public class LightFlicker : MonoBehaviour
 				m_flickerLength = Random.Range(infoCur.m_secondsMin, infoCur.m_secondsMax); // TODO: take health into account if destructible?
 				m_flickerToggleTime = Time.time + m_flickerLength;
 
-				// TODO: SFX
+				// SFX
+				if (m_flickerSfx.Length > 0)
+				{
+					AudioSource source = GetComponentInParent<AudioSource>();
+					AudioClip clip = Utility.RandomWeighted(m_flickerSfx);
+					if (m_flickerSfxDelayMax > 0.0f)
+					{
+						source.clip = clip;
+						source.PlayScheduled(AudioSettings.dspTime + Random.Range(0.0f, m_flickerSfxDelayMax)); // TODO: prevent getting pre-empted by something else playing on this source?
+					}
+					else
+					{
+						source.PlayOneShot(clip);
+					}
+				}
 
 				RandomizeLightSprite();
 			}
