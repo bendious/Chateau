@@ -16,6 +16,7 @@ public class RoomController : MonoBehaviour
 
 
 	public WeightedObject<GameObject>[] m_doorInteractPrefabs;
+	public string m_doorInteractSceneName = "MainScene"; // TODO: determine dynamically?
 
 	public WeightedObject<GameObject>[] m_doorPrefabs;
 	public DirectionalDoors[] m_doorDirectionalPrefabs;
@@ -164,7 +165,7 @@ public class RoomController : MonoBehaviour
 			DoorInteract door = Instantiate(Utility.RandomWeighted(m_doorInteractPrefabs), transform.position + Vector3.forward, Quaternion.identity, transform).GetComponent<DoorInteract>();
 			if (!isZoneEntrance)
 			{
-				door.m_sceneName = "MainScene";//TODO
+				door.m_sceneName = m_doorInteractSceneName;
 				return;
 			}
 		}

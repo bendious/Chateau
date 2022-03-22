@@ -60,7 +60,7 @@ public class GameController : MonoBehaviour
 	private readonly List<EnemyController> m_enemies = new();
 
 
-	private GameController()
+	private void Awake()
 	{
 		Instance = this;
 	}
