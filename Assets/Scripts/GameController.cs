@@ -370,13 +370,25 @@ public class GameController : MonoBehaviour
 			}
 			else
 			{
+				// find room to spawn from
 				LayoutGenerator.Node ancestorSpawned = nodesList.First();
 				do
 				{
 					ancestorSpawned = ancestorSpawned.TightCoupleParent;
 				}
 				while (ancestorSpawned.m_room == null);
-				bool success = ancestorSpawned.m_room.SpawnChildRoom(Utility.RandomWeighted(nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? m_bossRoomPrefabs : m_roomPrefabs), nodesList.ToArray()); // TODO: try each prefab in random order?
+
+				// try spawning prefabs in random order
+				bool success = false;
+				WeightedObject<GameObject>[] prefabsOrdered = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? m_bossRoomPrefabs : m_roomPrefabs;
+				foreach (GameObject roomPrefab in Utility.RandomWeightedOrder(prefabsOrdered))
+				{
+					success = ancestorSpawned.m_room.SpawnChildRoom(roomPrefab, nodesList.ToArray());
+					if (success)
+					{
+						break;
+					}
+				}
 				if (!success)
 				{
 					return false;
