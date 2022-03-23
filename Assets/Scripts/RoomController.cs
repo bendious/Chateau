@@ -27,6 +27,8 @@ public class RoomController : MonoBehaviour
 	public WeightedObject<GameObject>[] m_spawnPointPrefabs;
 	public int m_spawnPointsMax = 4;
 
+	public GameObject m_backdrop;
+
 	public GameObject[] m_doorways;
 
 	public GameObject m_ladderRungPrefab;
@@ -43,7 +45,7 @@ public class RoomController : MonoBehaviour
 	}
 	private /*readonly*/ DoorwayInfo[] m_doorwayInfos; // TODO: combine w/ m_doorways[]?
 
-	private readonly System.Lazy<Bounds> m_bounds;
+	private /*readonly*/ Bounds m_bounds;
 
 	private /*readonly*/ LayoutGenerator.Node[] m_layoutNodes;
 
@@ -52,33 +54,10 @@ public class RoomController : MonoBehaviour
 	private /*readonly*/ RoomType m_roomType = null;
 
 
-	public RoomController()
-	{
-		// NOTE that we can't put this as an inline initializer since it references ForEachWall()...
-		m_bounds = new(() =>
-		{
-			// see https://gamedev.stackexchange.com/questions/86863/calculating-the-bounding-box-of-a-game-object-based-on-its-children
-			Bounds? boundsTemp = null; // NOTE that we can't start w/ the default Bounds value since the origin is not necessarily contained w/i the room
-			ForEachWall(renderer => // NOTE that we use render bounds rather than Collider2D.bounds since they are not set until after the first active physics frame
-			{
-				if (boundsTemp == null)
-				{
-					boundsTemp = renderer.bounds;
-				}
-				else
-				{
-					Bounds newBoundsTemp = boundsTemp.Value;
-					newBoundsTemp.Encapsulate(renderer.bounds);
-					boundsTemp = newBoundsTemp;
-				}
-			});
-			return boundsTemp.Value;
-		}, false);
-	}
-
 	private void Awake()
 	{
 		m_doorwayInfos = new DoorwayInfo[m_doorways.Length];
+		m_bounds = m_backdrop.GetComponent<SpriteRenderer>().bounds;
 	}
 
 #if UNITY_EDITOR
@@ -89,7 +68,7 @@ public class RoomController : MonoBehaviour
 			return;
 		}
 
-		Vector3 centerPosItr = m_bounds.Value.center;
+		Vector3 centerPosItr = m_bounds.center;
 		if (m_roomType != null)
 		{
 			UnityEditor.Handles.Label(centerPosItr, m_roomType.ToString()); // TODO: prevent drift from Scene camera?
@@ -145,6 +124,17 @@ public class RoomController : MonoBehaviour
 			}
 		}
 
+		// room type
+		// TODO: more deliberate choice?
+		m_roomType = Utility.RandomWeighted(GameController.Instance.m_roomTypes);
+		if (m_roomType.m_backdrops != null && m_roomType.m_backdrops.Length > 0)
+		{
+			RoomType.BackdropInfo backdrop = Utility.RandomWeighted(m_roomType.m_backdrops);
+			SpriteRenderer renderer = m_backdrop.GetComponent<SpriteRenderer>();
+			renderer.sprite = backdrop.m_sprite;
+			renderer.color = Utility.ColorRandom(backdrop.m_colorMin, backdrop.m_colorMax);
+		}
+
 		// color walls based on area
 		Color roomColor = m_layoutNodes.First().AreaParent.m_color; // NOTE that all nodes w/i a single room should have the same area parent
 		ForEachWall(renderer => renderer.color = roomColor); // TODO: slight variation?
@@ -188,10 +178,6 @@ public class RoomController : MonoBehaviour
 			return;
 		}
 
-		// room type
-		// TODO: more deliberate choice?
-		m_roomType = Utility.RandomWeighted(GameController.Instance.m_roomTypes);
-
 		// spawn furniture
 		GameObject furniturePrefab = Utility.RandomWeighted(m_roomType.m_furniturePrefabs);
 		BoxCollider2D furnitureCollider = furniturePrefab.GetComponent<BoxCollider2D>();
@@ -200,7 +186,7 @@ public class RoomController : MonoBehaviour
 		Bounds furnitureBounds = furniture.GetComponent<Collider2D>().bounds;
 		for (int failsafeCount = 0; failsafeCount < 100; ++failsafeCount)
 		{
-			Vector3 spawnPos = new Vector3(m_bounds.Value.center.x, transform.position.y, transform.position.z) + new Vector3(Random.Range(-m_bounds.Value.extents.x + furnitureBounds.extents.x, m_bounds.Value.extents.x - furnitureBounds.extents.x), furnitureExtentY, 1.0f);
+			Vector3 spawnPos = new Vector3(m_bounds.center.x, transform.position.y, transform.position.z) + new Vector3(Random.Range(-m_bounds.extents.x + furnitureBounds.extents.x, m_bounds.extents.x - furnitureBounds.extents.x), furnitureExtentY, 1.0f);
 			if (Physics2D.OverlapBox(spawnPos + furnitureBounds.center + new Vector3(0.0f, 0.1f, 0.0f), furnitureBounds.size, 0.0f) != null) // NOTE the small offset to avoid collecting the floor; also that this collects our newly spawned furniture when at the origin, but that's okay since keeping the start point clear isn't objectionable
 			{
 				continue; // re-place and try again
@@ -264,8 +250,8 @@ public class RoomController : MonoBehaviour
 	{
 		// TODO: efficiency?
 		Vector3 pos3D = position;
-		pos3D.z = m_bounds.Value.center.z;
-		if (m_bounds.Value.Contains(pos3D))
+		pos3D.z = m_bounds.center.z;
+		if (m_bounds.Contains(pos3D))
 		{
 			return this;
 		}
@@ -292,7 +278,7 @@ public class RoomController : MonoBehaviour
 
 	public Vector3 InteriorPosition(float heightMin, float heightMax)
 	{
-		Bounds boundsInterior = m_bounds.Value;
+		Bounds boundsInterior = m_bounds;
 		boundsInterior.Expand(new Vector3(-1.0f, -1.0f, 0.0f)); // TODO: dynamically determine wall thickness?
 
 		float xDiffMax = boundsInterior.extents.x;
@@ -373,7 +359,7 @@ public class RoomController : MonoBehaviour
 		// add valid end point
 		float semifinalX = waypointPath.Count > 0 ? waypointPath.Last().x : startPosition.x;
 		Vector2 endPos = endPositionPreoffset + (semifinalX >= endPositionPreoffset.x ? offsetMag : new Vector2(-offsetMag.x, offsetMag.y));
-		Bounds endRoomBounds = roomPath.Last().m_bounds.Value;
+		Bounds endRoomBounds = roomPath.Last().m_bounds;
 		endRoomBounds.Expand(new Vector3(-1.0f, -1.0f, 0.0f)); // TODO: dynamically determine wall thickness?
 		waypointPath.Add(endRoomBounds.Contains(new(endPos.x, endPos.y, endRoomBounds.center.z)) ? endPos : endRoomBounds.ClosestPoint(endPos)); // TODO: flip offset if closest interior point is significantly different from endPos?
 
@@ -553,11 +539,11 @@ public class RoomController : MonoBehaviour
 
 		// determine child position
 		RoomController otherRoom = roomPrefab.GetComponent<RoomController>();
-		Bounds childBounds = otherRoom.m_bounds.Value;
+		Bounds childBounds = otherRoom.m_backdrop.GetComponent<SpriteRenderer>().bounds; // NOTE that we can't use m_bounds since uninstantiated prefabs don't have Awake() called on them
 		Vector2 doorwayPos = doorway.transform.position;
 		int reverseIdx = otherRoom.DoorwayReverseIndex(replaceDirection);
 		Vector2 childDoorwayPosLocal = otherRoom.m_doorways[reverseIdx].transform.position;
-		float doorwayToEdge = Mathf.Min(m_bounds.Value.max.x - doorwayPos.x, m_bounds.Value.max.y - doorwayPos.y, doorwayPos.x - m_bounds.Value.min.x, doorwayPos.y - m_bounds.Value.min.y); // TODO: don't assume convex rooms?
+		float doorwayToEdge = Mathf.Min(m_bounds.max.x - doorwayPos.x, m_bounds.max.y - doorwayPos.y, doorwayPos.x - m_bounds.min.x, doorwayPos.y - m_bounds.min.y); // TODO: don't assume convex rooms?
 		float childDoorwayToEdge = Mathf.Min(childBounds.max.x - childDoorwayPosLocal.x, childBounds.max.y - childDoorwayPosLocal.y, childDoorwayPosLocal.x - childBounds.min.x, childDoorwayPosLocal.y - childBounds.min.y);
 		Vector2 childPivotPos = doorwayPos + replaceDirection * (doorwayToEdge + childDoorwayToEdge) - childDoorwayPosLocal;
 
@@ -664,8 +650,8 @@ public class RoomController : MonoBehaviour
 		prePath = new(prePath); // NOTE the copy to prevent storing up entries from other branches of the recursion
 		prePath.Add(this);
 
-		Vector3 pos3D = new(endPosition.x, endPosition.y, m_bounds.Value.center.z);
-		if (m_bounds.Value.Contains(pos3D))
+		Vector3 pos3D = new(endPosition.x, endPosition.y, m_bounds.center.z);
+		if (m_bounds.Contains(pos3D))
 		{
 			return prePath;
 		}

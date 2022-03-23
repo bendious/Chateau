@@ -12,6 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17b48a8fa2e91f74cbd5326b5b117c17, type: 3}
   m_Name: Library
   m_EditorClassIdentifier: 
+  m_backdrops:
+  - m_object:
+      m_sprite: {fileID: 21300000, guid: b94e0ff059ee70d479ccb89ce0cd99ef, type: 3}
+      m_colorMin: 0.1
+      m_colorMax: 0.25
+    m_weight: 1
   m_furniturePrefabs:
   - m_object: {fileID: 3500915504940809235, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
     m_weight: 1

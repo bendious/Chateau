@@ -12,6 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17b48a8fa2e91f74cbd5326b5b117c17, type: 3}
   m_Name: Pantry
   m_EditorClassIdentifier: 
+  m_backdrops:
+  - m_object:
+      m_sprite: {fileID: 21300000, guid: c2039d484c18bfa4287dfcc4f2e2518c, type: 3}
+      m_colorMin: 0.1
+      m_colorMax: 0.25
+    m_weight: 1
   m_furniturePrefabs:
   - m_object: {fileID: 9028243466021937491, guid: 965caaff450150540afaa57f9d77e599, type: 3}
     m_weight: 1

@@ -788,6 +788,9 @@ MonoBehaviour:
   - m_object: {fileID: 2271109030920207908, guid: fc7a6c4a34a54c64a92d67f2d36df501, type: 3}
     m_weight: 0.25
   m_bossRoomPrefabs: []
+  m_roomTypes:
+  - m_object: {fileID: 11400000, guid: d334c59576f62e94ca99e526e7ae5ee7, type: 2}
+    m_weight: 1
   m_enemyPrefabs: []
   m_timerUI: {fileID: 9004531423071069859}
   m_pauseUI: {fileID: 8953914197898318485}
@@ -2911,7 +2914,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.8586956, y: 1}
+    m_SensorSize: {x: 1.7282609, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0

@@ -92,10 +92,11 @@ public static class Utility
 	public static Color ColorRandom(float min, float max)
 	{
 		Color color = new(UnityEngine.Random.Range(min, max), UnityEngine.Random.Range(min, max), UnityEngine.Random.Range(min, max));
-		if (ColorsSimilar(color, RoomController.m_oneWayPlatformColor) || ColorsSimilar(color, Color.black))
+		float epsilon = Mathf.Min(0.2f, (max - min) * 0.5f);
+		if (ColorsSimilar(color, RoomController.m_oneWayPlatformColor, epsilon) || ColorsSimilar(color, Color.black, epsilon))
 		{
 			int idx = UnityEngine.Random.Range(0, 3);
-			color[idx] = (color[idx] + 0.5f) % 1.0f;
+			color[idx] = Mathf.Lerp(min, max, (Mathf.InverseLerp(min, max, color[idx]) + 0.5f) % 1.0f);
 		}
 		return color;
 	}

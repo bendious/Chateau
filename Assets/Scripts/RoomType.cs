@@ -4,6 +4,15 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "ScriptableObject/Room Type", fileName = "RoomType", order = 0)]
 public class RoomType : ScriptableObject
 {
+	[System.Serializable]
+	public struct BackdropInfo
+	{
+		public Sprite m_sprite;
+		public float m_colorMin;
+		public float m_colorMax;
+	}
+	public WeightedObject<BackdropInfo>[] m_backdrops;
+
 	public WeightedObject<GameObject>[] m_furniturePrefabs;
 
 	// NOTE that these weights are multiplied by FurnitureControllers'
