@@ -138,7 +138,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 110522
+  m_InstanceId: 126042
 --- !u!1 &409852463158594107
 GameObject:
   m_ObjectHideFlags: 0
@@ -297,7 +297,7 @@ MonoBehaviour:
   - {x: 1.5, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 110504
+  m_InstanceId: 126024
 --- !u!1 &1710067748473859646
 GameObject:
   m_ObjectHideFlags: 0
@@ -436,7 +436,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 110508
+  m_InstanceId: 126028
 --- !u!1 &2929849760781198063
 GameObject:
   m_ObjectHideFlags: 0
@@ -575,7 +575,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 110502
+  m_InstanceId: 126022
 --- !u!1 &3865645025881897782
 GameObject:
   m_ObjectHideFlags: 0
@@ -714,7 +714,7 @@ MonoBehaviour:
   - {x: 1.5, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 110472
+  m_InstanceId: 125992
 --- !u!1 &5416165761018516747
 GameObject:
   m_ObjectHideFlags: 0
@@ -853,7 +853,7 @@ MonoBehaviour:
   - {x: 0.25, y: -1.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 110564
+  m_InstanceId: 126086
 --- !u!1 &5557331281289732181
 GameObject:
   m_ObjectHideFlags: 0
@@ -992,7 +992,7 @@ MonoBehaviour:
   - {x: 0.25, y: -2.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 110550
+  m_InstanceId: 126072
 --- !u!1 &5858312614131700818
 GameObject:
   m_ObjectHideFlags: 0
@@ -1131,7 +1131,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 110500
+  m_InstanceId: 126020
 --- !u!1 &6422840777706418414
 GameObject:
   m_ObjectHideFlags: 0
@@ -1270,7 +1270,7 @@ MonoBehaviour:
   - {x: 0.25, y: -2.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 110582
+  m_InstanceId: 126104
 --- !u!1 &7422594126546487761
 GameObject:
   m_ObjectHideFlags: 0
@@ -1358,6 +1358,13 @@ MonoBehaviour:
   - {fileID: 7910571754348373109}
   - {fileID: 5416165761018516747}
   - {fileID: 3865645025881897782}
+  m_walls:
+  - {fileID: 2929849760781198063}
+  - {fileID: 179423669257682101}
+  - {fileID: 5557331281289732181}
+  - {fileID: 6422840777706418414}
+  - {fileID: 5858312614131700818}
+  - {fileID: 1710067748473859646}
   m_ladderRungPrefab: {fileID: 5142660895504974057, guid: 717755c04a138404d80679d2c0d06ab5, type: 3}
   m_ladderRungSkewMax: 0.2
 --- !u!82 &1922990077160762734
@@ -1700,4 +1707,4 @@ MonoBehaviour:
   - {x: 0.25, y: -1.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 110484
+  m_InstanceId: 126004

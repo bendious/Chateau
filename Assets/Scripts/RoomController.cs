@@ -30,6 +30,7 @@ public class RoomController : MonoBehaviour
 	public GameObject m_backdrop;
 
 	public GameObject[] m_doorways;
+	public GameObject[] m_walls;
 
 	public GameObject m_ladderRungPrefab;
 	public float m_ladderRungSkewMax = 0.2f;
@@ -136,8 +137,21 @@ public class RoomController : MonoBehaviour
 		}
 
 		// color walls based on area
+		// TODO: slight variation?
 		Color roomColor = m_layoutNodes.First().AreaParent.m_color; // NOTE that all nodes w/i a single room should have the same area parent
-		ForEachWall(renderer => renderer.color = roomColor); // TODO: slight variation?
+		foreach (GameObject door in m_doorways)
+		{
+			PlatformEffector2D platform = door.GetComponent<PlatformEffector2D>();
+			if (platform != null && platform.enabled)
+			{
+				continue; // ignore one-way platforms
+			}
+			door.GetComponent<SpriteRenderer>().color = roomColor;
+		}
+		foreach (GameObject wall in m_walls)
+		{
+			wall.GetComponent<SpriteRenderer>().color = roomColor;
+		}
 
 		// TODO: prevent overlap of spawned prefabs
 
@@ -454,30 +468,6 @@ public class RoomController : MonoBehaviour
 		// TODO: VFX/animation?
 	}
 
-
-	private void ForEachWall(System.Action<SpriteRenderer> f)
-	{
-		foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>(true))
-		{
-			Collider2D collider = renderer.GetComponent<Collider2D>();
-			if (collider == null)
-			{
-				continue; // ignore non-physics objects
-			}
-			Rigidbody2D body = collider.attachedRigidbody;
-			if (body != null && body.bodyType != RigidbodyType2D.Static)
-			{
-				continue; // ignore non-static objects
-			}
-			PlatformEffector2D platform = renderer.GetComponent<PlatformEffector2D>();
-			if (platform != null && platform.enabled)
-			{
-				continue; // ignore one-way platforms
-			}
-
-			f(renderer);
-		}
-	}
 
 	private Vector2 DoorwaySize(GameObject doorway) => doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale; // NOTE that we can't use Collider2D.bounds since this can be called before physics has run
 
