@@ -209,7 +209,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 			{
 				foreach (Collider2D collider in renderer.GetComponents<Collider2D>())
 				{
-					collider.offset = -collider.offset;
+					collider.offset *= new Vector2(1.0f, -1.0f);
 				}
 			}
 

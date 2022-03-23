@@ -24,6 +24,7 @@ public class GameController : MonoBehaviour
 	public WeightedObject<GameObject>[] m_entryRoomPrefabs;
 	public WeightedObject<GameObject>[] m_roomPrefabs;
 	public WeightedObject<GameObject>[] m_bossRoomPrefabs;
+	public WeightedObject<RoomType>[] m_roomTypes;
 	public WeightedObject<GameObject>[] m_enemyPrefabs;
 
 	public TMPro.TMP_Text m_timerUI;

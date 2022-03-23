@@ -27,14 +27,6 @@ public class RoomController : MonoBehaviour
 	public WeightedObject<GameObject>[] m_spawnPointPrefabs;
 	public int m_spawnPointsMax = 4;
 
-	public WeightedObject<GameObject>[] m_furniturePrefabs;
-
-	public WeightedObject<GameObject>[] m_decorationPrefabs;
-	public int m_decorationsMin = 0;
-	public int m_decorationsMax = 2;
-	public float m_decorationHeightMin = 0.5f;
-	public float m_decorationHeightMax = 2.0f;
-
 	public GameObject[] m_doorways;
 
 	public GameObject m_ladderRungPrefab;
@@ -56,6 +48,8 @@ public class RoomController : MonoBehaviour
 	private /*readonly*/ LayoutGenerator.Node[] m_layoutNodes;
 
 	private /*readonly*/ GameObject[] m_spawnPoints;
+
+	private /*readonly*/ RoomType m_roomType = null;
 
 
 	public RoomController()
@@ -96,6 +90,11 @@ public class RoomController : MonoBehaviour
 		}
 
 		Vector3 centerPosItr = m_bounds.Value.center;
+		if (m_roomType != null)
+		{
+			UnityEditor.Handles.Label(centerPosItr, m_roomType.ToString()); // TODO: prevent drift from Scene camera?
+		}
+
 		foreach (LayoutGenerator.Node node in m_layoutNodes)
 		{
 			centerPosItr.y -= 1.0f;
@@ -189,8 +188,12 @@ public class RoomController : MonoBehaviour
 			return;
 		}
 
+		// room type
+		// TODO: more deliberate choice?
+		m_roomType = Utility.RandomWeighted(GameController.Instance.m_roomTypes);
+
 		// spawn furniture
-		GameObject furniturePrefab = Utility.RandomWeighted(m_furniturePrefabs);
+		GameObject furniturePrefab = Utility.RandomWeighted(m_roomType.m_furniturePrefabs);
 		BoxCollider2D furnitureCollider = furniturePrefab.GetComponent<BoxCollider2D>();
 		float furnitureExtentY = furnitureCollider.size.y * 0.5f + furnitureCollider.edgeRadius - furnitureCollider.offset.y;
 		GameObject furniture = Instantiate(furniturePrefab, transform); // NOTE that we have to spawn before placement due to size randomization in Awake() // TODO: guarantee size will fit in available space?
@@ -203,7 +206,7 @@ public class RoomController : MonoBehaviour
 				continue; // re-place and try again
 			}
 			furniture.transform.position = spawnPos;
-			furniture.GetComponent<FurnitureController>().SpawnItems(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.BonusItems));
+			furniture.GetComponent<FurnitureController>().SpawnItems(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType);
 			furniture = null;
 			break;
 		}
@@ -215,13 +218,13 @@ public class RoomController : MonoBehaviour
 
 		// spawn decoration(s)
 		// TODO: prioritize by area?
-		int numDecorations = Random.Range(m_decorationsMin, m_decorationsMax + 1);
+		int numDecorations = Random.Range(m_roomType.m_decorationsMin, m_roomType.m_decorationsMax + 1);
 		Color decoColor = roomColor * 2.0f;
 		for (int i = 0; i < numDecorations; ++i)
 		{
-			Vector3 spawnPos = InteriorPosition(Random.Range(m_decorationHeightMin, m_decorationHeightMax)) + Vector3.forward; // TODO: uniform height per room?
+			Vector3 spawnPos = InteriorPosition(Random.Range(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax)) + Vector3.forward; // TODO: uniform height per room?
 			// TODO: prevent overlap
-			GameObject decoration = Instantiate(Utility.RandomWeighted(m_decorationPrefabs), spawnPos, Quaternion.identity, transform);
+			GameObject decoration = Instantiate(Utility.RandomWeighted(m_roomType.m_decorationPrefabs), spawnPos, Quaternion.identity, transform);
 
 			foreach (SpriteRenderer renderer in decoration.GetComponentsInChildren<SpriteRenderer>(true))
 			{

@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17b48a8fa2e91f74cbd5326b5b117c17, type: 3}
+  m_Name: Kitchen
+  m_EditorClassIdentifier: 
+  m_furniturePrefabs:
+  - m_object: {fileID: 3500915504940809235, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
+    m_weight: 4
+  - m_object: {fileID: 9028243466021937491, guid: 965caaff450150540afaa57f9d77e599, type: 3}
+    m_weight: 1
+  m_itemPrefabs:
+  - m_object: {fileID: 6107488262492150209, guid: 4feae967d8b4799409bbcd10967052ed, type: 3}
+    m_weight: 0.5
+  - m_object: {fileID: 4892872906617963342, guid: c7eaa25f16cf12a43af6e9177433afc1, type: 3}
+    m_weight: 3
+  - m_object: {fileID: 6048625821855157070, guid: a5c7caeee92be8249ba14b290b6bb238, type: 3}
+    m_weight: 0.5
+  - m_object: {fileID: 1271183342043709178, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 505130580196242298, guid: 71fa7082e8d89d145b74f631fa1055a0, type: 3}
+    m_weight: 0.5
+  - m_object: {fileID: 4221545259124064584, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
+    m_weight: 0.5
+  m_itemRarePrefabs:
+  - m_object: {fileID: 1271183342043709178, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 505130580196242298, guid: 71fa7082e8d89d145b74f631fa1055a0, type: 3}
+    m_weight: 0.5
+  - m_object: {fileID: 4221545259124064584, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
+    m_weight: 0.5
+  m_itemsMin: 1
+  m_itemsMax: 4
+  m_decorationPrefabs:
+  - m_object: {fileID: 7287174281192745631, guid: 9bc35a99190ef604596b1767a2105127, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 4455208160840642412, guid: c75a8854e93c46d498223c1355ed6aff, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 3664408676440730972, guid: 814d5eb94b0bd5f4aa35860ab5243846, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 7339950952648636222, guid: 3d50984da1f702b4e979b73b20c3dff1, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8498127701983908984, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
+    m_weight: 4
+  - m_object: {fileID: 5917400000691457811, guid: 2a16bb5b049dad841a615cda0532986c, type: 3}
+    m_weight: 2
+  m_decorationsMin: 0
+  m_decorationsMax: 2
+  m_decorationHeightMin: 0.5
+  m_decorationHeightMax: 2
