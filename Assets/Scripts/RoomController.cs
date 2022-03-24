@@ -578,7 +578,22 @@ public class RoomController : MonoBehaviour
 			Vector2 size = DoorwaySize(doorway);
 			doorwayInfo.m_blocker.GetComponent<BoxCollider2D>().size = size;
 			doorwayInfo.m_blocker.GetComponent<SpriteRenderer>().size = size;
-			// TODO: update shadow caster shape once it is programmatically accessible
+
+			// update shadow caster shape
+			ShadowCaster2D shadowCaster = doorwayInfo.m_blocker.GetComponent<ShadowCaster2D>();
+			if (shadowCaster != null)
+			{
+				Vector3 extents = size * 0.5f;
+				Vector3[] shapePath = new Vector3[] { new(-extents.x, -extents.y, 0.0f), new(extents.x, -extents.y, 0.0f), new(extents.x, extents.y, 0.0f), new(-extents.x, extents.y, 0.0f) };
+
+				// see https://forum.unity.com/threads/can-2d-shadow-caster-use-current-sprite-silhouette.861256/ for explanation of workaround for non-public setter
+				System.Type shadowCasterType = typeof(ShadowCaster2D);
+				const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+				System.Reflection.FieldInfo pathSetterWorkaround = shadowCasterType.GetField("m_ShapePath", flags);
+				System.Reflection.FieldInfo hashSetterWorkaround = shadowCasterType.GetField("m_ShapePathHash", flags);
+				pathSetterWorkaround.SetValue(shadowCaster, shapePath);
+				hashSetterWorkaround.SetValue(shadowCaster, shapePath.GetHashCode());
+			}
 		}
 
 		childRoom.Initialize(childNodes);
