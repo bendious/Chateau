@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 17b48a8fa2e91f74cbd5326b5b117c17, type: 3}
-  m_Name: RoomDefault
+  m_Name: RoomEmpty
   m_EditorClassIdentifier: 
   m_backdrops: []
   m_furniturePrefabs:
@@ -52,8 +52,8 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 1688978110452577463, guid: ea7685c25a954ef4ea9fbfef51eb721b, type: 3}
     m_weight: 1
-  m_itemsMin: 1
-  m_itemsMax: 4
+  m_itemsMin: 0
+  m_itemsMax: 0
   m_decorationPrefabs:
   - m_object: {fileID: 7287174281192745631, guid: 9bc35a99190ef604596b1767a2105127, type: 3}
     m_weight: 1

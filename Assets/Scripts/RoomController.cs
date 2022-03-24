@@ -96,9 +96,13 @@ public class RoomController : MonoBehaviour
 
 			if (ConsoleCommands.LayoutDebugLevel == ConsoleCommands.LayoutDebugLevels.TightParents || ConsoleCommands.LayoutDebugLevel == ConsoleCommands.LayoutDebugLevels.All)
 			{
-				using (new UnityEditor.Handles.DrawingScope(Color.red))
+				LayoutGenerator.Node tightParent = node.TightCoupleParent;
+				if (tightParent != null)
 				{
-					UnityEditor.Handles.DrawLine(centerPosItr, node.TightCoupleParent.m_room.transform.position);
+					using (new UnityEditor.Handles.DrawingScope(Color.red))
+					{
+						UnityEditor.Handles.DrawLine(centerPosItr, tightParent.m_room.transform.position);
+					}
 				}
 			}
 		}
@@ -380,7 +384,7 @@ public class RoomController : MonoBehaviour
 		return waypointPath;
 	}
 
-	public bool SpawnChildRoom(GameObject roomPrefab, LayoutGenerator.Node[] layoutNodes, Vector2? forcedDirection = null)
+	public bool SpawnChildRoom(GameObject roomPrefab, LayoutGenerator.Node[] layoutNodes, Vector2[] allowedDirections = null)
 	{
 		// prevent putting keys behind their lock
 		// NOTE that we check all nodes' depth even though all nodes w/i a single room should be at the same depth
@@ -398,7 +402,7 @@ public class RoomController : MonoBehaviour
 
 			// maybe replace/remove
 			GameObject doorway = m_doorways[i];
-			MaybeReplaceDoor(i, roomPrefab, layoutNodes, forcedDirection.GetValueOrDefault());
+			MaybeReplaceDoor(i, roomPrefab, layoutNodes, allowedDirections);
 			return m_doorwayInfos[i].m_childRoom != null;
 		});
 
@@ -421,7 +425,7 @@ public class RoomController : MonoBehaviour
 			{
 				return false;
 			}
-			return doorway.m_childRoom.SpawnChildRoom(roomPrefab, layoutNodes, forcedDirection);
+			return doorway.m_childRoom.SpawnChildRoom(roomPrefab, layoutNodes, allowedDirections);
 		});
 	}
 
@@ -513,10 +517,10 @@ public class RoomController : MonoBehaviour
 	}
 
 	// TODO: inline?
-	private void MaybeReplaceDoor(int index, GameObject roomPrefab, LayoutGenerator.Node[] childNodes, Vector2 forcedDirection)
+	private void MaybeReplaceDoor(int index, GameObject roomPrefab, LayoutGenerator.Node[] childNodes, Vector2[] allowedDirections)
 	{
 		Vector2 replaceDirection = DoorwayDirection(index);
-		if (forcedDirection != Vector2.zero && replaceDirection != forcedDirection)
+		if (allowedDirections != null && !allowedDirections.Contains(replaceDirection))
 		{
 			return;
 		}
@@ -690,9 +694,20 @@ public class RoomController : MonoBehaviour
 					continue;
 				}
 
-				if (unobstructed && (info.m_blocker != null || pair.Item2.activeSelf))
+				if (unobstructed)
 				{
-					return null;
+					if (info.m_blocker != null)
+					{
+						return null;
+					}
+					if (pair.Item2.activeSelf)
+					{
+						PlatformEffector2D oneway = pair.Item2.GetComponent<PlatformEffector2D>();
+						if (oneway == null || !oneway.enabled)
+						{
+							return null;
+						}
+					}
 				}
 
 				connectionPoints[outputIdx] = pair.Item2.transform.position;

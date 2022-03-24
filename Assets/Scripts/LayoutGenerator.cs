@@ -16,6 +16,8 @@ public class LayoutGenerator
 
 			Entrance,
 			Zone1Door,
+			RoomVertical,
+			RoomHorizontal,
 			Npc,
 			Key,
 			Lock,
@@ -24,6 +26,8 @@ public class LayoutGenerator
 			Boss,
 			TightCoupling,
 
+			BasementOrTower,
+			Corridor,
 			Sequence,
 			SequenceIntro,
 			SequenceMedium,
@@ -53,9 +57,7 @@ public class LayoutGenerator
 				Assert.IsTrue(parentCoupling.DirectParentsInternal.Count == 1);
 				return parentCoupling.m_children.First() != this ? parentCoupling.m_children.First() : parentCoupling.DirectParentsInternal.First();
 			}
-			Node firstParent = DirectParentsInternal.First(); // TODO: don't assume that all branches will have the same tight coupling parent?
-			Node firstParentTight = firstParent.TightCoupleParent;
-			return firstParentTight ?? firstParent;
+			return DirectParentsInternal.First().TightCoupleParent; // TODO: don't assume that all branches will have the same tight coupling parent?
 		} }
 
 		public Node AreaParent { get
@@ -180,8 +182,13 @@ public class LayoutGenerator
 
 	private static readonly ReplacementRule[] m_rules =
 	{
-		new(Node.Type.Entryway, new() { new(Node.Type.Entrance, new() { new(Node.Type.Zone1Door), new(Node.Type.Npc) }) }),
+		new(Node.Type.Entryway, new() { new(Node.Type.Entrance, new() { new(Node.Type.Corridor, new() { new(Node.Type.Zone1Door) }), new(Node.Type.Corridor, new() { new(Node.Type.Npc) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical) }) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical) }) }) }) }),
 		new(Node.Type.Zone1, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceIntro, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss) }) }) }) }) }) }) }) }),
+
+		new(Node.Type.BasementOrTower, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical) }) }) }) }) }) }),
+		new(Node.Type.BasementOrTower, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical) }) }) }) }) }) }) }) }),
+		new(Node.Type.Corridor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal) }) }) }) }) }) }),
+		new(Node.Type.Corridor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal) }) }) }) }) }) }) }) }),
 
 		new(Node.Type.SequenceIntro, new() { new(Node.Type.BonusItems), new(Node.Type.Key) }),
 		new(Node.Type.SequenceMedium, new() { new(Node.Type.BonusItems), new(Node.Type.Sequence), new(Node.Type.Sequence) }),

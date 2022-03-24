@@ -84,7 +84,7 @@ public class GameController : MonoBehaviour
 			Assert.AreNotEqual(node.m_type, LayoutGenerator.Node.Type.TightCoupling);
 
 			LayoutGenerator.Node parent = node.TightCoupleParent;
-			if (parentPending != null && parent != parentPending && nodesPending.Count > 0 && nodesPending.First().DirectParentsInternal != parent?.DirectParentsInternal)
+			if (parent != parentPending && nodesPending.Count > 0 && nodesPending.First().DirectParentsInternal != parent?.DirectParentsInternal)
 			{
 				bool spawned = AddRoomsForNodes(nodesPending.ToArray());
 				if (!spawned)
@@ -342,17 +342,21 @@ public class GameController : MonoBehaviour
 	private bool AddRoomsForNodes(LayoutGenerator.Node[] nodes)
 	{
 		List<LayoutGenerator.Node> nodesShuffled = nodes.OrderBy(node => Random.value).ToList();
-		List<List<LayoutGenerator.Node>> nodesSplit = new();
+		Queue<List<LayoutGenerator.Node>> nodesSplit = new();
 		for (int i = 0; i < nodesShuffled.Count; )
 		{
-			nodesSplit.Add(new());
+			List<LayoutGenerator.Node> newList = new();
 			int numDoors = 0;
 			int doorsMax = m_startRoom == null ? 4 : 3; // TODO: determine based on room prefab?
 			bool isDoor = false;
 			do
 			{
 				LayoutGenerator.Node node = nodesShuffled[i];
-				nodesSplit.Last().Add(node);
+				if (newList.Count > 0 && (node.m_type == LayoutGenerator.Node.Type.RoomVertical || node.m_type == LayoutGenerator.Node.Type.RoomHorizontal))
+				{
+					break; // start new room
+				}
+				newList.Add(node);
 				isDoor = node.m_type == LayoutGenerator.Node.Type.Lock || node.m_type == LayoutGenerator.Node.Type.Secret; // TODO: function?
 				if (isDoor)
 				{
@@ -360,31 +364,44 @@ public class GameController : MonoBehaviour
 				}
 				++i;
 			} while ((!isDoor || numDoors < doorsMax) && i < nodesShuffled.Count);
+
+			nodesSplit.Enqueue(newList);
 		}
 
-		foreach (List<LayoutGenerator.Node> nodesList in nodesSplit)
+		while (nodesSplit.TryDequeue(out List<LayoutGenerator.Node> nodesList))
 		{
-			if (m_startRoom == null)
+			if (nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Entrance))
 			{
+				Assert.IsNull(m_startRoom);
 				m_startRoom = Instantiate(Utility.RandomWeighted(m_entryRoomPrefabs)).GetComponent<RoomController>();
 				m_startRoom.Initialize(nodesList.ToArray());
 			}
 			else
 			{
 				// find room to spawn from
-				LayoutGenerator.Node ancestorSpawned = nodesList.First();
-				do
+				RoomController spawnRoom = null;
+				foreach (LayoutGenerator.Node node in nodesList)
 				{
-					ancestorSpawned = ancestorSpawned.TightCoupleParent;
+					spawnRoom = node.TightCoupleParent?.m_room;
+					if (spawnRoom != null)
+					{
+						break;
+					}
 				}
-				while (ancestorSpawned.m_room == null);
+				if (spawnRoom == null)
+				{
+					// "I come back tomorrow."
+					nodesSplit.Enqueue(nodesList);
+					continue;
+				}
 
 				// try spawning prefabs in random order
 				bool success = false;
 				WeightedObject<GameObject>[] prefabsOrdered = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? m_bossRoomPrefabs : m_roomPrefabs;
+				Vector2[] allowedDirections = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical) ? new Vector2[] { Vector2.down, Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) ? new Vector2[] { Vector2.left, Vector2.right } : null;
 				foreach (GameObject roomPrefab in Utility.RandomWeightedOrder(prefabsOrdered))
 				{
-					success = ancestorSpawned.m_room.SpawnChildRoom(roomPrefab, nodesList.ToArray());
+					success = spawnRoom.SpawnChildRoom(roomPrefab, nodesList.ToArray(), allowedDirections);
 					if (success)
 					{
 						break;

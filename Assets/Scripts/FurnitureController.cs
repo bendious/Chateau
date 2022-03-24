@@ -44,7 +44,7 @@ public class FurnitureController : MonoBehaviour
 	public void SpawnItems(bool rare, RoomType roomType)
 	{
 		// determine final spawn types/weights based on furniture and room type
-		int itemCount = Random.Range(Mathf.Max(m_itemsMin, roomType.m_itemsMin), Mathf.Min(m_itemsMax, roomType.m_itemsMax) + 1); // TODO: abide by RoomType min/max across multiple furnitures
+		int itemCount = Random.Range(Mathf.Min(m_itemsMin, roomType.m_itemsMin), Mathf.Min(m_itemsMax, roomType.m_itemsMax) + 1); // TODO: abide by RoomType min/max across multiple furnitures
 		WeightedObject<GameObject>[] furnitureItems = rare ? m_itemRarePrefabs : m_itemPrefabs;
 		WeightedObject<GameObject>[] roomItems = rare ? roomType.m_itemRarePrefabs : roomType.m_itemPrefabs;
 		WeightedObject<GameObject>[] itemsFinal = furnitureItems.Join(roomItems, pair => pair.m_object, pair => pair.m_object, (pair1, pair2) => new WeightedObject<GameObject> { m_object = pair1.m_object, m_weight = pair1.m_weight * pair2.m_weight }).ToArray();
