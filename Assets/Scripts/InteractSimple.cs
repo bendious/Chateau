@@ -6,6 +6,7 @@ public class InteractSimple : MonoBehaviour, IInteractable
 {
 	public string m_sceneName; // TODO: less error-prone type?
 
+	public Sprite m_dialogueSprite;
 	public WeightedObject<string[]>[] m_dialogue;
 
 
@@ -16,7 +17,7 @@ public class InteractSimple : MonoBehaviour, IInteractable
 	{
 		if (m_dialogue != null && m_dialogue.Length > 0)
 		{
-			GameController.Instance.m_dialogueController.Play(Utility.RandomWeighted(m_dialogue), null);
+			GameController.Instance.m_dialogueController.Play(m_dialogueSprite, GetComponent<SpriteRenderer>().color, Utility.RandomWeighted(m_dialogue), null);
 		}
 
 		if (!string.IsNullOrEmpty(m_sceneName))

@@ -89,7 +89,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8176166786061933274, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_Name
-      value: NPC
+      value: Npc
       objectReference: {fileID: 0}
     - target: {fileID: 8323419233889690898, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_Color.b
@@ -123,6 +123,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_sceneName: 
+  m_dialogueSprite: {fileID: 21300000, guid: 0210e9dbea5524e46a62c1bb195ce509, type: 3}
   m_dialogue:
   - m_object:
     - What, were you expecting something to jump out and attack you?

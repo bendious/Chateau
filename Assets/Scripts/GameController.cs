@@ -110,7 +110,7 @@ public class GameController : MonoBehaviour
 		// TODO: dialogue system
 		if (!PlayerPrefs.HasKey("IntroDialogueDone"))
 		{
-			m_dialogueController.Play(new string[] { "Ah, welcome home.", "You’ve been out for quite a while, haven’t you?", "You’re not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", "But don’t worry about me; you have more pressing concerns at the moment, I believe." }, () =>
+			m_dialogueController.Play(null, Color.black, new string[] { "Ah, welcome home.", "You’ve been out for quite a while, haven’t you?", "You’re not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", "But don’t worry about me; you have more pressing concerns at the moment, I believe." }, () =>
 			{
 				PlayerPrefs.SetInt("IntroDialogueDone", 1);
 				Save(); // TODO: auto-save system?

@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 
 public class DialogueController : MonoBehaviour
 {
+	public UnityEngine.UI.Image m_image;
 	public TMP_Text m_text;
 	public GameObject m_continueIndicator;
 
@@ -27,8 +28,11 @@ public class DialogueController : MonoBehaviour
 	private Action m_postDialogue;
 
 
-	public void Play(string[] textList, Action postDialogue)
+	public void Play(Sprite sprite, Color spriteColor, string[] textList, Action postDialogue)
 	{
+		m_image.enabled = sprite != null;
+		m_image.sprite = sprite;
+		m_image.color = spriteColor;
 		m_textList = textList;
 		m_textListIdx = -1;
 		m_revealedCharCount = 0;
