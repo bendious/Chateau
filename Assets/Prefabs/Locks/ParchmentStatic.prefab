@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5996455719517665472}
   m_Layer: 0
   m_Name: ParchmentStatic
-  m_TagString: Item
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
