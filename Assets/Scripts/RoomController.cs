@@ -483,18 +483,19 @@ public class RoomController : MonoBehaviour
 		return doorwaySize.x > doorwaySize.y ? new Vector2(0.0f, Mathf.Sign(pivotToDoorway.y)) : new Vector2(Mathf.Sign(pivotToDoorway.x), 0.0f);
 	}
 
-	private int DoorwayReverseIndex(Vector2 replaceDirection)
+	private int[] DoorwayReverseIndices(Vector2 replaceDirection)
 	{
+		List<int> indices = new();
 		for (int i = 0; i < m_doorways.Length; ++i)
 		{
 			GameObject doorway = m_doorways[i];
 			Vector3 doorwaySize = DoorwaySize(doorway);
 			if (Vector2.Dot((Vector2)transform.position - (Vector2)doorway.transform.position, replaceDirection) > 0.0f && doorwaySize.x > doorwaySize.y == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y))) // TODO: better way of determining reverse direction doorway?
 			{
-				return i;
+				indices.Add(i);
 			}
 		}
-		return -1;
+		return indices.ToArray();
 	}
 
 	private bool DoorwaysRandomOrder(System.Func<int, bool> f)
@@ -535,15 +536,25 @@ public class RoomController : MonoBehaviour
 		RoomController otherRoom = roomPrefab.GetComponent<RoomController>();
 		Bounds childBounds = otherRoom.m_backdrop.GetComponent<SpriteRenderer>().bounds; // NOTE that we can't use m_bounds since uninstantiated prefabs don't have Awake() called on them
 		Vector2 doorwayPos = doorway.transform.position;
-		int reverseIdx = otherRoom.DoorwayReverseIndex(replaceDirection);
-		Vector2 childDoorwayPosLocal = otherRoom.m_doorways[reverseIdx].transform.position;
+		int reverseIdx = -1;
 		float doorwayToEdge = Mathf.Min(m_bounds.max.x - doorwayPos.x, m_bounds.max.y - doorwayPos.y, doorwayPos.x - m_bounds.min.x, doorwayPos.y - m_bounds.min.y); // TODO: don't assume convex rooms?
-		float childDoorwayToEdge = Mathf.Min(childBounds.max.x - childDoorwayPosLocal.x, childBounds.max.y - childDoorwayPosLocal.y, childDoorwayPosLocal.x - childBounds.min.x, childDoorwayPosLocal.y - childBounds.min.y);
-		Vector2 childPivotPos = doorwayPos + replaceDirection * (doorwayToEdge + childDoorwayToEdge) - childDoorwayPosLocal;
-
-		// check for obstructions
+		Vector2 childPivotPos = Vector2.zero;
 		Vector2 childPivotToCenter = childBounds.center - roomPrefab.transform.position;
-		bool isOpen = Physics2D.OverlapBox(childPivotPos + childPivotToCenter, childBounds.size - new Vector3(0.1f, 0.1f, 0.0f), 0.0f) == null; // NOTE the small size reduction to avoid always collecting ourself
+		bool isOpen = false;
+		foreach (int idxCandidate in otherRoom.DoorwayReverseIndices(replaceDirection).OrderBy(i => Random.value))
+		{
+			Vector2 childDoorwayPosLocal = otherRoom.m_doorways[idxCandidate].transform.position;
+			float childDoorwayToEdge = Mathf.Min(childBounds.max.x - childDoorwayPosLocal.x, childBounds.max.y - childDoorwayPosLocal.y, childDoorwayPosLocal.x - childBounds.min.x, childDoorwayPosLocal.y - childBounds.min.y);
+			childPivotPos = doorwayPos + replaceDirection * (doorwayToEdge + childDoorwayToEdge) - childDoorwayPosLocal;
+
+			// check for obstructions
+			isOpen = Physics2D.OverlapBox(childPivotPos + childPivotToCenter, childBounds.size - new Vector3(0.1f, 0.1f, 0.0f), 0.0f) == null; // NOTE the small size reduction to avoid always collecting ourself
+			if (isOpen)
+			{
+				reverseIdx = idxCandidate;
+				break;
+			}
+		}
 		if (!isOpen)
 		{
 			return;
@@ -551,11 +562,7 @@ public class RoomController : MonoBehaviour
 
 		RoomController childRoom = Instantiate(roomPrefab, childPivotPos, Quaternion.identity).GetComponent<RoomController>();
 		doorwayInfo.m_childRoom = childRoom;
-
-		// set child's parent connection
-		int returnIdx = childRoom.DoorwayReverseIndex(replaceDirection);
-
-		childRoom.m_doorwayInfos[returnIdx].m_parentRoom = this;
+		childRoom.m_doorwayInfos[reverseIdx].m_parentRoom = this;
 
 		LayoutGenerator.Node blockerNode = GateNodeToChild(LayoutGenerator.Node.Type.Lock, childNodes);
 		bool isLock = blockerNode != null;
@@ -576,7 +583,7 @@ public class RoomController : MonoBehaviour
 			{
 				doorwayInfo.m_blocker.GetComponent<IUnlockable>().Parent = gameObject;
 			}
-			childRoom.m_doorwayInfos[returnIdx].m_blocker = doorwayInfo.m_blocker;
+			childRoom.m_doorwayInfos[reverseIdx].m_blocker = doorwayInfo.m_blocker;
 
 			// resize gate to fit doorway
 			Vector2 size = DoorwaySize(doorway);

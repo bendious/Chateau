@@ -444,6 +444,8 @@ public class AvatarController : KinematicCharacter
 			return;
 		}
 
+		StopAiming();
+
 		// cycle inventory
 		// prep item/holder lists
 		IAttachable[] attachables = GetComponentsInChildren<IAttachable>(true).Where(attachable => attachable is not IHolder).ToArray();

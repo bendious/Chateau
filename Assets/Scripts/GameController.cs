@@ -347,7 +347,7 @@ public class GameController : MonoBehaviour
 		{
 			List<LayoutGenerator.Node> newList = new();
 			int numDoors = 0;
-			int doorsMax = m_startRoom == null ? 4 : 3; // TODO: determine based on room prefab?
+			int doorsMax = 6 - (m_startRoom == null ? 0 : 1); // TODO: determine based on room prefab
 			bool isDoor = false;
 			do
 			{
