@@ -60,6 +60,8 @@ public class GameController : MonoBehaviour
 
 	private readonly List<EnemyController> m_enemies = new();
 
+	private bool m_victory = false;
+
 
 	private void Awake()
 	{
@@ -101,6 +103,7 @@ public class GameController : MonoBehaviour
 		failed = failed || !AddRoomsForNodes(nodesPending.ToArray());
 		if (failed)
 		{
+			m_victory = true; // to prevent clearing avatars' inventory // TODO: better flag?
 			Retry(); // TODO: more efficient way to guarantee room spawning?
 			return;
 		}
@@ -133,6 +136,7 @@ public class GameController : MonoBehaviour
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Called via SendMessage() from PlayerInputManager component")]
 	private void OnPlayerJoined(PlayerInput player)
 	{
+		// NOTE that we can place this here since OnPlayerJoined() is called even if the avatar object(s) is/are carried over from a previously loaded scene
 		if (m_avatars.Count == 0 && m_enemyPrefabs.Length > 0)
 		{
 			if (Random.value > 0.5f)
@@ -146,6 +150,7 @@ public class GameController : MonoBehaviour
 		else
 		{
 			m_timerUI.text = null;
+			m_victory = true;
 		}
 
 		m_avatars.Add(player.GetComponent<AvatarController>());
@@ -266,7 +271,7 @@ public class GameController : MonoBehaviour
 			}
 			foreach (AvatarController avatar in m_avatars)
 			{
-				avatar.Respawn();
+				avatar.Respawn(!m_victory);
 			}
 			Simulation.Schedule<DebugRespawn>();
 			ActivateMenu(m_gameOverUI, false);
@@ -291,11 +296,17 @@ public class GameController : MonoBehaviour
 			enemy.gameObject.SetActive(false);
 		}
 
+		foreach (AvatarController avatar in m_avatars)
+		{
+			avatar.Respawn(!m_victory);
+		}
+
 		SceneManager.LoadScene(name);
 	}
 
 	public void OnVictory()
 	{
+		m_victory = true;
 		foreach (AvatarController avatar in m_avatars)
 		{
 			avatar.OnVictory();
@@ -304,7 +315,7 @@ public class GameController : MonoBehaviour
 		m_nextWaveTime = -1.0f;
 		StopAllCoroutines();
 		m_avatars.First().GetComponent<AudioSource>().PlayOneShot(m_victoryAudio);
-		// TODO: roll credits / etc.
+		// TODO: roll credits / etc.?
 	}
 
 	public void Quit()

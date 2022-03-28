@@ -88,6 +88,15 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 		}
 	}
 
+	private void OnEnable()
+	{
+		// prevent stale VFX when re-enabling items
+		if (m_vfx != null)
+		{
+			m_vfx.Stop();
+		}
+	}
+
 	// TODO: only when VFX is enabled?
 	private void FixedUpdate()
 	{

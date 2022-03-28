@@ -83,6 +83,7 @@ public class AvatarController : KinematicCharacter
 	protected override void Awake()
 	{
 		base.Awake();
+		DontDestroyOnLoad(gameObject);
 
 		m_focusIndicator.transform.SetParent(null);
 		m_focusPrompt.transform.SetParent(null);
@@ -106,7 +107,6 @@ public class AvatarController : KinematicCharacter
 
 		ObjectDespawn.OnExecute += OnObjectDespawn;
 	}
-
 
 	protected override void Update()
 	{
@@ -560,7 +560,7 @@ public class AvatarController : KinematicCharacter
 		EnableCollision.TemporarilyDisableCollision(enemy.GetComponents<Collider2D>(), new Collider2D[] { m_collider });
 	}
 
-	public void Respawn()
+	public void Respawn(bool clearInventory)
 	{
 		m_collider.enabled = true;
 		body.simulated = true;
@@ -571,10 +571,12 @@ public class AvatarController : KinematicCharacter
 			audioSource.PlayOneShot(respawnAudio);
 		}
 
-		// TODO: move to animation trigger?
-		foreach (ArmController arm in GetComponentsInChildren<ArmController>(true))
+		if (clearInventory)
 		{
-			arm.gameObject.SetActive(true);
+			foreach (IAttachable attachable in GetComponentsInChildren<IAttachable>())
+			{
+				Simulation.Schedule<ObjectDespawn>().m_object = attachable.Component.gameObject;
+			}
 		}
 
 		health.Respawn();
@@ -684,13 +686,14 @@ public class AvatarController : KinematicCharacter
 
 	public void OnVictory()
 	{
+		if (!IsAlive)
+		{
+			return;
+		}
+
 		DeactivateAllControl();
 		foreach (ArmController arm in GetComponentsInChildren<ArmController>())
 		{
-			foreach (IAttachable attachable in arm.GetComponentsInChildren<IAttachable>())
-			{
-				attachable.Detach(true);
-			}
 			arm.gameObject.SetActive(false);
 		}
 		animator.SetTrigger("victory");
@@ -703,6 +706,12 @@ public class AvatarController : KinematicCharacter
 		if (IsAlive)
 		{
 			controlEnabled = true;
+
+			// TODO: move to animation trigger?
+			foreach (ArmController arm in GetComponentsInChildren<ArmController>(true))
+			{
+				arm.gameObject.SetActive(true);
+			}
 		}
 	}
 
