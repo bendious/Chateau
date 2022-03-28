@@ -130,9 +130,17 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1221687076549699989, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -40
+      objectReference: {fileID: 0}
     - target: {fileID: 1817590265900586355, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_Name
       value: SceneMin
+      objectReference: {fileID: 0}
+    - target: {fileID: 5239500528311612963, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5271682946291878117, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_AdditionalShaderChannelsFlag

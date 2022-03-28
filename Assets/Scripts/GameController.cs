@@ -217,7 +217,7 @@ public class GameController : MonoBehaviour
 
 	public void TogglePause()
 	{
-		if (m_gameOverUI != null && m_gameOverUI.gameObject.activeSelf)
+		if (m_gameOverUI.gameObject.activeSelf)
 		{
 			return;
 		}
@@ -522,7 +522,7 @@ public class GameController : MonoBehaviour
 		}
 		foreach (AvatarController avatar in m_avatars)
 		{
-			avatar.Controls.SwitchCurrentActionMap(m_pauseUI.gameObject.activeSelf || (m_gameOverUI != null && m_gameOverUI.gameObject.activeSelf) || avatar.m_overlayCanvas.gameObject.activeSelf ? "UI" : "Avatar"); // TODO: account for other UI instances?
+			avatar.Controls.SwitchCurrentActionMap(m_pauseUI.gameObject.activeSelf || m_gameOverUI.gameObject.activeSelf || avatar.m_overlayCanvas.gameObject.activeSelf ? "UI" : "Avatar"); // TODO: account for other UI instances?
 		}
 	}
 }
