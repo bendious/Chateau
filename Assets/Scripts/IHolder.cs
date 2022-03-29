@@ -33,7 +33,7 @@ public interface IHolder
 		if (attachableComp.transform.parent != null)
 		{
 			// ensure any special detach logic gets invoked
-			attachableComp.transform.parent.GetComponent<IHolder>().ChildDetach(attachable, false);
+			attachable.Detach(false);
 		}
 
 		attachable.AttachInternal(holder);
@@ -49,7 +49,7 @@ public interface IHolder
 
 	protected static void ChildDetachInternal(IAttachable attachable, IHolder holder, bool noAutoReplace)
 	{
-		attachable.DetachInternal();
+		IAttachable.DetachInternalShared(attachable.Component.gameObject);
 
 		if (noAutoReplace)
 		{

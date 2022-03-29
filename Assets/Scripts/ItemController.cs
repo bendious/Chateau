@@ -193,22 +193,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 	// this (although public) should only be called by IHolderController.ItemAttachInternal() // TODO?
 	public void AttachInternal(IHolder holder)
 	{
-		if (m_holder != null)
-		{
-			Detach(false);
-		}
+		IAttachable.AttachInternalShared(this, holder, m_body);
+
 		m_holder = holder;
 
-		Component holderComp = m_holder.Component;
-		transform.SetParent(holderComp.transform);
-		transform.localPosition = m_holder.ChildAttachPointLocal; // TODO: lerp?
-		transform.localRotation = Quaternion.identity; // TODO: lerp?
-		m_body.velocity = Vector2.zero;
-		m_body.angularVelocity = 0.0f;
-		m_body.bodyType = RigidbodyType2D.Kinematic;
 		m_body.useFullKinematicContacts = true;
-		gameObject.layer = holderComp.gameObject.layer;
-		SetCause(holderComp.transform.root.GetComponent<KinematicCharacter>());
+
+		SetCause(holder.Component.transform.root.GetComponent<KinematicCharacter>());
 	}
 
 	// this is the detachment entry point
@@ -222,16 +213,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 		}
 
 		m_holder.ChildDetach(this, noAutoReplace);
-	}
 
-	// this (although public) should only be called by IHolderController.ItemDetachInternal() // TODO?
-	public void DetachInternal()
-	{
-		// TODO: combine w/ BackpackController.Detach()?
-		transform.SetParent(null);
-		m_body.bodyType = RigidbodyType2D.Dynamic;
 		m_body.useFullKinematicContacts = false;
-		m_body.WakeUp();
 
 		m_detachOnDamage = false;
 		m_holder = null;

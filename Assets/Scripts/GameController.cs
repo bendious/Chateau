@@ -263,6 +263,8 @@ public class GameController : MonoBehaviour
 
 	public void Retry()
 	{
+		ActivateMenu(m_gameOverUI, false);
+
 		if (ConsoleCommands.RegenerateDisabled)
 		{
 			if (m_pauseUI.isActiveAndEnabled)
@@ -274,7 +276,6 @@ public class GameController : MonoBehaviour
 				avatar.Respawn(!m_victory);
 			}
 			Simulation.Schedule<DebugRespawn>();
-			ActivateMenu(m_gameOverUI, false);
 			return;
 		}
 
