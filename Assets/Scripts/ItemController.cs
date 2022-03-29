@@ -22,6 +22,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 	public float m_vfxAlpha = 0.5f;
 	public int m_healAmount = 0;
 
+	public bool m_detachOnDamage = false; // TODO: cumulative damage threshold?
+
 	public Collider2D[] m_nondamageColliders;
 
 	public float m_colorMin = 0.5f;
@@ -63,7 +65,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 
 		m_holder = transform.parent == null ? null : transform.parent.GetComponent<IHolder>();
 #pragma warning disable IDE0031 // NOTE that we don't use null propagation since IHolderControllers can be Unity objects as well, which don't like ?? or ?.
-		SetCause(m_holder == null ? null : m_holder.Component.transform.parent.GetComponent<KinematicCharacter>());
+		SetCause(m_holder == null ? null : m_holder.Component.transform.root.GetComponent<KinematicCharacter>());
 #pragma warning restore IDE0031
 		if (m_trail != null)
 		{
@@ -135,7 +137,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 				m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.PairBestMatch(collision.collider.sharedMaterial, collision.otherCollider.sharedMaterial).RandomCollisionAudio());
 			}
 
-			// if from a valid source, apply damage
+			// if from a valid source, apply damage/detachment
 			if (canDamage)
 			{
 				if (otherHealth != null)
@@ -145,6 +147,15 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 				if (m_health != null)
 				{
 					m_health.Decrement(gameObject);
+				}
+				if (m_detachOnDamage)
+				{
+					Detach(true);
+				}
+				ItemController otherItem = collision.gameObject.GetComponent<ItemController>();
+				if (otherItem != null && otherItem.m_detachOnDamage)
+				{
+					otherItem.Detach(true);
 				}
 			}
 		}
@@ -197,14 +208,14 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 		m_body.bodyType = RigidbodyType2D.Kinematic;
 		m_body.useFullKinematicContacts = true;
 		gameObject.layer = holderComp.gameObject.layer;
-		SetCause(holderComp.transform.parent.GetComponent<KinematicCharacter>());
+		SetCause(holderComp.transform.root.GetComponent<KinematicCharacter>());
 	}
 
 	// this is the detachment entry point
 	public void /*override*/ Detach(bool noAutoReplace)
 	{
 		// ensure our overlay doesn't get stuck on
-		AvatarController avatar = m_holder.Component.transform.parent.GetComponent<AvatarController>();
+		AvatarController avatar = Cause.GetComponent<AvatarController>();
 		if (avatar != null && avatar.m_overlayCanvas.gameObject.activeSelf)
 		{
 			avatar.ToggleOverlay(null, null);
@@ -222,12 +233,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 		m_body.useFullKinematicContacts = false;
 		m_body.WakeUp();
 
+		m_detachOnDamage = false;
+		m_holder = null;
+
 		if (gameObject.activeSelf)
 		{
 			EnableVFXAndDamage(); // mostly to prevent m_cause from remaining set and allowing damage if run into fast enough
 		}
-
-		m_holder = null;
 	}
 
 	public void Swing(bool isRelease)
@@ -246,7 +258,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 	{
 		if (m_healAmount > 0)
 		{
-			bool healed = m_holder.Component.transform.parent.GetComponent<Health>().Increment(m_healAmount);
+			bool healed = Cause.GetComponent<Health>().Increment(m_healAmount);
 			if (healed)
 			{
 				Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
@@ -257,7 +269,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 		TMP_Text text = GetComponentInChildren<TMP_Text>();
 		if (text != null && !string.IsNullOrEmpty(text.text))
 		{
-			m_holder.Component.transform.parent.GetComponent<AvatarController>().ToggleOverlay(m_renderer, text.text);
+			Cause.GetComponent<AvatarController>().ToggleOverlay(m_renderer, text.text);
 			return true;
 		}
 
@@ -274,11 +286,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 	public void Throw()
 	{
 		// temporarily ignore collisions w/ thrower
-		EnableCollision.TemporarilyDisableCollision(m_holder.Component.transform.parent.GetComponents<Collider2D>(), m_colliders, 0.1f);
+		EnableCollision.TemporarilyDisableCollision(Cause.GetComponents<Collider2D>(), m_colliders, 0.1f);
 
 		Quaternion holderRotation = m_holder.Component.transform.rotation;
-		Detach(false);
 		m_body.velocity = holderRotation * Vector2.right * m_throwSpeed;
+		Detach(false);
 
 		EnableVFXAndDamage();
 
