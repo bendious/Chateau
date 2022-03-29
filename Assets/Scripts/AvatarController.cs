@@ -728,6 +728,7 @@ public class AvatarController : KinematicCharacter
 			return;
 		}
 
+		StopAiming();
 		attachable.Detach(false); // to swap in new items and so that we can refresh inventory immediately even though deletion hasn't happened yet
 		InventorySync();
 	}
