@@ -19,8 +19,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 	};
 	public float m_restDegreesOffset = 0.0f;
 	public float m_throwSpeed = 20.0f;
-	public float m_vfxAlphaMax = 0.35f;
-	public Vector3 m_vfxExtraOffsetLocal;
+	public float m_vfxAlpha = 0.5f;
 	public int m_healAmount = 0;
 
 	public Collider2D[] m_nondamageColliders;
@@ -31,13 +30,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 
 	public float Speed => m_holder == null ? m_body.velocity.magnitude : m_holder.Speed;
 
-	public Vector2 SpritePivotOffset => -(m_renderer.sprite.pivot / m_renderer.sprite.rect.size * 2.0f - Vector2.one) * m_renderer.sprite.bounds.extents;
+	public Vector3 TrailPosition => (m_trail == null ? transform : m_trail.transform).position;
 
 	public bool IsSwinging => m_holder != null && m_holder.IsSwinging;
 
 
 	private Rigidbody2D m_body;
-	private VisualEffect m_vfx;
+	private TrailRenderer m_trail;
 	private AudioSource m_audioSource;
 	private Collider2D[] m_colliders;
 	private SpriteRenderer m_renderer;
@@ -46,23 +45,15 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 	private IHolder m_holder;
 	public KinematicCharacter Cause { get; private set; }
 
-	private static int m_posLocalPrevID;
-	private static int m_upVecID;
-	private static int m_gradientID;
-
 	private static int m_layerDefault;
 
 
 	private void Awake()
 	{
-		m_posLocalPrevID = Shader.PropertyToID("PosLocalPrev");
-		m_upVecID = Shader.PropertyToID("UpVec");
-		m_gradientID = Shader.PropertyToID("Gradient");
-
 		m_layerDefault = LayerMask.NameToLayer("Default");
 
 		m_body = GetComponent<Rigidbody2D>();
-		m_vfx = GetComponent<VisualEffect>();
+		m_trail = GetComponentInChildren<TrailRenderer>();
 		m_audioSource = GetComponent<AudioSource>();
 		m_colliders = GetComponents<Collider2D>();
 		m_renderer = GetComponent<SpriteRenderer>();
@@ -74,35 +65,25 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 #pragma warning disable IDE0031 // NOTE that we don't use null propagation since IHolderControllers can be Unity objects as well, which don't like ?? or ?.
 		SetCause(m_holder == null ? null : m_holder.Component.transform.parent.GetComponent<KinematicCharacter>());
 #pragma warning restore IDE0031
-		if (m_vfx != null)
+		if (m_trail != null)
 		{
 			Bounds aggregateBounds = m_colliders.First().bounds; // NOTE that we avoid default-initialization in case the aggregate bounds shouldn't include the origin
 			foreach (Collider2D collider in m_colliders)
 			{
 				aggregateBounds.Encapsulate(collider.bounds);
 			}
-			Vector3 size = aggregateBounds.size - m_vfxExtraOffsetLocal;
-			m_vfx.SetFloat("Size", Mathf.Max(size.x, size.y));
-			m_vfx.SetVector3("SpriteOffset", SpritePivotOffset);
-			m_vfx.SetVector3("ExtraOffsetLocal", m_vfxExtraOffsetLocal);
+			Vector3 size = aggregateBounds.size - (m_trail.transform.position - transform.position);
+			m_trail.widthCurve = AnimationCurve.Constant(0.0f, 0.0f, Mathf.Max(size.x, size.y));
+			m_trail.material.SetTexture("_MainTex", m_renderer.sprite.texture); // TODO: share w/ other same-texture items?
 		}
 	}
 
 	private void OnEnable()
 	{
 		// prevent stale VFX when re-enabling items
-		if (m_vfx != null)
+		if (m_trail != null)
 		{
-			m_vfx.Stop();
-		}
-	}
-
-	// TODO: only when VFX is enabled?
-	private void FixedUpdate()
-	{
-		if (m_vfx != null && Speed >= m_swingInfo.m_damageThresholdSpeed)
-		{
-			m_vfx.SetVector3(m_posLocalPrevID, Quaternion.Inverse(transform.rotation) * -(Vector3)m_body.velocity * Time.fixedDeltaTime + Vector3.forward); // NOTE the inclusion of Vector3.forward to put the VFX in the background // TODO: don't assume constant/unchanged velocity across the time step?
+			m_trail.emitting = false;
 		}
 	}
 
@@ -314,23 +295,22 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 
 		Cause = cause;
 
-		if (Cause == null || m_vfx == null)
+		if (Cause == null || m_trail == null)
 		{
 			return;
 		}
 
 		Gradient gradient = new();
 		gradient.colorKeys = new GradientColorKey[] { new(GameController.Instance.m_avatars.Contains(Cause) ? Color.white : Color.red, 0.0f) };
-		gradient.alphaKeys = new GradientAlphaKey[] { new(0.0f, 0.0f), new(m_vfxAlphaMax, 1.0f) }; // TODO: determine how this interacts w/ the VFX's Alpha Over Life node
-		m_vfx.SetGradient(m_gradientID, gradient);
+		gradient.alphaKeys = new GradientAlphaKey[] { new(m_vfxAlpha, 0.0f) };
+		m_trail.colorGradient = gradient;
 	}
 
 	private void EnableVFXAndDamage()
 	{
-		if (m_vfx != null)
+		if (m_trail != null)
 		{
-			m_vfx.enabled = true;
-			m_vfx.Play();
+			m_trail.emitting = true;
 		}
 		StopAllCoroutines();
 		StartCoroutine(UpdateVFXAndCause());
@@ -340,18 +320,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 	{
 		while (true)
 		{
-			if (IsSwinging || Speed >= m_swingInfo.m_damageThresholdSpeed)
+			if (!IsSwinging && Speed < m_swingInfo.m_damageThresholdSpeed)
 			{
-				if (m_vfx != null)
+				if (m_trail != null)
 				{
-					m_vfx.SetVector3(m_upVecID, transform.rotation * Vector3.up);
-				}
-			}
-			else
-			{
-				if (m_vfx != null)
-				{
-					m_vfx.Stop();
+					m_trail.emitting = false;
 				}
 				if (m_holder == null)
 				{
