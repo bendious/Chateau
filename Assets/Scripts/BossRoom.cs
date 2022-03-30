@@ -32,7 +32,7 @@ public class BossRoom : MonoBehaviour
 		}
 
 		// determine farthest valid position from entrance
-		GameObject bossPrefab = Utility.RandomWeighted(m_bossPrefabs);
+		GameObject bossPrefab = m_bossPrefabs.RandomWeighted();
 		Vector3 spawnPos = transform.position + new Vector3(0.0f, -bossPrefab.GetComponents<CapsuleCollider2D>().Min(collider => collider.offset.y - collider.size.y * 0.5f), 0.0f); // NOTE that we can't use Collider2D.bounds on an uninstantiated prefab // TODO: don't assume capsule-shaped collider?
 		Bounds triggerBounds = GetComponent<Collider2D>().bounds;
 		spawnPos.x = entrancePos.x <= spawnPos.x ? triggerBounds.max.x : triggerBounds.min.x; // TODO: don't assume bottom/top doors are closer to the left?

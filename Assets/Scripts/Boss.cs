@@ -101,11 +101,11 @@ public class Boss : MonoBehaviour
 		const float intensityTarget = 1.0f;
 		Vector4 colorSpeedCur = Vector4.zero;
 		float lightSpeedCur = 0.0f;
-		while (!Utility.ColorsSimilar(bossRenderers.First().color, Color.red) || !Utility.FloatEqual(bossLight.intensity, intensityTarget)) // TODO: don't assume colors are always in sync?
+		while (!bossRenderers.First().color.ColorsSimilar(Color.red) || !bossLight.intensity.FloatEqual(intensityTarget)) // TODO: don't assume colors are always in sync?
 		{
 			foreach (SpriteRenderer bossRenderer in bossRenderers)
 			{
-				bossRenderer.color = Utility.SmoothDamp(bossRenderer.color, Color.red, ref colorSpeedCur, smoothTimeSlow);
+				bossRenderer.color = bossRenderer.color.SmoothDamp(Color.red, ref colorSpeedCur, smoothTimeSlow);
 			}
 			bossLight.intensity = Mathf.SmoothDamp(bossLight.intensity, intensityTarget, ref lightSpeedCur, smoothTimeSlow);
 			yield return null;
@@ -114,7 +114,7 @@ public class Boss : MonoBehaviour
 		// float into air
 		float yTarget = transform.position.y + 4.5f; // TODO: unhardcode?
 		float ySpeedCur = 0.0f;
-		while (!Utility.FloatEqual(transform.position.y, yTarget))
+		while (!transform.position.y.FloatEqual(yTarget))
 		{
 			Vector3 pos = transform.position;
 			pos.y = Mathf.SmoothDamp(transform.position.y, yTarget, ref ySpeedCur, smoothTimeSlow);

@@ -113,7 +113,7 @@ public class AvatarController : KinematicCharacter
 		if (controlEnabled)
 		{
 			// update velocity
-			move = Utility.SmoothDamp(move, m_moveDesired, ref m_moveVel, m_moveSpringDampTime);
+			move = move.SmoothDamp(m_moveDesired, ref m_moveVel, m_moveSpringDampTime);
 
 			// collect possible focus objects
 			m_focusObj = null;
@@ -483,7 +483,7 @@ public class AvatarController : KinematicCharacter
 			{
 				holder.ChildAttach(attachable);
 			}
-			attachableIdx = Utility.Modulo(attachableIdx + 1, holdersRepeated.Length);
+			attachableIdx = (attachableIdx + 1).Modulo(holdersRepeated.Length);
 		}
 
 		InventorySync(); // TODO: lerp to new positions?
@@ -542,7 +542,7 @@ public class AvatarController : KinematicCharacter
 	// TODO: replace w/ more generic handling
 	public void OnEnemyCollision(EnemyController enemy)
 	{
-		if (!enemy.CanDamage(gameObject) || Utility.FloatEqual(enemy.m_contactDamage, 0.0f))
+		if (!enemy.CanDamage(gameObject) || enemy.m_contactDamage.FloatEqual(0.0f))
 		{
 			return;
 		}
@@ -652,7 +652,7 @@ public class AvatarController : KinematicCharacter
 			}
 			else
 			{
-				posItr.x = templateTf.anchoredPosition.x + (templateTf.sizeDelta.x + Mathf.Abs(templateTf.anchoredPosition.x)) * iconIdx * (Utility.FloatEqual(templateTf.anchorMin.x, 1.0f) ? -1.0f : 1.0f);
+				posItr.x = templateTf.anchoredPosition.x + (templateTf.sizeDelta.x + Mathf.Abs(templateTf.anchoredPosition.x)) * iconIdx * (templateTf.anchorMin.x.FloatEqual(1.0f) ? -1.0f : 1.0f);
 				UIObj = Instantiate(templateObj, Vector3.zero, Quaternion.identity, m_inventoryUI.transform);
 				UIObj.transform.GetComponent<RectTransform>().anchoredPosition3D = posItr;
 				UIObj.SetActive(true);

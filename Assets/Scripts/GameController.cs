@@ -385,7 +385,7 @@ public class GameController : MonoBehaviour
 			if (nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Entrance))
 			{
 				Assert.IsNull(m_startRoom);
-				m_startRoom = Instantiate(Utility.RandomWeighted(m_entryRoomPrefabs)).GetComponent<RoomController>();
+				m_startRoom = Instantiate(m_entryRoomPrefabs.RandomWeighted()).GetComponent<RoomController>();
 				m_startRoom.Initialize(nodesList.ToArray());
 			}
 			else
@@ -411,7 +411,7 @@ public class GameController : MonoBehaviour
 				bool success = false;
 				WeightedObject<GameObject>[] prefabsOrdered = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? m_bossRoomPrefabs : m_roomPrefabs;
 				Vector2[] allowedDirections = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical) ? new Vector2[] { Vector2.down, Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) ? new Vector2[] { Vector2.left, Vector2.right } : null;
-				foreach (GameObject roomPrefab in Utility.RandomWeightedOrder(prefabsOrdered))
+				foreach (GameObject roomPrefab in prefabsOrdered.RandomWeightedOrder())
 				{
 					success = spawnRoom.SpawnChildRoom(roomPrefab, nodesList.ToArray(), allowedDirections);
 					if (success)

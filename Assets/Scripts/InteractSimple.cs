@@ -17,7 +17,7 @@ public class InteractSimple : MonoBehaviour, IInteractable
 	{
 		if (m_dialogue != null && m_dialogue.Length > 0)
 		{
-			GameController.Instance.m_dialogueController.Play(m_dialogueSprite, GetComponent<SpriteRenderer>().color, Utility.RandomWeighted(m_dialogue), null);
+			GameController.Instance.m_dialogueController.Play(m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_dialogue.RandomWeighted(), null);
 		}
 
 		if (!string.IsNullOrEmpty(m_sceneName))

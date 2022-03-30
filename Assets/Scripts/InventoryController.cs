@@ -227,7 +227,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 		RectTransform rectTf = GetComponent<RectTransform>();
 		while ((rectTf.anchoredPosition - m_restPosition).sqrMagnitude > m_smoothEpsilon)
 		{
-			rectTf.anchoredPosition = Utility.SmoothDamp(rectTf.anchoredPosition, m_restPosition, ref m_lerpVelocity, m_smoothTime);
+			rectTf.anchoredPosition = rectTf.anchoredPosition.SmoothDamp(m_restPosition, ref m_lerpVelocity, m_smoothTime);
 			yield return null;
 		}
 

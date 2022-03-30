@@ -36,7 +36,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 	public float Speed => Mathf.Abs(Mathf.Deg2Rad * (m_aimVelocityArm + m_aimVelocityItem) * ((Vector2)transform.parent.position - (Vector2)transform.position).magnitude) + Mathf.Abs(m_aimRadiusVelocity); // NOTE the conversion from angular velocity to linear speed via arclength=radians*radius // TODO: incorporate aim velocity directions?
 
-	public bool IsSwinging => !Utility.FloatEqual(m_aimVelocityContinuing, 0.0f, m_swingInfoCur.m_damageThresholdSpeed) || !Utility.FloatEqual(m_radiusVelocityContinuing, 0.0f, m_swingInfoCur.m_damageThresholdSpeed);
+	public bool IsSwinging => !m_aimVelocityContinuing.FloatEqual(0.0f, m_swingInfoCur.m_damageThresholdSpeed) || !m_radiusVelocityContinuing.FloatEqual(0.0f, m_swingInfoCur.m_damageThresholdSpeed);
 
 
 	private bool LeftFacing => Mathf.Cos(Mathf.Deg2Rad * m_aimDegreesArm) < 0.0f; // TODO: efficiency?
@@ -117,7 +117,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 		// check speed
 		float collisionSpeed = (kinematicObj == null ? collision.relativeVelocity.magnitude : (body.velocity - kinematicObj.velocity).magnitude) + Speed;
-		if (collisionSpeed > m_swingInfoCur.m_damageThresholdSpeed && !Utility.FloatEqual(m_swingInfoCur.m_damage, 0.0f))
+		if (collisionSpeed > m_swingInfoCur.m_damageThresholdSpeed && !m_swingInfoCur.m_damage.FloatEqual(0.0f))
 		{
 			Health otherHealth = collision.gameObject.GetComponent<Health>();
 			if (otherHealth != null)

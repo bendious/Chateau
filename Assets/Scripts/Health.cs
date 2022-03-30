@@ -63,7 +63,7 @@ public class Health : MonoBehaviour
 		// damage
 		IncrementInternal(-1.0f * amount);
 		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-		renderer.color *= Utility.Pow(m_damageColorScalar, amount);
+		renderer.color *= m_damageColorScalar.Pow(amount);
 		AudioSource audioSource = GetComponent<AudioSource>();
 		if (m_damageAudio != null)
 		{
@@ -169,7 +169,7 @@ public class Health : MonoBehaviour
 		GameObject templateObj = m_healthUIParent.transform.GetChild(0).gameObject;
 		RectTransform rectTf = templateObj.GetComponent<RectTransform>();
 		float templateWidth = rectTf.sizeDelta.x;
-		float xInc = (templateWidth + m_UIPadding) * (Utility.FloatEqual(rectTf.anchorMin.x, 1.0f) ? -1.0f : 1.0f);
+		float xInc = (templateWidth + m_UIPadding) * (rectTf.anchorMin.x.FloatEqual(1.0f) ? -1.0f : 1.0f);
 		float xItr = xInc * uiHealthCount;
 		Assert.IsFalse(templateObj.activeSelf);
 		for (; uiHealthCount < m_maxHP; ++uiHealthCount, xItr += xInc)

@@ -99,7 +99,7 @@ public class LightFlicker : MonoBehaviour
 			return;
 		}
 
-		Sprite lightSpriteNew = Utility.RandomWeighted(m_lightSprites);
+		Sprite lightSpriteNew = m_lightSprites.RandomWeighted();
 		foreach (LightInfo info in m_lights)
 		{
 			if (info.m_light.lightType != Light2D.LightType.Sprite)
@@ -135,7 +135,7 @@ public class LightFlicker : MonoBehaviour
 				if (m_flickerSfx.Length > 0)
 				{
 					AudioSource source = GetComponentInParent<AudioSource>();
-					AudioClip clip = Utility.RandomWeighted(m_flickerSfx);
+					AudioClip clip = m_flickerSfx.RandomWeighted();
 					if (m_flickerSfxDelayMax > 0.0f)
 					{
 						source.clip = clip;

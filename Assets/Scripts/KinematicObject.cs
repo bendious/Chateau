@@ -49,9 +49,9 @@ public abstract class KinematicObject : MonoBehaviour
 	public bool IsWallClinging { get; private set; }
 
 
-	public bool HasFlying => Utility.FloatEqual(gravityModifier, 0.0f);
+	public bool HasFlying => gravityModifier.FloatEqual(0.0f);
 
-	public bool HasForcedVelocity => !Utility.FloatEqual(m_velocityForcedWeight.magnitude, 0.0f);
+	public bool HasForcedVelocity => !m_velocityForcedWeight.magnitude.FloatEqual(0.0f);
 
 
 	protected Vector2 targetVelocity;
@@ -150,8 +150,8 @@ public abstract class KinematicObject : MonoBehaviour
 					continue;
 				}
 				Vector2 newOverlap = contact.normal * -contact.separation;
-				totalOverlap.x = Mathf.Abs(newOverlap.x) > Math.Abs(totalOverlap.x) ? newOverlap.x : totalOverlap.x;
-				totalOverlap.y = Mathf.Abs(newOverlap.y) > Math.Abs(totalOverlap.y) ? newOverlap.y : totalOverlap.y;
+				totalOverlap.x = Mathf.Abs(newOverlap.x) > Mathf.Abs(totalOverlap.x) ? newOverlap.x : totalOverlap.x;
+				totalOverlap.y = Mathf.Abs(newOverlap.y) > Mathf.Abs(totalOverlap.y) ? newOverlap.y : totalOverlap.y;
 			}
 			transform.position += (Vector3)totalOverlap;
 
@@ -162,13 +162,13 @@ public abstract class KinematicObject : MonoBehaviour
 		velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0 ? gravityModifier : 1.0f) * Time.fixedDeltaTime * Physics2D.gravity;
 
 		velocity.x = Mathf.Lerp(targetVelocity.x, m_velocityForced.x, m_velocityForcedWeight.x);
-		if (HasFlying && Utility.FloatEqual(m_velocityForcedWeight.y, 0.0f))
+		if (HasFlying && m_velocityForcedWeight.y.FloatEqual(0.0f))
 		{
 			velocity.y = targetVelocity.y;
 		}
 
 		// blend velocity back from forced if necessary
-		m_velocityForcedWeight = Utility.SmoothDamp(m_velocityForcedWeight, Vector2.zero, ref m_velocityForcedWeightVel, m_velocityForcedSmoothTime);
+		m_velocityForcedWeight = m_velocityForcedWeight.SmoothDamp(Vector2.zero, ref m_velocityForcedWeightVel, m_velocityForcedSmoothTime);
 
 		IsGrounded = false;
 		IsWallClinging = false;

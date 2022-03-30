@@ -242,7 +242,7 @@ public class LayoutGenerator
 			}
 
 			// replace node
-			ReplacementRule replacement = Utility.RandomWeighted(options, options.Select(rule => rule.m_weight).ToArray());
+			ReplacementRule replacement = options.RandomWeighted(options.Select(rule => rule.m_weight).ToArray());
 
 			// move children
 			List<Node> replacementNodes = replacement.m_final.Select(node => node.Clone()).ToList();

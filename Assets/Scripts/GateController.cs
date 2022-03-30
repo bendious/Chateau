@@ -26,7 +26,7 @@ public class GateController : MonoBehaviour, IUnlockable
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
 	{
-		GameObject lockPrefab = Utility.RandomWeighted(m_lockPrefabs);
+		GameObject lockPrefab = m_lockPrefabs.RandomWeighted();
 		float height = -lockPrefab.GetComponentsInChildren<SpriteRenderer>().Min(renderer => renderer.bounds.min.y);
 		Vector3 spawnPos = lockRoom.InteriorPosition(height, height) + Vector3.forward;
 

@@ -14,31 +14,31 @@ public class WeightedObject<T>
 
 public static class Utility
 {
-	public static int Modulo(int x, int m)
+	public static int Modulo(this int x, int m)
 	{
 		int r = x % m;
 		return (r < 0) ? r + m : r;
 	}
 
-	public static float Modulo(float x, float m)
+	public static float Modulo(this float x, float m)
 	{
 		float r = x % m;
 		return (r < 0) ? r + m : r;
 	}
 
-	public static float Fract(float x) => x - (float)Math.Truncate(x);
+	public static float Fract(this float x) => x - (float)Math.Truncate(x);
 
 	public static int EnumNumTypes<T>()
 	{
 		return Enum.GetValues(typeof(T)).Length;
 	}
 
-	public static T RandomWeighted<T>(WeightedObject<T>[] pairs)
+	public static T RandomWeighted<T>(this WeightedObject<T>[] pairs)
 	{
 		return RandomWeighted(pairs.Select(pair => pair.m_object).ToArray(), pairs.Select(pair => pair.m_weight).ToArray());
 	}
 
-	public static T RandomWeighted<T>(T[] values, float[] weights)
+	public static T RandomWeighted<T>(this T[] values, float[] weights)
 	{
 		Assert.IsFalse(weights.Any(f => f < 0.0f));
 
@@ -57,18 +57,18 @@ public static class Utility
 		return values[idxItr];
 	}
 
-	public static T[] RandomWeightedOrder<T>(WeightedObject<T>[] pairs)
+	public static T[] RandomWeightedOrder<T>(this WeightedObject<T>[] pairs)
 	{
 		Assert.IsFalse(pairs.Any(pair => pair.m_weight < 0.0f));
 		return pairs.OrderBy(pair => UnityEngine.Random.value / pair.m_weight).Select(pair => pair.m_object).ToArray();
 	}
 
-	public static T[] RandomWeightedOrder<T>(T[] values, float[] weights)
+	public static T[] RandomWeightedOrder<T>(this T[] values, float[] weights)
 	{
 		return RandomWeightedOrder(values.Zip(weights, (value, weight) => new WeightedObject<T> { m_object = value, m_weight = weight }).ToArray());
 	}
 
-	public static T RandomWeightedEnum<T>(float[] weights) where T : System.Enum
+	public static T RandomWeightedEnum<T>(this float[] weights) where T : System.Enum
 	{
 		/*const*/ int typeCount = EnumNumTypes<T>();
 		Assert.IsTrue(weights.Length <= typeCount);
@@ -79,12 +79,12 @@ public static class Utility
 	}
 
 	// NOTE that Mathf.Approximately() uses float.Epsilon, which is uselessly strict
-	public static bool FloatEqual(float a, float b, float epsilon = 0.01f)
+	public static bool FloatEqual(this float a, float b, float epsilon = 0.01f)
 	{
 		return Mathf.Abs(a - b) < epsilon;
 	}
 
-	public static bool ColorsSimilar(Color a, Color b, float epsilon = 0.2f)
+	public static bool ColorsSimilar(this Color a, Color b, float epsilon = 0.2f)
 	{
 		return FloatEqual(a.r, b.r, epsilon) && FloatEqual(a.g, b.g, epsilon) && FloatEqual(a.b, b.b, epsilon); // NOTE that we don't use color subtraction due to not wanting range clamping
 	}
@@ -101,7 +101,7 @@ public static class Utility
 		return color;
 	}
 
-	public static Vector4 Pow(Vector4 v, float p)
+	public static Vector4 Pow(this Vector4 v, float p)
 	{
 		v.x = Mathf.Pow(v.x, p);
 		v.y = Mathf.Pow(v.y, p);
@@ -110,14 +110,19 @@ public static class Utility
 		return v;
 	}
 
-	public static Vector2 SmoothDamp(Vector2 current, Vector2 target, ref Vector2 currentVelocity, float smoothTime)
+	public static Vector2 Abs(this Vector2 v)
+	{
+		return new Vector2(Mathf.Abs(v.x), Mathf.Abs(v.y));
+	}
+
+	public static Vector2 SmoothDamp(this Vector2 current, Vector2 target, ref Vector2 currentVelocity, float smoothTime)
 	{
 		current.x = Mathf.SmoothDamp(current.x, target.x, ref currentVelocity.x, smoothTime);
 		current.y = Mathf.SmoothDamp(current.y, target.y, ref currentVelocity.y, smoothTime);
 		return current;
 	}
 
-	public static Color SmoothDamp(Color current, Color target, ref Vector4 currentVelocity, float smoothTime)
+	public static Color SmoothDamp(this Color current, Color target, ref Vector4 currentVelocity, float smoothTime)
 	{
 		current.r = Mathf.SmoothDamp(current.r, target.r, ref currentVelocity.x, smoothTime);
 		current.g = Mathf.SmoothDamp(current.g, target.g, ref currentVelocity.y, smoothTime);

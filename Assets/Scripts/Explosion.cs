@@ -18,7 +18,7 @@ public class Explosion : MonoBehaviour
     {
 		// SFX
 		AudioSource audio = GetComponent<AudioSource>();
-		audio.clip = Utility.RandomWeighted(m_sfx);
+		audio.clip = m_sfx.RandomWeighted();
 		audio.Play();
 
 		// damage

@@ -47,14 +47,14 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		{
 			prefabCandidates = m_keyPrefabs;
 		}
-		m_keyInfo = Utility.RandomWeighted(prefabCandidates);
+		m_keyInfo = prefabCandidates.RandomWeighted();
 
 		// spawn key(s)
 		// TODO: convert any empty key rooms into bonus item rooms?
 		Assert.IsTrue(m_keyInfo.m_keyCountMax > 0);
 		for (int i = 0; i < keyRooms.Length && i < m_keyInfo.m_keyCountMax; ++i)
 		{
-			GameObject keyPrefab = Utility.RandomWeighted(m_keyInfo.m_prefabs);
+			GameObject keyPrefab = m_keyInfo.m_prefabs.RandomWeighted();
 			bool isItem = keyPrefab.GetComponent<Rigidbody2D>() != null;
 			Vector3 spawnPos = keyRooms[i].InteriorPosition(isItem ? 0.0f : m_keyHeightMax) + (isItem ? Vector3.zero : Vector3.forward);
 			GameObject keyObj = Instantiate(keyPrefab, spawnPos, Quaternion.identity);
@@ -76,7 +76,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		if (m_keyInfo.m_combinationDigits > 0)
 		{
 			// assign combination
-			m_combinationSet = Utility.RandomWeighted(m_combinationSets);
+			m_combinationSet = m_combinationSets.RandomWeighted();
 			m_combination = "";
 			for (int digitIdx = 0; digitIdx < m_keyInfo.m_combinationDigits; ++digitIdx)
 			{
@@ -98,7 +98,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 
 		// choose color
 		Color color = new(Random.value, Random.value, Random.value);
-		if (Utility.ColorsSimilar(color, Color.black) || Utility.ColorsSimilar(color, RoomController.m_oneWayPlatformColor))
+		if (color.ColorsSimilar(Color.black) || color.ColorsSimilar(RoomController.m_oneWayPlatformColor))
 		{
 			// avoid colors that are too close to the black/brown of the background/platforms
 			int swapIdx = Random.Range(0, 3);
@@ -127,21 +127,21 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 
 		Vector2 xyInput = input.Get<Vector2>();
 		float xInput = xyInput.x;
-		int xInputDir = Utility.FloatEqual(xInput, 0.0f) ? 0 : (int)Mathf.Sign(xInput);
+		int xInputDir = xInput.FloatEqual(0.0f) ? 0 : (int)Mathf.Sign(xInput);
 		if (xInputDir != 0)
 		{
-			m_inputIdxCur = Utility.Modulo(m_inputIdxCur + xInputDir, m_keyInfo.m_combinationDigits);
+			m_inputIdxCur = (m_inputIdxCur + xInputDir).Modulo(m_keyInfo.m_combinationDigits);
 			UpdateUIIndicator(text);
 		}
 
 		float yInput = xyInput.y;
-		int yInputDir = Utility.FloatEqual(yInput, 0.0f) ? 0 : (int)Mathf.Sign(yInput);
+		int yInputDir = yInput.FloatEqual(0.0f) ? 0 : (int)Mathf.Sign(yInput);
 		if (yInputDir != 0)
 		{
 			char oldChar = m_inputCur[m_inputIdxCur];
 			Assert.IsTrue(m_combinationSet.Count(setChar => setChar == oldChar) == 1); // TODO: handle duplicate characters?
 			int oldSetIdx = m_combinationSet.IndexOf(oldChar);
-			char newDigit = m_combinationSet[Utility.Modulo(oldSetIdx + yInputDir, m_combinationSet.Length)];
+			char newDigit = m_combinationSet[(oldSetIdx + yInputDir).Modulo(m_combinationSet.Length)];
 
 			char[] inputArray = m_inputCur.ToCharArray();
 			inputArray[m_inputIdxCur] = newDigit;

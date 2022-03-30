@@ -53,7 +53,7 @@ public class FurnitureController : MonoBehaviour
 		float extentX = size.x * 0.5f;
 		for (int i = 0; i < itemCount; ++i)
 		{
-			GameObject itemPrefab = Utility.RandomWeighted(itemsFinal);
+			GameObject itemPrefab = itemsFinal.RandomWeighted();
 			BoxCollider2D itemCollider = itemPrefab.GetComponent<BoxCollider2D>();
 			float offsetY = (size.y + itemCollider.edgeRadius) * 0.5f + itemCollider.size.y * Random.Range(1, transform.childCount + 2);
 			Vector3 spawnCenterPos = transform.position + new Vector3(Random.Range(-extentX, extentX), offsetY, -0.1f); // NOTE the slight z offset to render items in front of higher shelves // TODO: don't assume the pivot point is at bottom center, but also don't use stale Collider2D bounds? more deliberate placement?
