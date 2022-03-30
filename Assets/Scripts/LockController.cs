@@ -96,20 +96,8 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 			}
 		}
 
-		// choose color
-		Color color = new(Random.value, Random.value, Random.value);
-		if (color.ColorsSimilar(Color.black) || color.ColorsSimilar(RoomController.m_oneWayPlatformColor))
-		{
-			// avoid colors that are too close to the black/brown of the background/platforms
-			int swapIdx = Random.Range(0, 3);
-			color[swapIdx] = (color[swapIdx] + 0.5f) % 1.0f;
-		}
-
 		// match color w/ key(s)
-		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-		renderer.color = color;
-		renderer.enabled = false;
-		renderer.enabled = true;
+		Color color = GetComponent<SpriteRenderer>().color;
 		foreach (GameObject key in m_keys)
 		{
 			key.GetComponent<SpriteRenderer>().color = color;

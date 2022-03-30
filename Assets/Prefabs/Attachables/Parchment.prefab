@@ -395,7 +395,8 @@ PrefabInstance:
       propertyPath: m_collisionAudio.Array.size
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6012924778908530461, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
 --- !u!4 &8742347183187252231 stripped
 Transform:

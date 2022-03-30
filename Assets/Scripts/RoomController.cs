@@ -223,7 +223,7 @@ public class RoomController : MonoBehaviour
 		// spawn decoration(s)
 		// TODO: prioritize by area?
 		int numDecorations = Random.Range(m_roomType.m_decorationsMin, m_roomType.m_decorationsMax + 1);
-		Color decoColor = roomColor * 2.0f;
+		Color decoColor = roomColor * 2.0f; // TODO?
 		for (int i = 0; i < numDecorations; ++i)
 		{
 			Vector3 spawnPos = InteriorPosition(Random.Range(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax)) + Vector3.forward; // TODO: uniform height per room?

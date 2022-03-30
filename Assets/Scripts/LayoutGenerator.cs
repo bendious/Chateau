@@ -81,7 +81,7 @@ public class LayoutGenerator
 			return parent == null ? 0 : parent.Depth + 1;
 		} }
 
-		public readonly Color m_color = new(UnityEngine.Random.Range(0.25f, 0.5f), UnityEngine.Random.Range(0.25f, 0.5f), UnityEngine.Random.Range(0.25f, 0.5f)); // TODO: tend brighter based on progress?
+		public readonly Color m_color = Utility.ColorRandom(0.25f, 0.5f, 0.125f); // TODO: tend brighter based on progress?
 
 
 		internal List<Node> DirectParentsInternal;

@@ -26,9 +26,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 
 	public Collider2D[] m_nondamageColliders;
 
-	public float m_colorMin = 0.5f;
-	public float m_colorMax = 1.0f;
-
 
 	public float Speed => m_holder == null ? m_body.velocity.magnitude : m_holder.Speed;
 
@@ -60,8 +57,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 		m_colliders = GetComponents<Collider2D>();
 		m_renderer = GetComponent<SpriteRenderer>();
 		m_health = GetComponent<Health>();
-
-		m_renderer.color = Utility.ColorRandom(m_colorMin, m_colorMax); // NOTE that this has to be in Awake() and not Start() since LockController re-assigns key color after spawning // TODO: more deliberate choice?
 
 		m_holder = transform.parent == null ? null : transform.parent.GetComponent<IHolder>();
 #pragma warning disable IDE0031 // NOTE that we don't use null propagation since IHolderControllers can be Unity objects as well, which don't like ?? or ?.

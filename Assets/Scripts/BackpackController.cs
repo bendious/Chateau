@@ -12,15 +12,6 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable, 
 	public /*override*/ Vector3 AttachOffsetLocal => m_attachOffsetLocal;
 	public /*override*/ Vector3 ChildAttachPointLocal => Vector3.forward * 0.2f/*?*/;
 
-	public float m_colorMin = 0.25f;
-	public float m_colorMax = 1.0f;
-
-
-	private void Awake()
-	{
-		GetComponent<SpriteRenderer>().color = Utility.ColorRandom(m_colorMin, m_colorMax); // TODO: more deliberate choice?
-	}
-
 
 	public void Interact(KinematicCharacter interactor) => interactor.ChildAttach(this);
 
