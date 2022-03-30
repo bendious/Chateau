@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.VFX;
 
 
 public class RoomController : MonoBehaviour
@@ -24,6 +25,8 @@ public class RoomController : MonoBehaviour
 	public DirectionalDoors[] m_doorDirectionalPrefabs;
 	public WeightedObject<GameObject>[] m_doorSecretPrefabs;
 
+	public GameObject m_doorSealVFX;
+
 	public WeightedObject<GameObject>[] m_spawnPointPrefabs;
 	public int m_spawnPointsMax = 4;
 
@@ -34,6 +37,7 @@ public class RoomController : MonoBehaviour
 
 	public GameObject m_ladderRungPrefab;
 	public float m_ladderRungSkewMax = 0.2f;
+
 
 	public static readonly Color m_oneWayPlatformColor = new(0.3f, 0.2f, 0.1f);
 
@@ -465,11 +469,19 @@ public class RoomController : MonoBehaviour
 			{
 				continue;
 			}
+
 			OpenDoorway(i, !seal, false);
+
+			if (seal && m_doorwayInfos[i].m_blocker == null)
+			{
+				Vector2 doorwaySize = DoorwaySize(m_doorways[i]);
+				VisualEffect vfx = Instantiate(m_doorSealVFX, m_doorways[i].transform.position + new Vector3(0.0f, -0.5f * doorwaySize.y, 0.0f), Quaternion.identity).GetComponent<VisualEffect>();
+				vfx.SetVector3("StartAreaSize", new Vector3(doorwaySize.x, 0.0f, 0.0f));
+			}
 		}
 
 		GetComponent<AudioSource>().Play();
-		// TODO: VFX/animation?
+		// TODO: animation?
 	}
 
 
