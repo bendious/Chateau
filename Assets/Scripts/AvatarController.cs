@@ -513,6 +513,8 @@ public class AvatarController : KinematicCharacter
 		}
 
 		DeactivateAllControl();
+		InventorySync(); // since KinematicCharacter.OnDeath() drops all attachables
+
 		if (GameController.Instance.m_avatars.All(avatar => !avatar.IsAlive))
 		{
 			Simulation.Schedule<GameOver>(3.0f); // TODO: animation event?
@@ -712,6 +714,7 @@ public class AvatarController : KinematicCharacter
 			{
 				arm.gameObject.SetActive(true);
 			}
+			InventorySync(); // TODO: avoid redundancy?
 		}
 	}
 

@@ -254,8 +254,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 		if (transform.childCount > 0)
 		{
 			GameObject childObj = transform.GetChild(0).gameObject;
-			childObj.SetActive(!childObj.activeSelf);
-			return true;
+			if (childObj.GetComponent<UnityEngine.Rendering.Universal.Light2D>() != null) // TODO: support other types of use-activated child objects? check secondary children?
+			{
+				childObj.SetActive(!childObj.activeSelf);
+				return true;
+			}
 		}
 
 		return false;
