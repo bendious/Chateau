@@ -93,7 +93,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 		}
 
 		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
-		if ((kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, false, false, false)) || collision.gameObject.transform.root == transform.root)
+		if ((kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, false, 0.0f, null)) || collision.gameObject.transform.root == transform.root)
 		{
 			return;
 		}

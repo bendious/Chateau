@@ -14,6 +14,8 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 	public float m_smoothEpsilon = 0.01f;
 	public GraphicRaycaster m_raycaster;
 	public bool m_draggable = false;
+
+
 	private Vector2 m_restPosition;
 	private Vector2 m_mouseOffset;
 	private Vector2 m_lerpVelocity;
@@ -35,11 +37,8 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 
 	public void OnPointerExit(PointerEventData eventData)
 	{
-		if (m_draggable)
-		{
-			transform.root.GetComponent<PlayerInput>().actions.FindActionMap("Avatar").Enable(); // TODO: check for active menus/overlays?
-			GetComponent<Image>().color *= new Color(1.0f, 1.0f, 1.0f, 0.5f); // TODO: un-hardcode?
-		}
+		transform.root.GetComponent<PlayerInput>().actions.FindActionMap("Avatar").Enable(); // TODO: check for active menus/overlays?
+		GetComponent<Image>().color *= new Color(1.0f, 1.0f, 1.0f, 0.5f); // TODO: un-hardcode?
 	}
 
 	public void OnPointerClick(PointerEventData eventData)
@@ -123,7 +122,6 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 		{
 			SlotItemInfo slotItemInfo1 = ItemFromIndex(transform.root, transform.GetSiblingIndex());
 			slotItemInfo1.m_item.Detach(false);
-			transform.root.GetComponent<PlayerInput>().actions.FindActionMap("Avatar").Enable(); // TODO: check for active menus/overlays?
 
 			// reset/update display
 			rectTf.anchoredPosition = m_restPosition; // NOTE that we don't lerp here since the slot is now empty

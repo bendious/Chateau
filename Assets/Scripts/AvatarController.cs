@@ -127,7 +127,7 @@ public class AvatarController : KinematicCharacter
 			bool focusCanInteract = false;
 			foreach (Collider2D candidate in focusCandidates)
 			{
-				if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, false, false, false))
+				if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, false, 0.0f, null))
 				{
 					continue; // ignore ourself / attached/ignored objects
 				}

@@ -123,7 +123,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
-  m_Mass: 1
+  m_Mass: 50
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 1
@@ -173,6 +173,7 @@ MonoBehaviour:
   m_damageBounceMagnitude: {x: 7, y: 7}
   m_armOffset: {x: 0, y: 0}
   move: {x: 0, y: 0}
+  m_contactDamage: 1
   m_targetOffset: {x: 0, y: 0}
   m_target: {fileID: 0}
   m_replanSecondsMax: 2

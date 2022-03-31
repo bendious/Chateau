@@ -62,7 +62,7 @@ public abstract class KinematicObject : MonoBehaviour
 	protected RaycastHit2D[] hitBuffer = new RaycastHit2D[16];
 
 	protected const float minMoveDistance = 0.001f;
-	protected const float shellRadius = 0.01f;
+	private const float shellRadius = 0.01f;
 
 
 	private int m_spawnCheckFrameCount = 2; // NOTE that since we use Collider2D.GetContacts(), we can't just check immediately in Start() or FixedUpdate() before physics first runs...
@@ -75,6 +75,7 @@ public abstract class KinematicObject : MonoBehaviour
 	private Vector2 m_velocityForcedWeight = Vector2.zero;
 	private Vector2 m_velocityForcedWeightVel = Vector2.zero;
 
+	private int m_layerOrig;
 	private static /*readonly*/ int m_platformLayer;
 	private const float m_platformTopEpsilon = 0.1f;
 
@@ -110,6 +111,7 @@ public abstract class KinematicObject : MonoBehaviour
 		m_character = GetComponent<KinematicCharacter>();
 		m_collider = GetComponent<Collider2D>();
 		m_avatar = GetComponent<AvatarController>();
+		m_layerOrig = gameObject.layer;
 	}
 
 	protected virtual void Start()
@@ -145,7 +147,7 @@ public abstract class KinematicObject : MonoBehaviour
 			Vector2 totalOverlap = Vector2.zero;
 			foreach (ContactPoint2D contact in contacts)
 			{
-				if (ShouldIgnore(contact.rigidbody, new Collider2D[] { contact.collider }, false, true, true))
+				if (ShouldIgnore(contact.rigidbody, new Collider2D[] { contact.collider }, false, body.mass, typeof(AnchoredJoint2D)))
 				{
 					continue;
 				}
@@ -159,7 +161,7 @@ public abstract class KinematicObject : MonoBehaviour
 		}
 
 		//if already falling, fall faster than the jump speed, otherwise use normal gravity.
-		velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0 ? gravityModifier : 1.0f) * Time.fixedDeltaTime * Physics2D.gravity;
+		velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0.0f ? gravityModifier : 1.0f) * Time.fixedDeltaTime * Physics2D.gravity;
 
 		velocity.x = Mathf.Lerp(targetVelocity.x, m_velocityForced.x, m_velocityForcedWeight.x);
 		if (HasFlying && m_velocityForcedWeight.y.FloatEqual(0.0f))
@@ -180,8 +182,9 @@ public abstract class KinematicObject : MonoBehaviour
 		Vector2 move = moveAlongGround * deltaPosition.x;
 
 		// update our collision mask
-		bool shouldIgnoreOneWays = velocity.y >= 0 || (m_character != null && m_character.IsDropping); // TODO: don't require knowledge of KinematicCharacter
-		contactFilter.SetLayerMask(shouldIgnoreOneWays ? Physics2D.GetLayerCollisionMask(gameObject.layer) & ~(1 << m_platformLayer) : Physics2D.GetLayerCollisionMask(gameObject.layer));
+		bool shouldIgnoreOneWays = velocity.y >= 0.0f || (m_character != null && m_character.IsDropping); // TODO: don't require knowledge of KinematicCharacter
+		gameObject.layer = shouldIgnoreOneWays ? LayerMask.NameToLayer("IgnorePlatforms")/*TODO*/ : m_layerOrig;
+		contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
 
 		Lazy<bool> isNearGround = new(() => Physics2D.Raycast(m_collider.bounds.min, Vector2.down, m_nearGroundDistance).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground? cast whole collider for better detection?
 		PerformMovement(move, false, ref isNearGround);
@@ -191,7 +194,7 @@ public abstract class KinematicObject : MonoBehaviour
 		PerformMovement(move, true, ref isNearGround);
 	}
 
-	public bool ShouldIgnore(Rigidbody2D body, Collider2D[] colliders, bool ignoreStatics, bool ignoreDynamics, bool ignoreChildren)
+	public bool ShouldIgnore(Rigidbody2D body, Collider2D[] colliders, bool ignoreStatics, float dynamicsMassThreshold, Type ignoreChildrenExcept)
 	{
 		Assert.IsTrue(colliders != null && colliders.Length > 0);
 		GameObject otherObj = colliders.First().gameObject; // NOTE that we don't use the rigid body's object since that can be separate from the collider object (e.g. characters and arms) // TODO: ensure all colliders are from the same object & body?
@@ -203,11 +206,11 @@ public abstract class KinematicObject : MonoBehaviour
 		{
 			return true;
 		}
-		if (ignoreDynamics && body != null && body.bodyType == RigidbodyType2D.Dynamic)
+		if (body != null && body.bodyType == RigidbodyType2D.Dynamic && body.mass < dynamicsMassThreshold)
 		{
 			return true;
 		}
-		if (ignoreChildren && body != null && (body.transform.parent != null || body.gameObject != otherObj))
+		if (ignoreChildrenExcept != null && body != null && (body.transform.parent != null || body.gameObject != otherObj) && body.GetComponent(ignoreChildrenExcept) == null)
 		{
 			return true; // ignore non-root bodies (e.g. arms)
 		}
@@ -265,7 +268,7 @@ public abstract class KinematicObject : MonoBehaviour
 			for (int i = 0; i < count; i++)
 			{
 				RaycastHit2D hit = hitBuffer[i];
-				if (ShouldIgnore(hit.rigidbody, new Collider2D[] { hit.collider }, false, true, true))
+				if (ShouldIgnore(hit.rigidbody, new Collider2D[] { hit.collider }, false, body.mass, typeof(AnchoredJoint2D)))
 				{
 					continue; // don't get hung up on dynamic/carried/ignored objects
 				}
@@ -276,7 +279,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 				Vector2 currentNormal = hit.normal;
 
-				//is this surface flat enough to land on?
+				// is this surface flat enough to land on?
 				if (currentNormal.y >= minGroundNormalY)
 				{
 					IsGrounded = true;
@@ -308,7 +311,7 @@ public abstract class KinematicObject : MonoBehaviour
 					else if (!isNearGround.Value)
 					{
 						// airborne, but hit something, so cancel horizontal velocity.
-						velocity.x *= 0;
+						velocity.x = 0.0f;
 					}
 				}
 				//remove shellDistance from actual move distance.

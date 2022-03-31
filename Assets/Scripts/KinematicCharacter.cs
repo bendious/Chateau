@@ -127,7 +127,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		else if (stopJump)
 		{
 			stopJump = false;
-			if (velocity.y > 0)
+			if (velocity.y > 0.0f)
 			{
 				velocity.y *= jumpDeceleration;
 			}
