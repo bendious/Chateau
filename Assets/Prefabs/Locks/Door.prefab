@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 7240169466329799325}
   - component: {fileID: 2462278832316299634}
   - component: {fileID: 6978962022123711710}
-  - component: {fileID: 1020472972288108121}
   m_Layer: 0
   m_Name: Door
   m_TagString: Untagged
@@ -135,6 +134,7 @@ MonoBehaviour:
       m_prefabs:
       - m_object: {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
         m_weight: 1
+      m_orderPrefabs: []
       m_keyCountMax: 1
       m_combinationDigits: 0
     m_weight: 1
@@ -146,6 +146,7 @@ MonoBehaviour:
         m_weight: 1
       - m_object: {fileID: 706043663315506005, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
         m_weight: 1
+      m_orderPrefabs: []
       m_keyCountMax: 4
       m_combinationDigits: 4
     m_weight: 1
@@ -158,6 +159,7 @@ MonoBehaviour:
       m_prefabs:
       - m_object: {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
         m_weight: 1
+      m_orderPrefabs: []
       m_keyCountMax: 3
       m_combinationDigits: 0
     m_weight: 1
@@ -170,6 +172,7 @@ MonoBehaviour:
       m_prefabs:
       - m_object: {fileID: 2985935573955904460, guid: d0f5470f46df30c4b9004f62adc55cc9, type: 3}
         m_weight: 1
+      m_orderPrefabs: []
       m_keyCountMax: 3
       m_combinationDigits: 0
     m_weight: 1
@@ -183,6 +186,23 @@ MonoBehaviour:
       m_prefabs:
       - m_object: {fileID: 3916154150493127968, guid: de4eda1bf76463147931e4988117aeb6, type: 3}
         m_weight: 1
+      m_orderPrefabs: []
+      m_keyCountMax: 4
+      m_combinationDigits: 0
+    m_weight: 1
+  - m_object:
+      m_doorSprites:
+      - {fileID: 21300000, guid: e92600391a1c26547a5b088a9a6c64e1, type: 3}
+      - {fileID: 21300000, guid: 93d41e843289f4342b9b269f46f33758, type: 3}
+      - {fileID: 21300000, guid: 373b3922ca1015244a30da6e88f8dd9f, type: 3}
+      - {fileID: 21300000, guid: deda7c2d06dad5344beed693f7733cd8, type: 3}
+      - {fileID: 21300000, guid: 466e3ec9ae0984d4a9ed80fa5368f025, type: 3}
+      m_prefabs:
+      - m_object: {fileID: 5021475883566326867, guid: bff239aa65d864f4688a85f9f1775bc4, type: 3}
+        m_weight: 1
+      m_orderPrefabs:
+      - m_object: {fileID: 7429547683255228525, guid: 06166aad9f7de8f4cbd269614805d143, type: 3}
+        m_weight: 1
       m_keyCountMax: 4
       m_combinationDigits: 0
     m_weight: 1
@@ -195,9 +215,15 @@ MonoBehaviour:
     m_weight: 0.5
   - m_object: "\u2192\u2190\u2191\u2193"
     m_weight: 1
-  m_keyHeightMax: 8
+  m_keyHeightMax: 7.5
   m_combinationIndicatorPrefab: {fileID: 7581576132359493611, guid: f35e42329712f004a939999cb3ace575, type: 3}
   m_interactDistanceMax: 2
+  m_failureSFX:
+  - m_object: {fileID: 8300000, guid: 1b1c8da1c1a0c1e4e89bbe40b78329f3, type: 3}
+    m_weight: 1
+  m_unlockSFX:
+  - m_object: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
+    m_weight: 1
 --- !u!114 &2462278832316299634
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -224,7 +250,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 48122
+  m_InstanceId: 75472
 --- !u!82 &6978962022123711710
 AudioSource:
   m_ObjectHideFlags: 0
@@ -235,7 +261,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
+  m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 0.25
   m_Pitch: 1
@@ -281,7 +307,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -330,17 +356,3 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &1020472972288108121
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6454192830596295347}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_colorMin: 0
-  m_colorMax: 1

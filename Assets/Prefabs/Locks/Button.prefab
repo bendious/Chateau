@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1109000480649253533}
   - component: {fileID: 2179396430787108748}
   - component: {fileID: 2527475641691576695}
+  - component: {fileID: 6324014698153559937}
   m_Layer: 0
   m_Name: Button
   m_TagString: Untagged
@@ -99,6 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 750d2eb8126a1c74e87ad9185871303a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_reusable: 0
 --- !u!61 &2179396430787108748
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -116,7 +118,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.64, y: 0.64}
+    oldSize: {x: 0.2, y: 0.2}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -203,3 +205,17 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   - {x: 0.5, y: 0.5, z: 0}
   - {x: -0.5, y: 0.5, z: 0}
+--- !u!114 &6324014698153559937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3916154150493127968}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_colorMin: 0.25
+  m_colorMax: 1

@@ -10,5 +10,5 @@ public interface IUnlockable
 
 	public bool IsKey(GameObject obj);
 
-	public void Unlock(GameObject key);
+	public bool Unlock(GameObject key);
 }

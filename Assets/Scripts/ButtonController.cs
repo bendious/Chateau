@@ -5,6 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class ButtonController : MonoBehaviour, IInteractable, IUnlockable
 {
+	public bool m_reusable = false;
+
 	public GameObject Parent { get; set; }
 
 
@@ -28,15 +30,19 @@ public class ButtonController : MonoBehaviour, IInteractable, IUnlockable
 		return obj == gameObject;
 	}
 
-	public void Unlock(GameObject key)
+	public bool Unlock(GameObject key)
 	{
-		m_locked = false;
-		Parent.GetComponent<IUnlockable>().Unlock(key);
+		bool fullyUnlocked = Parent.GetComponent<IUnlockable>().Unlock(key);
+		m_locked = m_reusable && !fullyUnlocked;
+		if (m_locked)
+		{
+			return false;
+		}
 
 		// update color
 		// NOTE that LockController.DeactivateKey() also turns off our light
-		GetComponent<SpriteRenderer>().color = Color.gray; // TODO: expose?
+		GetComponent<SpriteRenderer>().color = Color.black; // TODO: expose?
 
-		// TODO: SFX in case lock is far away
+		return true;
 	}
 }

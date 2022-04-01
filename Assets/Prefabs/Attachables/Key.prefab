@@ -107,6 +107,10 @@ PrefabInstance:
       propertyPath: m_SpriteTilingProperty.oldSize.y
       value: 0.4
       objectReference: {fileID: 0}
+    - target: {fileID: 6012924778908530461, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_colorMin
+      value: 0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 8260530995564227012, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_Name
       value: Key
@@ -115,6 +119,5 @@ PrefabInstance:
       propertyPath: m_swingInfo.m_damage
       value: 0.5
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 6012924778908530461, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}

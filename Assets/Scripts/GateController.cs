@@ -40,9 +40,10 @@ public class GateController : MonoBehaviour, IUnlockable
 		return m_child.IsKey(obj);
 	}
 
-	public void Unlock(GameObject key)
+	public bool Unlock(GameObject key)
 	{
 		GameController.Instance.AddCameraTargets(transform);
 		Simulation.Schedule<ObjectDespawn>(1.0f).m_object = gameObject; // TODO: guarantee camera reaches us?
+		return true;
 	}
 }

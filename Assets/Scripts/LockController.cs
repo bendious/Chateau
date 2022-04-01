@@ -14,22 +14,27 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	{
 		public Sprite[] m_doorSprites;
 		public WeightedObject<GameObject>[] m_prefabs;
+		public WeightedObject<GameObject>[] m_orderPrefabs;
 		public int m_keyCountMax;
 		public int m_combinationDigits;
 	}
 	public WeightedObject<KeyInfo>[] m_keyPrefabs;
 	public WeightedObject<string>[] m_combinationSets;
 
-	public float m_keyHeightMax = 8.0f;
+	public float m_keyHeightMax = 7.5f;
 
 	public GameObject m_combinationIndicatorPrefab;
 	public float m_interactDistanceMax = 1.0f; // TODO: combine w/ avatar focus distance?
+
+	public WeightedObject<AudioClip>[] m_failureSFX;
+	public WeightedObject<AudioClip>[] m_unlockSFX;
 
 
 	public GameObject Parent { get; set; }
 
 
-	private readonly List<GameObject> m_keys = new();
+	private List<GameObject> m_keys = new();
+	private List<GameObject> m_keysOrig;
 	private KeyInfo m_keyInfo;
 	private string m_combinationSet;
 
@@ -63,13 +68,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 			{
 				childLock.Parent = gameObject;
 			}
-			m_keys.Add(keyObj);
-		}
-
-		// door setup based on key
-		if (m_keyInfo.m_doorSprites != null && m_keyInfo.m_doorSprites.Length > 0)
-		{
-			GetComponent<SpriteRenderer>().sprite = m_keyInfo.m_doorSprites[^Mathf.Min(m_keyInfo.m_doorSprites.Length, m_keys.Count + 1)];
+			m_keys.AddRange(keyObj.GetComponentsInChildren<SpriteRenderer>().Select(r => r.gameObject));
 		}
 
 		// setup key(s)
@@ -96,12 +95,51 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 			}
 		}
 
-		// match color w/ key(s)
-		Color color = GetComponent<SpriteRenderer>().color;
-		foreach (GameObject key in m_keys)
+		// spawn order guide if applicable
+		GameObject orderObj = null;
+		if (m_keys.Count > 1 && m_keyInfo.m_orderPrefabs.Length > 0)
 		{
-			key.GetComponent<SpriteRenderer>().color = color;
+			int spawnRoomIdx = Random.Range(0, keyRooms.Length + 1);
+			RoomController spawnRoom = spawnRoomIdx >= keyRooms.Length ? lockRoom : keyRooms[spawnRoomIdx];
+			Vector3 spawnPos = spawnRoom.InteriorPosition(m_keyHeightMax) + Vector3.forward;
+			orderObj = Instantiate(m_keyInfo.m_orderPrefabs.RandomWeighted(), spawnPos, Quaternion.identity, spawnRoom.transform);
 		}
+
+		// allow duplicates in ordered keys
+		// TODO: allow duplicates before some originals?
+		SpriteRenderer[] colorKeyRenderers = orderObj != null ? orderObj.GetComponentsInChildren<SpriteRenderer>().ToArray() : new SpriteRenderer[] { GetComponent<SpriteRenderer>() };
+		if (orderObj != null)
+		{
+			int keyCountOrig = m_keys.Count;
+			for (int i = 0, repeatCount = Random.Range(0, colorKeyRenderers.Length - m_keys.Count + 1); i < repeatCount; ++i)
+			{
+				m_keys.Add(m_keys[Random.Range(0, keyCountOrig)]);
+			}
+		}
+
+		// match key color(s)
+		int colorIdx;
+		for (colorIdx = 0; colorIdx < colorKeyRenderers.Length; ++colorIdx)
+		{
+			SpriteRenderer rendererCur = colorKeyRenderers[colorIdx];
+			if (colorIdx < m_keys.Count)
+			{
+				rendererCur.color = m_keys[colorIdx].GetComponent<SpriteRenderer>().color;
+			}
+			else
+			{
+				rendererCur.gameObject.SetActive(false);
+			}
+		}
+		for (; colorIdx < m_keys.Count; ++colorIdx)
+		{
+			m_keys[colorIdx].GetComponent<SpriteRenderer>().color = colorKeyRenderers.First().color;
+		}
+
+		// door setup based on keys
+		UpdateSprite();
+
+		m_keysOrig = new(m_keys); // NOTE the forced copy
 	}
 
 	public bool IsKey(GameObject obj)
@@ -234,11 +272,23 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 #else
 	private
 #endif
-		void Unlock(GameObject key)
+		bool Unlock(GameObject key)
 	{
 		// handle given key
+		AudioSource audio = GetComponent<AudioSource>();
 		if (key != null)
 		{
+			if (m_keys.Count == 0 || (m_keyInfo.m_orderPrefabs.Length > 0 && key != m_keys.First()))
+			{
+				// TODO: visual indication of failure?
+				audio.clip = m_failureSFX.RandomWeighted();
+				audio.Play();
+
+				m_keys = new(m_keysOrig); // NOTE the forced copy
+				UpdateSprite();
+
+				return false;
+			}
 			m_keys.Remove(key);
 			DeactivateKey(key);
 		}
@@ -276,7 +326,18 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		}
 
 		// TODO: unlock animation/VFX/etc.
-		GetComponent<AudioSource>().Play();
+		audio.clip = m_unlockSFX.RandomWeighted();
+		audio.Play();
+
+		return m_keys.Count == 0;
+	}
+
+	private void UpdateSprite()
+	{
+		if (m_keyInfo.m_doorSprites != null && m_keyInfo.m_doorSprites.Length > 0)
+		{
+			GetComponent<SpriteRenderer>().sprite = m_keyInfo.m_doorSprites[^Mathf.Min(m_keyInfo.m_doorSprites.Length, m_keys.Count + 1)];
+		}
 	}
 
 	private void DeactivateKey(GameObject key)
