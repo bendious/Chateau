@@ -108,9 +108,21 @@ PrefabInstance:
       value: 0.64
       objectReference: {fileID: 0}
     - target: {fileID: 9106383757056443986, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_ladderPrefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9106383757056443986, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
       propertyPath: m_lockPrefabs.Array.data[0].m_object
       value: 
       objectReference: {fileID: 5718300461762894371, guid: e360d6e48b098a443847f39c71734a9b, type: 3}
+    - target: {fileID: 9106383757056443986, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_ladderPrefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 6981071687859246632, guid: 17e8567260500674f88fe723983904c9, type: 3}
+    - target: {fileID: 9106383757056443986, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_ladderPrefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 6181378878242035166, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}

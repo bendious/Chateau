@@ -433,25 +433,26 @@ public class RoomController : MonoBehaviour
 		});
 	}
 
-	public void SpawnLadder(GameObject doorway)
+	public void SpawnLadder(GameObject doorway, GameObject prefabForced = null, bool spawnBunched = false)
 	{
 		Assert.IsTrue(m_doorways.Contains(doorway) || System.Array.Exists(m_doorwayInfos, info => info.m_blocker == doorway));
 
 		// determine rung count/height
-		GameObject ladderRungPrefab = m_ladderRungPrefabs.RandomWeighted();
+		GameObject ladderRungPrefab = prefabForced != null ? prefabForced : m_ladderRungPrefabs.RandomWeighted();
 		DistanceJoint2D firstJoint = ladderRungPrefab.GetComponent<DistanceJoint2D>(); // TODO: genericize?
 		bool hanging = firstJoint != null;
 		float yTop = doorway.transform.position.y - (hanging ? 0.0f : 1.5f); // TODO: base top distance on character height
 		float heightDiff = yTop - transform.position.y; // TODO: don't assume pivot point is always the place to stop?
-		float rungHeight = hanging ? firstJoint.distance : ladderRungPrefab.GetComponent<SpriteRenderer>().size.y;
-		int rungCount = Mathf.RoundToInt(heightDiff / rungHeight) - (hanging ? 1 : 0);
+		float rungOnlyHeight = ladderRungPrefab.GetComponent<SpriteRenderer>().size.y;
+		float rungHeightTotal = hanging ? firstJoint.distance : rungOnlyHeight;
+		int rungCount = Mathf.RoundToInt(heightDiff / rungHeightTotal) - (hanging ? 1 : 0);
 		if (!hanging)
 		{
-			rungHeight = heightDiff / rungCount;
+			rungHeightTotal = heightDiff / rungCount;
 		}
 
 		Vector3 posItr = doorway.transform.position;
-		posItr.y = yTop - (hanging ? 0.0f : rungHeight);
+		posItr.y = yTop - (hanging ? 0.0f : rungHeightTotal);
 		Rigidbody2D bodyPrev = null;
 		for (int i = 0; i < rungCount; ++i)
 		{
@@ -475,15 +476,15 @@ public class RoomController : MonoBehaviour
 				// resize
 				// NOTE that we have to adjust bottom-up ladders to ensure the top rung is within reach of any combination lock above it
 				SpriteRenderer renderer = ladder.GetComponent<SpriteRenderer>();
-				renderer.size = new Vector2(renderer.size.x, rungHeight);
+				renderer.size = new Vector2(renderer.size.x, rungHeightTotal);
 				BoxCollider2D collider = ladder.GetComponent<BoxCollider2D>();
-				collider.size = new Vector2(collider.size.x, rungHeight);
-				collider.offset = new Vector2(collider.offset.x, rungHeight * 0.5f);
+				collider.size = new Vector2(collider.size.x, rungHeightTotal);
+				collider.offset = new Vector2(collider.offset.x, rungHeightTotal * 0.5f);
 			}
 
 			// iterate
 			posItr.x += Random.Range(-m_ladderRungSkewMax, m_ladderRungSkewMax); // TODO: guarantee AI navigability? clamp to room size?
-			posItr.y -= rungHeight;
+			posItr.y -= spawnBunched ? rungOnlyHeight : rungHeightTotal;
 		}
 	}
 

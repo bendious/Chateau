@@ -6,6 +6,8 @@ public class GateController : MonoBehaviour, IUnlockable
 {
 	public WeightedObject<GameObject>[] m_lockPrefabs;
 
+	public WeightedObject<GameObject>[] m_ladderPrefabs;
+
 
 	public GameObject Parent { get; set; }
 
@@ -20,7 +22,7 @@ public class GateController : MonoBehaviour, IUnlockable
 			return;
 		}
 
-		Parent.GetComponent<RoomController>().SpawnLadder(gameObject);
+		Parent.GetComponent<RoomController>().SpawnLadder(gameObject, m_ladderPrefabs == null ? null : m_ladderPrefabs.RandomWeighted(), true);
 		m_child.Unlock(collider.gameObject);
 	}
 
