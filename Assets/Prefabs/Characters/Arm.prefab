@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3060130244721252949}
   - component: {fileID: 4030274311394631088}
   - component: {fileID: 5513054168261979483}
+  - component: {fileID: 409237484916878992}
   - component: {fileID: 2961888344388029937}
   m_Layer: 0
   m_Name: Arm
@@ -115,8 +116,6 @@ MonoBehaviour:
   m_radiusStiffnessMax: 150
   m_springMassMax: 1
   m_swingDecayStiffness: 100
-  m_lineOffset: {x: 0, y: -0.075, z: 0}
-  m_lineMinLength: 0.05
 --- !u!70 &4030274311394631088
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -238,6 +237,20 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &409237484916878992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3060130244721252944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcd4ac0671a582c418f73096db02b305, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_lineOffset: {x: 0, y: -0.075, z: 0}
+  m_lengthMin: 0.05
 --- !u!120 &2961888344388029937
 LineRenderer:
   m_ObjectHideFlags: 0

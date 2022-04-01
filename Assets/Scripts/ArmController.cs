@@ -30,21 +30,15 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 	public float m_swingDecayStiffness = 100.0f;
 
-	public Vector3 m_lineOffset;
-	public float m_lineMinLength = 0.05f;
-
 
 	public float Speed => Mathf.Abs(Mathf.Deg2Rad * (m_aimVelocityArm + m_aimVelocityItem) * ((Vector2)transform.parent.position - (Vector2)transform.position).magnitude) + Mathf.Abs(m_aimRadiusVelocity); // NOTE the conversion from angular velocity to linear speed via arclength=radians*radius // TODO: incorporate aim velocity directions?
 
 	public bool IsSwinging => !m_aimVelocityContinuing.FloatEqual(0.0f, m_swingInfoCur.m_damageThresholdSpeed) || !m_radiusVelocityContinuing.FloatEqual(0.0f, m_swingInfoCur.m_damageThresholdSpeed);
 
-
-	private bool LeftFacing => Mathf.Cos(Mathf.Deg2Rad * m_aimDegreesArm) < 0.0f; // TODO: efficiency?
-
+	public bool LeftFacing => Mathf.Cos(Mathf.Deg2Rad * m_aimDegreesArm) < 0.0f; // TODO: efficiency?
 
 
 	private Collider2D[] m_colliders;
-	private LineRenderer m_line;
 
 	private SwingInfo m_swingInfoCur;
 
@@ -79,25 +73,6 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		{
 			Physics2D.IgnoreCollision(parentCollider, collider);
 		}
-
-		m_line = GetComponent<LineRenderer>();
-	}
-
-	private void Update()
-	{
-		AvatarController avatar = transform.parent.GetComponent<AvatarController>();
-		Vector3 parentOffset = avatar == null ? transform.parent.GetComponent<EnemyController>().m_armOffset : avatar.m_armOffset; // TODO: unify {Avatar/Enemy}Controller.m_armOffset?
-		Vector3 shoulderPosLocal = transform.parent.position + parentOffset + (Vector3)(Vector2)m_offset - transform.position; // NOTE the removal of Z from m_offset
-		m_line.enabled = ((Vector2)shoulderPosLocal).sqrMagnitude >= m_lineMinLength * m_lineMinLength;
-
-		if (!m_line.enabled)
-		{
-			return;
-		}
-
-		Vector3 offsetOriented = LeftFacing ? -m_lineOffset : m_lineOffset;
-		m_line.SetPosition(0, offsetOriented);
-		m_line.SetPosition(1, Quaternion.Inverse(transform.rotation) * shoulderPosLocal + offsetOriented);
 	}
 
 	// TODO: combine w/ ItemController version?

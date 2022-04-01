@@ -439,10 +439,11 @@ public class RoomController : MonoBehaviour
 
 		// determine rung count/height
 		GameObject ladderRungPrefab = m_ladderRungPrefabs.RandomWeighted();
-		bool hanging = ladderRungPrefab.GetComponent<AnchoredJoint2D>() != null; // TODO: genericize?
+		DistanceJoint2D firstJoint = ladderRungPrefab.GetComponent<DistanceJoint2D>(); // TODO: genericize?
+		bool hanging = firstJoint != null;
 		float yTop = doorway.transform.position.y - (hanging ? 0.0f : 1.5f); // TODO: base top distance on character height
 		float heightDiff = yTop - transform.position.y; // TODO: don't assume pivot point is always the place to stop?
-		float rungHeight = ladderRungPrefab.GetComponent<SpriteRenderer>().size.y;
+		float rungHeight = hanging ? firstJoint.distance : ladderRungPrefab.GetComponent<SpriteRenderer>().size.y;
 		int rungCount = Mathf.RoundToInt(heightDiff / rungHeight) - (hanging ? 1 : 0);
 		if (!hanging)
 		{
@@ -455,7 +456,7 @@ public class RoomController : MonoBehaviour
 		for (int i = 0; i < rungCount; ++i)
 		{
 			// create
-			GameObject ladder = Instantiate(ladderRungPrefab, posItr, Quaternion.identity, bodyPrev == null ? transform : bodyPrev.transform);
+			GameObject ladder = Instantiate(ladderRungPrefab, posItr, Quaternion.identity, transform);
 
 			// connect to previous rung
 			AnchoredJoint2D[] joints = ladder.GetComponents<AnchoredJoint2D>();
@@ -495,9 +496,10 @@ public class RoomController : MonoBehaviour
 				continue;
 			}
 
+			bool wasOpen = DoorwayIsOpen(i);
 			OpenDoorway(i, !seal, false);
 
-			if (seal && m_doorwayInfos[i].m_blocker == null)
+			if (seal && wasOpen)
 			{
 				Vector2 doorwaySize = DoorwaySize(m_doorways[i]);
 				VisualEffect vfx = Instantiate(m_doorSealVFX, m_doorways[i].transform.position + new Vector3(0.0f, -0.5f * doorwaySize.y, 0.0f), Quaternion.identity).GetComponent<VisualEffect>();
@@ -761,5 +763,27 @@ public class RoomController : MonoBehaviour
 		}
 
 		return connectionPoints;
+	}
+
+	private bool DoorwayIsOpen(int index)
+	{
+		if (m_doorwayInfos[index].m_blocker != null)
+		{
+			return false;
+		}
+
+		GameObject doorway = m_doorways[index];
+		if (!doorway.activeSelf)
+		{
+			return true;
+		}
+
+		PlatformEffector2D platform = doorway.GetComponent<PlatformEffector2D>();
+		if (platform != null && platform.enabled)
+		{
+			return true;
+		}
+
+		return false;
 	}
 }
