@@ -114,7 +114,7 @@ public class RoomController : MonoBehaviour
 #endif
 
 
-	public void Initialize(LayoutGenerator.Node[] layoutNodes)
+	public void SetNodes(LayoutGenerator.Node[] layoutNodes)
 	{
 		Assert.IsNull(m_layoutNodes);
 		m_layoutNodes = layoutNodes;
@@ -123,14 +123,33 @@ public class RoomController : MonoBehaviour
 			Debug.Assert(node.m_room == null);
 			node.m_room = this;
 		}
+	}
 
+	public void FinalizeRecursive()
+	{
 		for (int doorwayIdx = 0; doorwayIdx < m_doorways.Length; ++doorwayIdx)
 		{
-			if (m_doorwayInfos[doorwayIdx].m_parentRoom != null)
+			DoorwayInfo doorwayInfo = m_doorwayInfos[doorwayIdx];
+			if (doorwayInfo.m_parentRoom != null)
 			{
 				// open doorway to parent
 				OpenDoorway(doorwayIdx, true, DoorwayDirection(doorwayIdx).y > 0.0f);
 			}
+
+			if (doorwayInfo.m_childRoom == null)
+			{
+				continue;
+			}
+
+			doorwayInfo.m_childRoom.FinalizeRecursive();
+
+			LayoutGenerator.Node lockNode = GateNodeToChild(LayoutGenerator.Node.Type.Lock, doorwayInfo.m_childRoom.m_layoutNodes);
+			if (lockNode == null)
+			{
+				continue;
+			}
+
+			doorwayInfo.m_blocker.GetComponent<IUnlockable>().SpawnKeys(this, lockNode.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray());
 		}
 
 		// room type
@@ -161,14 +180,13 @@ public class RoomController : MonoBehaviour
 			wall.GetComponent<SpriteRenderer>().color = roomColor;
 		}
 
-		// TODO: prevent overlap of spawned prefabs
-
 		// spawn enemy spawn points
 		m_spawnPoints = new GameObject[Random.Range(1, m_spawnPointsMax + 1)]; // TODO: base on room size?
 		for (int spawnIdx = 0; spawnIdx < m_spawnPoints.Length; ++spawnIdx)
 		{
-			Vector3 spawnPosBG = InteriorPosition(float.MaxValue) + Vector3.forward; // NOTE that we don't account for spawn point or enemy size, relying on KinematicObject's spawn checks to prevent getting stuck in walls
-			m_spawnPoints[spawnIdx] = Instantiate(m_spawnPointPrefabs.RandomWeighted(), spawnPosBG, Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f)), transform);
+			GameObject spawnPrefab = m_spawnPointPrefabs.RandomWeighted();
+			Vector3 spawnPosBG = InteriorPosition(float.MaxValue, spawnPrefab) + Vector3.forward; // NOTE that we don't account for maximum enemy size, relying on KinematicObject's spawn checks to prevent getting stuck in walls
+			m_spawnPoints[spawnIdx] = Instantiate(spawnPrefab, spawnPosBG, Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f)), transform);
 		}
 
 		// spawn node-specific architecture
@@ -179,7 +197,8 @@ public class RoomController : MonoBehaviour
 			{
 				case LayoutGenerator.Node.Type.Entrance:
 				case LayoutGenerator.Node.Type.Zone1Door:
-					InteractSimple door = Instantiate(m_doorInteractPrefabs.RandomWeighted(), (node.m_type == LayoutGenerator.Node.Type.Entrance ? transform.position : InteriorPosition(0.0f, 0.0f)) + Vector3.forward, Quaternion.identity, transform).GetComponent<InteractSimple>();
+					GameObject doorPrefab = m_doorInteractPrefabs.RandomWeighted();
+					InteractSimple door = Instantiate(doorPrefab, (node.m_type == LayoutGenerator.Node.Type.Entrance ? transform.position : InteriorPosition(0.0f, 0.0f, doorPrefab)) + Vector3.forward, Quaternion.identity, transform).GetComponent<InteractSimple>();
 					if (node.m_type != LayoutGenerator.Node.Type.Entrance)
 					{
 						door.m_sceneName = m_doorInteractSceneName;
@@ -230,9 +249,9 @@ public class RoomController : MonoBehaviour
 		Color decoColor = roomColor * 2.0f; // TODO?
 		for (int i = 0; i < numDecorations; ++i)
 		{
-			Vector3 spawnPos = InteriorPosition(Random.Range(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax)) + Vector3.forward; // TODO: uniform height per room?
-			// TODO: prevent overlap
-			GameObject decoration = Instantiate(m_roomType.m_decorationPrefabs.RandomWeighted(), spawnPos, Quaternion.identity, transform);
+			GameObject decoPrefab = m_roomType.m_decorationPrefabs.RandomWeighted();
+			Vector3 spawnPos = InteriorPosition(Random.Range(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax), decoPrefab) + Vector3.forward; // TODO: uniform height per room?
+			GameObject decoration = Instantiate(decoPrefab, spawnPos, Quaternion.identity, transform);
 
 			foreach (SpriteRenderer renderer in decoration.GetComponentsInChildren<SpriteRenderer>(true))
 			{
@@ -244,27 +263,6 @@ public class RoomController : MonoBehaviour
 				renderer.color = decoColor;
 				renderer.intensity = Random.Range(0.0f, 1.0f); // TODO: base on area/progress?
 			}
-		}
-	}
-
-	public void SpawnKeysRecursive()
-	{
-		foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
-		{
-			if (doorwayInfo.m_childRoom == null)
-			{
-				continue;
-			}
-
-			doorwayInfo.m_childRoom.SpawnKeysRecursive();
-
-			LayoutGenerator.Node lockNode = GateNodeToChild(LayoutGenerator.Node.Type.Lock, doorwayInfo.m_childRoom.m_layoutNodes);
-			if (lockNode == null)
-			{
-				continue;
-			}
-
-			doorwayInfo.m_blocker.GetComponent<IUnlockable>().SpawnKeys(this, lockNode.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray());
 		}
 	}
 
@@ -293,20 +291,70 @@ public class RoomController : MonoBehaviour
 		return null;
 	}
 
-	public Vector3 InteriorPosition(float heightMax)
+	public Vector3 InteriorPosition(float heightMax, GameObject preventOverlapPrefab = null)
 	{
-		return InteriorPosition(0.0f, heightMax);
+		return InteriorPosition(0.0f, heightMax, preventOverlapPrefab);
 	}
 
-	public Vector3 InteriorPosition(float heightMin, float heightMax)
+	public Vector3 InteriorPosition(float heightMin, float heightMax, GameObject preventOverlapPrefab = null)
 	{
 		Bounds boundsInterior = m_bounds;
-		boundsInterior.Expand(new Vector3(-1.0f, -1.0f, 0.0f)); // TODO: dynamically determine wall thickness?
+		boundsInterior.Expand(new Vector3(-1.0f, -1.0f, float.MaxValue)); // TODO: dynamically determine wall thickness?
 
 		float xDiffMax = boundsInterior.extents.x;
 		float yMaxFinal = Mathf.Min(heightMax, boundsInterior.size.y); // TODO: also count furniture surfaces as "floor"
 
-		return new(boundsInterior.center.x + Random.Range(-xDiffMax, xDiffMax), transform.position.y + Random.Range(heightMin, yMaxFinal), transform.position.z); // NOTE the assumptions that the object position is on the floor of the room but not necessarily centered
+		// calculate overlap bbox
+		Bounds testBbox = new(); // TODO: don't assume the prefab origin should always be included?
+		if (preventOverlapPrefab != null)
+		{
+			foreach (SpriteRenderer renderer in preventOverlapPrefab.GetComponentsInChildren<SpriteRenderer>())
+			{
+				testBbox.Encapsulate(renderer.bounds);
+			}
+			testBbox.Expand(new Vector3(-0.01f, -0.01f, float.MaxValue)); // NOTE the slight x/y contraction to avoid always collecting the floor when up against it
+		}
+
+		Vector3 pos = new(boundsInterior.center.x + Random.Range(-xDiffMax, xDiffMax), transform.position.y + Random.Range(heightMin, yMaxFinal), transform.position.z); // NOTE the assumptions that the object position is on the floor of the room but not necessarily centered
+		if (preventOverlapPrefab == null)
+		{
+			return pos;
+		}
+
+		// get points until no overlap
+		// TODO: more deliberate iteration? better fallback?
+		Vector3 centerOrig = testBbox.center; // NOTE that we can't assume the bbox is centered
+		const int attemptsMax = 100;
+		int failsafe = attemptsMax;
+		do
+		{
+			testBbox.center = centerOrig + pos;
+
+			bool overlap = false;
+			foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>())
+			{
+				if (renderer.gameObject != m_backdrop && renderer.bounds.Intersects(testBbox))
+				{
+					overlap = true;
+					break;
+				}
+			}
+			if (!overlap)
+			{
+				break;
+			}
+
+			pos.x += boundsInterior.size.x / attemptsMax;
+			pos.y = transform.position.y + Random.Range(heightMin, yMaxFinal);
+			if (pos.x > boundsInterior.max.x)
+			{
+				pos.x -= boundsInterior.size.x;
+			}
+		}
+		while (--failsafe > 0);
+		Debug.Assert(failsafe > 0);
+
+		return pos;
 	}
 
 	public Vector3 SpawnPointRandom()
@@ -647,7 +695,7 @@ public class RoomController : MonoBehaviour
 			}
 		}
 
-		childRoom.Initialize(childNodes);
+		childRoom.SetNodes(childNodes);
 
 		OpenDoorway(index, true, !noLadder && replaceDirection.y > 0.0f);
 	}

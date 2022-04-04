@@ -108,7 +108,7 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
-		m_startRoom.SpawnKeysRecursive();
+		m_startRoom.FinalizeRecursive();
 
 		// TODO: dialogue system
 		if (!PlayerPrefs.HasKey("IntroDialogueDone"))
@@ -386,7 +386,7 @@ public class GameController : MonoBehaviour
 			{
 				Assert.IsNull(m_startRoom);
 				m_startRoom = Instantiate(m_entryRoomPrefabs.RandomWeighted()).GetComponent<RoomController>();
-				m_startRoom.Initialize(nodesList.ToArray());
+				m_startRoom.SetNodes(nodesList.ToArray());
 			}
 			else
 			{
