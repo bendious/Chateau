@@ -505,11 +505,11 @@ public class RoomController : MonoBehaviour
 				Vector2 doorwaySize = DoorwaySize(m_doorways[i]);
 				VisualEffect vfx = Instantiate(m_doorSealVFX, m_doorways[i].transform.position + new Vector3(0.0f, -0.5f * doorwaySize.y, 0.0f), Quaternion.identity).GetComponent<VisualEffect>();
 				vfx.SetVector3("StartAreaSize", new Vector3(doorwaySize.x, 0.0f, 0.0f));
+
+				m_doorways[i].GetComponent<AudioSource>().Play();
+				// TODO: animation?
 			}
 		}
-
-		GetComponent<AudioSource>().Play();
-		// TODO: animation?
 	}
 
 

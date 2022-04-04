@@ -69,9 +69,10 @@ public class BossRoom : MonoBehaviour
 		GameController.Instance.m_bossRoomSealed = true;
 
 		// play ambiance SFX
-		// NOTE that the first source should have been played by RoomController.SealRoom()
 		AudioSource[] sources = GetComponents<AudioSource>();
-		sources[1].PlayScheduled(AudioSettings.dspTime + sources.First().clip.length);
+		AudioSource source0 = sources.First();
+		source0.Play();
+		sources[1].PlayScheduled(AudioSettings.dspTime + source0.clip.length);
 	}
 
 	private void OnTriggerExit2D(Collider2D collider)
@@ -98,10 +99,15 @@ public class BossRoom : MonoBehaviour
 
 	public void EndMusic()
 	{
-		foreach (AudioSource source in GetComponents<AudioSource>())
+		AudioSource[] sources = GetComponents<AudioSource>();
+		foreach (AudioSource source in sources)
 		{
 			source.Stop(); // TODO: soft outro?
 		}
+
+		// NOTE that we have to use a component that won't be playing any more audio rather than using PlayOneShot(), which leaves the music running even after level load
+		sources.First().clip = GameController.Instance.m_victoryAudio;
+		sources.First().Play();
 	}
 
 

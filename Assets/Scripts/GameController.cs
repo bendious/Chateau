@@ -315,7 +315,7 @@ public class GameController : MonoBehaviour
 		m_timerUI.text = "WIN!";
 		m_nextWaveTime = -1.0f;
 		StopAllCoroutines();
-		m_avatars.First().GetComponent<AudioSource>().PlayOneShot(m_victoryAudio);
+
 		// TODO: roll credits / etc.?
 	}
 

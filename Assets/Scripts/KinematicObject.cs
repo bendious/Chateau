@@ -9,6 +9,10 @@ using UnityEngine.Assertions;
 /// </summary>
 public abstract class KinematicObject : MonoBehaviour
 {
+	// TODO: give appropriate defaults w/o needing LayerMask.NameToLayer() at initialization time?
+	public LayerMask m_platformLayer;
+	public LayerMask m_ignorePlatformsLayer;
+
 	/// <summary>
 	/// The minimum normal (dot product) considered suitable for the entity sit on.
 	/// </summary>
@@ -76,7 +80,8 @@ public abstract class KinematicObject : MonoBehaviour
 	private Vector2 m_velocityForcedWeightVel = Vector2.zero;
 
 	private int m_layerOrig;
-	private static /*readonly*/ int m_platformLayer;
+	private int m_platformLayerIdx;
+	private int m_ignorePlatformsLayerIdx;
 	private const float m_platformTopEpsilon = 0.1f;
 
 	private const float m_nearGroundDistance = 1.0f;
@@ -117,8 +122,12 @@ public abstract class KinematicObject : MonoBehaviour
 	protected virtual void Start()
 	{
 		contactFilter.useTriggers = false;
-		m_platformLayer = LayerMask.NameToLayer("OneWayPlatforms");
+
+		// TODO: detect updates while active?
 		Assert.AreNotEqual(m_platformLayer, -1);
+		Assert.AreNotEqual(m_ignorePlatformsLayer, -1);
+		m_platformLayerIdx = Mathf.RoundToInt(Mathf.Log(m_platformLayer.value, 2.0f));
+		m_ignorePlatformsLayerIdx = Mathf.RoundToInt(Mathf.Log(m_ignorePlatformsLayer.value, 2.0f));
 	}
 
 	protected virtual void Update()
@@ -183,7 +192,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 		// update our collision mask
 		bool shouldIgnoreOneWays = velocity.y >= 0.0f || (m_character != null && m_character.IsDropping); // TODO: don't require knowledge of KinematicCharacter
-		gameObject.layer = shouldIgnoreOneWays ? LayerMask.NameToLayer("IgnorePlatforms")/*TODO*/ : m_layerOrig;
+		gameObject.layer = shouldIgnoreOneWays ? m_ignorePlatformsLayerIdx : m_layerOrig;
 		contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
 
 		Lazy<bool> isNearGround = new(() => Physics2D.Raycast(m_collider.bounds.min, Vector2.down, m_nearGroundDistance).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground? cast whole collider for better detection?
@@ -272,7 +281,7 @@ public abstract class KinematicObject : MonoBehaviour
 				{
 					continue; // don't get hung up on dynamic/carried/ignored objects
 				}
-				if (hit.collider.gameObject.layer == m_platformLayer && m_collider.bounds.min.y + m_platformTopEpsilon < hit.collider.bounds.max.y)
+				if (hit.collider.gameObject.layer == m_platformLayerIdx && m_collider.bounds.min.y + m_platformTopEpsilon < hit.collider.bounds.max.y)
 				{
 					continue; // if partway through a one-way platform, ignore it
 				}

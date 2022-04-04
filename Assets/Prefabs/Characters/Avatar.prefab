@@ -232,6 +232,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9351ace568ee14042a227f767b027b2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_platformLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  m_ignorePlatformsLayer:
+    serializedVersion: 2
+    m_Bits: 256
   minGroundNormalY: 0.65
   m_minWallClingNormalY: 0
   gravityModifier: 3
