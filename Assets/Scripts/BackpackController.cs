@@ -10,7 +10,7 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable, 
 
 	public Vector3 m_attachOffsetLocal = Vector3.forward * 0.2f;
 	public /*override*/ Vector3 AttachOffsetLocal => m_attachOffsetLocal;
-	public /*override*/ Vector3 ChildAttachPointLocal => Vector3.forward * 0.2f/*?*/;
+	public /*override*/ Vector3 ChildAttachPointLocal => Vector3.zero;
 
 
 	public void Interact(KinematicCharacter interactor) => interactor.ChildAttach(this);

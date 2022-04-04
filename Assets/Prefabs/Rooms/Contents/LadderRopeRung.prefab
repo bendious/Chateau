@@ -155,6 +155,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 8cedd2460dc0d1d428f4438bdf4df942, type: 3}
     - target: {fileID: 4774662376995590474, guid: 717755c04a138404d80679d2c0d06ab5, type: 3}
+      propertyPath: m_SortingLayer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4774662376995590474, guid: 717755c04a138404d80679d2c0d06ab5, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4774662376995590474, guid: 717755c04a138404d80679d2c0d06ab5, type: 3}
       propertyPath: m_SpriteTileMode
       value: 0
       objectReference: {fileID: 0}
@@ -408,6 +416,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcd4ac0671a582c418f73096db02b305, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_offset: {x: 0, y: 0, z: 0}
   m_lineOffset: {x: 0, y: 0, z: 0}
-  m_lineMinLength: 0.05
+  m_lengthMin: 0.05

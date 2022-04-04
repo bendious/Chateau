@@ -185,7 +185,7 @@ public class RoomController : MonoBehaviour
 		for (int spawnIdx = 0; spawnIdx < m_spawnPoints.Length; ++spawnIdx)
 		{
 			GameObject spawnPrefab = m_spawnPointPrefabs.RandomWeighted();
-			Vector3 spawnPosBG = InteriorPosition(float.MaxValue, spawnPrefab) + Vector3.forward; // NOTE that we don't account for maximum enemy size, relying on KinematicObject's spawn checks to prevent getting stuck in walls
+			Vector3 spawnPosBG = InteriorPosition(float.MaxValue, spawnPrefab); // NOTE that we don't account for maximum enemy size, relying on KinematicObject's spawn checks to prevent getting stuck in walls
 			m_spawnPoints[spawnIdx] = Instantiate(spawnPrefab, spawnPosBG, Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f)), transform);
 		}
 
@@ -198,7 +198,7 @@ public class RoomController : MonoBehaviour
 				case LayoutGenerator.Node.Type.Entrance:
 				case LayoutGenerator.Node.Type.Zone1Door:
 					GameObject doorPrefab = m_doorInteractPrefabs.RandomWeighted();
-					InteractSimple door = Instantiate(doorPrefab, (node.m_type == LayoutGenerator.Node.Type.Entrance ? transform.position : InteriorPosition(0.0f, 0.0f, doorPrefab)) + Vector3.forward, Quaternion.identity, transform).GetComponent<InteractSimple>();
+					InteractSimple door = Instantiate(doorPrefab, (node.m_type == LayoutGenerator.Node.Type.Entrance ? transform.position : InteriorPosition(0.0f, 0.0f, doorPrefab)), Quaternion.identity, transform).GetComponent<InteractSimple>();
 					if (node.m_type != LayoutGenerator.Node.Type.Entrance)
 					{
 						door.m_sceneName = m_doorInteractSceneName;
@@ -220,28 +220,9 @@ public class RoomController : MonoBehaviour
 		}
 
 		// spawn furniture
-		GameObject furniturePrefab = m_roomType.m_furniturePrefabs.RandomWeighted();
-		BoxCollider2D furnitureCollider = furniturePrefab.GetComponent<BoxCollider2D>();
-		float furnitureExtentY = furnitureCollider.size.y * 0.5f + furnitureCollider.edgeRadius - furnitureCollider.offset.y;
-		GameObject furniture = Instantiate(furniturePrefab, transform); // NOTE that we have to spawn before placement due to size randomization in Awake() // TODO: guarantee size will fit in available space?
-		Bounds furnitureBounds = furniture.GetComponent<Collider2D>().bounds;
-		for (int failsafeCount = 0; failsafeCount < 100; ++failsafeCount)
-		{
-			Vector3 spawnPos = new Vector3(m_bounds.center.x, transform.position.y, transform.position.z) + new Vector3(Random.Range(-m_bounds.extents.x + furnitureBounds.extents.x, m_bounds.extents.x - furnitureBounds.extents.x), furnitureExtentY, 1.0f);
-			if (Physics2D.OverlapBox(spawnPos + furnitureBounds.center + new Vector3(0.0f, 0.1f, 0.0f), furnitureBounds.size, 0.0f) != null) // NOTE the small offset to avoid collecting the floor; also that this collects our newly spawned furniture when at the origin, but that's okay since keeping the start point clear isn't objectionable
-			{
-				continue; // re-place and try again
-			}
-			furniture.transform.position = spawnPos;
-			furniture.GetComponent<FurnitureController>().SpawnItems(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType);
-			furniture = null;
-			break;
-		}
-		if (furniture != null)
-		{
-			furniture.SetActive(false); // to prevent being visible for a frame while waiting to despawn
-			Simulation.Schedule<ObjectDespawn>().m_object = furniture;
-		}
+		GameObject furniture = Instantiate(m_roomType.m_furniturePrefabs.RandomWeighted(), transform); // NOTE that we have to spawn before placement due to size randomization in Awake() // TODO: guarantee size will fit in available space?
+		furniture.transform.position = InteriorPosition(0.0f, furniture);
+		furniture.GetComponent<FurnitureController>().SpawnItems(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType);
 
 		// spawn decoration(s)
 		// TODO: prioritize by area?
@@ -250,7 +231,7 @@ public class RoomController : MonoBehaviour
 		for (int i = 0; i < numDecorations; ++i)
 		{
 			GameObject decoPrefab = m_roomType.m_decorationPrefabs.RandomWeighted();
-			Vector3 spawnPos = InteriorPosition(Random.Range(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax), decoPrefab) + Vector3.forward; // TODO: uniform height per room?
+			Vector3 spawnPos = InteriorPosition(Random.Range(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax), decoPrefab); // TODO: uniform height per room?
 			GameObject decoration = Instantiate(decoPrefab, spawnPos, Quaternion.identity, transform);
 
 			foreach (SpriteRenderer renderer in decoration.GetComponentsInChildren<SpriteRenderer>(true))
@@ -301,19 +282,22 @@ public class RoomController : MonoBehaviour
 		Bounds boundsInterior = m_bounds;
 		boundsInterior.Expand(new Vector3(-1.0f, -1.0f, float.MaxValue)); // TODO: dynamically determine wall thickness?
 
-		float xDiffMax = boundsInterior.extents.x;
-		float yMaxFinal = Mathf.Min(heightMax, boundsInterior.size.y); // TODO: also count furniture surfaces as "floor"
-
 		// calculate overlap bbox
-		Bounds testBbox = new(); // TODO: don't assume the prefab origin should always be included?
+		Bounds bboxNew = new();
 		if (preventOverlapPrefab != null)
 		{
-			foreach (SpriteRenderer renderer in preventOverlapPrefab.GetComponentsInChildren<SpriteRenderer>())
+			SpriteRenderer[] renderers = preventOverlapPrefab.GetComponentsInChildren<SpriteRenderer>();
+			bboxNew = renderers.First().bounds; // NOTE that we can't assume the local origin should always be included due to being given post-instantiation furniture objects
+			foreach (SpriteRenderer renderer in renderers)
 			{
-				testBbox.Encapsulate(renderer.bounds);
+				bboxNew.Encapsulate(renderer.bounds);
 			}
-			testBbox.Expand(new Vector3(-0.01f, -0.01f, float.MaxValue)); // NOTE the slight x/y contraction to avoid always collecting the floor when up against it
+			bboxNew.Expand(new Vector3(-0.01f, -0.01f, float.MaxValue)); // NOTE the slight x/y contraction to avoid always collecting the floor when up against it
 		}
+
+		float xDiffMax = boundsInterior.extents.x - bboxNew.extents.x;
+		Debug.Assert(xDiffMax >= 0.0f);
+		float yMaxFinal = Mathf.Min(heightMax, boundsInterior.size.y - bboxNew.size.y); // TODO: also count furniture surfaces as "floor"
 
 		Vector3 pos = new(boundsInterior.center.x + Random.Range(-xDiffMax, xDiffMax), transform.position.y + Random.Range(heightMin, yMaxFinal), transform.position.z); // NOTE the assumptions that the object position is on the floor of the room but not necessarily centered
 		if (preventOverlapPrefab == null)
@@ -323,17 +307,18 @@ public class RoomController : MonoBehaviour
 
 		// get points until no overlap
 		// TODO: more deliberate iteration? better fallback?
-		Vector3 centerOrig = testBbox.center; // NOTE that we can't assume the bbox is centered
+		Vector3 centerOrig = bboxNew.center; // NOTE that we can't assume the bbox is centered
+		float xSizeEffective = boundsInterior.size.x - bboxNew.size.x;
 		const int attemptsMax = 100;
 		int failsafe = attemptsMax;
 		do
 		{
-			testBbox.center = centerOrig + pos;
+			bboxNew.center = centerOrig + pos;
 
 			bool overlap = false;
 			foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>())
 			{
-				if (renderer.gameObject != m_backdrop && renderer.bounds.Intersects(testBbox))
+				if (renderer.gameObject != m_backdrop && renderer.bounds.Intersects(bboxNew))
 				{
 					overlap = true;
 					break;
@@ -344,11 +329,11 @@ public class RoomController : MonoBehaviour
 				break;
 			}
 
-			pos.x += boundsInterior.size.x / attemptsMax;
+			pos.x += xSizeEffective / attemptsMax;
 			pos.y = transform.position.y + Random.Range(heightMin, yMaxFinal);
-			if (pos.x > boundsInterior.max.x)
+			if (pos.x > boundsInterior.max.x - bboxNew.extents.x)
 			{
-				pos.x -= boundsInterior.size.x;
+				pos.x -= xSizeEffective;
 			}
 		}
 		while (--failsafe > 0);
@@ -359,9 +344,7 @@ public class RoomController : MonoBehaviour
 
 	public Vector3 SpawnPointRandom()
 	{
-		Vector3 pos = m_spawnPoints[Random.Range(0, m_spawnPoints.Length)].transform.position;
-		pos.z = transform.position.z; // NOTE that we instantiate the visuals in the background but make sure spawning is at the same depth as the room
-		return pos;
+		return m_spawnPoints[Random.Range(0, m_spawnPoints.Length)].transform.position;
 	}
 
 	public List<RoomController> ChildRoomPath(Vector2 startPosition, Vector2 endPosition, bool unobstructed)
@@ -666,7 +649,7 @@ public class RoomController : MonoBehaviour
 			WeightedObject<GameObject>[] directionalBlockerPrefabs = isLock ? m_doorDirectionalPrefabs.FirstOrDefault(pair => pair.m_direction == replaceDirection).m_prefabs : null; // TODO: don't assume that secrets will never be directional?
 			GameObject blockerPrefab = (isLock ? (directionalBlockerPrefabs != null ? directionalBlockerPrefabs.Concat(m_doorPrefabs).ToArray() : m_doorPrefabs) : m_doorSecretPrefabs).RandomWeighted();
 			noLadder = directionalBlockerPrefabs != null && System.Array.Exists(directionalBlockerPrefabs, pair => blockerPrefab == pair.m_object); // TODO: don't assume directional gates will never want default ladders?
-			doorwayInfo.m_blocker = Instantiate(blockerPrefab, doorway.transform.position + Vector3.back, Quaternion.identity, transform); // NOTE the depth decrease to ensure rendering on top of platforms
+			doorwayInfo.m_blocker = Instantiate(blockerPrefab, doorway.transform.position, Quaternion.identity, transform);
 			if (isLock)
 			{
 				doorwayInfo.m_blocker.GetComponent<IUnlockable>().Parent = gameObject;

@@ -61,7 +61,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		{
 			GameObject keyPrefab = m_keyInfo.m_prefabs.RandomWeighted();
 			bool isItem = keyPrefab.GetComponent<Rigidbody2D>() != null;
-			Vector3 spawnPos = keyRooms[i].InteriorPosition(isItem ? 0.0f : m_keyHeightMax, isItem ? null : keyPrefab) + (isItem ? Vector3.zero : Vector3.forward); // TODO: prefer spawning on furniture
+			Vector3 spawnPos = keyRooms[i].InteriorPosition(isItem ? 0.0f : m_keyHeightMax, isItem ? null : keyPrefab); // TODO: prefer spawning on furniture
 			GameObject keyObj = Instantiate(keyPrefab, spawnPos, Quaternion.identity);
 			IUnlockable childLock = keyObj.GetComponent<IUnlockable>();
 			if (childLock != null)
@@ -102,7 +102,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 			int spawnRoomIdx = Random.Range(0, keyRooms.Length + 1);
 			RoomController spawnRoom = spawnRoomIdx >= keyRooms.Length ? lockRoom : keyRooms[spawnRoomIdx];
 			GameObject orderPrefab = m_keyInfo.m_orderPrefabs.RandomWeighted();
-			Vector3 spawnPos = spawnRoom.InteriorPosition(m_keyHeightMax, orderPrefab) + Vector3.forward;
+			Vector3 spawnPos = spawnRoom.InteriorPosition(m_keyHeightMax, orderPrefab);
 			orderObj = Instantiate(orderPrefab, spawnPos, Quaternion.identity, spawnRoom.transform);
 		}
 

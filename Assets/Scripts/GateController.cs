@@ -30,7 +30,7 @@ public class GateController : MonoBehaviour, IUnlockable
 	{
 		GameObject lockPrefab = m_lockPrefabs.RandomWeighted();
 		float height = -lockPrefab.GetComponentsInChildren<SpriteRenderer>().Min(renderer => renderer.bounds.min.y);
-		Vector3 spawnPos = lockRoom.InteriorPosition(height, height, lockPrefab) + Vector3.forward;
+		Vector3 spawnPos = lockRoom.InteriorPosition(height, height, lockPrefab);
 
 		m_child = Instantiate(lockPrefab, spawnPos, Quaternion.identity, transform.parent).GetComponent<IUnlockable>();
 		m_child.Parent = gameObject;

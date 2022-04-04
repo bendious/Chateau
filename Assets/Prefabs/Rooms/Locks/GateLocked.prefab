@@ -81,3 +81,4 @@ MonoBehaviour:
   m_lockPrefabs:
   - m_object: {fileID: 128592948153001037, guid: 8882c998d89b943488c134f27df4165b, type: 3}
     m_weight: 1
+  m_ladderPrefabs: []
