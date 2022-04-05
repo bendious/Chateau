@@ -29,11 +29,11 @@ public class LayoutGenerator
 			BasementOrTower,
 			Corridor,
 			Sequence,
-			SequenceIntro,
 			SequenceMedium,
 			SequenceLarge,
 			GateLock,
 			Gate,
+			PossibleBonus
 		}
 
 
@@ -111,6 +111,26 @@ public class LayoutGenerator
 		}
 
 
+		internal bool HasDescendant(Node node)
+		{
+			if (m_children == null)
+			{
+				return false;
+			}
+			if (m_children.Contains(node))
+			{
+				return true;
+			}
+			foreach (Node child in m_children)
+			{
+				if (child.HasDescendant(node))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
 		internal void DepthFirstQueue(Queue<Node> queue)
 		{
 			if (m_children != null)
@@ -183,21 +203,22 @@ public class LayoutGenerator
 	private static readonly ReplacementRule[] m_rules =
 	{
 		new(Node.Type.Entryway, new() { new(Node.Type.Entrance, new() { new(Node.Type.Corridor, new() { new(Node.Type.Zone1Door) }), new(Node.Type.Corridor, new() { new(Node.Type.Npc) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical) }) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical) }) }) }) }),
-		new(Node.Type.Zone1, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceIntro, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss) }) }) }) }) }) }) }) }),
+		new(Node.Type.Zone1, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss) }) }) }) }) }) }) }) }),
 
 		new(Node.Type.BasementOrTower, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical) }) }) }) }) }) }),
 		new(Node.Type.BasementOrTower, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical) }) }) }) }) }) }) }) }),
 		new(Node.Type.Corridor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal) }) }) }) }) }) }),
 		new(Node.Type.Corridor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal) }) }) }) }) }) }) }) }),
 
-		new(Node.Type.SequenceIntro, new() { new(Node.Type.BonusItems), new(Node.Type.Key) }),
-		new(Node.Type.SequenceMedium, new() { new(Node.Type.BonusItems), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
-		new(Node.Type.SequenceLarge, new() { new(Node.Type.BonusItems), new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
-		new(Node.Type.SequenceLarge, new() { new(Node.Type.BonusItems), new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
+		new(Node.Type.SequenceMedium, new() { new(Node.Type.Sequence), new(Node.Type.Sequence) }),
+		new(Node.Type.SequenceLarge, new() { new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
+		new(Node.Type.SequenceLarge, new() { new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence), new(Node.Type.Sequence) }),
 
 		// serial chains
 		// NOTE that the leaf Keys are required for the following Locks
-		new(Node.Type.Sequence, new() { new(Node.Type.Gate, new() { new(Node.Type.Key) }) }),
+		new(Node.Type.Sequence, new() { new(Node.Type.Gate, new() { new(Node.Type.Key), new(Node.Type.PossibleBonus) }) }),
+		new(Node.Type.PossibleBonus, null, 2.0f),
+		new(Node.Type.PossibleBonus, new() { new(Node.Type.Gate, new() { new(Node.Type.BonusItems) }) }),
 
 		// gate types
 		new(Node.Type.GateLock, new() { new(Node.Type.Lock, new() { new(Node.Type.TightCoupling) }) }),
@@ -245,7 +266,7 @@ public class LayoutGenerator
 			ReplacementRule replacement = options.RandomWeighted(options.Select(rule => rule.m_weight).ToArray());
 
 			// move children
-			List<Node> replacementNodes = replacement.m_final.Select(node => node.Clone()).ToList();
+			List<Node> replacementNodes = replacement.m_final == null ? nodeItr.m_children.Where(childNode => !nodeItr.DirectParentsInternal.Any(parentNode => parentNode.HasDescendant(childNode))).ToList() : replacement.m_final.Select(node => node.Clone()).ToList();
 			if (nodeItr.m_children != null)
 			{
 				foreach (Node child in nodeItr.m_children)
