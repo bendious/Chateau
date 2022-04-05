@@ -153,10 +153,13 @@ public class AvatarController : KinematicCharacter
 				m_focusIndicator.transform.SetPositionAndRotation(m_focusObj.transform.position, m_focusObj.transform.rotation);
 				SpriteRenderer rendererIndicator = m_focusIndicator.GetComponent<SpriteRenderer>();
 				SpriteRenderer rendererOrig = m_focusObj.GetComponent<SpriteRenderer>();
+				rendererIndicator.sortingLayerName = rendererOrig.sortingLayerName;
+				rendererIndicator.sortingLayerID = rendererOrig.sortingLayerID;
+				rendererIndicator.sortingOrder = rendererOrig.sortingOrder + 1;
 				rendererIndicator.sprite = rendererOrig.sprite;
 				rendererIndicator.drawMode = rendererOrig.drawMode;
 				rendererIndicator.size = rendererOrig.size;
-				rendererIndicator.color = rendererOrig.color * 2.0f; // ensure good visibility on nearly-white objects?
+				rendererIndicator.color = rendererOrig.color * 2.0f; // TODO: ensure good visibility on nearly-white/black objects and avoid jarring change to 50% gray objects
 				rendererIndicator.flipX = rendererOrig.flipX;
 				rendererIndicator.flipY = rendererOrig.flipY; // NOTE that items that have been dropped may have been left "backwards"
 				m_focusIndicator.transform.localScale = m_focusObj.transform.localScale; // NOTE that w/o this, swapping between renderer draw modes was doing weird things to the indicator's scale...

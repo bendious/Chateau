@@ -46,6 +46,11 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
 	{
+		if (keyRooms.Length <= 0)
+		{
+			return; // NOTE that this is valid in the Entryway
+		}
+
 		// determine key type
 		WeightedObject<KeyInfo>[] prefabCandidates = m_keyPrefabs.Where(info => info.m_object.m_keyCountMax >= keyRooms.Length).ToArray();
 		if (prefabCandidates.Length <= 0)

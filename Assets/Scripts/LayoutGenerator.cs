@@ -202,7 +202,7 @@ public class LayoutGenerator
 
 	private static readonly ReplacementRule[] m_rules =
 	{
-		new(Node.Type.Entryway, new() { new(Node.Type.Entrance, new() { new(Node.Type.Corridor, new() { new(Node.Type.Zone1Door) }), new(Node.Type.Corridor, new() { new(Node.Type.Npc) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical) }) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical) }) }) }) }),
+		new(Node.Type.Entryway, new() { new(Node.Type.Entrance, new() { new(Node.Type.Corridor, new() { new(Node.Type.Zone1Door) }), new(Node.Type.Corridor, new() { new(Node.Type.Npc) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical), new(Node.Type.BonusItems) }) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical), new(Node.Type.BonusItems) }) }) }) }),
 		new(Node.Type.Zone1, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss) }) }) }) }) }) }) }) }),
 
 		new(Node.Type.BasementOrTower, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical) }) }) }) }) }) }),

@@ -49,6 +49,11 @@ public class FurnitureController : MonoBehaviour
 		WeightedObject<GameObject>[] roomItems = rare ? roomType.m_itemRarePrefabs : roomType.m_itemPrefabs;
 		WeightedObject<GameObject>[] itemsFinal = furnitureItems.Join(roomItems, pair => pair.m_object, pair => pair.m_object, (pair1, pair2) => new WeightedObject<GameObject> { m_object = pair1.m_object, m_weight = pair1.m_weight * pair2.m_weight }).ToArray();
 
+		if (itemsFinal.Length <= 0)
+		{
+			return; // NOTE that this is valid for non-bonus Entryway rooms
+		}
+
 		Vector3 size = GetComponent<Collider2D>().bounds.size; // NOTE that the collider likely hasn't updated its position, but the size should be valid
 		float extentX = size.x * 0.5f;
 		for (int i = 0; i < itemCount; ++i)
