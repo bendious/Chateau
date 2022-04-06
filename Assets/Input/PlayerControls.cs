@@ -80,15 +80,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Inventory"",
-                    ""type"": ""Button"",
-                    ""id"": ""3ec41f09-af0d-4f47-b8ad-480125baea36"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -333,28 +324,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""action"": ""Drop"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""b8691c73-5a70-47c1-aa71-529bf13a885f"",
-                    ""path"": ""<Keyboard>/tab"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
-                    ""action"": ""Inventory"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""162dbcc3-d44c-4689-a785-fcd2fb8b2855"",
-                    ""path"": ""<Gamepad>/rightShoulder"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Gamepad"",
-                    ""action"": ""Inventory"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -377,7 +346,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""id"": ""426c1d06-6985-49ad-9d09-dd01d1f929e4"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
-                    ""interactions"": """",
+                    ""interactions"": ""Press(behavior=2)"",
                     ""initialStateCheck"": false
                 },
                 {
@@ -547,7 +516,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""path"": ""<Keyboard>/w"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse"",
+                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
                     ""action"": ""Navigate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
@@ -558,7 +527,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""path"": ""<Keyboard>/upArrow"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse"",
+                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
                     ""action"": ""Navigate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
@@ -569,7 +538,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""path"": ""<Keyboard>/s"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse"",
+                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
                     ""action"": ""Navigate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
@@ -580,7 +549,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""path"": ""<Keyboard>/downArrow"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse"",
+                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
                     ""action"": ""Navigate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
@@ -591,7 +560,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""path"": ""<Keyboard>/a"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse"",
+                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
                     ""action"": ""Navigate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
@@ -602,7 +571,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""path"": ""<Keyboard>/leftArrow"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse"",
+                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
                     ""action"": ""Navigate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
@@ -613,7 +582,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""path"": ""<Keyboard>/d"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse"",
+                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
                     ""action"": ""Navigate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
@@ -624,7 +593,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""path"": ""<Keyboard>/rightArrow"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse"",
+                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
                     ""action"": ""Navigate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
@@ -735,6 +704,15 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""name"": ""Use"",
                     ""type"": ""Button"",
                     ""id"": ""eb840304-70cb-44f2-b417-cd22e9f4c21d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Inventory"",
+                    ""type"": ""Button"",
+                    ""id"": ""658156b7-ba3b-4cc9-9952-086281881e02"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -939,6 +917,28 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""action"": ""Use"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e14f6d5a-fe85-4fec-9911-2c6d070661e6"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
+                    ""action"": ""Inventory"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c17b8303-6eae-4f43-a84f-0f4f28977d3d"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Inventory"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -992,7 +992,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         m_Avatar_Throw = m_Avatar.FindAction("Throw", throwIfNotFound: true);
         m_Avatar_Jump = m_Avatar.FindAction("Jump", throwIfNotFound: true);
         m_Avatar_Drop = m_Avatar.FindAction("Drop", throwIfNotFound: true);
-        m_Avatar_Inventory = m_Avatar.FindAction("Inventory", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1010,6 +1009,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         m_AlwaysOn_Pause = m_AlwaysOn.FindAction("Pause", throwIfNotFound: true);
         m_AlwaysOn_Interact = m_AlwaysOn.FindAction("Interact", throwIfNotFound: true);
         m_AlwaysOn_Use = m_AlwaysOn.FindAction("Use", throwIfNotFound: true);
+        m_AlwaysOn_Inventory = m_AlwaysOn.FindAction("Inventory", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -1075,7 +1075,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Avatar_Throw;
     private readonly InputAction m_Avatar_Jump;
     private readonly InputAction m_Avatar_Drop;
-    private readonly InputAction m_Avatar_Inventory;
     public struct AvatarActions
     {
         private @PlayerControls m_Wrapper;
@@ -1086,7 +1085,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         public InputAction @Throw => m_Wrapper.m_Avatar_Throw;
         public InputAction @Jump => m_Wrapper.m_Avatar_Jump;
         public InputAction @Drop => m_Wrapper.m_Avatar_Drop;
-        public InputAction @Inventory => m_Wrapper.m_Avatar_Inventory;
         public InputActionMap Get() { return m_Wrapper.m_Avatar; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1114,9 +1112,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Drop.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnDrop;
                 @Drop.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnDrop;
                 @Drop.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnDrop;
-                @Inventory.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnInventory;
-                @Inventory.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnInventory;
-                @Inventory.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnInventory;
             }
             m_Wrapper.m_AvatarActionsCallbackInterface = instance;
             if (instance != null)
@@ -1139,9 +1134,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Drop.started += instance.OnDrop;
                 @Drop.performed += instance.OnDrop;
                 @Drop.canceled += instance.OnDrop;
-                @Inventory.started += instance.OnInventory;
-                @Inventory.performed += instance.OnInventory;
-                @Inventory.canceled += instance.OnInventory;
             }
         }
     }
@@ -1223,6 +1215,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_AlwaysOn_Pause;
     private readonly InputAction m_AlwaysOn_Interact;
     private readonly InputAction m_AlwaysOn_Use;
+    private readonly InputAction m_AlwaysOn_Inventory;
     public struct AlwaysOnActions
     {
         private @PlayerControls m_Wrapper;
@@ -1235,6 +1228,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         public InputAction @Pause => m_Wrapper.m_AlwaysOn_Pause;
         public InputAction @Interact => m_Wrapper.m_AlwaysOn_Interact;
         public InputAction @Use => m_Wrapper.m_AlwaysOn_Use;
+        public InputAction @Inventory => m_Wrapper.m_AlwaysOn_Inventory;
         public InputActionMap Get() { return m_Wrapper.m_AlwaysOn; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1268,6 +1262,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Use.started -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnUse;
                 @Use.performed -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnUse;
                 @Use.canceled -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnUse;
+                @Inventory.started -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnInventory;
+                @Inventory.performed -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnInventory;
+                @Inventory.canceled -= m_Wrapper.m_AlwaysOnActionsCallbackInterface.OnInventory;
             }
             m_Wrapper.m_AlwaysOnActionsCallbackInterface = instance;
             if (instance != null)
@@ -1296,6 +1293,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Use.started += instance.OnUse;
                 @Use.performed += instance.OnUse;
                 @Use.canceled += instance.OnUse;
+                @Inventory.started += instance.OnInventory;
+                @Inventory.performed += instance.OnInventory;
+                @Inventory.canceled += instance.OnInventory;
             }
         }
     }
@@ -1335,7 +1335,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         void OnThrow(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnDrop(InputAction.CallbackContext context);
-        void OnInventory(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {
@@ -1355,5 +1354,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         void OnPause(InputAction.CallbackContext context);
         void OnInteract(InputAction.CallbackContext context);
         void OnUse(InputAction.CallbackContext context);
+        void OnInventory(InputAction.CallbackContext context);
     }
 }

@@ -32,17 +32,13 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 	{
 		if (m_draggable)
 		{
-			transform.root.GetComponent<PlayerInput>().actions.FindActionMap("Avatar").Disable(); // to avoid double-processing inventory clicks
-			GetComponent<Image>().color *= new Color(1.0f, 1.0f, 1.0f, 2.0f); // TODO: un-hardcode?
-			m_tooltip.gameObject.SetActive(!eventData.dragging);
+			Activate(!eventData.dragging);
 		}
 	}
 
 	public void OnPointerExit(PointerEventData eventData)
 	{
-		transform.root.GetComponent<PlayerInput>().actions.FindActionMap("Avatar").Enable(); // TODO: check for active menus/overlays?
-		GetComponent<Image>().color *= new Color(1.0f, 1.0f, 1.0f, 0.5f); // TODO: un-hardcode?
-		m_tooltip.gameObject.SetActive(false);
+		Deactivate();
 	}
 
 	public void OnPointerClick(PointerEventData eventData)
@@ -76,7 +72,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 			case PointerEventData.InputButton.Middle:
 				if (transform.GetSiblingIndex() > 1) // NOTE the 1-based indexing due to template object
 				{
-					SwapWithIndex(1);
+					SwapWithIndex(0);
 				}
 				break;
 			default:
@@ -116,8 +112,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 			}
 
 			// get other index and swap
-			int endIdx = endElement.transform.GetSiblingIndex();
-			SwapWithIndex(endIdx);
+			SwapWithIndex(endElement.transform.GetSiblingIndex() - 1); // -1 due to template object
 			return;
 		}
 
@@ -138,30 +133,33 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 	}
 
 
-	private struct SlotItemInfo
+	public void Activate(bool tooltip)
 	{
-		public ItemController m_item;
-		public IHolder m_holder;
-		public int m_holderIndex;
+		ChangeActivation("UI", 1.0f, tooltip);
 	}
 
-
-	private void SwapWithIndex(int index2)
+	public void Deactivate()
 	{
-		int index1 = transform.GetSiblingIndex();
-		Assert.AreNotEqual(index1, index2);
-		InventoryController element2 = transform.parent.GetChild(index2).GetComponent<InventoryController>();
+		ChangeActivation("Avatar", 0.5f, false); // TODO: check for active menus/overlays?
+	}
+
+	public void SwapWithIndex(int index2)
+	{
+		int siblingIndex1 = transform.GetSiblingIndex();
+		int siblingIndex2 = index2 + 1; // +1 due to deactivated template object
+		Assert.AreNotEqual(siblingIndex1, siblingIndex2);
+		InventoryController element2 = transform.parent.GetChild(siblingIndex2).GetComponent<InventoryController>();
 
 		// swap inventory order
-		transform.SetSiblingIndex(index2);
-		element2.transform.SetSiblingIndex(index1);
+		transform.SetSiblingIndex(siblingIndex2);
+		element2.transform.SetSiblingIndex(siblingIndex1);
 
 		// swap avatar hold
 		// get items BEFORE editing attachments
 		Transform avatarTf = transform.root;
-		SlotItemInfo slotItemInfo1 = ItemFromIndex(avatarTf, index1);
+		SlotItemInfo slotItemInfo1 = ItemFromIndex(avatarTf, siblingIndex1);
 		ItemController item1 = slotItemInfo1.m_item;
-		SlotItemInfo slotItemInfo2 = ItemFromIndex(avatarTf, index2);
+		SlotItemInfo slotItemInfo2 = ItemFromIndex(avatarTf, siblingIndex2);
 		ItemController item2 = slotItemInfo2.m_item;
 
 		// detach (to prevent too-many-to-hold failed attachment) and then attach
@@ -199,6 +197,15 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 		StartCoroutine(LerpToRest());
 		StartCoroutine(element2.LerpToRest());
 	}
+
+
+	private struct SlotItemInfo
+	{
+		public ItemController m_item;
+		public IHolder m_holder;
+		public int m_holderIndex;
+	}
+
 
 	private SlotItemInfo ItemFromIndex(Component character, int index)
 	{
@@ -246,5 +253,13 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 			}
 		}
 		transform.root.GetComponent<AvatarController>().InventorySync();
+	}
+
+	private void ChangeActivation(string actionMapName, float alpha, bool tooltip)
+	{
+		transform.root.GetComponent<PlayerInput>().SwitchCurrentActionMap(actionMapName);
+		Image image = GetComponent<Image>();
+		image.color = new Color(image.color.r, image.color.g, image.color.b, alpha);
+		m_tooltip.gameObject.SetActive(tooltip);
 	}
 }

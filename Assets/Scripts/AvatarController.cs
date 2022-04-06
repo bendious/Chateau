@@ -71,6 +71,9 @@ public class AvatarController : KinematicCharacter
 	private Vector2 m_analogCurrent;
 	private Vector2 m_analogRecent;
 
+	private int m_inventoryIdx = -1;
+	private bool m_inventoryDrag;
+
 	// TODO: class for ease of VFX ID use?
 	private static int m_spriteID;
 	private static int m_sizeID;
@@ -403,23 +406,61 @@ public class AvatarController : KinematicCharacter
 		{
 			return;
 		}
-		m_inventoryUI.SetActive(!m_inventoryUI.activeSelf);
-		InventorySync();
+
+		m_inventoryDrag = false;
+		if (m_inventoryIdx >= 0)
+		{
+			m_inventoryUI.GetComponentsInChildren<InventoryController>()[m_inventoryIdx].Deactivate();
+		}
+		m_inventoryIdx = m_inventoryIdx < 0 ? 0 : -1;
+		if (m_inventoryIdx >= 0)
+		{
+			m_inventoryUI.GetComponentsInChildren<InventoryController>()[m_inventoryIdx].Activate(true);
+		}
 	}
 
 	// called by InputSystem / PlayerInput component
 	public void OnNavigate(InputValue input)
 	{
-		InteractUIAction(lockController => lockController.OnNavigate(m_overlayCanvas.gameObject, input));
+		bool inLockUI = InteractUIAction(lockController => lockController.OnNavigate(m_overlayCanvas.gameObject, input));
+
+		if (inLockUI || m_inventoryIdx < 0)
+		{
+			return;
+		}
+
+		// navigate inventory
+		InventoryController[] inventorySlots = m_inventoryUI.GetComponentsInChildren<InventoryController>();
+		int nextIdx = (m_inventoryIdx + Mathf.RoundToInt(input.Get<Vector2>().x)).Modulo(inventorySlots.Length);
+		if (nextIdx == m_inventoryIdx)
+		{
+			return;
+		}
+		if (m_inventoryDrag)
+		{
+			InventoryController slotPrev = inventorySlots[m_inventoryIdx];
+			m_inventoryIdx = nextIdx; // NOTE that this has to be done BEFORE SwapWithIndex() to keep highlighting consistent
+			slotPrev.SwapWithIndex(nextIdx);
+		}
+		else
+		{
+			inventorySlots[m_inventoryIdx].Deactivate();
+			m_inventoryIdx = nextIdx;
+			inventorySlots[m_inventoryIdx].Activate(true);
+		}
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnSubmit(InputValue input)
 	{
-		bool consumed = InteractUIAction(lockController => lockController.OnSubmit(this));
-		if (!consumed && m_overlayCanvas.gameObject.activeSelf)
+		bool consumed = input.isPressed && InteractUIAction(lockController => lockController.OnSubmit(this));
+		if (!consumed && input.isPressed && m_overlayCanvas.gameObject.activeSelf)
 		{
 			ToggleOverlay(null, null);
+		}
+		else
+		{
+			m_inventoryDrag = input.isPressed;
 		}
 	}
 
@@ -715,11 +756,20 @@ public class AvatarController : KinematicCharacter
 			controlEnabled = true;
 
 			// TODO: move to animation trigger?
+			bool changed = false;
 			foreach (ArmController arm in GetComponentsInChildren<ArmController>(true))
 			{
+				if (arm.gameObject.activeSelf)
+				{
+					continue;
+				}
 				arm.gameObject.SetActive(true);
+				changed = true;
 			}
-			InventorySync(); // TODO: avoid redundancy?
+			if (changed)
+			{
+				InventorySync();
+			}
 		}
 	}
 
@@ -743,7 +793,7 @@ public class AvatarController : KinematicCharacter
 
 	private bool InteractUIAction(Action<LockController> f)
 	{
-		if (Controls.currentActionMap.name != "UI" || m_focusObj == null) // TODO: cleaner way of checking enabled action map?
+		if (!m_overlayCanvas.gameObject.activeSelf || m_focusObj == null || Controls.currentActionMap.name != "UI") // TODO: cleaner way of checking enabled action map?
 		{
 			return false;
 		}
