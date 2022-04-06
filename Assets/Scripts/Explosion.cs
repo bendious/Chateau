@@ -7,8 +7,6 @@ public class Explosion : MonoBehaviour
 
 	public float m_damage = 1.0f;
 
-	public float m_lifetime = 3.0f;
-
 	public WeightedObject<AudioClip>[] m_sfx;
 
 	public KinematicCharacter m_source;
@@ -37,9 +35,6 @@ public class Explosion : MonoBehaviour
 			}
 			health.Decrement(m_source == null ? gameObject : m_source.gameObject, m_damage);
 		}
-
-		// timed despawn
-		Simulation.Schedule<ObjectDespawn>(m_lifetime).m_object = gameObject;
     }
 
 #if UNITY_EDITOR

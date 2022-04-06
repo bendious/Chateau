@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1570101540527136384}
   - component: {fileID: 3137492953035613680}
   - component: {fileID: -6199138892786167996}
+  - component: {fileID: 1741097714379699225}
   m_Layer: 0
   m_Name: GateDust
   m_TagString: Untagged
@@ -151,3 +152,16 @@ VFXRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &1741097714379699225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5619937708861602581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61d609d9f00b4a94e9888234ac234b24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_lifetime: 1
