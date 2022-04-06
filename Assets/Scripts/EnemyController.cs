@@ -8,6 +8,8 @@ using UnityEngine;
 /// </summary>
 public class EnemyController : KinematicCharacter
 {
+	public AIState.Type[] m_allowedStates = new AIState.Type[] { AIState.Type.Pursue, AIState.Type.Flee, AIState.Type.RamSwoop };
+
 	public float m_contactDamage = 1.0f;
 
 	public Vector2 m_targetOffset = Vector2.zero;
@@ -36,8 +38,6 @@ public class EnemyController : KinematicCharacter
 		// TODO: spawn animation / fade-in?
 		m_targetSelectTimeNext = Time.time + Random.Range(0.0f, m_replanSecondsMax);
 		m_pathfindTimeNext = Time.time + Random.Range(0.0f, m_replanSecondsMax);
-		m_aiState = new AIPursue(this);
-		m_aiState.Enter();
 	}
 
 	private void OnCollisionEnter2D(Collision2D collision)
@@ -57,13 +57,22 @@ public class EnemyController : KinematicCharacter
 		}
 		else
 		{
+			if (m_aiState == null)
+			{
+				m_aiState = AIState.FromTypePrioritized(m_allowedStates, this);
+				m_aiState.Enter();
+			}
+
 			AIState stateNew = m_aiState.Update();
-			if (stateNew != null)
+			if (stateNew != m_aiState)
 			{
 				// TODO: split across frames?
 				m_aiState.Exit();
 				m_aiState = stateNew;
-				m_aiState.Enter();
+				if (m_aiState != null)
+				{
+					m_aiState.Enter();
+				}
 			}
 		}
 
@@ -75,15 +84,16 @@ public class EnemyController : KinematicCharacter
 		base.FixedUpdate();
 
 		// aim items
-		if (m_target != null && HoldCountMax > 0)
+		if (HoldCountMax > 0)
 		{
 			ArmController[] arms = GetComponentsInChildren<ArmController>();
 			if (arms.Length > 0)
 			{
 				ArmController primaryArm = arms.FirstOrDefault(arm => arm.GetComponentInChildren<ItemController>() != null);
+				Vector2 targetPosSafe = m_target == null ? transform.position : m_target.position;
 				if (primaryArm != null)
 				{
-					primaryArm.UpdateAim(m_armOffset, m_target.position, m_target.position);
+					primaryArm.UpdateAim(m_armOffset, targetPosSafe, targetPosSafe);
 				}
 
 				int i = primaryArm == null ? -1 : 0;
@@ -93,8 +103,8 @@ public class EnemyController : KinematicCharacter
 					{
 						continue;
 					}
-					Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, ++i * System.Math.Min(60, 360 / arms.Length)) * (m_target.position - transform.position);
-					arm.UpdateAim(m_armOffset, aimPos, m_target.position);
+					Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, ++i * System.Math.Min(60, 360 / arms.Length)) * (targetPosSafe - (Vector2)transform.position);
+					arm.UpdateAim(m_armOffset, aimPos, targetPosSafe);
 				}
 			}
 		}
@@ -123,13 +133,16 @@ public class EnemyController : KinematicCharacter
 	{
 		base.OnDamage(source);
 
-		AIState stateNew = m_aiState.OnDamage(source);
-		if (stateNew != null)
+		AIState stateNew = m_aiState?.OnDamage(source);
+		if (stateNew != m_aiState)
 		{
 			// NOTE that we can't split this across frames since we might not get another Update() call due to death
 			m_aiState.Exit();
 			m_aiState = stateNew;
-			m_aiState.Enter();
+			if (m_aiState != null)
+			{
+				m_aiState.Enter();
+			}
 		}
 	}
 

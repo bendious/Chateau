@@ -714,6 +714,14 @@ PrefabInstance:
       propertyPath: m_damageBounceMagnitude.y
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_allowedStates.Array.size
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_allowedStates.Array.data[6]
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 6020121203224396573, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.7

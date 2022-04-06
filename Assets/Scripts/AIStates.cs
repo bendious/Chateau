@@ -1,12 +1,81 @@
+using System.Linq;
 using UnityEngine;
 
 
 public abstract class AIState
 {
+	public enum Type
+	{
+		Pursue,
+		Flee,
+		RamSwoop,
+
+		Melee,
+		Throw,
+		FindAmmo,
+
+		Teleport,
+	};
+
+
 	protected readonly EnemyController m_ai;
 
 
 	public AIState(EnemyController ai) => m_ai = ai;
+
+	public static AIState FromTypePrioritized(Type[] allowedTypes, EnemyController ai)
+	{
+		float distanceFromTarget = ai.m_target == null ? float.MaxValue : Vector2.Distance(ai.transform.position, ai.m_target.transform.position);
+		Vector2 targetOffset = ai.m_target == null ? Vector2.zero : ai.m_target.transform.position.x < ai.transform.position.x ? ai.m_targetOffset : new(-ai.m_targetOffset.x, ai.m_targetOffset.y);
+		float distanceFromOffsetPos = ai.m_target == null ? float.MaxValue : Vector2.Distance(ai.transform.position, (Vector2)ai.m_target.transform.position + targetOffset);
+		int numItems = ai.GetComponentsInChildren<ItemController>().Length;
+
+		float[] priorities = allowedTypes.Select(type =>
+		{
+			switch (type)
+			{
+				// TODO: more granular priorities?
+				case Type.Pursue:
+					return distanceFromOffsetPos > ai.m_meleeRange && (numItems > 0 || ai.HoldCountMax <= 0) ? 1.0f : 0.0f;
+				case Type.Flee:
+					return GameController.Instance.Victory ? 100.0f : 0.0f;
+				case Type.Melee:
+					return numItems > 0 && distanceFromTarget <= ai.m_meleeRange ? 1.0f : 0.0f;
+				case Type.Throw:
+					return ai.m_target != null && distanceFromTarget > ai.m_meleeRange && numItems > 0 ? 1.0f : 0.0f;
+				case Type.RamSwoop:
+					return distanceFromOffsetPos <= ai.m_meleeRange + ai.GetComponent<Collider2D>().bounds.extents.magnitude ? 1.0f : 0.0f; // TODO: better conditions?
+				case Type.FindAmmo:
+					return 1.0f - numItems / ai.HoldCountMax;
+				case Type.Teleport:
+					return Random.value;
+				default:
+					Debug.Assert(false);
+					return 0.0f;
+			}
+		}).ToArray();
+
+		switch (allowedTypes.RandomWeighted(priorities))
+		{
+			case Type.Pursue:
+				return new AIPursue(ai);
+			case Type.Flee:
+				return new AIFlee(ai);
+			case Type.Melee:
+				return new AIMelee(ai);
+			case Type.Throw:
+				return new AIThrow(ai);
+			case Type.RamSwoop:
+				return new AIRamSwoop(ai);
+			case Type.FindAmmo:
+				return new AIFindAmmo(ai);
+			case Type.Teleport:
+				return new AITeleport(ai);
+			default:
+				Debug.Assert(false);
+				return null;
+		}
+	}
 
 	public virtual void Enter() {}
 	public abstract AIState Update();
@@ -48,28 +117,13 @@ public sealed class AIPursue : AIState
 			return null;
 		}
 
-		// check for ammo need
-		bool hasItem = m_ai.GetComponentInChildren<ItemController>() != null;
-		if (m_ai.HoldCountMax > 0 && !hasItem)
-		{
-			// TODO: prevent thrashing between AIPursue/AIFindAmmo when no ammo is reachable
-			return new AIFindAmmo(m_ai);
-		}
-
 		// check for arrival
 		if (hasArrived)
 		{
-			if (hasItem)
-			{
-				return m_targetOffset.magnitude > m_ai.m_meleeRange ? new AIThrow(m_ai) : new AIMelee(m_ai);
-			}
-			else
-			{
-				return new AIRamSwoop(m_ai);
-			}
+			return null;
 		}
 
-		return null;
+		return this;
 	}
 }
 
@@ -87,15 +141,7 @@ public sealed class AIFlee : AIState
 	public override AIState Update()
 	{
 		m_ai.NavigateTowardTarget(m_fleeOffset);
-
-		// check target availability
-		AvatarController targetAvatar = m_ai.m_target.GetComponent<AvatarController>();
-		if (targetAvatar == null || targetAvatar.IsAlive)
-		{
-			return new AIPursue(m_ai);
-		}
-
-		return null;
+		return this;
 	}
 }
 
@@ -138,10 +184,10 @@ public sealed class AIMelee : AIState
 
 		if (Time.time >= m_startTime + m_durationSeconds)
 		{
-			return new AIPursue(m_ai);
+			return null;
 		}
 
-		return null;
+		return this;
 	}
 }
 
@@ -178,17 +224,17 @@ public sealed class AIThrow : AIState
 				m_item.Throw();
 				m_startTime = Time.time;
 			}
-			return null;
+			return this;
 		}
 
 		// post-throw
 		if (Time.time < m_startTime + m_waitSeconds)
 		{
-			return null;
+			return this;
 		}
 
 		// finished
-		return m_ai.GetComponentInChildren<ItemController>() == null ? new AIFindAmmo(m_ai) : new AIPursue(m_ai);
+		return null;
 	}
 }
 
@@ -243,12 +289,7 @@ public sealed class AIRamSwoop : AIState
 
 		m_angleRadians += m_radiansPerSecond * Time.deltaTime;
 
-		return m_angleRadians >= Mathf.PI ? new AIPursue(m_ai) : null;
-	}
-
-	public override AIState OnDamage(GameObject source)
-	{
-		return new AIPursue(m_ai);
+		return m_angleRadians >= Mathf.PI ? null : this;
 	}
 
 	public override void Exit()
@@ -288,7 +329,7 @@ public sealed class AIFindAmmo : AIState
 			{
 				// no items anywhere? fallback on pursuit
 				// TODO: prevent thrashing between AIPursue/AIFindAmmo when no ammo is reachable
-				return new AIPursue(m_ai);
+				return null;
 			}
 		}
 
@@ -304,11 +345,11 @@ public sealed class AIFindAmmo : AIState
 			m_ai.m_target = null;
 			if (m_ai.GetComponentsInChildren<ItemController>().Length >= m_ai.HoldCountMax || Random.value > m_multiFindPct)
 			{
-				return new AIPursue(m_ai);
+				return null;
 			}
 		}
 
-		return null;
+		return this;
 	}
 
 
@@ -347,5 +388,20 @@ public sealed class AIFindAmmo : AIState
 		}
 
 		return closest;
+	}
+}
+
+
+public sealed class AITeleport : AIState
+{
+	public AITeleport(EnemyController ai) : base(ai)
+	{
+	}
+
+	public override AIState Update()
+	{
+		// TODO: animation/VFX/SFX/etc.
+		m_ai.Teleport(GameController.Instance.RoomFromPosition(m_ai.transform.position).InteriorPosition(float.MaxValue, m_ai.gameObject));
+		return null; // TODO: post-teleport delay?
 	}
 }

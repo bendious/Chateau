@@ -593,7 +593,7 @@ public class AvatarController : KinematicCharacter
 			{
 				continue;
 			}
-			spawnPos = GameController.Instance.RoomSpawnPosition(avatar.transform.position);
+			spawnPos = GameController.Instance.RoomFromPosition(avatar.transform.position).SpawnPointRandom();
 			break;
 		}
 		Teleport(spawnPos);

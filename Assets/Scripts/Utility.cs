@@ -33,7 +33,7 @@ public static class Utility
 		return Enum.GetValues(typeof(T)).Length;
 	}
 
-	public static T RandomWeighted<T>(this WeightedObject<T>[] pairs)
+	public static T RandomWeighted<T>(this System.Collections.Generic.IEnumerable<WeightedObject<T>> pairs)
 	{
 		return RandomWeighted(pairs.Select(pair => pair.m_object).ToArray(), pairs.Select(pair => pair.m_weight).ToArray());
 	}

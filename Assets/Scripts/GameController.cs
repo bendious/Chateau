@@ -52,6 +52,9 @@ public class GameController : MonoBehaviour
 	public static GameController Instance { get; private set; }
 
 
+	public bool Victory { get; private set; }
+
+
 	private RoomController m_startRoom;
 
 	private float m_waveWeight;
@@ -59,8 +62,6 @@ public class GameController : MonoBehaviour
 	private bool m_waveSpawningInProgress = false;
 
 	private readonly List<EnemyController> m_enemies = new();
-
-	private bool m_victory = false;
 
 
 	private void Awake()
@@ -103,7 +104,7 @@ public class GameController : MonoBehaviour
 		failed = failed || !AddRoomsForNodes(nodesPending.ToArray());
 		if (failed)
 		{
-			m_victory = true; // to prevent clearing avatars' inventory // TODO: better flag?
+			Victory = true; // to prevent clearing avatars' inventory // TODO: better flag?
 			Retry(); // TODO: more efficient way to guarantee room spawning?
 			return;
 		}
@@ -150,7 +151,7 @@ public class GameController : MonoBehaviour
 		else
 		{
 			m_timerUI.text = null;
-			m_victory = true;
+			Victory = true;
 		}
 
 		m_avatars.Add(player.GetComponent<AvatarController>());
@@ -210,9 +211,9 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	public Vector3 RoomSpawnPosition(Vector2 position)
+	public RoomController RoomFromPosition(Vector2 position)
 	{
-		return m_startRoom.RoomFromPosition(position).SpawnPointRandom();
+		return m_startRoom.RoomFromPosition(position);
 	}
 
 	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos, Vector2 offsetMag)
@@ -271,7 +272,7 @@ public class GameController : MonoBehaviour
 			}
 			foreach (AvatarController avatar in m_avatars)
 			{
-				avatar.Respawn(!m_victory);
+				avatar.Respawn(!Victory);
 			}
 			Simulation.Schedule<DebugRespawn>();
 			ActivateMenu(m_gameOverUI, false);
@@ -299,7 +300,7 @@ public class GameController : MonoBehaviour
 
 		foreach (AvatarController avatar in m_avatars)
 		{
-			avatar.Respawn(!m_victory);
+			avatar.Respawn(!Victory);
 		}
 
 		SceneManager.LoadScene(name);
@@ -307,7 +308,7 @@ public class GameController : MonoBehaviour
 
 	public void OnVictory()
 	{
-		m_victory = true;
+		Victory = true;
 		foreach (AvatarController avatar in m_avatars)
 		{
 			avatar.OnVictory();
