@@ -27,6 +27,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: KeyTri
       objectReference: {fileID: 0}
+    - target: {fileID: 4560024713572274854, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_tooltip
+      value: "Stone Triangle\nSome kind of decorative antique?\n "
+      objectReference: {fileID: 0}
     - target: {fileID: 5371468685632549670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
       propertyPath: m_RootOrder
       value: 0

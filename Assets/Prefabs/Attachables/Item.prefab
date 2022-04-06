@@ -177,6 +177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef543e37377452d4d8a2467c198f80ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_tooltip: "Item\n<REPLACE IN CHILDREN>\n\n\n\n "
   m_swingInfo:
     m_aimSpringDampPct: 0.25
     m_radiusSpringDampPct: 0.5
@@ -188,6 +189,5 @@ MonoBehaviour:
   m_throwSpeed: 20
   m_vfxAlpha: 0.5
   m_healAmount: 0
+  m_detachOnDamage: 0
   m_nondamageColliders: []
-  m_colorMin: 0.5
-  m_colorMax: 1

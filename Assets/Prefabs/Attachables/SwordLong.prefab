@@ -7,9 +7,13 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1419385988314699729, guid: d6378c47c976ded42b5a2fb07fe89624, type: 3}
+      propertyPath: m_tooltip
+      value: "Longsword\nVery damaging. If you can get it moving fast enough...\n "
+      objectReference: {fileID: 0}
     - target: {fileID: 1803285933312635345, guid: d6378c47c976ded42b5a2fb07fe89624, type: 3}
       propertyPath: m_Name
-      value: LongSword
+      value: SwordLong
       objectReference: {fileID: 0}
     - target: {fileID: 2507081831654224398, guid: d6378c47c976ded42b5a2fb07fe89624, type: 3}
       propertyPath: m_Size.x

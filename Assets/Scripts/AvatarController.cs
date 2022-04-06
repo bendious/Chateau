@@ -678,7 +678,9 @@ public class AvatarController : KinematicCharacter
 			}
 			uiImage.color *= new Color(1.0f, 1.0f, 1.0f, 0.5f); // TODO: un-hardcode?
 			TMP_Text text = nonEmptySlot ? itemCur.Item1.GetComponentInChildren<TMP_Text>() : null;
-			UIObj.GetComponentInChildren<TMP_Text>().text = text == null ? null : text.text;
+			TMP_Text[] uiTexts = UIObj.GetComponentsInChildren<TMP_Text>(true);
+			uiTexts.First().text = text == null ? null : text.text;
+			uiTexts.Last().text = nonEmptySlot ? itemCur.Item1.GetComponent<ItemController>().m_tooltip : null;
 			UIObj.GetComponent<InventoryController>().m_draggable = nonEmptySlot;
 		}
 		for (int j = m_inventoryUI.transform.childCount - 1; j > itemInfos.Length; --j)

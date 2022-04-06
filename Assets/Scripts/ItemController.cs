@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.VFX;
 
 
 [RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), RequireComponent(typeof(SpriteRenderer))]
 public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 {
+	[TextArea]
+	public string m_tooltip;
+
 	public SwingInfo m_swingInfo = new() {
 		m_angularNewtonmeters = 150.0f,
 		m_linearNewtons = 0.5f,

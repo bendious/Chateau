@@ -120,6 +120,13 @@ PrefabInstance:
       value: MedKit
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_tooltip
+      value: 'Emergency Medical Kit
+
+
+        Shift / LB: heal 1 hit point.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_healAmount
       value: 1
       objectReference: {fileID: 0}

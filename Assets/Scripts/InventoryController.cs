@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.EventSystems;
@@ -13,6 +14,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 	public float m_smoothTime = 0.05f;
 	public float m_smoothEpsilon = 0.01f;
 	public GraphicRaycaster m_raycaster;
+	public TMP_Text m_tooltip;
 	public bool m_draggable = false;
 
 
@@ -32,6 +34,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 		{
 			transform.root.GetComponent<PlayerInput>().actions.FindActionMap("Avatar").Disable(); // to avoid double-processing inventory clicks
 			GetComponent<Image>().color *= new Color(1.0f, 1.0f, 1.0f, 2.0f); // TODO: un-hardcode?
+			m_tooltip.gameObject.SetActive(!eventData.dragging);
 		}
 	}
 
@@ -39,6 +42,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 	{
 		transform.root.GetComponent<PlayerInput>().actions.FindActionMap("Avatar").Enable(); // TODO: check for active menus/overlays?
 		GetComponent<Image>().color *= new Color(1.0f, 1.0f, 1.0f, 0.5f); // TODO: un-hardcode?
+		m_tooltip.gameObject.SetActive(false);
 	}
 
 	public void OnPointerClick(PointerEventData eventData)
@@ -87,6 +91,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 			eventData.pointerDrag = null; // this cancels OnDrag{End}() being called
 			return;
 		}
+		m_tooltip.gameObject.SetActive(false);
 		m_mouseOffset = GetComponent<RectTransform>().anchoredPosition - eventData.position;
 	}
 
