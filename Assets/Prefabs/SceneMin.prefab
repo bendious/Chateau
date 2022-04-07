@@ -1183,6 +1183,7 @@ MonoBehaviour:
   m_pauseUI: {fileID: 8953914197898318485}
   m_gameOverUI: {fileID: 8429885465154309406}
   m_materialSystem: {fileID: 11400000, guid: 17f41ccd08cb0cb40a164c155fdf365d, type: 2}
+  m_savableFactory: {fileID: 11400000, guid: 9c40a24db50646340b727ada604cdf58, type: 2}
   m_victoryAudio: {fileID: 0}
   m_waveSecondsMin: 0
   m_waveSecondsMax: 0
@@ -1192,6 +1193,9 @@ MonoBehaviour:
   m_waveEnemyDelayMin: 0
   m_waveEnemyDelayMax: 0
   m_bossRoomSealed: 0
+  m_savableTags:
+  - Savable
+  - Item
 --- !u!114 &5490871640693437359
 MonoBehaviour:
   m_ObjectHideFlags: 0

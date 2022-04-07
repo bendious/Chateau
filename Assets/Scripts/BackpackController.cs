@@ -1,9 +1,10 @@
 using System.Collections;
+using System.IO;
 using UnityEngine;
 
 
 [DisallowMultipleComponent, RequireComponent(typeof(Collider2D))]
-public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable, IAttachable
+public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable, IAttachable, ISavable
 {
 	public int m_holdCountMax = 2;
 	public /*override*/ int HoldCountMax => m_holdCountMax;
@@ -11,6 +12,9 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable, 
 	public Vector3 m_attachOffsetLocal = Vector3.forward * 0.2f;
 	public /*override*/ Vector3 AttachOffsetLocal => m_attachOffsetLocal;
 	public /*override*/ Vector3 ChildAttachPointLocal => Vector3.zero;
+
+
+	int ISavable.Type { get; set; }
 
 
 	public void Interact(KinematicCharacter interactor) => interactor.ChildAttach(this);
@@ -48,6 +52,14 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable, 
 		transform.parent.GetComponent<IHolder>().ChildDetach(this, noAutoReplace);
 
 		StopAllCoroutines();
+	}
+
+	void ISavable.SaveInternal(BinaryWriter saveFile)
+	{
+	}
+
+	void ISavable.LoadInternal(BinaryReader saveFile)
+	{
 	}
 
 

@@ -24,6 +24,10 @@ public class EnemyController : KinematicCharacter
 	public AudioClip[] m_attackSFX; // TODO: remove in favor of animation triggers w/ AudioCollection?
 
 
+	[SerializeField]
+	private GameObject m_heldPrefab;
+
+
 	private float m_targetSelectTimeNext;
 	private AIState m_aiState;
 
@@ -39,6 +43,20 @@ public class EnemyController : KinematicCharacter
 		// TODO: spawn animation / fade-in?
 		m_targetSelectTimeNext = Time.time + Random.Range(0.0f, m_replanSecondsMax);
 		m_pathfindTimeNext = Time.time + Random.Range(0.0f, m_replanSecondsMax);
+
+		if (m_heldPrefab == null)
+		{
+			return;
+		}
+
+		foreach (ArmController arm in GetComponentsInChildren<ArmController>())
+		{
+			if (arm.transform.childCount > 0)
+			{
+				return;
+			}
+			arm.ChildAttach(GameController.Instance.m_savableFactory.Instantiate(m_heldPrefab, transform.position, transform.rotation).GetComponent<ItemController>());
+		}
 	}
 
 	private void OnCollisionEnter2D(Collision2D collision)

@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using TMPro;
 using UnityEngine;
 
 
 [DisallowMultipleComponent, RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), RequireComponent(typeof(SpriteRenderer))]
-public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
+public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, ISavable
 {
 	[TextArea]
 	public string m_tooltip;
@@ -45,6 +46,12 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 
 	private IHolder m_holder;
 	public KinematicCharacter Cause { get; private set; }
+
+
+	[SerializeField]
+	private int m_savableType = -1;
+	int ISavable.Type { get => m_savableType; set => m_savableType = value; }
+
 
 	private static int m_layerDefault;
 
@@ -220,6 +227,14 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 		{
 			EnableVFXAndDamage(); // mostly to prevent m_cause from remaining set and allowing damage if run into fast enough
 		}
+	}
+
+	void ISavable.SaveInternal(BinaryWriter saveFile)
+	{
+	}
+
+	void ISavable.LoadInternal(BinaryReader saveFile)
+	{
 	}
 
 	public void Swing(bool isRelease)

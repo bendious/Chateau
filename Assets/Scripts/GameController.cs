@@ -1,6 +1,7 @@
 using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -32,6 +33,7 @@ public class GameController : MonoBehaviour
 	public Canvas m_gameOverUI;
 
 	public MaterialSystem m_materialSystem;
+	public SavableFactory m_savableFactory;
 
 	public AudioClip m_victoryAudio;
 
@@ -53,6 +55,13 @@ public class GameController : MonoBehaviour
 
 
 	public bool Victory { get; private set; }
+
+
+	const int m_saveVersion = 0;
+
+
+	[SerializeField]
+	private string[] m_savableTags;
 
 
 	private RoomController m_startRoom;
@@ -108,6 +117,8 @@ public class GameController : MonoBehaviour
 			Retry(); // TODO: more efficient way to guarantee room spawning?
 			return;
 		}
+
+		Load();
 
 		m_startRoom.FinalizeRecursive();
 
@@ -258,9 +269,69 @@ public class GameController : MonoBehaviour
 		ActivateMenu(m_gameOverUI, true);
 	}
 
-	public void Save() => PlayerPrefs.Save();
+	public void Save()
+	{
+		PlayerPrefs.Save();
 
-	public void DeleteSave() => PlayerPrefs.DeleteAll(); // TODO: separate setup/configuration from game data?
+		Scene activeScene = SceneManager.GetActiveScene();
+		if (activeScene.buildIndex != 0) // TODO: don't assume only first scene stores contents?
+		{
+			return;
+		}
+
+		// TODO: abstract binary/text save file type
+		using BinaryWriter saveFile = new(File.Create(SaveFilePath(activeScene)));
+		saveFile.Write(m_saveVersion);
+
+		Object[] savables = m_savableTags.SelectMany(tag => GameObject.FindGameObjectsWithTag(tag)).ToArray();
+		saveFile.Write(savables.Length);
+		foreach (GameObject obj in savables)
+		{
+			ISavable.Save(saveFile, obj.GetComponent<ISavable>());
+		}
+	}
+
+	public void Load()
+	{
+		Scene activeScene = SceneManager.GetActiveScene();
+		if (activeScene.buildIndex != 0) // TODO: don't assume only first scene stores contents?
+		{
+			return;
+		}
+
+		string saveFilePath = SaveFilePath(activeScene);
+		if (!File.Exists(saveFilePath))
+		{
+			return;
+		}
+
+		try
+		{
+			// TODO: abstract binary/text save file type
+			using BinaryReader saveFile = new(File.OpenRead(saveFilePath));
+			if (saveFile.ReadInt32() > m_saveVersion)
+			{
+				Debug.LogError("Unsupported save version.");
+				return;
+			}
+
+			int savablesCount = saveFile.ReadInt32();
+			for (int i = 0; i < savablesCount; ++i)
+			{
+				ISavable.Load(saveFile);
+			}
+		}
+		catch (System.Exception e)
+		{
+			Debug.LogError("Invalid save file: " + e.Message);
+		}
+	}
+
+	public void DeleteSave()
+	{
+		PlayerPrefs.DeleteAll(); // TODO: separate setup/configuration from game data
+		File.Delete(SaveFilePath(SceneManager.GetSceneAt(0))); // TODO: don't assume only first scene stores contents?
+	}
 
 	public void Retry()
 	{
@@ -272,7 +343,7 @@ public class GameController : MonoBehaviour
 			}
 			foreach (AvatarController avatar in m_avatars)
 			{
-				avatar.Respawn(!Victory);
+				avatar.Respawn(!Victory || SceneManager.GetActiveScene().buildIndex == 0); // TODO: leave held items in inventory but also save them w/o duplicating them
 			}
 			Simulation.Schedule<DebugRespawn>();
 			ActivateMenu(m_gameOverUI, false);
@@ -284,6 +355,8 @@ public class GameController : MonoBehaviour
 
 	public void LoadScene(string name)
 	{
+		Save();
+
 		if (m_pauseUI.isActiveAndEnabled)
 		{
 			TogglePause();
@@ -300,7 +373,7 @@ public class GameController : MonoBehaviour
 
 		foreach (AvatarController avatar in m_avatars)
 		{
-			avatar.Respawn(!Victory);
+			avatar.Respawn(!Victory || SceneManager.GetActiveScene().buildIndex == 0); // TODO: leave held items in inventory but also save them w/o duplicating them
 		}
 
 		SceneManager.LoadScene(name);
@@ -538,4 +611,6 @@ public class GameController : MonoBehaviour
 			avatar.Controls.SwitchCurrentActionMap(m_pauseUI.gameObject.activeSelf || m_gameOverUI.gameObject.activeSelf || avatar.m_overlayCanvas.gameObject.activeSelf ? "UI" : "Avatar"); // TODO: account for other UI instances?
 		}
 	}
+
+	private string SaveFilePath(Scene scene) => Path.Combine(Application.persistentDataPath, scene.name + ".dat");
 }

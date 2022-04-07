@@ -88,6 +88,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_heldPrefab
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_contactDamage
       value: 0
       objectReference: {fileID: 0}
