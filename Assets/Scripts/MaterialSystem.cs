@@ -2,7 +2,7 @@ using System.Linq;
 using UnityEngine;
 
 
-[CreateAssetMenu(menuName = "ScriptableObject/Material System", fileName = "MaterialSystem", order = 0)]
+[CreateAssetMenu]
 public class MaterialSystem : ScriptableObject
 {
 	public MaterialInfo[] m_materialInfos;

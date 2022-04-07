@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 
 
-[RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), RequireComponent(typeof(SpriteRenderer))]
+[DisallowMultipleComponent, RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), RequireComponent(typeof(SpriteRenderer))]
 public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable
 {
 	[TextArea]

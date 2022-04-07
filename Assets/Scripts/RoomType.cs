@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-[CreateAssetMenu(menuName = "ScriptableObject/Room Type", fileName = "RoomType", order = 0)]
+[CreateAssetMenu]
 public class RoomType : ScriptableObject
 {
 	[System.Serializable]

@@ -6,6 +6,7 @@ using UnityEngine;
 /// <summary>
 /// A simple controller for enemies. Provides movement control toward a target object.
 /// </summary>
+[DisallowMultipleComponent]
 public class EnemyController : KinematicCharacter
 {
 	public AIState.Type[] m_allowedStates = new AIState.Type[] { AIState.Type.Pursue, AIState.Type.Flee, AIState.Type.RamSwoop };

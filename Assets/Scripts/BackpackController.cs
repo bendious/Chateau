@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 
-[RequireComponent(typeof(Collider2D))]
+[DisallowMultipleComponent, RequireComponent(typeof(Collider2D))]
 public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable, IAttachable
 {
 	public int m_holdCountMax = 2;
