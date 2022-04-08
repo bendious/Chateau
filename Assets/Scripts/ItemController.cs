@@ -210,7 +210,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public void /*override*/ Detach(bool noAutoReplace)
 	{
 		// ensure our overlay doesn't get stuck on
-		AvatarController avatar = Cause.GetComponent<AvatarController>();
+		AvatarController avatar = Cause == null ? null : Cause.GetComponent<AvatarController>();
 		if (avatar != null && avatar.m_overlayCanvas.gameObject.activeSelf)
 		{
 			avatar.ToggleOverlay(null, null);
@@ -229,11 +229,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		}
 	}
 
-	void ISavable.SaveInternal(BinaryWriter saveFile)
+	void ISavable.SaveInternal(SaveWriter saveFile)
 	{
 	}
 
-	void ISavable.LoadInternal(BinaryReader saveFile)
+	void ISavable.LoadInternal(SaveReader saveFile)
 	{
 	}
 

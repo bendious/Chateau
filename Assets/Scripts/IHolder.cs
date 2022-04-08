@@ -38,7 +38,8 @@ public interface IHolder
 
 		attachable.AttachInternal(holder);
 
-		AvatarController avatar = holderComp.transform.parent.GetComponent<AvatarController>();
+		Transform holderParent = holderComp.transform.parent;
+		AvatarController avatar = holderParent == null ? null : holderParent.GetComponent<AvatarController>();
 		if (avatar != null)
 		{
 			avatar.InventorySync();

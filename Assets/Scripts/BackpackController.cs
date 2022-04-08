@@ -54,12 +54,25 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable, 
 		StopAllCoroutines();
 	}
 
-	void ISavable.SaveInternal(BinaryWriter saveFile)
+	void ISavable.SaveInternal(SaveWriter saveFile)
 	{
+		// NOTE that since child objects are disabled, they are not collected by GameController.Save() and we have to handle them ourselves
+		saveFile.Write(transform.childCount);
+		for (int i = 0; i < transform.childCount; ++i)
+		{
+			ISavable.Save(saveFile, transform.GetChild(i).GetComponent<ISavable>());
+		}
 	}
 
-	void ISavable.LoadInternal(BinaryReader saveFile)
+	void ISavable.LoadInternal(SaveReader saveFile)
 	{
+		// NOTE that since child objects are disabled, they are not collected by GameController.Save() and we have to handle them ourselves
+		saveFile.Read(out int numChildren);
+		for (int i = 0; i < numChildren; ++i)
+		{
+			ISavable savable = ISavable.Load(saveFile);
+			ChildAttach(savable.Component.GetComponent<IAttachable>());
+		}
 	}
 
 

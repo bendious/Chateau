@@ -621,6 +621,7 @@ public class AvatarController : KinematicCharacter
 		{
 			foreach (IAttachable attachable in GetComponentsInChildren<IAttachable>())
 			{
+				attachable.Detach(true); // this prevents auto-replaced objects from being saved twice
 				Simulation.Schedule<ObjectDespawn>().m_object = attachable.Component.gameObject;
 			}
 		}

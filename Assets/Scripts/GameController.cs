@@ -57,9 +57,6 @@ public class GameController : MonoBehaviour
 	public bool Victory { get; private set; }
 
 
-	const int m_saveVersion = 0;
-
-
 	[SerializeField]
 	private string[] m_savableTags;
 
@@ -279,9 +276,7 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
-		// TODO: abstract binary/text save file type
-		using BinaryWriter saveFile = new(File.Create(SaveFilePath(activeScene)));
-		saveFile.Write(m_saveVersion);
+		using SaveWriter saveFile = new(activeScene);
 
 		Object[] savables = m_savableTags.SelectMany(tag => GameObject.FindGameObjectsWithTag(tag)).ToArray();
 		saveFile.Write(savables.Length);
@@ -299,23 +294,15 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
-		string saveFilePath = SaveFilePath(activeScene);
-		if (!File.Exists(saveFilePath))
-		{
-			return;
-		}
-
 		try
 		{
-			// TODO: abstract binary/text save file type
-			using BinaryReader saveFile = new(File.OpenRead(saveFilePath));
-			if (saveFile.ReadInt32() > m_saveVersion)
+			using SaveReader saveFile = new(activeScene);
+			if (!saveFile.IsOpen)
 			{
-				Debug.LogError("Unsupported save version.");
 				return;
 			}
 
-			int savablesCount = saveFile.ReadInt32();
+			saveFile.Read(out int savablesCount);
 			for (int i = 0; i < savablesCount; ++i)
 			{
 				ISavable.Load(saveFile);
@@ -330,7 +317,7 @@ public class GameController : MonoBehaviour
 	public void DeleteSave()
 	{
 		PlayerPrefs.DeleteAll(); // TODO: separate setup/configuration from game data
-		File.Delete(SaveFilePath(SceneManager.GetSceneAt(0))); // TODO: don't assume only first scene stores contents?
+		SaveHelpers.Delete(SceneManager.GetSceneAt(0)); // TODO: don't assume only first scene stores contents?
 	}
 
 	public void Retry()
@@ -611,6 +598,4 @@ public class GameController : MonoBehaviour
 			avatar.Controls.SwitchCurrentActionMap(m_pauseUI.gameObject.activeSelf || m_gameOverUI.gameObject.activeSelf || avatar.m_overlayCanvas.gameObject.activeSelf ? "UI" : "Avatar"); // TODO: account for other UI instances?
 		}
 	}
-
-	private string SaveFilePath(Scene scene) => Path.Combine(Application.persistentDataPath, scene.name + ".dat");
 }
