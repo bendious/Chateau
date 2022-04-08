@@ -14,8 +14,15 @@ public interface ISavable
 		saveFile.Write(savable.Type);
 		Component savableComp = savable.Component;
 
-		// TODO: store position relative to containing room
-		saveFile.Write(savableComp.transform.position);
+		RoomController room = GameController.Instance.RoomFromPosition(savableComp.transform.position);
+		if (room == null)
+		{
+			saveFile.Write(Vector3.zero); // TODO: better fallback?
+		}
+		else
+		{
+			saveFile.Write(savableComp.transform.position - room.transform.position);
+		}
 
 		saveFile.Write(savableComp.GetComponent<SpriteRenderer>().color);
 
@@ -27,8 +34,9 @@ public interface ISavable
 		ISavable savable = GameController.Instance.m_savableFactory.Instantiate(saveFile.ReadInt32());
 		Component savableComp = savable.Component;
 
-		// TODO: restore position relative to appropriate room
-		savableComp.transform.position = new(saveFile.ReadSingle(), saveFile.ReadSingle(), saveFile.ReadSingle());
+		RoomController room = GameController.Instance.LootRoom;
+		saveFile.Read(out Vector3 offsetFromRoom);
+		savableComp.transform.position = room.BoundsInterior.ClosestPoint(room.transform.position + offsetFromRoom);
 
 		savableComp.GetComponent<SpriteRenderer>().color = new Color(saveFile.ReadSingle(), saveFile.ReadSingle(), saveFile.ReadSingle(), saveFile.ReadSingle());
 

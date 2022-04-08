@@ -54,6 +54,8 @@ public class GameController : MonoBehaviour
 	public static GameController Instance { get; private set; }
 
 
+	public RoomController LootRoom { get; private set; }
+
 	public bool Victory { get; private set; }
 
 
@@ -87,6 +89,7 @@ public class GameController : MonoBehaviour
 		// use generator to spawn rooms/locks/keys/items/etc.
 		LayoutGenerator.Node parentPending = null;
 		List<LayoutGenerator.Node> nodesPending = new();
+		int roomCount = 0;
 		bool failed = generator.ForEachNodeDepthFirst(node =>
 		{
 			Debug.Assert(node.m_room == null);
@@ -95,8 +98,8 @@ public class GameController : MonoBehaviour
 			LayoutGenerator.Node parent = node.TightCoupleParent;
 			if (parent != parentPending && nodesPending.Count > 0 && nodesPending.First().DirectParentsInternal != parent?.DirectParentsInternal)
 			{
-				bool spawned = AddRoomsForNodes(nodesPending.ToArray());
-				if (!spawned)
+				roomCount = AddRoomsForNodes(nodesPending.ToArray(), roomCount);
+				if (roomCount == 0)
 				{
 					return true;
 				}
@@ -107,7 +110,7 @@ public class GameController : MonoBehaviour
 			nodesPending.Add(node);
 			return false;
 		});
-		failed = failed || !AddRoomsForNodes(nodesPending.ToArray());
+		failed = failed || AddRoomsForNodes(nodesPending.ToArray(), roomCount) == 0;
 		if (failed)
 		{
 			Victory = true; // to prevent clearing avatars' inventory // TODO: better flag?
@@ -412,7 +415,7 @@ public class GameController : MonoBehaviour
 #endif
 
 
-	private bool AddRoomsForNodes(LayoutGenerator.Node[] nodes)
+	private int AddRoomsForNodes(LayoutGenerator.Node[] nodes, int roomCount)
 	{
 		List<LayoutGenerator.Node> nodesShuffled = nodes.OrderBy(node => Random.value).ToList();
 		Queue<List<LayoutGenerator.Node>> nodesSplit = new();
@@ -469,24 +472,29 @@ public class GameController : MonoBehaviour
 				}
 
 				// try spawning prefabs in random order
-				bool success = false;
+				RoomController childRoom = null;
 				WeightedObject<GameObject>[] prefabsOrdered = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? m_bossRoomPrefabs : m_roomPrefabs;
 				Vector2[] allowedDirections = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical) ? new Vector2[] { Vector2.down, Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) ? new Vector2[] { Vector2.left, Vector2.right } : null;
 				foreach (GameObject roomPrefab in prefabsOrdered.RandomWeightedOrder())
 				{
-					success = spawnRoom.SpawnChildRoom(roomPrefab, nodesList.ToArray(), allowedDirections);
-					if (success)
+					childRoom = spawnRoom.SpawnChildRoom(roomPrefab, nodesList.ToArray(), allowedDirections);
+					if (childRoom != null)
 					{
+						++roomCount;
+						if (Random.value <= 1.0f / roomCount) // NOTE the 1/n chance to give each room an equal probability of final selection regardless of order
+						{
+							LootRoom = childRoom;
+						}
 						break;
 					}
 				}
-				if (!success)
+				if (childRoom == null)
 				{
-					return false;
+					return 0;
 				}
 			}
 		}
-		return true;
+		return roomCount;
 	}
 
 	private IEnumerator SpawnWavesCoroutine()

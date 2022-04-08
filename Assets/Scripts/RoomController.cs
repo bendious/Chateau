@@ -42,6 +42,13 @@ public class RoomController : MonoBehaviour
 	public static readonly Color m_oneWayPlatformColor = new(0.3f, 0.2f, 0.1f);
 
 
+	public Bounds BoundsInterior { get {
+		Bounds boundsInterior = m_bounds; // NOTE the copy since Expand() modifies the given struct
+		boundsInterior.Expand(new Vector3(-1.0f, -1.0f, float.MaxValue)); // TODO: dynamically determine wall thickness?
+		return boundsInterior;
+	} }
+
+
 	private struct DoorwayInfo
 	{
 		public RoomController m_parentRoom;
@@ -279,8 +286,7 @@ public class RoomController : MonoBehaviour
 
 	public Vector3 InteriorPosition(float heightMin, float heightMax, GameObject preventOverlapPrefab = null)
 	{
-		Bounds boundsInterior = m_bounds;
-		boundsInterior.Expand(new Vector3(-1.0f, -1.0f, float.MaxValue)); // TODO: dynamically determine wall thickness?
+		Bounds boundsInterior = BoundsInterior;
 
 		// calculate overlap bbox
 		Bounds bboxNew = new();
@@ -419,37 +425,37 @@ public class RoomController : MonoBehaviour
 		return waypointPath;
 	}
 
-	public bool SpawnChildRoom(GameObject roomPrefab, LayoutGenerator.Node[] layoutNodes, Vector2[] allowedDirections = null)
+	public RoomController SpawnChildRoom(GameObject roomPrefab, LayoutGenerator.Node[] layoutNodes, Vector2[] allowedDirections = null)
 	{
 		// prevent putting keys behind their lock
 		// NOTE that we check all nodes' depth even though all nodes w/i a single room should be at the same depth
 		if (layoutNodes.Max(node => node.Depth) < m_layoutNodes.Min(node => node.Depth))
 		{
-			return false;
+			return null;
 		}
 
-		bool success = DoorwaysRandomOrder(i =>
+		RoomController childRoom = DoorwaysRandomOrder(i =>
 		{
 			if (m_doorwayInfos[i].m_childRoom != null || m_doorwayInfos[i].m_parentRoom != null)
 			{
-				return false;
+				return null;
 			}
 
 			// maybe replace/remove
 			GameObject doorway = m_doorways[i];
 			MaybeReplaceDoor(i, roomPrefab, layoutNodes, allowedDirections);
-			return m_doorwayInfos[i].m_childRoom != null;
+			return m_doorwayInfos[i].m_childRoom;
 		});
 
-		if (success)
+		if (childRoom != null)
 		{
-			return true;
+			return childRoom;
 		}
 
 		bool requireImmediateChild = System.Array.Exists(layoutNodes, node => System.Array.Exists(m_layoutNodes, parentNode => (parentNode.m_type == LayoutGenerator.Node.Type.Lock || parentNode.m_type == LayoutGenerator.Node.Type.Secret) && parentNode == node.TightCoupleParent));
 		if (requireImmediateChild)
 		{
-			return false;
+			return null;
 		}
 
 		// try spawning from children
@@ -458,7 +464,7 @@ public class RoomController : MonoBehaviour
 			DoorwayInfo doorway = m_doorwayInfos[i];
 			if (doorway.m_childRoom == null)
 			{
-				return false;
+				return null;
 			}
 			return doorway.m_childRoom.SpawnChildRoom(roomPrefab, layoutNodes, allowedDirections);
 		});
@@ -569,18 +575,18 @@ public class RoomController : MonoBehaviour
 		return indices.ToArray();
 	}
 
-	private bool DoorwaysRandomOrder(System.Func<int, bool> f)
+	private T DoorwaysRandomOrder<T>(System.Func<int, T> f)
 	{
 		int[] order = Enumerable.Range(0, m_doorwayInfos.Length).OrderBy(i => Random.value).ToArray();
 		foreach (int i in order)
 		{
-			bool done = f(i);
-			if (done)
+			T result = f(i);
+			if (result != null)
 			{
-				return true;
+				return result;
 			}
 		}
-		return false;
+		return default;
 	}
 
 	private LayoutGenerator.Node GateNodeToChild(LayoutGenerator.Node.Type gateType, LayoutGenerator.Node[] childNodes)
