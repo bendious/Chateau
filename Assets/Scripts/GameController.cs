@@ -451,6 +451,7 @@ public class GameController : MonoBehaviour
 				Assert.IsNull(m_startRoom);
 				m_startRoom = Instantiate(m_entryRoomPrefabs.RandomWeighted()).GetComponent<RoomController>();
 				m_startRoom.SetNodes(nodesList.ToArray());
+				++roomCount;
 			}
 			else
 			{

@@ -20,9 +20,9 @@ public class BossRoom : MonoBehaviour
 	private void Start()
 	{
 		// determine entrance
-		// TODO: don't assume exactly one open doorway?
+		// TODO: don't assume exactly one open doorway
 		Vector3 entrancePos = Vector3.zero;
-		foreach (GameObject doorway in GetComponent<RoomController>().m_doorways)
+		foreach (GameObject doorway in GetComponent<RoomController>().Doorways)
 		{
 			if (!doorway.activeSelf)
 			{
