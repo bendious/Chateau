@@ -58,7 +58,7 @@ public class DialogueController : MonoBehaviour
 
 			// maybe move to next line
 			bool stillRevealing = m_revealedCharCount < textCurLen;
-			if (m_textListIdx < 0 || (submitKey != null && submitKey.triggered && !stillRevealing))
+			if (m_textListIdx < 0 || (submitKey != null && submitKey.WasPressedThisFrame() && !stillRevealing))
 			{
 				// next line
 				m_continueIndicator.SetActive(false);

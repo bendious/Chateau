@@ -230,3 +230,21 @@ MonoBehaviour:
     - "The center\u2026 It used to be empty, but I don\u2019t think it is anymore."
     - "I swear there are flashes of light in the windows sometimes\u2026"
     m_weight: 1
+  - m_object:
+    - Oh!
+    - Hello there.
+    m_weight: 1
+  - m_object:
+    - Feel free to leave whatever you want here.
+    - "I\u2019ll make sure it stays until you come back for it."
+    m_weight: 1
+  - m_object:
+    - Stay away from danger!
+    - "Don\u2019t expect to attack anything up close and walk away unharmed."
+    - Generally speaking, throwing things is much safer than swinging them.
+    m_weight: 1
+  - m_object:
+    - The locked doors here?
+    - "I don\u2019t actually know what\u2019s behind them."
+    - "Their keys don\u2019t seem to still be around here."
+    m_weight: 1
