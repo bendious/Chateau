@@ -207,7 +207,7 @@ public class AvatarController : KinematicCharacter
 			aimPctsFromCenter = aimPctsFromCenter.Clamp(-1.0f, 1.0f);
 			CinemachineVirtualCamera vCam = GameController.Instance.m_virtualCamera;
 			Vector2 screenSizeWS = vCam == null ? Vector2.zero : new Vector2(vCam.m_Lens.OrthographicSize * vCam.m_Lens.Aspect, vCam.m_Lens.OrthographicSize) * 2.0f;
-			Vector2 aimPosConstrained = transform.position + (Vector3)(screenSizeWS * aimPctsFromCenter * (m_looking ? m_lookScreenPercentMax : 0.0f));
+			Vector2 aimPosConstrained = transform.position + (Vector3)(screenSizeWS * aimPctsFromCenter * (m_looking ? m_lookScreenPercentMax : 0.05f));
 			Vector2 aimPos = m_usingMouse ? camera.ScreenToWorldPoint(m_mousePosPixels) : aimPosConstrained;
 
 			// aim camera/sprite

@@ -149,15 +149,18 @@ public class GameController : MonoBehaviour
 	private void OnPlayerJoined(PlayerInput player)
 	{
 		// NOTE that we can place this here since OnPlayerJoined() is called even if the avatar object(s) is/are carried over from a previously loaded scene
-		if (m_avatars.Count == 0 && m_enemyPrefabs.Length > 0)
+		if (m_enemyPrefabs.Length > 0)
 		{
-			if (Random.value > 0.5f)
+			if (m_avatars.Count == 0)
 			{
-				m_nextWaveTime = Random.Range(m_waveSecondsMin, m_waveSecondsMax);
+				if (Random.value > 0.5f)
+				{
+					m_nextWaveTime = Random.Range(m_waveSecondsMin, m_waveSecondsMax);
+				}
+				StopAllCoroutines();
+				StartCoroutine(SpawnWavesCoroutine());
+				StartCoroutine(TimerCoroutine());
 			}
-			StopAllCoroutines();
-			StartCoroutine(SpawnWavesCoroutine());
-			StartCoroutine(TimerCoroutine());
 		}
 		else
 		{
@@ -195,7 +198,6 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Called via SendMessage() from PlayerInputManager component")]
 	private void OnPlayerLeft(PlayerInput player)
 	{
 		Simulation.Schedule<ObjectDespawn>().m_object = player.gameObject;
@@ -385,6 +387,12 @@ public class GameController : MonoBehaviour
 
 	public void Quit()
 	{
+		if (m_avatars.Count > 1)
+		{
+			OnPlayerLeft(m_avatars.Last().GetComponent<PlayerInput>());
+			return;
+		}
+
 		Save(); // TODO: prompt player?
 
 #if UNITY_EDITOR
