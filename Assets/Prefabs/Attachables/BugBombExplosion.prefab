@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 7006872056546876197}
   - component: {fileID: 7566464752699221830}
   - component: {fileID: 7074185416880896591}
+  - component: {fileID: 6488049634570686789}
   m_Layer: 0
   m_Name: BugBombExplosion
   m_TagString: Untagged
@@ -160,9 +161,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ebc8269084d7d84c9165f23d05058cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_radius: 1.5
+  m_radius: -1
   m_damage: 2
-  m_lifetime: 3
   m_sfx:
   - m_object: {fileID: 8300000, guid: 015bca1f9888c0441ac7168f7d64bfda, type: 3}
     m_weight: 1
@@ -285,3 +285,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!58 &6488049634570686789
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5619937708861602581}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 1.5

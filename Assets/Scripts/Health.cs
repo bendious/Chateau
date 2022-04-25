@@ -60,6 +60,8 @@ public class Health : MonoBehaviour
 			return false;
 		}
 
+		// TODO: check whether object should be immune to damage from source object
+
 		// damage
 		IncrementInternal(-1.0f * amount);
 		SpriteRenderer renderer = GetComponent<SpriteRenderer>();

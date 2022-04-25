@@ -29,7 +29,7 @@ public class Bomb : MonoBehaviour
 
 	private void ProcessCollision(Collider2D collider)
 	{
-		if (collider.GetComponent<EnemyController>() == null)
+		if (collider.GetComponent<EnemyController>() == null || GetComponent<ItemController>().Cause == null)
 		{
 			return;
 		}
