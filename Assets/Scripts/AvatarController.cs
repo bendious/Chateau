@@ -37,13 +37,20 @@ public class AvatarController : KinematicCharacter
 
 	public Vector3 m_focusPromptOffset = new(0.0f, 0.3f, -0.15f);
 
-	public float m_moveSpringDampTime = 0.15f;
+	[SerializeField]
+	private float m_lookScreenPercentMax = 0.75f;
 
-	public float m_secondaryDegrees = -45.0f;
+	[SerializeField]
+	private float m_moveSpringDampTime = 0.15f;
 
-	public float m_coyoteTime = 0.15f;
+	[SerializeField]
+	private float m_secondaryDegrees = -45.0f;
 
-	public float m_respawnSeconds = 30.0f;
+	[SerializeField]
+	private float m_coyoteTime = 0.15f;
+
+	[SerializeField]
+	private float m_respawnSeconds = 30.0f;
 
 
 	public PlayerInput Controls { get; private set; }
@@ -59,6 +66,8 @@ public class AvatarController : KinematicCharacter
 	private float m_leftGroundTime = -1.0f;
 
 	private GameObject m_focusObj;
+
+	private bool m_looking;
 
 	private VisualEffect m_aimVfx;
 	private bool m_aiming;
@@ -195,11 +204,10 @@ public class AvatarController : KinematicCharacter
 				cameraRectPixels.size *= screenSize;
 				aimPctsFromCenter = (m_mousePosPixels - cameraRectPixels.center) / (cameraRectPixels.size * 0.5f);
 			}
-			aimPctsFromCenter.x = Mathf.Clamp(aimPctsFromCenter.x, -1.0f, 1.0f);
-			aimPctsFromCenter.y = Mathf.Clamp(aimPctsFromCenter.y, -1.0f, 1.0f);
+			aimPctsFromCenter = aimPctsFromCenter.Clamp(-1.0f, 1.0f);
 			CinemachineVirtualCamera vCam = GameController.Instance.m_virtualCamera;
 			Vector2 screenSizeWS = vCam == null ? Vector2.zero : new Vector2(vCam.m_Lens.OrthographicSize * vCam.m_Lens.Aspect, vCam.m_Lens.OrthographicSize) * 2.0f;
-			Vector2 aimPosConstrained = transform.position + (Vector3)(screenSizeWS * aimPctsFromCenter);
+			Vector2 aimPosConstrained = transform.position + (Vector3)(screenSizeWS * aimPctsFromCenter * (m_looking ? m_lookScreenPercentMax : 0.0f));
 			Vector2 aimPos = m_usingMouse ? camera.ScreenToWorldPoint(m_mousePosPixels) : aimPosConstrained;
 
 			// aim camera/sprite
@@ -279,6 +287,12 @@ public class AvatarController : KinematicCharacter
 				m_analogRecent = value.normalized * 0.2f; // NOTE that we don't want the rest distance to be right at the character's radius since that does not aim secondary items very well
 			}
 		}
+	}
+
+	// called by InputSystem / PlayerInput component
+	public void OnLookToggle(InputValue input)
+	{
+		m_looking = input.isPressed;
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
@@ -606,7 +620,7 @@ public class AvatarController : KinematicCharacter
 		EnableCollision.TemporarilyDisableCollision(enemy.GetComponents<Collider2D>(), new Collider2D[] { m_collider });
 	}
 
-	public void Respawn(bool clearInventory)
+	public void Respawn(bool clearInventory, bool resetPosition)
 	{
 		m_collider.enabled = true;
 		body.simulated = true;
@@ -629,14 +643,17 @@ public class AvatarController : KinematicCharacter
 		health.Respawn();
 
 		Vector3 spawnPos = Vector3.zero;
-		foreach (AvatarController avatar in GameController.Instance.m_avatars)
+		if (!resetPosition)
 		{
-			if (avatar == this || !avatar.IsAlive)
+			foreach (AvatarController avatar in GameController.Instance.m_avatars)
 			{
-				continue;
+				if (avatar == this || !avatar.IsAlive)
+				{
+					continue;
+				}
+				spawnPos = GameController.Instance.RoomFromPosition(avatar.transform.position).SpawnPointRandom();
+				break;
 			}
-			spawnPos = GameController.Instance.RoomFromPosition(avatar.transform.position).SpawnPointRandom();
-			break;
 		}
 		Teleport(spawnPos);
 		m_aimObject.transform.position = spawnPos;

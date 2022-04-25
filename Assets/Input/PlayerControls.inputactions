@@ -24,6 +24,15 @@
                     "initialStateCheck": true
                 },
                 {
+                    "name": "LookToggle",
+                    "type": "Button",
+                    "id": "9f37780f-e37f-4b0f-aea6-47ea933ae5a0",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press(behavior=2)",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Swing",
                     "type": "Button",
                     "id": "19d204a9-b40e-4133-a353-9d62960a9d0d",
@@ -300,6 +309,28 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Drop",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b774f9a5-b453-4067-abd0-e9cce5773613",
+                    "path": "<Gamepad>/rightStickPress",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "LookToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fa11366a-0a47-4beb-a49d-74380d47634e",
+                    "path": "<Keyboard>/ctrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse;KeyboardOnly",
+                    "action": "LookToggle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

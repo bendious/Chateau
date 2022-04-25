@@ -73,7 +73,7 @@ public class AvatarRespawn : Event<AvatarRespawn>
 
 	public override bool Precondition() => GameController.Instance.m_avatars.Exists(avatar => avatar.IsAlive);
 
-	public override void Execute() => m_avatar.Respawn(true);
+	public override void Execute() => m_avatar.Respawn(true, false);
 }
 
 /// <summary>

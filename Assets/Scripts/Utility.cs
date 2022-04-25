@@ -115,6 +115,11 @@ public static class Utility
 		return new Vector2(Mathf.Abs(v.x), Mathf.Abs(v.y));
 	}
 
+	public static Vector2 Clamp(this Vector2 v, float min, float max)
+	{
+		return new Vector2(Mathf.Clamp(v.x, min, max), Mathf.Clamp(v.y, min, max));
+	}
+
 	public static Vector2 SmoothDamp(this Vector2 current, Vector2 target, ref Vector2 currentVelocity, float smoothTime)
 	{
 		current.x = Mathf.SmoothDamp(current.x, target.x, ref currentVelocity.x, smoothTime);

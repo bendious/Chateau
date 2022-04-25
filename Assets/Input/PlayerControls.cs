@@ -46,6 +46,15 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
+                    ""name"": ""LookToggle"",
+                    ""type"": ""Button"",
+                    ""id"": ""9f37780f-e37f-4b0f-aea6-47ea933ae5a0"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Press(behavior=2)"",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""Swing"",
                     ""type"": ""Button"",
                     ""id"": ""19d204a9-b40e-4133-a353-9d62960a9d0d"",
@@ -322,6 +331,28 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Drop"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b774f9a5-b453-4067-abd0-e9cce5773613"",
+                    ""path"": ""<Gamepad>/rightStickPress"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""LookToggle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""fa11366a-0a47-4beb-a49d-74380d47634e"",
+                    ""path"": ""<Keyboard>/ctrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
+                    ""action"": ""LookToggle"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -988,6 +1019,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         m_Avatar = asset.FindActionMap("Avatar", throwIfNotFound: true);
         m_Avatar_Move = m_Avatar.FindAction("Move", throwIfNotFound: true);
         m_Avatar_Look = m_Avatar.FindAction("Look", throwIfNotFound: true);
+        m_Avatar_LookToggle = m_Avatar.FindAction("LookToggle", throwIfNotFound: true);
         m_Avatar_Swing = m_Avatar.FindAction("Swing", throwIfNotFound: true);
         m_Avatar_Throw = m_Avatar.FindAction("Throw", throwIfNotFound: true);
         m_Avatar_Jump = m_Avatar.FindAction("Jump", throwIfNotFound: true);
@@ -1071,6 +1103,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private IAvatarActions m_AvatarActionsCallbackInterface;
     private readonly InputAction m_Avatar_Move;
     private readonly InputAction m_Avatar_Look;
+    private readonly InputAction m_Avatar_LookToggle;
     private readonly InputAction m_Avatar_Swing;
     private readonly InputAction m_Avatar_Throw;
     private readonly InputAction m_Avatar_Jump;
@@ -1081,6 +1114,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         public AvatarActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Avatar_Move;
         public InputAction @Look => m_Wrapper.m_Avatar_Look;
+        public InputAction @LookToggle => m_Wrapper.m_Avatar_LookToggle;
         public InputAction @Swing => m_Wrapper.m_Avatar_Swing;
         public InputAction @Throw => m_Wrapper.m_Avatar_Throw;
         public InputAction @Jump => m_Wrapper.m_Avatar_Jump;
@@ -1100,6 +1134,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Look.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnLook;
                 @Look.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnLook;
                 @Look.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnLook;
+                @LookToggle.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnLookToggle;
+                @LookToggle.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnLookToggle;
+                @LookToggle.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnLookToggle;
                 @Swing.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnSwing;
                 @Swing.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnSwing;
                 @Swing.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnSwing;
@@ -1122,6 +1159,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Look.started += instance.OnLook;
                 @Look.performed += instance.OnLook;
                 @Look.canceled += instance.OnLook;
+                @LookToggle.started += instance.OnLookToggle;
+                @LookToggle.performed += instance.OnLookToggle;
+                @LookToggle.canceled += instance.OnLookToggle;
                 @Swing.started += instance.OnSwing;
                 @Swing.performed += instance.OnSwing;
                 @Swing.canceled += instance.OnSwing;
@@ -1331,6 +1371,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     {
         void OnMove(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
+        void OnLookToggle(InputAction.CallbackContext context);
         void OnSwing(InputAction.CallbackContext context);
         void OnThrow(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);

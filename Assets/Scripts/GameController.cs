@@ -125,7 +125,7 @@ public class GameController : MonoBehaviour
 		// TODO: dialogue system
 		if (!PlayerPrefs.HasKey("IntroDialogueDone"))
 		{
-			m_dialogueController.Play(null, Color.black, new string[] { "Ah, welcome home.", "You’ve been out for quite a while, haven’t you?", "You’re not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", "But don’t worry about me; you have more pressing concerns at the moment, I believe." }, () =>
+			m_dialogueController.Play(null, Color.black, new string[] { "Ah, welcome home.", "You've been out for quite a while, haven't you?", "You're not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", "But don't worry about me; you have more pressing concerns at the moment, I believe." }, () =>
 			{
 				PlayerPrefs.SetInt("IntroDialogueDone", 1);
 				Save(); // TODO: auto-save system?
@@ -333,7 +333,7 @@ public class GameController : MonoBehaviour
 			}
 			foreach (AvatarController avatar in m_avatars)
 			{
-				avatar.Respawn(!Victory || SceneManager.GetActiveScene().buildIndex == 0); // TODO: leave held items in inventory but also save them w/o duplicating them
+				avatar.Respawn(!Victory || SceneManager.GetActiveScene().buildIndex == 0, true); // TODO: leave held items in inventory but also save them w/o duplicating them
 			}
 			Simulation.Schedule<DebugRespawn>();
 			ActivateMenu(m_gameOverUI, false);
@@ -363,7 +363,7 @@ public class GameController : MonoBehaviour
 
 		foreach (AvatarController avatar in m_avatars)
 		{
-			avatar.Respawn(!Victory || SceneManager.GetActiveScene().buildIndex == 0); // TODO: leave held items in inventory but also save them w/o duplicating them
+			avatar.Respawn(!Victory || SceneManager.GetActiveScene().buildIndex == 0, true); // TODO: leave held items in inventory but also save them w/o duplicating them
 		}
 
 		SceneManager.LoadScene(name);
