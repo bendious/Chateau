@@ -60,7 +60,12 @@ public class Health : MonoBehaviour
 			return false;
 		}
 
-		// TODO: check whether object should be immune to damage from source object
+		// check whether object should be immune to damage from source object
+		KinematicCharacter sourceCharacter = source == null ? null : source.GetComponent<KinematicCharacter>();
+		if (sourceCharacter != null && !sourceCharacter.CanDamage(gameObject))
+		{
+			return false;
+		}
 
 		// damage
 		IncrementInternal(-1.0f * amount);
@@ -115,6 +120,7 @@ public class Health : MonoBehaviour
 		return true;
 	}
 
+#if DEBUG
 	/// <summary>
 	/// Decrement the HP of the entity until HP reaches 0.
 	/// </summary>
@@ -122,6 +128,7 @@ public class Health : MonoBehaviour
 	{
 		Decrement(gameObject, m_currentHP); // NOTE that we can't use IncrementInternal() directly since that skips the death logic
 	}
+#endif
 
 	/// <summary>
 	/// Increment the HP of the entity until HP reaches max.

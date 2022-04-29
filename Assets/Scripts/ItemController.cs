@@ -96,99 +96,12 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	// TODO: combine w/ ArmController version?
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		if (!gameObject.activeSelf) // e.g. we're a bomb that has just gone off
-		{
-			return;
-		}
+		ProcessCollision(collision);
+	}
 
-		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
-		if ((kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, false, 0.0f, null)) || collision.gameObject.transform.root == transform.root)
-		{
-			return;
-		}
-
-		// ignore non-destructible static objects when held
-		bool isDetached = m_holder == null;
-		Health otherHealth = collision.gameObject.GetComponent<Health>();
-		if (!isDetached && otherHealth == null)
-		{
-			Rigidbody2D otherBody = collision.gameObject.GetComponent<Rigidbody2D>();
-			if (otherBody == null || otherBody.bodyType != RigidbodyType2D.Dynamic)
-			{
-				return;
-			}
-		}
-
-		// maybe attach to character
-		// TODO: extend to BackpackController as well?
-		bool canDamage = Cause != null && Cause.CanDamage(collision.gameObject) && !m_nondamageColliders.Contains(collision.otherCollider);
-		KinematicCharacter character = kinematicObj as KinematicCharacter; // NOTE that this works since objects shouldn't ever have multiple different KinematicObject-derived components
-		if (isDetached && !canDamage) // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus or if it is a secondary (non-damaging) collider making contact
-		{
-			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>(true).Length < character.HoldCountMax)
-			{
-				character.ChildAttach(this);
-				return;
-			}
-		}
-
-		// check speed
-		float collisionSpeed = (kinematicObj == null ? collision.relativeVelocity.magnitude : (m_body.velocity - kinematicObj.velocity).magnitude) + Speed;
-		if (collisionSpeed > m_swingInfo.m_damageThresholdSpeed)
-		{
-			if (m_audioSource.enabled)
-			{
-				m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.PairBestMatch(collision.collider.sharedMaterial, collision.otherCollider.sharedMaterial).RandomCollisionAudio());
-			}
-
-			// if from a valid source, apply damage/detachment
-			if (canDamage)
-			{
-				if (otherHealth != null)
-				{
-					otherHealth.Decrement(gameObject, m_swingInfo.m_damage); // TODO: round if damaging avatar?
-				}
-				if (m_health != null)
-				{
-					m_health.Decrement(gameObject);
-				}
-				if (m_detachOnDamage)
-				{
-					Detach(true);
-				}
-				ItemController otherItem = collision.gameObject.GetComponent<ItemController>();
-				if (otherItem != null && otherItem.m_detachOnDamage)
-				{
-					otherItem.Detach(true);
-				}
-			}
-		}
-
-		if (isDetached)
-		{
-			// set layer back to default to re-enable default collisions
-			gameObject.layer = m_layerDefault;
-		}
-
-		// done for fully-dynamic collisions
-		if (kinematicObj == null)
-		{
-			return;
-		}
-
-		// add upward force to emulate kicking
-		if (isDetached && !canDamage && character != null && (Cause == null || GameController.Instance.m_avatars.Contains(character)))
-		{
-			SetCause(character);
-			EnableVFXAndDamage(); // mostly to prevent m_cause from remaining set and allowing damage if run into fast enough
-		}
-		List<ContactPoint2D> contacts = new();
-		int contactCount = collision.GetContacts(contacts);
-		for (int i = 0; i < contactCount; ++i) // NOTE that we can't use foreach() since GetContacts() for some reason adds a bunch of null entries
-		{
-			ContactPoint2D pos = contacts[i];
-			m_body.AddForceAtPosition(Vector2.up * collisionSpeed, pos.point);
-		}
+	private void OnCollisionStay2D(Collision2D collision)
+	{
+		ProcessCollision(collision);
 	}
 
 
@@ -314,6 +227,103 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		gradient.colorKeys = new GradientColorKey[] { new(GameController.Instance.m_avatars.Contains(Cause) ? Color.white : Color.red, 0.0f) };
 		gradient.alphaKeys = new GradientAlphaKey[] { new(m_vfxAlpha, 0.0f) };
 		m_trail.colorGradient = gradient;
+	}
+
+	private void ProcessCollision(Collision2D collision)
+	{
+		if (!gameObject.activeSelf) // e.g. we're a bomb that has just gone off
+		{
+			return;
+		}
+
+		KinematicObject kinematicObj = collision.collider.GetComponent<KinematicObject>();
+		if ((kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, false, 0.0f, null)) || collision.collider.transform.root == transform.root)
+		{
+			return;
+		}
+
+		// ignore non-destructible static objects when held
+		bool isDetached = m_holder == null;
+		Health otherHealth = collision.collider.GetComponent<Health>();
+		if (!isDetached && otherHealth == null)
+		{
+			Rigidbody2D otherBody = collision.collider.GetComponent<Rigidbody2D>();
+			if (otherBody == null || otherBody.bodyType != RigidbodyType2D.Dynamic)
+			{
+				return;
+			}
+		}
+
+		// maybe attach to character
+		// TODO: extend to BackpackController as well?
+		bool canDamage = Cause != null && Cause.CanDamage(collision.collider.gameObject) && !m_nondamageColliders.Contains(collision.otherCollider);
+		KinematicCharacter character = kinematicObj as KinematicCharacter; // NOTE that this works since objects shouldn't ever have multiple different KinematicObject-derived components
+		if (isDetached && !canDamage) // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus or if it is a secondary (non-damaging) collider making collision
+		{
+			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>(true).Length < character.HoldCountMax)
+			{
+				character.ChildAttach(this);
+				return;
+			}
+		}
+
+		// check speed
+		float collisionSpeed = (kinematicObj == null ? collision.relativeVelocity.magnitude : (m_body.velocity - kinematicObj.velocity).magnitude) + Speed;
+		if (collisionSpeed > m_swingInfo.m_damageThresholdSpeed)
+		{
+			if (m_audioSource.enabled)
+			{
+				m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.PairBestMatch(collision.collider.sharedMaterial, collision.otherCollider.sharedMaterial).RandomCollisionAudio());
+			}
+
+			// if from a valid source, apply damage/detachment
+			if (canDamage)
+			{
+				if (otherHealth != null)
+				{
+					otherHealth.Decrement(Cause != null ? Cause.gameObject : gameObject, m_swingInfo.m_damage); // TODO: round if damaging avatar?
+				}
+				if (m_health != null)
+				{
+					m_health.Decrement(gameObject);
+				}
+				if (m_detachOnDamage)
+				{
+					Detach(true);
+				}
+				ItemController otherItem = collision.collider.GetComponent<ItemController>();
+				if (otherItem != null && otherItem.m_detachOnDamage)
+				{
+					otherItem.Detach(true);
+				}
+			}
+		}
+
+		if (isDetached)
+		{
+			// set layer back to default to re-enable default collisions
+			gameObject.layer = m_layerDefault;
+		}
+
+		// done for fully-dynamic collisions
+		if (kinematicObj == null)
+		{
+			return;
+		}
+
+		// add upward force to emulate kicking
+		if (isDetached && !canDamage && character != null && (Cause == null || GameController.Instance.m_avatars.Contains(character)))
+		{
+			SetCause(character);
+			EnableVFXAndDamage(); // mostly to prevent m_cause from remaining set and allowing damage if run into fast enough
+		}
+		List<ContactPoint2D> contacts = new();
+		int contactCount = collision.GetContacts(contacts);
+		for (int i = 0; i < contactCount; ++i) // NOTE that we can't use foreach() since GetContacts() can have null end entries
+		{
+			ContactPoint2D pos = contacts[i];
+			m_body.AddForceAtPosition(Vector2.up * collisionSpeed, pos.point);
+		}
 	}
 
 	private void EnableVFXAndDamage()
