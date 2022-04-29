@@ -129,7 +129,7 @@ public class GameController : MonoBehaviour
 			{
 				PlayerPrefs.SetInt("IntroDialogueDone", 1);
 				Save(); // TODO: auto-save system?
-			});
+			}, null);
 		}
 
 		IsReloading = false;

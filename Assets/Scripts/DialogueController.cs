@@ -28,7 +28,7 @@ public class DialogueController : MonoBehaviour
 	private Action m_postDialogue;
 
 
-	public void Play(Sprite sprite, Color spriteColor, string[] textList, Action postDialogue)
+	public void Play(Sprite sprite, Color spriteColor, string[] textList, Action postDialogue, AvatarController avatar)
 	{
 		m_image.enabled = sprite != null;
 		m_image.sprite = sprite;
@@ -39,13 +39,22 @@ public class DialogueController : MonoBehaviour
 		m_postDialogue = postDialogue;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
-		StartCoroutine(AdvanceDialogue());
+		StartCoroutine(AdvanceDialogue(avatar));
 	}
 
 
-	private IEnumerator AdvanceDialogue()
+	private IEnumerator AdvanceDialogue(AvatarController avatar)
 	{
 		m_text.text = null;
+
+		// avatar setup
+		if (avatar == null)
+		{
+			yield return new WaitUntil(() => GameController.Instance.m_avatars.Count > 0);
+			avatar = GameController.Instance.m_avatars.First(); // TODO: don't assume that the first avatar will always remain?
+		}
+		avatar.Controls.SwitchCurrentActionMap("UI"); // TODO: un-hardcode?
+		InputAction submitKey = avatar.Controls.actions["Submit"];
 
 		// iterative info
 		bool notDone = true;
@@ -54,11 +63,9 @@ public class DialogueController : MonoBehaviour
 
 		while (notDone)
 		{
-			InputAction submitKey = GameController.Instance.m_avatars.Count <= 0 ? null : GameController.Instance.m_avatars.First().Controls.actions["Submit"];
-
 			// maybe move to next line
 			bool stillRevealing = m_revealedCharCount < textCurLen;
-			if (m_textListIdx < 0 || (submitKey != null && submitKey.WasPressedThisFrame() && !stillRevealing))
+			if (m_textListIdx < 0 || (submitKey.WasPressedThisFrame() && !stillRevealing))
 			{
 				// next line
 				m_continueIndicator.SetActive(false);
@@ -71,7 +78,7 @@ public class DialogueController : MonoBehaviour
 			}
 
 			// maybe reveal next letter(s)
-			float revealDurationCur = stillRevealing && submitKey != null && submitKey.IsPressed() ? m_revealSecondsFast : m_revealSeconds;
+			float revealDurationCur = stillRevealing && submitKey.IsPressed() ? m_revealSecondsFast : m_revealSeconds;
 			float nextRevealTime = lastRevealTime + revealDurationCur;
 			if (stillRevealing && nextRevealTime <= Time.time)
 			{
@@ -98,6 +105,7 @@ public class DialogueController : MonoBehaviour
 		}
 
 		m_postDialogue?.Invoke();
+		avatar.Controls.SwitchCurrentActionMap("Avatar"); // TODO: un-hardcode? check for other UI?
 		gameObject.SetActive(false);
 	}
 }
