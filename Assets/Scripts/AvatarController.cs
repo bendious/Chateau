@@ -92,6 +92,14 @@ public class AvatarController : KinematicCharacter
 	private static int m_forwardToUpID;
 
 
+	private float FocusDistance => ((CircleCollider2D)m_collider).radius;
+	private float FocusRadius => FocusDistance * 2.0f; // TODO: parameterize?
+	private Vector2 FocusCollectPos => (Vector2)transform.position + ((Vector2)m_aimObject.transform.position - (Vector2)transform.position).normalized * FocusDistance;
+	private Vector2 FocusPriorityPos => m_usingMouse ? Camera.main.ScreenToWorldPoint(m_mousePosPixels) : m_aimObject.transform.position;
+
+	private bool AnalogCurrentIsValid => m_analogCurrent.magnitude > 0.5f || Vector2.Dot(m_analogCurrent, m_analogRecent) > 0.0f;
+
+
 	protected override void Awake()
 	{
 		base.Awake();
@@ -129,12 +137,11 @@ public class AvatarController : KinematicCharacter
 
 			// collect possible focus objects
 			m_focusObj = null;
-			float focusRadius = ((CircleCollider2D)m_collider).radius;
-			Vector2 mousePos = m_aimObject.transform.position;
-			Collider2D[] focusCandidates = Physics2D.OverlapCircleAll((Vector2)transform.position + (mousePos - (Vector2)transform.position).normalized * focusRadius, focusRadius * 1.5f); // TODO: restrict to certain layers?
+			Collider2D[] focusCandidates = Physics2D.OverlapCircleAll(FocusCollectPos, FocusRadius); // TODO: restrict to certain layers?
 
 			// determine current focus object
 			// TODO: more nuanced prioritization?
+			Vector2 priorityPos = FocusPriorityPos;
 			float distSqFocus = float.MaxValue;
 			bool focusCanInteract = false;
 			foreach (Collider2D candidate in focusCandidates)
@@ -149,7 +156,7 @@ public class AvatarController : KinematicCharacter
 				bool candidateCanInteract = candidateInteract != null && candidateInteract.CanInteract(this);
 
 				// prioritize by mouse position
-				float distSqCur = (mousePos - (Vector2)candidate.transform.position).sqrMagnitude;
+				float distSqCur = (priorityPos - (Vector2)candidate.transform.position).sqrMagnitude;
 
 				if (candidateCanInteract && !focusCanInteract || ((candidateCanInteract || !focusCanInteract) && distSqCur < distSqFocus))
 				{
@@ -194,20 +201,17 @@ public class AvatarController : KinematicCharacter
 		if (controlEnabled)
 		{
 			// determine aim position(s)
-			Vector2 aimPctsFromCenter = m_analogCurrent.sqrMagnitude == 0.0f ? m_analogRecent : m_analogCurrent; // TODO: FloatEqual() despite deadzone?
+			Vector2 aimPctsFromCenter = AnalogCurrentIsValid ? m_analogCurrent : m_analogRecent;
 			Camera camera = Camera.main; // TODO: cache?
 			if (m_usingMouse)
 			{
-				Rect cameraRectPixels = camera.rect;
-				Vector2 screenSize = new(Screen.width, Screen.height);
-				cameraRectPixels.position *= screenSize;
-				cameraRectPixels.size *= screenSize;
-				aimPctsFromCenter = (m_mousePosPixels - cameraRectPixels.center) / (cameraRectPixels.size * 0.5f);
+				Vector2 cameraExtentsPixels = camera.rect.size * new Vector2(Screen.width, Screen.height) * 0.5f;
+				aimPctsFromCenter = (m_mousePosPixels - (Vector2)camera.WorldToScreenPoint(transform.position)) / cameraExtentsPixels;
 			}
 			aimPctsFromCenter = aimPctsFromCenter.Clamp(-1.0f, 1.0f);
 			CinemachineVirtualCamera vCam = GameController.Instance.m_virtualCamera;
 			Vector2 screenSizeWS = vCam == null ? Vector2.zero : new Vector2(vCam.m_Lens.OrthographicSize * vCam.m_Lens.Aspect, vCam.m_Lens.OrthographicSize) * 2.0f;
-			Vector2 aimPosConstrained = transform.position + (Vector3)(screenSizeWS * aimPctsFromCenter * (m_looking ? m_lookScreenPercentMax : 0.05f));
+			Vector2 aimPosConstrained = transform.position + (Vector3)(screenSizeWS * aimPctsFromCenter * (m_looking ? m_lookScreenPercentMax : 0.5f));
 			Vector2 aimPos = m_usingMouse ? camera.ScreenToWorldPoint(m_mousePosPixels) : aimPosConstrained;
 
 			// aim camera/sprite
@@ -253,6 +257,14 @@ public class AvatarController : KinematicCharacter
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
 	}
 
+#if DEBUG
+	private void OnDrawGizmos()
+	{
+		UnityEditor.Handles.DrawWireArc(FocusCollectPos, Vector3.forward, Vector3.right, 360.0f, FocusRadius); // TODO: restrict to certain layers?
+		UnityEditor.Handles.DrawWireArc(FocusPriorityPos, Vector3.forward, Vector3.right, 360.0f, 0.1f);
+	}
+#endif
+
 
 	// called by InputSystem / PlayerInput component
 	public void OnMove(InputValue input)
@@ -282,9 +294,9 @@ public class AvatarController : KinematicCharacter
 		else
 		{
 			m_analogCurrent = value;
-			if (value.sqrMagnitude > 0.0f)
+			if (AnalogCurrentIsValid)
 			{
-				m_analogRecent = value.normalized * 0.2f; // NOTE that we don't want the rest distance to be right at the character's radius since that does not aim secondary items very well
+				m_analogRecent = m_analogCurrent.normalized; // NOTE that we don't want the rest distance to be right at the character's radius since that does not aim secondary items very well
 			}
 		}
 	}

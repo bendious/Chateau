@@ -247,7 +247,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	}
 
 
-	public /*override*/ bool CanInteract(KinematicCharacter interactor) => !string.IsNullOrEmpty(m_combination);
+	public /*override*/ bool CanInteract(KinematicCharacter interactor) => !string.IsNullOrEmpty(m_combination) && !GameController.Instance.EnemiesRemain();
 
 	public /*override*/ void Interact(KinematicCharacter interactor)
 	{
@@ -260,6 +260,12 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		Assert.IsTrue(GameController.Instance.m_avatars.Contains(avatar));
 
 		StopAllCoroutines();
+
+		if (GameController.Instance.EnemiesRemain())
+		{
+			UICleanup(avatar);
+			return;
+		}
 
 		bool overlayActive = avatar.ToggleOverlay(GetComponent<SpriteRenderer>(), m_inputCur);
 		if (overlayActive)
