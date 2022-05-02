@@ -1,16 +1,17 @@
+using System;
 using UnityEngine;
 
 
 [RequireComponent(typeof(Collider2D))]
 public class InteractSimple : MonoBehaviour, IInteractable
 {
-	public string m_sceneName; // TODO: less error-prone type?
+	public bool m_sceneChange;
 
 	public Sprite m_dialogueSprite;
 	public WeightedObject<string[]>[] m_dialogue;
 
 
-	public bool CanInteract(KinematicCharacter interactor) => !string.IsNullOrEmpty(m_sceneName) || (m_dialogue != null && m_dialogue.Length > 0 && !GameController.Instance.m_dialogueController.IsPlaying);
+	public bool CanInteract(KinematicCharacter interactor) => m_sceneChange || (m_dialogue != null && m_dialogue.Length > 0 && !GameController.Instance.m_dialogueController.IsPlaying);
 
 
 	public void Interact(KinematicCharacter interactor)
@@ -20,9 +21,14 @@ public class InteractSimple : MonoBehaviour, IInteractable
 			GameController.Instance.m_dialogueController.Play(m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_dialogue.RandomWeighted(), null, interactor.GetComponent<AvatarController>());
 		}
 
-		if (!string.IsNullOrEmpty(m_sceneName))
+		if (m_sceneChange)
 		{
-			GameController.Instance.LoadScene(m_sceneName);
+			// https://stackoverflow.com/questions/40898310/get-name-of-next-scene-in-build-settings-in-unity3d
+			string scenePath = UnityEngine.SceneManagement.SceneUtility.GetScenePathByBuildIndex(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex == 0 ? 1 : 0);
+			int sceneNameStart = scenePath.LastIndexOf("/", StringComparison.Ordinal) + 1; // Unity's asset paths always use '/' as a path separator
+			int sceneNameEnd = scenePath.LastIndexOf(".", StringComparison.Ordinal);
+			string sceneName = scenePath[sceneNameStart .. sceneNameEnd];
+			GameController.Instance.LoadScene(sceneName);
 		}
 	}
 }

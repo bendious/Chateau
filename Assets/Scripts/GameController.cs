@@ -125,6 +125,13 @@ public class GameController : MonoBehaviour
 		// TODO: dialogue system
 		if (!PlayerPrefs.HasKey("IntroDialogueDone"))
 		{
+			const string tutorialSceneName = "Tutorial"; // TODO: un-hardcode?
+			if (SceneManager.GetActiveScene().name != tutorialSceneName)
+			{
+				LoadScene(tutorialSceneName);
+				return;
+			}
+
 			m_dialogueController.Play(null, Color.black, new string[] { "Ah, welcome home.", "You've been out for quite a while, haven't you?", "You're not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", "But don't worry about me; you have more pressing concerns at the moment, I believe." }, () =>
 			{
 				PlayerPrefs.SetInt("IntroDialogueDone", 1);
@@ -436,7 +443,7 @@ public class GameController : MonoBehaviour
 			do
 			{
 				LayoutGenerator.Node node = nodesShuffled[i];
-				if ((node.m_type == LayoutGenerator.Node.Type.RoomVertical || node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) && (newList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical || node.m_type == LayoutGenerator.Node.Type.RoomHorizontal)))
+				if ((node.m_type == LayoutGenerator.Node.Type.RoomVertical || node.m_type == LayoutGenerator.Node.Type.RoomDown || node.m_type == LayoutGenerator.Node.Type.RoomUp || node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) && newList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical || node.m_type == LayoutGenerator.Node.Type.RoomDown || node.m_type == LayoutGenerator.Node.Type.RoomUp || node.m_type == LayoutGenerator.Node.Type.RoomHorizontal))
 				{
 					break; // start new room
 				}
@@ -483,7 +490,7 @@ public class GameController : MonoBehaviour
 				// try spawning prefabs in random order
 				RoomController childRoom = null;
 				WeightedObject<GameObject>[] prefabsOrdered = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? m_bossRoomPrefabs : m_roomPrefabs;
-				Vector2[] allowedDirections = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical) ? new Vector2[] { Vector2.down, Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) ? new Vector2[] { Vector2.left, Vector2.right } : null;
+				Vector2[] allowedDirections = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical) ? new Vector2[] { Vector2.down, Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomDown) ? new Vector2[] { Vector2.down } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomUp) ? new Vector2[] { Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) ? new Vector2[] { Vector2.left, Vector2.right } : null;
 				foreach (GameObject roomPrefab in prefabsOrdered.RandomWeightedOrder())
 				{
 					childRoom = spawnRoom.SpawnChildRoom(roomPrefab, nodesList.ToArray(), allowedDirections);

@@ -248,3 +248,10 @@ MonoBehaviour:
     - "I don\u2019t actually know what\u2019s behind them."
     - "Their keys don\u2019t seem to still be around here."
     m_weight: 1
+  - m_object:
+    - Oh, you saw the writing on the entrance hallway walls?
+    - Yeah, I don't know who wrote all that.
+    - Someone crazy, I guess.
+    - Creepy gibberish...
+    - Don't think about it too much, that's my advice.
+    m_weight: 1

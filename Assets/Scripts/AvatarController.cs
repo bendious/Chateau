@@ -257,7 +257,7 @@ public class AvatarController : KinematicCharacter
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
 	}
 
-#if DEBUG
+#if UNITY_EDITOR
 	private void OnDrawGizmos()
 	{
 		UnityEditor.Handles.DrawWireArc(FocusCollectPos, Vector3.forward, Vector3.right, 360.0f, FocusRadius); // TODO: restrict to certain layers?

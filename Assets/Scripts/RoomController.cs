@@ -17,7 +17,6 @@ public class RoomController : MonoBehaviour
 
 
 	public WeightedObject<GameObject>[] m_doorInteractPrefabs;
-	public string m_doorInteractSceneName = "MainScene"; // TODO: determine dynamically?
 
 	public WeightedObject<GameObject>[] m_npcPrefabs;
 
@@ -262,13 +261,30 @@ public class RoomController : MonoBehaviour
 			switch (node.m_type)
 			{
 				case LayoutGenerator.Node.Type.Entrance:
-				case LayoutGenerator.Node.Type.Zone1Door:
+				case LayoutGenerator.Node.Type.ExitDoor:
 					GameObject doorPrefab = m_doorInteractPrefabs.RandomWeighted();
-					InteractSimple door = Instantiate(doorPrefab, (node.m_type == LayoutGenerator.Node.Type.Entrance ? transform.position : InteriorPosition(0.0f, 0.0f, doorPrefab)), Quaternion.identity, transform).GetComponent<InteractSimple>();
+					InteractSimple door = Instantiate(doorPrefab, node.m_type == LayoutGenerator.Node.Type.Entrance ? transform.position : InteriorPosition(0.0f, 0.0f, doorPrefab), Quaternion.identity, transform).GetComponent<InteractSimple>();
 					if (node.m_type != LayoutGenerator.Node.Type.Entrance)
 					{
-						door.m_sceneName = m_doorInteractSceneName;
+						door.m_sceneChange = true;
 						emptyRoom = true;
+					}
+					break;
+
+				case LayoutGenerator.Node.Type.TutorialMove:
+				case LayoutGenerator.Node.Type.TutorialAim:
+				case LayoutGenerator.Node.Type.TutorialDrop:
+				case LayoutGenerator.Node.Type.TutorialJump:
+				case LayoutGenerator.Node.Type.TutorialInteract:
+				case LayoutGenerator.Node.Type.TutorialUse:
+				case LayoutGenerator.Node.Type.TutorialInventory:
+				case LayoutGenerator.Node.Type.TutorialThrow:
+					GameObject prefab = m_roomType.m_decorationPrefabs[node.m_type - LayoutGenerator.Node.Type.TutorialMove].m_object;
+					Instantiate(prefab, InteriorPosition(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax, prefab), Quaternion.identity, transform);
+					if (node.m_type == LayoutGenerator.Node.Type.TutorialInteract)
+					{
+						prefab = m_roomType.m_itemPrefabs.RandomWeighted();
+						Instantiate(prefab, InteriorPosition(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax, prefab), Quaternion.identity);
 					}
 					break;
 
@@ -286,9 +302,12 @@ public class RoomController : MonoBehaviour
 		}
 
 		// spawn furniture
-		GameObject furniture = Instantiate(m_roomType.m_furniturePrefabs.RandomWeighted(), transform); // NOTE that we have to spawn before placement due to size randomization in Awake() // TODO: guarantee size will fit in available space?
-		furniture.transform.position = InteriorPosition(0.0f, furniture);
-		furniture.GetComponent<FurnitureController>().SpawnItems(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType);
+		if (m_roomType.m_furniturePrefabs.Length > 0)
+		{
+			GameObject furniture = Instantiate(m_roomType.m_furniturePrefabs.RandomWeighted(), transform); // NOTE that we have to spawn before placement due to size randomization in Awake() // TODO: guarantee size will fit in available space?
+			furniture.transform.position = InteriorPosition(0.0f, furniture);
+			furniture.GetComponent<FurnitureController>().SpawnItems(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType);
+		}
 
 		// spawn decoration(s)
 		// TODO: prioritize by area?
@@ -303,7 +322,7 @@ public class RoomController : MonoBehaviour
 			foreach (SpriteRenderer renderer in decoration.GetComponentsInChildren<SpriteRenderer>(true))
 			{
 				renderer.color = decoColor * 2.0f; // TODO: unhardcode? vary?
-				renderer.flipX = Random.Range(0, 2) != 0;
+				//renderer.flipX = Random.Range(0, 2) != 0; // TODO: re-enable for non-text decorations
 			}
 			foreach (Light2D renderer in decoration.GetComponentsInChildren<Light2D>(true))
 			{

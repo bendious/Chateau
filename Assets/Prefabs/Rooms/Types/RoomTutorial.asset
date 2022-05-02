@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17b48a8fa2e91f74cbd5326b5b117c17, type: 3}
+  m_Name: RoomTutorial
+  m_EditorClassIdentifier: 
+  m_backdrops: []
+  m_furniturePrefabs: []
+  m_itemPrefabs:
+  - m_object: {fileID: 6048625821855157070, guid: a5c7caeee92be8249ba14b290b6bb238, type: 3}
+    m_weight: 1
+  m_itemRarePrefabs: []
+  m_itemsMin: 0
+  m_itemsMax: 0
+  m_decorationPrefabs:
+  - m_object: {fileID: 7287174281192745631, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8676886319946764231, guid: 71b49dd434a813046b313f43ac1c5699, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8676886319946764231, guid: d6d57edb68b4d67469aacffc2b47cb4f, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8676886319946764231, guid: 62568760e40bcb049adafccb2704952d, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8676886319946764231, guid: 3309dde898ea6bd47a977320d43f127b, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8676886319946764231, guid: 8366f5daea345764cb2809960b8bd9d5, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8676886319946764231, guid: 361520148a494f04692f40ea0e301feb, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8676886319946764231, guid: e74f083f949510240b4012554ed14aff, type: 3}
+    m_weight: 1
+  m_decorationsMin: 0
+  m_decorationsMax: 0
+  m_decorationHeightMin: 1
+  m_decorationHeightMax: 1
