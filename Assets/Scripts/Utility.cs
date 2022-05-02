@@ -135,4 +135,16 @@ public static class Utility
 		current.a = Mathf.SmoothDamp(current.a, target.a, ref currentVelocity.w, smoothTime);
 		return current;
 	}
+
+	public static Vector2 OriginToCenterY(GameObject obj, bool useRenderers = false)
+	{
+		Component[] components = useRenderers ? obj.GetComponentsInChildren<Renderer>() : obj.GetComponentsInChildren<Collider2D>();
+		float yMin = components.Length <= 0 ? 0.0f : useRenderers ? components.Min(component => (component as Renderer).bounds.min.y) : components.Min(component =>
+		{
+			Collider2D collider = component as Collider2D;
+			float colliderExtentY = collider is CapsuleCollider2D capsule ? capsule.size.y * 0.5f : collider is CircleCollider2D circle ? circle.radius : collider is BoxCollider2D box ? box.size.y * 0.5f + box.edgeRadius : 0.0f; // NOTE that we can't use Collider2D.bounds on an uninstantiated prefab // TODO: less hardcoding?
+			return collider.transform.position.y - obj.transform.position.y + collider.offset.y - colliderExtentY;
+		});
+		return new Vector2(0.0f, -yMin);
+	}
 }

@@ -289,7 +289,8 @@ public class RoomController : MonoBehaviour
 					break;
 
 				case LayoutGenerator.Node.Type.Npc:
-					Instantiate(m_npcPrefabs.RandomWeighted(), InteriorPosition(0.0f, 0.0f), Quaternion.identity);
+					GameObject npcPrefab = m_npcPrefabs.RandomWeighted();
+					Instantiate(npcPrefab, InteriorPosition(0.0f, 0.0f) + (Vector3)Utility.OriginToCenterY(npcPrefab), Quaternion.identity);
 					break;
 
 				default:
