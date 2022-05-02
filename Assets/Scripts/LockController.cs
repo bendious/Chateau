@@ -33,8 +33,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	public GameObject Parent { get; set; }
 
 
-	private List<GameObject> m_keys = new();
-	private List<GameObject> m_keysOrig;
+	private readonly List<IKey> m_keys = new();
 	private KeyInfo m_keyInfo;
 	private string m_combinationSet;
 
@@ -72,12 +71,11 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 				spawnPos += (Vector3)Utility.OriginToCenterY(keyPrefab);
 			}
 			GameObject keyObj = keyPrefab.GetComponent<ISavable>() == null ? Instantiate(keyPrefab, spawnPos, Quaternion.identity) : GameController.Instance.m_savableFactory.Instantiate(keyPrefab, spawnPos, Quaternion.identity);
-			IUnlockable childLock = keyObj.GetComponent<IUnlockable>();
-			if (childLock != null)
+			foreach (IKey key in keyObj.GetComponentsInChildren<IKey>())
 			{
-				childLock.Parent = gameObject;
+				key.Lock = this;
+				m_keys.Add(key);
 			}
-			m_keys.AddRange(keyObj.GetComponentsInChildren<SpriteRenderer>().Select(r => r.gameObject));
 		}
 
 		// setup key(s)
@@ -95,11 +93,11 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 			// distribute combination among keys
 			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / m_keys.Count;
 			int keyIdx = 0;
-			foreach (GameObject key in m_keys)
+			foreach (IKey key in m_keys)
 			{
 				int startIdx = Mathf.RoundToInt(keyIdx * digitsPerKey);
 				int endIdx = Mathf.RoundToInt((keyIdx + 1) * digitsPerKey);
-				key.GetComponentInChildren<TMP_Text>().text = (keyIdx == 0 ? "" : "*") + m_combination[startIdx..endIdx] + (keyIdx == m_keys.Count - 1 ? "" : "*");
+				key.Component.GetComponentInChildren<TMP_Text>().text = (keyIdx == 0 ? "" : "*") + m_combination[startIdx..endIdx] + (keyIdx == m_keys.Count - 1 ? "" : "*");
 				++keyIdx;
 			}
 		}
@@ -116,16 +114,16 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		}
 
 		// allow duplicates in ordered keys
-		// TODO: allow duplicates before some originals?
+		// TODO: re-enable after upgrading IKey.IsInPlace? allow duplicates before some originals?
 		SpriteRenderer[] colorKeyRenderers = orderObj != null ? orderObj.GetComponentsInChildren<SpriteRenderer>().ToArray() : new SpriteRenderer[] { GetComponent<SpriteRenderer>() };
-		if (orderObj != null)
-		{
-			int keyCountOrig = m_keys.Count;
-			for (int i = 0, repeatCount = Random.Range(0, colorKeyRenderers.Length - m_keys.Count + 1); i < repeatCount; ++i)
-			{
-				m_keys.Add(m_keys[Random.Range(0, keyCountOrig)]);
-			}
-		}
+		//if (orderObj != null)
+		//{
+		//	int keyCountOrig = m_keys.Count;
+		//	for (int i = 0, repeatCount = Random.Range(0, colorKeyRenderers.Length - m_keys.Count + 1); i < repeatCount; ++i)
+		//	{
+		//		m_keys.Add(m_keys[Random.Range(0, keyCountOrig)]);
+		//	}
+		//}
 
 		// match key color(s)
 		int colorIdx;
@@ -134,7 +132,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 			SpriteRenderer rendererCur = colorKeyRenderers[colorIdx];
 			if (colorIdx < m_keys.Count)
 			{
-				rendererCur.color = m_keys[colorIdx].GetComponent<SpriteRenderer>().color;
+				rendererCur.color = m_keys[colorIdx].Component.GetComponent<SpriteRenderer>().color;
 			}
 			else
 			{
@@ -143,18 +141,16 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		}
 		for (; colorIdx < m_keys.Count; ++colorIdx)
 		{
-			m_keys[colorIdx].GetComponent<SpriteRenderer>().color = colorKeyRenderers.First().color;
+			m_keys[colorIdx].Component.GetComponent<SpriteRenderer>().color = colorKeyRenderers.First().color;
 		}
 
 		// door setup based on keys
 		UpdateSprite();
-
-		m_keysOrig = new(m_keys); // NOTE the forced copy
 	}
 
-	public bool IsKey(GameObject obj)
+	public bool IsValidNextKey(GameObject obj)
 	{
-		return m_keys.Contains(obj);
+		return m_keyInfo.m_orderPrefabs != null && m_keyInfo.m_orderPrefabs.Length > 0 ? m_keys.Count > 0 && m_keys.First(key => !key.IsInPlace).Component.gameObject == obj : m_keys.Exists(key => key.Component.gameObject == obj);
 	}
 
 	public void OnNavigate(GameObject overlayObj, UnityEngine.InputSystem.InputValue input)
@@ -221,9 +217,11 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 
 		foreach (Transform tf in collider.GetComponentsInChildren<Transform>(true))
 		{
-			if (m_keys.Contains(tf.gameObject))
+			if (IsValidNextKey(tf.gameObject))
 			{
-				Unlock(tf.gameObject);
+				IKey key = tf.GetComponent<IKey>();
+				key.Use();
+				Unlock(key);
 			}
 		}
 	}
@@ -240,9 +238,9 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 			return;
 		}
 
-		foreach (GameObject key in m_keys)
+		foreach (IKey key in m_keys)
 		{
-			DeactivateKey(key);
+			key.Deactivate();
 		}
 		if (Parent != null)
 		{
@@ -288,29 +286,33 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 #else
 	private
 #endif
-		bool Unlock(GameObject key)
+		bool Unlock(IKey key)
 	{
 		// handle given key
 		AudioSource audio = GetComponent<AudioSource>();
 		if (key != null)
 		{
-			if (m_keys.Count == 0 || (m_keyInfo.m_orderPrefabs.Length > 0 && key != m_keys.First()))
+			if (!IsValidNextKey(key.Component.gameObject)) // TODO: move to ButtonController?
 			{
 				// TODO: visual indication of failure?
 				audio.clip = m_failureSFX.RandomWeighted();
 				audio.Play();
 
-				m_keys = new(m_keysOrig); // NOTE the forced copy
+				foreach (IKey entry in m_keys)
+				{
+					entry.IsInPlace = false;
+				}
 				UpdateSprite();
 
 				return false;
 			}
-			m_keys.Remove(key);
-			DeactivateKey(key);
+
+			key.IsInPlace = true;
 		}
 
 		// check for full unlocking
-		if (key == null || m_keys.Count <= 0)
+		int remainingKeys = m_keys.Count(key => !key.IsInPlace);
+		if (key == null || remainingKeys <= 0)
 		{
 			m_combination = null; // to disable interaction for consoles
 
@@ -327,51 +329,29 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 			Parent = null;
 
 			// handle any non-deliverable keys
-			foreach (GameObject keyRemaining in m_keys)
+			foreach (IKey keyEntry in m_keys)
 			{
-				DeactivateKey(keyRemaining);
+				keyEntry.Deactivate();
 			}
 			m_keys.Clear();
 		}
 
 		// update sprite
 		// TODO: support arbitrary key placement?
-		if (m_keyInfo.m_doorSprites != null && m_keys.Count < m_keyInfo.m_doorSprites.Length)
-		{
-			GetComponent<SpriteRenderer>().sprite = m_keyInfo.m_doorSprites[^(m_keys.Count + 1)];
-		}
+		UpdateSprite();
 
 		// TODO: unlock animation/VFX/etc.
 		audio.clip = m_unlockSFX.RandomWeighted();
 		audio.Play();
 
-		return m_keys.Count == 0;
+		return true;
 	}
 
 	private void UpdateSprite()
 	{
 		if (m_keyInfo.m_doorSprites != null && m_keyInfo.m_doorSprites.Length > 0)
 		{
-			GetComponent<SpriteRenderer>().sprite = m_keyInfo.m_doorSprites[^Mathf.Min(m_keyInfo.m_doorSprites.Length, m_keys.Count + 1)];
-		}
-	}
-
-	private void DeactivateKey(GameObject key)
-	{
-		Rigidbody2D keyBody = key.GetComponent<Rigidbody2D>();
-		if (keyBody != null && keyBody.bodyType != RigidbodyType2D.Static)
-		{
-			// destroy item keys
-			Simulation.Schedule<ObjectDespawn>().m_object = key;
-			return;
-		}
-
-		// leave non-item keys in place, just turning off their light/text
-		key.GetComponent<UnityEngine.Rendering.Universal.Light2D>().enabled = false;
-		Canvas canvas = key.GetComponentInChildren<Canvas>();
-		if (canvas != null)
-		{
-			canvas.enabled = false;
+			GetComponent<SpriteRenderer>().sprite = m_keyInfo.m_doorSprites[^Mathf.Min(m_keyInfo.m_doorSprites.Length, m_keys.Count(key => !key.IsInPlace) + 1)];
 		}
 	}
 

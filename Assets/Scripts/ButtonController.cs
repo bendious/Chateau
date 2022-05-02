@@ -1,48 +1,43 @@
 using UnityEngine;
 
 
-// TODO: merge w/ LockController?
-[RequireComponent(typeof(Collider2D))]
-public class ButtonController : MonoBehaviour, IInteractable, IUnlockable
+[DisallowMultipleComponent, RequireComponent(typeof(Collider2D))]
+public class ButtonController : MonoBehaviour, IInteractable, IKey
 {
-	public bool m_reusable = false;
-
-	public GameObject Parent { get; set; }
-
-
-	private bool m_locked = true;
+	[SerializeField]
+	private bool m_reusable = false;
 
 
-	public bool CanInteract(KinematicCharacter interactor) => m_locked;
+	public IUnlockable Lock { get; set; }
+
+	public bool IsInPlace { get; set; }
+
+
+	public bool CanInteract(KinematicCharacter interactor) => m_reusable || !IsInPlace;
 
 	public void Interact(KinematicCharacter interactor)
 	{
-		Unlock(gameObject);
-	}
-
-	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
-	{
-		// no-op; we are our own key
-	}
-
-	public bool IsKey(GameObject obj)
-	{
-		return obj == gameObject;
-	}
-
-	public bool Unlock(GameObject key)
-	{
-		bool fullyUnlocked = Parent.GetComponent<IUnlockable>().Unlock(key);
-		m_locked = m_reusable && !fullyUnlocked;
-		if (m_locked)
+		Use();
+		if (!m_reusable)
 		{
-			return false;
+			Deactivate();
 		}
+	}
+
+
+	public void Use()
+	{
+		Lock.Unlock(this);
+	}
+
+	public void Deactivate()
+	{
+		m_reusable = false;
+
+		// leave non-item keys in place, just turning off their light/text
+		GetComponent<UnityEngine.Rendering.Universal.Light2D>().enabled = false;
 
 		// update color
-		// NOTE that LockController.DeactivateKey() also turns off our light
 		GetComponent<SpriteRenderer>().color = Color.black; // TODO: expose?
-
-		return true;
 	}
 }

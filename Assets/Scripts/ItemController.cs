@@ -7,7 +7,7 @@ using UnityEngine;
 
 
 [DisallowMultipleComponent, RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), RequireComponent(typeof(SpriteRenderer))]
-public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, ISavable
+public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, IKey, ISavable
 {
 	[TextArea]
 	public string m_tooltip;
@@ -52,6 +52,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	private int m_savableType = -1;
 	int ISavable.Type { get => m_savableType; set => m_savableType = value; }
 
+	public IUnlockable Lock { get; set; }
+	public bool IsInPlace { get; set; }
 
 	private static int m_layerDefault;
 
@@ -140,6 +142,21 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		{
 			EnableVFXAndDamage(); // mostly to prevent m_cause from remaining set and allowing damage if run into fast enough
 		}
+	}
+
+	void IKey.Use()
+	{
+		if (m_holder != null)
+		{
+			Detach(false);
+		}
+		IsInPlace = true;
+		gameObject.SetActive(false);
+	}
+
+	public void Deactivate()
+	{
+		Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
 	}
 
 	void ISavable.SaveInternal(SaveWriter saveFile)

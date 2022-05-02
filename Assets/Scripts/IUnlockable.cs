@@ -8,7 +8,7 @@ public interface IUnlockable
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms);
 
-	public bool IsKey(GameObject obj);
+	public bool IsValidNextKey(GameObject obj);
 
-	public bool Unlock(GameObject key);
+	public bool Unlock(IKey key);
 }

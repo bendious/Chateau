@@ -16,13 +16,13 @@ public class GateController : MonoBehaviour, IUnlockable
 
 	private void OnTriggerEnter2D(Collider2D collider)
 	{
-		if (!IsKey(collider.gameObject))
+		if (!IsValidNextKey(collider.gameObject))
 		{
 			return;
 		}
 
 		Parent.GetComponent<RoomController>().SpawnLadder(gameObject, m_ladderPrefabs?.RandomWeighted(), true);
-		m_child.Unlock(collider.gameObject);
+		collider.GetComponent<IKey>().Use();
 	}
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
@@ -35,12 +35,12 @@ public class GateController : MonoBehaviour, IUnlockable
 		m_child.SpawnKeys(lockRoom, keyRooms);
 	}
 
-	public bool IsKey(GameObject obj)
+	public bool IsValidNextKey(GameObject obj)
 	{
-		return m_child.IsKey(obj);
+		return m_child.IsValidNextKey(obj) /*|| m_ladderPrefabs.Exists(prefab => obj.SourcePrefab == prefab)*/; // TODO: allow any ladder to fit in any ladder gate?
 	}
 
-	public bool Unlock(GameObject key)
+	public bool Unlock(IKey key)
 	{
 		GameController.Instance.AddCameraTargets(transform);
 		Simulation.Schedule<ObjectDespawn>(1.0f).m_object = gameObject; // TODO: guarantee camera reaches us?

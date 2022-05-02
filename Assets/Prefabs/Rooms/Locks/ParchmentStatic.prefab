@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5178718400862505423}
   - component: {fileID: 5996455719517665472}
   - component: {fileID: 8012720012746273106}
+  - component: {fileID: 2953976778237690266}
   m_Layer: 0
   m_Name: ParchmentStatic
   m_TagString: Untagged
@@ -179,6 +180,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_colorMin: 0.25
   m_colorMax: 1
+--- !u!114 &2953976778237690266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 706043663315506005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172be350f375e494cb11024fb9a399de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6079029396817134784
 GameObject:
   m_ObjectHideFlags: 0
