@@ -605,8 +605,15 @@ public class GameController : MonoBehaviour
 		while (m_nextWaveTime >= 0.0f)
 		{
 			yield return new WaitForSeconds(1.0f); // NOTE that we currently don't care whether the UI timer is precise within partial seconds
-			m_timerUI.text = System.TimeSpan.FromSeconds(m_nextWaveTime - Time.time).ToString("m':'ss");
+			float secondsRemaining = m_nextWaveTime - Time.time;
+			m_timerUI.text = System.TimeSpan.FromSeconds(secondsRemaining).ToString("m':'ss");
 			m_timerUI.color = EnemiesRemain() ? Color.red : Color.green;
+
+			if (secondsRemaining >= 1.0f && secondsRemaining <= m_waveWeight + 1.0f)
+			{
+				AudioSource source = GetComponent<AudioSource>();
+				source.PlayOneShot(source.clip);
+			}
 		}
 	}
 
