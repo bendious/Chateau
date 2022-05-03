@@ -1,6 +1,7 @@
 using UnityEngine;
 
 
+[DisallowMultipleComponent]
 public class ColorRandomizer : MonoBehaviour
 {
 	public float m_colorMin = 0.5f;

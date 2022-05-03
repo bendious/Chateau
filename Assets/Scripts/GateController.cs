@@ -1,6 +1,7 @@
 using UnityEngine;
 
 
+[DisallowMultipleComponent]
 public class GateController : MonoBehaviour, IUnlockable
 {
 	public WeightedObject<GameObject>[] m_lockPrefabs;

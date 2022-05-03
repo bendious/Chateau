@@ -2,7 +2,7 @@ using System.Linq;
 using UnityEngine;
 
 
-[RequireComponent(typeof(Collider2D))]
+[DisallowMultipleComponent, RequireComponent(typeof(Collider2D))]
 public sealed class ArmController : MonoBehaviour, IHolder
 {
 	public /*override*/ int HoldCountMax => 1;

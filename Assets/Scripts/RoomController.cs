@@ -6,6 +6,7 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.VFX;
 
 
+[DisallowMultipleComponent]
 public class RoomController : MonoBehaviour
 {
 	[System.Serializable]

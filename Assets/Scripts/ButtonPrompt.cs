@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 
+[DisallowMultipleComponent]
 public class ButtonPrompt : MonoBehaviour
 {
 	public PlayerInput m_playerInput;

@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 
-[RequireComponent(typeof(Collider2D))]
+[DisallowMultipleComponent, RequireComponent(typeof(Collider2D))]
 public class InteractSimple : MonoBehaviour, IInteractable
 {
 	public bool m_sceneChange;

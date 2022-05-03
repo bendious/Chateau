@@ -1,6 +1,7 @@
 using UnityEngine;
 
 
+[DisallowMultipleComponent]
 public class Explosion : MonoBehaviour
 {
 	public float m_radius = -1.0f;

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
 
+[DisallowMultipleComponent]
 public class LightFlicker : MonoBehaviour
 {
 	[System.Serializable]

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
 
+[DisallowMultipleComponent]
 public class Boss : MonoBehaviour
 {
 	public BossRoom m_room;

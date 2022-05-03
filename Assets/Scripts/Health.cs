@@ -6,6 +6,7 @@ using UnityEngine.UI;
 /// <summary>
 /// Represents the current vital statistics of some game entity.
 /// </summary>
+[DisallowMultipleComponent]
 public class Health : MonoBehaviour
 {
 	/// <summary>

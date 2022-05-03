@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 
 
+[DisallowMultipleComponent]
 public class BossRoom : MonoBehaviour
 {
 	public WeightedObject<GameObject>[] m_bossPrefabs;

@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 
-[RequireComponent(typeof(Collider2D))]
+[DisallowMultipleComponent, RequireComponent(typeof(Collider2D))]
 public class LockController : MonoBehaviour, IInteractable, IUnlockable
 {
 	[System.Serializable]

@@ -1,6 +1,7 @@
 using UnityEngine;
 
 
+[DisallowMultipleComponent]
 public class Bomb : MonoBehaviour
 {
 	public GameObject m_explosion;

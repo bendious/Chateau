@@ -7,6 +7,7 @@ using UnityEngine.Assertions;
 /// <summary>
 /// Implements game physics for some in-game, controlled entity.
 /// </summary>
+[DisallowMultipleComponent]
 public abstract class KinematicObject : MonoBehaviour
 {
 	// TODO: give appropriate defaults w/o needing LayerMask.NameToLayer() at initialization time?

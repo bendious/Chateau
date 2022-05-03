@@ -1,6 +1,7 @@
 using UnityEngine;
 
 
+[DisallowMultipleComponent]
 public class KeyStatic : MonoBehaviour, IKey
 {
 	public IUnlockable Lock { get; set; }

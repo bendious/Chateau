@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 
 
+[DisallowMultipleComponent]
 public /*static*/ class ConsoleCommands : MonoBehaviour
 {
 	public /*static*/ GameObject[] m_visualizationPrefabs;

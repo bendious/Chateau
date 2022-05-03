@@ -1,7 +1,6 @@
 using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -10,6 +9,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
+[DisallowMultipleComponent]
 public class GameController : MonoBehaviour
 {
 	public LayoutGenerator.Node.Type m_type;

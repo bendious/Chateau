@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 
+[DisallowMultipleComponent]
 public class DialogueController : MonoBehaviour
 {
 	public UnityEngine.UI.Image m_image;

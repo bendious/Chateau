@@ -2,6 +2,7 @@ using System.Linq;
 using UnityEngine;
 
 
+[DisallowMultipleComponent]
 public class FurnitureController : MonoBehaviour
 {
 	public Vector2 m_sizeMin = new(1.0f, 0.25f);

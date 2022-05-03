@@ -1,6 +1,7 @@
 using UnityEngine;
 
 
+[DisallowMultipleComponent]
 public class TimedDespawn : MonoBehaviour
 {
 	public float m_lifetime = 3.0f;

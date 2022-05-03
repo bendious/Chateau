@@ -1,6 +1,7 @@
 using UnityEngine;
 
 
+[DisallowMultipleComponent]
 public class LineConnector : MonoBehaviour
 {
 	public Vector3 m_lineOffset;
