@@ -35,6 +35,12 @@ public class GameController : MonoBehaviour
 	public MaterialSystem m_materialSystem;
 	public SavableFactory m_savableFactory;
 
+	[SerializeField]
+	private WeightedObject<AudioClip>[] m_ambientMusic;
+	[SerializeField]
+	private float m_musicDelayMin = 30.0f;
+	[SerializeField]
+	private float m_musicDelayMax = 120.0f;
 	public AudioClip m_victoryAudio;
 
 	public float m_waveSecondsMin = 45.0f;
@@ -140,6 +146,8 @@ public class GameController : MonoBehaviour
 		}
 
 		IsReloading = false;
+
+		StartCoroutine(MusicCoroutine());
 	}
 
 	private void OnDestroy()
@@ -387,7 +395,7 @@ public class GameController : MonoBehaviour
 		}
 		m_timerUI.text = "WIN!";
 		m_nextWaveTime = -1.0f;
-		StopAllCoroutines();
+		StopAllCoroutines(); // TODO: allow ambient music to restart after victory music?
 
 		// TODO: roll credits / etc.?
 	}
@@ -613,6 +621,22 @@ public class GameController : MonoBehaviour
 			{
 				AudioSource source = GetComponent<AudioSource>();
 				source.PlayOneShot(source.clip);
+			}
+		}
+	}
+
+	private IEnumerator MusicCoroutine()
+	{
+		AudioSource source = GetComponent<AudioSource>();
+
+		while (true)
+		{
+			yield return new WaitForSeconds(Random.Range(m_musicDelayMin, m_musicDelayMax)); // TODO: take into account length of current audio?
+
+			if (!source.isPlaying)
+			{
+				source.clip = m_ambientMusic.RandomWeighted();
+				source.Play();
 			}
 		}
 	}

@@ -1185,6 +1185,13 @@ MonoBehaviour:
   m_gameOverUI: {fileID: 8429885465154309406}
   m_materialSystem: {fileID: 11400000, guid: 17f41ccd08cb0cb40a164c155fdf365d, type: 2}
   m_savableFactory: {fileID: 11400000, guid: 9c40a24db50646340b727ada604cdf58, type: 2}
+  m_ambientMusic:
+  - m_object: {fileID: 8300000, guid: 49ba588079fa3c84bafa890d317e15fd, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 53e4126a8a47a1e43a584006db1a7786, type: 3}
+    m_weight: 1
+  m_musicDelayMin: 30
+  m_musicDelayMax: 120
   m_victoryAudio: {fileID: 0}
   m_waveSecondsMin: 0
   m_waveSecondsMax: 0
@@ -4213,7 +4220,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.8586956, y: 1}
+    m_SensorSize: {x: 1.7717391, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
