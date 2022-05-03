@@ -13,7 +13,6 @@ public class InteractSimple : MonoBehaviour, IInteractable
 
 	public bool CanInteract(KinematicCharacter interactor) => m_sceneChange || (m_dialogue != null && m_dialogue.Length > 0 && !GameController.Instance.m_dialogueController.IsPlaying);
 
-
 	public void Interact(KinematicCharacter interactor)
 	{
 		if (m_dialogue != null && m_dialogue.Length > 0)

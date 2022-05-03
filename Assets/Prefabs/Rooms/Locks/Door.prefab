@@ -140,18 +140,6 @@ MonoBehaviour:
     m_weight: 1
   - m_object:
       m_doorSprites:
-      - {fileID: 21300000, guid: 2b60367463fe92a4eb1952f0d5303ef9, type: 3}
-      m_prefabs:
-      - m_object: {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
-        m_weight: 1
-      - m_object: {fileID: 706043663315506005, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
-        m_weight: 1
-      m_orderPrefabs: []
-      m_keyCountMax: 4
-      m_combinationDigits: 4
-    m_weight: 1
-  - m_object:
-      m_doorSprites:
       - {fileID: 21300000, guid: 8750a038d3cfd0a44a80d6a3d1576512, type: 3}
       - {fileID: 21300000, guid: 6d1cd00ec54403244b1a073b88bb94ee, type: 3}
       - {fileID: 21300000, guid: 80f33a7549f6b8342b5ba55f3e17c9cd, type: 3}
@@ -206,18 +194,8 @@ MonoBehaviour:
       m_keyCountMax: 4
       m_combinationDigits: 0
     m_weight: 1
-  m_combinationSets:
-  - m_object: 0123456789
-    m_weight: 1
-  - m_object: ABCDEFGHIJKLMNOPQRSTUVWXYZ
-    m_weight: 0.5
-  - m_object: abcdefghijklmnopqrstuvwxyz
-    m_weight: 0.5
-  - m_object: "\u2192\u2190\u2191\u2193"
-    m_weight: 1
+  m_combinationSets: []
   m_keyHeightMax: 7.5
-  m_combinationIndicatorPrefab: {fileID: 7581576132359493611, guid: f35e42329712f004a939999cb3ace575, type: 3}
-  m_interactDistanceMax: 2
   m_failureSFX:
   - m_object: {fileID: 8300000, guid: 1b1c8da1c1a0c1e4e89bbe40b78329f3, type: 3}
     m_weight: 1
@@ -250,7 +228,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 64310
+  m_InstanceId: 55208
 --- !u!82 &6978962022123711710
 AudioSource:
   m_ObjectHideFlags: 0

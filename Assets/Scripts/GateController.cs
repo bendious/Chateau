@@ -4,7 +4,14 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class GateController : MonoBehaviour, IUnlockable
 {
-	public WeightedObject<GameObject>[] m_lockPrefabs;
+	[System.Serializable]
+	public class LockInfo
+	{
+		public GameObject m_prefab;
+		public float m_heightMin;
+		public float m_heightMax;
+	}
+	public WeightedObject<LockInfo>[] m_lockPrefabs;
 
 	public WeightedObject<GameObject>[] m_ladderPrefabs;
 
@@ -28,10 +35,10 @@ public class GateController : MonoBehaviour, IUnlockable
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
 	{
-		GameObject lockPrefab = m_lockPrefabs.RandomWeighted();
-		Vector3 spawnPos = lockRoom.InteriorPosition(0.0f, lockPrefab) + (Vector3)Utility.OriginToCenterY(lockPrefab, true);
+		LockInfo lockInfo = m_lockPrefabs.RandomWeighted();
+		Vector3 spawnPos = lockRoom.InteriorPosition(lockInfo.m_heightMin, lockInfo.m_heightMax, lockInfo.m_prefab) + (Vector3)Utility.OriginToCenterY(lockInfo.m_prefab, true);
 
-		m_child = Instantiate(lockPrefab, spawnPos, Quaternion.identity, transform.parent).GetComponent<IUnlockable>();
+		m_child = Instantiate(lockInfo.m_prefab, spawnPos, Quaternion.identity, transform.parent).GetComponent<IUnlockable>();
 		m_child.Parent = gameObject;
 		m_child.SpawnKeys(lockRoom, keyRooms);
 	}

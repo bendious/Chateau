@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -6,8 +5,8 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 
-[DisallowMultipleComponent, RequireComponent(typeof(Collider2D))]
-public class LockController : MonoBehaviour, IInteractable, IUnlockable
+[DisallowMultipleComponent, RequireComponent(typeof(AudioSource))]
+public class LockController : MonoBehaviour, IUnlockable
 {
 	[System.Serializable]
 	public struct KeyInfo
@@ -23,9 +22,6 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 
 	public float m_keyHeightMax = 7.5f;
 
-	public GameObject m_combinationIndicatorPrefab;
-	public float m_interactDistanceMax = 1.0f; // TODO: combine w/ avatar focus distance?
-
 	public WeightedObject<AudioClip>[] m_failureSFX;
 	public WeightedObject<AudioClip>[] m_unlockSFX;
 
@@ -38,9 +34,8 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	private string m_combinationSet;
 
 	private /*readonly*/ string m_combination;
-	private GameObject m_indicator;
-	private string m_inputCur;
-	private int m_inputIdxCur = 0;
+
+	private InteractToggle[] m_interacts;
 
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
@@ -88,9 +83,8 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 			{
 				m_combination += m_combinationSet[Random.Range(0, m_combinationSet.Length)]; // TODO: recognize & act upon "special" combinations (0333, 0666, real words, etc.)?
 			}
-			m_inputCur = new string(Enumerable.Repeat(m_combinationSet.First(), m_keyInfo.m_combinationDigits).ToArray());
 
-			// distribute combination among keys
+			// distribute combination among keys/children
 			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / m_keys.Count;
 			int keyIdx = 0;
 			foreach (IKey key in m_keys)
@@ -99,6 +93,13 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 				int endIdx = Mathf.RoundToInt((keyIdx + 1) * digitsPerKey);
 				key.Component.GetComponentInChildren<TMP_Text>().text = (keyIdx == 0 ? "" : "*") + m_combination[startIdx..endIdx] + (keyIdx == m_keys.Count - 1 ? "" : "*");
 				++keyIdx;
+			}
+			if (m_interacts != null)
+			{
+				foreach (InteractToggle child in m_interacts)
+				{
+					child.SetToggleText(m_combinationSet);
+				}
 			}
 		}
 
@@ -115,7 +116,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 
 		// allow duplicates in ordered keys
 		// TODO: re-enable after upgrading IKey.IsInPlace? allow duplicates before some originals?
-		SpriteRenderer[] colorKeyRenderers = orderObj != null ? orderObj.GetComponentsInChildren<SpriteRenderer>().ToArray() : new SpriteRenderer[] { GetComponent<SpriteRenderer>() };
+		SpriteRenderer[] colorKeyRenderers = orderObj != null ? orderObj.GetComponentsInChildren<SpriteRenderer>().ToArray() : GetComponentsInChildren<SpriteRenderer>();
 		//if (orderObj != null)
 		//{
 		//	int keyCountOrig = m_keys.Count;
@@ -126,6 +127,7 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		//}
 
 		// match key color(s)
+		// TODO: better many-to-many logic
 		int colorIdx;
 		for (colorIdx = 0; colorIdx < colorKeyRenderers.Length; ++colorIdx)
 		{
@@ -134,9 +136,13 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 			{
 				rendererCur.color = m_keys[colorIdx].Component.GetComponent<SpriteRenderer>().color;
 			}
-			else
+			else if (rendererCur.GetComponent<ColorRandomizer>() != null) // TODO?
 			{
 				rendererCur.gameObject.SetActive(false);
+			}
+			else
+			{
+				rendererCur.color = m_keys.First().Component.GetComponent<SpriteRenderer>().color;
 			}
 		}
 		for (; colorIdx < m_keys.Count; ++colorIdx)
@@ -153,60 +159,25 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		return m_keyInfo.m_orderPrefabs != null && m_keyInfo.m_orderPrefabs.Length > 0 ? m_keys.Count > 0 && m_keys.First(key => !key.IsInPlace).Component.gameObject == obj : m_keys.Exists(key => key.Component.gameObject == obj);
 	}
 
-	public void OnNavigate(GameObject overlayObj, UnityEngine.InputSystem.InputValue input)
+	public bool CheckInput()
 	{
-		TMP_Text text = overlayObj.GetComponentInChildren<TMP_Text>();
+		string inputCur = m_interacts.Aggregate("", (str, interact) => str + interact.TextCurrent);
 
-		Vector2 xyInput = input.Get<Vector2>();
-		float xInput = xyInput.x;
-		int xInputDir = xInput.FloatEqual(0.0f) ? 0 : (int)Mathf.Sign(xInput);
-		if (xInputDir != 0)
+		if (inputCur != m_combination)
 		{
-			m_inputIdxCur = (m_inputIdxCur + xInputDir).Modulo(m_keyInfo.m_combinationDigits);
-			UpdateUIIndicator(text);
+			// NOTE that we don't play m_failureSFX since this is called by InteractToggle() every time the input is toggled
+			return false;
 		}
 
-		float yInput = xyInput.y;
-		int yInputDir = yInput.FloatEqual(0.0f) ? 0 : (int)Mathf.Sign(yInput);
-		if (yInputDir != 0)
-		{
-			char oldChar = m_inputCur[m_inputIdxCur];
-			Assert.IsTrue(m_combinationSet.Count(setChar => setChar == oldChar) == 1); // TODO: handle duplicate characters?
-			int oldSetIdx = m_combinationSet.IndexOf(oldChar);
-			char newDigit = m_combinationSet[(oldSetIdx + yInputDir).Modulo(m_combinationSet.Length)];
-
-			char[] inputArray = m_inputCur.ToCharArray();
-			inputArray[m_inputIdxCur] = newDigit;
-			m_inputCur = new string(inputArray);
-
-			text.text = m_inputCur;
-		}
+		Unlock(null);
+		return true;
 	}
 
-	public bool OnSubmit(AvatarController avatar)
+
+	private void Awake()
 	{
-		if (m_inputCur == m_combination)
-		{
-			Unlock(null);
-			UICleanup(avatar);
-			return true;
-		}
-
-		// TODO: failure SFX?
-
-		return false;
+		m_interacts = GetComponentsInChildren<InteractToggle>();
 	}
-
-	public void UICleanup(AvatarController avatar)
-	{
-		if (avatar.m_overlayCanvas.gameObject.activeSelf)
-		{
-			avatar.ToggleOverlay(null, null); // NOTE that this is BEFORE clearing m_indicator since we were getting occasional OnNavigate() calls after clearing m_indicator
-		}
-		Simulation.Schedule<ObjectDespawn>().m_object = m_indicator;
-		m_indicator = null;
-	}
-
 
 	private void OnTriggerEnter2D(Collider2D collider)
 	{
@@ -249,38 +220,6 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 	}
 
 
-	public /*override*/ bool CanInteract(KinematicCharacter interactor) => !string.IsNullOrEmpty(m_combination) && !GameController.Instance.EnemiesRemain();
-
-	public /*override*/ void Interact(KinematicCharacter interactor)
-	{
-		if (string.IsNullOrEmpty(m_combination))
-		{
-			return;
-		}
-
-		AvatarController avatar = (AvatarController)interactor;
-		Assert.IsTrue(GameController.Instance.m_avatars.Contains(avatar));
-
-		StopAllCoroutines();
-
-		if (GameController.Instance.EnemiesRemain())
-		{
-			UICleanup(avatar);
-			return;
-		}
-
-		bool overlayActive = avatar.ToggleOverlay(GetComponent<SpriteRenderer>(), m_inputCur);
-		if (overlayActive)
-		{
-			StartCoroutine(UpdateInteraction(avatar));
-		}
-		else
-		{
-			UICleanup(avatar);
-		}
-	}
-
-
 #if DEBUG
 	public
 #else
@@ -314,7 +253,10 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		int remainingKeys = m_keys.Count(key => !key.IsInPlace);
 		if (key == null || remainingKeys <= 0)
 		{
-			m_combination = null; // to disable interaction for consoles
+			foreach (InteractToggle interact in m_interacts)
+			{
+				interact.Deactivate();
+			}
 
 			// unlock parent or remove ourself
 			IUnlockable parentLock = Parent == null ? null : Parent.GetComponent<IUnlockable>();
@@ -353,33 +295,5 @@ public class LockController : MonoBehaviour, IInteractable, IUnlockable
 		{
 			GetComponent<SpriteRenderer>().sprite = m_keyInfo.m_doorSprites[^Mathf.Min(m_keyInfo.m_doorSprites.Length, m_keys.Count(key => !key.IsInPlace) + 1)];
 		}
-	}
-
-	private void UpdateUIIndicator(TMP_Text text)
-	{
-		m_indicator.transform.localPosition = new Vector3(Mathf.Lerp(text.textBounds.min.x, text.textBounds.max.x, (m_inputIdxCur + 0.5f) / m_keyInfo.m_combinationDigits), m_indicator.transform.localPosition.y, m_indicator.transform.localPosition.z);
-	}
-
-	private IEnumerator UpdateInteraction(AvatarController avatar)
-	{
-		avatar.Controls.SwitchCurrentActionMap("UI");
-
-		GameObject overlayObj = avatar.m_overlayCanvas.gameObject;
-		TMP_Text text = overlayObj.GetComponentInChildren<TMP_Text>();
-		text.text = m_inputCur;
-		yield return null; // NOTE that we have to display at least once before possibly using text.textBounds for indicator positioning
-
-		if (m_indicator == null)
-		{
-			m_indicator = Instantiate(m_combinationIndicatorPrefab, overlayObj.transform);
-		}
-		UpdateUIIndicator(text);
-
-		// TODO: necessary? better way of ensuring UICleanup() is invoked?
-		while (overlayObj.activeSelf && Vector2.Distance(avatar.transform.position, transform.position) < m_interactDistanceMax)
-		{
-			yield return null;
-		}
-		UICleanup(avatar);
 	}
 }

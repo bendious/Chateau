@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1070887067319436138, guid: f0e4a7d283149bc469b48d14b6be694b, type: 3}
       propertyPath: m_InstanceId
-      value: -344070
+      value: -195292
       objectReference: {fileID: 0}
     - target: {fileID: 7417062079046577950, guid: f0e4a7d283149bc469b48d14b6be694b, type: 3}
       propertyPath: m_RootOrder
@@ -79,6 +79,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_lockPrefabs:
-  - m_object: {fileID: 128592948153001037, guid: 8882c998d89b943488c134f27df4165b, type: 3}
+  - m_object:
+      m_prefab: {fileID: 128592948153001037, guid: 8882c998d89b943488c134f27df4165b, type: 3}
+      m_heightMin: 0
+      m_heightMax: 0
+    m_weight: 1
+  - m_object:
+      m_prefab: {fileID: 5713708662116359284, guid: 758626dde12796e4faf65df01d8186a4, type: 3}
+      m_heightMin: 0.25
+      m_heightMax: 1
     m_weight: 1
   m_ladderPrefabs: []

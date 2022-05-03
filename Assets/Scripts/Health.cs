@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UI;
@@ -127,7 +128,7 @@ public class Health : MonoBehaviour
 	/// </summary>
 	public void Die()
 	{
-		Decrement(gameObject, m_currentHP); // NOTE that we can't use IncrementInternal() directly since that skips the death logic
+		Decrement(GameController.Instance.m_avatars.First().gameObject, m_currentHP); // NOTE that we can't use IncrementInternal() directly since that skips the death logic, and we can't use ourself or null as the source due to source checking logic // TODO: support using w/o any spawned avatars?
 	}
 #endif
 

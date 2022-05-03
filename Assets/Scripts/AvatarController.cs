@@ -448,9 +448,7 @@ public class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnNavigate(InputValue input)
 	{
-		bool inLockUI = InteractUIAction(lockController => lockController.OnNavigate(m_overlayCanvas.gameObject, input));
-
-		if (inLockUI || m_inventoryIdx < 0)
+		if (m_inventoryIdx < 0)
 		{
 			return;
 		}
@@ -479,8 +477,7 @@ public class AvatarController : KinematicCharacter
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnSubmit(InputValue input)
 	{
-		bool consumed = input.isPressed && InteractUIAction(lockController => lockController.OnSubmit(this));
-		if (!consumed && input.isPressed && m_overlayCanvas.gameObject.activeSelf)
+		if (input.isPressed && m_overlayCanvas.gameObject.activeSelf)
 		{
 			ToggleOverlay(null, null);
 		}
@@ -493,8 +490,7 @@ public class AvatarController : KinematicCharacter
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnCancel(InputValue input)
 	{
-		bool consumed = InteractUIAction(lockController => lockController.UICleanup(this));
-		if (!consumed && m_overlayCanvas.gameObject.activeSelf)
+		if (m_overlayCanvas.gameObject.activeSelf)
 		{
 			ToggleOverlay(null, null);
 		}
@@ -819,21 +815,6 @@ public class AvatarController : KinematicCharacter
 		StopAiming();
 		attachable.Detach(false); // to swap in new items and so that we can refresh inventory immediately even though deletion hasn't happened yet
 		InventorySync();
-	}
-
-	private bool InteractUIAction(Action<LockController> f)
-	{
-		if (!m_overlayCanvas.gameObject.activeSelf || m_focusObj == null || Controls.currentActionMap.name != "UI") // TODO: cleaner way of checking enabled action map?
-		{
-			return false;
-		}
-		LockController lockController = m_focusObj.GetComponent<LockController>();
-		if (lockController == null)
-		{
-			return false;
-		}
-		f(lockController);
-		return true;
 	}
 
 	private void DeactivateAllControl()
