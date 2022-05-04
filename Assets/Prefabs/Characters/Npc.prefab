@@ -198,14 +198,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcce2478db7d6f249bb2a8d80def972d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_sceneName: 
+  m_sceneChange: 0
   m_dialogueSprite: {fileID: 21300000, guid: 0210e9dbea5524e46a62c1bb195ce509, type: 3}
   m_dialogue:
-  - m_object:
-    - What, were you expecting something to jump out and attack you?
-    - "Come on now, that\u2019s rather rude. What do you think this is, Barbaria?"
-    - Some of us here are refined, you know.
-    m_weight: 1
   - m_object:
     - "Well, well, well\u2026 Look who decided to actually show up!"
     - Finally! Do you even know how long you neglected this place?
@@ -214,7 +209,12 @@ MonoBehaviour:
     - "It\u2019s mine."
     - "You gave it up, and you can\u2019t just waltz in here and expect us to even
       refrain from giving you the pummeling you deserve, much less let you run things."
-    m_weight: 1
+    m_weight: 0
+  - m_object:
+    - What, were you expecting something to jump out and attack you?
+    - "Come on now, that\u2019s rather rude. What do you think this is, Barbaria?"
+    - Some of us here are refined, you know.
+    m_weight: 0
   - m_object:
     - "I suppose you don\u2019t know, having never really lived here, but this whole
       place is basically a cylinder."
@@ -225,33 +225,34 @@ MonoBehaviour:
     - Be careful going deeper.
     - All these pests came from outside originally, but they seem to revel in making
       their way as far inside as possible.
-    m_weight: 1
+    m_weight: 0
   - m_object:
     - "The center\u2026 It used to be empty, but I don\u2019t think it is anymore."
-    - "I swear there are flashes of light in the windows sometimes\u2026"
-    m_weight: 1
+    - "I swear there are lights in the windows sometimes\u2026"
+    m_weight: 0
   - m_object:
     - Oh!
     - Hello there.
-    m_weight: 1
+    m_weight: 0
   - m_object:
     - Feel free to leave whatever you want here.
     - "I\u2019ll make sure it stays until you come back for it."
-    m_weight: 1
+    m_weight: 0
   - m_object:
     - Stay away from danger!
     - "Don\u2019t expect to attack anything up close and walk away unharmed."
     - Generally speaking, throwing things is much safer than swinging them.
-    m_weight: 1
+    m_weight: 0
   - m_object:
     - The locked doors here?
     - "I don\u2019t actually know what\u2019s behind them."
     - "Their keys don\u2019t seem to still be around here."
-    m_weight: 1
+    m_weight: 0
   - m_object:
     - Oh, you saw the writing on the entrance hallway walls?
     - Yeah, I don't know who wrote all that.
     - Someone crazy, I guess.
     - Creepy gibberish...
     - Don't think about it too much, that's my advice.
-    m_weight: 1
+    m_weight: 0
+  m_weightUseScalar: 0.25
