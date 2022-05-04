@@ -15,7 +15,8 @@ public class EnemyController : KinematicCharacter
 
 	public Vector2 m_targetOffset = Vector2.zero;
 	public Transform m_target;
-	public float m_replanSecondsMax = 2.0f;
+	[SerializeField]
+	private float m_replanSecondsMax = 2.0f;
 
 	public float m_meleeRange = 1.0f;
 
@@ -220,7 +221,10 @@ public class EnemyController : KinematicCharacter
 		if (m_pathfindTimeNext <= Time.time || (m_pathfindWaypoints != null && m_pathfindWaypoints.Count > 0 && !Vector2.Distance(m_target.position, m_pathfindWaypoints.Last()).FloatEqual(targetOffsetAbs.magnitude, m_meleeRange))) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases)? avoid trying to go past moving targets?
 		{
 			m_pathfindWaypoints = GameController.Instance.Pathfind(transform.position, m_target.position, targetOffsetAbs);
-			// TODO: handle unreachable positions; idle? find closest reachable position?
+			if (m_pathfindWaypoints == null)
+			{
+				m_target = null; // TODO: better handle unreachable positions; idle? find closest reachable position?
+			}
 			m_pathfindTimeNext = Time.time + Random.Range(m_replanSecondsMax * 0.5f, m_replanSecondsMax); // TODO: parameterize "min" time even though it's not a hard minimum?
 		}
 		if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0)
@@ -233,12 +237,12 @@ public class EnemyController : KinematicCharacter
 		// determine current direction
 		Vector2 diff = nextWaypoint - (Vector2)transform.position;
 		Collider2D targetCollider = m_target.GetComponent<Collider2D>(); // TODO: efficiency?
-		Vector2 extentsCombined = m_collider.bounds.extents + targetCollider.bounds.extents;
-		if (Mathf.Abs(diff.x) < extentsCombined.x)
+		Vector2 halfExtentsCombined = (m_collider.bounds.extents + targetCollider.bounds.extents) * 0.5f;
+		if (Mathf.Abs(diff.x) < halfExtentsCombined.x)
 		{
 			diff.x = 0.0f;
 		}
-		if (Mathf.Abs(diff.y) < extentsCombined.y)
+		if (Mathf.Abs(diff.y) < halfExtentsCombined.y)
 		{
 			diff.y = 0.0f;
 		}

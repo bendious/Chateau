@@ -187,6 +187,7 @@ MonoBehaviour:
   m_meleeRange: 1
   m_dropDecayTime: 0.2
   m_attackSFX: []
+  m_heldPrefab: {fileID: 0}
 --- !u!82 &5843668731025413174
 AudioSource:
   m_ObjectHideFlags: 0

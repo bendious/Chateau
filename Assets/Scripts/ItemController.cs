@@ -252,7 +252,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			return;
 		}
 
-		KinematicObject kinematicObj = collision.collider.GetComponent<KinematicObject>();
+		GameObject mainObj = collision.rigidbody == null ? collision.gameObject : collision.rigidbody.gameObject;
+		KinematicObject kinematicObj = mainObj.GetComponent<KinematicObject>();
 		if ((kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, false, 0.0f, null)) || collision.collider.transform.root == transform.root)
 		{
 			return;
@@ -260,11 +261,10 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 		// ignore non-destructible static objects when held
 		bool isDetached = m_holder == null;
-		Health otherHealth = collision.collider.GetComponent<Health>();
+		Health otherHealth = mainObj.GetComponent<Health>();
 		if (!isDetached && otherHealth == null)
 		{
-			Rigidbody2D otherBody = collision.collider.GetComponent<Rigidbody2D>();
-			if (otherBody == null || otherBody.bodyType != RigidbodyType2D.Dynamic)
+			if (collision.rigidbody == null || collision.rigidbody.bodyType != RigidbodyType2D.Dynamic)
 			{
 				return;
 			}
@@ -272,7 +272,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 		// maybe attach to character
 		// TODO: extend to BackpackController as well?
-		bool canDamage = Cause != null && Cause.CanDamage(collision.collider.gameObject) && !m_nondamageColliders.Contains(collision.otherCollider);
+		bool canDamage = Cause != null && Cause.CanDamage(mainObj) && !m_nondamageColliders.Contains(collision.otherCollider);
 		KinematicCharacter character = kinematicObj as KinematicCharacter; // NOTE that this works since objects shouldn't ever have multiple different KinematicObject-derived components
 		if (isDetached && !canDamage) // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus or if it is a secondary (non-damaging) collider making collision
 		{
