@@ -9,6 +9,12 @@ public class KeyStatic : MonoBehaviour, IKey
 	public bool IsInPlace { get; set; }
 
 
+	private void Awake()
+	{
+		IsInPlace = true;
+	}
+
+
 	public void Use()
 	{
 		Debug.Assert(false);

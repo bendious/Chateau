@@ -37,6 +37,9 @@ public class AvatarController : KinematicCharacter
 
 	public Vector3 m_focusPromptOffset = new(0.0f, 0.3f, -0.15f);
 
+	[HideInInspector]
+	public InteractFollow m_follower;
+
 	[SerializeField]
 	private float m_lookScreenPercentMax = 0.75f;
 

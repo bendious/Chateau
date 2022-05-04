@@ -35,8 +35,6 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	private /*readonly*/ string m_combination;
 
-	private InteractToggle[] m_interacts;
-
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
 	{
@@ -51,11 +49,13 @@ public class LockController : MonoBehaviour, IUnlockable
 		{
 			prefabCandidates = m_keyPrefabs;
 		}
-		m_keyInfo = prefabCandidates.RandomWeighted();
+		if (prefabCandidates.Length > 0)
+		{
+			m_keyInfo = prefabCandidates.RandomWeighted();
+		}
 
 		// spawn key(s)
 		// TODO: convert any empty key rooms into bonus item rooms?
-		Assert.IsTrue(m_keyInfo.m_keyCountMax > 0);
 		for (int i = 0; i < keyRooms.Length && i < m_keyInfo.m_keyCountMax; ++i)
 		{
 			GameObject keyPrefab = m_keyInfo.m_prefabs.RandomWeighted();
@@ -85,27 +85,29 @@ public class LockController : MonoBehaviour, IUnlockable
 			}
 
 			// distribute combination among keys/children
-			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / m_keys.Count;
+			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / keyRooms.Length;
+			int comboIdx = 0;
 			int keyIdx = 0;
 			foreach (IKey key in m_keys)
 			{
-				int startIdx = Mathf.RoundToInt(keyIdx * digitsPerKey);
-				int endIdx = Mathf.RoundToInt((keyIdx + 1) * digitsPerKey);
-				key.Component.GetComponentInChildren<TMP_Text>().text = (keyIdx == 0 ? "" : "*") + m_combination[startIdx..endIdx] + (keyIdx == m_keys.Count - 1 ? "" : "*");
-				++keyIdx;
-			}
-			if (m_interacts != null)
-			{
-				foreach (InteractToggle child in m_interacts)
+				if (key is InteractToggle toggle)
 				{
-					child.SetToggleText(m_combinationSet);
+					toggle.SetToggleText(m_combinationSet, m_combination[comboIdx].ToString());
+					++comboIdx;
+				}
+				else
+				{
+					int startIdx = Mathf.RoundToInt(keyIdx * digitsPerKey);
+					int endIdx = Mathf.RoundToInt((keyIdx + 1) * digitsPerKey);
+					key.Component.GetComponentInChildren<TMP_Text>().text = (keyIdx == 0 ? "" : "*") + m_combination[startIdx .. endIdx] + (keyIdx == keyRooms.Length - 1 ? "" : "*");
+					++keyIdx;
 				}
 			}
 		}
 
 		// spawn order guide if applicable
 		GameObject orderObj = null;
-		if (m_keys.Count > 1 && m_keyInfo.m_orderPrefabs.Length > 0)
+		if (m_keys.Count > 1 && m_keyInfo.m_orderPrefabs != null && m_keyInfo.m_orderPrefabs.Length > 0)
 		{
 			int spawnRoomIdx = Random.Range(0, keyRooms.Length + 1);
 			RoomController spawnRoom = spawnRoomIdx >= keyRooms.Length ? lockRoom : keyRooms[spawnRoomIdx];
@@ -140,7 +142,7 @@ public class LockController : MonoBehaviour, IUnlockable
 			{
 				rendererCur.gameObject.SetActive(false);
 			}
-			else
+			else if (m_keys.Count > 0)
 			{
 				rendererCur.color = m_keys.First().Component.GetComponent<SpriteRenderer>().color;
 			}
@@ -161,12 +163,13 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	public bool CheckInput()
 	{
-		string inputCur = m_interacts.Aggregate("", (str, interact) => str + interact.TextCurrent);
-
-		if (inputCur != m_combination)
+		foreach (IKey key in m_keys)
 		{
-			// NOTE that we don't play m_failureSFX since this is called by InteractToggle() every time the input is toggled
-			return false;
+			if (!key.IsInPlace)
+			{
+				// NOTE that we don't play m_failureSFX since this is called by InteractToggle() every time the input is toggled
+				return false;
+			}
 		}
 
 		Unlock(null);
@@ -176,7 +179,11 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	private void Awake()
 	{
-		m_interacts = GetComponentsInChildren<InteractToggle>();
+		m_keys.AddRange(GetComponentsInChildren<IKey>());
+		foreach (IKey key in m_keys)
+		{
+			key.Lock = this;
+		}
 	}
 
 	private void OnTriggerEnter2D(Collider2D collider)
@@ -253,11 +260,6 @@ public class LockController : MonoBehaviour, IUnlockable
 		int remainingKeys = m_keys.Count(key => !key.IsInPlace);
 		if (key == null || remainingKeys <= 0)
 		{
-			foreach (InteractToggle interact in m_interacts)
-			{
-				interact.Deactivate();
-			}
-
 			// unlock parent or remove ourself
 			IUnlockable parentLock = Parent == null ? null : Parent.GetComponent<IUnlockable>();
 			if (parentLock != null)
@@ -270,7 +272,7 @@ public class LockController : MonoBehaviour, IUnlockable
 			}
 			Parent = null;
 
-			// handle any non-deliverable keys
+			// deactivate keys
 			foreach (IKey keyEntry in m_keys)
 			{
 				keyEntry.Deactivate();

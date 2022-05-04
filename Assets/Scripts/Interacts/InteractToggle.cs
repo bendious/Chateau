@@ -4,22 +4,23 @@ using UnityEngine;
 
 
 [DisallowMultipleComponent, RequireComponent(typeof(Collider2D))]
-public class InteractToggle : MonoBehaviour, IInteractable
+public class InteractToggle : MonoBehaviour, IInteractable, IKey
 {
 	public string TextCurrent => m_text.text;
 
+	public IUnlockable Lock { get; set; }
+	public bool IsInPlace { get => TextCurrent == m_textCorrect; set => IsInPlace = IsInPlace/*TODO*/; }
 
 	private TMP_Text m_text;
 	private string m_toggleText;
 	private int m_charIdx = -1;
 
-	private LockController m_lock;
+	private string m_textCorrect;
 
 
 	private void Awake()
 	{
 		m_text = GetComponentInChildren<TMP_Text>();
-		m_lock = GetComponentInParent<LockController>();
 	}
 
 
@@ -30,12 +31,18 @@ public class InteractToggle : MonoBehaviour, IInteractable
 		m_charIdx = (m_charIdx + 1) % m_toggleText.Length;
 		m_text.text = m_toggleText[m_charIdx].ToString();
 
-		m_lock.CheckInput();
+		(Lock as LockController/*?*/).CheckInput();
 	}
 
-	public void SetToggleText(string text)
+	public void Use()
+	{
+		Debug.Assert(false);
+	}
+
+	public void SetToggleText(string text, string textCorrect)
 	{
 		m_toggleText = text;
+		m_textCorrect = textCorrect;
 		if (m_toggleText != null)
 		{
 			m_charIdx = 0;
@@ -45,7 +52,7 @@ public class InteractToggle : MonoBehaviour, IInteractable
 
 	public void Deactivate()
 	{
-		SetToggleText(null);
+		SetToggleText(null, null);
 		GetComponent<UnityEngine.Rendering.Universal.Light2D>().enabled = false;
 	}
 }

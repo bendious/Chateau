@@ -54,6 +54,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public IUnlockable Lock { get; set; }
 	public bool IsInPlace { get; set; }
 
+	[SerializeField]
+	private bool m_isReferenceKey;
+
 	private static int m_layerDefault;
 
 
@@ -91,6 +94,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		if (m_trail != null)
 		{
 			m_trail.emitting = false;
+		}
+
+		if (m_isReferenceKey)
+		{
+			IsInPlace = true;
 		}
 	}
 

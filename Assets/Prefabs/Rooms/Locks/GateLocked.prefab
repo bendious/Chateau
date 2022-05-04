@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1070887067319436138, guid: f0e4a7d283149bc469b48d14b6be694b, type: 3}
       propertyPath: m_InstanceId
-      value: -195292
+      value: -457930
       objectReference: {fileID: 0}
     - target: {fileID: 7417062079046577950, guid: f0e4a7d283149bc469b48d14b6be694b, type: 3}
       propertyPath: m_RootOrder
@@ -86,6 +86,11 @@ MonoBehaviour:
     m_weight: 1
   - m_object:
       m_prefab: {fileID: 5713708662116359284, guid: 758626dde12796e4faf65df01d8186a4, type: 3}
+      m_heightMin: 0.25
+      m_heightMax: 1
+    m_weight: 1
+  - m_object:
+      m_prefab: {fileID: 5713708662116359284, guid: a3dea159a26855e4685c1afb4ce386f2, type: 3}
       m_heightMin: 0.25
       m_heightMax: 1
     m_weight: 1
