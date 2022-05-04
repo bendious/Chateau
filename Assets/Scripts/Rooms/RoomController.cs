@@ -169,7 +169,7 @@ public class RoomController : MonoBehaviour
 			{
 				// maybe add cutback
 				// TODO: prevent softlocks
-				if (false)//TODO doorwayInfo.ConnectedRoom == null)
+				if (false) // TODO doorwayInfo.ConnectedRoom == null)
 				{
 					Vector2 direction = DoorwayDirection(doorwayIdx);
 					GameObject doorway = doorwayInfo.m_object;
