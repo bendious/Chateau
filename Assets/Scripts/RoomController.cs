@@ -306,9 +306,11 @@ public class RoomController : MonoBehaviour
 		// spawn furniture
 		if (m_roomType.m_furniturePrefabs.Length > 0)
 		{
-			GameObject furniture = Instantiate(m_roomType.m_furniturePrefabs.RandomWeighted(), transform); // NOTE that we have to spawn before placement due to size randomization in Awake() // TODO: guarantee size will fit in available space?
-			furniture.transform.position = InteriorPosition(0.0f, furniture);
-			furniture.GetComponent<FurnitureController>().SpawnItems(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType);
+			FurnitureController furniture = Instantiate(m_roomType.m_furniturePrefabs.RandomWeighted(), transform).GetComponent<FurnitureController>(); // NOTE that we have to spawn before placement due to size randomization
+			Vector2 extentsInterior = BoundsInterior.extents;
+			furniture.RandomizeSize(extentsInterior);
+			furniture.transform.position = InteriorPosition(0.0f, furniture.gameObject, () => furniture.RandomizeSize(extentsInterior));
+			furniture.SpawnItems(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType);
 		}
 
 		// spawn decoration(s)
@@ -359,70 +361,78 @@ public class RoomController : MonoBehaviour
 		return null;
 	}
 
-	public Vector3 InteriorPosition(float heightMax, GameObject preventOverlapPrefab = null)
+	public Vector3 InteriorPosition(float heightMax, GameObject preventOverlapPrefab = null, System.Action resizeAction = null)
 	{
-		return InteriorPosition(0.0f, heightMax, preventOverlapPrefab);
+		return InteriorPosition(0.0f, heightMax, preventOverlapPrefab, resizeAction);
 	}
 
-	public Vector3 InteriorPosition(float heightMin, float heightMax, GameObject preventOverlapPrefab = null)
+	public Vector3 InteriorPosition(float heightMin, float heightMax, GameObject preventOverlapPrefab = null, System.Action resizeAction = null)
 	{
 		Bounds boundsInterior = BoundsInterior;
 
-		// calculate overlap bbox
-		Bounds bboxNew = new();
-		if (preventOverlapPrefab != null)
-		{
-			SpriteRenderer[] renderers = preventOverlapPrefab.GetComponentsInChildren<SpriteRenderer>();
-			bboxNew = renderers.First().bounds; // NOTE that we can't assume the local origin should always be included due to being given post-instantiation furniture objects
-			foreach (SpriteRenderer renderer in renderers)
-			{
-				bboxNew.Encapsulate(renderer.bounds);
-			}
-			bboxNew.Expand(new Vector3(-0.01f, -0.01f, float.MaxValue)); // NOTE the slight x/y contraction to avoid always collecting the floor when up against it
-		}
-
-		float xDiffMax = boundsInterior.extents.x - bboxNew.extents.x;
-		Debug.Assert(xDiffMax >= 0.0f);
-		float yMaxFinal = Mathf.Min(heightMax, boundsInterior.size.y - bboxNew.size.y); // TODO: also count furniture surfaces as "floor"
-
-		Vector3 pos = new(boundsInterior.center.x + Random.Range(-xDiffMax, xDiffMax), transform.position.y + Random.Range(heightMin, yMaxFinal), transform.position.z); // NOTE the assumptions that the object position is on the floor of the room but not necessarily centered
-		if (preventOverlapPrefab == null)
-		{
-			return pos;
-		}
-
-		// get points until no overlap
-		// TODO: more deliberate iteration? better fallback?
-		Vector3 centerOrig = bboxNew.center; // NOTE that we can't assume the bbox is centered
-		float xSizeEffective = boundsInterior.size.x - bboxNew.size.x;
+		Vector3 pos;
 		const int attemptsMax = 100;
 		int failsafe = attemptsMax;
-		do
+		do // TODO: efficiency?
 		{
-			bboxNew.center = centerOrig + pos;
-
-			bool overlap = false;
-			foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>())
+			// calculate overlap bbox
+			Bounds bboxNew = new();
+			if (preventOverlapPrefab != null)
 			{
-				if (renderer.gameObject != m_backdrop && renderer.bounds.Intersects(bboxNew))
+				SpriteRenderer[] renderers = preventOverlapPrefab.GetComponentsInChildren<SpriteRenderer>();
+				bboxNew = renderers.First().bounds; // NOTE that we can't assume the local origin should always be included due to being given post-instantiation furniture objects
+				foreach (SpriteRenderer renderer in renderers)
 				{
-					overlap = true;
-					break;
+					bboxNew.Encapsulate(renderer.bounds);
+				}
+				bboxNew.Expand(new Vector3(-0.01f, -0.01f, float.MaxValue)); // NOTE the slight x/y contraction to avoid always collecting the floor when up against it
+			}
+
+			float xDiffMax = boundsInterior.extents.x - bboxNew.extents.x;
+			Debug.Assert(xDiffMax >= 0.0f);
+			float yMaxFinal = Mathf.Min(heightMax, boundsInterior.size.y - bboxNew.size.y); // TODO: also count furniture surfaces as "floor"
+
+			pos = new(boundsInterior.center.x + Random.Range(-xDiffMax, xDiffMax), transform.position.y + Random.Range(heightMin, yMaxFinal), transform.position.z); // NOTE the assumptions that the object position is on the floor of the room but not necessarily centered
+			if (preventOverlapPrefab == null)
+			{
+				return pos;
+			}
+
+			// get points until no overlap
+			// TODO: more deliberate iteration? avoid tendency to line up in a row?
+			Vector3 centerOrig = bboxNew.center; // NOTE that we can't assume the bbox is centered
+			float xSizeEffective = boundsInterior.size.x - bboxNew.size.x;
+			int moveCount = attemptsMax;
+			do
+			{
+				bboxNew.center = centerOrig + pos;
+
+				bool overlap = false;
+				foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>())
+				{
+					if (renderer.gameObject != m_backdrop && renderer.bounds.Intersects(bboxNew))
+					{
+						overlap = true;
+						break;
+					}
+				}
+				if (!overlap)
+				{
+					return pos;
+				}
+
+				pos.x += xSizeEffective / attemptsMax;
+				pos.y = transform.position.y + Random.Range(heightMin, yMaxFinal);
+				if (pos.x > boundsInterior.max.x - bboxNew.extents.x)
+				{
+					pos.x -= xSizeEffective;
 				}
 			}
-			if (!overlap)
-			{
-				break;
-			}
+			while (--moveCount > 0);
 
-			pos.x += xSizeEffective / attemptsMax;
-			pos.y = transform.position.y + Random.Range(heightMin, yMaxFinal);
-			if (pos.x > boundsInterior.max.x - bboxNew.extents.x)
-			{
-				pos.x -= xSizeEffective;
-			}
+			resizeAction?.Invoke();
 		}
-		while (--failsafe > 0);
+		while (resizeAction != null && --failsafe > 0);
 		Debug.Assert(failsafe > 0);
 
 		return pos;

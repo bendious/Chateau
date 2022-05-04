@@ -16,11 +16,11 @@ public class FurnitureController : MonoBehaviour
 	public int m_itemsMax = 4;
 
 
-	private void Awake()
+	public void RandomizeSize(Vector2 roomExtents)
 	{
 		// randomize size
-		float width = Random.Range(m_sizeMin.x, m_sizeMax.x);
-		float heightTotal = Random.Range(m_sizeMin.y, m_sizeMax.y);
+		float width = Random.Range(m_sizeMin.x, Mathf.Min(m_sizeMax.x, roomExtents.x));
+		float heightTotal = Random.Range(m_sizeMin.y, Mathf.Min(m_sizeMax.y, roomExtents.y));
 
 		// apply size evenly across pieces
 		// TODO: don't assume even stacking?
@@ -40,7 +40,6 @@ public class FurnitureController : MonoBehaviour
 			heightItr += heightPiece;
 		}
 	}
-
 
 	public void SpawnItems(bool rare, RoomType roomType)
 	{
