@@ -9,7 +9,7 @@ public class InteractToggle : MonoBehaviour, IInteractable, IKey
 	public string TextCurrent => m_text.text;
 
 	public IUnlockable Lock { get; set; }
-	public bool IsInPlace { get => TextCurrent == m_textCorrect; set => IsInPlace = IsInPlace/*TODO*/; }
+	public bool IsInPlace { get => TextCurrent == m_textCorrect; set => IsInPlace = IsInPlace/*TODO?*/; }
 
 	private TMP_Text m_text;
 	private string m_toggleText;
@@ -31,7 +31,7 @@ public class InteractToggle : MonoBehaviour, IInteractable, IKey
 		m_charIdx = (m_charIdx + 1) % m_toggleText.Length;
 		m_text.text = m_toggleText[m_charIdx].ToString();
 
-		(Lock as LockController/*?*/).CheckInput();
+		(Lock as LockController).CheckInput();
 	}
 
 	public void Use()

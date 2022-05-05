@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -8,20 +9,31 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 	public IUnlockable Lock { get; set; }
 
 
-	private const float m_maxSnapDistance = 0.25f;
+	[SerializeField]
+	private float m_maxSnapDistance = 0.5f;
+	[SerializeField]
+	private float m_maxSnapDegrees = 45.0f;
+
 
 	private Vector3 m_correctPosition;
+	private float m_correctRotationDegrees;
 
 	private KinematicCharacter m_followCharacter;
+	private float m_followOffsetDegrees;
 
 
-	public bool IsInPlace { get => m_followCharacter == null && (transform.position - m_correctPosition).magnitude < m_maxSnapDistance; set => IsInPlace = IsInPlace;/*TODO*/ }
+	public bool IsInPlace
+	{
+		get => m_followCharacter == null && (transform.position - m_correctPosition).magnitude < m_maxSnapDistance && Utility.FloatEqual(transform.rotation.eulerAngles.z, m_correctRotationDegrees, m_maxSnapDegrees);
+		set => IsInPlace = IsInPlace; // TODO?
+	}
 
 
 	private void Awake()
 	{
 		m_correctPosition = transform.position;
-		transform.position = GameController.Instance.RoomFromPosition(transform.position).InteriorPosition((Lock as LockController).m_keyHeightMax, gameObject);
+		m_correctRotationDegrees = transform.rotation.eulerAngles.z;
+		transform.SetPositionAndRotation(GameController.Instance.RoomFromPosition(transform.position).InteriorPosition((Lock as LockController).m_keyHeightMax, gameObject), Quaternion.Euler(0.0f, 0.0f, UnityEngine.Random.Range(0.0f, 360.0f)));
 	}
 
 
@@ -41,6 +53,8 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 		{
 			m_followCharacter = interactor;
 			interactor.GetComponent<AvatarController>().m_follower = this;
+			Tuple<Vector3, float> followTf = FollowTransform();
+			m_followOffsetDegrees = transform.rotation.eulerAngles.z - followTf.Item2;
 			StartCoroutine(Follow());
 		}
 		else
@@ -49,9 +63,9 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 			m_followCharacter = null;
 			if (IsInPlace)
 			{
-				transform.position = m_correctPosition;
+				transform.SetPositionAndRotation(m_correctPosition, Quaternion.Euler(0.0f, 0.0f, m_correctRotationDegrees));
 			}
-			(Lock as LockController/*?*/).CheckInput();
+			(Lock as LockController).CheckInput();
 		}
 	}
 
@@ -69,17 +83,22 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 	}
 
 
+	private Tuple<Vector3, float> FollowTransform()
+	{
+		Vector3 offset = m_followCharacter is AvatarController avatar ? avatar.m_aimObject.transform.position - avatar.transform.position : Vector3.zero;
+		if (offset.magnitude > 1.0f) // TODO: use maximum focus distance?
+		{
+			offset = offset.normalized;
+		}
+		return Tuple.Create(m_followCharacter.transform.position + offset, Mathf.Atan2(offset.y, offset.x) * Mathf.Rad2Deg);
+	}
+
 	private IEnumerator Follow()
 	{
 		while (m_followCharacter != null) // TODO: limit to start room?
 		{
-			Vector3 offset = m_followCharacter is AvatarController avatar ? avatar.m_aimObject.transform.position - avatar.transform.position : Vector3.zero;
-			if (offset.magnitude > 1.0f/*?*/)
-			{
-				offset = offset.normalized;
-			}
-			transform.position = m_followCharacter.transform.position + offset;
-
+			Tuple<Vector3, float> followTf = FollowTransform();
+			transform.SetPositionAndRotation(followTf.Item1, Quaternion.Euler(0.0f, 0.0f, followTf.Item2 + m_followOffsetDegrees));
 			yield return null;
 		}
 	}
