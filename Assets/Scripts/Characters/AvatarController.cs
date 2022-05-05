@@ -147,6 +147,7 @@ public class AvatarController : KinematicCharacter
 			Vector2 priorityPos = FocusPriorityPos;
 			float distSqFocus = float.MaxValue;
 			bool focusCanInteract = false;
+			float focusYMax = float.MinValue;
 			foreach (Collider2D candidate in focusCandidates)
 			{
 				if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, false, 0.0f, null))
@@ -166,6 +167,7 @@ public class AvatarController : KinematicCharacter
 					focusCanInteract = candidateCanInteract;
 					distSqFocus = distSqCur;
 					m_focusObj = candidate.gameObject;
+					focusYMax = candidate.bounds.max.y;
 				}
 			}
 
@@ -173,6 +175,8 @@ public class AvatarController : KinematicCharacter
 			if (focusCanInteract)
 			{
 				m_focusIndicator.transform.SetPositionAndRotation(m_focusObj.transform.position, m_focusObj.transform.rotation);
+
+				// mirror sprite rendering
 				SpriteRenderer rendererIndicator = m_focusIndicator.GetComponent<SpriteRenderer>();
 				SpriteRenderer rendererOrig = m_focusObj.GetComponent<SpriteRenderer>();
 				rendererIndicator.sortingLayerName = rendererOrig.sortingLayerName;
@@ -184,9 +188,25 @@ public class AvatarController : KinematicCharacter
 				rendererIndicator.color = rendererOrig.color * 2.0f; // TODO: ensure good visibility on nearly-white/black objects and avoid jarring change to 50% gray objects
 				rendererIndicator.flipX = rendererOrig.flipX;
 				rendererIndicator.flipY = rendererOrig.flipY; // NOTE that items that have been dropped may have been left "backwards"
+				rendererIndicator.maskInteraction = rendererOrig.maskInteraction;
+
+				// mirror sprite masking
+				SpriteMask maskIndicator = m_focusIndicator.GetComponent<SpriteMask>();
+				SpriteMask maskOrig = rendererOrig.GetComponent<SpriteMask>();
+				maskIndicator.enabled = maskOrig != null;
+				if (maskOrig != null)
+				{
+					maskIndicator.sprite = maskOrig.sprite;
+					maskIndicator.isCustomRangeActive = maskOrig.isCustomRangeActive;
+					maskIndicator.frontSortingLayerID = maskOrig.frontSortingLayerID;
+					maskIndicator.frontSortingOrder = maskOrig.frontSortingOrder + 1;
+					maskIndicator.backSortingLayerID = maskOrig.backSortingLayerID;
+					maskIndicator.backSortingOrder = maskOrig.backSortingOrder + 1;
+				}
+
 				m_focusIndicator.transform.localScale = m_focusObj.transform.localScale; // NOTE that w/o this, swapping between renderer draw modes was doing weird things to the indicator's scale...
 
-				m_focusPrompt.transform.position = new Vector3(m_focusIndicator.transform.position.x, rendererIndicator.bounds.max.y, m_focusIndicator.transform.position.z) + m_focusPromptOffset;
+				m_focusPrompt.transform.position = new Vector3(m_focusIndicator.transform.position.x, focusYMax, m_focusIndicator.transform.position.z) + m_focusPromptOffset;
 			}
 			m_focusIndicator.SetActive(focusCanInteract);
 			m_focusPrompt.gameObject.SetActive(focusCanInteract);

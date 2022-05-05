@@ -19,17 +19,18 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 	private float m_correctRotationDegrees;
 
 	private KinematicCharacter m_followCharacter;
+	private Vector3 m_followOffset;
 	private float m_followOffsetDegrees;
 
 
 	public bool IsInPlace
 	{
-		get => m_followCharacter == null && (transform.position - m_correctPosition).magnitude < m_maxSnapDistance && Utility.FloatEqual(transform.rotation.eulerAngles.z, m_correctRotationDegrees, m_maxSnapDegrees);
+		get => m_followCharacter == null && (transform.position - m_correctPosition).magnitude < m_maxSnapDistance && transform.rotation.eulerAngles.z.FloatEqualDegrees(m_correctRotationDegrees, m_maxSnapDegrees);
 		set => IsInPlace = IsInPlace; // TODO?
 	}
 
 
-	private void Awake()
+	private void Start()
 	{
 		m_correctPosition = transform.position;
 		m_correctRotationDegrees = transform.rotation.eulerAngles.z;
@@ -54,6 +55,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 			m_followCharacter = interactor;
 			interactor.GetComponent<AvatarController>().m_follower = this;
 			Tuple<Vector3, float> followTf = FollowTransform();
+			m_followOffset = Quaternion.Inverse(Quaternion.Euler(0.0f, 0.0f, followTf.Item2)) * (transform.position - followTf.Item1);
 			m_followOffsetDegrees = transform.rotation.eulerAngles.z - followTf.Item2;
 			StartCoroutine(Follow());
 		}
@@ -98,7 +100,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 		while (m_followCharacter != null) // TODO: limit to start room?
 		{
 			Tuple<Vector3, float> followTf = FollowTransform();
-			transform.SetPositionAndRotation(followTf.Item1, Quaternion.Euler(0.0f, 0.0f, followTf.Item2 + m_followOffsetDegrees));
+			transform.SetPositionAndRotation(followTf.Item1 + Quaternion.Euler(0.0f, 0.0f, followTf.Item2) * m_followOffset, Quaternion.Euler(0.0f, 0.0f, followTf.Item2 + m_followOffsetDegrees));
 			yield return null;
 		}
 	}

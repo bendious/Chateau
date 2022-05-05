@@ -84,6 +84,11 @@ public static class Utility
 		return Mathf.Abs(a - b) < epsilon;
 	}
 
+	public static bool FloatEqualDegrees(this float a, float b, float epsilon)
+	{
+		return a.FloatEqual(b, epsilon) || !a.FloatEqual(b, 360.0f - epsilon);
+	}
+
 	public static bool ColorsSimilar(this Color a, Color b, float epsilon = 0.2f)
 	{
 		return FloatEqual(a.r, b.r, epsilon) && FloatEqual(a.g, b.g, epsilon) && FloatEqual(a.b, b.b, epsilon); // NOTE that we don't use color subtraction due to not wanting range clamping
