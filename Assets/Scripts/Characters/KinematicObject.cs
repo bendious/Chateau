@@ -13,6 +13,8 @@ public abstract class KinematicObject : MonoBehaviour
 	// TODO: give appropriate defaults w/o needing LayerMask.NameToLayer() at initialization time?
 	public LayerMask m_platformLayer;
 	public LayerMask m_ignorePlatformsLayer;
+	[SerializeField]
+	private LayerMask m_wallLayerMask;
 
 	/// <summary>
 	/// The minimum normal (dot product) considered suitable for the entity sit on.
@@ -84,6 +86,7 @@ public abstract class KinematicObject : MonoBehaviour
 	private int m_platformLayerIdx;
 	private int m_ignorePlatformsLayerIdx;
 	private const float m_platformTopEpsilon = 0.1f;
+	private const float m_wallPushDisableSeconds = 0.25f;
 
 	private const float m_nearGroundDistance = 1.0f;
 
@@ -204,7 +207,7 @@ public abstract class KinematicObject : MonoBehaviour
 		PerformMovement(move, true, ref isNearGround);
 	}
 
-	public bool ShouldIgnore(Rigidbody2D body, Collider2D[] colliders, bool ignoreStatics, float dynamicsMassThreshold, Type ignoreChildrenExcept)
+	public bool ShouldIgnore(Rigidbody2D body, Collider2D[] colliders, bool ignoreStatics, float dynamicsMassThreshold, Type ignoreChildrenExcept, bool ignorePhysicsSystem = false)
 	{
 		Assert.IsTrue(colliders != null && colliders.Length > 0);
 		GameObject otherObj = colliders.First().gameObject; // NOTE that we don't use the rigid body's object since that can be separate from the collider object (e.g. characters and arms) // TODO: ensure all colliders are from the same object & body?
@@ -230,6 +233,11 @@ public abstract class KinematicObject : MonoBehaviour
 			{
 				return true; // ignore child objects
 			}
+		}
+
+		if (ignorePhysicsSystem)
+		{
+			return false;
 		}
 
 		// ignore objects flagged to ignore each other and their children
@@ -280,6 +288,12 @@ public abstract class KinematicObject : MonoBehaviour
 				RaycastHit2D hit = hitBuffer[i];
 				if (ShouldIgnore(hit.rigidbody, new Collider2D[] { hit.collider }, false, body.mass, typeof(AnchoredJoint2D)))
 				{
+					// push-through floor/walls prevention
+					if (hit.transform.parent == null && hit.rigidbody.IsTouchingLayers(m_wallLayerMask))
+					{
+						EnableCollision.TemporarilyDisableCollision(new Collider2D[] { m_collider }, new Collider2D[] { hit.collider }, m_wallPushDisableSeconds);
+					}
+
 					continue; // don't get hung up on dynamic/carried/ignored objects
 				}
 				if (hit.collider.gameObject.layer == m_platformLayerIdx && m_collider.bounds.min.y + m_platformTopEpsilon < hit.collider.bounds.max.y)

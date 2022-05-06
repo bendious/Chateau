@@ -166,6 +166,9 @@ MonoBehaviour:
   m_ignorePlatformsLayer:
     serializedVersion: 2
     m_Bits: 256
+  m_wallLayerMask:
+    serializedVersion: 2
+    m_Bits: 512
   minGroundNormalY: 0.65
   m_minWallClingNormalY: 3.4028235e+38
   gravityModifier: 1
