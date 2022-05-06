@@ -47,7 +47,7 @@ public static class Utility
 		float weightRandom = UnityEngine.Random.Range(0.0f, weightSum);
 
 		int idxItr = 0;
-		while (weightRandom >= weights[idxItr])
+		while (weightRandom > weights[idxItr])
 		{
 			weightRandom -= weights[idxItr];
 			++idxItr;

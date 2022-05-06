@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 
@@ -35,7 +36,19 @@ public class GateController : MonoBehaviour, IUnlockable
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
 	{
-		LockInfo lockInfo = m_lockPrefabs.RandomWeighted();
+		if (keyRooms == null)
+		{
+			return; // NOTE that this is valid in the Entryway, where locks are spawned w/o keys
+		}
+
+		// determine lock type
+		int keyRoomsCount = keyRooms == null ? 0 : keyRooms.Length;
+		LockInfo lockInfo = RoomController.RandomWeightedByKeyCount(m_lockPrefabs, info =>
+		{
+			WeightedObject<LockController.KeyInfo>[] keys = info.m_prefab.GetComponent<LockController>().m_keyPrefabs;
+			return keys == null || keys.Length == 0 ? keyRoomsCount : keys.Min(key => key.m_object.m_keyCountMax - keyRoomsCount < 0 ? int.MaxValue : key.m_object.m_keyCountMax - keyRoomsCount);
+		});
+
 		float yOffset = Utility.OriginToCenterY(lockInfo.m_prefab, true).y;
 		Vector3 spawnPos = lockRoom.InteriorPosition(lockInfo.m_heightMin + yOffset, lockInfo.m_heightMax + yOffset, lockInfo.m_prefab);
 

@@ -38,29 +38,25 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
 	{
-		if (keyRooms.Length <= 0)
+		if (keyRooms == null)
 		{
-			return; // NOTE that this is valid in the Entryway
+			return; // NOTE that this is valid in the Entryway, where locks are spawned w/o keys
 		}
 
 		// determine key type
-		WeightedObject<KeyInfo>[] prefabCandidates = m_keyPrefabs.Where(info => info.m_object.m_keyCountMax >= keyRooms.Length).ToArray();
-		if (prefabCandidates.Length <= 0)
+		RoomController[] keyOrLockRooms = keyRooms.Length > 0 ? keyRooms : new RoomController[] { lockRoom };
+		if (m_keyPrefabs.Length > 0)
 		{
-			prefabCandidates = m_keyPrefabs;
-		}
-		if (prefabCandidates.Length > 0)
-		{
-			m_keyInfo = prefabCandidates.RandomWeighted();
+			m_keyInfo = RoomController.RandomWeightedByKeyCount(m_keyPrefabs, info => info.m_keyCountMax - keyRooms.Length < 0 ? int.MaxValue : info.m_keyCountMax - keyRooms.Length);
 		}
 
 		// spawn key(s)
 		// TODO: convert any empty key rooms into bonus item rooms?
-		for (int i = 0; i < keyRooms.Length && i < m_keyInfo.m_keyCountMax; ++i)
+		for (int i = 0; i < keyOrLockRooms.Length && i < m_keyInfo.m_keyCountMax; ++i)
 		{
 			GameObject keyPrefab = m_keyInfo.m_prefabs.RandomWeighted();
 			bool isItem = keyPrefab.GetComponent<Rigidbody2D>() != null;
-			Vector3 spawnPos = keyRooms[i].InteriorPosition(isItem ? 0.0f : m_keyHeightMax, isItem ? null : keyPrefab); // TODO: prefer spawning on furniture
+			Vector3 spawnPos = keyOrLockRooms[i].InteriorPosition(isItem ? 0.0f : m_keyHeightMax, isItem ? null : keyPrefab); // TODO: prefer spawning on furniture
 			if (isItem)
 			{
 				spawnPos += (Vector3)Utility.OriginToCenterY(keyPrefab);
@@ -85,7 +81,7 @@ public class LockController : MonoBehaviour, IUnlockable
 			}
 
 			// distribute combination among keys/children
-			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / keyRooms.Length;
+			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / keyOrLockRooms.Length;
 			int comboIdx = 0;
 			int keyIdx = 0;
 			foreach (IKey key in m_keys)
@@ -99,7 +95,7 @@ public class LockController : MonoBehaviour, IUnlockable
 				{
 					int startIdx = Mathf.RoundToInt(keyIdx * digitsPerKey);
 					int endIdx = Mathf.RoundToInt((keyIdx + 1) * digitsPerKey);
-					key.Component.GetComponentInChildren<TMP_Text>().text = (keyIdx == 0 ? "" : "*") + m_combination[startIdx .. endIdx] + (keyIdx == keyRooms.Length - 1 ? "" : "*");
+					key.Component.GetComponentInChildren<TMP_Text>().text = (keyIdx == 0 ? "" : "*") + m_combination[startIdx .. endIdx] + (keyIdx == keyOrLockRooms.Length - 1 ? "" : "*");
 					++keyIdx;
 				}
 			}
@@ -109,8 +105,8 @@ public class LockController : MonoBehaviour, IUnlockable
 		GameObject orderObj = null;
 		if (m_keys.Count > 1 && m_keyInfo.m_orderPrefabs != null && m_keyInfo.m_orderPrefabs.Length > 0)
 		{
-			int spawnRoomIdx = Random.Range(0, keyRooms.Length + 1);
-			RoomController spawnRoom = spawnRoomIdx >= keyRooms.Length ? lockRoom : keyRooms[spawnRoomIdx];
+			int spawnRoomIdx = Random.Range(0, keyOrLockRooms.Length + 1);
+			RoomController spawnRoom = spawnRoomIdx >= keyOrLockRooms.Length ? lockRoom : keyOrLockRooms[spawnRoomIdx];
 			GameObject orderPrefab = m_keyInfo.m_orderPrefabs.RandomWeighted();
 			Vector3 spawnPos = spawnRoom.InteriorPosition(m_keyHeightMax, orderPrefab);
 			orderObj = Instantiate(orderPrefab, spawnPos, Quaternion.identity, spawnRoom.transform);

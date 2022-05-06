@@ -89,6 +89,17 @@ public class RoomController : MonoBehaviour
 	private /*readonly*/ RoomType m_roomType = null;
 
 
+	public static T RandomWeightedByKeyCount<T>(WeightedObject<T>[] candidates, System.Func<T, int> candidateToKeyDiff, float scalarPerDiff = 5.0f)
+	{
+		// NOTE the copy to avoid altering existing weights
+		return candidates.Select(candidate =>
+		{
+			int keyCountDiff = candidateToKeyDiff(candidate.m_object);
+			return new WeightedObject<T> { m_object = candidate.m_object, m_weight = candidate.m_weight / (1 + keyCountDiff * scalarPerDiff) };
+		}).RandomWeighted();
+	}
+
+
 	private void Awake()
 	{
 		m_bounds = m_backdrop.GetComponent<SpriteRenderer>().bounds;
@@ -197,7 +208,7 @@ public class RoomController : MonoBehaviour
 						if (doorwayInfo.SiblingRoom.m_layoutNodes.First().Depth != m_layoutNodes.First().Depth)
 						{
 							// add one-way lock
-							SpawnGate(doorwayInfo, true, direction, doorway, doorwayInfo.SiblingRoom, reverseIdx);
+							SpawnGate(doorwayInfo, true, direction, doorway, doorwayInfo.SiblingRoom, reverseIdx, 0);
 						}
 					}
 				}
@@ -215,7 +226,9 @@ public class RoomController : MonoBehaviour
 			}
 
 			LayoutGenerator.Node lockNode = GateNodeToChild(LayoutGenerator.Node.Type.Lock, doorwayInfo.ChildRoom.m_layoutNodes);
-			unlockable.SpawnKeys(this, lockNode == null ? new RoomController[] { this } : lockNode.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray());
+			RoomController[] keyRooms = lockNode?.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray();
+			bool excludeSelf = Random.value < 0.5f; // TEMP?
+			unlockable.SpawnKeys(this, keyRooms == null || keyRooms.Length <= 0 ? null : excludeSelf ? keyRooms.Where(room => room != this).ToArray() : keyRooms);
 		}
 
 		// room type
@@ -742,7 +755,7 @@ public class RoomController : MonoBehaviour
 		bool noLadder = false;
 		if (blockerNode != null)
 		{
-			noLadder = SpawnGate(doorwayInfo, isLock, replaceDirection, doorway, childRoom, reverseIdx);
+			noLadder = SpawnGate(doorwayInfo, isLock, replaceDirection, doorway, childRoom, reverseIdx, blockerNode.DirectParents.Count(node => node.m_type == LayoutGenerator.Node.Type.Key && node.m_room != this));
 		}
 
 		childRoom.SetNodes(childNodes);
@@ -751,12 +764,17 @@ public class RoomController : MonoBehaviour
 	}
 
 	// TODO: clean up signature
-	private bool SpawnGate(DoorwayInfo doorwayInfo, bool isLock, Vector2 replaceDirection, GameObject doorway, RoomController otherRoom, int reverseIdx)
+	private bool SpawnGate(DoorwayInfo doorwayInfo, bool isLock, Vector2 replaceDirection, GameObject doorway, RoomController otherRoom, int reverseIdx, int preferredKeyCount)
 	{
 		// create gate
 		Assert.IsNull(doorwayInfo.m_blocker);
 		WeightedObject<GameObject>[] directionalBlockerPrefabs = isLock ? m_doorDirectionalPrefabs.FirstOrDefault(pair => pair.m_direction == replaceDirection).m_prefabs : null; // TODO: don't assume that secrets will never be directional?
-		GameObject blockerPrefab = (isLock ? (directionalBlockerPrefabs != null ? directionalBlockerPrefabs.Concat(m_doorPrefabs).ToArray() : m_doorPrefabs) : m_doorSecretPrefabs).RandomWeighted();
+		GameObject blockerPrefab = RandomWeightedByKeyCount(isLock ? (directionalBlockerPrefabs != null ? directionalBlockerPrefabs.Concat(m_doorPrefabs).ToArray() : m_doorPrefabs) : m_doorSecretPrefabs, prefab =>
+		{
+			LockController lockComp = prefab.GetComponent<LockController>();
+			WeightedObject<LockController.KeyInfo>[] keys = lockComp == null ? null : lockComp.m_keyPrefabs;
+			return keys == null || keys.Length <= 0 ? preferredKeyCount : keys.Min(key => key.m_object.m_keyCountMax - preferredKeyCount < 0 ? int.MaxValue : key.m_object.m_keyCountMax - preferredKeyCount);
+		});
 		doorwayInfo.m_blocker = Instantiate(blockerPrefab, doorway.transform.position, Quaternion.identity, transform);
 		if (isLock)
 		{
