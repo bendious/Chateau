@@ -77,6 +77,9 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	public bool IsDropping => move.y < -0.5f;
 
 
+	private bool m_wasGrounded;
+
+
 	protected override void Awake()
 	{
 		base.Awake();
@@ -142,7 +145,8 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 			spriteRenderer.flipX = true;
 		}
 
-		animator.SetBool("grounded", IsGrounded);
+		animator.SetBool("grounded", IsGrounded || m_wasGrounded);
+		m_wasGrounded = IsGrounded;
 		animator.SetBool("wallCling", IsWallClinging);
 		animator.SetBool("aimReverse", m_aimDir != 0 && (velocity.x < 0.0f) != (m_aimDir < 0));
 		animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / maxSpeed);
