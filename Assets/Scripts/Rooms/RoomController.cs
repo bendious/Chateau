@@ -322,23 +322,16 @@ public class RoomController : MonoBehaviour
 		// spawn decoration(s)
 		// TODO: prioritize by area?
 		int numDecorations = Random.Range(m_roomType.m_decorationsMin, m_roomType.m_decorationsMax + 1);
-		Color decoColor = roomColor * 2.0f; // TODO?
 		for (int i = 0; i < numDecorations; ++i)
 		{
 			GameObject decoPrefab = m_roomType.m_decorationPrefabs.RandomWeighted();
 			Vector3 spawnPos = InteriorPosition(Random.Range(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax), decoPrefab); // TODO: uniform height per room?
-			GameObject decoration = Instantiate(decoPrefab, spawnPos, Quaternion.identity, transform);
+			/*GameObject decoration =*/ Instantiate(decoPrefab, spawnPos, Quaternion.identity, transform);
 
-			foreach (SpriteRenderer renderer in decoration.GetComponentsInChildren<SpriteRenderer>(true))
-			{
-				renderer.color = decoColor * 2.0f; // TODO: unhardcode? vary?
-				//renderer.flipX = Random.Range(0, 2) != 0; // TODO: re-enable for non-text decorations
-			}
-			foreach (Light2D renderer in decoration.GetComponentsInChildren<Light2D>(true))
-			{
-				renderer.color = decoColor;
-				renderer.intensity = Random.Range(0.0f, 1.0f); // TODO: base on area/progress?
-			}
+			//foreach (SpriteRenderer renderer in decoration.GetComponentsInChildren<SpriteRenderer>(true))
+			//{
+			//	renderer.flipX = Random.Range(0, 2) != 0; // TODO: re-enable for non-text decorations
+			//}
 		}
 	}
 
