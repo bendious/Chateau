@@ -451,7 +451,7 @@ public class GameController : MonoBehaviour
 			do
 			{
 				LayoutGenerator.Node node = nodesShuffled[i];
-				if ((node.m_type == LayoutGenerator.Node.Type.RoomVertical || node.m_type == LayoutGenerator.Node.Type.RoomDown || node.m_type == LayoutGenerator.Node.Type.RoomUp || node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) && newList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical || node.m_type == LayoutGenerator.Node.Type.RoomDown || node.m_type == LayoutGenerator.Node.Type.RoomUp || node.m_type == LayoutGenerator.Node.Type.RoomHorizontal))
+				if ((node.m_type == LayoutGenerator.Node.Type.Room && newList.Count > 0) || ((node.m_type == LayoutGenerator.Node.Type.RoomVertical || node.m_type == LayoutGenerator.Node.Type.RoomDown || node.m_type == LayoutGenerator.Node.Type.RoomUp || node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) && newList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical || node.m_type == LayoutGenerator.Node.Type.RoomDown || node.m_type == LayoutGenerator.Node.Type.RoomUp || node.m_type == LayoutGenerator.Node.Type.RoomHorizontal)))
 				{
 					break; // start new room
 				}

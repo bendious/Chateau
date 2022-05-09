@@ -60,7 +60,15 @@ public class Boss : MonoBehaviour
 			return;
 		}
 
-		m_room.EndMusic();
+		m_room.EndFight();
+
+		// spawn ladder(s) if necessary
+		RoomController roomComp = m_room.GetComponent<RoomController>();
+		foreach (GameObject doorway in roomComp.DoorwaysUpwardOpen)
+		{
+			roomComp.SpawnLadder(doorway, m_room.m_spawnedLadderPrefabs.RandomWeighted(), true);
+		}
+
 		GameController.Instance.OnVictory();
 	}
 

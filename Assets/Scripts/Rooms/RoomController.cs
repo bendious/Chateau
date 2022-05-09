@@ -41,13 +41,15 @@ public class RoomController : MonoBehaviour
 	public static readonly Color m_oneWayPlatformColor = new(0.3f, 0.2f, 0.1f);
 
 
-	public GameObject[] Doorways => m_doorwayInfos.Select(info => info.m_object).ToArray();
+	public GameObject[] DoorwaysUpwardOpen => m_doorwayInfos.Where(info => DoorwayIsOpen(info) && DoorwayDirection(info) == Vector2.up).Select(info => info.m_object).ToArray();
 
 	public Bounds BoundsInterior { get {
 		Bounds boundsInterior = m_bounds; // NOTE the copy since Expand() modifies the given struct
 		boundsInterior.Expand(new Vector3(-1.0f, -1.0f, float.MaxValue)); // TODO: dynamically determine wall thickness?
 		return boundsInterior;
 	} }
+
+	public Vector2 ParentDoorwayPosition => RoomConnection(m_layoutNodes.FirstOrDefault(node => node.TightCoupleParent != null && node.TightCoupleParent.m_room != null && node.TightCoupleParent.m_room != this).TightCoupleParent.m_room, false)[1];
 
 
 	[System.Serializable]
@@ -173,7 +175,7 @@ public class RoomController : MonoBehaviour
 			if (doorwayInfo.ParentRoom != null)
 			{
 				// open doorway to parent
-				OpenDoorway(doorwayIdx, true, DoorwayDirection(doorwayIdx).y > 0.0f);
+				OpenDoorway(doorwayIdx, true, DoorwayDirection(doorwayInfo).y > 0.0f);
 			}
 
 			if (doorwayInfo.ChildRoom == null)
@@ -182,7 +184,7 @@ public class RoomController : MonoBehaviour
 				// TODO: prevent softlocks
 				if (false) // TODO doorwayInfo.ConnectedRoom == null)
 				{
-					Vector2 direction = DoorwayDirection(doorwayIdx);
+					Vector2 direction = DoorwayDirection(doorwayInfo);
 					GameObject doorway = doorwayInfo.m_object;
 					doorwayInfo.SiblingRoom = GameController.Instance.RoomFromPosition((Vector2)doorway.transform.position + direction);
 					if (doorwayInfo.SiblingRoom != null) // NOTE that all m_layoutNode entries are assumed to have equal depth
@@ -638,7 +640,7 @@ public class RoomController : MonoBehaviour
 				continue;
 			}
 
-			bool wasOpen = DoorwayIsOpen(i);
+			bool wasOpen = DoorwayIsOpen(doorwayInfo);
 			OpenDoorway(i, !seal, false);
 
 			if (seal && wasOpen)
@@ -657,9 +659,9 @@ public class RoomController : MonoBehaviour
 
 	private Vector2 DoorwaySize(GameObject doorway) => doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale; // NOTE that we can't use Collider2D.bounds since this can be called before physics has run
 
-	private Vector2 DoorwayDirection(int index)
+	private Vector2 DoorwayDirection(DoorwayInfo doorwayInfo)
 	{
-		GameObject doorway = m_doorwayInfos[index].m_object;
+		GameObject doorway = doorwayInfo.m_object;
 		Vector2 pivotToDoorway = (Vector2)doorway.transform.position - (Vector2)transform.position;
 		Vector3 doorwaySize = DoorwaySize(doorway);
 		return doorwaySize.x > doorwaySize.y ? new Vector2(0.0f, Mathf.Sign(pivotToDoorway.y)) : new Vector2(Mathf.Sign(pivotToDoorway.x), 0.0f);
@@ -702,13 +704,13 @@ public class RoomController : MonoBehaviour
 	// TODO: inline?
 	private void MaybeReplaceDoor(int index, GameObject roomPrefab, LayoutGenerator.Node[] childNodes, Vector2[] allowedDirections)
 	{
-		Vector2 replaceDirection = DoorwayDirection(index);
+		DoorwayInfo doorwayInfo = m_doorwayInfos[index];
+		Vector2 replaceDirection = DoorwayDirection(doorwayInfo);
 		if (allowedDirections != null && !allowedDirections.Contains(replaceDirection))
 		{
 			return;
 		}
 
-		DoorwayInfo doorwayInfo = m_doorwayInfos[index];
 		GameObject doorway = doorwayInfo.m_object;
 		Assert.IsNull(doorwayInfo.ConnectedRoom);
 		Assert.AreApproximatelyEqual(replaceDirection.magnitude, 1.0f);
@@ -808,7 +810,8 @@ public class RoomController : MonoBehaviour
 
 	private void OpenDoorway(int index, bool open, bool spawnLadders)
 	{
-		GameObject doorway = m_doorwayInfos[index].m_object;
+		DoorwayInfo doorwayInfo = m_doorwayInfos[index];
+		GameObject doorway = doorwayInfo.m_object;
 
 		// spawn ladder rungs
 		if (spawnLadders && m_ladderRungPrefabs != null && m_ladderRungPrefabs.Length > 0)
@@ -841,7 +844,7 @@ public class RoomController : MonoBehaviour
 			// move any newly colliding objects into room
 			Vector2 doorwaySize = DoorwaySize(doorway);
 			Collider2D[] colliders = Physics2D.OverlapBoxAll(doorway.transform.position, doorwaySize, 0.0f);
-			Vector2 intoRoom = -DoorwayDirection(index);
+			Vector2 intoRoom = -DoorwayDirection(doorwayInfo);
 			foreach (Collider2D collider in colliders)
 			{
 				if (collider.attachedRigidbody == null || collider.attachedRigidbody.bodyType == RigidbodyType2D.Static || collider.transform.parent != null)
@@ -919,9 +922,8 @@ public class RoomController : MonoBehaviour
 		return connectionPoints;
 	}
 
-	private bool DoorwayIsOpen(int index)
+	private bool DoorwayIsOpen(DoorwayInfo doorwayInfo)
 	{
-		DoorwayInfo doorwayInfo = m_doorwayInfos[index];
 		if (doorwayInfo.m_blocker != null)
 		{
 			return false;

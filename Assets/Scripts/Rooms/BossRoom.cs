@@ -8,6 +8,8 @@ public class BossRoom : MonoBehaviour
 {
 	public WeightedObject<GameObject>[] m_bossPrefabs;
 
+	public WeightedObject<GameObject>[] m_spawnedLadderPrefabs;
+
 	public AudioClip m_audioOutro;
 
 
@@ -15,28 +17,15 @@ public class BossRoom : MonoBehaviour
 
 	private readonly List<GameObject> m_avatarsPresent = new();
 
-	private readonly List<GameObject> m_spawnedGates = new();
-
 
 	private void Start()
 	{
-		// determine entrance
-		// TODO: don't assume exactly one open doorway
-		Vector3 entrancePos = Vector3.zero;
-		foreach (GameObject doorway in GetComponent<RoomController>().Doorways)
-		{
-			if (!doorway.activeSelf)
-			{
-				entrancePos = doorway.transform.position;
-				break;
-			}
-		}
-
 		// determine farthest valid position from entrance
+		Vector3 parentPos = GetComponent<RoomController>().ParentDoorwayPosition;
 		GameObject bossPrefab = m_bossPrefabs.RandomWeighted();
 		Vector3 spawnPos = transform.position + (Vector3)Utility.OriginToCenterY(bossPrefab);
 		Bounds triggerBounds = GetComponent<Collider2D>().bounds;
-		spawnPos.x = entrancePos.x <= spawnPos.x ? triggerBounds.max.x : triggerBounds.min.x; // TODO: don't assume bottom/top doors are closer to the left?
+		spawnPos.x = parentPos.x <= spawnPos.x ? triggerBounds.max.x : triggerBounds.min.x; // TODO: don't assume origin position is closer to min than max?
 
 		// spawn boss
 		m_boss = Instantiate(bossPrefab, spawnPos, Quaternion.identity).GetComponent<Boss>();
@@ -98,7 +87,7 @@ public class BossRoom : MonoBehaviour
 		sources[2].Play();
 	}
 
-	public void EndMusic()
+	public void EndFight()
 	{
 		AudioSource[] sources = GetComponents<AudioSource>();
 		foreach (AudioSource source in sources)
@@ -109,20 +98,17 @@ public class BossRoom : MonoBehaviour
 		// NOTE that we have to use a component that won't be playing any more audio rather than using PlayOneShot(), which leaves the music running even after level load
 		sources.First().clip = GameController.Instance.m_victoryAudio;
 		sources.First().Play();
+
+		// reset room entrance(s)
+		GetComponent<RoomController>().SealRoom(false);
 	}
 
 
 #if DEBUG
 	private void DebugOnRespawn(DebugRespawn evt)
 	{
-		EndMusic();
+		EndFight();
 
-		// reset room entrance(s)
-		foreach (GameObject gate in m_spawnedGates)
-		{
-			Simulation.Schedule<ObjectDespawn>().m_object = gate;
-		}
-		m_spawnedGates.Clear();
 		GameController.Instance.m_bossRoomSealed = false;
 
 		// reset boss
