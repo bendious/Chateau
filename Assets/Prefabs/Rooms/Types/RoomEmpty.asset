@@ -13,27 +13,11 @@ MonoBehaviour:
   m_Name: RoomEmpty
   m_EditorClassIdentifier: 
   m_backdrops: []
-  m_furniturePrefabs:
-  - m_object: {fileID: 3500915504940809235, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 9028243466021937491, guid: 965caaff450150540afaa57f9d77e599, type: 3}
-    m_weight: 1
+  m_furniturePrefabs: []
   m_itemPrefabs: []
-  m_itemRarePrefabs:
-  - m_object: {fileID: 1271183342043709178, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 505130580196242298, guid: 71fa7082e8d89d145b74f631fa1055a0, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 4221545259124064584, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 6742067164057762051, guid: fe19ae7d467611c4dab6bd28c4ea1d9f, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 1803285933312635345, guid: d6378c47c976ded42b5a2fb07fe89624, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 1688978110452577463, guid: ea7685c25a954ef4ea9fbfef51eb721b, type: 3}
-    m_weight: 1
-  m_itemsMin: 1
-  m_itemsMax: 1
+  m_itemRarePrefabs: []
+  m_itemsMin: 0
+  m_itemsMax: 0
   m_decorationPrefabs:
   - m_object: {fileID: 7287174281192745631, guid: 9bc35a99190ef604596b1767a2105127, type: 3}
     m_weight: 1

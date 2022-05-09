@@ -138,7 +138,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 55234
+  m_InstanceId: 45324
 --- !u!1 &409852463158594107
 GameObject:
   m_ObjectHideFlags: 0
@@ -298,7 +298,7 @@ MonoBehaviour:
   - {x: 1.5, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 55216
+  m_InstanceId: 45306
 --- !u!82 &8857695118105291083
 AudioSource:
   m_ObjectHideFlags: 0
@@ -542,7 +542,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 55220
+  m_InstanceId: 45310
 --- !u!1 &2929849760781198063
 GameObject:
   m_ObjectHideFlags: 0
@@ -681,7 +681,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 55214
+  m_InstanceId: 45304
 --- !u!1 &3865645025881897782
 GameObject:
   m_ObjectHideFlags: 0
@@ -821,7 +821,7 @@ MonoBehaviour:
   - {x: 1.5, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 55180
+  m_InstanceId: 45270
 --- !u!82 &547285319970575305
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1066,7 +1066,7 @@ MonoBehaviour:
   - {x: 0.25, y: -1.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 55278
+  m_InstanceId: 45368
 --- !u!82 &940655668141046595
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1310,7 +1310,7 @@ MonoBehaviour:
   - {x: 0.25, y: -2.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 55264
+  m_InstanceId: 45354
 --- !u!1 &5858312614131700818
 GameObject:
   m_ObjectHideFlags: 0
@@ -1449,7 +1449,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 55212
+  m_InstanceId: 45302
 --- !u!1 &6422840777706418414
 GameObject:
   m_ObjectHideFlags: 0
@@ -1588,7 +1588,7 @@ MonoBehaviour:
   - {x: 0.25, y: -2.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 55296
+  m_InstanceId: 45386
 --- !u!1 &7422594126546487761
 GameObject:
   m_ObjectHideFlags: 0
@@ -1646,8 +1646,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_doorInteractPrefabs:
-  - m_object: {fileID: 5746196675388104066, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
-    m_weight: 1
+  - {fileID: 5746196675388104066, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
+  - {fileID: 6575766242294405401, guid: 3dca0cb1f1ffc2145ae7a627b8e647a1, type: 3}
+  - {fileID: 2543112536043879662, guid: a0f2beed1387a754a9e5722f345082b8, type: 3}
+  - {fileID: 253480046431362865, guid: 8a825b8c0c06b0645845758aaaf352be, type: 3}
   m_npcPrefabs:
   - m_object: {fileID: 3111020654554313216, guid: 286335db291a89e4a861600f39917758, type: 3}
     m_weight: 1
@@ -1928,7 +1930,7 @@ MonoBehaviour:
   - {x: 0.25, y: -1.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 55196
+  m_InstanceId: 45286
 --- !u!82 &2028311330320755528
 AudioSource:
   m_ObjectHideFlags: 0

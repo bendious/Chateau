@@ -17,7 +17,8 @@ public class RoomController : MonoBehaviour
 	};
 
 
-	public WeightedObject<GameObject>[] m_doorInteractPrefabs;
+	[SerializeField]
+	private GameObject[] m_doorInteractPrefabs;
 
 	public WeightedObject<GameObject>[] m_npcPrefabs;
 
@@ -167,7 +168,7 @@ public class RoomController : MonoBehaviour
 		}
 	}
 
-	public void FinalizeRecursive()
+	public void FinalizeRecursive(int doorwayDepth = 0)
 	{
 		for (int doorwayIdx = 0; doorwayIdx < m_doorwayInfos.Length; ++doorwayIdx)
 		{
@@ -218,7 +219,7 @@ public class RoomController : MonoBehaviour
 				continue;
 			}
 
-			doorwayInfo.ChildRoom.FinalizeRecursive();
+			doorwayInfo.ChildRoom.FinalizeRecursive(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.Entrance || node.m_type == LayoutGenerator.Node.Type.ExitDoor) ? doorwayDepth + 1 : doorwayDepth);
 
 			IUnlockable unlockable = doorwayInfo.m_blocker == null ? null : doorwayInfo.m_blocker.GetComponent<IUnlockable>();
 			int otherDepth = doorwayInfo.ChildRoom != null ? doorwayInfo.ChildRoom.m_layoutNodes.First().Depth : doorwayInfo.SiblingRoom != null ? doorwayInfo.SiblingRoom.m_layoutNodes.First().Depth : int.MaxValue;
@@ -271,20 +272,14 @@ public class RoomController : MonoBehaviour
 		}
 
 		// spawn node-specific architecture
-		bool emptyRoom = false;
 		foreach (LayoutGenerator.Node node in m_layoutNodes)
 		{
 			switch (node.m_type)
 			{
 				case LayoutGenerator.Node.Type.Entrance:
 				case LayoutGenerator.Node.Type.ExitDoor:
-					GameObject doorPrefab = m_doorInteractPrefabs.RandomWeighted();
-					InteractSimple door = Instantiate(doorPrefab, node.m_type == LayoutGenerator.Node.Type.Entrance ? transform.position : InteriorPosition(0.0f, 0.0f, doorPrefab), Quaternion.identity, transform).GetComponent<InteractSimple>();
-					if (node.m_type != LayoutGenerator.Node.Type.Entrance)
-					{
-						door.m_sceneChange = true;
-						emptyRoom = true;
-					}
+					GameObject doorPrefab = m_doorInteractPrefabs[System.Math.Min(m_doorInteractPrefabs.Length - 1, doorwayDepth)];
+					Instantiate(doorPrefab, node.m_type == LayoutGenerator.Node.Type.Entrance ? transform.position : InteriorPosition(0.0f, 0.0f, doorPrefab), Quaternion.identity, transform);
 					break;
 
 				case LayoutGenerator.Node.Type.TutorialMove:
@@ -312,10 +307,6 @@ public class RoomController : MonoBehaviour
 				default:
 					break;
 			}
-		}
-		if (emptyRoom)
-		{
-			return;
 		}
 
 		// spawn furniture
