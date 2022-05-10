@@ -59,7 +59,7 @@ public class FurnitureController : MonoBehaviour
 		for (int i = 0; i < itemCount; ++i)
 		{
 			GameObject itemPrefab = itemsFinal.RandomWeighted();
-			Vector3 spawnCenterPos = (Vector2)transform.position + new Vector2(Random.Range(-extentX, extentX), size.y * Random.Range(1, transform.childCount + 2)) + Utility.OriginToCenterY(itemPrefab); // TODO: don't assume the furniture origin is at bottom center, but also don't use stale Collider2D bounds? more deliberate placement?
+			Vector3 spawnCenterPos = (Vector2)transform.position + new Vector2(Random.Range(-extentX, extentX), size.y * Random.Range(1, transform.childCount + 2)) + itemPrefab.OriginToCenterY(); // TODO: don't assume the furniture origin is at bottom center, but also don't use stale Collider2D bounds? more deliberate placement?
 			GameController.Instance.m_savableFactory.Instantiate(itemPrefab, spawnCenterPos, Quaternion.identity);
 		}
 	}

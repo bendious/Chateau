@@ -23,7 +23,7 @@ public class BossRoom : MonoBehaviour
 		// determine farthest valid position from entrance
 		Vector3 parentPos = GetComponent<RoomController>().ParentDoorwayPosition;
 		GameObject bossPrefab = m_bossPrefabs.RandomWeighted();
-		Vector3 spawnPos = transform.position + (Vector3)Utility.OriginToCenterY(bossPrefab);
+		Vector3 spawnPos = transform.position + (Vector3)bossPrefab.OriginToCenterY();
 		Bounds triggerBounds = GetComponent<Collider2D>().bounds;
 		spawnPos.x = parentPos.x <= spawnPos.x ? triggerBounds.max.x : triggerBounds.min.x; // TODO: don't assume origin position is closer to min than max?
 

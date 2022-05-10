@@ -678,7 +678,7 @@ public class AvatarController : KinematicCharacter
 
 		health.Respawn();
 
-		Vector3 spawnPos = Utility.OriginToCenterY(gameObject);
+		Vector3 spawnPos = gameObject.OriginToCenterY();
 		if (!resetPosition)
 		{
 			foreach (AvatarController avatar in GameController.Instance.m_avatars)

@@ -49,7 +49,7 @@ public class GateController : MonoBehaviour, IUnlockable
 			return keys == null || keys.Length == 0 ? keyRoomsCount : keys.Min(key => key.m_object.m_keyCountMax - keyRoomsCount < 0 ? int.MaxValue : key.m_object.m_keyCountMax - keyRoomsCount);
 		});
 
-		float yOffset = Utility.OriginToCenterY(lockInfo.m_prefab, true).y;
+		float yOffset = lockInfo.m_prefab.OriginToCenterY(true).y;
 		Vector3 spawnPos = lockRoom.InteriorPosition(lockInfo.m_heightMin + yOffset, lockInfo.m_heightMax + yOffset, lockInfo.m_prefab);
 
 		m_child = Instantiate(lockInfo.m_prefab, spawnPos, Quaternion.identity, transform.parent).GetComponent<IUnlockable>();

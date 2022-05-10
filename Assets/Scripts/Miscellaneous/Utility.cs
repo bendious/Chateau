@@ -141,7 +141,7 @@ public static class Utility
 		return current;
 	}
 
-	public static Vector2 OriginToCenterY(GameObject obj, bool useRenderers = false)
+	public static Vector2 OriginToCenterY(this GameObject obj, bool useRenderers = false)
 	{
 		Component[] components = useRenderers ? obj.GetComponentsInChildren<Renderer>() : obj.GetComponentsInChildren<Collider2D>();
 		float yMin = components.Length <= 0 ? 0.0f : useRenderers ? components.Min(component => (component as Renderer).bounds.min.y) : components.Min(component =>
