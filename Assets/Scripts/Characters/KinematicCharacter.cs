@@ -29,7 +29,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	/// A jump modifier applied to slow down an active jump when
 	/// the user releases the jump input.
 	/// </summary>
-	public float jumpDeceleration = 0.5f;
+	public float m_jumpDeceleration = 0.5f;
 
 	/// <summary>
 	/// A velocity directed and sent to Bounce() when taking nonlethal damage
@@ -52,12 +52,12 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	/// <summary>
 	/// Set to true to initiate a jump.
 	/// </summary>
-	protected bool jump;
+	protected bool m_jump;
 
 	/// <summary>
-	/// Set to true to set the current jump velocity to zero.
+	/// Set to true to decelerate the current jump using m_jumpDeceleration.
 	/// </summary>
-	protected bool stopJump;
+	protected bool m_stopJump;
 
 
 	private SpriteRenderer spriteRenderer;
@@ -90,7 +90,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	protected override void ComputeVelocity()
 	{
-		if (jump)
+		if (m_jump)
 		{
 			if (IsGrounded)
 			{
@@ -125,14 +125,14 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 					velocity += jumpTakeOffSpeed * new Vector2(move.x < 0.0f ? -m_wallJumpXYRatio : m_wallJumpXYRatio, 1.0f).normalized; // NOTE that we purposely incorporate any existing velocity so that gravity will eventually take over and prevent clinging to the walls forever
 				}
 			}
-			jump = false;
+			m_jump = false;
 		}
-		else if (stopJump)
+		else if (m_stopJump)
 		{
-			stopJump = false;
+			m_stopJump = false;
 			if (velocity.y > 0.0f)
 			{
-				velocity.y *= jumpDeceleration;
+				velocity.y *= m_jumpDeceleration;
 			}
 		}
 

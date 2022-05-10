@@ -264,7 +264,7 @@ public class EnemyController : KinematicCharacter
 			Bounds selfBounds = m_collider.bounds;
 			if (IsGrounded && nextBounds.min.y > selfBounds.max.y && Random.value > 0.95f/*?*/)
 			{
-				jump = true;
+				m_jump = true;
 			}
 			move.y = IsGrounded && nextBounds.max.y < selfBounds.min.y ? -1.0f : Mathf.SmoothDamp(move.y, 0.0f, ref m_dropDecayVel, m_dropDecayTime * 2.0f); // NOTE the IsGrounded check and damped decay (x2 since IsDropping's threshold is -0.5) to cause stopping at each ladder rung when descending
 		}

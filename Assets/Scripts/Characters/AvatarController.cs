@@ -395,10 +395,11 @@ public class AvatarController : KinematicCharacter
 		if ((jumpState == JumpState.Grounded || jumpState == JumpState.WallCling || m_leftGroundTime + m_coyoteTime >= Time.time) && input.isPressed)
 		{
 			jumpState = JumpState.PrepareToJump;
+			m_stopJump = false;
 		}
 		else
 		{
-			stopJump = true;
+			m_stopJump = true;
 		}
 	}
 
@@ -860,7 +861,7 @@ public class AvatarController : KinematicCharacter
 
 	private void UpdateJumpState()
 	{
-		jump = false;
+		m_jump = false;
 		switch (jumpState)
 		{
 			case JumpState.Grounded:
@@ -873,8 +874,7 @@ public class AvatarController : KinematicCharacter
 			case JumpState.PrepareToJump:
 				m_leftGroundTime = -1.0f;
 				jumpState = JumpState.Jumping;
-				jump = true;
-				stopJump = false;
+				m_jump = true;
 				break;
 			case JumpState.Jumping:
 				if (!IsGrounded)
