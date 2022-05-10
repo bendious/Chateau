@@ -411,7 +411,7 @@ public class RoomController : MonoBehaviour
 				bool overlap = false;
 				foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
 				{
-					if (renderer.gameObject != m_backdrop && ((1 << renderer.gameObject.layer) & GameController.Instance.m_exteriorLayers) == 0 && renderer.bounds.Intersects(bboxNew))
+					if (renderer.gameObject != m_backdrop && renderer.gameObject.layer != GameController.Instance.m_layerExterior && renderer.bounds.Intersects(bboxNew))
 					{
 						overlap = true;
 						break;
@@ -818,7 +818,7 @@ public class RoomController : MonoBehaviour
 			doorway.GetComponent<Collider2D>().usedByEffector = open;
 
 			// set layer for kinematic movement
-			doorway.layer = LayerMask.NameToLayer(open ? "OneWayPlatforms" : "Default"); // TODO: cache layer indices?
+			doorway.layer = open ? GameController.Instance.m_layerOneWay : GameController.Instance.m_layerDefault;
 
 			// change color/shadows for user visibility
 			doorway.GetComponent<SpriteRenderer>().color = open ? m_oneWayPlatformColor : m_layoutNodes.First().AreaParent.m_color; // TODO: cache room color?

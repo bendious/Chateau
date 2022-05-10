@@ -152,4 +152,10 @@ public static class Utility
 		});
 		return new Vector2(0.0f, -yMin);
 	}
+
+	public static int ToIndex(this LayerMask mask)
+	{
+		Debug.Assert(mask > 0 && Mathf.IsPowerOfTwo(mask)); // multi-bit masks don't translate to a single index
+		return Mathf.RoundToInt(Mathf.Log(mask, 2.0f));
+	}
 }

@@ -14,7 +14,10 @@ public class GameController : MonoBehaviour
 {
 	public LayoutGenerator.Node.Type m_type;
 
-	public LayerMask m_exteriorLayers; // TODO: default value w/o requiring LayerMask.NameToLayer() at initialization time?
+	public LayerMaskHelper m_layerDefault;
+	public LayerMaskHelper m_layerOneWay;
+	public LayerMaskHelper m_layerIgnoreOneWay;
+	public LayerMaskHelper m_layerExterior;
 
 	public List<AvatarController> m_avatars = new();
 

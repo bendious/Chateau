@@ -57,13 +57,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	[SerializeField]
 	private bool m_isReferenceKey;
 
-	private static int m_layerDefault;
-
 
 	private void Awake()
 	{
-		m_layerDefault = LayerMask.NameToLayer("Default");
-
 		m_body = GetComponent<Rigidbody2D>();
 		m_trail = GetComponentInChildren<TrailRenderer>();
 		m_audioSource = GetComponent<AudioSource>();
@@ -326,7 +322,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		if (isDetached)
 		{
 			// set layer back to default to re-enable default collisions
-			gameObject.layer = m_layerDefault;
+			gameObject.layer = GameController.Instance.m_layerDefault;
 		}
 
 		// done for fully-dynamic collisions

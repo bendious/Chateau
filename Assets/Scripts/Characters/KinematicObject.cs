@@ -82,9 +82,7 @@ public abstract class KinematicObject : MonoBehaviour
 	private Vector2 m_velocityForcedWeight = Vector2.zero;
 	private Vector2 m_velocityForcedWeightVel = Vector2.zero;
 
-	private int m_layerOrig;
-	private int m_platformLayerIdx;
-	private int m_ignorePlatformsLayerIdx;
+	private int m_layerIdxOrig;
 	private const float m_platformTopEpsilon = 0.1f;
 	private const float m_wallPushDisableSeconds = 0.25f;
 
@@ -120,7 +118,7 @@ public abstract class KinematicObject : MonoBehaviour
 		m_character = GetComponent<KinematicCharacter>();
 		m_collider = GetComponent<Collider2D>();
 		m_avatar = GetComponent<AvatarController>();
-		m_layerOrig = gameObject.layer;
+		m_layerIdxOrig = gameObject.layer;
 	}
 
 	protected virtual void Start()
@@ -130,8 +128,6 @@ public abstract class KinematicObject : MonoBehaviour
 		// TODO: detect updates while active?
 		Assert.AreNotEqual(m_platformLayer, -1);
 		Assert.AreNotEqual(m_ignorePlatformsLayer, -1);
-		m_platformLayerIdx = Mathf.RoundToInt(Mathf.Log(m_platformLayer.value, 2.0f));
-		m_ignorePlatformsLayerIdx = Mathf.RoundToInt(Mathf.Log(m_ignorePlatformsLayer.value, 2.0f));
 	}
 
 	protected virtual void Update()
@@ -196,7 +192,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 		// update our collision mask
 		bool shouldIgnoreOneWays = velocity.y >= 0.0f || (m_character != null && m_character.IsDropping); // TODO: don't require knowledge of KinematicCharacter
-		gameObject.layer = shouldIgnoreOneWays ? m_ignorePlatformsLayerIdx : m_layerOrig;
+		gameObject.layer = shouldIgnoreOneWays ? GameController.Instance.m_layerIgnoreOneWay : m_layerIdxOrig;
 		contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
 
 		Lazy<bool> isNearGround = new(() => Physics2D.Raycast(m_collider.bounds.min, Vector2.down, m_nearGroundDistance).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground? cast whole collider for better detection?
@@ -296,7 +292,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 					continue; // don't get hung up on dynamic/carried/ignored objects
 				}
-				if (hit.collider.gameObject.layer == m_platformLayerIdx && m_collider.bounds.min.y + m_platformTopEpsilon < hit.collider.bounds.max.y)
+				if (hit.collider.gameObject.layer == GameController.Instance.m_layerOneWay && m_collider.bounds.min.y + m_platformTopEpsilon < hit.collider.bounds.max.y)
 				{
 					continue; // if partway through a one-way platform, ignore it
 				}

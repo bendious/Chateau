@@ -1154,9 +1154,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_type: 0
-  m_exteriorLayers:
-    serializedVersion: 2
-    m_Bits: 1024
+  m_layerDefault:
+    m_mask:
+      serializedVersion: 2
+      m_Bits: 1
+  m_layerOneWay:
+    m_mask:
+      serializedVersion: 2
+      m_Bits: 64
+  m_layerIgnoreOneWay:
+    m_mask:
+      serializedVersion: 2
+      m_Bits: 256
+  m_layerExterior:
+    m_mask:
+      serializedVersion: 2
+      m_Bits: 1024
   m_avatars: []
   m_virtualCamera: {fileID: 5811658771368823199}
   m_cameraTargetGroup: {fileID: 5409020713053798366}
