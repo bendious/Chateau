@@ -179,22 +179,26 @@ public class AvatarController : KinematicCharacter
 				// mirror sprite rendering
 				SpriteRenderer rendererIndicator = m_focusIndicator.GetComponent<SpriteRenderer>();
 				SpriteRenderer rendererOrig = m_focusObj.GetComponent<SpriteRenderer>();
-				rendererIndicator.sortingLayerName = rendererOrig.sortingLayerName;
-				rendererIndicator.sortingLayerID = rendererOrig.sortingLayerID;
-				rendererIndicator.sortingOrder = rendererOrig.sortingOrder + 1;
-				rendererIndicator.sprite = rendererOrig.sprite;
-				rendererIndicator.drawMode = rendererOrig.drawMode;
-				rendererIndicator.size = rendererOrig.size;
-				rendererIndicator.color = rendererOrig.color * 2.0f; // TODO: ensure good visibility on nearly-white/black objects and avoid jarring change to 50% gray objects
-				rendererIndicator.flipX = rendererOrig.flipX;
-				rendererIndicator.flipY = rendererOrig.flipY; // NOTE that items that have been dropped may have been left "backwards"
-				rendererIndicator.maskInteraction = rendererOrig.maskInteraction;
+				rendererIndicator.enabled = rendererOrig != null;
+				if (rendererIndicator.enabled)
+				{
+					rendererIndicator.sortingLayerName = rendererOrig.sortingLayerName;
+					rendererIndicator.sortingLayerID = rendererOrig.sortingLayerID;
+					rendererIndicator.sortingOrder = rendererOrig.sortingOrder + 1;
+					rendererIndicator.sprite = rendererOrig.sprite;
+					rendererIndicator.drawMode = rendererOrig.drawMode;
+					rendererIndicator.size = rendererOrig.size;
+					rendererIndicator.color = rendererOrig.color * 2.0f; // TODO: ensure good visibility on nearly-white/black objects and avoid jarring change to 50% gray objects
+					rendererIndicator.flipX = rendererOrig.flipX;
+					rendererIndicator.flipY = rendererOrig.flipY; // NOTE that items that have been dropped may have been left "backwards"
+					rendererIndicator.maskInteraction = rendererOrig.maskInteraction;
+				}
 
 				// mirror sprite masking
 				SpriteMask maskIndicator = m_focusIndicator.GetComponent<SpriteMask>();
-				SpriteMask maskOrig = rendererOrig.GetComponent<SpriteMask>();
+				SpriteMask maskOrig = m_focusObj.GetComponent<SpriteMask>();
 				maskIndicator.enabled = maskOrig != null;
-				if (maskOrig != null)
+				if (maskIndicator.enabled)
 				{
 					maskIndicator.sprite = maskOrig.sprite;
 					maskIndicator.isCustomRangeActive = maskOrig.isCustomRangeActive;

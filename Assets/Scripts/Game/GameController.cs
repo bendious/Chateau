@@ -14,6 +14,8 @@ public class GameController : MonoBehaviour
 {
 	public LayoutGenerator.Node.Type m_type;
 
+	public LayerMask m_exteriorLayers; // TODO: default value w/o requiring LayerMask.NameToLayer() at initialization time?
+
 	public List<AvatarController> m_avatars = new();
 
 	public CinemachineVirtualCamera m_virtualCamera;
@@ -61,6 +63,9 @@ public class GameController : MonoBehaviour
 
 
 	public RoomController LootRoom { get; private set; }
+
+	public Transform[] RoomBackdrops => m_roomBackdropsInternal.Value;
+	private readonly System.Lazy<Transform[]> m_roomBackdropsInternal = new(() => Instance.m_startRoom.BackdropsRecursive, false);
 
 	public bool Victory { get; private set; }
 

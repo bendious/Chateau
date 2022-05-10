@@ -54,6 +54,8 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 5917400000691457811, guid: 2a16bb5b049dad841a615cda0532986c, type: 3}
     m_weight: 4
+  - m_object: {fileID: 7985615140188058259, guid: cfbaadf79fc588048828fdf3288a20e1, type: 3}
+    m_weight: 1
   m_decorationsMin: 0
   m_decorationsMax: 2
   m_decorationHeightMin: 0.5

@@ -17,7 +17,7 @@ TagManager:
   - Avatars
   - IgnorePlatforms
   - Walls
-  - 
+  - Exterior
   - 
   - 
   - 
@@ -40,6 +40,9 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 500919307
+    locked: 0
   - name: Backdrops
     uniqueID: 2920169173
     locked: 0
@@ -51,6 +54,9 @@ TagManager:
     locked: 0
   - name: FG
     uniqueID: 2156352063
+    locked: 1
+  - name: FGWalls
+    uniqueID: 2908569037
     locked: 0
   - name: UI
     uniqueID: 3125502325

@@ -52,6 +52,8 @@ public class RoomController : MonoBehaviour
 
 	public Vector2 ParentDoorwayPosition => RoomConnection(m_layoutNodes.FirstOrDefault(node => node.TightCoupleParent != null && node.TightCoupleParent.m_room != null && node.TightCoupleParent.m_room != this).TightCoupleParent.m_room, false)[1];
 
+	public Transform[] BackdropsRecursive => m_doorwayInfos.Where(info => info.ChildRoom != null).SelectMany(info => info.ChildRoom.BackdropsRecursive).Concat(new Transform[] { m_backdrop.transform }).ToArray();
+
 
 	[System.Serializable]
 	private class DoorwayInfo
@@ -378,9 +380,9 @@ public class RoomController : MonoBehaviour
 			Bounds bboxNew = new();
 			if (preventOverlapPrefab != null)
 			{
-				SpriteRenderer[] renderers = preventOverlapPrefab.GetComponentsInChildren<SpriteRenderer>();
+				Renderer[] renderers = preventOverlapPrefab.GetComponentsInChildren<Renderer>();
 				bboxNew = renderers.First().bounds; // NOTE that we can't assume the local origin should always be included due to being given post-instantiation furniture objects
-				foreach (SpriteRenderer renderer in renderers)
+				foreach (Renderer renderer in renderers)
 				{
 					bboxNew.Encapsulate(renderer.bounds);
 				}
@@ -407,9 +409,9 @@ public class RoomController : MonoBehaviour
 				bboxNew.center = centerOrig + pos;
 
 				bool overlap = false;
-				foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>())
+				foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
 				{
-					if (renderer.gameObject != m_backdrop && renderer.bounds.Intersects(bboxNew))
+					if (renderer.gameObject != m_backdrop && ((1 << renderer.gameObject.layer) & GameController.Instance.m_exteriorLayers) == 0 && renderer.bounds.Intersects(bboxNew))
 					{
 						overlap = true;
 						break;
