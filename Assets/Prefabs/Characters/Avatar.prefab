@@ -375,15 +375,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9351ace568ee14042a227f767b027b2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_platformLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  m_ignorePlatformsLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  m_wallLayerMask:
-    serializedVersion: 2
-    m_Bits: 512
+  m_layerIgnoreOneWay:
+    m_mask:
+      serializedVersion: 2
+      m_Bits: 256
   minGroundNormalY: 0.65
   m_minWallClingNormalY: 0
   gravityModifier: 3
@@ -393,7 +388,7 @@ MonoBehaviour:
   maxSpeed: 10
   jumpTakeOffSpeed: 15
   m_wallJumpXYRatio: 1
-  jumpDeceleration: 0.5
+  m_jumpDeceleration: 0.5
   m_damageBounceMagnitude: {x: 7, y: 7}
   m_armOffset: {x: 0, y: 0.15}
   move: {x: 0, y: 0}

@@ -15,10 +15,10 @@ TagManager:
   - UI
   - OneWayPlatforms
   - Avatars
-  - IgnorePlatforms
+  - AvatarsIgnorePlatforms
   - Walls
   - Exterior
-  - 
+  - EnemiesIgnorePlatforms
   - 
   - 
   - 

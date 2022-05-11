@@ -10,11 +10,7 @@ using UnityEngine.Assertions;
 [DisallowMultipleComponent]
 public abstract class KinematicObject : MonoBehaviour
 {
-	// TODO: give appropriate defaults w/o needing LayerMask.NameToLayer() at initialization time?
-	public LayerMask m_platformLayer;
-	public LayerMask m_ignorePlatformsLayer;
-	[SerializeField]
-	private LayerMask m_wallLayerMask;
+	public LayerMaskHelper m_layerIgnoreOneWay;
 
 	/// <summary>
 	/// The minimum normal (dot product) considered suitable for the entity sit on.
@@ -124,10 +120,6 @@ public abstract class KinematicObject : MonoBehaviour
 	protected virtual void Start()
 	{
 		contactFilter.useTriggers = false;
-
-		// TODO: detect updates while active?
-		Assert.AreNotEqual(m_platformLayer, -1);
-		Assert.AreNotEqual(m_ignorePlatformsLayer, -1);
 	}
 
 	protected virtual void Update()
@@ -192,7 +184,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 		// update our collision mask
 		bool shouldIgnoreOneWays = velocity.y >= 0.0f || (m_character != null && m_character.IsDropping); // TODO: don't require knowledge of KinematicCharacter
-		gameObject.layer = shouldIgnoreOneWays ? GameController.Instance.m_layerIgnoreOneWay : m_layerIdxOrig;
+		gameObject.layer = shouldIgnoreOneWays ? m_layerIgnoreOneWay : m_layerIdxOrig;
 		contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
 
 		Lazy<bool> isNearGround = new(() => Physics2D.Raycast(m_collider.bounds.min, Vector2.down, m_nearGroundDistance).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground? cast whole collider for better detection?
@@ -285,7 +277,7 @@ public abstract class KinematicObject : MonoBehaviour
 				if (ShouldIgnore(hit.rigidbody, new Collider2D[] { hit.collider }, false, body.mass, typeof(AnchoredJoint2D)))
 				{
 					// push-through floor/walls prevention
-					if (hit.transform.parent == null && hit.rigidbody.IsTouchingLayers(m_wallLayerMask))
+					if (hit.transform.parent == null && hit.rigidbody.IsTouchingLayers((LayerMask)GameController.Instance.m_layerWalls))
 					{
 						EnableCollision.TemporarilyDisableCollision(new Collider2D[] { m_collider }, new Collider2D[] { hit.collider }, m_wallPushDisableSeconds);
 					}

@@ -15,8 +15,8 @@ public class GameController : MonoBehaviour
 	public LayoutGenerator.Node.Type m_type;
 
 	public LayerMaskHelper m_layerDefault;
+	public LayerMaskHelper m_layerWalls;
 	public LayerMaskHelper m_layerOneWay;
-	public LayerMaskHelper m_layerIgnoreOneWay;
 	public LayerMaskHelper m_layerExterior;
 
 	public List<AvatarController> m_avatars = new();

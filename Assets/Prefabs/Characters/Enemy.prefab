@@ -160,15 +160,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf5e58a61f97a2b4594c15b6f3ff0e0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_platformLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  m_ignorePlatformsLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  m_wallLayerMask:
-    serializedVersion: 2
-    m_Bits: 512
+  m_layerIgnoreOneWay:
+    m_mask:
+      serializedVersion: 2
+      m_Bits: 2048
   minGroundNormalY: 0.65
   m_minWallClingNormalY: 3.4028235e+38
   gravityModifier: 1
@@ -178,7 +173,7 @@ MonoBehaviour:
   maxSpeed: 2
   jumpTakeOffSpeed: 10
   m_wallJumpXYRatio: 1
-  jumpDeceleration: 0.5
+  m_jumpDeceleration: 0.5
   m_damageBounceMagnitude: {x: 7, y: 7}
   m_armOffset: {x: 0, y: 0}
   move: {x: 0, y: 0}
@@ -190,6 +185,7 @@ MonoBehaviour:
   m_meleeRange: 1
   m_dropDecayTime: 0.2
   m_attackSFX: []
+  m_teleportVFX: []
   m_heldPrefab: {fileID: 0}
 --- !u!82 &5843668731025413174
 AudioSource:

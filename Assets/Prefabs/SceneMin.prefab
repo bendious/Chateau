@@ -1158,14 +1158,14 @@ MonoBehaviour:
     m_mask:
       serializedVersion: 2
       m_Bits: 1
+  m_layerWalls:
+    m_mask:
+      serializedVersion: 2
+      m_Bits: 512
   m_layerOneWay:
     m_mask:
       serializedVersion: 2
       m_Bits: 64
-  m_layerIgnoreOneWay:
-    m_mask:
-      serializedVersion: 2
-      m_Bits: 256
   m_layerExterior:
     m_mask:
       serializedVersion: 2
@@ -2146,7 +2146,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 1023
+    m_Bits: 3071
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
