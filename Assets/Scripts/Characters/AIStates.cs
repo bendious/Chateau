@@ -394,14 +394,65 @@ public sealed class AIFindAmmo : AIState
 
 public sealed class AITeleport : AIState
 {
+	public float m_delaySeconds = 0.5f;
+
+
+	private float m_preDelayTime;
+	private float m_midDelayTime;
+	private float m_postDelayTime;
+
+	private bool m_preVFXSpawned;
+	private bool m_teleported;
+
+
 	public AITeleport(EnemyController ai) : base(ai)
 	{
+		m_preDelayTime = Time.time + m_delaySeconds;
+		m_midDelayTime = Time.time + m_delaySeconds * 2.0f;
+		m_postDelayTime = Time.time + m_delaySeconds * 3.0f;
 	}
 
 	public override AIState Update()
 	{
-		// TODO: animation/VFX/SFX/etc.
-		m_ai.Teleport(GameController.Instance.RoomFromPosition(m_ai.transform.position).InteriorPosition(float.MaxValue, m_ai.gameObject));
-		return null; // TODO: post-teleport delay?
+		m_ai.move = Vector2.zero;
+
+		// TODO: animation
+
+		if (m_preDelayTime > Time.time)
+		{
+			return this;
+		}
+
+		if (!m_preVFXSpawned)
+		{
+			if (m_ai.m_teleportVFX.Length > 0)
+			{
+				Object.Instantiate(m_ai.m_teleportVFX.RandomWeighted(), m_ai.transform.position, m_ai.transform.rotation);
+			}
+			m_preVFXSpawned = true;
+		}
+
+		if (m_midDelayTime > Time.time)
+		{
+			return this;
+		}
+
+		if (!m_teleported)
+		{
+			Vector3 newPos = GameController.Instance.RoomFromPosition(m_ai.transform.position).InteriorPosition(float.MaxValue, m_ai.gameObject) + (Vector3)m_ai.gameObject.OriginToCenterY();
+			if (m_ai.m_teleportVFX.Length > 0)
+			{
+				Object.Instantiate(m_ai.m_teleportVFX.RandomWeighted(), newPos, m_ai.transform.rotation);
+			}
+			m_ai.Teleport(newPos);
+			m_teleported = true;
+		}
+
+		if (m_postDelayTime > Time.time)
+		{
+			return this;
+		}
+
+		return null;
 	}
 }

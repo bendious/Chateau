@@ -11,12 +11,10 @@ GameObject:
   - component: {fileID: 1570101540527136384}
   - component: {fileID: 3137492953035613680}
   - component: {fileID: -6199138892786167996}
-  - component: {fileID: 7006872056546876197}
   - component: {fileID: 7566464752699221830}
   - component: {fileID: 7074185416880896591}
-  - component: {fileID: 6488049634570686789}
   m_Layer: 0
-  m_Name: BugBombExplosion
+  m_Name: TeleportEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -57,12 +55,18 @@ VisualEffect:
       - m_Value: 0.25
         m_Name: StartAreaRadius
         m_Overridden: 0
-      - m_Value: 2
+      - m_Value: 1
         m_Name: SecondsMin
-        m_Overridden: 0
+        m_Overridden: 1
       - m_Value: 10
         m_Name: SpeedStartMax
         m_Overridden: 0
+      - m_Value: 750
+        m_Name: DragCoefficient
+        m_Overridden: 1
+      - m_Value: 2
+        m_Name: SecondsMax
+        m_Overridden: 1
     m_Vector2f:
       m_Array: []
     m_Vector3f:
@@ -104,7 +108,38 @@ VisualEffect:
         m_Name: LifetimeSize
         m_Overridden: 0
     m_Gradient:
-      m_Array: []
+      m_Array:
+      - m_Value:
+          serializedVersion: 2
+          key0: {r: 1, g: 0, b: 0, a: 0}
+          key1: {r: 0.5, g: 0, b: 0, a: 1}
+          key2: {r: 0, g: 0, b: 0, a: 0.8}
+          key3: {r: 0, g: 0, b: 0, a: 0}
+          key4: {r: 0, g: 0, b: 0, a: 0}
+          key5: {r: 0, g: 0, b: 0, a: 0}
+          key6: {r: 0, g: 0, b: 0, a: 0}
+          key7: {r: 0, g: 0, b: 0, a: 0}
+          ctime0: 0
+          ctime1: 65535
+          ctime2: 0
+          ctime3: 0
+          ctime4: 0
+          ctime5: 0
+          ctime6: 0
+          ctime7: 0
+          atime0: 0
+          atime1: 6554
+          atime2: 32768
+          atime3: 65535
+          atime4: 0
+          atime5: 0
+          atime6: 0
+          atime7: 0
+          m_Mode: 0
+          m_NumColorKeys: 2
+          m_NumAlphaKeys: 4
+        m_Name: LifetimeColor
+        m_Overridden: 1
     m_NamedObject:
       m_Array: []
     m_Bool:
@@ -146,27 +181,9 @@ VFXRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -2138615233
+  m_SortingLayer: 1
   m_SortingOrder: 0
---- !u!114 &7006872056546876197
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5619937708861602581}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ebc8269084d7d84c9165f23d05058cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_radius: -1
-  m_damage: 2
-  m_sfx:
-  - m_object: {fileID: 8300000, guid: 015bca1f9888c0441ac7168f7d64bfda, type: 3}
-    m_weight: 1
-  m_source: {fileID: 0}
 --- !u!114 &7566464752699221830
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285,19 +302,3 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!58 &6488049634570686789
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5619937708861602581}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 1.5

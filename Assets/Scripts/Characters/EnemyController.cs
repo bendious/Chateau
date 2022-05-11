@@ -23,6 +23,7 @@ public class EnemyController : KinematicCharacter
 	public float m_dropDecayTime = 0.2f;
 
 	public AudioClip[] m_attackSFX; // TODO: remove in favor of animation triggers w/ AudioCollection?
+	public WeightedObject<GameObject>[] m_teleportVFX;
 
 
 	[SerializeField]

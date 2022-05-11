@@ -367,6 +367,10 @@ PrefabInstance:
       value: 4.5
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_teleportVFX.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_damageBounceMagnitude.x
       value: 2
       objectReference: {fileID: 0}
@@ -381,6 +385,14 @@ PrefabInstance:
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_allowedStates.Array.data[6]
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_teleportVFX.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 5619937708861602581, guid: b363f802b17433241a7c521332180164, type: 3}
+    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_teleportVFX.Array.data[0].m_weight
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6020121203224396573, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_LocalPosition.x
