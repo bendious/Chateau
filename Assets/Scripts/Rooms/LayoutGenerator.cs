@@ -89,8 +89,8 @@ public class LayoutGenerator
 
 		public int Depth { get
 		{
-			Node parent = TightCoupleParent;
-			return parent == null ? 0 : parent.Depth + 1;
+			List<Node> parents = DirectParents;
+			return parents == null ? 0 : parents.Max(node => node.Depth) + 1;
 		} }
 
 		public readonly Color m_color = Utility.ColorRandom(0.25f, 0.5f, 0.125f); // TODO: tend brighter based on progress?
