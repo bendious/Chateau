@@ -138,10 +138,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2710999994222603646, guid: 717755c04a138404d80679d2c0d06ab5, type: 3}
-      propertyPath: m_SurfaceArc
-      value: 360
-      objectReference: {fileID: 0}
     - target: {fileID: 4774662376995590474, guid: 717755c04a138404d80679d2c0d06ab5, type: 3}
       propertyPath: m_FlipY
       value: 1
@@ -418,3 +414,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_lineOffset: {x: 0, y: 0, z: 0}
   m_lengthMin: 0.05
+--- !u!114 &8231474267442183190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6981071687859246632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9ed46ce2d0c0bb49b992dfece692398, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
