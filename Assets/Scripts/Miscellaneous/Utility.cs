@@ -125,10 +125,12 @@ public static class Utility
 		return new Vector2(Mathf.Clamp(v.x, min, max), Mathf.Clamp(v.y, min, max));
 	}
 
-	public static Vector2 SmoothDamp(this Vector2 current, Vector2 target, ref Vector2 currentVelocity, float smoothTime)
+	public static Vector2 SmoothDamp(this Vector2 current, Vector2 target, ref Vector2 currentVelocity, float smoothTime) => SmoothDamp(current, target, ref currentVelocity, new Vector2(smoothTime, smoothTime));
+
+	public static Vector2 SmoothDamp(this Vector2 current, Vector2 target, ref Vector2 currentVelocity, Vector2 smoothTimes)
 	{
-		current.x = Mathf.SmoothDamp(current.x, target.x, ref currentVelocity.x, smoothTime);
-		current.y = Mathf.SmoothDamp(current.y, target.y, ref currentVelocity.y, smoothTime);
+		current.x = Mathf.SmoothDamp(current.x, target.x, ref currentVelocity.x, smoothTimes.x);
+		current.y = Mathf.SmoothDamp(current.y, target.y, ref currentVelocity.y, smoothTimes.y);
 		return current;
 	}
 

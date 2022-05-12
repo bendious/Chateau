@@ -653,6 +653,7 @@ public class AvatarController : KinematicCharacter
 		Simulation.Schedule<EnableControl>(1.0f).m_avatar = this; // NOTE that this is only a timer-based fallback
 
 		// temporarily disable collision to prevent getting stuck
+		// TODO: disable w/ all enemies rather than just this one?
 		EnableCollision.TemporarilyDisableCollision(enemy.GetComponents<Collider2D>(), new Collider2D[] { m_collider });
 	}
 

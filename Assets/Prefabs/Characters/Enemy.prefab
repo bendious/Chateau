@@ -168,11 +168,11 @@ MonoBehaviour:
   m_minWallClingNormalY: 3.4028235e+38
   gravityModifier: 1
   m_wallClingGravityScalar: 0.1
-  m_velocityForcedSmoothTime: 0.25
+  m_velocityForcedSmoothTimes: {x: 0.25, y: 0.1}
   velocity: {x: 0, y: 0}
   maxSpeed: 2
   jumpTakeOffSpeed: 10
-  m_wallJumpXYRatio: 1
+  m_wallJumpDegrees: 45
   m_jumpDeceleration: 0.5
   m_damageBounceMagnitude: {x: 7, y: 7}
   m_armOffset: {x: 0, y: 0}

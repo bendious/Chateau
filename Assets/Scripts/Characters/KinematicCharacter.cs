@@ -23,7 +23,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	/// <summary>
 	/// Ratio governing the horizontal/vertical direction of wall jumps.
 	/// </summary>
-	public float m_wallJumpXYRatio = 1.0f;
+	public float m_wallJumpDegrees = 45.0f;
 
 	/// <summary>
 	/// A jump modifier applied to slow down an active jump when
@@ -121,8 +121,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 				}
 				if (canWallJump)
 				{
-					Bounce(new Vector2(m_wallNormal.x * maxSpeed, 0.0f));
-					velocity += jumpTakeOffSpeed * new Vector2(move.x < 0.0f ? -m_wallJumpXYRatio : m_wallJumpXYRatio, 1.0f).normalized; // NOTE that we purposely incorporate any existing velocity so that gravity will eventually take over and prevent clinging to the walls forever
+					Bounce(Quaternion.Euler(0.0f, 0.0f, m_wallNormal.x < 0.0f ? -m_wallJumpDegrees : m_wallJumpDegrees) * m_wallNormal * jumpTakeOffSpeed);
 				}
 			}
 			m_jump = false;

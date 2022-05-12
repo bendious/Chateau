@@ -32,7 +32,7 @@ public abstract class KinematicObject : MonoBehaviour
 	/// </summary>
 	public float m_wallClingGravityScalar = 0.1f;
 
-	public float m_velocityForcedSmoothTime = 0.25f;
+	public Vector2 m_velocityForcedSmoothTimes = new(0.25f, 0.1f);
 
 	/// <summary>
 	/// The current velocity of the entity.
@@ -165,13 +165,17 @@ public abstract class KinematicObject : MonoBehaviour
 		velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0.0f ? gravityModifier : 1.0f) * Time.fixedDeltaTime * Physics2D.gravity;
 
 		velocity.x = Mathf.Lerp(targetVelocity.x, m_velocityForced.x, m_velocityForcedWeight.x);
-		if (HasFlying && m_velocityForcedWeight.y.FloatEqual(0.0f))
+		if (!m_velocityForcedWeight.y.FloatEqual(0.0f))
+		{
+			velocity.y = Mathf.Lerp(velocity.y, m_velocityForced.y, m_velocityForcedWeight.y);
+		}
+		else if (HasFlying)
 		{
 			velocity.y = targetVelocity.y;
 		}
 
 		// blend velocity back from forced if necessary
-		m_velocityForcedWeight = m_velocityForcedWeight.SmoothDamp(Vector2.zero, ref m_velocityForcedWeightVel, m_velocityForcedSmoothTime);
+		m_velocityForcedWeight = m_velocityForcedWeight.SmoothDamp(Vector2.zero, ref m_velocityForcedWeightVel, m_velocityForcedSmoothTimes);
 
 		IsGrounded = false;
 		IsWallClinging = false;
