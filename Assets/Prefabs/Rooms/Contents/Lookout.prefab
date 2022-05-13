@@ -58,7 +58,7 @@ MonoBehaviour:
   m_LightOrder: 0
   m_OverlapOperation: 0
   m_NormalMapDistance: 3
-  m_NormalMapQuality: 2
+  m_NormalMapQuality: 1
   m_UseNormalMap: 0
   m_ShadowIntensityEnabled: 0
   m_ShadowIntensity: 0.75
@@ -256,9 +256,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 080c75176af42e741b900f4f77ceb7cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_foregroundLayers:
-    serializedVersion: 2
-    m_Bits: 1024
   m_distanceMax: 2
 --- !u!331 &56445184068183188
 SpriteMask:
@@ -326,7 +323,7 @@ MonoBehaviour:
   m_ComponentVersion: 1
   m_LightType: 3
   m_BlendStyleIndex: 0
-  m_FalloffIntensity: 0.5
+  m_FalloffIntensity: 0.25
   m_Color: {r: 0.5, g: 0.75, b: 1, a: 1}
   m_Intensity: 1
   m_LightVolumeIntensity: 1
@@ -336,8 +333,8 @@ MonoBehaviour:
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
   m_OverlapOperation: 0
-  m_NormalMapDistance: 3
-  m_NormalMapQuality: 2
+  m_NormalMapDistance: 6
+  m_NormalMapQuality: 1
   m_UseNormalMap: 0
   m_ShadowIntensityEnabled: 1
   m_ShadowIntensity: 1
