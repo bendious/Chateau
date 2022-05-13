@@ -1301,6 +1301,14 @@ MonoBehaviour:
         m_Groups: 
         m_Action: Join
         m_Flags: 0
+      - m_Name: 
+        m_Id: 5aecb50d-967c-48b0-882f-a4dc16ebbb89
+        m_Path: <Gamepad>/buttonSouth
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Join
+        m_Flags: 0
       m_Flags: 0
     m_Reference: {fileID: -4822033023859616990, guid: 176f72829d0e1524e8d944c58c0eda4a, type: 3}
   m_PlayerPrefab: {fileID: 6654259642884158821, guid: 4d20d571ba0aebe47a66bc88f4f1c0a9, type: 3}

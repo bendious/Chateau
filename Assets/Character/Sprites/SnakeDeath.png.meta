@@ -110,7 +110,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 344
+        y: 40
         width: 88
         height: 40
       alignment: 0
@@ -131,7 +131,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 88
-        y: 344
+        y: 40
         width: 88
         height: 40
       alignment: 0
@@ -152,7 +152,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 176
-        y: 344
+        y: 40
         width: 88
         height: 40
       alignment: 0
@@ -173,7 +173,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 264
-        y: 344
+        y: 40
         width: 88
         height: 40
       alignment: 0
@@ -193,8 +193,8 @@ TextureImporter:
       name: SnakeDeath_4
       rect:
         serializedVersion: 2
-        x: 352
-        y: 344
+        x: 0
+        y: 0
         width: 88
         height: 40
       alignment: 0
@@ -214,8 +214,8 @@ TextureImporter:
       name: SnakeDeath_5
       rect:
         serializedVersion: 2
-        x: 440
-        y: 344
+        x: 88
+        y: 0
         width: 88
         height: 40
       alignment: 0
@@ -235,8 +235,8 @@ TextureImporter:
       name: SnakeDeath_6
       rect:
         serializedVersion: 2
-        x: 528
-        y: 344
+        x: 176
+        y: 0
         width: 88
         height: 40
       alignment: 0
