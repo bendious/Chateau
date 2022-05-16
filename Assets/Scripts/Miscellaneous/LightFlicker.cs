@@ -136,15 +136,18 @@ public class LightFlicker : MonoBehaviour
 				if (m_flickerSfx.Length > 0)
 				{
 					AudioSource source = GetComponentInParent<AudioSource>();
-					AudioClip clip = m_flickerSfx.RandomWeighted();
-					if (m_flickerSfxDelayMax > 0.0f)
+					if (!source.isPlaying)
 					{
-						source.clip = clip;
-						source.PlayScheduled(AudioSettings.dspTime + Random.Range(0.0f, m_flickerSfxDelayMax)); // TODO: prevent getting pre-empted by something else playing on this source?
-					}
-					else
-					{
-						source.PlayOneShot(clip);
+						AudioClip clip = m_flickerSfx.RandomWeighted();
+						if (m_flickerSfxDelayMax > 0.0f)
+						{
+							source.clip = clip;
+							source.PlayScheduled(AudioSettings.dspTime + Random.Range(0.0f, m_flickerSfxDelayMax)); // TODO: prevent getting pre-empted by something else playing on this source?
+						}
+						else
+						{
+							source.PlayOneShot(clip);
+						}
 					}
 				}
 

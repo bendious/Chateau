@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Assertions;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.VFX;
 
 
 [DisallowMultipleComponent, RequireComponent(typeof(AudioSource))]
@@ -24,6 +25,10 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	public WeightedObject<AudioClip>[] m_failureSFX;
 	public WeightedObject<AudioClip>[] m_unlockSFX;
+
+
+	[SerializeField]
+	private bool m_destroyOnUnlock = true;
 
 
 	public GameObject Parent { get; set; }
@@ -256,16 +261,37 @@ public class LockController : MonoBehaviour, IUnlockable
 		int remainingKeys = m_keys.Count(key => !key.IsInPlace);
 		if (key == null || remainingKeys <= 0)
 		{
-			// unlock parent or remove ourself
+			// unlock parent
 			IUnlockable parentLock = Parent == null ? null : Parent.GetComponent<IUnlockable>();
 			if (parentLock != null)
 			{
 				parentLock.Unlock(key);
 			}
-			else
+
+			// destroy/disable ourself
+			if (m_destroyOnUnlock)
 			{
 				Simulation.Schedule<ObjectDespawn>(0.5f).m_object = gameObject;
 			}
+			else
+			{
+				Collider2D collider = GetComponent<Collider2D>();
+				if (collider != null)
+				{
+					collider.enabled = false;
+				}
+				VisualEffect vfx = GetComponent<VisualEffect>();
+				if (vfx != null)
+				{
+					vfx.Stop();
+				}
+				Light2D light = GetComponent<Light2D>();
+				if (light != null)
+				{
+					light.enabled = false;
+				}
+			}
+
 			Parent = null;
 
 			// deactivate keys

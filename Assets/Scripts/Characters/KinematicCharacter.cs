@@ -156,8 +156,6 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	public virtual void OnDamage(GameObject source)
 	{
-		EnableCollision.TemporarilyDisableCollision(source.GetComponents<Collider2D>(), new Collider2D[] { m_collider });
-
 		// knock away from source
 		Vector2 bounceVecOriented = transform.position.x < source.transform.position.x ? new(-m_damageBounceMagnitude.x, m_damageBounceMagnitude.y) : m_damageBounceMagnitude;
 		Bounce(bounceVecOriented);

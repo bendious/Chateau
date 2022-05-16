@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &6875515401294979257
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1022365480725624697, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_Size.y
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_Name
+      value: KeyElectric
+      objectReference: {fileID: 0}
+    - target: {fileID: 4560024713572274854, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_tooltip
+      value: "Capacitor\nAbsorbs electricity.\n "
+      objectReference: {fileID: 0}
+    - target: {fileID: 5371468685632549670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5371468685632549670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5371468685632549670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5371468685632549670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5371468685632549670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5371468685632549670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5371468685632549670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5371468685632549670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5371468685632549670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5371468685632549670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5371468685632549670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8930228299330285116, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 20423180fa359b742a9277ee7a0cd02a, type: 3}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 454cace899734f041b6cb967dd51ff20, type: 3}

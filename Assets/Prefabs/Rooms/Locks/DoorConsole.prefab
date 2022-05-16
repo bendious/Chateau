@@ -159,6 +159,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: DoorConsole
       objectReference: {fileID: 0}
+    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
+      propertyPath: m_destroyOnUnlock
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2462278832316299634, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}

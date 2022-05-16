@@ -781,6 +781,11 @@ public class RoomController : MonoBehaviour
 		Vector2 size = DoorwaySize(doorway);
 		doorwayInfo.m_blocker.GetComponent<BoxCollider2D>().size = size;
 		doorwayInfo.m_blocker.GetComponent<SpriteRenderer>().size = size;
+		VisualEffect vfx = doorwayInfo.m_blocker.GetComponent<VisualEffect>();
+		if (vfx != null)
+		{
+			vfx.SetVector3("StartAreaSize", size);
+		}
 
 		// update shadow caster shape
 		ShadowCaster2D shadowCaster = doorwayInfo.m_blocker.GetComponent<ShadowCaster2D>();

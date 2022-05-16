@@ -138,7 +138,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 103896
+  m_InstanceId: 57228
 --- !u!1 &409852463158594107
 GameObject:
   m_ObjectHideFlags: 0
@@ -298,7 +298,7 @@ MonoBehaviour:
   - {x: 1.5, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 103878
+  m_InstanceId: 57210
 --- !u!82 &8857695118105291083
 AudioSource:
   m_ObjectHideFlags: 0
@@ -542,7 +542,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 103882
+  m_InstanceId: 57214
 --- !u!1 &2929849760781198063
 GameObject:
   m_ObjectHideFlags: 0
@@ -681,7 +681,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 103876
+  m_InstanceId: 57208
 --- !u!1 &3865645025881897782
 GameObject:
   m_ObjectHideFlags: 0
@@ -821,7 +821,7 @@ MonoBehaviour:
   - {x: 1.5, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 103842
+  m_InstanceId: 57174
 --- !u!82 &547285319970575305
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1066,7 +1066,7 @@ MonoBehaviour:
   - {x: 0.25, y: -1.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 103946
+  m_InstanceId: 57278
 --- !u!82 &940655668141046595
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1310,7 +1310,7 @@ MonoBehaviour:
   - {x: 0.25, y: -2.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 103932
+  m_InstanceId: 57264
 --- !u!1 &5667102131450121450
 GameObject:
   m_ObjectHideFlags: 0
@@ -1533,7 +1533,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 103874
+  m_InstanceId: 57206
 --- !u!1 &6422840777706418414
 GameObject:
   m_ObjectHideFlags: 0
@@ -1672,7 +1672,7 @@ MonoBehaviour:
   - {x: 0.25, y: -2.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 103964
+  m_InstanceId: 57296
 --- !u!1 &7422594126546487761
 GameObject:
   m_ObjectHideFlags: 0
@@ -1742,6 +1742,8 @@ MonoBehaviour:
   - m_object: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
     m_weight: 1
   - m_object: {fileID: 3346888056824497695, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 1365230811573513431, guid: fe495bb420265d946a84ada74b132a5a, type: 3}
     m_weight: 1
   m_doorDirectionalPrefabs:
   - m_direction: {x: 0, y: 1}
@@ -2015,7 +2017,7 @@ MonoBehaviour:
   - {x: 0.25, y: -1.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 103858
+  m_InstanceId: 57190
 --- !u!82 &2028311330320755528
 AudioSource:
   m_ObjectHideFlags: 0

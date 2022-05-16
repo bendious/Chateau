@@ -1026,6 +1026,7 @@ MonoBehaviour:
   m_unlockSFX:
   - m_object: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
     m_weight: 1
+  m_destroyOnUnlock: 0
 --- !u!82 &6798587328417340159
 AudioSource:
   m_ObjectHideFlags: 0
