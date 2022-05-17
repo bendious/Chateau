@@ -170,7 +170,7 @@ public class RoomController : MonoBehaviour
 		}
 	}
 
-	public void FinalizeRecursive(int doorwayDepth = 0)
+	public void FinalizeRecursive(int doorwayDepth = 0, int npcDepth = 0)
 	{
 		for (int doorwayIdx = 0; doorwayIdx < m_doorwayInfos.Length; ++doorwayIdx)
 		{
@@ -227,7 +227,7 @@ public class RoomController : MonoBehaviour
 			}
 			Debug.Assert(doorwayInfo.SiblingRoom == null);
 
-			doorwayInfo.ChildRoom.FinalizeRecursive(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.Entrance || node.m_type == LayoutGenerator.Node.Type.ExitDoor) ? doorwayDepth + 1 : doorwayDepth);
+			doorwayInfo.ChildRoom.FinalizeRecursive(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.Entrance || node.m_type == LayoutGenerator.Node.Type.ExitDoor) ? doorwayDepth + 1 : doorwayDepth, System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.Npc) ? npcDepth + 1 : npcDepth);
 
 			IUnlockable unlockable = doorwayInfo.m_blocker == null ? null : doorwayInfo.m_blocker.GetComponent<IUnlockable>();
 			if (unlockable == null)
@@ -288,6 +288,7 @@ public class RoomController : MonoBehaviour
 				case LayoutGenerator.Node.Type.ExitDoor:
 					GameObject doorPrefab = m_doorInteractPrefabs[System.Math.Min(m_doorInteractPrefabs.Length - 1, doorwayDepth)];
 					Instantiate(doorPrefab, node.m_type == LayoutGenerator.Node.Type.Entrance ? transform.position : InteriorPosition(0.0f, 0.0f, doorPrefab), Quaternion.identity, transform);
+					++doorwayDepth;
 					break;
 
 				case LayoutGenerator.Node.Type.TutorialMove:
@@ -308,8 +309,13 @@ public class RoomController : MonoBehaviour
 					break;
 
 				case LayoutGenerator.Node.Type.Npc:
+					if (npcDepth > GameController.NpcExtraCount)
+					{
+						break;
+					}
 					GameObject npcPrefab = m_npcPrefabs.RandomWeighted();
-					Instantiate(npcPrefab, InteriorPosition(0.0f, 0.0f) + (Vector3)npcPrefab.OriginToCenterY(), Quaternion.identity);
+					Instantiate(npcPrefab, InteriorPosition(0.0f, 0.0f) + (Vector3)npcPrefab.OriginToCenterY(), Quaternion.identity); // TODO: load specific NPC from GameController
+					++npcDepth;
 					break;
 
 				default:

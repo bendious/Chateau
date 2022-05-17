@@ -64,6 +64,8 @@ public class GameController : MonoBehaviour
 
 	public static GameController Instance { get; private set; }
 
+	public static int NpcExtraCount { get; private set; }
+
 
 	public RoomController LootRoom { get; private set; }
 
@@ -306,6 +308,8 @@ public class GameController : MonoBehaviour
 
 		using SaveWriter saveFile = new(activeScene);
 
+		saveFile.Write(NpcExtraCount);
+
 		Object[] savables = m_savableTags.SelectMany(tag => GameObject.FindGameObjectsWithTag(tag)).ToArray();
 		saveFile.Write(savables.Length);
 		foreach (GameObject obj in savables)
@@ -330,6 +334,8 @@ public class GameController : MonoBehaviour
 				return;
 			}
 
+			NpcExtraCount = System.Math.Max(NpcExtraCount, saveFile.ReadInt32()); // NOTE the max() to somewhat handle debug loading directly into non-saved scenes, incrementing NpcExtraCount, and then loading a saved scene
+
 			saveFile.Read(out int savablesCount);
 			for (int i = 0; i < savablesCount; ++i)
 			{
@@ -346,6 +352,7 @@ public class GameController : MonoBehaviour
 	{
 		PlayerPrefs.DeleteAll(); // TODO: separate setup/configuration from game data
 		SaveHelpers.Delete(SceneManager.GetSceneAt(0)); // TODO: don't assume only first scene stores contents?
+		NpcExtraCount = 0;
 	}
 
 	public void Retry()
@@ -397,6 +404,7 @@ public class GameController : MonoBehaviour
 	public void OnVictory()
 	{
 		Victory = true;
+		++NpcExtraCount;
 		foreach (AvatarController avatar in m_avatars)
 		{
 			avatar.OnVictory();
