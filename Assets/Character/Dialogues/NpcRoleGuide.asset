@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40b15f190aba99942b804a292002a62c, type: 3}
+  m_Name: NpcRoleGuide
+  m_EditorClassIdentifier: 
+  m_dialogue:
+  - m_object:
+    - "I suppose you don\u2019t know, having never really lived here, but this whole
+      place is basically a cylinder."
+    - "The central spire is visible from pretty much anywhere if you\u2019re looking
+      for it, but the only way to reach it is to pass through all the other layers."
+    m_weight: 0
+  - m_object:
+    - Be careful going deeper.
+    - All these pests came from outside originally, but they seem to revel in making
+      their way as far inside as possible.
+    m_weight: 0
+  - m_object:
+    - "The center\u2026 It used to be empty, but I don\u2019t think it is anymore."
+    - "I swear there are lights in the windows sometimes\u2026"
+    m_weight: 0
+  - m_object:
+    - Feel free to leave whatever you want here.
+    - "I\u2019ll make sure it stays until you come back for it."
+    m_weight: 0
+  - m_object:
+    - Stay away from danger!
+    - "Don\u2019t expect to attack anything up close and walk away unharmed."
+    - Generally speaking, throwing things is much safer than swinging them.
+    m_weight: 0
+  - m_object:
+    - The locked doors here?
+    - "I don\u2019t actually know what\u2019s behind them."
+    - "Their keys don\u2019t seem to still be around here."
+    m_weight: 0
+  - m_object:
+    - Oh, you saw the writing on the entrance hallway walls?
+    - Yeah, I don't know who wrote all that.
+    - Someone crazy, I guess.
+    - Creepy gibberish...
+    - Don't think about it too much, that's my advice.
+    m_weight: 0

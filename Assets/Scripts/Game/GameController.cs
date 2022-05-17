@@ -136,7 +136,7 @@ public class GameController : MonoBehaviour
 
 		m_startRoom.FinalizeRecursive();
 
-		// TODO: dialogue system
+		// TODO: system?
 		if (!PlayerPrefs.HasKey("IntroDialogueDone"))
 		{
 			const string tutorialSceneName = "Tutorial"; // TODO: un-hardcode?
