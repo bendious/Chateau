@@ -61,7 +61,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		{
 			GameObject keyPrefab = m_keyInfo.m_prefabs.RandomWeighted();
 			bool isItem = keyPrefab.GetComponent<Rigidbody2D>() != null;
-			Vector3 spawnPos = keyOrLockRooms[i].InteriorPosition(isItem ? 0.0f : m_keyHeightMax, isItem ? null : keyPrefab); // TODO: prefer spawning on furniture
+			Vector3 spawnPos = isItem ? keyOrLockRooms[i].ItemSpawnPosition(keyPrefab) : keyOrLockRooms[i].InteriorPosition(m_keyHeightMax, keyPrefab); // TODO: prioritize placing non-items close to self if multiple in this room?
 			if (isItem)
 			{
 				spawnPos += (Vector3)keyPrefab.OriginToCenterY();

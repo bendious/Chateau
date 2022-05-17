@@ -59,8 +59,21 @@ public class FurnitureController : MonoBehaviour
 		for (int i = 0; i < itemCount; ++i)
 		{
 			GameObject itemPrefab = itemsFinal.RandomWeighted();
-			Vector3 spawnCenterPos = (Vector2)transform.position + new Vector2(Random.Range(-extentX, extentX), size.y * Random.Range(1, transform.childCount + 2)) + itemPrefab.OriginToCenterY(); // TODO: don't assume the furniture origin is at bottom center, but also don't use stale Collider2D bounds? more deliberate placement?
+			Vector3 spawnCenterPos = ItemSpawnPositionInternal(itemPrefab, extentX, size.y);
 			GameController.Instance.m_savableFactory.Instantiate(itemPrefab, spawnCenterPos, Quaternion.identity);
 		}
+	}
+
+	public Vector3 ItemSpawnPosition(GameObject itemPrefab)
+	{
+		Vector3 size = GetComponent<Collider2D>().bounds.size; // NOTE that the collider likely hasn't updated its position, but the size should be valid
+		return ItemSpawnPositionInternal(itemPrefab, size.x * 0.5f, size.y);
+	}
+
+
+	private Vector3 ItemSpawnPositionInternal(GameObject itemPrefab, float extentX, float sizeY)
+	{
+		// TODO: check for collision w/ existing colliders?
+		return (Vector2)transform.position + new Vector2(Random.Range(-extentX, extentX), sizeY * Random.Range(1, transform.childCount + 2)) + itemPrefab.OriginToCenterY(); // TODO: don't assume the furniture origin is at bottom center, but also don't use stale Collider2D bounds? more deliberate placement?
 	}
 }

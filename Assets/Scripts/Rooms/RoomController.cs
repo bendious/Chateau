@@ -172,6 +172,27 @@ public class RoomController : MonoBehaviour
 
 	public void FinalizeRecursive(int doorwayDepth = 0, int npcDepth = 0)
 	{
+		// room type
+		// TODO: more deliberate choice?
+		m_roomType = GameController.Instance.m_roomTypes.RandomWeighted();
+		if (m_roomType.m_backdrops != null && m_roomType.m_backdrops.Length > 0)
+		{
+			RoomType.BackdropInfo backdrop = m_roomType.m_backdrops.RandomWeighted();
+			SpriteRenderer renderer = m_backdrop.GetComponent<SpriteRenderer>();
+			renderer.sprite = backdrop.m_sprite;
+			renderer.color = Utility.ColorRandom(backdrop.m_colorMin, backdrop.m_colorMax);
+		}
+
+		// spawn furniture
+		if (m_roomType.m_furniturePrefabs.Length > 0)
+		{
+			FurnitureController furniture = Instantiate(m_roomType.m_furniturePrefabs.RandomWeighted(), transform).GetComponent<FurnitureController>(); // NOTE that we have to spawn before placement due to size randomization
+			Vector2 extentsInterior = BoundsInterior.extents;
+			furniture.RandomizeSize(extentsInterior);
+			furniture.transform.position = InteriorPosition(0.0f, furniture.gameObject, () => furniture.RandomizeSize(extentsInterior));
+			furniture.SpawnItems(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType);
+		}
+
 		for (int doorwayIdx = 0; doorwayIdx < m_doorwayInfos.Length; ++doorwayIdx)
 		{
 			DoorwayInfo doorwayInfo = m_doorwayInfos[doorwayIdx];
@@ -239,17 +260,6 @@ public class RoomController : MonoBehaviour
 			RoomController[] keyRooms = lockNode?.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray();
 			bool excludeSelf = Random.value < 0.5f; // TEMP?
 			unlockable.SpawnKeys(this, keyRooms == null || keyRooms.Length <= 0 ? null : excludeSelf ? keyRooms.Where(room => room != this).ToArray() : keyRooms);
-		}
-
-		// room type
-		// TODO: more deliberate choice?
-		m_roomType = GameController.Instance.m_roomTypes.RandomWeighted();
-		if (m_roomType.m_backdrops != null && m_roomType.m_backdrops.Length > 0)
-		{
-			RoomType.BackdropInfo backdrop = m_roomType.m_backdrops.RandomWeighted();
-			SpriteRenderer renderer = m_backdrop.GetComponent<SpriteRenderer>();
-			renderer.sprite = backdrop.m_sprite;
-			renderer.color = Utility.ColorRandom(backdrop.m_colorMin, backdrop.m_colorMax);
 		}
 
 		// color walls based on area
@@ -320,16 +330,6 @@ public class RoomController : MonoBehaviour
 				default:
 					break;
 			}
-		}
-
-		// spawn furniture
-		if (m_roomType.m_furniturePrefabs.Length > 0)
-		{
-			FurnitureController furniture = Instantiate(m_roomType.m_furniturePrefabs.RandomWeighted(), transform).GetComponent<FurnitureController>(); // NOTE that we have to spawn before placement due to size randomization
-			Vector2 extentsInterior = BoundsInterior.extents;
-			furniture.RandomizeSize(extentsInterior);
-			furniture.transform.position = InteriorPosition(0.0f, furniture.gameObject, () => furniture.RandomizeSize(extentsInterior));
-			furniture.SpawnItems(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType);
 		}
 
 		// spawn decoration(s)
@@ -448,6 +448,18 @@ public class RoomController : MonoBehaviour
 		Debug.Assert(failsafe > 0);
 
 		return pos;
+	}
+
+	public Vector3 ItemSpawnPosition(GameObject itemPrefab)
+	{
+		FurnitureController[] allFurniture = transform.GetComponentsInChildren<FurnitureController>();
+		if (allFurniture.Length <= 0)
+		{
+			return InteriorPosition(0.0f, itemPrefab);
+		}
+
+		FurnitureController chosenFurniture = allFurniture[Random.Range(0, allFurniture.Length)]; // TODO: prioritize based on furniture type / existing items?
+		return chosenFurniture.ItemSpawnPosition(itemPrefab);
 	}
 
 	public Vector3 SpawnPointRandom()

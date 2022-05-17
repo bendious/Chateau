@@ -50,7 +50,7 @@ public class GateController : MonoBehaviour, IUnlockable
 		});
 
 		float yOffset = lockInfo.m_prefab.OriginToCenterY(true).y;
-		Vector3 spawnPos = lockRoom.InteriorPosition(lockInfo.m_heightMin + yOffset, lockInfo.m_heightMax + yOffset, lockInfo.m_prefab);
+		Vector3 spawnPos = lockRoom.InteriorPosition(lockInfo.m_heightMin + yOffset, lockInfo.m_heightMax + yOffset, lockInfo.m_prefab); // TODO: prioritize placing near self if multiple gates in this room?
 
 		m_child = Instantiate(lockInfo.m_prefab, spawnPos, Quaternion.identity, transform.parent).GetComponent<IUnlockable>();
 		m_child.Parent = gameObject;
