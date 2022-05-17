@@ -33,6 +33,8 @@ public class GameController : MonoBehaviour
 	public WeightedObject<RoomType>[] m_roomTypes;
 	public WeightedObject<GameObject>[] m_enemyPrefabs;
 
+	public bool m_allowCutbacks = true;
+
 	public TMPro.TMP_Text m_timerUI;
 	public Canvas m_pauseUI;
 	public Canvas m_gameOverUI;

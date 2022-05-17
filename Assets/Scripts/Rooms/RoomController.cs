@@ -178,8 +178,7 @@ public class RoomController : MonoBehaviour
 			if (doorwayInfo.ChildRoom == null)
 			{
 				// maybe add cutback
-				// TODO: restrict cutbacks by scene?
-				if (doorwayInfo.ConnectedRoom == null)
+				if (GameController.Instance.m_allowCutbacks && doorwayInfo.ConnectedRoom == null)
 				{
 					Vector2 direction = DoorwayDirection(doorwayInfo);
 					GameObject doorway = doorwayInfo.m_object;

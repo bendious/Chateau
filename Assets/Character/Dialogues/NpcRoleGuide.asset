@@ -14,6 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
+    - Stay away from danger!
+    - "Don\u2019t expect to attack anything up close and walk away unharmed."
+    - Generally speaking, throwing things is much safer than swinging them.
+    m_weight: 0
+  - m_object:
+    - Feeling lost?
+    - I'm not surprised.
+    - This place is so big that I'd swear every time I walk through a door there's
+      a wing I've never seen before.
+    - There's a certain order to it, though.
+    - I've noticed that related rooms share coloration, for example.
+    m_weight: 0
+  - m_object:
     - "I suppose you don\u2019t know, having never really lived here, but this whole
       place is basically a cylinder."
     - "The central spire is visible from pretty much anywhere if you\u2019re looking
@@ -31,11 +44,6 @@ MonoBehaviour:
   - m_object:
     - Feel free to leave whatever you want here.
     - "I\u2019ll make sure it stays until you come back for it."
-    m_weight: 0
-  - m_object:
-    - Stay away from danger!
-    - "Don\u2019t expect to attack anything up close and walk away unharmed."
-    - Generally speaking, throwing things is much safer than swinging them.
     m_weight: 0
   - m_object:
     - The locked doors here?
