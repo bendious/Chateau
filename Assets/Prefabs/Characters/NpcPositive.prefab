@@ -186,7 +186,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8176166786061933274, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
   m_PrefabInstance: {fileID: 6510802711406799066}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &5961698073220739544
+--- !u!114 &-4179083336782253727
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -195,10 +195,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3111020654554313216}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fcce2478db7d6f249bb2a8d80def972d, type: 3}
+  m_Script: {fileID: 11500000, guid: 2215cdd2e220bb74b86a7f7ea5a0ceae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_sceneChange: 0
   m_dialogueSprite: {fileID: 21300000, guid: 0210e9dbea5524e46a62c1bb195ce509, type: 3}
   m_dialogueSources:
   - {fileID: 11400000, guid: 9eabba7ea6dc477428519349a00d66a7, type: 2}

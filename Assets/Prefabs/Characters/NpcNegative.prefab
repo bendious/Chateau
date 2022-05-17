@@ -7,6 +7,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -4179083336782253727, guid: 286335db291a89e4a861600f39917758, type: 3}
+      propertyPath: m_dialogueSources.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: eeef22f43d928934d9f902dbd6ac6bbb, type: 2}
     - target: {fileID: 3111020654554313216, guid: 286335db291a89e4a861600f39917758, type: 3}
       propertyPath: m_Name
       value: NpcNegative
@@ -55,9 +59,5 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5961698073220739544, guid: 286335db291a89e4a861600f39917758, type: 3}
-      propertyPath: m_dialogueSources.Array.data[0]
-      value: 
-      objectReference: {fileID: 11400000, guid: eeef22f43d928934d9f902dbd6ac6bbb, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 286335db291a89e4a861600f39917758, type: 3}

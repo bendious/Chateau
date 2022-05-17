@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5445330000905477353}
   - component: {fileID: 8115087590119289202}
-  - component: {fileID: 4061270809223416924}
   - component: {fileID: 5550420859929465474}
   m_Layer: 0
   m_Name: DoorInteract0
@@ -86,22 +85,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &4061270809223416924
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5746196675388104066}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fcce2478db7d6f249bb2a8d80def972d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_sceneChange: 0
-  m_dialogueSprite: {fileID: 0}
-  m_dialogue: []
-  m_weightUseScalar: 0.25
 --- !u!61 &5550420859929465474
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -111,7 +111,7 @@ public class EnemyController : KinematicCharacter
 			if (arms.Length > 0)
 			{
 				ArmController primaryArm = arms.FirstOrDefault(arm => arm.GetComponentInChildren<ItemController>() != null);
-				Vector2 targetPosSafe = m_target == null ? transform.position : m_target.position;
+				Vector2 targetPosSafe = m_target == null ? (Vector2)transform.position + (LeftFacing ? Vector2.left : Vector2.right) : m_target.position;
 				if (primaryArm != null)
 				{
 					primaryArm.UpdateAim(m_armOffset, targetPosSafe, targetPosSafe);
