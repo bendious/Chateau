@@ -21,6 +21,8 @@ MonoBehaviour:
   m_itemPrefabs:
   - m_object: {fileID: 6107488262492150209, guid: 4feae967d8b4799409bbcd10967052ed, type: 3}
     m_weight: 1
+  - m_object: {fileID: 5329113729594168994, guid: a39b436b4827fa148af89586f9b560f3, type: 3}
+    m_weight: 1
   - m_object: {fileID: 4892872906617963342, guid: c7eaa25f16cf12a43af6e9177433afc1, type: 3}
     m_weight: 1
   - m_object: {fileID: 4368307219418328836, guid: a8338ae7ab0a6b640b8195decea2b6fb, type: 3}

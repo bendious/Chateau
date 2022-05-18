@@ -265,8 +265,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 6200000, guid: 448cd1b924f918643b17c77e4777d707, type: 2}
     - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_Offset.x
+      value: 0.14
+      objectReference: {fileID: 0}
+    - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_SpriteTilingProperty.pivot.x
-      value: 0.5
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_SpriteTilingProperty.newSize.x
@@ -324,10 +328,10 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.18, y: 0}
+  m_Offset: {x: 0.32, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0.15, y: 0.5}
     oldSize: {x: 0.4, y: 0.4}
     newSize: {x: 0.4, y: 0.4}
     adaptiveTilingThreshold: 0.5

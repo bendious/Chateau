@@ -293,7 +293,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		{
 			if (m_audioSource.enabled)
 			{
-				m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.PairBestMatch(collision.collider.sharedMaterial, collision.otherCollider.sharedMaterial).RandomCollisionAudio());
+				PhysicsMaterial2D material1 = collision.collider.sharedMaterial != null || collision.rigidbody == null ? collision.collider.sharedMaterial : collision.rigidbody.sharedMaterial;
+				PhysicsMaterial2D material2 = collision.otherCollider.sharedMaterial != null || collision.otherRigidbody == null ? collision.otherCollider.sharedMaterial : collision.otherRigidbody.sharedMaterial;
+				m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.PairBestMatch(material1, material2).RandomCollisionAudio());
 			}
 
 			// if from a valid source, apply damage/detachment

@@ -11,6 +11,14 @@ PrefabInstance:
       propertyPath: m_Size.y
       value: 0.35
       objectReference: {fileID: 0}
+    - target: {fileID: 1022365480725624697, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: bbb542596eba8a84e81e2a2259cdc30f, type: 2}
+    - target: {fileID: 1022365480725624697, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_Offset.x
+      value: 0.14
+      objectReference: {fileID: 0}
     - target: {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
       propertyPath: m_Name
       value: KeyElectric
@@ -63,6 +71,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6362473430975223422, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: bbb542596eba8a84e81e2a2259cdc30f, type: 2}
     - target: {fileID: 8930228299330285116, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
       propertyPath: m_Sprite
       value: 
