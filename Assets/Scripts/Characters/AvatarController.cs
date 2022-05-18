@@ -110,7 +110,6 @@ public class AvatarController : KinematicCharacter
 
 		m_focusIndicator.transform.SetParent(null);
 		m_focusPrompt.transform.SetParent(null);
-		m_focusPrompt.SetSprite(); // TODO: listen for control scheme changes if that is ever allowed
 		m_aimObject.transform.SetParent(null);
 
 		health = GetComponent<Health>();
