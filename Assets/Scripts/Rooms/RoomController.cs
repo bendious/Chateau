@@ -313,7 +313,7 @@ public class RoomController : MonoBehaviour
 					if (node.m_type == LayoutGenerator.Node.Type.TutorialInteract)
 					{
 						prefab = m_roomType.m_itemPrefabs.RandomWeighted();
-						Instantiate(prefab, InteriorPosition(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax, prefab), Quaternion.identity);
+						GameController.Instance.m_savableFactory.Instantiate(prefab, InteriorPosition(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax, prefab), Quaternion.identity);
 					}
 					break;
 

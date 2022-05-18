@@ -11,6 +11,8 @@ public interface ISavable
 
 	public static void Save(SaveWriter saveFile, ISavable savable)
 	{
+		Debug.Assert(savable.Type >= 0 && savable.Type < GameController.Instance.m_savableFactory.m_savables.Length);
+
 		saveFile.Write(savable.Type);
 		Component savableComp = savable.Component;
 
