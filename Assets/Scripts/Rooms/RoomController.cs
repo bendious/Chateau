@@ -397,6 +397,11 @@ public class RoomController : MonoBehaviour
 				{
 					bboxNew.Encapsulate(renderer.bounds);
 				}
+				RectTransform[] tfs = preventOverlapPrefab.GetComponentsInChildren<RectTransform>();
+				foreach (RectTransform tf in tfs)
+				{
+					bboxNew.Encapsulate(new Bounds(tf.rect.center, tf.rect.size));
+				}
 				bboxNew.Expand(new Vector3(-0.01f, -0.01f, float.MaxValue)); // NOTE the slight x/y contraction to avoid always collecting the floor when up against it
 			}
 
@@ -422,7 +427,17 @@ public class RoomController : MonoBehaviour
 				bool overlap = false;
 				foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
 				{
-					if (renderer.gameObject != m_backdrop && renderer.gameObject.layer != GameController.Instance.m_layerExterior && renderer.bounds.Intersects(bboxNew))
+					if (renderer.gameObject == m_backdrop || renderer.gameObject.layer == GameController.Instance.m_layerExterior)
+					{
+						continue;
+					}
+					if (renderer.bounds.Intersects(bboxNew))
+					{
+						overlap = true;
+						break;
+					}
+					RectTransform tf = renderer.GetComponent<RectTransform>();
+					if (tf != null && new Bounds(tf.rect.center, tf.rect.size).Intersects(bboxNew))
 					{
 						overlap = true;
 						break;

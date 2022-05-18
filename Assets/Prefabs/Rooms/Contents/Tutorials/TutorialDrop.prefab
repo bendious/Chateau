@@ -11,6 +11,14 @@ PrefabInstance:
       propertyPath: m_text
       value: Move down through brown platforms
       objectReference: {fileID: 0}
+    - target: {fileID: 5219552273189721976, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5219552273189721976, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 2.25
+      objectReference: {fileID: 0}
     - target: {fileID: 5221647274962502525, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
       propertyPath: m_Sprite
       value: 
