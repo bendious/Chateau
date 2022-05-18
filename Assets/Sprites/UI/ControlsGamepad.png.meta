@@ -193,8 +193,8 @@ TextureImporter:
       name: ControlsGamepad_4
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
+        x: 400
+        y: 100
         width: 100
         height: 100
       alignment: 7
@@ -214,7 +214,7 @@ TextureImporter:
       name: ControlsGamepad_5
       rect:
         serializedVersion: 2
-        x: 100
+        x: 0
         y: 0
         width: 100
         height: 100
@@ -235,7 +235,7 @@ TextureImporter:
       name: ControlsGamepad_6
       rect:
         serializedVersion: 2
-        x: 200
+        x: 100
         y: 0
         width: 100
         height: 100
@@ -248,6 +248,69 @@ TextureImporter:
       bones: []
       spriteID: 2dc7d334b7c5eff438906f8abfb96c11
       internalID: 1495225085
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ControlsGamepad_7
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 0
+        width: 100
+        height: 100
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3cc0ee7e23602a943b1ffa856a9148cd
+      internalID: -1797262244
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ControlsGamepad_8
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 0
+        width: 100
+        height: 100
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2d351e4583c45bb4e830459f857f1f21
+      internalID: 1999145420
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ControlsGamepad_9
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 0
+        width: 100
+        height: 100
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 322ef2044b278d0408896fa61f2cc16d
+      internalID: -1218049510
       vertices: []
       indices: 
       edges: []
@@ -266,9 +329,12 @@ TextureImporter:
       ControlsGamepad_3: 1392273826
       ControlsGamepad_5: -1569954397
       ControlsGamepad_2: 1708202416
+      ControlsGamepad_8: 1999145420
+      ControlsGamepad_7: -1797262244
       ControlsGamepad_6: 1495225085
       ControlsGamepad_4: -305999265
       ControlsGamepad_1: 494622720
+      ControlsGamepad_9: -1218049510
       ControlsGamepad_0: -1896411195
   spritePackingTag: 
   pSDRemoveMatte: 0

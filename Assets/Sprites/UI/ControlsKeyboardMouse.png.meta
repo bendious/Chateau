@@ -193,8 +193,8 @@ TextureImporter:
       name: ControlsKeyboardMouse_4
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
+        x: 400
+        y: 100
         width: 100
         height: 100
       alignment: 7
@@ -214,7 +214,7 @@ TextureImporter:
       name: ControlsKeyboardMouse_5
       rect:
         serializedVersion: 2
-        x: 100
+        x: 0
         y: 0
         width: 100
         height: 100
@@ -235,7 +235,7 @@ TextureImporter:
       name: ControlsKeyboardMouse_6
       rect:
         serializedVersion: 2
-        x: 200
+        x: 100
         y: 0
         width: 100
         height: 100
@@ -252,6 +252,69 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: ControlsKeyboardMouse_7
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 0
+        width: 100
+        height: 100
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6901a0015488e7f4db78fe71e2af9808
+      internalID: -1625730412
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ControlsKeyboardMouse_8
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 0
+        width: 100
+        height: 100
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e5d41c1b4047df54b868efd458393675
+      internalID: -796032488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ControlsKeyboardMouse_9
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 0
+        width: 100
+        height: 100
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a9f8c09db17ae4947878499bd1f42285
+      internalID: 501135511
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -264,11 +327,14 @@ TextureImporter:
     secondaryTextures: []
     nameFileIdTable:
       ControlsKeyboardMouse_6: -1693719892
+      ControlsKeyboardMouse_7: -1625730412
       ControlsKeyboardMouse_5: -775531053
       ControlsKeyboardMouse_4: 1000850045
       ControlsKeyboardMouse_1: 1736272635
+      ControlsKeyboardMouse_9: 501135511
       ControlsKeyboardMouse_3: -1685612523
       ControlsKeyboardMouse_0: 968249049
+      ControlsKeyboardMouse_8: -796032488
       ControlsKeyboardMouse_2: 866122314
   spritePackingTag: 
   pSDRemoveMatte: 0

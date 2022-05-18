@@ -39,5 +39,5 @@ MonoBehaviour:
     m_weight: 1
   m_decorationsMin: 0
   m_decorationsMax: 0
-  m_decorationHeightMin: 1
+  m_decorationHeightMin: 0
   m_decorationHeightMax: 1
