@@ -221,7 +221,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 		Quaternion holderRotation = m_holder.Component.transform.rotation;
 		m_body.velocity = holderRotation * Vector2.right * m_throwSpeed;
+		ArmController arm = (ArmController)m_holder; // NOTE that m_holder gets unset by Detach(), but PostThrow() needs to be called afterward
 		Detach(false);
+		arm.PostThrow();
 
 		EnableVFXAndDamage();
 

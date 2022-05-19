@@ -200,6 +200,7 @@ public sealed class AIThrow : AIState
 	private ItemController m_item;
 
 	private float m_startTime = 0.0f;
+	private float m_throwTime = 0.0f;
 
 
 	public AIThrow(EnemyController ai)
@@ -210,25 +211,32 @@ public sealed class AIThrow : AIState
 	public override void Enter()
 	{
 		m_item = m_ai.GetComponentInChildren<ItemController>();
+		m_startTime = Time.time;
 	}
 
 	public override AIState Update()
 	{
 		m_ai.move = Vector2.zero;
 
-		if (m_startTime == 0.0f)
+		// pre-throw
+		if (Time.time < m_startTime + m_waitSeconds)
 		{
-			// pre-throw
+			return this;
+		}
+
+		if (m_throwTime == 0.0f)
+		{
+			// aim
 			if (m_item.Speed < m_item.m_swingInfo.m_damageThresholdSpeed) // TODO: better aimReady flag?
 			{
 				m_item.Throw();
-				m_startTime = Time.time;
+				m_throwTime = Time.time;
 			}
 			return this;
 		}
 
 		// post-throw
-		if (Time.time < m_startTime + m_waitSeconds)
+		if (Time.time < m_throwTime + m_waitSeconds)
 		{
 			return this;
 		}

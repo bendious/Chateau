@@ -168,9 +168,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 			return;
 		}
 
-		float torqueArmLength = GetComponentsInChildren<SpriteRenderer>().Max(renderer => Mathf.Max(((Vector2)renderer.bounds.min - (Vector2)transform.position).magnitude, ((Vector2)renderer.bounds.max - (Vector2)transform.position).magnitude));
-		m_aimVelocityContinuing = (m_swingDirection ? m_swingInfoCur.m_angularNewtonmeters : -m_swingInfoCur.m_angularNewtonmeters) / m_massTotal / torqueArmLength;
-		m_radiusVelocityContinuing = m_swingInfoCur.m_linearNewtons / m_massTotal;
+		AddVelocity(m_swingDirection);
 		m_swingDirection = !m_swingDirection;
 
 		// play audio if not holding anything (any held item will play audio for itself)
@@ -220,11 +218,24 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		}
 	}
 
+	public void PostThrow()
+	{
+		AddVelocity(LeftFacing);
+	}
+
 
 	private float AimDegreesRaw(Vector2 rootPos, Vector2 rootOffset, Vector2 aimPosition)
 	{
 		Vector2 aimDiff = aimPosition - (rootPos + rootOffset + (Vector2)m_offset);
 		return Mathf.Rad2Deg * Mathf.Atan2(aimDiff.y, aimDiff.x);
+	}
+
+	private void AddVelocity(bool forward)
+	{
+		float torqueArmLength = GetComponentsInChildren<SpriteRenderer>().Max(renderer => Mathf.Max(((Vector2)renderer.bounds.min - (Vector2)transform.position).magnitude, ((Vector2)renderer.bounds.max - (Vector2)transform.position).magnitude));
+
+		m_aimVelocityContinuing += (forward ? m_swingInfoCur.m_angularNewtonmeters : -m_swingInfoCur.m_angularNewtonmeters) / m_massTotal / torqueArmLength;
+		m_radiusVelocityContinuing += (forward ? m_swingInfoCur.m_linearNewtons : -m_swingInfoCur.m_linearNewtons) / m_massTotal;
 	}
 
 	private float DampedSpring(float current, float target, float dampPct, bool isAngle, float stiffness, ref float velocityCurrent)
