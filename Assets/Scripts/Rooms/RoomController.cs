@@ -392,10 +392,10 @@ public class RoomController : MonoBehaviour
 			if (preventOverlapPrefab != null)
 			{
 				Renderer[] renderers = preventOverlapPrefab.GetComponentsInChildren<Renderer>();
-				bboxNew = renderers.First().bounds; // NOTE that we can't assume the local origin should always be included due to being given post-instantiation furniture objects
+				bboxNew = renderers.First().localBounds; // NOTE that we can't assume the local origin should always be included
 				foreach (Renderer renderer in renderers)
 				{
-					bboxNew.Encapsulate(renderer.bounds);
+					bboxNew.Encapsulate(renderer.localBounds);
 				}
 				RectTransform[] tfs = preventOverlapPrefab.GetComponentsInChildren<RectTransform>();
 				foreach (RectTransform tf in tfs)
