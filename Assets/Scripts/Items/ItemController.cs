@@ -29,6 +29,10 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public Collider2D[] m_nondamageColliders;
 
 
+	[SerializeField]
+	private GameObject m_drawPrefab;
+
+
 	public float Speed => m_holder == null ? m_body.velocity.magnitude : m_holder.Speed;
 
 	public Vector3 TrailPosition => (m_trail == null ? transform : m_trail.transform).position;
@@ -45,6 +49,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	private IHolder m_holder;
 	public KinematicCharacter Cause { get; private set; }
+
+	private GameObject m_drawObjectCurrent;
 
 
 	[SerializeField]
@@ -118,6 +124,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		IAttachable.AttachInternalShared(this, holder, m_body);
 
 		m_holder = holder;
+
+		if (m_drawObjectCurrent != null)
+		{
+			// stop drawing to prevent lines getting disabled "within" backpacks
+			m_drawObjectCurrent.transform.SetParent(null);
+			m_drawObjectCurrent = null;
+		}
 
 		m_body.useFullKinematicContacts = true;
 
@@ -209,6 +222,22 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 				childObj.SetActive(!childObj.activeSelf);
 				return true;
 			}
+		}
+
+		// TODO: limit "ink" to prevent too many objects?
+		if (m_drawPrefab != null && isActiveAndEnabled)
+		{
+			if (m_drawObjectCurrent == null || m_drawObjectCurrent.transform.parent != transform)
+			{
+				m_drawObjectCurrent = Instantiate(m_drawPrefab, transform);
+				m_drawObjectCurrent.transform.localPosition = new Vector3(m_renderer.localBounds.max.x, 0.0f, 0.0f);
+			}
+			else
+			{
+				m_drawObjectCurrent.transform.SetParent(null);
+				m_drawObjectCurrent = null;
+			}
+			return true;
 		}
 
 		return false;

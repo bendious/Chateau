@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &4276059678958141286
+--- !u!1001 &5732850542961788472
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -52,16 +52,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2239154967666002716, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_Mass
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2239154967666002716, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_Material
       value: 
-      objectReference: {fileID: 6200000, guid: bbb542596eba8a84e81e2a2259cdc30f, type: 2}
+      objectReference: {fileID: 6200000, guid: 448cd1b924f918643b17c77e4777d707, type: 2}
     - target: {fileID: 4373438507227804510, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_Size.x
-      value: 0.6
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 4373438507227804510, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_Size.y
@@ -70,26 +66,34 @@ PrefabInstance:
     - target: {fileID: 4373438507227804510, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: ef345f1e731bb694397ed3995c412896, type: 3}
+      objectReference: {fileID: 21300000, guid: f797a9b6275f15f4190401f2a51a5afd, type: 3}
     - target: {fileID: 4373438507227804510, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_WasSpriteAssigned
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_Size.x
-      value: 0.2
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_Size.y
-      value: 0.1
+      value: 0.075
       objectReference: {fileID: 0}
     - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_Material
       value: 
-      objectReference: {fileID: 6200000, guid: bbb542596eba8a84e81e2a2259cdc30f, type: 2}
+      objectReference: {fileID: 6200000, guid: 448cd1b924f918643b17c77e4777d707, type: 2}
+    - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_Offset.x
+      value: 0.115
+      objectReference: {fileID: 0}
+    - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.x
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_SpriteTilingProperty.newSize.x
-      value: 0.6
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_SpriteTilingProperty.newSize.y
@@ -97,56 +101,30 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_SpriteTilingProperty.oldSize.x
-      value: 0.6
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 5291504749004106267, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_SpriteTilingProperty.oldSize.y
-      value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 6012924778908530461, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_colorMax
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6012924778908530461, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_colorMin
-      value: 0.25
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 8260530995564227012, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_Name
-      value: Pan
+      value: Marker
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_tooltip
-      value: "Frying Pan\nGotta get me one of these...\n "
+      value: 'Marker
+
+
+        <sprite index=5>: start/stop drawing.'
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-      propertyPath: m_throwSpeed
-      value: 15
-      objectReference: {fileID: 0}
+      propertyPath: m_drawPrefab
+      value: 
+      objectReference: {fileID: 6091485962487532843, guid: 53ebb91de7a283f4ea92243a92ffd20d, type: 3}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_swingInfo.m_damage
-      value: 0.75
+      value: 0.25
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
---- !u!1 &5329113729594168994 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8260530995564227012, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
-  m_PrefabInstance: {fileID: 4276059678958141286}
-  m_PrefabAsset: {fileID: 0}
---- !u!58 &9051982278185883452
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5329113729594168994}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 6200000, guid: bbb542596eba8a84e81e2a2259cdc30f, type: 2}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0.31, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.2
