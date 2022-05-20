@@ -10,6 +10,9 @@ public class Boss : MonoBehaviour
 	public BossRoom m_room;
 
 
+	[SerializeField] private float m_duplicateLadderPct = 0.5f;
+
+
 	private Vector3 m_startPos;
 
 	private bool m_started = false;
@@ -67,6 +70,10 @@ public class Boss : MonoBehaviour
 		foreach (GameObject doorway in roomComp.DoorwaysUpwardOpen)
 		{
 			roomComp.SpawnLadder(doorway, m_room.m_spawnedLadderPrefabs.RandomWeighted(), true);
+			if (Random.value > m_duplicateLadderPct)
+			{
+				break;
+			}
 		}
 
 		GameController.Instance.OnVictory();

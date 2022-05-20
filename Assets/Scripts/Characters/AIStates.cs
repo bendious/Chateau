@@ -197,8 +197,6 @@ public sealed class AIThrow : AIState
 	public float m_waitSeconds = 0.5f;
 
 
-	private ItemController m_item;
-
 	private float m_startTime = 0.0f;
 	private float m_throwTime = 0.0f;
 
@@ -210,7 +208,6 @@ public sealed class AIThrow : AIState
 
 	public override void Enter()
 	{
-		m_item = m_ai.GetComponentInChildren<ItemController>();
 		m_startTime = Time.time;
 	}
 
@@ -227,9 +224,14 @@ public sealed class AIThrow : AIState
 		if (m_throwTime == 0.0f)
 		{
 			// aim
-			if (m_item.Speed < m_item.m_swingInfo.m_damageThresholdSpeed) // TODO: better aimReady flag?
+			ItemController item = m_ai.GetComponentInChildren<ItemController>(); // NOTE that we can't cache this since it's possible for it to be snatched away between frames
+			if (item == null)
 			{
-				m_item.Throw();
+				m_throwTime = Time.time; // NOTE that we could return null in order to immediately cancel, but we instead keep going, as if confused, to reward players for snatching AI items
+			}
+			else if (item.Speed < item.m_swingInfo.m_damageThresholdSpeed) // TODO: better aimReady flag?
+			{
+				item.Throw();
 				m_throwTime = Time.time;
 			}
 			return this;

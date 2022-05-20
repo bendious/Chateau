@@ -243,6 +243,7 @@ public class LockController : MonoBehaviour, IUnlockable
 			{
 				// TODO: visual indication of failure?
 				audio.clip = m_failureSFX.RandomWeighted();
+				audio.time = 0.0f;
 				audio.Play();
 
 				foreach (IKey entry in m_keys)

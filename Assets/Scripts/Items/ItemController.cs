@@ -251,7 +251,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public void Throw()
 	{
 		// temporarily ignore collisions w/ thrower
-		EnableCollision.TemporarilyDisableCollision(Cause.GetComponents<Collider2D>(), m_colliders, 0.1f);
+		EnableCollision.TemporarilyDisableCollision(Cause.GetComponentsInChildren<Collider2D>(), m_colliders, 0.1f);
 
 		Quaternion holderRotation = m_holder.Component.transform.rotation;
 		m_body.velocity = holderRotation * Vector2.right * m_throwSpeed;

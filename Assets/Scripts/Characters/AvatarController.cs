@@ -641,6 +641,10 @@ public class AvatarController : KinematicCharacter
 	// TODO: replace w/ more generic handling
 	public void OnEnemyCollision(EnemyController enemy)
 	{
+		// temporarily disable collision to prevent getting stuck
+		// TODO: disable w/ all enemies rather than just this one? ensure consistent re-enable time?
+		EnableCollision.TemporarilyDisableCollision(enemy.GetComponentsInChildren<Collider2D>(), GetComponentsInChildren<Collider2D>());
+
 		if (!enemy.CanDamage(gameObject) || enemy.m_contactDamage.FloatEqual(0.0f))
 		{
 			return;
@@ -654,10 +658,6 @@ public class AvatarController : KinematicCharacter
 
 		controlEnabled = false; // re-enabled via EnablePlayerControl() animation trigger
 		Simulation.Schedule<EnableControl>(1.0f).m_avatar = this; // NOTE that this is only a timer-based fallback
-
-		// temporarily disable collision to prevent getting stuck
-		// TODO: disable w/ all enemies rather than just this one?
-		EnableCollision.TemporarilyDisableCollision(enemy.GetComponents<Collider2D>(), new Collider2D[] { m_collider });
 	}
 
 	public void Respawn(bool clearInventory, bool resetPosition)

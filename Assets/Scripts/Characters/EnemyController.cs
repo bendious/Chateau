@@ -70,6 +70,15 @@ public class EnemyController : KinematicCharacter
 		}
 	}
 
+	private void OnCollisionStay2D(Collision2D collision)
+	{
+		var avatar = collision.collider.GetComponent<AvatarController>(); // NOTE that we use the collider object rather than collision.gameObject since w/ characters & arms, they are not always the same
+		if (avatar != null)
+		{
+			avatar.OnEnemyCollision(this);
+		}
+	}
+
 	protected override void Update()
 	{
 		if (ConsoleCommands.PassiveAI)

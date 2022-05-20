@@ -274,6 +274,7 @@ public abstract class KinematicObject : MonoBehaviour
 		if (yMovement || distance >= minMoveDistance) // NOTE that even if we aren't moving vertically, we may still need to push out of the ground
 		{
 			//check if we hit anything in current direction of travel
+			// TODO: prevent getting stuck in floors/ceilings if starting slightly overlapped
 			int count = m_collider.Cast(move, contactFilter, hitBuffer, distance + shellRadius, true); // NOTE that we ignore child colliders such as arms
 			for (int i = 0; i < count; i++)
 			{
