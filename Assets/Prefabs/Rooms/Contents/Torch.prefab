@@ -70,7 +70,7 @@ VFXRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 44612063
+  m_SortingLayerID: -2061917687
   m_SortingLayer: -1
   m_SortingOrder: -1
 --- !u!2083052967 &3692185057512089787
@@ -238,7 +238,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 44612063
+  m_SortingLayerID: -2061917687
   m_SortingLayer: -1
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 5df2abe84b321c84196051ac3aae33cb, type: 3}
@@ -272,7 +272,7 @@ MonoBehaviour:
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeIntensityEnabled: 0
-  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f528780
+  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f52878009a21985
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -367,6 +367,7 @@ MonoBehaviour:
     m_PostInfinity: 0
     m_RotationOrder: 4
   m_fullCurveFlicker: 0
+  m_randomSFXStartPosition: 0
   m_nonFlickerInfo:
     m_secondsMin: 0.1
     m_secondsMax: 0.5
@@ -541,6 +542,6 @@ VFXRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 44612063
+  m_SortingLayerID: -2061917687
   m_SortingLayer: -1
   m_SortingOrder: 0

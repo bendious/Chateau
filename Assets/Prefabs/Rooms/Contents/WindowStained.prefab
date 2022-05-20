@@ -234,7 +234,7 @@ MonoBehaviour:
   m_Intensity: 2
   m_LightVolumeIntensity: 1
   m_LightVolumeIntensityEnabled: 0
-  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f528780
+  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f52878009a21985
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -366,7 +366,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 44612063
-  m_SortingLayer: -1
+  m_SortingLayer: -2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 04cf871265f017f4e93e2368925ec099, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -416,6 +416,7 @@ MonoBehaviour:
     m_PostInfinity: 0
     m_RotationOrder: 4
   m_fullCurveFlicker: 0
+  m_randomSFXStartPosition: 0
   m_nonFlickerInfo:
     m_secondsMin: 10
     m_secondsMax: 20

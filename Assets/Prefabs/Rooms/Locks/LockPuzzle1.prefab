@@ -385,8 +385,8 @@ SpriteMask:
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: d3c4fe68be34bd5499ff46dd4c9d0076, type: 3}
   m_MaskAlphaCutoff: 0.2
-  m_FrontSortingLayerID: 44612063
-  m_BackSortingLayerID: 44612063
+  m_FrontSortingLayerID: -2061917687
+  m_BackSortingLayerID: -2061917687
   m_FrontSortingLayer: -1
   m_BackSortingLayer: -1
   m_FrontSortingOrder: -10
@@ -441,8 +441,8 @@ SpriteMask:
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: fff673dbc94b2a643aa2b4b24db21689, type: 3}
   m_MaskAlphaCutoff: 0.2
-  m_FrontSortingLayerID: 44612063
-  m_BackSortingLayerID: 44612063
+  m_FrontSortingLayerID: -2061917687
+  m_BackSortingLayerID: -2061917687
   m_FrontSortingLayer: -1
   m_BackSortingLayer: -1
   m_FrontSortingOrder: -20
@@ -497,8 +497,8 @@ SpriteMask:
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 03a152da862ea9a488edb01faf50db88, type: 3}
   m_MaskAlphaCutoff: 0.2
-  m_FrontSortingLayerID: 44612063
-  m_BackSortingLayerID: 44612063
+  m_FrontSortingLayerID: -2061917687
+  m_BackSortingLayerID: -2061917687
   m_FrontSortingLayer: -1
   m_BackSortingLayer: -1
   m_FrontSortingOrder: -30
@@ -553,8 +553,8 @@ SpriteMask:
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: b4443a71b05207144aac1f769d9c6577, type: 3}
   m_MaskAlphaCutoff: 0.2
-  m_FrontSortingLayerID: 44612063
-  m_BackSortingLayerID: 44612063
+  m_FrontSortingLayerID: -2061917687
+  m_BackSortingLayerID: -2061917687
   m_FrontSortingLayer: -1
   m_BackSortingLayer: -1
   m_FrontSortingOrder: 0

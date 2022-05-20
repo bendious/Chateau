@@ -59,6 +59,14 @@ PrefabInstance:
       propertyPath: m_PropertySheet.m_NamedObject.m_Array.Array.data[0].m_Overridden
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2907253195876467281, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_Intensity
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2907253195876467281, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_PointLightOuterRadius
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 4373438507227804510, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_Size.x
       value: 0.4

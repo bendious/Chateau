@@ -43,19 +43,22 @@ TagManager:
   - name: Background
     uniqueID: 500919307
     locked: 0
-  - name: Backdrops
+  - name: WallsBack
     uniqueID: 2920169173
     locked: 0
   - name: Architecture
     uniqueID: 44612063
     locked: 0
+  - name: Furniture
+    uniqueID: 2233049609
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: FG
+  - name: Locks
     uniqueID: 2156352063
     locked: 1
-  - name: FGWalls
+  - name: WallsFront
     uniqueID: 2908569037
     locked: 0
   - name: UI

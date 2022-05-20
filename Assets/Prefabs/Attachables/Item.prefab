@@ -107,7 +107,7 @@ TrailRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_Time: 0.1
   m_Parameters:
     serializedVersion: 3
@@ -191,3 +191,6 @@ MonoBehaviour:
   m_healAmount: 0
   m_detachOnDamage: 0
   m_nondamageColliders: []
+  m_drawPrefab: {fileID: 0}
+  m_savableType: -1
+  m_isReferenceKey: 0
