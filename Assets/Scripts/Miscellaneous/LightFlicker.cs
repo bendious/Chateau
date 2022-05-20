@@ -19,6 +19,7 @@ public class LightFlicker : MonoBehaviour
 
 	public AnimationCurve m_intensityCurve = new() { keys = new Keyframe[] { new(0.0f, 0.5f, 0.0f, 0.0f), new(1.0f, 1.0f, 0.0f, 0.0f) }, preWrapMode = WrapMode.PingPong, postWrapMode = WrapMode.PingPong };
 	public bool m_fullCurveFlicker = false;
+	[SerializeField] private bool m_randomSFXStartPosition = false;
 
 	public PeriodInfo m_nonFlickerInfo = new()
 	{
@@ -138,15 +139,19 @@ public class LightFlicker : MonoBehaviour
 					AudioSource source = GetComponentInParent<AudioSource>();
 					if (!source.isPlaying)
 					{
-						AudioClip clip = m_flickerSfx.RandomWeighted();
+						source.clip = m_flickerSfx.RandomWeighted();
 						if (m_flickerSfxDelayMax > 0.0f)
 						{
-							source.clip = clip;
 							source.PlayScheduled(AudioSettings.dspTime + Random.Range(0.0f, m_flickerSfxDelayMax)); // TODO: prevent getting pre-empted by something else playing on this source?
 						}
 						else
 						{
-							source.PlayOneShot(clip);
+							source.Stop();
+							if (m_randomSFXStartPosition)
+							{
+								source.time = Random.Range(0.0f, source.clip.length);
+							}
+							source.Play();
 						}
 					}
 				}

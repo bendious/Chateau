@@ -79,6 +79,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: DoorElectricity
       objectReference: {fileID: 0}
+    - target: {fileID: 6978962022123711710, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
+      propertyPath: panLevelCustomCurve.m_Curve.Array.data[0].value
+      value: 0.75
+      objectReference: {fileID: 0}
     - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
       propertyPath: m_destroyOnUnlock
       value: 0
@@ -394,6 +398,7 @@ MonoBehaviour:
     m_PostInfinity: 0
     m_RotationOrder: 4
   m_fullCurveFlicker: 0
+  m_randomSFXStartPosition: 1
   m_nonFlickerInfo:
     m_secondsMin: 0.5
     m_secondsMax: 1
@@ -406,13 +411,7 @@ MonoBehaviour:
     m_periodSecondsMax: 0.5
   m_lightSprites: []
   m_flickerSfx:
-  - m_object: {fileID: 8300000, guid: 26ecdb4afea26944cba84ddea33e67be, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: edbeee130f34e8949971f352bece4b19, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: 822d74e25a0bab74a80c1c3aa7d3bcc4, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: 4cbfa539f60bc0d4daec200437fa1464, type: 3}
+  - m_object: {fileID: 8300000, guid: 59db993da0fdb1442b6f58e7f5f9d9e1, type: 3}
     m_weight: 1
   m_flickerSfxDelayMax: 0
 --- !u!114 &2261526499625535253

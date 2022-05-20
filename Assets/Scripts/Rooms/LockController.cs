@@ -308,6 +308,7 @@ public class LockController : MonoBehaviour, IUnlockable
 
 		// TODO: unlock animation/VFX/etc.
 		audio.clip = m_unlockSFX.RandomWeighted();
+		audio.time = 0.0f;
 		audio.Play();
 
 		return true;

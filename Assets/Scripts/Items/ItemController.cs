@@ -190,6 +190,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			arm.Swing(isRelease);
 		}
 
+		if (isRelease)
+		{
+			return;
+		}
+
 		EnableVFXAndDamage();
 
 		PlayMovementAudio();

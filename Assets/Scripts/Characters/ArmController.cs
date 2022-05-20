@@ -235,7 +235,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		float torqueArmLength = GetComponentsInChildren<SpriteRenderer>().Max(renderer => Mathf.Max(((Vector2)renderer.bounds.min - (Vector2)transform.position).magnitude, ((Vector2)renderer.bounds.max - (Vector2)transform.position).magnitude));
 
 		m_aimVelocityContinuing += (forward ? m_swingInfoCur.m_angularNewtonmeters : -m_swingInfoCur.m_angularNewtonmeters) / m_massTotal / torqueArmLength;
-		m_radiusVelocityContinuing += (forward ? m_swingInfoCur.m_linearNewtons : -m_swingInfoCur.m_linearNewtons) / m_massTotal;
+		m_radiusVelocityContinuing += m_swingInfoCur.m_linearNewtons / m_massTotal;
 	}
 
 	private float DampedSpring(float current, float target, float dampPct, bool isAngle, float stiffness, ref float velocityCurrent)
