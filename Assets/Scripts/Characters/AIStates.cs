@@ -405,9 +405,9 @@ public sealed class AITeleport : AIState
 	public float m_delaySeconds = 0.5f;
 
 
-	private float m_preDelayTime;
-	private float m_midDelayTime;
-	private float m_postDelayTime;
+	private readonly float m_preDelayTime;
+	private readonly float m_midDelayTime;
+	private readonly float m_postDelayTime;
 
 	private bool m_preVFXSpawned;
 	private bool m_teleported;

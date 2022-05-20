@@ -43,6 +43,8 @@ public class GameController : MonoBehaviour
 	public SavableFactory m_savableFactory;
 
 	[SerializeField]
+	private WeightedObject<AudioClip>[] m_timerWarnSFX;
+	[SerializeField]
 	private WeightedObject<AudioClip>[] m_ambientMusic;
 	[SerializeField]
 	private float m_musicDelayMin = 30.0f;
@@ -258,7 +260,7 @@ public class GameController : MonoBehaviour
 
 	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos, Vector2 offsetMag)
 	{
-		return m_startRoom.ChildPositionPath(startPos, targetPos, offsetMag, true);
+		return m_startRoom.ChildPositionPath(startPos, targetPos, offsetMag, RoomController.ObstructionCheck.Full);
 	}
 
 	public void TogglePause()
@@ -628,6 +630,8 @@ public class GameController : MonoBehaviour
 
 	private IEnumerator TimerCoroutine()
 	{
+		AudioSource source = GetComponent<AudioSource>();
+
 		while (m_nextWaveTime >= 0.0f)
 		{
 			yield return new WaitForSeconds(1.0f); // NOTE that we currently don't care whether the UI timer is precise within partial seconds
@@ -637,8 +641,7 @@ public class GameController : MonoBehaviour
 
 			if (secondsRemaining >= 1.0f && secondsRemaining <= m_waveWeight + 1.0f)
 			{
-				AudioSource source = GetComponent<AudioSource>();
-				source.PlayOneShot(source.clip);
+				source.PlayOneShot(m_timerWarnSFX.RandomWeighted());
 			}
 		}
 	}

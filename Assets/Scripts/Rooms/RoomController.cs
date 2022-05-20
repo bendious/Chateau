@@ -42,6 +42,14 @@ public class RoomController : MonoBehaviour
 	public static readonly Color m_oneWayPlatformColor = new(0.3f, 0.2f, 0.1f);
 
 
+	public enum ObstructionCheck
+	{
+		None,
+		Directional,
+		Full
+	};
+
+
 	public GameObject[] DoorwaysUpwardOpen => m_doorwayInfos.Where(info => DoorwayIsOpen(info) && DoorwayDirection(info) == Vector2.up).Select(info => info.m_object).ToArray();
 
 	public Bounds BoundsInterior { get {
@@ -50,7 +58,7 @@ public class RoomController : MonoBehaviour
 		return boundsInterior;
 	} }
 
-	public Vector2 ParentDoorwayPosition => RoomConnection(m_layoutNodes.FirstOrDefault(node => node.TightCoupleParent != null && node.TightCoupleParent.m_room != null && node.TightCoupleParent.m_room != this).TightCoupleParent.m_room, false)[1];
+	public Vector2 ParentDoorwayPosition => RoomConnection(m_layoutNodes.FirstOrDefault(node => node.TightCoupleParent != null && node.TightCoupleParent.m_room != null && node.TightCoupleParent.m_room != this).TightCoupleParent.m_room, ObstructionCheck.None)[1];
 
 	public Transform[] BackdropsRecursive => m_doorwayInfos.Where(info => info.ChildRoom != null).SelectMany(info => info.ChildRoom.BackdropsRecursive).Concat(new Transform[] { m_backdrop.transform }).ToArray();
 
@@ -226,10 +234,10 @@ public class RoomController : MonoBehaviour
 						// maybe add one-way lock
 						int siblingDepthComparison = sibling.m_layoutNodes.Max(node => node.Depth).CompareTo(m_layoutNodes.Max(node => node.Depth));
 						bool noLadder = siblingDepthComparison < 0 ? direction.y < 0.0f : direction.y > 0.0f;
-						if (!noLadder && GameController.Instance.RoomFromPosition(Vector2.zero).ChildRoomPath(transform.position, sibling.transform.position, true) == null)
+						if (GameController.Instance.RoomFromPosition(Vector2.zero).ChildRoomPath(direction.y > 0.0f ? transform.position : sibling.transform.position, direction.y > 0.0f ? sibling.transform.position : transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.Full) == null)
 						{
 							// add one-way lock
-							RoomController deeperRoom = siblingDepthComparison < 0 ? this : sibling;
+							RoomController deeperRoom = noLadder ? (direction.y > 0.0f ? this : sibling) : siblingDepthComparison < 0 ? this : sibling;
 							noLadder = (siblingDepthComparison < 0 ? sibling : this).SpawnGate(siblingDepthComparison < 0 ? reverseInfo : doorwayInfo, true, Vector2.zero, 1, siblingDepthComparison < 0 ? doorwayInfo : reverseInfo); // NOTE the exclusion of directional gates since some of them aren't physical blockages
 							doorwayInfo.m_blocker.GetComponent<IUnlockable>().SpawnKeys(deeperRoom, new RoomController[] { deeperRoom });
 						}
@@ -482,7 +490,7 @@ public class RoomController : MonoBehaviour
 		return m_spawnPoints[Random.Range(0, m_spawnPoints.Length)].transform.position;
 	}
 
-	public List<RoomController> ChildRoomPath(Vector2 startPosition, Vector2 endPosition, bool unobstructed)
+	public List<RoomController> ChildRoomPath(Vector2 startPosition, Vector2 endPosition, ObstructionCheck obstructionChecking)
 	{
 		// TODO: efficiency? handle multiple possible paths?
 		// find root-->start and root-->end paths
@@ -512,12 +520,12 @@ public class RoomController : MonoBehaviour
 		startPath.Add(lastSharedRoom);
 		startPath.AddRange(endPath);
 
-		if (unobstructed)
+		if (obstructionChecking != ObstructionCheck.None)
 		{
 			// check for obstructions
 			for (int i = 0; i < startPath.Count - 1; ++i)
 			{
-				if (startPath[i].RoomConnection(startPath[i + 1], unobstructed) == null)
+				if (startPath[i].RoomConnection(startPath[i + 1], obstructionChecking) == null)
 				{
 					return null;
 				}
@@ -527,9 +535,9 @@ public class RoomController : MonoBehaviour
 		return startPath;
 	}
 
-	public List<Vector2> ChildPositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag, bool unobstructed)
+	public List<Vector2> ChildPositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag, ObstructionCheck obstructionChecking)
 	{
-		List<RoomController> roomPath = ChildRoomPath(startPosition, endPositionPreoffset, unobstructed);
+		List<RoomController> roomPath = ChildRoomPath(startPosition, endPositionPreoffset, obstructionChecking);
 		if (roomPath == null)
 		{
 			return null;
@@ -539,7 +547,7 @@ public class RoomController : MonoBehaviour
 		List<Vector2> waypointPath = new();
 		for (int i = 0, n = roomPath.Count - 1; i < n; ++i)
 		{
-			Vector2[] connectionPoints = roomPath[i].RoomConnection(roomPath[i + 1], unobstructed);
+			Vector2[] connectionPoints = roomPath[i].RoomConnection(roomPath[i + 1], obstructionChecking);
 			Assert.IsTrue(connectionPoints.Length > 0 && !connectionPoints.Contains(Vector2.zero));
 			waypointPath.AddRange(connectionPoints);
 		}
@@ -913,9 +921,10 @@ public class RoomController : MonoBehaviour
 		return null;
 	}
 
-	private Vector2[] RoomConnection(RoomController to, bool unobstructed)
+	private Vector2[] RoomConnection(RoomController to, ObstructionCheck obstructionChecking)
 	{
 		// TODO: efficiency?
+		bool checkObstructions = obstructionChecking == ObstructionCheck.Full || (obstructionChecking == ObstructionCheck.Directional && !m_layoutNodes.Any(fromNode => System.Array.Exists(to.m_layoutNodes, toNode => fromNode.HasDescendant(toNode)))); // TODO: also check directional sibling paths?
 		Vector2[] connectionPoints = new Vector2[2];
 		int outputIdx = 0;
 		foreach (DoorwayInfo[] infoArray in new DoorwayInfo[][] { m_doorwayInfos, to.m_doorwayInfos })
@@ -928,7 +937,7 @@ public class RoomController : MonoBehaviour
 					continue;
 				}
 
-				if (unobstructed)
+				if (checkObstructions)
 				{
 					if (info.m_blocker != null)
 					{
