@@ -655,7 +655,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_maxHP: 5
-  m_damageColorScalar: {x: 1, y: 1, z: 1, w: 1}
   m_healthUIParent: {fileID: 6654259644173391003}
   m_healthSprite: {fileID: 21300000, guid: 66ce8ac3d26a2c0468edc3a8d88698e0, type: 3}
   m_healthMissingSprite: {fileID: 21300000, guid: 2581a037f6f73f84b98c2af8eaaf9d1d, type: 3}
@@ -1616,7 +1615,7 @@ MonoBehaviour:
     bottomLeft: {r: 1, g: 1, b: 1, a: 1}
     bottomRight: {r: 1, g: 1, b: 1, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
-  m_spriteAsset: {fileID: 0}
+  m_spriteAsset: {fileID: 11400000, guid: 60a5cbf6d7ef4ae499306db92d6862e8, type: 2}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
   m_TextStyleHashCode: -1183493901
@@ -1751,7 +1750,7 @@ MonoBehaviour:
     bottomLeft: {r: 1, g: 1, b: 1, a: 1}
     bottomRight: {r: 1, g: 1, b: 1, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
-  m_spriteAsset: {fileID: 0}
+  m_spriteAsset: {fileID: 11400000, guid: 60a5cbf6d7ef4ae499306db92d6862e8, type: 2}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
   m_TextStyleHashCode: -1183493901

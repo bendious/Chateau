@@ -102,7 +102,7 @@ public class RoomController : MonoBehaviour
 	private /*readonly*/ RoomType m_roomType = null;
 
 
-	public static T RandomWeightedByKeyCount<T>(WeightedObject<T>[] candidates, System.Func<T, int> candidateToKeyDiff, float scalarPerDiff = 5.0f)
+	public static T RandomWeightedByKeyCount<T>(WeightedObject<T>[] candidates, System.Func<T, int> candidateToKeyDiff, float scalarPerDiff = 0.5f)
 	{
 		// NOTE the copy to avoid altering existing weights
 		return candidates.Select(candidate =>
@@ -789,7 +789,8 @@ public class RoomController : MonoBehaviour
 		bool noLadder = false;
 		if (blockerNode != null)
 		{
-			noLadder = SpawnGate(doorwayInfo, isLock, replaceDirection, blockerNode.DirectParents.Count(node => node.m_type == LayoutGenerator.Node.Type.Key && node.m_room != this), reverseDoorwayInfo);
+			bool excludeSelf = Random.value < 0.5f; // TEMP?
+			noLadder = SpawnGate(doorwayInfo, isLock, replaceDirection, blockerNode.DirectParents.Count(node => node.m_type == LayoutGenerator.Node.Type.Key && (!excludeSelf || node.m_room != this)), reverseDoorwayInfo);
 		}
 
 		childRoom.SetNodes(childNodes);

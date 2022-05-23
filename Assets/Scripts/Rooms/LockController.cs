@@ -100,7 +100,7 @@ public class LockController : MonoBehaviour, IUnlockable
 				{
 					int startIdx = Mathf.RoundToInt(keyIdx * digitsPerKey);
 					int endIdx = Mathf.RoundToInt((keyIdx + 1) * digitsPerKey);
-					key.Component.GetComponentInChildren<TMP_Text>().text = (keyIdx == 0 ? "" : "*") + m_combination[startIdx .. endIdx] + (keyIdx == keyOrLockRooms.Length - 1 ? "" : "*");
+					key.Component.GetComponentInChildren<TMP_Text>().text = (keyIdx == 0 ? "" : "<sprite index=0>") + m_combination[startIdx .. endIdx] + (keyIdx == keyOrLockRooms.Length - 1 ? "" : "<sprite index=0>"); // TODO: embed w/i actual text
 					++keyIdx;
 				}
 			}
