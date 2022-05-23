@@ -15,8 +15,6 @@ public class Health : MonoBehaviour
 	/// </summary>
 	public float m_maxHP = 1.0f;
 
-	public Vector4 m_damageColorScalar = Vector4.one;
-
 	public GameObject m_healthUIParent;
 	public Sprite m_healthSprite;
 	public Sprite m_healthMissingSprite;
@@ -28,6 +26,8 @@ public class Health : MonoBehaviour
 	public const float m_invincibilityTimeDefault = 1.0f;
 	public float m_invincibilityTime = m_invincibilityTimeDefault; // TODO: vary by animation played?
 	public bool m_invincible;
+
+	[SerializeField] private Gradient m_gradient;
 
 
 	/// <summary>
@@ -71,8 +71,6 @@ public class Health : MonoBehaviour
 
 		// damage
 		IncrementInternal(-1.0f * amount);
-		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-		renderer.color *= m_damageColorScalar.Pow(amount);
 		AudioSource audioSource = GetComponent<AudioSource>();
 		if (m_damageAudio != null)
 		{
@@ -156,6 +154,14 @@ public class Health : MonoBehaviour
 	{
 		float hpPrev = m_currentHP;
 		m_currentHP = Mathf.Clamp(m_currentHP + diff, 0.0f, m_maxHP);
+
+		// NOTE that color is adjusted here rather than in SyncUI() to avoid stomping boss start color
+		Color color = m_gradient.Evaluate(1.0f - m_currentHP / m_maxHP);
+		foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>().Where(renderer => renderer.GetComponent<IAttachable>() == null))
+		{
+			renderer.color = color;
+		}
+
 		return !Mathf.Approximately(m_currentHP, hpPrev);
 	}
 

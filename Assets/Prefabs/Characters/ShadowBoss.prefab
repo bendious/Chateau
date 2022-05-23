@@ -439,8 +439,88 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.ctime1
+      value: 16384
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.ctime2
+      value: 32768
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.ctime3
+      value: 49151
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.ctime4
+      value: 65535
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.key0.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.key0.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.key0.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.key1.b
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.key1.g
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.key1.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.key2.b
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.key2.g
+      value: 0.85
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.key2.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.key3.b
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.key3.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.key3.r
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.key4.b
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.key4.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.key4.r
+      value: 0.45
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_invincibilityTime
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradient.m_NumColorKeys
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: maxSpeed
@@ -567,6 +647,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_room: {fileID: 0}
+  m_duplicateLadderPct: 0.5
 --- !u!1001 &8203299277311398250
 PrefabInstance:
   m_ObjectHideFlags: 0
