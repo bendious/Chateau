@@ -17,9 +17,6 @@ public class RoomController : MonoBehaviour
 	};
 
 
-	[SerializeField]
-	private GameObject[] m_doorInteractPrefabs;
-
 	public WeightedObject<GameObject>[] m_npcPrefabs;
 
 	public WeightedObject<GameObject>[] m_doorPrefabs;
@@ -37,6 +34,8 @@ public class RoomController : MonoBehaviour
 
 	public WeightedObject<GameObject>[] m_ladderRungPrefabs;
 	public float m_ladderRungSkewMax = 0.2f;
+
+	[SerializeField] private float m_cutbackSecretPct = 0.5f;
 
 
 	public static readonly Color m_oneWayPlatformColor = new(0.3f, 0.2f, 0.1f);
@@ -234,12 +233,16 @@ public class RoomController : MonoBehaviour
 						// maybe add one-way lock
 						int siblingDepthComparison = sibling.m_layoutNodes.Max(node => node.Depth).CompareTo(m_layoutNodes.Max(node => node.Depth));
 						bool noLadder = siblingDepthComparison < 0 ? direction.y < 0.0f : direction.y > 0.0f;
-						if (GameController.Instance.RoomFromPosition(Vector2.zero).ChildRoomPath(direction.y > 0.0f ? transform.position : sibling.transform.position, direction.y > 0.0f ? sibling.transform.position : transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.Full) == null)
+						bool cutbackIsLocked = GameController.Instance.RoomFromPosition(Vector2.zero).ChildRoomPath(direction.y > 0.0f ? transform.position : sibling.transform.position, direction.y > 0.0f ? sibling.transform.position : transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.Full) == null;
+						if (cutbackIsLocked || Random.value <= m_cutbackSecretPct)
 						{
 							// add one-way lock
 							RoomController deeperRoom = noLadder ? (direction.y > 0.0f ? this : sibling) : siblingDepthComparison < 0 ? this : sibling;
-							noLadder = (siblingDepthComparison < 0 ? sibling : this).SpawnGate(siblingDepthComparison < 0 ? reverseInfo : doorwayInfo, true, Vector2.zero, 1, siblingDepthComparison < 0 ? doorwayInfo : reverseInfo); // NOTE the exclusion of directional gates since some of them aren't physical blockages
-							doorwayInfo.m_blocker.GetComponent<IUnlockable>().SpawnKeys(deeperRoom, new RoomController[] { deeperRoom });
+							noLadder = (siblingDepthComparison < 0 ? sibling : this).SpawnGate(siblingDepthComparison < 0 ? reverseInfo : doorwayInfo, cutbackIsLocked, Vector2.zero, 1, siblingDepthComparison < 0 ? doorwayInfo : reverseInfo); // NOTE the exclusion of directional gates since some of them aren't physical blockages
+							if (cutbackIsLocked)
+							{
+								doorwayInfo.m_blocker.GetComponent<IUnlockable>().SpawnKeys(deeperRoom, new RoomController[] { deeperRoom });
+							}
 						}
 
 						// open doorways & maybe spawn ladder
@@ -303,8 +306,13 @@ public class RoomController : MonoBehaviour
 			{
 				case LayoutGenerator.Node.Type.Entrance:
 				case LayoutGenerator.Node.Type.ExitDoor:
-					GameObject doorPrefab = m_doorInteractPrefabs[System.Math.Min(m_doorInteractPrefabs.Length - 1, doorwayDepth)];
-					Instantiate(doorPrefab, node.m_type == LayoutGenerator.Node.Type.Entrance ? transform.position : InteriorPosition(0.0f, 0.0f, doorPrefab), Quaternion.identity, transform);
+					GameObject[] doorInteractPrefabs = GameController.Instance.m_doorInteractPrefabs;
+					GameObject doorPrefab = doorInteractPrefabs[System.Math.Min(doorInteractPrefabs.Length - 1, doorwayDepth)];
+					InteractScene doorInteract = Instantiate(doorPrefab, node.m_type == LayoutGenerator.Node.Type.Entrance ? transform.position : InteriorPosition(0.0f, 0.0f, doorPrefab), Quaternion.identity, transform).GetComponent<InteractScene>();
+					if (doorInteract != null)
+					{
+						doorInteract.Depth = doorwayDepth;
+					}
 					++doorwayDepth;
 					break;
 
@@ -326,7 +334,8 @@ public class RoomController : MonoBehaviour
 					break;
 
 				case LayoutGenerator.Node.Type.Npc:
-					if (npcDepth > GameController.NpcExtraCount)
+					int sceneIdx = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+					if (sceneIdx == 0 ? npcDepth > GameController.ZonesFinishedCount : npcDepth + GameController.ZonesFinishedCount >= sceneIdx) // TODO: don't assume that the first scene is where NPCs congregate?
 					{
 						break;
 					}
@@ -940,7 +949,7 @@ public class RoomController : MonoBehaviour
 
 				if (checkObstructions)
 				{
-					if (info.m_blocker != null)
+					if (info.m_blocker != null && (obstructionChecking == ObstructionCheck.Full || info.m_blocker.GetComponent<IUnlockable>() != null))
 					{
 						continue;
 					}

@@ -90,6 +90,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcce2478db7d6f249bb2a8d80def972d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_sceneDestination: Zone1
+  m_isLocked: 0
 --- !u!4 &6876703240960923762 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5445330000905477353, guid: a24e9833324864f489338cfc83a32cdc, type: 3}

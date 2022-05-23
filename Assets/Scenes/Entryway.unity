@@ -146,6 +146,22 @@ PrefabInstance:
       propertyPath: m_AdditionalShaderChannelsFlag
       value: 25
       objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_doorInteractPrefabs.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_doorInteractPrefabs.Array.data[1]
+      value: 
+      objectReference: {fileID: 6575766242294405401, guid: 3dca0cb1f1ffc2145ae7a627b8e647a1, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_doorInteractPrefabs.Array.data[2]
+      value: 
+      objectReference: {fileID: 2543112536043879662, guid: a0f2beed1387a754a9e5722f345082b8, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_doorInteractPrefabs.Array.data[3]
+      value: 
+      objectReference: {fileID: 253480046431362865, guid: 8a825b8c0c06b0645845758aaaf352be, type: 3}
     - target: {fileID: 6215138850667383998, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0

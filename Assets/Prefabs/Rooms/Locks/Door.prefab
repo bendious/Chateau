@@ -202,6 +202,7 @@ MonoBehaviour:
   m_unlockSFX:
   - m_object: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
     m_weight: 1
+  m_destroyOnUnlock: 1
 --- !u!114 &2462278832316299634
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,7 +221,7 @@ MonoBehaviour:
   m_UseRendererSilhouette: 1
   m_CastsShadows: 1
   m_SelfShadows: 0
-  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f528780
+  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f52878009a21985
   m_ShapePath:
   - {x: -0.5, y: -0.5, z: 0}
   - {x: -0.5, y: 0.5, z: 0}
@@ -228,7 +229,7 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 60402
+  m_InstanceId: 87764
 --- !u!82 &6978962022123711710
 AudioSource:
   m_ObjectHideFlags: 0

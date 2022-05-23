@@ -9,8 +9,14 @@ EditorBuildSettings:
     path: Assets/Scenes/Entryway.unity
     guid: 0eccbb34b216fab42b9b012a06c266de
   - enabled: 1
-    path: Assets/Scenes/MainScene.unity
+    path: Assets/Scenes/Zone1.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/Zone2.unity
+    guid: eebb2a5db0b06bb479268e625a58f9ba
+  - enabled: 1
+    path: Assets/Scenes/Zone3.unity
+    guid: a2970bd823ebda6478d6f62904e475c0
   - enabled: 1
     path: Assets/Scenes/Tutorial.unity
     guid: bbe1cdd87b6f4f34baa803db585890bf

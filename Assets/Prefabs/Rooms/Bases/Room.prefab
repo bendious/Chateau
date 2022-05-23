@@ -130,7 +130,7 @@ MonoBehaviour:
   m_UseRendererSilhouette: 1
   m_CastsShadows: 1
   m_SelfShadows: 0
-  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f528780
+  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f52878009a21985
   m_ShapePath:
   - {x: -3, y: -0.25, z: 0}
   - {x: -3, y: 0.25, z: 0}
@@ -138,7 +138,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 53304
+  m_InstanceId: 85264
 --- !u!1 &409852463158594107
 GameObject:
   m_ObjectHideFlags: 0
@@ -290,7 +290,7 @@ MonoBehaviour:
   m_UseRendererSilhouette: 1
   m_CastsShadows: 1
   m_SelfShadows: 0
-  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f528780
+  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f52878009a21985
   m_ShapePath:
   - {x: -1.5, y: -0.25, z: 0}
   - {x: -1.5, y: 0.25, z: 0}
@@ -298,7 +298,7 @@ MonoBehaviour:
   - {x: 1.5, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 53286
+  m_InstanceId: 85246
 --- !u!82 &8857695118105291083
 AudioSource:
   m_ObjectHideFlags: 0
@@ -534,7 +534,7 @@ MonoBehaviour:
   m_UseRendererSilhouette: 1
   m_CastsShadows: 1
   m_SelfShadows: 0
-  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f528780
+  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f52878009a21985
   m_ShapePath:
   - {x: -3, y: -0.25, z: 0}
   - {x: -3, y: 0.25, z: 0}
@@ -542,7 +542,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 53290
+  m_InstanceId: 85250
 --- !u!1 &2929849760781198063
 GameObject:
   m_ObjectHideFlags: 0
@@ -673,7 +673,7 @@ MonoBehaviour:
   m_UseRendererSilhouette: 1
   m_CastsShadows: 1
   m_SelfShadows: 0
-  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f528780
+  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f52878009a21985
   m_ShapePath:
   - {x: -3, y: -0.25, z: 0}
   - {x: -3, y: 0.25, z: 0}
@@ -681,7 +681,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 53284
+  m_InstanceId: 85244
 --- !u!1 &3865645025881897782
 GameObject:
   m_ObjectHideFlags: 0
@@ -813,7 +813,7 @@ MonoBehaviour:
   m_UseRendererSilhouette: 1
   m_CastsShadows: 1
   m_SelfShadows: 0
-  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f528780
+  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f52878009a21985
   m_ShapePath:
   - {x: -1.5, y: -0.25, z: 0}
   - {x: -1.5, y: 0.25, z: 0}
@@ -821,7 +821,7 @@ MonoBehaviour:
   - {x: 1.5, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 53250
+  m_InstanceId: 85210
 --- !u!82 &547285319970575305
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1058,7 +1058,7 @@ MonoBehaviour:
   m_UseRendererSilhouette: 1
   m_CastsShadows: 1
   m_SelfShadows: 0
-  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f528780
+  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f52878009a21985
   m_ShapePath:
   - {x: -0.25, y: -1.5, z: 0}
   - {x: -0.25, y: 1.5, z: 0}
@@ -1066,7 +1066,7 @@ MonoBehaviour:
   - {x: 0.25, y: -1.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 53354
+  m_InstanceId: 85314
 --- !u!82 &940655668141046595
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1302,7 +1302,7 @@ MonoBehaviour:
   m_UseRendererSilhouette: 1
   m_CastsShadows: 1
   m_SelfShadows: 0
-  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f528780
+  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f52878009a21985
   m_ShapePath:
   - {x: -0.25, y: -2.5, z: 0}
   - {x: -0.25, y: 2.5, z: 0}
@@ -1310,7 +1310,7 @@ MonoBehaviour:
   - {x: 0.25, y: -2.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 53340
+  m_InstanceId: 85300
 --- !u!1 &5667102131450121450
 GameObject:
   m_ObjectHideFlags: 0
@@ -1525,7 +1525,7 @@ MonoBehaviour:
   m_UseRendererSilhouette: 1
   m_CastsShadows: 1
   m_SelfShadows: 0
-  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f528780
+  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f52878009a21985
   m_ShapePath:
   - {x: -3, y: -0.25, z: 0}
   - {x: -3, y: 0.25, z: 0}
@@ -1533,7 +1533,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 53282
+  m_InstanceId: 85242
 --- !u!1 &6422840777706418414
 GameObject:
   m_ObjectHideFlags: 0
@@ -1664,7 +1664,7 @@ MonoBehaviour:
   m_UseRendererSilhouette: 1
   m_CastsShadows: 1
   m_SelfShadows: 0
-  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f528780
+  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f52878009a21985
   m_ShapePath:
   - {x: -0.25, y: -2.5, z: 0}
   - {x: -0.25, y: 2.5, z: 0}
@@ -1672,7 +1672,7 @@ MonoBehaviour:
   - {x: 0.25, y: -2.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 53372
+  m_InstanceId: 85332
 --- !u!1 &7422594126546487761
 GameObject:
   m_ObjectHideFlags: 0
@@ -1730,11 +1730,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd334fb4c5de6ad4cbec70a16de4f3e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_doorInteractPrefabs:
-  - {fileID: 5746196675388104066, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
-  - {fileID: 6575766242294405401, guid: 3dca0cb1f1ffc2145ae7a627b8e647a1, type: 3}
-  - {fileID: 2543112536043879662, guid: a0f2beed1387a754a9e5722f345082b8, type: 3}
-  - {fileID: 253480046431362865, guid: 8a825b8c0c06b0645845758aaaf352be, type: 3}
   m_npcPrefabs:
   - m_object: {fileID: 3111020654554313216, guid: 286335db291a89e4a861600f39917758, type: 3}
     m_weight: 1
@@ -2013,7 +2008,7 @@ MonoBehaviour:
   m_UseRendererSilhouette: 1
   m_CastsShadows: 1
   m_SelfShadows: 0
-  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f528780
+  m_ApplyToSortingLayers: d53e0eaedfb9a802000000003f52878009a21985
   m_ShapePath:
   - {x: -0.25, y: -1.5, z: 0}
   - {x: -0.25, y: 1.5, z: 0}
@@ -2021,7 +2016,7 @@ MonoBehaviour:
   - {x: 0.25, y: -1.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 53266
+  m_InstanceId: 85226
 --- !u!82 &2028311330320755528
 AudioSource:
   m_ObjectHideFlags: 0
