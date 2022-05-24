@@ -271,70 +271,72 @@ public abstract class KinematicObject : MonoBehaviour
 	{
 		float distance = move.magnitude;
 
-		if (yMovement || distance >= minMoveDistance) // NOTE that even if we aren't moving vertically, we may still need to push out of the ground
+		if (!yMovement && distance < minMoveDistance) // NOTE that even if we aren't moving vertically, we may still need to push out of the ground
 		{
-			//check if we hit anything in current direction of travel
-			// TODO: prevent getting stuck in floors/ceilings if starting slightly overlapped
-			int count = m_collider.Cast(move, contactFilter, hitBuffer, distance + shellRadius, true); // NOTE that we ignore child colliders such as arms
-			for (int i = 0; i < count; i++)
+			return;
+		}
+
+		// check if we hit anything in current direction of travel
+		// TODO: prevent getting stuck in floors/ceilings if starting slightly overlapped
+		int count = m_collider.Cast(move, contactFilter, hitBuffer, distance + shellRadius, true); // NOTE that we ignore child colliders such as arms
+		for (int i = 0; i < count; i++)
+		{
+			RaycastHit2D hit = hitBuffer[i];
+			if (ShouldIgnore(hit.rigidbody, new Collider2D[] { hit.collider }, false, body.mass, typeof(AnchoredJoint2D)))
 			{
-				RaycastHit2D hit = hitBuffer[i];
-				if (ShouldIgnore(hit.rigidbody, new Collider2D[] { hit.collider }, false, body.mass, typeof(AnchoredJoint2D)))
+				// push-through floor/walls prevention
+				if (hit.transform.parent == null && hit.rigidbody.IsTouchingLayers((LayerMask)GameController.Instance.m_layerWalls))
 				{
-					// push-through floor/walls prevention
-					if (hit.transform.parent == null && hit.rigidbody.IsTouchingLayers((LayerMask)GameController.Instance.m_layerWalls))
-					{
-						EnableCollision.TemporarilyDisableCollision(new Collider2D[] { m_collider }, new Collider2D[] { hit.collider }, m_wallPushDisableSeconds);
-					}
-
-					continue; // don't get hung up on dynamic/carried/ignored objects
-				}
-				if (hit.collider.gameObject.layer == GameController.Instance.m_layerOneWay && m_collider.bounds.min.y + m_platformTopEpsilon < hit.collider.bounds.max.y)
-				{
-					continue; // if partway through a one-way platform, ignore it
+					EnableCollision.TemporarilyDisableCollision(new Collider2D[] { m_collider }, new Collider2D[] { hit.collider }, m_wallPushDisableSeconds);
 				}
 
-				Vector2 currentNormal = hit.normal;
-
-				// is this surface flat enough to land on?
-				if (currentNormal.y >= minGroundNormalY)
-				{
-					IsGrounded = true;
-					IsWallClinging = false;
-					// if moving down, change the groundNormal to new surface normal.
-					if (move.y < 0.0f)
-					{
-						groundNormal = currentNormal;
-						currentNormal.x = 0;
-					}
-				}
-				if (!IsGrounded && currentNormal.y >= m_minWallClingNormalY && velocity.y <= 0.0f && !isNearGround.Value)
-				{
-					IsWallClinging = true;
-					m_wallNormal = currentNormal;
-				}
-				if (!HasFlying)
-				{
-					if (IsGrounded)
-					{
-						//how much of our velocity aligns with surface normal?
-						float projection = Vector2.Dot(velocity, currentNormal);
-						if (projection < 0)
-						{
-							//slower velocity if moving against the normal (up a hill).
-							velocity -= projection * currentNormal;
-						}
-					}
-					else if (!isNearGround.Value)
-					{
-						// airborne, but hit something, so cancel horizontal velocity.
-						velocity.x = 0.0f;
-					}
-				}
-				//remove shellDistance from actual move distance.
-				float modifiedDistance = hit.distance - shellRadius;
-				distance = modifiedDistance < distance ? modifiedDistance : distance;
+				continue; // don't get hung up on dynamic/carried/ignored objects
 			}
+			if (hit.collider.gameObject.layer == GameController.Instance.m_layerOneWay && m_collider.bounds.min.y + m_platformTopEpsilon < hit.collider.bounds.max.y)
+			{
+				continue; // if partway through a one-way platform, ignore it
+			}
+
+			Vector2 currentNormal = hit.normal;
+
+			// is this surface flat enough to land on?
+			if (currentNormal.y >= minGroundNormalY)
+			{
+				IsGrounded = true;
+				IsWallClinging = false;
+				// if moving down, change the groundNormal to new surface normal.
+				if (move.y < 0.0f)
+				{
+					groundNormal = currentNormal;
+					currentNormal.x = 0;
+				}
+			}
+			if (!IsGrounded && currentNormal.y >= m_minWallClingNormalY && velocity.y <= 0.0f && !isNearGround.Value)
+			{
+				IsWallClinging = true;
+				m_wallNormal = currentNormal;
+			}
+			if (!HasFlying)
+			{
+				if (IsGrounded)
+				{
+					// how much of our velocity aligns with surface normal?
+					float projection = Vector2.Dot(velocity, currentNormal);
+					if (projection < 0)
+					{
+						// slower velocity if moving against the normal (up a hill).
+						velocity -= projection * currentNormal;
+					}
+				}
+				else if (!isNearGround.Value)
+				{
+					// airborne, but hit something, so cancel horizontal velocity.
+					velocity.x = 0.0f;
+				}
+			}
+			// remove shellDistance from actual move distance.
+			float modifiedDistance = hit.distance - shellRadius; // TODO: don't move backward when colliding from multiple directions in-place
+			distance = modifiedDistance < distance ? modifiedDistance : distance;
 		}
 		body.position += move.normalized * distance;
 
