@@ -275,9 +275,14 @@ public class GameController : MonoBehaviour
 		// NOTE that if the avatar is ever visible while paused, we should disable its script here to avoid continuing to update facing
 	}
 
+	public void EnemyAdd(EnemyController enemy)
+	{
+		m_enemies.Add(enemy);
+	}
+
 	public bool EnemiesRemain()
 	{
-		return m_enemies.Count > 0; // TODO: include boss after activation
+		return m_enemies.Count > 0;
 	}
 
 	public void RemoveUnreachableEnemies()

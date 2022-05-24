@@ -184,7 +184,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_waveStartWeight
-      value: 1
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_waveEnemyDelayMax
@@ -197,6 +197,10 @@ PrefabInstance:
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_waveEscalationMax
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_waveEscalationMin
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_roomTypes.Array.size

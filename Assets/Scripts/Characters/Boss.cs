@@ -157,6 +157,8 @@ public class Boss : MonoBehaviour
 
 		// enable boss
 		GetComponent<Health>().m_invincible = false;
-		GetComponent<EnemyController>().enabled = true;
+		EnemyController enemy = GetComponent<EnemyController>();
+		enemy.enabled = true;
+		GameController.Instance.EnemyAdd(enemy);
 	}
 }
