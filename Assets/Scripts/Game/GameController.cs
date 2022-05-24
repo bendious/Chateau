@@ -32,6 +32,8 @@ public class GameController : MonoBehaviour
 	public WeightedObject<GameObject>[] m_bossRoomPrefabs;
 	public WeightedObject<RoomType>[] m_roomTypes;
 	public WeightedObject<GameObject>[] m_enemyPrefabs;
+	[SerializeField] private WeightedObject<NpcDialogue>[] m_npcRoles;
+	[SerializeField] private WeightedObject<NpcDialogue>[] m_npcAttitudes;
 	public GameObject[] m_doorInteractPrefabs;
 
 	public bool m_allowCutbacks = true;
@@ -61,6 +63,9 @@ public class GameController : MonoBehaviour
 	public float m_waveEnemyDelayMin = 0.5f;
 	public float m_waveEnemyDelayMax = 2.0f;
 
+	[SerializeField] private string m_tutorialCompleteKey = "TutorialComplete";
+
+
 	[HideInInspector]
 	public bool m_bossRoomSealed = false;
 
@@ -68,6 +73,8 @@ public class GameController : MonoBehaviour
 	public static bool IsReloading { get; private set; }
 
 	public static GameController Instance { get; private set; }
+
+	public static NpcDialogue[][] Npcs { get; private set; }
 
 	public static int ZonesFinishedCount { get; private set; }
 
@@ -143,7 +150,7 @@ public class GameController : MonoBehaviour
 		m_startRoom.FinalizeRecursive();
 
 		// TODO: system?
-		if (!PlayerPrefs.HasKey("IntroDialogueDone"))
+		if (!PlayerPrefs.HasKey(m_tutorialCompleteKey))
 		{
 			const string tutorialSceneName = "Tutorial"; // TODO: un-hardcode?
 			if (SceneManager.GetActiveScene().name != tutorialSceneName)
@@ -152,11 +159,9 @@ public class GameController : MonoBehaviour
 				return;
 			}
 
-			m_dialogueController.Play(null, Color.black, new string[] { "Ah, welcome home.", "You've been out for quite a while, haven't you?", "You're not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", "But don't worry about me; you have more pressing concerns at the moment, I believe." }, () =>
-			{
-				PlayerPrefs.SetInt("IntroDialogueDone", 1);
-				Save(); // TODO: auto-save system?
-			}, null);
+			Npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => new NpcDialogue[] { a, b }).ToArray();
+
+			m_dialogueController.Play(null, Color.black, new string[] { "Ah, welcome home.", "You've been out for quite a while, haven't you?", "You're not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", "But don't worry about me; you have more pressing concerns at the moment, I believe." }, null, null);
 		}
 
 		IsReloading = false;
@@ -341,6 +346,7 @@ public class GameController : MonoBehaviour
 	{
 		if (save)
 		{
+			PlayerPrefs.SetInt(m_tutorialCompleteKey, 1);
 			Save();
 		}
 
@@ -515,6 +521,14 @@ public class GameController : MonoBehaviour
 
 		using SaveWriter saveFile = new(activeScene);
 
+		saveFile.Write(Npcs, npc => saveFile.Write(npc, dialogue =>
+		{
+			System.Predicate<WeightedObject<NpcDialogue>> dialogueCheckFunc = dialogueWeighted => dialogue == dialogueWeighted.m_object;
+			int attitudeIdx = System.Array.FindIndex(m_npcAttitudes, dialogueCheckFunc);
+			saveFile.Write(attitudeIdx >= 0 ? 0 : 1);
+			saveFile.Write(attitudeIdx >= 0 ? attitudeIdx : System.Array.FindIndex(m_npcRoles, dialogueCheckFunc));
+		}));
+
 		saveFile.Write(ZonesFinishedCount);
 
 		Object[] savables = m_savableTags.SelectMany(tag => GameObject.FindGameObjectsWithTag(tag)).Where(obj => obj.scene == SceneManager.GetActiveScene()).ToArray();
@@ -540,6 +554,8 @@ public class GameController : MonoBehaviour
 			{
 				return;
 			}
+
+			Npcs = saveFile.ReadArray(() => saveFile.ReadArray(() => (saveFile.ReadInt32() == 0 ? m_npcAttitudes : m_npcRoles)[saveFile.ReadInt32()].m_object));
 
 			ZonesFinishedCount = System.Math.Max(ZonesFinishedCount, saveFile.ReadInt32()); // NOTE the max() to somewhat handle debug loading directly into non-saved scenes, incrementing ZonesFinishedCount, and then loading a saved scene
 

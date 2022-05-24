@@ -1196,6 +1196,24 @@ MonoBehaviour:
   - m_object: {fileID: 11400000, guid: f9d3ab5747cdc7542ad7ee6c138e034e, type: 2}
     m_weight: 1
   m_enemyPrefabs: []
+  m_npcRoles:
+  - m_object: {fileID: 11400000, guid: 8620c986938d35e489ba749b30b261f5, type: 2}
+    m_weight: 1e+27
+  - m_object: {fileID: 11400000, guid: 253660f765b3ae44fa1b73d1f26a6594, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: 249d36032d347d240b8638f14da317f9, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: 23ae61cdb98cd1d47a9a15914cfdf4d7, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: a4d57240072259046ba25a999d984f47, type: 2}
+    m_weight: 1
+  m_npcAttitudes:
+  - m_object: {fileID: 11400000, guid: eeef22f43d928934d9f902dbd6ac6bbb, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: ecc445ba987b94f4db2568e42e239914, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: 9eabba7ea6dc477428519349a00d66a7, type: 2}
+    m_weight: 1
   m_doorInteractPrefabs:
   - {fileID: 5746196675388104066, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
   - {fileID: 9122007181668863787, guid: 18a928b181bfee64b887827ee31f4661, type: 3}
@@ -1223,6 +1241,7 @@ MonoBehaviour:
   m_waveEscalationMax: 0
   m_waveEnemyDelayMin: 0
   m_waveEnemyDelayMax: 0
+  m_tutorialCompleteKey: TutorialComplete
   m_bossRoomSealed: 0
   m_savableTags:
   - Savable

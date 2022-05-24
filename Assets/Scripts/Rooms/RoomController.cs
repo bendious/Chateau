@@ -340,7 +340,8 @@ public class RoomController : MonoBehaviour
 						break;
 					}
 					GameObject npcPrefab = m_npcPrefabs.RandomWeighted();
-					Instantiate(npcPrefab, InteriorPosition(0.0f, 0.0f) + (Vector3)npcPrefab.OriginToCenterY(), Quaternion.identity); // TODO: load specific NPC from GameController
+					InteractDialogue npc = Instantiate(npcPrefab, InteriorPosition(0.0f) + (Vector3)npcPrefab.OriginToCenterY(), Quaternion.identity).GetComponent<InteractDialogue>();
+					npc.Index = npcDepth + sceneIdx;
 					++npcDepth;
 					break;
 

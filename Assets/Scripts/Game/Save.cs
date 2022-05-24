@@ -39,6 +39,15 @@ public class SaveWriter : System.IDisposable
 		Write(v.b);
 		Write(v.a);
 	}
+
+	public void Write<T>(T[] array, System.Action<T> saveFunc)
+	{
+		Write(array.Length);
+		foreach (T element in array)
+		{
+			saveFunc(element);
+		}
+	}
 }
 
 
@@ -96,6 +105,17 @@ public class SaveReader : System.IDisposable
 		Read(out v.b);
 		Read(out v.a);
 	}
+
+	public T[] ReadArray<T>(System.Func<T> loadFunc)
+	{
+		System.Collections.Generic.List<T> list = new();
+		for (int i = 0, n = ReadInt32(); i < n; ++i)
+		{
+			list.Add(loadFunc());
+		}
+		return list.ToArray();
+	}
+	public void Read<T>(out T[] array, System.Func<T> loadFunc) => array = ReadArray(loadFunc);
 }
 
 

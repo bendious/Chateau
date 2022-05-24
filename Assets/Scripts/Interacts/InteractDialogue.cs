@@ -7,11 +7,12 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 {
 	[SerializeField]
 	private Sprite m_dialogueSprite;
-	[SerializeField]
-	private NpcDialogue[] m_dialogueSources;
 
 	[SerializeField]
 	private float m_weightUseScalar = 0.25f;
+
+
+	public int Index { private get; set; }
 
 
 	private bool m_isVice;
@@ -22,8 +23,6 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 	private void Start()
 	{
 		m_isVice = Random.value > 0.5f; // TODO: choose exactly one NPC
-
-		m_dialogueCombined = m_dialogueSources.SelectMany(source => source.m_dialogue.Select(dialogue => new WeightedObject<string[]> { m_object = dialogue.m_object, m_weight = dialogue.m_weight })).ToArray(); // NOTE the copy to prevent affecting source object weights later
 	}
 
 
@@ -31,6 +30,11 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 
 	public void Interact(KinematicCharacter interactor)
 	{
+		if (m_dialogueCombined == null)
+		{
+			m_dialogueCombined = GameController.Npcs[Index].SelectMany(source => source.m_dialogue.Select(dialogue => new WeightedObject<string[]> { m_object = dialogue.m_object, m_weight = dialogue.m_weight })).ToArray(); // NOTE the copy to prevent affecting source object weights later
+		}
+
 		// pick and play dialogue
 		string[] dialogueCur = m_dialogueCombined.FirstOrDefault(dialogue => dialogue.m_weight == 0.0f)?.m_object;
 		if (dialogueCur == null)
