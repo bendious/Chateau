@@ -261,7 +261,7 @@ MonoBehaviour:
       - m_Target: {fileID: 5689484937066196568}
         m_TargetAssemblyTypeName: GameController, Assembly-CSharp
         m_MethodName: Retry
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -4532,7 +4532,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.7695652, y: 1}
+    m_SensorSize: {x: 1.8586956, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -4667,7 +4667,7 @@ MonoBehaviour:
       - m_Target: {fileID: 5689484937066196568}
         m_TargetAssemblyTypeName: GameController, Assembly-CSharp
         m_MethodName: Retry
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

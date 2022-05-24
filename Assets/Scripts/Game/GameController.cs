@@ -134,8 +134,7 @@ public class GameController : MonoBehaviour
 		failed = failed || AddRoomsForNodes(nodesPending.ToArray(), roomCount) == 0;
 		if (failed)
 		{
-			Victory = true; // to prevent clearing avatars' inventory // TODO: better flag?
-			Retry(); // TODO: more efficient way to guarantee room spawning?
+			Retry(true); // TODO: more efficient way to guarantee room spawning?
 			return;
 		}
 
@@ -149,7 +148,7 @@ public class GameController : MonoBehaviour
 			const string tutorialSceneName = "Tutorial"; // TODO: un-hardcode?
 			if (SceneManager.GetActiveScene().name != tutorialSceneName)
 			{
-				LoadScene(tutorialSceneName);
+				LoadScene(tutorialSceneName, false, false);
 				return;
 			}
 
@@ -278,7 +277,7 @@ public class GameController : MonoBehaviour
 
 	public bool EnemiesRemain()
 	{
-		return m_enemies.Count > 0;
+		return m_enemies.Count > 0; // TODO: include boss after activation
 	}
 
 	public void RemoveUnreachableEnemies()
@@ -301,58 +300,6 @@ public class GameController : MonoBehaviour
 		ActivateMenu(m_gameOverUI, true);
 	}
 
-	public void Save()
-	{
-		PlayerPrefs.Save();
-
-		Scene activeScene = SceneManager.GetActiveScene();
-		if (activeScene.buildIndex != 0) // TODO: don't assume only first scene stores contents?
-		{
-			return;
-		}
-
-		using SaveWriter saveFile = new(activeScene);
-
-		saveFile.Write(ZonesFinishedCount);
-
-		Object[] savables = m_savableTags.SelectMany(tag => GameObject.FindGameObjectsWithTag(tag)).ToArray();
-		saveFile.Write(savables.Length);
-		foreach (GameObject obj in savables)
-		{
-			ISavable.Save(saveFile, obj.GetComponent<ISavable>());
-		}
-	}
-
-	public void Load()
-	{
-		Scene activeScene = SceneManager.GetActiveScene();
-		if (activeScene.buildIndex != 0) // TODO: don't assume only first scene stores contents?
-		{
-			return;
-		}
-
-		try
-		{
-			using SaveReader saveFile = new(activeScene);
-			if (!saveFile.IsOpen)
-			{
-				return;
-			}
-
-			ZonesFinishedCount = System.Math.Max(ZonesFinishedCount, saveFile.ReadInt32()); // NOTE the max() to somewhat handle debug loading directly into non-saved scenes, incrementing ZonesFinishedCount, and then loading a saved scene
-
-			saveFile.Read(out int savablesCount);
-			for (int i = 0; i < savablesCount; ++i)
-			{
-				ISavable.Load(saveFile);
-			}
-		}
-		catch (System.Exception e)
-		{
-			Debug.LogError("Invalid save file: " + e.Message);
-		}
-	}
-
 	public void DeleteSave()
 	{
 		PlayerPrefs.DeleteAll(); // TODO: separate setup/configuration from game data
@@ -360,7 +307,7 @@ public class GameController : MonoBehaviour
 		ZonesFinishedCount = 0;
 	}
 
-	public void Retry()
+	public void Retry(bool noInventoryClear)
 	{
 		if (ConsoleCommands.RegenerateDisabled)
 		{
@@ -370,19 +317,27 @@ public class GameController : MonoBehaviour
 			}
 			foreach (AvatarController avatar in m_avatars)
 			{
-				avatar.Respawn(!Victory || SceneManager.GetActiveScene().buildIndex == 0, true); // TODO: leave held items in inventory but also save them w/o duplicating them
+				avatar.Respawn(!noInventoryClear && !Victory, true);
 			}
 			Simulation.Schedule<DebugRespawn>();
 			ActivateMenu(m_gameOverUI, false);
 			return;
 		}
 
-		LoadScene(SceneManager.GetActiveScene().name);
+		LoadScene(SceneManager.GetActiveScene().name, !noInventoryClear, noInventoryClear);
 	}
 
 	public void LoadScene(string name)
 	{
-		Save();
+		LoadScene(name, true, false);
+	}
+
+	public void LoadScene(string name, bool save, bool noInventoryClear)
+	{
+		if (save)
+		{
+			Save();
+		}
 
 		if (m_pauseUI.isActiveAndEnabled)
 		{
@@ -400,7 +355,7 @@ public class GameController : MonoBehaviour
 
 		foreach (AvatarController avatar in m_avatars)
 		{
-			avatar.Respawn(!Victory || SceneManager.GetActiveScene().buildIndex == 0, true); // TODO: leave held items in inventory but also save them w/o duplicating them
+			avatar.Respawn(!noInventoryClear && !Victory, true);
 		}
 
 		SceneManager.LoadScene(name);
@@ -429,6 +384,7 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
+		m_avatars.First().DetachAll(); // to save even items being held
 		Save(); // TODO: prompt player?
 
 #if UNITY_EDITOR
@@ -540,6 +496,58 @@ public class GameController : MonoBehaviour
 			}
 		}
 		return roomCount;
+	}
+
+	private void Save()
+	{
+		PlayerPrefs.Save();
+
+		Scene activeScene = SceneManager.GetActiveScene();
+		if (activeScene.buildIndex != 0) // TODO: don't assume only first scene stores contents?
+		{
+			return;
+		}
+
+		using SaveWriter saveFile = new(activeScene);
+
+		saveFile.Write(ZonesFinishedCount);
+
+		Object[] savables = m_savableTags.SelectMany(tag => GameObject.FindGameObjectsWithTag(tag)).Where(obj => obj.scene == SceneManager.GetActiveScene()).ToArray();
+		saveFile.Write(savables.Length);
+		foreach (GameObject obj in savables)
+		{
+			ISavable.Save(saveFile, obj.GetComponent<ISavable>());
+		}
+	}
+
+	private void Load()
+	{
+		Scene activeScene = SceneManager.GetActiveScene();
+		if (activeScene.buildIndex != 0) // TODO: don't assume only first scene stores contents?
+		{
+			return;
+		}
+
+		try
+		{
+			using SaveReader saveFile = new(activeScene);
+			if (!saveFile.IsOpen)
+			{
+				return;
+			}
+
+			ZonesFinishedCount = System.Math.Max(ZonesFinishedCount, saveFile.ReadInt32()); // NOTE the max() to somewhat handle debug loading directly into non-saved scenes, incrementing ZonesFinishedCount, and then loading a saved scene
+
+			saveFile.Read(out int savablesCount);
+			for (int i = 0; i < savablesCount; ++i)
+			{
+				ISavable.Load(saveFile);
+			}
+		}
+		catch (System.Exception e)
+		{
+			Debug.LogError("Invalid save file: " + e.Message);
+		}
 	}
 
 	private IEnumerator SpawnWavesCoroutine()

@@ -165,11 +165,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	{
 		// TODO: early-out if already dead?
 
-		// detach all items
-		foreach (IAttachable attachee in GetComponentsInChildren<IAttachable>())
-		{
-			attachee.Detach(true);
-		}
+		DetachAll();
 
 		foreach (ArmController arm in GetComponentsInChildren<ArmController>())
 		{
@@ -228,6 +224,14 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	public void ChildDetach(IAttachable attachable, bool noAutoReplace)
 	{
 		IHolder.ChildDetachInternal(attachable, this, noAutoReplace);
+	}
+
+	public void DetachAll()
+	{
+		foreach (IAttachable attachee in GetComponentsInChildren<IAttachable>())
+		{
+			attachee.Detach(true);
+		}
 	}
 
 	public virtual bool CanDamage(GameObject target)

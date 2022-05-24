@@ -280,6 +280,7 @@ public class AvatarController : KinematicCharacter
 
 	private void OnDestroy()
 	{
+		DetachAll();
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
 	}
 
@@ -675,9 +676,10 @@ public class AvatarController : KinematicCharacter
 		{
 			foreach (IAttachable attachable in GetComponentsInChildren<IAttachable>())
 			{
-				attachable.Detach(true); // this prevents auto-replaced objects from being saved twice
+				attachable.Detach(true); // to allow correct UI sync immediately
 				Simulation.Schedule<ObjectDespawn>().m_object = attachable.Component.gameObject;
 			}
+			InventorySync();
 		}
 
 		health.Respawn();
