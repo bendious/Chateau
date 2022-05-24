@@ -420,7 +420,7 @@ public class AvatarController : KinematicCharacter
 		ItemController[] items = GetComponentsInChildren<ItemController>(true).ToArray();
 		foreach (ItemController item in items)
 		{
-			bool used = item.Use();
+			bool used = item.Use(input.isPressed);
 			if (used)
 			{
 				break;

@@ -200,9 +200,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		PlayMovementAudio();
 	}
 
-	public bool Use()
+	public bool Use(bool isPressed)
 	{
-		if (m_healAmount > 0)
+		if (isPressed && m_healAmount > 0)
 		{
 			bool healed = Cause.GetComponent<Health>().Increment(m_healAmount);
 			if (healed)
@@ -215,11 +215,15 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		TMP_Text text = GetComponentInChildren<TMP_Text>();
 		if (text != null && !string.IsNullOrEmpty(text.text))
 		{
-			Cause.GetComponent<AvatarController>().ToggleOverlay(m_renderer, text.text);
-			return true;
+			AvatarController avatar = Cause.GetComponent<AvatarController>();
+			if (avatar.m_overlayCanvas.gameObject.activeSelf != isPressed)
+			{
+				avatar.ToggleOverlay(m_renderer, text.text);
+				return true;
+			}
 		}
 
-		if (transform.childCount > 0)
+		if (isPressed && transform.childCount > 0)
 		{
 			GameObject childObj = transform.GetChild(0).gameObject;
 			if (childObj.GetComponent<UnityEngine.Rendering.Universal.Light2D>() != null) // TODO: support other types of use-activated child objects? check secondary children?
@@ -232,12 +236,12 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		// TODO: limit "ink" to prevent too many objects?
 		if (m_drawPrefab != null && isActiveAndEnabled)
 		{
-			if (m_drawObjectCurrent == null || m_drawObjectCurrent.transform.parent != transform)
+			if (isPressed && (m_drawObjectCurrent == null || m_drawObjectCurrent.transform.parent != transform))
 			{
 				m_drawObjectCurrent = Instantiate(m_drawPrefab, transform);
 				m_drawObjectCurrent.transform.localPosition = new Vector3(m_renderer.localBounds.max.x, 0.0f, 0.0f);
 			}
-			else
+			else if (!isPressed && m_drawObjectCurrent != null)
 			{
 				m_drawObjectCurrent.transform.SetParent(null);
 				m_drawObjectCurrent = null;

@@ -32,7 +32,7 @@ public class MarkerLine : MonoBehaviour
 		AddPosition((Vector2)transform.position + new Vector2(0.05f, 0.05f)); // NOTE that we start w/ two slightly-offset positions to make "dots" drawable
 
 		float autoStopTime = float.MaxValue;
-		WaitUntil waitCondition = new(() => Vector2.Distance(m_line.GetPosition(m_line.positionCount - 1), transform.position) >= m_distanceMin);
+		WaitUntil waitCondition = new(() => transform.parent == null || autoStopTime <= Time.time || Vector2.Distance(m_line.GetPosition(m_line.positionCount - 1), transform.position) >= m_distanceMin);
 
 		while (transform.parent != null && autoStopTime > Time.time)
 		{

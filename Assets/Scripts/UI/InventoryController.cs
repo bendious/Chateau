@@ -66,7 +66,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 					ItemController item = ItemFromIndex(transform.root, transform.GetSiblingIndex()).m_item;
 					if (item != null)
 					{
-						item.Use();
+						item.Use(true); // TODO: also send release event?
 					}
 				}
 				break;
