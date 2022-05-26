@@ -99,6 +99,8 @@ public class RoomController : MonoBehaviour
 	private /*readonly*/ GameObject[] m_spawnPoints;
 
 	private /*readonly*/ RoomType m_roomType = null;
+	private /*readonly*/ RoomType.SpriteInfo m_wallInfo;
+	private /*readonly*/ Color m_wallColor;
 
 
 	public static T RandomWeightedByKeyCount<T>(WeightedObject<T>[] candidates, System.Func<T, int> candidateToKeyDiff, float scalarPerDiff = 0.5f)
@@ -184,10 +186,30 @@ public class RoomController : MonoBehaviour
 		m_roomType = GameController.Instance.m_roomTypes.RandomWeighted();
 		if (m_roomType.m_backdrops != null && m_roomType.m_backdrops.Length > 0)
 		{
-			RoomType.BackdropInfo backdrop = m_roomType.m_backdrops.RandomWeighted();
+			RoomType.SpriteInfo backdrop = m_roomType.m_backdrops.RandomWeighted();
 			SpriteRenderer renderer = m_backdrop.GetComponent<SpriteRenderer>();
 			renderer.sprite = backdrop.m_sprite;
 			renderer.color = Utility.ColorRandom(backdrop.m_colorMin, backdrop.m_colorMax);
+		}
+
+		// per-area appearance
+		// TODO: separate RoomType into {Area/Room}Type? tend brighter based on progress?
+		RoomController areaParent = m_layoutNodes.First().AreaParent.m_room; // NOTE that all nodes w/i a single room should have the same area parent
+		m_wallInfo = areaParent != this ? areaParent.m_wallInfo : m_roomType.m_walls != null && m_roomType.m_walls.Length > 0 ? m_roomType.m_walls.RandomWeighted() : m_wallInfo;
+		m_wallColor = areaParent != this ? areaParent.m_wallColor : Utility.ColorRandom(m_wallInfo.m_colorMin, m_wallInfo.m_colorMax);
+		if (m_wallInfo.m_sprite != null)
+		{
+			foreach (GameObject obj in m_walls.Concat(m_doorwayInfos.Select(info => info.m_object)))
+			{
+				PlatformEffector2D platform = obj.GetComponent<PlatformEffector2D>();
+				if (platform != null && platform.enabled)
+				{
+					continue; // ignore one-way platforms
+				}
+				SpriteRenderer renderer = obj.GetComponent<SpriteRenderer>();
+				renderer.sprite = m_wallInfo.m_sprite;
+				renderer.color = m_wallColor; // TODO: slight variation?
+			}
 		}
 
 		// spawn furniture
@@ -271,23 +293,6 @@ public class RoomController : MonoBehaviour
 			RoomController[] keyRooms = lockNode?.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray();
 			bool excludeSelf = Random.value < 0.5f; // TEMP?
 			unlockable.SpawnKeys(this, keyRooms == null || keyRooms.Length <= 0 ? null : excludeSelf ? keyRooms.Where(room => room != this).ToArray() : keyRooms);
-		}
-
-		// color walls based on area
-		// TODO: slight variation?
-		Color roomColor = m_layoutNodes.First().AreaParent.m_color; // NOTE that all nodes w/i a single room should have the same area parent
-		foreach (GameObject door in m_doorwayInfos.Select(doorway => doorway.m_object))
-		{
-			PlatformEffector2D platform = door.GetComponent<PlatformEffector2D>();
-			if (platform != null && platform.enabled)
-			{
-				continue; // ignore one-way platforms
-			}
-			door.GetComponent<SpriteRenderer>().color = roomColor;
-		}
-		foreach (GameObject wall in m_walls)
-		{
-			wall.GetComponent<SpriteRenderer>().color = roomColor;
 		}
 
 		// spawn enemy spawn points
@@ -884,7 +889,8 @@ public class RoomController : MonoBehaviour
 			doorway.layer = open ? GameController.Instance.m_layerOneWay : GameController.Instance.m_layerDefault;
 
 			// change color/shadows for user visibility
-			doorway.GetComponent<SpriteRenderer>().color = open ? m_oneWayPlatformColor : m_layoutNodes.First().AreaParent.m_color; // TODO: cache room color?
+			// TODO: match wall texture?
+			doorway.GetComponent<SpriteRenderer>().color = open ? m_oneWayPlatformColor : m_wallColor;
 			doorway.GetComponent<ShadowCaster2D>().enabled = !open;
 		}
 

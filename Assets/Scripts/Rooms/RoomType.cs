@@ -5,13 +5,14 @@ using UnityEngine;
 public class RoomType : ScriptableObject
 {
 	[System.Serializable]
-	public struct BackdropInfo
+	public class SpriteInfo
 	{
 		public Sprite m_sprite;
-		public float m_colorMin;
-		public float m_colorMax;
+		public Color m_colorMin = Color.gray;
+		public Color m_colorMax = Color.white;
 	}
-	public WeightedObject<BackdropInfo>[] m_backdrops;
+	public WeightedObject<SpriteInfo>[] m_backdrops;
+	public WeightedObject<SpriteInfo>[] m_walls;
 
 	public WeightedObject<GameObject>[] m_furniturePrefabs;
 

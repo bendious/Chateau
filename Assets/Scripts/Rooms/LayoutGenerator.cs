@@ -74,6 +74,7 @@ public class LayoutGenerator
 			return DirectParentsInternal.First().TightCoupleParent; // TODO: don't assume that all branches will have the same tight coupling parent?
 		} }
 
+		// NOTE that this relies upon the structure of layouts having multiple keys as the parents of a single lock at the end of each "area"
 		public Node AreaParent { get
 		{
 			Node tightCoupleParent = TightCoupleParent;
@@ -86,7 +87,7 @@ public class LayoutGenerator
 			{
 				return tightCoupleParent;
 			}
-			return tcParentDirectParents.Count > 1 ? tightCoupleParent : tightCoupleParent.AreaParent;
+			return tcParentDirectParents.Count > 1 ? this : tightCoupleParent.AreaParent;
 		} }
 
 		public int Depth { get
@@ -94,8 +95,6 @@ public class LayoutGenerator
 			List<Node> parents = DirectParents;
 			return parents == null ? 0 : parents.Max(node => node.Depth) + 1;
 		} }
-
-		public readonly Color m_color = Utility.ColorRandom(0.25f, 0.5f, 0.125f); // TODO: tend brighter based on progress?
 
 
 		internal List<Node> DirectParentsInternal;

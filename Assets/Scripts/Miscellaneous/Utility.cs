@@ -94,14 +94,16 @@ public static class Utility
 		return FloatEqual(a.r, b.r, epsilon) && FloatEqual(a.g, b.g, epsilon) && FloatEqual(a.b, b.b, epsilon); // NOTE that we don't use color subtraction due to not wanting range clamping
 	}
 
-	public static Color ColorRandom(float min, float max, float epsilon = 0.2f)
+	public static Color ColorRandom(Color min, Color max, float epsilon = 0.2f)
 	{
-		Color color = new(UnityEngine.Random.Range(min, max), UnityEngine.Random.Range(min, max), UnityEngine.Random.Range(min, max));
+		Color color = new(UnityEngine.Random.Range(min.r, max.r), UnityEngine.Random.Range(min.g, max.g), UnityEngine.Random.Range(min.b, max.b), UnityEngine.Random.Range(min.a, max.a));
 		if (ColorsSimilar(color, RoomController.m_oneWayPlatformColor, epsilon) || ColorsSimilar(color, Color.black, epsilon))
 		{
 			// flip one component as far as it can go within the given range
 			int idx = UnityEngine.Random.Range(0, 3);
-			color[idx] = Mathf.Lerp(min, max, (Mathf.InverseLerp(min, max, color[idx]) + 0.5f) % 1.0f);
+			float minComp = min[idx];
+			float maxComp = max[idx];
+			color[idx] = Mathf.Lerp(minComp, maxComp, (Mathf.InverseLerp(minComp, maxComp, color[idx]) + 0.5f) % 1.0f);
 		}
 		return color;
 	}
