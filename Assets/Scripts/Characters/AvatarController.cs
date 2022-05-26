@@ -136,83 +136,6 @@ public class AvatarController : KinematicCharacter
 		{
 			// update velocity
 			move = move.SmoothDamp(m_moveDesired, ref m_moveVel, m_moveSpringDampTime);
-
-			// collect possible focus objects
-			m_focusObj = null;
-			Collider2D[] focusCandidates = Physics2D.OverlapCircleAll(FocusCollectPos, FocusRadius); // TODO: restrict to certain layers?
-
-			// determine current focus object
-			// TODO: more nuanced prioritization?
-			Vector2 priorityPos = FocusPriorityPos;
-			float distSqFocus = float.MaxValue;
-			bool focusCanInteract = false;
-			float focusYMax = float.MinValue;
-			foreach (Collider2D candidate in focusCandidates)
-			{
-				if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, false, 0.0f, null, true))
-				{
-					continue; // ignore ourself / attached/ignored objects
-				}
-
-				// prioritize interactable objects
-				IInteractable candidateInteract = candidate.GetComponent<IInteractable>();
-				bool candidateCanInteract = candidateInteract != null && candidateInteract.CanInteract(this);
-
-				// prioritize by mouse position
-				float distSqCur = (priorityPos - (Vector2)candidate.transform.position).sqrMagnitude;
-
-				if (candidateCanInteract && !focusCanInteract || ((candidateCanInteract || !focusCanInteract) && distSqCur < distSqFocus))
-				{
-					focusCanInteract = candidateCanInteract;
-					distSqFocus = distSqCur;
-					m_focusObj = candidate.gameObject;
-					focusYMax = candidate.bounds.max.y;
-				}
-			}
-
-			// place focus indicator if appropriate
-			if (focusCanInteract)
-			{
-				m_focusIndicator.transform.SetPositionAndRotation(m_focusObj.transform.position, m_focusObj.transform.rotation);
-
-				// mirror sprite rendering
-				SpriteRenderer rendererIndicator = m_focusIndicator.GetComponent<SpriteRenderer>();
-				SpriteRenderer rendererOrig = m_focusObj.GetComponent<SpriteRenderer>();
-				rendererIndicator.enabled = rendererOrig != null;
-				if (rendererIndicator.enabled)
-				{
-					rendererIndicator.sortingLayerName = rendererOrig.sortingLayerName;
-					rendererIndicator.sortingLayerID = rendererOrig.sortingLayerID;
-					rendererIndicator.sortingOrder = rendererOrig.sortingOrder + 1;
-					rendererIndicator.sprite = rendererOrig.sprite;
-					rendererIndicator.drawMode = rendererOrig.drawMode;
-					rendererIndicator.size = rendererOrig.size;
-					rendererIndicator.color = rendererOrig.color * 2.0f; // TODO: ensure good visibility on nearly-white/black objects and avoid jarring change to 50% gray objects
-					rendererIndicator.flipX = rendererOrig.flipX;
-					rendererIndicator.flipY = rendererOrig.flipY; // NOTE that items that have been dropped may have been left "backwards"
-					rendererIndicator.maskInteraction = rendererOrig.maskInteraction;
-				}
-
-				// mirror sprite masking
-				SpriteMask maskIndicator = m_focusIndicator.GetComponent<SpriteMask>();
-				SpriteMask maskOrig = m_focusObj.GetComponent<SpriteMask>();
-				maskIndicator.enabled = maskOrig != null;
-				if (maskIndicator.enabled)
-				{
-					maskIndicator.sprite = maskOrig.sprite;
-					maskIndicator.isCustomRangeActive = maskOrig.isCustomRangeActive;
-					maskIndicator.frontSortingLayerID = maskOrig.frontSortingLayerID;
-					maskIndicator.frontSortingOrder = maskOrig.frontSortingOrder + 1;
-					maskIndicator.backSortingLayerID = maskOrig.backSortingLayerID;
-					maskIndicator.backSortingOrder = maskOrig.backSortingOrder + 1;
-				}
-
-				m_focusIndicator.transform.localScale = m_focusObj.transform.localScale; // NOTE that w/o this, swapping between renderer draw modes was doing weird things to the indicator's scale...
-
-				m_focusPrompt.transform.position = new Vector3(m_focusIndicator.transform.position.x, focusYMax, m_focusIndicator.transform.position.z) + m_focusPromptOffset;
-			}
-			m_focusIndicator.SetActive(focusCanInteract);
-			m_focusPrompt.gameObject.SetActive(focusCanInteract);
 		}
 		else
 		{
@@ -276,6 +199,86 @@ public class AvatarController : KinematicCharacter
 		}
 
 		base.FixedUpdate();
+	}
+
+	private void LateUpdate()
+	{
+		// collect possible focus objects
+		m_focusObj = null;
+		Collider2D[] focusCandidates = Physics2D.OverlapCircleAll(FocusCollectPos, FocusRadius); // TODO: restrict to certain layers?
+
+		// determine current focus object
+		// TODO: more nuanced prioritization?
+		Vector2 priorityPos = FocusPriorityPos;
+		float distSqFocus = float.MaxValue;
+		bool focusCanInteract = false;
+		float focusYMax = float.MinValue;
+		foreach (Collider2D candidate in focusCandidates)
+		{
+			if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, false, 0.0f, null, true))
+			{
+				continue; // ignore ourself / attached/ignored objects
+			}
+
+			// prioritize interactable objects
+			IInteractable candidateInteract = candidate.GetComponent<IInteractable>();
+			bool candidateCanInteract = candidateInteract != null && candidateInteract.CanInteract(this);
+
+			// prioritize by mouse position
+			float distSqCur = (priorityPos - (Vector2)candidate.transform.position).sqrMagnitude;
+
+			if (candidateCanInteract && !focusCanInteract || ((candidateCanInteract || !focusCanInteract) && distSqCur < distSqFocus))
+			{
+				focusCanInteract = candidateCanInteract;
+				distSqFocus = distSqCur;
+				m_focusObj = candidate.gameObject;
+				focusYMax = candidate.bounds.max.y;
+			}
+		}
+
+		// place focus indicator if appropriate
+		if (focusCanInteract)
+		{
+			m_focusIndicator.transform.SetPositionAndRotation(m_focusObj.transform.position, m_focusObj.transform.rotation);
+
+			// mirror sprite rendering
+			SpriteRenderer rendererIndicator = m_focusIndicator.GetComponent<SpriteRenderer>();
+			SpriteRenderer rendererOrig = m_focusObj.GetComponent<SpriteRenderer>();
+			rendererIndicator.enabled = rendererOrig != null;
+			if (rendererIndicator.enabled)
+			{
+				rendererIndicator.sortingLayerName = rendererOrig.sortingLayerName;
+				rendererIndicator.sortingLayerID = rendererOrig.sortingLayerID;
+				rendererIndicator.sortingOrder = rendererOrig.sortingOrder + 1;
+				rendererIndicator.sprite = rendererOrig.sprite;
+				rendererIndicator.drawMode = rendererOrig.drawMode;
+				rendererIndicator.size = rendererOrig.size;
+				rendererIndicator.color = rendererOrig.color * 2.0f; // TODO: ensure good visibility on nearly-white/black objects and avoid jarring change to 50% gray objects
+				rendererIndicator.flipX = rendererOrig.flipX;
+				rendererIndicator.flipY = rendererOrig.flipY; // NOTE that items that have been dropped may have been left "backwards"
+				rendererIndicator.maskInteraction = rendererOrig.maskInteraction;
+			}
+
+			// mirror sprite masking
+			SpriteMask maskIndicator = m_focusIndicator.GetComponent<SpriteMask>();
+			SpriteMask maskOrig = m_focusObj.GetComponent<SpriteMask>();
+			maskIndicator.enabled = maskOrig != null;
+			if (maskIndicator.enabled)
+			{
+				maskIndicator.sprite = maskOrig.sprite;
+				maskIndicator.isCustomRangeActive = maskOrig.isCustomRangeActive;
+				maskIndicator.frontSortingLayerID = maskOrig.frontSortingLayerID;
+				maskIndicator.frontSortingOrder = maskOrig.frontSortingOrder + 1;
+				maskIndicator.backSortingLayerID = maskOrig.backSortingLayerID;
+				maskIndicator.backSortingOrder = maskOrig.backSortingOrder + 1;
+			}
+
+			m_focusIndicator.transform.localScale = m_focusObj.transform.localScale; // NOTE that w/o this, swapping between renderer draw modes was doing weird things to the indicator's scale...
+
+			m_focusPrompt.transform.position = new Vector3(m_focusIndicator.transform.position.x, focusYMax, m_focusIndicator.transform.position.z) + m_focusPromptOffset;
+		}
+		m_focusIndicator.SetActive(focusCanInteract);
+		m_focusPrompt.gameObject.SetActive(focusCanInteract);
 	}
 
 	private void OnDestroy()

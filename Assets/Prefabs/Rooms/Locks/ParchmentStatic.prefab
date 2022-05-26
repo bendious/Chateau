@@ -178,8 +178,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_colorMin: 0.25
-  m_colorMax: 1
+  m_colorMin: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_colorMax: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &2953976778237690266
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -250,7 +250,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 1
-  m_SortingLayerID: 0
+  m_SortingLayerID: -2061917687
   m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!114 &2281287747353180637

@@ -23,6 +23,14 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 0.3
       objectReference: {fileID: 0}
+    - target: {fileID: 212926279355423454, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_SortingLayer
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 212926279355423454, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -2061917687
+      objectReference: {fileID: 0}
     - target: {fileID: 3346888056824497695, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
       propertyPath: m_Name
       value: GateLadder

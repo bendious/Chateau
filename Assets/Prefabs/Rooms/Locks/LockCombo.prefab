@@ -74,8 +74,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -2061917687
-  m_SortingLayer: -1
+  m_SortingLayerID: 44612063
+  m_SortingLayer: -2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: ac4562b3ee3a1964681b6eb6480b6791, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -278,8 +278,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -2061917687
-  m_SortingLayer: -1
+  m_SortingLayerID: 44612063
+  m_SortingLayer: -2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: ac4562b3ee3a1964681b6eb6480b6791, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -482,8 +482,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -2061917687
-  m_SortingLayer: -1
+  m_SortingLayerID: 44612063
+  m_SortingLayer: -2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: ac4562b3ee3a1964681b6eb6480b6791, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -686,8 +686,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -2061917687
-  m_SortingLayer: -1
+  m_SortingLayerID: 44612063
+  m_SortingLayer: -2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: ac4562b3ee3a1964681b6eb6480b6791, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1325,8 +1325,8 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 1
-  m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: 44612063
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!114 &2109618338723500573
 MonoBehaviour:
@@ -1426,8 +1426,8 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 1
-  m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: 44612063
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!114 &1431175815195765787
 MonoBehaviour:
@@ -1662,8 +1662,8 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 1
-  m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: 44612063
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!114 &3333228023721113246
 MonoBehaviour:
@@ -1898,8 +1898,8 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 1
-  m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: 44612063
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!114 &4130676891118340240
 MonoBehaviour:
