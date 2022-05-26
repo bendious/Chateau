@@ -14,7 +14,7 @@ public class InteractLookout : MonoBehaviour, IInteractable
 
 	public bool CanInteract(KinematicCharacter interactor) => !GameController.Instance.EnemiesRemain();
 
-	public void Interact(KinematicCharacter interactor)
+	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
 		m_active = !m_active;
 		if (!m_active)

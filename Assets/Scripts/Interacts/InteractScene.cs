@@ -10,7 +10,7 @@ public class InteractScene : MonoBehaviour, IInteractable
 	public int Depth { private get; set; }
 
 
-	public void Interact(KinematicCharacter interactor)
+	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
 		if (Depth > GameController.ZonesFinishedCount + 1)
 		{

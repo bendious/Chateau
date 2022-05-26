@@ -48,7 +48,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 		return avatar.m_follower == null || avatar.m_follower == this;
 	}
 
-	public void Interact(KinematicCharacter interactor)
+	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
 		if (m_followCharacter == null)
 		{

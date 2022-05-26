@@ -276,6 +276,7 @@ public class AvatarController : KinematicCharacter
 			m_focusIndicator.transform.localScale = m_focusObj.transform.localScale; // NOTE that w/o this, swapping between renderer draw modes was doing weird things to the indicator's scale...
 
 			m_focusPrompt.transform.position = new Vector3(m_focusIndicator.transform.position.x, focusYMax, m_focusIndicator.transform.position.z) + m_focusPromptOffset;
+			m_focusPrompt.SetSprite(m_focusObj.GetComponent<IInteractable>().CanInteractReverse(this) ? 1 : 0);
 		}
 		m_focusIndicator.SetActive(focusCanInteract);
 		m_focusPrompt.gameObject.SetActive(focusCanInteract);
@@ -285,6 +286,10 @@ public class AvatarController : KinematicCharacter
 	{
 		DetachAll();
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
+
+		Simulation.Schedule<ObjectDespawn>().m_object = m_focusIndicator;
+		Simulation.Schedule<ObjectDespawn>().m_object = m_focusPrompt.gameObject;
+		Simulation.Schedule<ObjectDespawn>().m_object = m_aimObject;
 	}
 
 #if UNITY_EDITOR
@@ -440,7 +445,7 @@ public class AvatarController : KinematicCharacter
 			IInteractable focusInteract = m_focusObj.GetComponent<IInteractable>();
 			if (focusInteract != null && focusInteract.CanInteract(this))
 			{
-				focusInteract.Interact(this);
+				focusInteract.Interact(this, false);
 			}
 		}
 	}
@@ -451,6 +456,16 @@ public class AvatarController : KinematicCharacter
 		if (!controlEnabled)
 		{
 			return;
+		}
+
+		if (m_focusObj != null)
+		{
+			IInteractable focusInteract = m_focusObj.GetComponent<IInteractable>();
+			if (focusInteract != null && focusInteract.CanInteractReverse(this))
+			{
+				focusInteract.Interact(this, true);
+				return;
+			}
 		}
 
 		ItemController primaryItem = GetComponentInChildren<ItemController>(true);

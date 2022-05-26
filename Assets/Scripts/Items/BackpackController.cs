@@ -16,7 +16,7 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable, 
 	int ISavable.Type { get; set; }
 
 
-	public void Interact(KinematicCharacter interactor) => interactor.ChildAttach(this);
+	public void Interact(KinematicCharacter interactor, bool reverse) => interactor.ChildAttach(this);
 
 	public /*override*/ bool ChildAttach(IAttachable attachable)
 	{

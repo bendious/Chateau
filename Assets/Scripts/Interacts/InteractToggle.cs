@@ -25,10 +25,11 @@ public class InteractToggle : MonoBehaviour, IInteractable, IKey
 
 
 	public bool CanInteract(KinematicCharacter interactor) => m_toggleText != null && m_toggleText.Length > 1;
+	public bool CanInteractReverse(KinematicCharacter interactor) => CanInteract(interactor);
 
-	public void Interact(KinematicCharacter interactor)
+	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
-		m_charIdx = (m_charIdx + 1) % m_toggleText.Length;
+		m_charIdx = (m_charIdx + (reverse ? -1 : 1)).Modulo(m_toggleText.Length);
 		m_text.text = m_toggleText[m_charIdx].ToString();
 
 		(Lock as LockController).CheckInput();

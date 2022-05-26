@@ -7,6 +7,7 @@ public interface IInteractable
 
 
 	public bool CanInteract(KinematicCharacter interactor) => true;
+	public bool CanInteractReverse(KinematicCharacter interactor) => false;
 
-	public void Interact(KinematicCharacter interactor);
+	public void Interact(KinematicCharacter interactor, bool reverse);
 }

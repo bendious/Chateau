@@ -523,7 +523,7 @@ public class GameController : MonoBehaviour
 
 		saveFile.Write(Npcs, npc => saveFile.Write(npc, dialogue =>
 		{
-			System.Predicate<WeightedObject<NpcDialogue>> dialogueCheckFunc = dialogueWeighted => dialogue == dialogueWeighted.m_object;
+			bool dialogueCheckFunc(WeightedObject<NpcDialogue> dialogueWeighted) => dialogue == dialogueWeighted.m_object;
 			int attitudeIdx = System.Array.FindIndex(m_npcAttitudes, dialogueCheckFunc);
 			saveFile.Write(attitudeIdx >= 0 ? 0 : 1);
 			saveFile.Write(attitudeIdx >= 0 ? attitudeIdx : System.Array.FindIndex(m_npcRoles, dialogueCheckFunc));

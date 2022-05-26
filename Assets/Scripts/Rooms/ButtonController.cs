@@ -15,7 +15,7 @@ public class ButtonController : MonoBehaviour, IInteractable, IKey
 
 	public bool CanInteract(KinematicCharacter interactor) => m_reusable || !IsInPlace;
 
-	public void Interact(KinematicCharacter interactor)
+	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
 		Use();
 		if (!m_reusable)
