@@ -161,7 +161,7 @@ public class GameController : MonoBehaviour
 
 			Npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => new NpcDialogue[] { a, b }).ToArray();
 
-			m_dialogueController.Play(null, Color.black, new string[] { "Ah, welcome home.", "You've been out for quite a while, haven't you?", "You're not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", "But don't worry about me; you have more pressing concerns at the moment, I believe." }, null, null);
+			m_dialogueController.Play(null, Color.black, new DialogueController.Line[] { new DialogueController.Line { m_text = "Ah, welcome home." }, new DialogueController.Line { m_text = "You've been out for quite a while, haven't you?" }, new DialogueController.Line { m_text = "You're not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", m_replies = new DialogueController.Line.Reply[] { new DialogueController.Line.Reply { m_text = "Who are you, ya creep?" }, new DialogueController.Line.Reply { m_text = "Who are you?" }, new DialogueController.Line.Reply { m_text = "Who are you, sir?" } } }, new DialogueController.Line { m_text = "An old friend." }, new DialogueController.Line { m_text = "I'm not surprised you don't remember me. Is there anything you do remember, after all?" }, new DialogueController.Line { m_text = "But don't worry about me; you have more pressing concerns at the moment, I believe." } }, null, null);
 		}
 
 		IsReloading = false;

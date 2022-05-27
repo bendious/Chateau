@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
-    - Customization rules!
+    - m_text: Customization rules!
+      m_replies: []
     m_weight: 0

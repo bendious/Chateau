@@ -14,46 +14,80 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
-    - Stay away from danger!
-    - "Don\u2019t expect to attack anything up close and walk away unharmed."
-    - Generally speaking, throwing things is much safer than swinging them.
+    - m_text: Stay away from danger!
+      m_replies: []
+    - m_text: Don't expect to attack anything up close and walk away unharmed.
+      m_replies: []
+    - m_text: Generally speaking, throwing things is much safer than swinging them.
+      m_replies: []
     m_weight: 0
   - m_object:
-    - Feeling lost?
-    - I'm not surprised.
-    - This place is so big that I'd swear every time I walk through a door there's
-      a wing I've never seen before.
-    - There's a certain order to it, though.
-    - I've noticed that related rooms share coloration, for example.
+    - m_text: Feeling lost?
+      m_replies:
+      - m_text: Yes.
+        m_followUp:
+        - m_text: I'm not surprised.
+          m_replies: []
+      - m_text: No.
+        m_followUp:
+        - m_text: Really?
+          m_replies: []
+      - m_text: Maybe...
+        m_followUp:
+        - m_text: I'm not surprised.
+          m_replies: []
+    - m_text: This place is so big that I'd swear every time I walk through a door
+        there's a wing I've never seen before.
+      m_replies: []
+    - m_text: There's a certain order to it, though.
+      m_replies: []
+    - m_text: I've noticed that related rooms share coloration, for example.
+      m_replies: []
     m_weight: 0
   - m_object:
-    - "I suppose you don\u2019t know, having never really lived here, but this whole
-      place is basically a cylinder."
-    - "The central spire is visible from pretty much anywhere if you\u2019re looking
-      for it, but the only way to reach it is to pass through all the other layers."
+    - m_text: I suppose you don't know, having never really lived here, but this
+        whole place is basically a cylinder.
+      m_replies: []
+    - m_text: The central spire is visible from pretty much anywhere if you're looking
+        for it, but the only way to reach it is to pass through all the other layers.
+      m_replies: []
     m_weight: 0
   - m_object:
-    - Be careful going deeper.
-    - All these pests came from outside originally, but they seem to revel in making
-      their way as far inside as possible.
+    - m_text: Be careful going deeper.
+      m_replies: []
+    - m_text: All these pests came from outside originally, but they seem to revel
+        in making their way as far inside as possible.
+      m_replies: []
     m_weight: 0
   - m_object:
-    - "The center\u2026 It used to be empty, but I don\u2019t think it is anymore."
-    - "I swear there are lights in the windows sometimes\u2026"
+    - m_text: The center... It used to be empty, but I don't think it is anymore.
+      m_replies: []
+    - m_text: I swear there are lights in the windows sometimes...
+      m_replies: []
     m_weight: 0
   - m_object:
-    - Feel free to leave whatever you want here.
-    - "I\u2019ll make sure it stays until you come back for it."
+    - m_text: Feel free to leave whatever you want here.
+      m_replies: []
+    - m_text: I'll make sure it stays until you come back for it.
+      m_replies: []
     m_weight: 0
   - m_object:
-    - The locked doors here?
-    - "I don\u2019t actually know what\u2019s behind them."
-    - "Their keys don\u2019t seem to still be around here."
+    - m_text: The locked doors here?
+      m_replies: []
+    - m_text: I don't actually know what's behind them.
+      m_replies: []
+    - m_text: Their keys don't seem to still be around here.
+      m_replies: []
     m_weight: 0
   - m_object:
-    - Oh, you saw the writing on the entrance hallway walls?
-    - Yeah, I don't know who wrote all that.
-    - Someone crazy, I guess.
-    - Creepy gibberish...
-    - Don't think about it too much, that's my advice.
+    - m_text: Oh, you saw the writing on the entrance hallway walls?
+      m_replies: []
+    - m_text: Yeah, I don't know who wrote all that.
+      m_replies: []
+    - m_text: Someone crazy, I guess.
+      m_replies: []
+    - m_text: Creepy gibberish...
+      m_replies: []
+    - m_text: Don't think about it too much, that's my advice.
+      m_replies: []
     m_weight: 0

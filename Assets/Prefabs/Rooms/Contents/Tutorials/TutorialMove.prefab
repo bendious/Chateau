@@ -56,10 +56,12 @@ MonoBehaviour:
   - m_controlSchemeNames:
     - Keyboard&Mouse
     - KeyboardOnly
-    m_sprite: {fileID: 11400000, guid: f3c96880417a66e4a8ea11611a5fef55, type: 2}
+    m_sprites:
+    - {fileID: 11400000, guid: f3c96880417a66e4a8ea11611a5fef55, type: 2}
   - m_controlSchemeNames:
     - Gamepad
-    m_sprite: {fileID: 11400000, guid: 7c0ed5672c09c0b4a93e0b51474cadf5, type: 2}
+    m_sprites:
+    - {fileID: 11400000, guid: 7c0ed5672c09c0b4a93e0b51474cadf5, type: 2}
 --- !u!23 &739993353693209061
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -99,7 +101,7 @@ MeshRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 44612063
-  m_SortingLayer: -1
+  m_SortingLayer: -2
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &3246914194384268826

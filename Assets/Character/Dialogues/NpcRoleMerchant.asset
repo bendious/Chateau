@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
-    - Hey!
-    - I remember you!
+    - m_text: Hey!
+      m_replies: []
+    - m_text: I remember you!
+      m_replies: []
     m_weight: 0

@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
-    - What, were you expecting something to jump out and attack you?
-    - "Come on now, that\u2019s rather rude. What do you think this is, Barbaria?"
-    - Some of us here are refined, you know.
+    - m_text: What, were you expecting something to jump out and attack you?
+      m_replies: []
+    - m_text: Come on now, that's rather rude. What do you think this is, Barbaria?
+      m_replies: []
+    - m_text: Some of us here are refined, you know.
+      m_replies: []
     m_weight: 0
