@@ -19,3 +19,14 @@ MonoBehaviour:
     - m_text: I remember you!
       m_replies: []
     m_weight: 0
+  - m_object:
+    - m_text: Got anything memorable on ya?
+      m_replies:
+      - m_text: Yes
+        m_followUp: []
+        m_eventName: MerchantSell
+      - m_text: No
+        m_followUp:
+        - Well, don't forget to come find me when you do.
+        m_eventName: 
+    m_weight: 0

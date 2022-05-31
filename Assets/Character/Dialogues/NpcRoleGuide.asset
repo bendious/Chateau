@@ -26,16 +26,22 @@ MonoBehaviour:
       m_replies:
       - m_text: Yes.
         m_followUp:
-        - m_text: I'm not surprised.
-          m_replies: []
+        - I'm not surprised.
+        m_event:
+          m_PersistentCalls:
+            m_Calls: []
       - m_text: No.
         m_followUp:
-        - m_text: Really?
-          m_replies: []
+        - Really?
+        m_event:
+          m_PersistentCalls:
+            m_Calls: []
       - m_text: Maybe...
         m_followUp:
-        - m_text: I'm not surprised.
-          m_replies: []
+        - Well, I sure am.
+        m_event:
+          m_PersistentCalls:
+            m_Calls: []
     - m_text: This place is so big that I'd swear every time I walk through a door
         there's a wing I've never seen before.
       m_replies: []
