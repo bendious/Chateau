@@ -415,10 +415,16 @@ public class RoomController : MonoBehaviour
 			if (preventOverlapPrefab != null)
 			{
 				Renderer[] renderers = preventOverlapPrefab.GetComponentsInChildren<Renderer>();
-				bboxNew = renderers.First().localBounds; // NOTE that we can't assume the local origin should always be included
+				Bounds SemiLocalBounds(Renderer r)
+				{
+					Bounds b = r.localBounds;
+					b.center += r.transform.position - preventOverlapPrefab.transform.position;
+					return b;
+				}
+				bboxNew = SemiLocalBounds(renderers.First()); // NOTE that we can't assume the local origin should always be included
 				foreach (Renderer renderer in renderers)
 				{
-					bboxNew.Encapsulate(renderer.localBounds);
+					bboxNew.Encapsulate(SemiLocalBounds(renderer));
 				}
 				RectTransform[] tfs = preventOverlapPrefab.GetComponentsInChildren<RectTransform>();
 				foreach (RectTransform tf in tfs)
@@ -460,7 +466,7 @@ public class RoomController : MonoBehaviour
 						break;
 					}
 					RectTransform tf = renderer.GetComponent<RectTransform>();
-					if (tf != null && new Bounds(tf.rect.center, tf.rect.size).Intersects(bboxNew))
+					if (tf != null && new Bounds((Vector3)tf.rect.center + tf.position, tf.rect.size).Intersects(bboxNew))
 					{
 						overlap = true;
 						break;
