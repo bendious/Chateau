@@ -1,5 +1,5 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -37,16 +37,14 @@ public class DialogueController : MonoBehaviour
 	public bool IsPlaying => gameObject.activeSelf;
 
 
-	private Line[] m_textList;
-	private int m_textListIdx;
+	private Queue<Line> m_queue;
 	private int m_revealedCharCount;
 	private float m_lastRevealTime;
 	private int m_replyIdx;
 	private int m_followUpIdx;
-	private int m_textCurLen;
 	private AvatarController m_avatar;
 
-	private bool m_replySelected = false;
+	private bool m_forceNewLine = false;
 
 
 	public void Play(Sprite sprite, Color spriteColor, Line[] textList, Action postDialogue, AvatarController avatar)
@@ -55,13 +53,11 @@ public class DialogueController : MonoBehaviour
 		m_image.sprite = sprite;
 		m_image.color = spriteColor;
 
-		m_textList = textList;
-		m_textListIdx = -1;
+		m_queue = new Queue<Line>(textList);
 		m_revealedCharCount = 0;
 		m_lastRevealTime = Time.time;
 		m_replyIdx = 0;
 		m_followUpIdx = -1;
-		m_textCurLen = 0;
 		m_avatar = avatar;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
@@ -72,21 +68,22 @@ public class DialogueController : MonoBehaviour
 	{
 		m_replyIdx = replyObject.transform.GetSiblingIndex() - 1; // -1 due to deactivated template object
 
-		if (!string.IsNullOrEmpty(m_textList[m_textListIdx].m_replies[m_replyIdx].m_eventName))
+		Line.Reply[] repliesCur = m_queue.Peek().m_replies;
+		Line.Reply replyCur = repliesCur?[m_replyIdx];
+		if (!string.IsNullOrEmpty(replyCur?.m_eventName))
 		{
-			gameObject.SendMessage(m_textList[m_textListIdx].m_replies[m_replyIdx].m_eventName);
+			gameObject.SendMessage(replyCur.m_eventName);
 		}
 
-		if (m_followUpIdx == -1 && m_textList[m_textListIdx].m_replies != null && m_textList[m_textListIdx].m_replies[m_replyIdx].m_followUp != null && m_textList[m_textListIdx].m_replies[m_replyIdx].m_followUp.Length > 0)
+		if (m_followUpIdx == -1 && replyCur?.m_followUp != null && replyCur.m_followUp.Length > 0)
 		{
 			m_followUpIdx = 0;
 			m_revealedCharCount = 0;
-			m_textCurLen = m_textList[m_textListIdx].m_replies[m_replyIdx].m_followUp.First().Length;
 			m_lastRevealTime = Time.time;
 		}
 		else
 		{
-			m_replySelected = true;
+			m_forceNewLine = true;
 		}
 		m_replyTemplate.transform.parent.gameObject.SetActive(false);
 		for (int i = 0, n = m_replyTemplate.transform.parent.childCount; i < n; ++i)
@@ -103,18 +100,11 @@ public class DialogueController : MonoBehaviour
 	public void MerchantSell()
 	{
 		IAttachable[] attachables = m_avatar.GetComponentsInChildren<IAttachable>();
-		if (attachables.Length <= 0)
-		{
-			m_textList[m_textListIdx].m_replies[m_replyIdx].m_followUp = new string[] { "No you don't..." };
-		}
-		else
-		{
-			m_textList[m_textListIdx].m_replies[m_replyIdx].m_followUp = new string[] { "Excellent!" };
-		}
+		m_queue.Peek().m_replies[m_replyIdx].m_followUp = new string[] {attachables.Length <= 0 ? "No you don't..." : "Excellent!" };
 	}
 
 
-	private IEnumerator AdvanceDialogue(Action postDialogue)
+	private System.Collections.IEnumerator AdvanceDialogue(Action postDialogue)
 	{
 		m_text.text = null;
 
@@ -127,8 +117,7 @@ public class DialogueController : MonoBehaviour
 		m_avatar.Controls.SwitchCurrentActionMap("UI"); // TODO: un-hardcode?
 		InputAction submitKey = m_avatar.Controls.actions["Submit"];
 
-		bool notDone = true;
-		while (notDone)
+		while (m_queue.Count > 0)
 		{
 			// handle input for reply selection
 			if (m_replyTemplate.transform.parent.gameObject.activeInHierarchy)
@@ -139,19 +128,25 @@ public class DialogueController : MonoBehaviour
 				continue;
 			}
 
+			// current state
+			Line lineCur = m_queue.Peek();
+			string textCur = m_followUpIdx >= 0 ? lineCur.m_replies[m_replyIdx].m_followUp[m_followUpIdx] : lineCur.m_text;
+			int textCurLen = textCur.Length;
+
 			// maybe move to next line
-			bool stillRevealing = m_revealedCharCount < m_textCurLen;
-			if (m_textListIdx < 0 || m_replySelected || (submitKey.WasPressedThisFrame() && !stillRevealing))
+			bool stillRevealing = m_revealedCharCount < textCurLen;
+			if (m_forceNewLine || (submitKey.WasPressedThisFrame() && !stillRevealing))
 			{
 				// next line
 				m_continueIndicator.SetActive(false);
-				++m_textListIdx;
+				m_queue.Dequeue();
 				m_followUpIdx = -1;
-				notDone = m_textListIdx < m_textList.Length;
 				m_revealedCharCount = 0;
-				m_textCurLen = notDone ? m_textList[m_textListIdx].m_text.Length : 0;
+				lineCur = m_queue.Count > 0 ? m_queue.Peek() : null;
+				textCur = lineCur?.m_text;
+				textCurLen = textCur != null ? textCur.Length : 0;
 				m_lastRevealTime = Time.time;
-				m_replySelected = false;
+				m_forceNewLine = false;
 				stillRevealing = true;
 			}
 
@@ -162,30 +157,29 @@ public class DialogueController : MonoBehaviour
 			{
 				// reveal next letter(s)
 				int numToReveal = (int)((Time.time - nextRevealTime) / revealDurationCur) + 1;
-				m_revealedCharCount = Math.Min(m_revealedCharCount + numToReveal, m_textCurLen);
+				m_revealedCharCount = Math.Min(m_revealedCharCount + numToReveal, textCurLen);
 				m_lastRevealTime += revealDurationCur * numToReveal;
 
 				// update UI
-				Line lineCur = m_textList[m_textListIdx];
-				m_text.text = notDone ? (m_followUpIdx >= 0 ? lineCur.m_replies[m_replyIdx].m_followUp[m_followUpIdx] : lineCur.m_text)[0 .. m_revealedCharCount] : null;
+				m_text.text = textCur?[0 .. m_revealedCharCount];
 
-				if (notDone && m_revealedCharCount >= m_textCurLen)
+				if (m_queue.Count > 0 && m_revealedCharCount >= textCurLen)
 				{
 					yield return null; // to allow TMP to catch up with us & calculate bounds
 
 					// display any replies
-					bool active = m_followUpIdx == -1 && m_textList[m_textListIdx].m_replies != null && m_textList[m_textListIdx].m_replies.Length > 0;
+					bool active = m_followUpIdx == -1 && lineCur.m_replies != null && lineCur.m_replies.Length > 0;
 					m_replyTemplate.transform.parent.gameObject.SetActive(active);
 					if (active)
 					{
 						TMP_Text newText = null;
 						float yMargin = 0.0f;
 						float yOffsetCur = 0.0f;
-						for (int i = 0, n = m_textList[m_textListIdx].m_replies.Length; i < n; ++i)
+						for (int i = 0, n = lineCur.m_replies.Length; i < n; ++i)
 						{
 							GameObject newObj = Instantiate(m_replyTemplate, m_replyTemplate.transform.parent);
 							newText = newObj.GetComponentInChildren<TMP_Text>();
-							newText.text = m_textList[m_textListIdx].m_replies[i].m_text;
+							newText.text = lineCur.m_replies[i].m_text;
 							RectTransform newTf = newObj.GetComponent<RectTransform>();
 							if (i == 0)
 							{
