@@ -1197,7 +1197,19 @@ MonoBehaviour:
   m_roomTypes:
   - m_object: {fileID: 11400000, guid: f9d3ab5747cdc7542ad7ee6c138e034e, type: 2}
     m_weight: 1
-  m_enemyPrefabs: []
+  m_enemyPrefabs:
+  - m_object: {fileID: 1661912868639658944, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 892429466469811999, guid: 1187c6293fee67d4da01f8200f643835, type: 3}
+    m_weight: 2
+  - m_object: {fileID: 2645866617808041851, guid: 0112a6934fe93af4cac38fb37ef6b61c, type: 3}
+    m_weight: 5
+  - m_object: {fileID: 6831922291925941691, guid: a59b0c7f16c0a4b43838a3bf904c9952, type: 3}
+    m_weight: 5
+  - m_object: {fileID: 1151434447125698967, guid: a76b6335cfa95454897fe0488d403446, type: 3}
+    m_weight: 7
+  - m_object: {fileID: 8176166786061933274, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+    m_weight: 10
   m_npcRoles:
   - m_object: {fileID: 11400000, guid: 8620c986938d35e489ba749b30b261f5, type: 2}
     m_weight: 1e+27

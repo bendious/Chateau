@@ -207,10 +207,6 @@ PrefabInstance:
       value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_enemyPrefabs.Array.size
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_bossRoomPrefabs.Array.size
       value: 1
       objectReference: {fileID: 0}
@@ -278,54 +274,6 @@ PrefabInstance:
       propertyPath: m_doorInteractPrefabs.Array.data[2]
       value: 
       objectReference: {fileID: 253480046431362865, guid: 8a825b8c0c06b0645845758aaaf352be, type: 3}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_enemyPrefabs.Array.data[0].m_object
-      value: 
-      objectReference: {fileID: 1661912868639658944, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_enemyPrefabs.Array.data[0].m_weight
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_enemyPrefabs.Array.data[1].m_object
-      value: 
-      objectReference: {fileID: 892429466469811999, guid: 1187c6293fee67d4da01f8200f643835, type: 3}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_enemyPrefabs.Array.data[1].m_weight
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_enemyPrefabs.Array.data[2].m_object
-      value: 
-      objectReference: {fileID: 2645866617808041851, guid: 0112a6934fe93af4cac38fb37ef6b61c, type: 3}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_enemyPrefabs.Array.data[2].m_weight
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_enemyPrefabs.Array.data[3].m_object
-      value: 
-      objectReference: {fileID: 6831922291925941691, guid: a59b0c7f16c0a4b43838a3bf904c9952, type: 3}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_enemyPrefabs.Array.data[3].m_weight
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_enemyPrefabs.Array.data[4].m_object
-      value: 
-      objectReference: {fileID: 1151434447125698967, guid: a76b6335cfa95454897fe0488d403446, type: 3}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_enemyPrefabs.Array.data[4].m_weight
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_enemyPrefabs.Array.data[5].m_object
-      value: 
-      objectReference: {fileID: 8176166786061933274, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_enemyPrefabs.Array.data[5].m_weight
-      value: 10
-      objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_bossRoomPrefabs.Array.data[0].m_object
       value: 

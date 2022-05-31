@@ -17,3 +17,63 @@ MonoBehaviour:
     - m_text: Isn't all this fascinating?
       m_replies: []
     m_weight: 0
+  - m_object:
+    - m_text: Oh, did you want to ask me about something?
+      m_replies:
+      - m_preconditionName: EnemyTypeHasSpawned
+        m_preconditionData: 0
+        m_text: Slimes
+        m_followUp:
+        - Ah, slimes.
+        - They're slow, but be sure you don't get swarmed!
+        - They can even slither right past an unwary defense.
+        m_eventName: 
+      - m_preconditionName: EnemyTypeHasSpawned
+        m_preconditionData: 1
+        m_text: Snakes
+        m_followUp:
+        - Snakes?
+        - Of course it had to be snakes.
+        - They're quick, so stay on your toes!
+        - Landing on top of them is a particularly easy way to take multiple bites.
+        m_eventName: 
+      - m_preconditionName: EnemyTypeHasSpawned
+        m_preconditionData: 2
+        m_text: Bats
+        m_followUp:
+        - Bats, yes!
+        - So easy to miss!
+        - But keep your ears open, and they'll run themselves right into their own
+          demise.
+        m_eventName: 
+      - m_preconditionName: EnemyTypeHasSpawned
+        m_preconditionData: 3
+        m_text: Skeletons
+        m_followUp:
+        - Skeletons?
+        - Oh, those things.
+        - Talk about litterbugs, am I right?
+        - Smash right through their defenses if you dare, or knock open a hole from
+          a distance.
+        - You can even rip off pieces by hand!
+        - My favorite is when I can slip a blade past to their core in one shot.
+        m_eventName: 
+      - m_preconditionName: EnemyTypeHasSpawned
+        m_preconditionData: 5
+        m_text: Shadows
+        m_followUp:
+        - Hmm, the worst; shadows...
+        - They look like people, don't they?
+        - But they're more like an absence than a prescense...
+        - They're sneaky.
+        - Don't trifle with them. Deal with them quickly and they're no big deal,
+          but let them alone and before you know it pain will be striking from the
+          darkness.
+        m_eventName: 
+      - m_preconditionName: 
+        m_preconditionData: 0
+        m_text: Nothing.
+        m_followUp:
+        - Oh, okay.
+        m_eventName: 
+    m_weight: 0

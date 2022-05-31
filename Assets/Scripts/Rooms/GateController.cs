@@ -59,7 +59,7 @@ public class GateController : MonoBehaviour, IUnlockable
 
 	public bool IsValidNextKey(GameObject obj)
 	{
-		return m_child.IsValidNextKey(obj) /*|| m_ladderPrefabs.Exists(prefab => obj.SourcePrefab == prefab)*/; // TODO: allow any ladder to fit in any ladder gate?
+		return m_child != null && m_child.IsValidNextKey(obj) /*|| m_ladderPrefabs.Exists(prefab => obj.SourcePrefab == prefab)*/; // TODO: allow any ladder/capacitor to fit in any ladder/electric gate?
 	}
 
 	public bool Unlock(IKey key)

@@ -98,6 +98,7 @@ public class GameController : MonoBehaviour
 	private bool m_waveSpawningInProgress = false;
 
 	private readonly List<EnemyController> m_enemies = new();
+	private static int[] m_enemySpawnCounts;
 
 
 	private void Awake()
@@ -147,6 +148,11 @@ public class GameController : MonoBehaviour
 
 		Load();
 
+		if (m_enemySpawnCounts == null)
+		{
+			m_enemySpawnCounts = new int[m_enemyPrefabs.Length]; // TODO: don't assume the same number/arrangement of enemies in each scene
+		}
+
 		m_startRoom.FinalizeRecursive();
 
 		// TODO: system?
@@ -183,7 +189,7 @@ public class GameController : MonoBehaviour
 	private void OnPlayerJoined(PlayerInput player)
 	{
 		// NOTE that we can place this here since OnPlayerJoined() is called even if the avatar object(s) is/are carried over from a previously loaded scene
-		if (m_enemyPrefabs.Length > 0)
+		if (m_enemyPrefabs.Length > 0 && m_waveSecondsMin > 0.0f)
 		{
 			if (m_avatars.Count == 0)
 			{
@@ -288,6 +294,11 @@ public class GameController : MonoBehaviour
 	public bool EnemiesRemain()
 	{
 		return m_enemies.Count > 0;
+	}
+
+	public bool EnemyTypeHasSpawned(int typeIndex)
+	{
+		return m_enemySpawnCounts[typeIndex] > 0;
 	}
 
 	public void RemoveUnreachableEnemies()
@@ -414,6 +425,7 @@ public class GameController : MonoBehaviour
 		}
 
 		SpawnEnemy(m_enemyPrefabs[typeIndex].m_object);
+		++m_enemySpawnCounts[typeIndex];
 	}
 
 	public void DebugKillAllEnemies()
@@ -529,6 +541,8 @@ public class GameController : MonoBehaviour
 			saveFile.Write(attitudeIdx >= 0 ? attitudeIdx : System.Array.FindIndex(m_npcRoles, dialogueCheckFunc));
 		}));
 
+		saveFile.Write(m_enemySpawnCounts, saveFile.Write);
+
 		saveFile.Write(ZonesFinishedCount);
 
 		Object[] savables = m_savableTags.SelectMany(tag => GameObject.FindGameObjectsWithTag(tag)).Where(obj => obj.scene == SceneManager.GetActiveScene()).ToArray();
@@ -556,6 +570,8 @@ public class GameController : MonoBehaviour
 			}
 
 			Npcs = saveFile.ReadArray(() => saveFile.ReadArray(() => (saveFile.ReadInt32() == 0 ? m_npcAttitudes : m_npcRoles)[saveFile.ReadInt32()].m_object));
+
+			saveFile.Read(out m_enemySpawnCounts, saveFile.ReadInt32);
 
 			ZonesFinishedCount = System.Math.Max(ZonesFinishedCount, saveFile.ReadInt32()); // NOTE the max() to somewhat handle debug loading directly into non-saved scenes, incrementing ZonesFinishedCount, and then loading a saved scene
 
@@ -612,8 +628,10 @@ public class GameController : MonoBehaviour
 			{
 				break; // this shouldn't happen as long as the weights are integers and at least one is 1, but we handle it just in case
 			}
-			WeightedObject<GameObject> weightedEnemyPrefab = options[Random.Range(0, options.Length)];
+			int idx = Random.Range(0, options.Length);
+			WeightedObject<GameObject> weightedEnemyPrefab = options[idx];
 			SpawnEnemy(weightedEnemyPrefab.m_object);
+			++m_enemySpawnCounts[idx];
 
 			weightRemaining -= weightedEnemyPrefab.m_weight;
 
