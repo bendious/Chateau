@@ -22,7 +22,8 @@ public class InteractScene : MonoBehaviour, IInteractable
 		else
 		{
 			// start animations and wait for trigger to call LoadScene()
-			interactor.GetComponent<AvatarController>().DisablePlayerControl(); // TODO: avatar animation
+			interactor.GetComponent<AvatarController>().DisablePlayerControl();
+			interactor.GetComponent<Animator>().SetTrigger("despawn");
 			GetComponent<Animator>().SetTrigger("activate");
 		}
 	}

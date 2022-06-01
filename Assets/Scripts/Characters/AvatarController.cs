@@ -723,6 +723,7 @@ public class AvatarController : KinematicCharacter
 		jumpState = JumpState.Grounded;
 
 		animator.SetBool("dead", false);
+		animator.SetTrigger("respawn");
 	}
 
 	public bool ToggleOverlay(SpriteRenderer sourceRenderer, string text)

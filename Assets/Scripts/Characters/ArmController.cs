@@ -39,6 +39,8 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 
 	private Collider2D[] m_colliders;
+	private SpriteRenderer m_renderer;
+	private SpriteRenderer m_rendererParent;
 
 	private SwingInfo m_swingInfoCur;
 
@@ -73,6 +75,15 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		{
 			Physics2D.IgnoreCollision(parentCollider, collider);
 		}
+
+		m_renderer = GetComponent<SpriteRenderer>();
+		m_rendererParent = transform.parent.GetComponent<SpriteRenderer>();
+	}
+
+	private void LateUpdate()
+	{
+		// update color/alpha
+		m_renderer.color = m_rendererParent.color;
 	}
 
 	// TODO: combine w/ ItemController version?
