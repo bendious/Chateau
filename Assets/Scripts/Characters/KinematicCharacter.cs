@@ -238,23 +238,4 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	{
 		return gameObject != target;
 	}
-
-
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called by animation triggers")]
-	private void ProcessAnimEvent(AnimationEvent evt)
-	{
-		Assert.IsNotNull(evt.objectReferenceParameter);
-		if (evt.objectReferenceParameter is AudioClip clip)
-		{
-			audioSource.PlayOneShot(clip);
-		}
-		else if (evt.objectReferenceParameter is AudioCollection collection)
-		{
-			audioSource.PlayOneShot(collection.Random());
-		}
-		else
-		{
-			Assert.IsTrue(false);
-		}
-	}
 }

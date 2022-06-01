@@ -10,6 +10,8 @@ public class InteractScene : MonoBehaviour, IInteractable
 	public int Depth { private get; set; }
 
 
+	public bool CanInteract(KinematicCharacter interactor) => !string.IsNullOrEmpty(m_sceneDestination);
+
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
 		if (Depth > GameController.ZonesFinishedCount + 1)
@@ -19,7 +21,18 @@ public class InteractScene : MonoBehaviour, IInteractable
 		}
 		else
 		{
-			GameController.Instance.LoadScene(m_sceneDestination);
+			// start animations and wait for trigger to call LoadScene()
+			interactor.GetComponent<AvatarController>().DisablePlayerControl(); // TODO: avatar animation
+			GetComponent<Animator>().SetTrigger("activate");
 		}
+	}
+
+	public void LoadScene()
+	{
+		if (string.IsNullOrEmpty(m_sceneDestination))
+		{
+			return;
+		}
+		GameController.Instance.LoadScene(m_sceneDestination);
 	}
 }

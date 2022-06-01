@@ -826,6 +826,11 @@ public class AvatarController : KinematicCharacter
 		GetComponent<Health>().m_invincible = true;
 	}
 
+	public void DisablePlayerControl()
+	{
+		controlEnabled = false;
+	}
+
 	// called from animation trigger as well as the EnableControl event
 	public void EnablePlayerControl()
 	{

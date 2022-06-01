@@ -155,6 +155,11 @@ public class GameController : MonoBehaviour
 
 		m_startRoom.FinalizeRecursive();
 
+		if (m_avatars.Count > 0)
+		{
+			AnimateEntryDoor();
+		}
+
 		// TODO: system?
 		if (!PlayerPrefs.HasKey(m_tutorialCompleteKey))
 		{
@@ -235,6 +240,11 @@ public class GameController : MonoBehaviour
 			AddCameraTargets(avatar.m_aimObject.transform, avatar.transform);
 
 			isFirst = false;
+		}
+
+		if (m_startRoom != null)
+		{
+			AnimateEntryDoor();
 		}
 	}
 
@@ -519,6 +529,12 @@ public class GameController : MonoBehaviour
 			}
 		}
 		return roomCount;
+	}
+
+	private void AnimateEntryDoor()
+	{
+		Animator doorAnimator = m_startRoom.GetComponentsInChildren<Animator>().First(animator => Vector2.Distance(animator.transform.position, Vector2.zero) < 1.0f); // TODO: more reliable way of determining entry door?
+		doorAnimator.SetTrigger("activate");
 	}
 
 	private void Save()

@@ -64,6 +64,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 491015310828175788, guid: 3dca0cb1f1ffc2145ae7a627b8e647a1, type: 3}
+      propertyPath: m_sceneDestination
+      value: Zone2
+      objectReference: {fileID: 0}
     - target: {fileID: 3216642880870516935, guid: 3dca0cb1f1ffc2145ae7a627b8e647a1, type: 3}
       propertyPath: m_sceneChange
       value: 0

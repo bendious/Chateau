@@ -7,6 +7,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 491015310828175788, guid: 3dca0cb1f1ffc2145ae7a627b8e647a1, type: 3}
+      propertyPath: m_sceneDestination
+      value: Entryway
+      objectReference: {fileID: 0}
     - target: {fileID: 6575766242294405401, guid: 3dca0cb1f1ffc2145ae7a627b8e647a1, type: 3}
       propertyPath: m_Name
       value: DoorInteractReturn

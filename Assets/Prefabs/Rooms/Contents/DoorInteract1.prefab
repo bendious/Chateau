@@ -7,6 +7,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1310310212184196407, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
+      propertyPath: m_sceneDestination
+      value: Zone1
+      objectReference: {fileID: 0}
     - target: {fileID: 4061270809223416924, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
       propertyPath: m_sceneChange
       value: 1
@@ -73,25 +77,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
---- !u!1 &6575766242294405401 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5746196675388104066, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
-  m_PrefabInstance: {fileID: 1513007030640526491}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &7740634708160686286
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6575766242294405401}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fcce2478db7d6f249bb2a8d80def972d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_sceneDestination: Zone1
-  m_isLocked: 0
 --- !u!4 &6876703240960923762 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5445330000905477353, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
