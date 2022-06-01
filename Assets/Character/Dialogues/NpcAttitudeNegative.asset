@@ -14,18 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
-    - m_text: Well, well, well... Look who decided to actually show up!
-      m_replies: []
-    - m_text: Finally! Do you even know how long you neglected this place?
-      m_replies: []
-    - m_text: But while you were gone, I realized something.
-      m_replies: []
-    - m_text: All of this? It isn't yours anymore.
-      m_replies: []
-    - m_text: It's mine.
-      m_replies: []
-    - m_text: You gave it up, and you can't just waltz in here and expect us to even
-        refrain from giving you the pummeling you deserve, much less let you run
-        things.
-      m_replies: []
+      m_lines:
+      - m_text: Well, well, well... Look who decided to actually show up!
+        m_replies: []
+      - m_text: Finally! Do you even know how long you neglected this place?
+        m_replies: []
+      - m_text: But while you were gone, I realized something.
+        m_replies: []
+      - m_text: All of this? It isn't yours anymore.
+        m_replies: []
+      - m_text: It's mine.
+        m_replies: []
+      - m_text: You gave it up, and you can't just waltz in here and expect us to
+          even refrain from giving you the pummeling you deserve, much less let you
+          run things.
+        m_replies: []
+      m_loop: 0
     m_weight: 0

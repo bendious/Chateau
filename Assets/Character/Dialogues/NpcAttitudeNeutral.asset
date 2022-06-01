@@ -14,10 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
-    - m_text: What, were you expecting something to jump out and attack you?
-      m_replies: []
-    - m_text: Come on now, that's rather rude. What do you think this is, Barbaria?
-      m_replies: []
-    - m_text: Some of us here are refined, you know.
-      m_replies: []
+      m_lines:
+      - m_text: What, were you expecting something to jump out and attack you?
+        m_replies: []
+      - m_text: Come on now, that's rather rude. What do you think this is, Barbaria?
+        m_replies: []
+      - m_text: Some of us here are refined, you know.
+        m_replies: []
+      m_loop: 0
     m_weight: 0

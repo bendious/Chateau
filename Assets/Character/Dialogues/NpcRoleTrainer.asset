@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
-    - m_text: Swords may be capable of high damage, but they're tough to use. Stick
-        to throwing things.
-      m_replies: []
+      m_lines:
+      - m_text: Swords may be capable of high damage, but they're tough to use. Stick
+          to throwing things.
+        m_replies: []
+      m_loop: 0
     m_weight: 0

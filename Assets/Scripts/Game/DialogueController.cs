@@ -24,11 +24,12 @@ public class DialogueController : MonoBehaviour
 	{
 		[Serializable] public class Reply
 		{
+			public string m_text;
 			public string m_preconditionName;
 			public int m_preconditionData;
-			public string m_text;
-			public List<string> m_followUp;
+			public string[] m_followUp;
 			public string m_eventName; // TODO: less error-prone type?
+			public bool m_breakAfterward;
 
 			internal bool m_deactivated = false; // NOTE that this is due to SendMessage() not being able to return values and also so that OnReplySelected() doesn't re-run condition checks
 		}
@@ -41,28 +42,32 @@ public class DialogueController : MonoBehaviour
 	public bool IsPlaying => gameObject.activeSelf;
 
 
+	private Line[] m_linesOrig;
 	private Queue<Line> m_queue;
 	private int m_revealedCharCount;
 	private float m_lastRevealTime;
 	private int m_replyIdx;
-	private bool m_inFollowUp;
+	private Queue<string> m_queueFollowUp;
 	private AvatarController m_avatar;
+	private bool m_loop;
 
 	private bool m_forceNewLine = false;
 
 
-	public void Play(Sprite sprite, Color spriteColor, Line[] textList, Action postDialogue, AvatarController avatar)
+	public void Play(Sprite sprite, Color spriteColor, Line[] lines, AvatarController avatar, bool loop = false, Action postDialogue = null)
 	{
 		m_image.enabled = sprite != null;
 		m_image.sprite = sprite;
 		m_image.color = spriteColor;
 
-		m_queue = new Queue<Line>(textList);
+		m_linesOrig = lines;
+		m_queue = new(m_linesOrig);
 		m_revealedCharCount = 0;
 		m_lastRevealTime = Time.time;
 		m_replyIdx = 0;
-		m_inFollowUp = false;
+		m_queueFollowUp = null;
 		m_avatar = avatar;
+		m_loop = loop;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
 		StartCoroutine(AdvanceDialogue(postDialogue));
@@ -79,9 +84,9 @@ public class DialogueController : MonoBehaviour
 			gameObject.SendMessage(replyCur.m_eventName);
 		}
 
-		if (!m_inFollowUp && replyCur?.m_followUp != null && replyCur.m_followUp.Count > 0)
+		if (m_queueFollowUp == null && replyCur?.m_followUp != null && replyCur.m_followUp.Length > 0)
 		{
-			m_inFollowUp = true;
+			m_queueFollowUp = new(replyCur.m_followUp);
 			m_revealedCharCount = 0;
 			m_lastRevealTime = Time.time;
 		}
@@ -109,7 +114,7 @@ public class DialogueController : MonoBehaviour
 	public void MerchantSell()
 	{
 		IAttachable[] attachables = m_avatar.GetComponentsInChildren<IAttachable>();
-		m_queue.Peek().m_replies[m_replyIdx].m_followUp = new List<string> { attachables.Length <= 0 ? "No you don't..." : "Excellent!" };
+		m_queue.Peek().m_replies[m_replyIdx].m_followUp = new string[] { attachables.Length <= 0 ? "No you don't..." : "Excellent!" };
 	}
 
 
@@ -139,7 +144,7 @@ public class DialogueController : MonoBehaviour
 
 			// current state
 			Line lineCur = m_queue.Peek();
-			string textCur = m_inFollowUp ? lineCur.m_replies[m_replyIdx].m_followUp.First() : lineCur.m_text;
+			string textCur = m_queueFollowUp != null ? m_queueFollowUp.Peek() : lineCur.m_text;
 			int textCurLen = textCur.Length;
 
 			// maybe move to next line
@@ -148,10 +153,18 @@ public class DialogueController : MonoBehaviour
 			{
 				// next line
 				m_continueIndicator.SetActive(false);
-				m_inFollowUp = m_inFollowUp && lineCur.m_replies[m_replyIdx].m_followUp.Count > 1;
-				if (m_inFollowUp)
+				bool wasInFollowUp = m_queueFollowUp != null;
+				if (m_queueFollowUp != null && m_queueFollowUp.Count <= 1)
 				{
-					lineCur.m_replies[m_replyIdx].m_followUp.RemoveAt(0);
+					m_queueFollowUp = null;
+				}
+				if (m_queueFollowUp != null)
+				{
+					m_queueFollowUp.Dequeue();
+				}
+				else if (wasInFollowUp && lineCur.m_replies[m_replyIdx].m_breakAfterward)
+				{
+					break;
 				}
 				else
 				{
@@ -184,7 +197,7 @@ public class DialogueController : MonoBehaviour
 					yield return null; // to allow TMP to catch up with us & calculate bounds
 
 					// display any replies
-					bool active = !m_inFollowUp && lineCur.m_replies != null && lineCur.m_replies.Length > 0;
+					bool active = m_queueFollowUp == null && lineCur.m_replies != null && lineCur.m_replies.Length > 0;
 					m_replyTemplate.transform.parent.gameObject.SetActive(active);
 					if (active)
 					{
@@ -233,6 +246,11 @@ public class DialogueController : MonoBehaviour
 			}
 
 			yield return null;
+
+			if (m_loop && m_queue.Count <= 0)
+			{
+				m_queue = new(m_linesOrig);
+			}
 		}
 
 		postDialogue?.Invoke();

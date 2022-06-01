@@ -17,7 +17,7 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 
 	private bool m_isVice;
 
-	private WeightedObject<DialogueController.Line[]>[] m_dialogueCombined;
+	private WeightedObject<NpcDialogue.Info>[] m_dialogueCombined;
 
 
 	private void Start()
@@ -32,20 +32,20 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 	{
 		if (m_dialogueCombined == null)
 		{
-			m_dialogueCombined = GameController.Npcs[Index].SelectMany(source => source.m_dialogue.Select(dialogue => new WeightedObject<DialogueController.Line[]> { m_object = dialogue.m_object, m_weight = dialogue.m_weight })).ToArray(); // NOTE the copy to prevent affecting source object weights later
+			m_dialogueCombined = GameController.Npcs[Index].SelectMany(source => source.m_dialogue.Select(dialogue => new WeightedObject<NpcDialogue.Info> { m_object = dialogue.m_object, m_weight = dialogue.m_weight })).ToArray(); // NOTE the copy to prevent affecting source object weights later
 		}
 
 		// pick and play dialogue
-		DialogueController.Line[] dialogueCur = m_dialogueCombined.FirstOrDefault(dialogue => dialogue.m_weight == 0.0f)?.m_object;
+		NpcDialogue.Info dialogueCur = m_dialogueCombined.FirstOrDefault(dialogue => dialogue.m_weight == 0.0f)?.m_object;
 		if (dialogueCur == null)
 		{
 			dialogueCur = m_dialogueCombined.RandomWeighted();
 		}
-		GameController.Instance.m_dialogueController.Play(m_dialogueSprite, GetComponent<SpriteRenderer>().color, dialogueCur, null, interactor.GetComponent<AvatarController>());
+		GameController.Instance.m_dialogueController.Play(m_dialogueSprite, GetComponent<SpriteRenderer>().color, dialogueCur.m_lines, interactor.GetComponent<AvatarController>(), dialogueCur.m_loop);
 
 		// update weight
 		// TODO: save across instantiations/sessions?
-		WeightedObject<DialogueController.Line[]> weightedDialogueCur = m_dialogueCombined.First(dialogue => dialogue.m_object == dialogueCur); // TODO: support duplicate dialogue options?
+		WeightedObject<NpcDialogue.Info> weightedDialogueCur = m_dialogueCombined.First(dialogue => dialogue.m_object == dialogueCur); // TODO: support duplicate dialogue options?
 		weightedDialogueCur.m_weight = weightedDialogueCur.m_weight == 0.0f ? 1.0f : weightedDialogueCur.m_weight * m_weightUseScalar;
 	}
 }

@@ -14,8 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
-    - m_text: Oh!
-      m_replies: []
-    - m_text: Hello there.
-      m_replies: []
+      m_lines:
+      - m_text: Oh!
+        m_replies: []
+      - m_text: Hello there.
+        m_replies: []
+      m_loop: 0
     m_weight: 0
