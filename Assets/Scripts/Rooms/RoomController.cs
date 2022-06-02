@@ -856,13 +856,8 @@ public class RoomController : MonoBehaviour
 			Vector3 extents = size * 0.5f;
 			Vector3[] shapePath = new Vector3[] { new(-extents.x, -extents.y, 0.0f), new(extents.x, -extents.y, 0.0f), new(extents.x, extents.y, 0.0f), new(-extents.x, extents.y, 0.0f) };
 
-			// see https://forum.unity.com/threads/can-2d-shadow-caster-use-current-sprite-silhouette.861256/ for explanation of workaround for non-public setter
-			System.Type shadowCasterType = typeof(ShadowCaster2D);
-			const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-			System.Reflection.FieldInfo pathSetterWorkaround = shadowCasterType.GetField("m_ShapePath", flags);
-			System.Reflection.FieldInfo hashSetterWorkaround = shadowCasterType.GetField("m_ShapePathHash", flags);
-			pathSetterWorkaround.SetValue(shadowCaster, shapePath);
-			hashSetterWorkaround.SetValue(shadowCaster, shapePath.GetHashCode());
+			shadowCaster.NonpublicSetterWorkaround("m_ShapePath", shapePath);
+			shadowCaster.NonpublicSetterWorkaround("m_ShapePathHash", shapePath.GetHashCode());
 		}
 
 		return directionalBlockerPrefabs != null && System.Array.Exists(directionalBlockerPrefabs, pair => blockerPrefab == pair.m_object); // TODO: don't assume directional gates will never want default ladders?

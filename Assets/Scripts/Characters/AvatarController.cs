@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 using UnityEngine.VFX;
 
@@ -60,6 +61,9 @@ public class AvatarController : KinematicCharacter
 
 	public bool IsAlive => ConsoleCommands.NeverDie || health.IsAlive;
 
+
+	private float m_lightRadiusOrig;
+	private float m_lightDistanceOrig;
 
 	private JumpState jumpState = JumpState.Grounded;
 	private Health health;
@@ -128,6 +132,11 @@ public class AvatarController : KinematicCharacter
 		Controls.actions.FindActionMap("AlwaysOn").Enable();
 
 		ObjectDespawn.OnExecute += OnObjectDespawn;
+
+		Light2D light = GetComponent<Light2D>();
+		m_lightRadiusOrig = light.pointLightOuterRadius;
+		m_lightDistanceOrig = light.normalMapDistance;
+		ScaleLight();
 	}
 
 	protected override void Update()
@@ -724,6 +733,8 @@ public class AvatarController : KinematicCharacter
 
 		animator.SetBool("dead", false);
 		animator.SetTrigger("respawn");
+
+		ScaleLight(); // TODO: separate OnSceneLoaded()?
 	}
 
 	public bool ToggleOverlay(SpriteRenderer sourceRenderer, string text)
@@ -873,6 +884,14 @@ public class AvatarController : KinematicCharacter
 		StopAiming();
 		attachable.Detach(false); // to swap in new items and so that we can refresh inventory immediately even though deletion hasn't happened yet
 		InventorySync();
+	}
+
+	private void ScaleLight()
+	{
+		Light2D light = GetComponent<Light2D>();
+		float scalar = GameController.Instance.m_zoneScalar;
+		light.pointLightOuterRadius = scalar * m_lightRadiusOrig;
+		light.NonpublicSetterWorkaround("m_NormalMapDistance", scalar * m_lightDistanceOrig);
 	}
 
 	private void DeactivateAllControl()

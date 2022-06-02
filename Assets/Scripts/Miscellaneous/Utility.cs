@@ -162,4 +162,12 @@ public static class Utility
 		Debug.Assert(mask > 0 && Mathf.IsPowerOfTwo(mask)); // multi-bit masks don't translate to a single index
 		return Mathf.RoundToInt(Mathf.Log(mask, 2.0f));
 	}
+
+	public static void NonpublicSetterWorkaround(this object component, string fieldName, object value)
+	{
+		// see https://forum.unity.com/threads/lwrp-light-2d-change-sprite-in-script.753542/ for explanation of workaround for serialized properties not having public setters
+		const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+		System.Reflection.FieldInfo setterWorkaround = component.GetType().GetField(fieldName, flags);
+		setterWorkaround.SetValue(component, value);
+	}
 }

@@ -37,6 +37,7 @@ public class GameController : MonoBehaviour
 	public GameObject[] m_doorInteractPrefabs;
 
 	public bool m_allowCutbacks = true;
+	public float m_zoneScalar = 1.0f;
 
 	public TMPro.TMP_Text m_timerUI;
 	public Canvas m_pauseUI;

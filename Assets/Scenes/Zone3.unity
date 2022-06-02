@@ -171,6 +171,10 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_zoneScalar
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_victoryAudio
       value: 
       objectReference: {fileID: 8300000, guid: 5833894e2899f1840ac04193ca462e39, type: 3}

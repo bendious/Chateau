@@ -24,6 +24,7 @@ public class Boss : MonoBehaviour
 	private void Awake()
 	{
 		m_startPos = transform.position;
+		GetComponent<Health>().m_maxHP *= GameController.Instance.m_zoneScalar;
 	}
 
 	private void OnWillRenderObject()
@@ -70,10 +71,6 @@ public class Boss : MonoBehaviour
 		foreach (GameObject doorway in roomComp.DoorwaysUpwardOpen)
 		{
 			roomComp.SpawnLadder(doorway, m_room.m_spawnedLadderPrefabs.RandomWeighted(), true);
-			if (Random.value > m_duplicateLadderPct)
-			{
-				break;
-			}
 		}
 
 		GameController.Instance.OnVictory();

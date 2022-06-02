@@ -109,10 +109,7 @@ public class LightFlicker : MonoBehaviour
 				continue;
 			}
 
-			// see https://forum.unity.com/threads/lwrp-light-2d-change-sprite-in-script.753542/ for explanation of workaround for Light2D.lightCookieSprite not having a public setter
-			const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-			System.Reflection.FieldInfo spriteSetterWorkaround = typeof(Light2D).GetField("m_LightCookieSprite", flags);
-			spriteSetterWorkaround.SetValue(info.m_light, lightSpriteNew);
+			info.m_light.NonpublicSetterWorkaround("m_LightCookieSprite", lightSpriteNew);
 		}
 	}
 

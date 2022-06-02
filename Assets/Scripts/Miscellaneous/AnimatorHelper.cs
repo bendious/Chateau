@@ -7,15 +7,14 @@ public class AnimatorHelper : MonoBehaviour
 	private AudioSource m_audioSource;
 
 
-	private void Start()
-	{
-		m_audioSource = GetComponent<AudioSource>();
-	}
-
-
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called by animation triggers")]
 	private void ProcessAnimEvent(AnimationEvent evt)
 	{
+		if (m_audioSource == null)
+		{
+			m_audioSource = GetComponent<AudioSource>();
+		}
+
 		Debug.Assert(evt.objectReferenceParameter != null);
 		if (evt.objectReferenceParameter is AudioClip clip)
 		{

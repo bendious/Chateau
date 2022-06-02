@@ -141,7 +141,7 @@ public class Health : MonoBehaviour
 	}
 
 
-	void Awake()
+	void Start()
 	{
 		m_animator = GetComponent<Animator>();
 		m_character = GetComponent<KinematicCharacter>();
