@@ -18,8 +18,14 @@ public class LockController : MonoBehaviour, IUnlockable
 		public int m_keyCountMax;
 		public int m_combinationDigits;
 	}
+	[System.Serializable] public class CombinationSet
+	{
+		public string m_string;
+		public Sprite[] m_sprites;
+		public float m_spriteUsagePct = 0.0f;
+	}
 	public WeightedObject<KeyInfo>[] m_keyPrefabs;
-	public WeightedObject<string>[] m_combinationSets;
+	public WeightedObject<CombinationSet>[] m_combinationSets;
 
 	public float m_keyHeightMax = 7.5f;
 
@@ -36,9 +42,7 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	private readonly List<IKey> m_keys = new();
 	private KeyInfo m_keyInfo;
-	private string m_combinationSet;
-
-	private /*readonly*/ string m_combination;
+	private CombinationSet m_combinationSet;
 
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
@@ -79,13 +83,14 @@ public class LockController : MonoBehaviour, IUnlockable
 		{
 			// assign combination
 			m_combinationSet = m_combinationSets.RandomWeighted();
-			m_combination = "";
+			int[] combination = new int[m_keyInfo.m_combinationDigits];
 			for (int digitIdx = 0; digitIdx < m_keyInfo.m_combinationDigits; ++digitIdx)
 			{
-				m_combination += m_combinationSet[Random.Range(0, m_combinationSet.Length)]; // TODO: recognize & act upon "special" combinations (0333, 0666, real words, etc.)?
+				combination[digitIdx] = Random.Range(0, m_combinationSet.m_string.Length); // TODO: recognize & act upon "special" combinations (0333, 0666, real words, etc.)?
 			}
 
 			// distribute combination among keys/children
+			bool useSprites = m_combinationSet.m_spriteUsagePct > 0.0f && Random.value <= m_combinationSet.m_spriteUsagePct; // NOTE the prevention of rare unexpected results when usage percent is 0 or 1
 			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / keyOrLockRooms.Length;
 			int comboIdx = 0;
 			int keyIdx = 0;
@@ -93,14 +98,14 @@ public class LockController : MonoBehaviour, IUnlockable
 			{
 				if (key is InteractToggle toggle)
 				{
-					toggle.SetToggleText(m_combinationSet, m_combination[comboIdx].ToString());
+					toggle.SetToggleText(m_combinationSet, useSprites, combination[comboIdx]);
 					++comboIdx;
 				}
 				else
 				{
 					int startIdx = Mathf.RoundToInt(keyIdx * digitsPerKey);
 					int endIdx = Mathf.RoundToInt((keyIdx + 1) * digitsPerKey);
-					key.Component.GetComponentInChildren<TMP_Text>().text = (keyIdx == 0 ? "" : "<sprite index=0>") + m_combination[startIdx .. endIdx] + (keyIdx == keyOrLockRooms.Length - 1 ? "" : "<sprite index=0>"); // TODO: embed w/i actual text
+					key.Component.GetComponentInChildren<TMP_Text>().text = (keyIdx == 0 ? "" : "<sprite index=0>") + new string(combination[startIdx .. endIdx].Select(idx => m_combinationSet.m_string[idx]).ToArray()) + (keyIdx == keyOrLockRooms.Length - 1 ? "" : "<sprite index=0>"); // TODO: embed w/i actual text
 					++keyIdx;
 				}
 			}
@@ -189,7 +194,7 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	private void OnTriggerEnter2D(Collider2D collider)
 	{
-		if (!string.IsNullOrEmpty(m_combination))
+		if (m_combinationSet != null)
 		{
 			return;
 		}
