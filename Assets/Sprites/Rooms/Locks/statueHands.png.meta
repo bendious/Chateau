@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 43029e8d26abfa9499bb193ed32440c2
+guid: 423141b9a252ef84080d2913ca799d74
 labels:
 - Architecture
 TextureImporter:
@@ -46,10 +46,10 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 50
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -106,85 +106,85 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: levers_0
+      name: statueHands_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 36
+        height: 36
+      alignment: 9
+      pivot: {x: 0.0775, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1276beb133bdf9a4e9d2674704ec1376
-      internalID: -830201480
+      spriteID: a86d2e3d6edadae4db87f558af697d4e
+      internalID: -1410493585
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: levers_1
+      name: statueHands_1
       rect:
         serializedVersion: 2
-        x: 128
+        x: 36
         y: 0
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 36
+        height: 36
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0775}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: cb2b45c97f3fdeb45bfa06b719ea6487
-      internalID: 558141459
+      spriteID: d633c6748f0619d41adcb3a3da9ad5cb
+      internalID: 1042614977
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: levers_2
+      name: statueHands_2
       rect:
         serializedVersion: 2
-        x: 256
+        x: 72
         y: 0
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 36
+        height: 36
+      alignment: 9
+      pivot: {x: 0.925, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c4ed2467125bfc0498ee668db2677013
-      internalID: -1427725125
+      spriteID: 53be47704477d964094d2b0371bb5b0f
+      internalID: 722431226
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: levers_3
+      name: statueHands_3
       rect:
         serializedVersion: 2
-        x: 384
+        x: 108
         y: 0
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        width: 36
+        height: 36
+      alignment: 9
+      pivot: {x: 0.5, y: 0.925}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bf0202f37b9c09e47aefdb8e00ebe086
-      internalID: 119297155
+      spriteID: ae5411ce1a1b0474f8ea5cec8c80b758
+      internalID: 353567872
       vertices: []
       indices: 
       edges: []
@@ -200,10 +200,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      levers_3: 119297155
-      levers_1: 558141459
-      levers_2: -1427725125
-      levers_0: -830201480
+      statueHands_3: 353567872
+      statueHands_0: -1410493585
+      statueHands_1: 1042614977
+      statueHands_2: 722431226
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
