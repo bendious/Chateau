@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 
@@ -13,20 +14,27 @@ public class LineConnector : MonoBehaviour
 	private ArmController m_arm;
 	private AnchoredJoint2D[] m_joints;
 
+	private AvatarController m_avatar;
+	private EnemyController m_enemy;
+	private SpriteRenderer m_parentRenderer;
+
 
 	private void Start()
 	{
 		m_lines = GetComponentsInChildren<LineRenderer>();
 		m_arm = GetComponent<ArmController>();
 		m_joints = GetComponents<AnchoredJoint2D>();
+		m_avatar = transform.parent.GetComponent<AvatarController>();
+		m_enemy = transform.parent.GetComponent<EnemyController>();
+		m_parentRenderer = m_avatar != null ? m_avatar.GetComponent<SpriteRenderer>() : m_enemy != null ? m_enemy.GetComponent<SpriteRenderer>() : null;
 	}
 
-	private void Update()
+	private void LateUpdate()
 	{
-		AvatarController avatar = transform.parent.GetComponent<AvatarController>();
-		EnemyController enemy = transform.parent.GetComponent<EnemyController>();
-		Vector3 parentOffset = avatar != null ? avatar.m_armOffset : enemy != null ? enemy.m_armOffset : Vector3.zero; // TODO: unify {Avatar/Enemy}Controller.m_armOffset?
+		Vector3 parentOffset = m_avatar != null ? m_avatar.m_armOffset : m_enemy != null ? m_enemy.m_armOffset : Vector3.zero; // TODO: unify {Avatar/Enemy}Controller.m_armOffset?
 		Vector3 shoulderPosLocal = transform.parent.position + parentOffset + (m_arm == null ? Vector3.zero : (Vector3)(Vector2)m_arm.m_offset) - transform.position; // NOTE the removal of Z from m_arm.m_offset
+		float alpha = m_parentRenderer == null ? 1.0f : m_parentRenderer.color.a;
+		System.Lazy<GradientAlphaKey[]> newAlphaKeys = new(() => new GradientAlphaKey[] { new GradientAlphaKey(alpha, 0.0f) }, false);
 
 		int i = 0;
 		foreach (LineRenderer line in m_lines)
@@ -45,6 +53,10 @@ public class LineConnector : MonoBehaviour
 			{
 				line.SetPosition(0, startPosLocal);
 				line.SetPosition(1, endPosLocal);
+				if (line.colorGradient.alphaKeys.First().alpha != alpha) // TODO: don't assume a constant alpha across the line?
+				{
+					line.colorGradient = new() { colorKeys = line.colorGradient.colorKeys, alphaKeys = newAlphaKeys.Value }; // NOTE that we have to replace the whole gradient rather than just setting individual attributes due to the annoying way LineRenderer prevents those changes
+				}
 			}
 
 			++i;

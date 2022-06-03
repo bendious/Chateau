@@ -283,10 +283,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			return;
 		}
 
-		Gradient gradient = new();
-		gradient.colorKeys = new GradientColorKey[] { new(GameController.Instance.m_avatars.Contains(Cause) ? Color.white : Color.red, 0.0f) };
-		gradient.alphaKeys = new GradientAlphaKey[] { new(m_vfxAlpha, 0.0f) };
-		m_trail.colorGradient = gradient;
+		m_trail.colorGradient = new() { colorKeys = new GradientColorKey[] { new(GameController.Instance.m_avatars.Contains(Cause) ? Color.white : Color.red, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new(m_vfxAlpha, 0.0f) } }; // NOTE that we have to replace the whole gradient rather than just setting individual attributes due to the annoying way LineRenderer prevents those changes
 	}
 
 	private void ProcessCollision(Collision2D collision)
@@ -394,7 +391,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		{
 			m_trail.emitting = true;
 		}
-		StopAllCoroutines();
 		StartCoroutine(UpdateVFXAndCause());
 	}
 
@@ -412,7 +408,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 				{
 					SetCause(null);
 				}
-				StopAllCoroutines();
 				break;
 			}
 			yield return null;

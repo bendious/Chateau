@@ -39,6 +39,8 @@ public interface IAttachable
 		{
 			avatar.InventorySync();
 		}
+
+		(attachableComp as MonoBehaviour).StartCoroutine(attachable.MirrorParentAlphaCoroutine());
 	}
 
 	public static void DetachInternalShared(GameObject attachableObj)
@@ -52,5 +54,26 @@ public interface IAttachable
 		// "cancel" the effect of DontDestroyOnLoad() in case we were attached to the avatar
 		// see https://answers.unity.com/questions/1491238/undo-dontdestroyonload.html
 		SceneManager.MoveGameObjectToScene(attachableObj, SceneManager.GetActiveScene());
+
+		// NOTE that we rely upon MirrorParentAlphaCoroutine() terminating itself rather than tracking and canceling it here
+	}
+
+
+	private System.Collections.IEnumerator MirrorParentAlphaCoroutine()
+	{
+		Transform tf = Component.transform;
+		Transform parentTf = tf.parent;
+		SpriteRenderer renderer = tf.GetComponent<SpriteRenderer>();
+		SpriteRenderer parentRenderer = parentTf.GetComponent<SpriteRenderer>();
+		WaitUntil waitCondition = new(() => tf.parent != parentTf || parentRenderer.color.a != renderer.color.a);
+
+		while (tf.parent == parentTf)
+		{
+			Color color = renderer.color;
+			color.a = parentRenderer.color.a;
+			renderer.color = color;
+
+			yield return waitCondition;
+		}
 	}
 }
