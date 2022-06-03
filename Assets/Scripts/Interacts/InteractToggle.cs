@@ -3,14 +3,18 @@ using TMPro;
 using UnityEngine;
 
 
-[DisallowMultipleComponent, RequireComponent(typeof(Collider2D))]
+[DisallowMultipleComponent, RequireComponent(typeof(Collider2D), typeof(SpriteRenderer), typeof(AudioSource))]
 public class InteractToggle : MonoBehaviour, IInteractable, IKey
 {
+	[SerializeField] private WeightedObject<AudioClip>[] m_sfx;
+
+
 	public IUnlockable Lock { get; set; }
 	public bool IsInPlace { get => m_charIdx == m_idxCorrect; set => IsInPlace = IsInPlace/*TODO?*/; }
 
 	private TMP_Text m_text;
 	private SpriteRenderer m_renderer;
+	private AudioSource m_audioSource;
 
 	private LockController.CombinationSet m_toggleSet;
 	private bool m_useSprites;
@@ -23,6 +27,7 @@ public class InteractToggle : MonoBehaviour, IInteractable, IKey
 	{
 		m_text = GetComponentInChildren<TMP_Text>();
 		m_renderer = GetComponent<SpriteRenderer>();
+		m_audioSource = GetComponent<AudioSource>();
 	}
 
 
@@ -42,6 +47,9 @@ public class InteractToggle : MonoBehaviour, IInteractable, IKey
 		}
 
 		(Lock as LockController).CheckInput();
+
+		m_audioSource.clip = m_sfx.RandomWeighted();
+		m_audioSource.Play();
 	}
 
 	public void Use()

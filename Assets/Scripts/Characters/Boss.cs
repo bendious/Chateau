@@ -10,9 +10,6 @@ public class Boss : MonoBehaviour
 	public BossRoom m_room;
 
 
-	[SerializeField] private float m_duplicateLadderPct = 0.5f;
-
-
 	private Vector3 m_startPos;
 
 	private bool m_started = false;
