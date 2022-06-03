@@ -1232,6 +1232,7 @@ MonoBehaviour:
   - {fileID: 5746196675388104066, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
   - {fileID: 9122007181668863787, guid: 18a928b181bfee64b887827ee31f4661, type: 3}
   m_allowCutbacks: 1
+  m_zoneScalar: 1
   m_timerUI: {fileID: 9004531423071069859}
   m_pauseUI: {fileID: 8953914197898318485}
   m_gameOverUI: {fileID: 8429885465154309406}
@@ -1244,6 +1245,10 @@ MonoBehaviour:
   - m_object: {fileID: 8300000, guid: 49ba588079fa3c84bafa890d317e15fd, type: 3}
     m_weight: 1
   - m_object: {fileID: 8300000, guid: 53e4126a8a47a1e43a584006db1a7786, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 170c942b371e1064a9e0c092081caba4, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 4ea896355fec1b34daf24caec397fd36, type: 3}
     m_weight: 1
   m_musicDelayMin: 30
   m_musicDelayMax: 120
