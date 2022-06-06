@@ -108,12 +108,12 @@ public class SaveReader : System.IDisposable
 
 	public T[] ReadArray<T>(System.Func<T> loadFunc)
 	{
-		System.Collections.Generic.List<T> list = new();
-		for (int i = 0, n = ReadInt32(); i < n; ++i)
+		T[] output = new T[ReadInt32()];
+		for (int i = 0, n = output.Length; i < n; ++i)
 		{
-			list.Add(loadFunc());
+			output[i] = loadFunc();
 		}
-		return list.ToArray();
+		return output;
 	}
 	public void Read<T>(out T[] array, System.Func<T> loadFunc) => array = ReadArray(loadFunc);
 }
