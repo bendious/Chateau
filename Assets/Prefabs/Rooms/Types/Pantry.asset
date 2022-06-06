@@ -52,6 +52,7 @@ MonoBehaviour:
   m_furniturePrefabs:
   - m_object: {fileID: 9028243466021937491, guid: 965caaff450150540afaa57f9d77e599, type: 3}
     m_weight: 1
+  m_furnitureFillMin: 0.5
   m_itemPrefabs:
   - m_object: {fileID: 6107488262492150209, guid: 4feae967d8b4799409bbcd10967052ed, type: 3}
     m_weight: 0.25
@@ -70,8 +71,8 @@ MonoBehaviour:
     m_weight: 0.5
   - m_object: {fileID: 4221545259124064584, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
     m_weight: 0.5
-  m_itemsMin: 1
-  m_itemsMax: 4
+  m_itemsMin: 4
+  m_itemsMax: 8
   m_decorationPrefabs:
   - m_object: {fileID: 8498127701983908984, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
     m_weight: 1

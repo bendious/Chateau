@@ -16,7 +16,7 @@ public class FurnitureController : MonoBehaviour
 	public int m_itemsMax = 4;
 
 
-	public void RandomizeSize(Vector2 roomExtents)
+	public float RandomizeSize(Vector2 roomExtents)
 	{
 		// randomize size
 		float width = Random.Range(m_sizeMin.x, Mathf.Min(m_sizeMax.x, roomExtents.x));
@@ -39,29 +39,39 @@ public class FurnitureController : MonoBehaviour
 
 			heightItr += heightPiece;
 		}
+
+		return width;
 	}
 
-	public void SpawnItems(bool rare, RoomType roomType)
+	public int SpawnItems(bool rare, RoomType roomType, int itemCountExisting, int furnitureRemaining)
 	{
 		// determine final spawn types/weights based on furniture and room type
-		int itemCount = Random.Range(Mathf.Min(m_itemsMin, roomType.m_itemsMin), Mathf.Min(m_itemsMax, roomType.m_itemsMax) + 1); // TODO: abide by RoomType min/max across multiple furnitures
+		int minItemsOtherFurniture = itemCountExisting + furnitureRemaining * m_itemsMin; // TODO: don't assume all future furniture will have the same m_itemsMin
+		int itemCount = Random.Range(Mathf.Max(m_itemsMin, roomType.m_itemsMin - minItemsOtherFurniture), Mathf.Min(m_itemsMax, roomType.m_itemsMax - minItemsOtherFurniture) + 1);
 		WeightedObject<GameObject>[] furnitureItems = rare ? m_itemRarePrefabs : m_itemPrefabs;
 		WeightedObject<GameObject>[] roomItems = rare ? roomType.m_itemRarePrefabs : roomType.m_itemPrefabs;
 		WeightedObject<GameObject>[] itemsFinal = furnitureItems.Join(roomItems, pair => pair.m_object, pair => pair.m_object, (pair1, pair2) => new WeightedObject<GameObject> { m_object = pair1.m_object, m_weight = pair1.m_weight * pair2.m_weight }).ToArray();
 
 		if (itemsFinal.Length <= 0)
 		{
-			return; // NOTE that this is valid for non-bonus Entryway rooms
+			return 0; // NOTE that this is valid for non-bonus Entryway rooms
 		}
 
+		System.Collections.Generic.Queue<GameObject> itemsNext = null; // TODO: share across instances of the same type in the same room?
 		Vector3 size = GetComponent<Collider2D>().bounds.size; // NOTE that the collider likely hasn't updated its position, but the size should be valid
 		float extentX = size.x * 0.5f;
 		for (int i = 0; i < itemCount; ++i)
 		{
-			GameObject itemPrefab = itemsFinal.RandomWeighted();
+			if (itemsNext == null || itemsNext.Count <= 0)
+			{
+				itemsNext = new(itemsFinal.RandomWeightedOrder());
+			}
+			GameObject itemPrefab = itemsNext.Dequeue();
 			Vector3 spawnCenterPos = ItemSpawnPositionInternal(itemPrefab, extentX, size.y);
 			GameController.Instance.m_savableFactory.Instantiate(itemPrefab, spawnCenterPos, Quaternion.identity);
 		}
+
+		return itemCount;
 	}
 
 	public Vector3 ItemSpawnPosition(GameObject itemPrefab)

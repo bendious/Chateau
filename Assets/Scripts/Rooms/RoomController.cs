@@ -213,13 +213,25 @@ public class RoomController : MonoBehaviour
 		}
 
 		// spawn furniture
-		if (m_roomType.m_furniturePrefabs.Length > 0)
+		float furnitureFillPct = 0.0f; // TODO: take decorations into account?
+		Vector2 extentsInterior = BoundsInterior.extents;
+		List<FurnitureController> furnitureList = new();
+		while (m_roomType.m_furniturePrefabs.Length > 0 && furnitureFillPct < m_roomType.m_furnitureFillMin)
 		{
 			FurnitureController furniture = Instantiate(m_roomType.m_furniturePrefabs.RandomWeighted(), transform).GetComponent<FurnitureController>(); // NOTE that we have to spawn before placement due to size randomization
-			Vector2 extentsInterior = BoundsInterior.extents;
-			furniture.RandomizeSize(extentsInterior);
-			furniture.transform.position = InteriorPosition(0.0f, furniture.gameObject, () => furniture.RandomizeSize(extentsInterior));
-			furniture.SpawnItems(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType);
+			float width = furniture.RandomizeSize(extentsInterior);
+			furniture.transform.position = InteriorPosition(0.0f, furniture.gameObject, () => width = furniture.RandomizeSize(extentsInterior)); // TODO: detect and cleanup if failing to find enough space
+			furnitureList.Add(furniture);
+			furnitureFillPct += width * 0.5f / extentsInterior.x;
+		}
+
+		// spawn items
+		int itemCount = 0;
+		int furnitureRemaining = furnitureList.Count - 1;
+		foreach (FurnitureController furniture in furnitureList)
+		{
+			itemCount += furniture.SpawnItems(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType, itemCount, furnitureRemaining);
+			--furnitureRemaining;
 		}
 
 		for (int doorwayIdx = 0; doorwayIdx < m_doorwayInfos.Length; ++doorwayIdx)
