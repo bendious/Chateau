@@ -26,7 +26,7 @@ public class AnimatorHelper : MonoBehaviour
 		}
 		else
 		{
-			Debug.Assert(false);
+			Debug.Assert(false, "Unhandled animation trigger.");
 		}
 	}
 }

@@ -17,7 +17,7 @@ public class KeyStatic : MonoBehaviour, IKey
 
 	public void Use()
 	{
-		Debug.Assert(false);
+		Debug.Assert(false, "Trying to Use() a KeyStatic.");
 	}
 
 	public void Deactivate()

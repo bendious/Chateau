@@ -50,7 +50,7 @@ public abstract class AIState
 				case Type.Teleport:
 					return Random.value;
 				default:
-					Debug.Assert(false);
+					Debug.Assert(false, "Unhandled AIState.");
 					return 0.0f;
 			}
 		}).ToArray();
@@ -72,7 +72,7 @@ public abstract class AIState
 			case Type.Teleport:
 				return new AITeleport(ai);
 			default:
-				Debug.Assert(false);
+				Debug.Assert(false, "Unhandled AIState.");
 				return null;
 		}
 	}

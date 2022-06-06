@@ -47,7 +47,7 @@ public class InteractToggle : MonoBehaviour, IInteractable, IKey
 
 	public void Use()
 	{
-		Debug.Assert(false);
+		Debug.Assert(false, "Trying to Use() an InteractToggle.");
 	}
 
 	public void SetToggleText(LockController.CombinationSet set, int optionIndex, int indexCorrect)

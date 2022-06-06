@@ -74,7 +74,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 
 	public void Use()
 	{
-		Debug.Assert(false);
+		Debug.Assert(false, "Trying to Use() an InteractFollow.");
 	}
 
 	public void Deactivate()
