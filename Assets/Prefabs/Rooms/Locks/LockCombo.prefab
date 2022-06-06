@@ -1377,12 +1377,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.6
+  m_fontSize: 0.5
   m_fontSizeBase: 0.6
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 0.1
+  m_fontSizeMax: 0.5
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -1482,34 +1482,197 @@ MonoBehaviour:
     m_weight: 1
   m_combinationSets:
   - m_object:
-      m_string: 0123456789
-      m_sprites: []
+      m_options:
+      - m_strings:
+        - 0
+        - 'Zero '
+        - '0 '
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - 1
+        - 'One '
+        - 'I '
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - 2
+        - 'Two '
+        - 'II '
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - 3
+        - 'Three '
+        - 'III '
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - 4
+        - 'Four '
+        - 'IV '
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - 5
+        - 'Five '
+        - 'V '
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - 6
+        - 'Six '
+        - 'VI '
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - 7
+        - 'Seven '
+        - 'VII '
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - 8
+        - 'Eight '
+        - 'VIII '
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - 9
+        - 'Nine '
+        - 'IX '
+        m_sprite: {fileID: 0}
       m_spriteUsagePct: 0
     m_weight: 1
   - m_object:
-      m_string: ABCDEFGHIJKLMNOPQRSTUVWXYZ
-      m_sprites: []
+      m_options:
+      - m_strings:
+        - A
+        - a
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - B
+        - b
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - C
+        - c
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - D
+        - d
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - E
+        - e
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - F
+        - f
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - G
+        - g
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - H
+        - h
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - I
+        - i
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - J
+        - j
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - K
+        - k
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - L
+        - l
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - M
+        - m
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - N
+        - n
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - O
+        - o
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - P
+        - p
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - Q
+        - q
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - R
+        - r
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - S
+        - s
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - T
+        - t
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - U
+        - u
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - V
+        - v
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - W
+        - w
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - X
+        - x
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - Y
+        - y
+        m_sprite: {fileID: 0}
+      - m_strings:
+        - Z
+        - z
+        m_sprite: {fileID: 0}
       m_spriteUsagePct: 0
-    m_weight: 0.5
+    m_weight: 1
   - m_object:
-      m_string: abcdefghijklmnopqrstuvwxyz
-      m_sprites: []
-      m_spriteUsagePct: 0
-    m_weight: 0.5
-  - m_object:
-      m_string: "\u2192\u2191\u2190\u2193"
-      m_sprites:
-      - {fileID: -830201480, guid: 43029e8d26abfa9499bb193ed32440c2, type: 3}
-      - {fileID: 558141459, guid: 43029e8d26abfa9499bb193ed32440c2, type: 3}
-      - {fileID: -1427725125, guid: 43029e8d26abfa9499bb193ed32440c2, type: 3}
-      - {fileID: 119297155, guid: 43029e8d26abfa9499bb193ed32440c2, type: 3}
+      m_options:
+      - m_strings:
+        - "\u2192"
+        - 'Right '
+        m_sprite: {fileID: -830201480, guid: 43029e8d26abfa9499bb193ed32440c2, type: 3}
+      - m_strings:
+        - "\u2191"
+        - 'Up '
+        m_sprite: {fileID: 558141459, guid: 43029e8d26abfa9499bb193ed32440c2, type: 3}
+      - m_strings:
+        - "\u2190"
+        - 'Left '
+        m_sprite: {fileID: -1427725125, guid: 43029e8d26abfa9499bb193ed32440c2, type: 3}
+      - m_strings:
+        - "\u2193"
+        - 'Down '
+        m_sprite: {fileID: 119297155, guid: 43029e8d26abfa9499bb193ed32440c2, type: 3}
       m_spriteUsagePct: 0.5
     m_weight: 1
   - m_object:
-      m_string: "\u2191\u2193"
-      m_sprites:
-      - {fileID: 558141459, guid: 43029e8d26abfa9499bb193ed32440c2, type: 3}
-      - {fileID: 119297155, guid: 43029e8d26abfa9499bb193ed32440c2, type: 3}
+      m_options:
+      - m_strings:
+        - "\u2191"
+        - 'Up '
+        m_sprite: {fileID: 558141459, guid: 43029e8d26abfa9499bb193ed32440c2, type: 3}
+      - m_strings:
+        - "\u2193"
+        - 'Down '
+        m_sprite: {fileID: 119297155, guid: 43029e8d26abfa9499bb193ed32440c2, type: 3}
       m_spriteUsagePct: 0.5
     m_weight: 1
   m_keyHeightMax: 7.5
@@ -1716,12 +1879,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.6
+  m_fontSize: 0.5
   m_fontSizeBase: 0.6
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 0.1
+  m_fontSizeMax: 0.5
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -2053,12 +2216,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.6
+  m_fontSize: 0.5
   m_fontSizeBase: 0.6
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 0.1
+  m_fontSizeMax: 0.5
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -2289,12 +2452,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.6
+  m_fontSize: 0.5
   m_fontSizeBase: 0.6
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 0.1
+  m_fontSizeMax: 0.5
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512

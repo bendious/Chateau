@@ -873,12 +873,23 @@ MonoBehaviour:
     m_weight: 1
   m_combinationSets:
   - m_object:
-      m_string: "\u2192\u2191\u2190\u2193"
-      m_sprites:
-      - {fileID: -1410493585, guid: 423141b9a252ef84080d2913ca799d74, type: 3}
-      - {fileID: 1042614977, guid: 423141b9a252ef84080d2913ca799d74, type: 3}
-      - {fileID: 722431226, guid: 423141b9a252ef84080d2913ca799d74, type: 3}
-      - {fileID: 353567872, guid: 423141b9a252ef84080d2913ca799d74, type: 3}
+      m_options:
+      - m_strings:
+        - "\u2192"
+        - 'Right '
+        m_sprite: {fileID: -1410493585, guid: 423141b9a252ef84080d2913ca799d74, type: 3}
+      - m_strings:
+        - "\u2191"
+        - 'Up '
+        m_sprite: {fileID: 1042614977, guid: 423141b9a252ef84080d2913ca799d74, type: 3}
+      - m_strings:
+        - "\u2190"
+        - 'Left '
+        m_sprite: {fileID: 722431226, guid: 423141b9a252ef84080d2913ca799d74, type: 3}
+      - m_strings:
+        - "\u2193"
+        - 'Down '
+        m_sprite: {fileID: 353567872, guid: 423141b9a252ef84080d2913ca799d74, type: 3}
       m_spriteUsagePct: 1
     m_weight: 1
   m_keyHeightMax: 7.5

@@ -10,15 +10,15 @@ public class InteractToggle : MonoBehaviour, IInteractable, IKey
 
 
 	public IUnlockable Lock { get; set; }
-	public bool IsInPlace { get => m_charIdx == m_idxCorrect; set => IsInPlace = IsInPlace/*TODO?*/; }
+	public bool IsInPlace { get => m_idxCurrent == m_idxCorrect; set => IsInPlace = IsInPlace/*TODO?*/; }
 
 	private TMP_Text m_text;
 	private SpriteRenderer m_renderer;
 	private AudioSource m_audioSource;
 
 	private LockController.CombinationSet m_toggleSet;
-	private bool m_useSprites;
-	private int m_charIdx = -1;
+	private int m_optionIndex;
+	private int m_idxCurrent = -1;
 
 	private int m_idxCorrect;
 
@@ -31,20 +31,13 @@ public class InteractToggle : MonoBehaviour, IInteractable, IKey
 	}
 
 
-	public bool CanInteract(KinematicCharacter interactor) => m_toggleSet != null && m_toggleSet.m_string.Length > 1;
+	public bool CanInteract(KinematicCharacter interactor) => m_toggleSet != null && m_toggleSet.m_options.Length > 1;
 	public bool CanInteractReverse(KinematicCharacter interactor) => CanInteract(interactor);
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
-		m_charIdx = (m_charIdx + (reverse ? -1 : 1)).Modulo(m_toggleSet.m_string.Length);
-		if (m_useSprites)
-		{
-			SetSpriteAndMode(m_toggleSet.m_sprites[m_charIdx]);
-		}
-		else
-		{
-			m_text.text = m_toggleSet.m_string[m_charIdx].ToString();
-		}
+		m_idxCurrent = (m_idxCurrent + (reverse ? -1 : 1)).Modulo(m_toggleSet.m_options.Length);
+		UpdateVisuals();
 
 		(Lock as LockController).CheckInput();
 
@@ -57,37 +50,38 @@ public class InteractToggle : MonoBehaviour, IInteractable, IKey
 		Debug.Assert(false);
 	}
 
-	public void SetToggleText(LockController.CombinationSet set, bool useSprites, int indexCorrect)
+	public void SetToggleText(LockController.CombinationSet set, int optionIndex, int indexCorrect)
 	{
 		m_toggleSet = set;
-		m_useSprites = useSprites;
-		Debug.Assert(!useSprites || set.m_sprites.Length == set.m_string.Length);
+		m_optionIndex = optionIndex;
 		m_idxCorrect = indexCorrect;
+		m_idxCurrent = 0;
 
-		if (m_toggleSet != null)
+		if (m_toggleSet == null)
 		{
-			m_charIdx = 0;
-			if (m_useSprites)
-			{
-				SetSpriteAndMode(m_toggleSet.m_sprites.First());
-			}
-			else
-			{
-				m_text.text = m_toggleSet.m_string.First().ToString();
-			}
+			return;
 		}
+		UpdateVisuals();
 	}
 
 	public void Deactivate()
 	{
-		SetToggleText(null, false, -1);
+		SetToggleText(null, 0, -1);
 		GetComponent<UnityEngine.Rendering.Universal.Light2D>().enabled = false;
 	}
 
 
-	private void SetSpriteAndMode(Sprite sprite)
+	private void UpdateVisuals()
 	{
-		m_renderer.sprite = sprite;
-		m_renderer.drawMode = sprite.border == Vector4.zero ? SpriteDrawMode.Simple : SpriteDrawMode.Sliced;
+		if (m_optionIndex < 0)
+		{
+			Sprite sprite = m_toggleSet.m_options[m_idxCurrent].m_sprite;
+			m_renderer.sprite = sprite;
+			m_renderer.drawMode = sprite.border == Vector4.zero ? SpriteDrawMode.Simple : SpriteDrawMode.Sliced;
+		}
+		else
+		{
+			m_text.text = m_toggleSet.m_options[m_idxCurrent].m_strings[m_optionIndex];
+		}
 	}
 }
