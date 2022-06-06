@@ -96,9 +96,9 @@ MonoBehaviour:
   m_fontSize: 0.05
   m_fontSizeBase: 0.05
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 0.01
+  m_fontSizeMax: 0.5
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -409,6 +409,34 @@ PrefabInstance:
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_collisionAudio.Array.size
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_sourceTextOptions.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_sourceTextOptions.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_sourceTextOptions.Array.data[0].m_object.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_sourceTextOptions.Array.data[0].m_object.Array.data[0]
+      value: '"#!" said the blind man, up in his tree.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_sourceTextOptions.Array.data[0].m_object.Array.data[1]
+      value: '"#!" said the Kingsman, stern as can be.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_sourceTextOptions.Array.data[0].m_object.Array.data[2]
+      value: The fool looked on, "#" under his breath.
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_sourceTextOptions.Array.data[0].m_object.Array.data[3]
+      value: But the blind man's "#!" did save him from death.
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}

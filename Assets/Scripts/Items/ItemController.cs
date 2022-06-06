@@ -29,6 +29,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public Collider2D[] m_nondamageColliders;
 
 
+	[SerializeField] private WeightedObject<string[]>[] m_sourceTextOptions;
+
 	[SerializeField]
 	private GameObject m_drawPrefab;
 
@@ -266,6 +268,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		EnableVFXAndDamage();
 
 		PlayMovementAudio();
+	}
+
+	public void MergeWithSourceText(string prepend, IEnumerable<string> mainElements, string append)
+	{
+		string[] sourceText = m_sourceTextOptions.RandomWeighted();
+		string aggregateText = sourceText.Zip(mainElements, (source, piece) => source.Replace("#", piece.Trim())).Aggregate("", (a, b) => a + "\n" + b);
+		GetComponentInChildren<TMP_Text>().text = prepend + aggregateText + append;
 	}
 
 

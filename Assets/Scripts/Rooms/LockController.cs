@@ -96,7 +96,9 @@ public class LockController : MonoBehaviour, IUnlockable
 
 			// distribute combination among keys/children
 			bool useSprites = m_combinationSet.m_spriteUsagePct > 0.0f && Random.value <= m_combinationSet.m_spriteUsagePct; // NOTE the prevention of rare unexpected results when usage percent is 0 or 1
-			int optionIdx = Random.Range(0, m_combinationSet.m_options.First().m_strings.Length); // TODO: don't assume all options have the same m_strings.Length?
+			int optionsCount = m_combinationSet.m_options.First().m_strings.Length; // TODO: don't assume all options have the same m_strings.Length?
+			int optionIdxToggle = useSprites ? -1 : Random.Range(0, optionsCount);
+			int optionIdxText = Random.Range(0, optionsCount); // NOTE that this can differ from optionIdxToggle even when not using sprites, in order to allow logically equivalent options within individual puzzles
 			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / keyOrLockRooms.Length;
 			int comboIdx = 0;
 			int keyIdx = 0;
@@ -104,14 +106,25 @@ public class LockController : MonoBehaviour, IUnlockable
 			{
 				if (key is InteractToggle toggle)
 				{
-					toggle.SetToggleText(m_combinationSet, useSprites ? -1 : optionIdx, combination[comboIdx]);
+					toggle.SetToggleText(m_combinationSet, optionIdxToggle, combination[comboIdx]);
 					++comboIdx;
 				}
 				else
 				{
 					int startIdx = Mathf.RoundToInt(keyIdx * digitsPerKey);
 					int endIdx = Mathf.RoundToInt((keyIdx + 1) * digitsPerKey);
-					key.Component.GetComponentInChildren<TMP_Text>().text = (keyIdx == 0 ? "" : "<sprite index=0>") + combination[startIdx .. endIdx].Aggregate("", (str, idx) => str + m_combinationSet.m_options[idx].m_strings[optionIdx]) + (keyIdx == keyOrLockRooms.Length - 1 ? "" : "<sprite index=0>"); // TODO: embed w/i actual text
+					string prepend = keyIdx == 0 ? "" : "<sprite index=0>";
+					IEnumerable<string> keyText = combination[startIdx .. endIdx].Select(idx => m_combinationSet.m_options[idx].m_strings[optionIdxText]);
+					string append = keyIdx == keyOrLockRooms.Length - 1 ? "" : "<sprite index=0>";
+
+					if (key is ItemController item)
+					{
+						item.MergeWithSourceText(prepend, keyText, append);
+					}
+					else
+					{
+						key.Component.GetComponentInChildren<TMP_Text>().text = prepend + keyText.Aggregate("", (str, strNew) => str + strNew) + append; // TODO: embed w/i (short) flavor text or use sprites?
+					}
 					++keyIdx;
 				}
 			}
