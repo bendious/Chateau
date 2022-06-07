@@ -212,28 +212,31 @@ public class RoomController : MonoBehaviour
 			}
 		}
 
-		// spawn furniture
-		float furnitureFillPct = 0.0f; // TODO: take decorations into account?
+		// spawn fixed-placement node architecture
+		// NOTE the separate loops to ensure fixed-placement nodes are processed before flexible ones; also that this needs to be before flexibly-placed objects such as furniture
+		float fillPct = 0.0f;
 		Vector2 extentsInterior = BoundsInterior.extents;
-		List<FurnitureController> furnitureList = new();
-		while (m_roomType.m_furniturePrefabs.Length > 0 && furnitureFillPct < m_roomType.m_furnitureFillMin)
+		foreach (LayoutGenerator.Node node in m_layoutNodes)
 		{
-			FurnitureController furniture = Instantiate(m_roomType.m_furniturePrefabs.RandomWeighted(), transform).GetComponent<FurnitureController>(); // NOTE that we have to spawn before placement due to size randomization
-			float width = furniture.RandomizeSize(extentsInterior);
-			furniture.transform.position = InteriorPosition(0.0f, furniture.gameObject, () => width = furniture.RandomizeSize(extentsInterior)); // TODO: detect and cleanup if failing to find enough space
-			furnitureList.Add(furniture);
-			furnitureFillPct += width * 0.5f / extentsInterior.x;
+			switch (node.m_type)
+			{
+				case LayoutGenerator.Node.Type.Entrance:
+				case LayoutGenerator.Node.Type.ExitDoor:
+					GameObject[] doorInteractPrefabs = GameController.Instance.m_doorInteractPrefabs;
+					GameObject doorPrefab = doorInteractPrefabs[System.Math.Min(doorInteractPrefabs.Length - 1, doorwayDepth)];
+					InteractScene doorInteract = Instantiate(doorPrefab, node.m_type == LayoutGenerator.Node.Type.Entrance ? transform.position : InteriorPosition(0.0f, 0.0f, doorPrefab), Quaternion.identity, transform).GetComponent<InteractScene>();
+					if (doorInteract != null)
+					{
+						doorInteract.Depth = doorwayDepth;
+					}
+					++doorwayDepth;
+					fillPct += BoundsWithChildren(doorInteract.gameObject).extents.x / extentsInterior.x;
+					break;
+			}
 		}
 
-		// spawn items
-		int itemCount = 0;
-		int furnitureRemaining = furnitureList.Count - 1;
-		foreach (FurnitureController furniture in furnitureList)
-		{
-			itemCount += furniture.SpawnItems(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType, itemCount, furnitureRemaining);
-			--furnitureRemaining;
-		}
-
+		// open cutbacks
+		// NOTE that this has to be before flexible-placement spawning to avoid overlap w/ ladders
 		for (int doorwayIdx = 0; doorwayIdx < m_doorwayInfos.Length; ++doorwayIdx)
 		{
 			DoorwayInfo doorwayInfo = m_doorwayInfos[doorwayIdx];
@@ -282,57 +285,30 @@ public class RoomController : MonoBehaviour
 						// open doorways & maybe spawn ladder
 						// NOTE that this has to be AFTER checking ChildRoomPath() above
 						doorwayInfo.SiblingRoom = sibling;
-						OpenDoorway(doorwayIdx, true, !noLadder && siblingDepthComparison <= 0 && direction.y > 0.0f);
+						GameObject ladder = OpenDoorway(doorwayIdx, true, !noLadder && siblingDepthComparison <= 0 && direction.y > 0.0f);
+						if (ladder != null)
+						{
+							fillPct += BoundsWithChildren(ladder).extents.x / extentsInterior.x;
+						}
 						reverseInfo.SiblingRoom = this;
-						sibling.OpenDoorway(reverseIdx, true, !noLadder && siblingDepthComparison >= 0 && direction.y < 0.0f);
+						ladder = sibling.OpenDoorway(reverseIdx, true, !noLadder && siblingDepthComparison >= 0 && direction.y < 0.0f);
+						if (ladder != null)
+						{
+							fillPct += BoundsWithChildren(ladder).extents.x / extentsInterior.x;
+						}
 					}
 				}
 
 				continue;
 			}
 			Debug.Assert(doorwayInfo.SiblingRoom == null);
-
-			doorwayInfo.ChildRoom.FinalizeRecursive(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.Entrance || node.m_type == LayoutGenerator.Node.Type.ExitDoor) ? doorwayDepth + 1 : doorwayDepth, System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.Npc) ? npcDepth + 1 : npcDepth);
-
-			IUnlockable unlockable = doorwayInfo.m_blocker == null ? null : doorwayInfo.m_blocker.GetComponent<IUnlockable>();
-			if (unlockable == null)
-			{
-				continue;
-			}
-
-			// spawn keys
-			LayoutGenerator.Node lockNode = GateNodeToChild(LayoutGenerator.Node.Type.Lock, doorwayInfo.ChildRoom.m_layoutNodes);
-			RoomController[] keyRooms = lockNode?.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray();
-			bool excludeSelf = Random.value < 0.5f; // TEMP?
-			unlockable.SpawnKeys(this, keyRooms == null || keyRooms.Length <= 0 ? null : excludeSelf ? keyRooms.Where(room => room != this).ToArray() : keyRooms);
 		}
 
-		// spawn enemy spawn points
-		m_spawnPoints = new GameObject[Random.Range(1, m_spawnPointsMax + 1)]; // TODO: base on room size?
-		for (int spawnIdx = 0; spawnIdx < m_spawnPoints.Length; ++spawnIdx)
-		{
-			GameObject spawnPrefab = m_spawnPointPrefabs.RandomWeighted();
-			Vector3 spawnPosBG = InteriorPosition(float.MaxValue, spawnPrefab); // NOTE that we don't account for maximum enemy size, relying on KinematicObject's spawn checks to prevent getting stuck in walls
-			m_spawnPoints[spawnIdx] = Instantiate(spawnPrefab, spawnPosBG, Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f)), transform);
-		}
-
-		// spawn node-specific architecture
+		// spawn flexible node architecture
 		foreach (LayoutGenerator.Node node in m_layoutNodes)
 		{
 			switch (node.m_type)
 			{
-				case LayoutGenerator.Node.Type.Entrance:
-				case LayoutGenerator.Node.Type.ExitDoor:
-					GameObject[] doorInteractPrefabs = GameController.Instance.m_doorInteractPrefabs;
-					GameObject doorPrefab = doorInteractPrefabs[System.Math.Min(doorInteractPrefabs.Length - 1, doorwayDepth)];
-					InteractScene doorInteract = Instantiate(doorPrefab, node.m_type == LayoutGenerator.Node.Type.Entrance ? transform.position : InteriorPosition(0.0f, 0.0f, doorPrefab), Quaternion.identity, transform).GetComponent<InteractScene>();
-					if (doorInteract != null)
-					{
-						doorInteract.Depth = doorwayDepth;
-					}
-					++doorwayDepth;
-					break;
-
 				case LayoutGenerator.Node.Type.TutorialMove:
 				case LayoutGenerator.Node.Type.TutorialAim:
 				case LayoutGenerator.Node.Type.TutorialDrop:
@@ -345,7 +321,7 @@ public class RoomController : MonoBehaviour
 					Instantiate(prefab, InteriorPosition(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax, prefab), Quaternion.identity, transform);
 					if (node.m_type == LayoutGenerator.Node.Type.TutorialInteract)
 					{
-						prefab = m_roomType.m_itemPrefabs.RandomWeighted();
+						prefab = m_roomType.m_itemPrefabs.RandomWeighted(); // TODO: spawn on table
 						GameController.Instance.m_savableFactory.Instantiate(prefab, InteriorPosition(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax, prefab), Quaternion.identity);
 					}
 					break;
@@ -367,8 +343,64 @@ public class RoomController : MonoBehaviour
 			}
 		}
 
+		// spawn furniture
+		// NOTE that this has to be before keys to allow spawning them on furniture
+		List<FurnitureController> furnitureList = new();
+		while (m_roomType.m_furniturePrefabs.Length > 0 && fillPct < m_roomType.m_fillPctMin)
+		{
+			FurnitureController furniture = Instantiate(m_roomType.m_furniturePrefabs.RandomWeighted(), transform).GetComponent<FurnitureController>(); // NOTE that we have to spawn before placement due to size randomization
+			Vector2 extentsEffective = extentsInterior * (1.0f - fillPct);
+			float width = furniture.RandomizeSize(extentsEffective);
+			furniture.transform.position = InteriorPosition(0.0f, furniture.gameObject, () => width = furniture.RandomizeSize(extentsEffective)); // TODO: detect and cleanup if failing to find enough space
+			furnitureList.Add(furniture);
+			fillPct += width * 0.5f / extentsInterior.x;
+		}
+
+		// spawn items
+		int itemCount = 0;
+		int furnitureRemaining = furnitureList.Count - 1;
+		foreach (FurnitureController furniture in furnitureList)
+		{
+			itemCount += furniture.SpawnItems(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType, itemCount, furnitureRemaining);
+			--furnitureRemaining;
+		}
+
+		// finalize children/doorways
+		for (int doorwayIdx = 0; doorwayIdx < m_doorwayInfos.Length; ++doorwayIdx)
+		{
+			DoorwayInfo doorwayInfo = m_doorwayInfos[doorwayIdx];
+			if (doorwayInfo.ChildRoom == null)
+			{
+				continue;
+			}
+
+			doorwayInfo.ChildRoom.FinalizeRecursive(doorwayDepth, npcDepth);
+
+			IUnlockable unlockable = doorwayInfo.m_blocker == null ? null : doorwayInfo.m_blocker.GetComponent<IUnlockable>();
+			if (unlockable == null)
+			{
+				continue;
+			}
+
+			// spawn keys
+			// NOTE that this has to be after furniture
+			LayoutGenerator.Node lockNode = GateNodeToChild(LayoutGenerator.Node.Type.Lock, doorwayInfo.ChildRoom.m_layoutNodes);
+			RoomController[] keyRooms = lockNode?.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray();
+			bool excludeSelf = Random.value < 0.5f; // TEMP?
+			unlockable.SpawnKeys(this, keyRooms == null || keyRooms.Length <= 0 ? null : excludeSelf ? keyRooms.Where(room => room != this).ToArray() : keyRooms);
+		}
+
+		// spawn enemy spawn points
+		m_spawnPoints = new GameObject[Random.Range(1, m_spawnPointsMax + 1)]; // TODO: base on room size?
+		for (int spawnIdx = 0; spawnIdx < m_spawnPoints.Length; ++spawnIdx)
+		{
+			GameObject spawnPrefab = m_spawnPointPrefabs.RandomWeighted();
+			Vector3 spawnPos = InteriorPosition(float.MaxValue, spawnPrefab); // NOTE that we don't account for maximum enemy size, relying on KinematicObject's spawn checks to prevent getting stuck in walls
+			m_spawnPoints[spawnIdx] = Instantiate(spawnPrefab, spawnPos, Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f)), transform);
+		}
+
 		// spawn decoration(s)
-		// TODO: prioritize by area?
+		// TODO: prioritize by area? take fillPct into account?
 		int numDecorations = Random.Range(m_roomType.m_decorationsMin, m_roomType.m_decorationsMax + 1);
 		for (int i = 0; i < numDecorations; ++i)
 		{
@@ -426,23 +458,7 @@ public class RoomController : MonoBehaviour
 			Bounds bboxNew = new();
 			if (preventOverlapPrefab != null)
 			{
-				Renderer[] renderers = preventOverlapPrefab.GetComponentsInChildren<Renderer>();
-				Bounds SemiLocalBounds(Renderer r)
-				{
-					Bounds b = r.localBounds;
-					b.center += r.transform.position - preventOverlapPrefab.transform.position;
-					return b;
-				}
-				bboxNew = SemiLocalBounds(renderers.First()); // NOTE that we can't assume the local origin should always be included
-				foreach (Renderer renderer in renderers)
-				{
-					bboxNew.Encapsulate(SemiLocalBounds(renderer));
-				}
-				RectTransform[] tfs = preventOverlapPrefab.GetComponentsInChildren<RectTransform>();
-				foreach (RectTransform tf in tfs)
-				{
-					bboxNew.Encapsulate(new Bounds(tf.rect.center, tf.rect.size));
-				}
+				bboxNew = BoundsWithChildren(preventOverlapPrefab);
 				bboxNew.Expand(new Vector3(-0.01f, -0.01f, float.MaxValue)); // NOTE the slight x/y contraction to avoid always collecting the floor when up against it
 			}
 
@@ -501,7 +517,7 @@ public class RoomController : MonoBehaviour
 			resizeAction?.Invoke();
 		}
 		while (resizeAction != null && --failsafe > 0);
-		Debug.Assert(failsafe > 0);
+		Debug.Assert(failsafe > 0, "Failed to prevent room position overlap."); // TODO: handle?
 
 		return pos;
 	}
@@ -640,7 +656,7 @@ public class RoomController : MonoBehaviour
 		});
 	}
 
-	public void SpawnLadder(GameObject doorway, GameObject prefabForced = null, bool spawnBunched = false)
+	public GameObject SpawnLadder(GameObject doorway, GameObject prefabForced = null, bool spawnBunched = false)
 	{
 		Assert.IsTrue(System.Array.Exists(m_doorwayInfos, info => info.m_object == doorway || info.m_blocker == doorway));
 
@@ -659,12 +675,17 @@ public class RoomController : MonoBehaviour
 		}
 
 		Vector3 posItr = doorway.transform.position;
+		GameObject firstRung = null;
 		posItr.y = yTop - (hanging ? 0.0f : rungHeightTotal);
 		Rigidbody2D bodyPrev = null;
 		for (int i = 0; i < rungCount; ++i)
 		{
 			// create
 			GameObject ladder = Instantiate(ladderRungPrefab, posItr, Quaternion.identity, transform);
+			if (firstRung == null)
+			{
+				firstRung = ladder;
+			}
 
 			// connect to previous rung
 			AnchoredJoint2D[] joints = ladder.GetComponents<AnchoredJoint2D>();
@@ -693,6 +714,8 @@ public class RoomController : MonoBehaviour
 			posItr.x += Random.Range(-m_ladderRungSkewMax, m_ladderRungSkewMax); // TODO: guarantee AI navigability? clamp to room size?
 			posItr.y -= spawnBunched ? rungOnlyHeight : rungHeightTotal;
 		}
+
+		return firstRung;
 	}
 
 	public void SealRoom(bool seal)
@@ -759,6 +782,28 @@ public class RoomController : MonoBehaviour
 			}
 		}
 		return default;
+	}
+
+	private Bounds BoundsWithChildren(GameObject obj)
+	{
+		Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
+		Bounds SemiLocalBounds(Renderer r)
+		{
+			Bounds b = r.localBounds;
+			b.center += r.transform.position - obj.transform.position;
+			return b;
+		}
+		Bounds bboxNew = SemiLocalBounds(renderers.First()); // NOTE that we can't assume the local origin should always be included
+		foreach (Renderer renderer in renderers)
+		{
+			bboxNew.Encapsulate(SemiLocalBounds(renderer));
+		}
+		RectTransform[] tfs = obj.GetComponentsInChildren<RectTransform>();
+		foreach (RectTransform tf in tfs)
+		{
+			bboxNew.Encapsulate(new Bounds(tf.rect.center, tf.rect.size));
+		}
+		return bboxNew;
 	}
 
 	private LayoutGenerator.Node GateNodeToChild(LayoutGenerator.Node.Type gateType, LayoutGenerator.Node[] childNodes)
@@ -875,15 +920,16 @@ public class RoomController : MonoBehaviour
 		return directionalBlockerPrefabs != null && System.Array.Exists(directionalBlockerPrefabs, pair => blockerPrefab == pair.m_object); // TODO: don't assume directional gates will never want default ladders?
 	}
 
-	private void OpenDoorway(int index, bool open, bool spawnLadders)
+	private GameObject OpenDoorway(int index, bool open, bool spawnLadders)
 	{
 		DoorwayInfo doorwayInfo = m_doorwayInfos[index];
 		GameObject doorway = doorwayInfo.m_object;
 
 		// spawn ladder rungs
+		GameObject ladder = null;
 		if (spawnLadders && m_ladderRungPrefabs != null && m_ladderRungPrefabs.Length > 0)
 		{
-			SpawnLadder(doorway);
+			ladder = SpawnLadder(doorway);
 		}
 
 		// enable/disable doorway
@@ -922,6 +968,8 @@ public class RoomController : MonoBehaviour
 				collider.transform.position += (Vector3)(((Vector2)doorway.transform.position - (Vector2)collider.bounds.center) * intoRoom.Abs() + ((Vector2)collider.bounds.extents + doorwaySize * 0.5f) * intoRoom); // this essentially moves the object to the doorway center and then inward by the total extents of the two, all restricted to the doorway direction axis
 			}
 		}
+
+		return ladder;
 	}
 
 	private List<RoomController> RoomPathFromRoot(Vector2 endPosition, List<RoomController> prePath)

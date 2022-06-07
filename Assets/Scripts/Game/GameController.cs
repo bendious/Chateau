@@ -307,7 +307,7 @@ public class GameController : MonoBehaviour
 
 	public bool EnemiesRemain()
 	{
-		return m_enemies.Count > 0;
+		return m_waveSpawningInProgress || m_enemies.Count > 0;
 	}
 
 	public bool EnemyTypeHasSpawned(int typeIndex)
@@ -650,7 +650,7 @@ public class GameController : MonoBehaviour
 				break; // this shouldn't happen as long as the weights are integers and at least one is 1, but we handle it just in case
 			}
 			int idx = Random.Range(0, options.Length);
-			WeightedObject<GameObject> weightedEnemyPrefab = options[idx];
+			WeightedObject<GameObject> weightedEnemyPrefab = options[idx]; // TODO: if no items in room, spawn enemy w/ included item
 			SpawnEnemy(weightedEnemyPrefab.m_object);
 			++m_enemySpawnCounts[idx];
 

@@ -15,7 +15,7 @@ public class RoomType : ScriptableObject
 	public WeightedObject<SpriteInfo>[] m_walls;
 
 	public WeightedObject<GameObject>[] m_furniturePrefabs;
-	public float m_furnitureFillMin = 0.25f;
+	public float m_fillPctMin = 0.25f;
 
 	// NOTE that these weights are multiplied by FurnitureControllers'
 	public WeightedObject<GameObject>[] m_itemPrefabs;

@@ -45,7 +45,7 @@ MonoBehaviour:
       m_colorMax: {r: 0.75, g: 0.75, b: 0.75, a: 1}
     m_weight: 1
   m_furniturePrefabs: []
-  m_furnitureFillMin: 0
+  m_fillPctMin: 0
   m_itemPrefabs: []
   m_itemRarePrefabs: []
   m_itemsMin: 0
