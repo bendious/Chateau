@@ -10,6 +10,9 @@ public class InteractScene : MonoBehaviour, IInteractable
 	public int Depth { private get; set; }
 
 
+	private bool m_activated = false;
+
+
 	public bool CanInteract(KinematicCharacter interactor) => !string.IsNullOrEmpty(m_sceneDestination);
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
@@ -22,7 +25,7 @@ public class InteractScene : MonoBehaviour, IInteractable
 		else
 		{
 			// start animations and wait for trigger to call LoadScene()
-			interactor.GetComponent<AvatarController>().DisablePlayerControl();
+			m_activated = true;
 			interactor.GetComponent<Animator>().SetTrigger("despawn");
 			GetComponent<Animator>().SetTrigger("activate");
 		}
@@ -30,7 +33,7 @@ public class InteractScene : MonoBehaviour, IInteractable
 
 	public void LoadScene()
 	{
-		if (string.IsNullOrEmpty(m_sceneDestination))
+		if (!m_activated || string.IsNullOrEmpty(m_sceneDestination))
 		{
 			return;
 		}

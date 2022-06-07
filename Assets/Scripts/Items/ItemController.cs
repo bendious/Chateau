@@ -94,6 +94,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	private void OnEnable()
 	{
+		if (m_holder != null)
+		{
+			StartCoroutine(((IAttachable)this).MirrorParentAlphaCoroutine()); // TODO: move into IAttachable somehow?
+		}
+
 		// prevent stale VFX when re-enabling items
 		if (m_trail != null)
 		{

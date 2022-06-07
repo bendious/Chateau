@@ -46,7 +46,7 @@ public abstract class AIState
 				case Type.RamSwoop:
 					return distanceFromOffsetPos <= ai.m_meleeRange + ai.GetComponent<Collider2D>().bounds.extents.magnitude ? 1.0f : 0.0f; // TODO: better conditions?
 				case Type.FindAmmo:
-					return 1.0f - numItems / ai.HoldCountMax;
+					return ai.HoldCountMax <= 0 ? 0.0f : 1.0f - (float)numItems / ai.HoldCountMax;
 				case Type.Teleport:
 					return Random.value;
 				default:

@@ -159,6 +159,10 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_doorInteractPrefabs.Array.data[0]
+      value: 
+      objectReference: {fileID: 1756974938729706072, guid: 32fc3801f153ec94dbbf28ef65a90e13, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_doorInteractPrefabs.Array.data[1]
       value: 
       objectReference: {fileID: 6575766242294405401, guid: 3dca0cb1f1ffc2145ae7a627b8e647a1, type: 3}

@@ -167,11 +167,6 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 		DetachAll();
 
-		foreach (ArmController arm in GetComponentsInChildren<ArmController>())
-		{
-			arm.gameObject.SetActive(false);
-		}
-
 		animator.SetTrigger("hurt");
 		animator.SetTrigger("startDeath");
 		animator.SetBool("dead", true);
@@ -237,5 +232,28 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	public virtual bool CanDamage(GameObject target)
 	{
 		return gameObject != target;
+	}
+
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called from animation event")]
+	private void HideArms(int hideInt)
+	{
+		bool hide = hideInt != 0; // NOTE that animation triggers can't use bool params for some reason
+		bool changed = false;
+		foreach (ArmController arm in GetComponentsInChildren<ArmController>(true))
+		{
+			if (arm.gameObject.activeSelf != hide)
+			{
+				continue;
+			}
+			arm.gameObject.SetActive(!hide);
+			changed = true;
+		}
+		if (changed)
+		{
+			if (this is AvatarController avatar) // TEMP: move into AvatarController?
+			{
+				avatar.InventorySync();
+			}
+		}
 	}
 }

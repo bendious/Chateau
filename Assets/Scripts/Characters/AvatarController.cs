@@ -830,17 +830,17 @@ public class AvatarController : KinematicCharacter
 		}
 
 		DeactivateAllControl();
-		foreach (ArmController arm in GetComponentsInChildren<ArmController>())
-		{
-			arm.gameObject.SetActive(false);
-		}
 		animator.SetTrigger("victory");
 		GetComponent<Health>().m_invincible = true;
 	}
 
-	public void DisablePlayerControl()
+	public void DeactivateAllControl()
 	{
 		controlEnabled = false;
+		health.m_invincible = true; // TODO: decouple from control?
+		m_focusIndicator.SetActive(false);
+		m_focusPrompt.gameObject.SetActive(false);
+		StopAiming();
 	}
 
 	// called from animation trigger as well as the EnableControl event
@@ -849,22 +849,7 @@ public class AvatarController : KinematicCharacter
 		if (IsAlive)
 		{
 			controlEnabled = true;
-
-			// TODO: move to animation trigger?
-			bool changed = false;
-			foreach (ArmController arm in GetComponentsInChildren<ArmController>(true))
-			{
-				if (arm.gameObject.activeSelf)
-				{
-					continue;
-				}
-				arm.gameObject.SetActive(true);
-				changed = true;
-			}
-			if (changed)
-			{
-				InventorySync();
-			}
+			health.m_invincible = false;
 		}
 	}
 
@@ -892,14 +877,6 @@ public class AvatarController : KinematicCharacter
 		float scalar = GameController.Instance.m_zoneScalar;
 		light.pointLightOuterRadius = scalar * m_lightRadiusOrig;
 		light.NonpublicSetterWorkaround("m_NormalMapDistance", scalar * m_lightDistanceOrig);
-	}
-
-	private void DeactivateAllControl()
-	{
-		controlEnabled = false;
-		m_focusIndicator.SetActive(false);
-		m_focusPrompt.gameObject.SetActive(false);
-		StopAiming();
 	}
 
 	private void StopAiming()

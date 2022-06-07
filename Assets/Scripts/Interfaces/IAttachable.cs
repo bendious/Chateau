@@ -58,8 +58,7 @@ public interface IAttachable
 		// NOTE that we rely upon MirrorParentAlphaCoroutine() terminating itself rather than tracking and canceling it here
 	}
 
-
-	private System.Collections.IEnumerator MirrorParentAlphaCoroutine()
+	public System.Collections.IEnumerator MirrorParentAlphaCoroutine()
 	{
 		Transform tf = Component.transform;
 		Transform parentTf = tf.parent;

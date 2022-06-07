@@ -319,7 +319,7 @@ public class RoomController : MonoBehaviour
 				case LayoutGenerator.Node.Type.TutorialThrow:
 					GameObject prefab = m_roomType.m_decorationPrefabs[node.m_type - LayoutGenerator.Node.Type.TutorialMove].m_object;
 					Instantiate(prefab, InteriorPosition(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax, prefab), Quaternion.identity, transform);
-					if (node.m_type == LayoutGenerator.Node.Type.TutorialInteract)
+					if (node.m_type == LayoutGenerator.Node.Type.TutorialInteract && (GameController.Instance.m_avatars == null || !GameController.Instance.m_avatars.Any(avatar => avatar.GetComponentInChildren<ItemController>(true) != null)))
 					{
 						prefab = m_roomType.m_itemPrefabs.RandomWeighted(); // TODO: spawn on table
 						GameController.Instance.m_savableFactory.Instantiate(prefab, InteriorPosition(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax, prefab), Quaternion.identity);
