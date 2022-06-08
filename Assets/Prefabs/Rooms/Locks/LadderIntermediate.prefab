@@ -107,6 +107,7 @@ MonoBehaviour:
       m_orderPrefabs: []
       m_keyCountMax: 1
       m_combinationDigits: 0
+      m_genericKeys: 1
     m_weight: 1
   m_combinationSets: []
   m_keyHeightMax: 7.5

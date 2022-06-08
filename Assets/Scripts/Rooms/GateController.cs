@@ -11,6 +11,7 @@ public class GateController : MonoBehaviour, IUnlockable
 		public GameObject m_prefab;
 		public float m_heightMin;
 		public float m_heightMax;
+		[SerializeField] internal bool m_alignVertically;
 	}
 	public WeightedObject<LockInfo>[] m_lockPrefabs;
 
@@ -30,17 +31,15 @@ public class GateController : MonoBehaviour, IUnlockable
 			return;
 		}
 
+		// TODO: check for full unlocking first?
 		Parent.GetComponent<RoomController>().SpawnLadder(gameObject, m_ladderPrefabs?.RandomWeighted(), true);
-		collider.GetComponent<IKey>().Use();
+		IKey key = collider.GetComponent<IKey>();
+		key.Use();
+		m_child.Unlock(key);
 	}
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
 	{
-		if (keyRooms == null)
-		{
-			return; // NOTE that this is valid in the Entryway, where locks are spawned w/o keys
-		}
-
 		// determine lock type
 		int keyRoomsCount = keyRooms == null ? 0 : keyRooms.Length;
 		LockInfo lockInfo = RoomController.RandomWeightedByKeyCount(m_lockPrefabs, info =>
@@ -51,6 +50,10 @@ public class GateController : MonoBehaviour, IUnlockable
 
 		float yOffset = lockInfo.m_prefab.OriginToCenterY(true).y;
 		Vector3 spawnPos = lockRoom.InteriorPosition(lockInfo.m_heightMin + yOffset, lockInfo.m_heightMax + yOffset, lockInfo.m_prefab); // TODO: prioritize placing near self if multiple gates in this room?
+		if (lockInfo.m_alignVertically)
+		{
+			spawnPos.x = transform.position.x;
+		}
 
 		m_child = Instantiate(lockInfo.m_prefab, spawnPos, Quaternion.identity, transform.parent).GetComponent<IUnlockable>();
 		m_child.Parent = gameObject;
@@ -59,7 +62,7 @@ public class GateController : MonoBehaviour, IUnlockable
 
 	public bool IsValidNextKey(GameObject obj)
 	{
-		return m_child != null && m_child.IsValidNextKey(obj) /*|| m_ladderPrefabs.Exists(prefab => obj.SourcePrefab == prefab)*/; // TODO: allow any ladder/capacitor to fit in any ladder/electric gate?
+		return m_child != null && m_child.IsValidNextKey(obj);
 	}
 
 	public bool Unlock(IKey key)

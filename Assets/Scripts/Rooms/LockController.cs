@@ -17,6 +17,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		public WeightedObject<GameObject>[] m_orderPrefabs;
 		public int m_keyCountMax;
 		public int m_combinationDigits;
+		[SerializeField] internal bool m_genericKeys;
 	}
 	[System.Serializable] public class CombinationSet
 	{
@@ -52,16 +53,17 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
 	{
+		// determine key type
+		int keyRoomCount = keyRooms == null ? 0 : keyRooms.Length;
+		RoomController[] keyOrLockRooms = keyRoomCount > 0 ? keyRooms : new RoomController[] { lockRoom };
+		if (m_keyPrefabs.Length > 0)
+		{
+			m_keyInfo = RoomController.RandomWeightedByKeyCount(m_keyPrefabs, info => info.m_keyCountMax - keyRoomCount < 0 ? int.MaxValue : info.m_keyCountMax - keyRoomCount);
+		}
+
 		if (keyRooms == null)
 		{
 			return; // NOTE that this is valid in the Entryway, where locks are spawned w/o keys
-		}
-
-		// determine key type
-		RoomController[] keyOrLockRooms = keyRooms.Length > 0 ? keyRooms : new RoomController[] { lockRoom };
-		if (m_keyPrefabs.Length > 0)
-		{
-			m_keyInfo = RoomController.RandomWeightedByKeyCount(m_keyPrefabs, info => info.m_keyCountMax - keyRooms.Length < 0 ? int.MaxValue : info.m_keyCountMax - keyRooms.Length);
 		}
 
 		// spawn key(s)
@@ -183,7 +185,56 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	public bool IsValidNextKey(GameObject obj)
 	{
-		return m_keyInfo.m_orderPrefabs != null && m_keyInfo.m_orderPrefabs.Length > 0 ? m_keys.Count > 0 && m_keys.First(key => !key.IsInPlace).Component.gameObject == obj : m_keys.Exists(key => key.Component.gameObject == obj);
+		if (!enabled)
+		{
+			return false; // prevent consuming generic keys after already unlocked
+		}
+
+		bool CheckKey(IKey key)
+		{
+			if (key == null || key.Component == null)
+			{
+				return false;
+			}
+			if (key.Component.gameObject == obj)
+			{
+				return true;
+			}
+			if (!m_keyInfo.m_genericKeys)
+			{
+				return false;
+			}
+			ISavable savableObj = obj.GetComponent<ISavable>();
+			ISavable savableKey = key.Component.GetComponent<ISavable>();
+			return savableObj != null && savableKey != null && (savableObj.Type == savableKey.Type || savableObj.Type == System.Array.IndexOf(GameController.Instance.m_savableFactory.m_savables, key.Component.gameObject)); // NOTE the extra check of SavableFactory.m_savables since the key might be a pre-spawned prefab
+		}
+
+		int matchingKeyIdx = -1;
+		bool retVal = false;
+		if (m_keyInfo.m_orderPrefabs != null && m_keyInfo.m_orderPrefabs.Length > 0)
+		{
+			// ordered
+			matchingKeyIdx = m_keys.FindIndex(key => !key.IsInPlace);
+			retVal = matchingKeyIdx >= 0 && (CheckKey(m_keys[matchingKeyIdx]) || (m_keyInfo.m_genericKeys && m_keyInfo.m_prefabs.Length > matchingKeyIdx && CheckKey(m_keyInfo.m_prefabs[matchingKeyIdx].m_object.GetComponent<IKey>())));
+		}
+		else
+		{
+			// unordered
+			matchingKeyIdx = m_keys.FindIndex(key => CheckKey(key));
+			retVal = matchingKeyIdx >= 0 || (m_keyInfo.m_genericKeys && System.Array.Exists(m_keyInfo.m_prefabs, keyPrefab => CheckKey(keyPrefab.m_object.GetComponent<IKey>())));
+		}
+
+		// swap out generic keys if necessary
+		if (retVal && m_keyInfo.m_genericKeys && matchingKeyIdx >= 0)
+		{
+			IKey newKey = obj.GetComponent<IKey>();
+			if (m_keys[matchingKeyIdx] != newKey)
+			{
+				m_keys[matchingKeyIdx] = newKey;
+			}
+		}
+
+		return retVal;
 	}
 
 	public bool CheckInput()
@@ -318,10 +369,15 @@ public class LockController : MonoBehaviour, IUnlockable
 			}
 
 			Parent = null;
+			enabled = false;
 
 			// deactivate keys
 			foreach (IKey keyEntry in m_keys)
 			{
+				if (keyEntry == null || keyEntry.Component == null)
+				{
+					continue;
+				}
 				keyEntry.Deactivate();
 			}
 			m_keys.Clear();
