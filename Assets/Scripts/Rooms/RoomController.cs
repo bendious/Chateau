@@ -315,8 +315,10 @@ public class RoomController : MonoBehaviour
 				case LayoutGenerator.Node.Type.TutorialJump:
 				case LayoutGenerator.Node.Type.TutorialInteract:
 				case LayoutGenerator.Node.Type.TutorialUse:
-				case LayoutGenerator.Node.Type.TutorialInventory:
+				case LayoutGenerator.Node.Type.TutorialSwap:
 				case LayoutGenerator.Node.Type.TutorialThrow:
+				case LayoutGenerator.Node.Type.TutorialInventory:
+				case LayoutGenerator.Node.Type.TutorialSwing:
 					GameObject prefab = m_roomType.m_decorationPrefabs[node.m_type - LayoutGenerator.Node.Type.TutorialMove].m_object;
 					Instantiate(prefab, InteriorPosition(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax, prefab), Quaternion.identity, transform);
 					if (node.m_type == LayoutGenerator.Node.Type.TutorialInteract && (GameController.Instance.m_avatars == null || !GameController.Instance.m_avatars.Any(avatar => avatar.GetComponentInChildren<ItemController>(true) != null)))

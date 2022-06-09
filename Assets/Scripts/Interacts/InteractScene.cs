@@ -26,6 +26,7 @@ public class InteractScene : MonoBehaviour, IInteractable
 		{
 			// start animations and wait for trigger to call LoadScene()
 			m_activated = true;
+			interactor.transform.position = new Vector3(transform.position.x, interactor.transform.position.y, interactor.transform.position.z); // TODO: animate into position
 			interactor.GetComponent<Animator>().SetTrigger("despawn");
 			GetComponent<Animator>().SetTrigger("activate");
 		}

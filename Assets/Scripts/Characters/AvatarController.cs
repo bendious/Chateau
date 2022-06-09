@@ -624,9 +624,14 @@ public class AvatarController : KinematicCharacter
 	{
 		base.OnDamage(source);
 
+		// forcibly exit overlay/inventory if active
 		if (m_overlayCanvas.gameObject.activeSelf)
 		{
 			ToggleOverlay(null, null);
+		}
+		if (m_inventoryIdx >= 0)
+		{
+			OnInventory(null);
 		}
 	}
 
