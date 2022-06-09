@@ -120,7 +120,7 @@ public class EnemyController : KinematicCharacter
 			if (arms.Length > 0)
 			{
 				ArmController primaryArm = arms.FirstOrDefault(arm => arm.GetComponentInChildren<ItemController>() != null);
-				Vector2 targetPosSafe = m_target == null ? (Vector2)transform.position + (LeftFacing ? Vector2.left : Vector2.right) : m_target.position;
+				Vector2 targetPosSafe = AimPosition();
 				if (primaryArm != null)
 				{
 					primaryArm.UpdateAim(m_armOffset, targetPosSafe, targetPosSafe);
@@ -148,12 +148,20 @@ public class EnemyController : KinematicCharacter
 			m_aiState.DebugGizmo();
 		}
 
-		if (ConsoleCommands.AIDebugLevel >= (int)ConsoleCommands.AIDebugLevels.Path && m_pathfindWaypoints?.Count > 0)
+		if (ConsoleCommands.AIDebugLevel >= (int)ConsoleCommands.AIDebugLevels.Positions)
 		{
-			UnityEditor.Handles.DrawLine(transform.position, m_pathfindWaypoints.First());
-			int i = 0;
-			int[] lineIndicies = m_pathfindWaypoints.SelectMany(vec2 => new int[] { i, ++i }).ToArray()[0 .. ^2]; // i.e. [0, 1, 1, 2, 2, 3, ..., WaypointCount - 2, WaypointCount - 1]
-			UnityEditor.Handles.DrawLines(m_pathfindWaypoints.Select(vec2 => (Vector3)vec2).ToArray(), lineIndicies);
+			if (m_pathfindWaypoints?.Count > 0)
+			{
+				UnityEditor.Handles.DrawLine(transform.position, m_pathfindWaypoints.First());
+				int i = 0;
+				int[] lineIndicies = m_pathfindWaypoints.SelectMany(vec2 => new int[] { i, ++i }).ToArray()[0..^2]; // i.e. [0, 1, 1, 2, 2, 3, ..., WaypointCount - 2, WaypointCount - 1]
+				UnityEditor.Handles.DrawLines(m_pathfindWaypoints.Select(vec2 => (Vector3)vec2).ToArray(), lineIndicies);
+			}
+
+			if (HoldCountMax > 0)
+			{
+				UnityEditor.Handles.DrawWireArc(AimPosition(), Vector3.forward, Vector3.right, 360.0f, 0.1f);
+			}
 		}
 	}
 #endif
@@ -303,6 +311,39 @@ public class EnemyController : KinematicCharacter
 		// TODO: cut off SFX if appropriate?
 	}
 
+
+	private Vector2 AimPosition()
+	{
+		// base target position
+		Vector2 aimPos = m_target == null ? (Vector2)transform.position + (LeftFacing ? Vector2.left : Vector2.right) : m_target.position;
+
+		// aim directly if no arms/items
+		ArmController[] arms = GetComponentsInChildren<ArmController>();
+		if (arms.Length <= 0)
+		{
+			return aimPos;
+		}
+		ItemController aimItem = null;
+		arms.FirstOrDefault(arm =>
+		{
+			aimItem = arm.GetComponentInChildren<ItemController>();
+			return aimItem != null;
+		});
+		if (aimItem == null)
+		{
+			return aimPos;
+		}
+
+		// approximate the parabolic trajectory
+		// given ax^2 + bx + c = 0, b = (-c - ax^2) / x = -c/x - ax
+		Vector2 posDiff = aimPos - (Vector2)aimItem.transform.position;
+		float timeDiffApprox = posDiff.magnitude / aimItem.m_throwSpeed;
+		float gravity = /*Physics2D.gravity.y*/-9.81f; // TODO: determine why Physics2D.gravity does not match the outcome
+		float launchSlopePerSec = posDiff.y / timeDiffApprox - gravity * timeDiffApprox;
+		aimPos.y = aimItem.transform.position.y + launchSlopePerSec * timeDiffApprox;
+
+		return aimPos;
+	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called from animation event")]
 	private void EnablePlayerControl()

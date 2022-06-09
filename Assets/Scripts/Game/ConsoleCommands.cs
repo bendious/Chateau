@@ -18,7 +18,7 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 	{
 		None,
 		State,
-		Path,
+		Positions,
 	}
 	public static int AIDebugLevel { get; private set; }
 
