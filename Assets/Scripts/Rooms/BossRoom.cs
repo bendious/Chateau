@@ -95,10 +95,6 @@ public class BossRoom : MonoBehaviour
 			source.Stop(); // TODO: soft outro?
 		}
 
-		// NOTE that we have to use a component that won't be playing any more audio rather than using PlayOneShot(), which leaves the music running even after level load
-		sources.First().clip = GameController.Instance.m_victoryAudio;
-		sources.First().Play();
-
 		// reset room entrance(s)
 		GetComponent<RoomController>().SealRoom(false);
 	}
@@ -112,7 +108,10 @@ public class BossRoom : MonoBehaviour
 		GameController.Instance.m_bossRoomSealed = false;
 
 		// reset boss
-		m_boss.GetComponent<Boss>().DebugReset();
+		if (m_boss != null)
+		{
+			m_boss.DebugReset();
+		}
 
 		// re-enable trigger
 		GetComponent<Collider2D>().enabled = true;

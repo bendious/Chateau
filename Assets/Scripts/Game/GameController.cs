@@ -330,10 +330,13 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	public void OnGameOver()
+	public void OnLastAvatarDeath()
 	{
-		ActivateMenu(m_gameOverUI, true);
+		GetComponent<PlayerInputManager>().DisableJoining();
+		Simulation.Schedule<GameOver>(3.0f); // TODO: time via animation event?
 	}
+
+	public void OnGameOver() => ActivateMenu(m_gameOverUI, true);
 
 	public void DeleteSave()
 	{
@@ -356,6 +359,7 @@ public class GameController : MonoBehaviour
 			}
 			Simulation.Schedule<DebugRespawn>();
 			ActivateMenu(m_gameOverUI, false);
+			GetComponent<PlayerInputManager>().EnableJoining();
 			return;
 		}
 
@@ -408,6 +412,11 @@ public class GameController : MonoBehaviour
 		m_timerUI.text = "WIN!";
 		m_nextWaveTime = -1.0f;
 		StopAllCoroutines(); // TODO: allow ambient music to restart after victory music?
+
+		// NOTE that we have to use a component that won't be playing any more audio rather than using PlayOneShot(), which leaves the music running even after level load
+		AudioSource source = GetComponent<AudioSource>();
+		source.clip = m_victoryAudio;
+		source.Play();
 
 		// TODO: roll credits / etc.?
 	}

@@ -647,7 +647,7 @@ public class AvatarController : KinematicCharacter
 
 		if (GameController.Instance.m_avatars.All(avatar => !avatar.IsAlive))
 		{
-			Simulation.Schedule<GameOver>(3.0f); // TODO: animation event?
+			GameController.Instance.OnLastAvatarDeath();
 		}
 		else
 		{
