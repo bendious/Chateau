@@ -261,7 +261,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	public void Throw()
 	{
-		// temporarily ignore collisions w/ thrower
+		// temporarily ignore collisions w/ platforms/furniture and thrower
+		gameObject.layer = Cause.m_layerIgnoreOneWay;
 		EnableCollision.TemporarilyDisableCollision(Cause.GetComponentsInChildren<Collider2D>(), m_colliders, 0.1f);
 
 		Quaternion holderRotation = m_holder.Component.transform.rotation;
