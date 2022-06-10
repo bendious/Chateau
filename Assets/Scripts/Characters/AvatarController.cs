@@ -28,7 +28,6 @@ public class AvatarController : KinematicCharacter
 
 
 	public AudioClip jumpAudio;
-	public AudioClip respawnAudio;
 
 	public GameObject m_focusIndicator;
 	public ButtonPrompt m_focusPrompt;
@@ -699,11 +698,6 @@ public class AvatarController : KinematicCharacter
 		body.simulated = true;
 		controlEnabled = true;
 
-		if (audioSource && respawnAudio)
-		{
-			audioSource.PlayOneShot(respawnAudio);
-		}
-
 		if (clearInventory)
 		{
 			foreach (IAttachable attachable in GetComponentsInChildren<IAttachable>())
@@ -842,7 +836,6 @@ public class AvatarController : KinematicCharacter
 	public void DeactivateAllControl()
 	{
 		controlEnabled = false;
-		health.m_invincible = true; // TODO: decouple from control?
 		m_focusIndicator.SetActive(false);
 		m_focusPrompt.gameObject.SetActive(false);
 		StopAiming();
@@ -854,7 +847,6 @@ public class AvatarController : KinematicCharacter
 		if (IsAlive)
 		{
 			controlEnabled = true;
-			health.m_invincible = false;
 		}
 	}
 

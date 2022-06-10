@@ -109,7 +109,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_tooltip
-      value: "Bone\nLeft over from a skeleton.\n "
+      value: "Bone\nLeft over from a skeleton. Fragile.\n "
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_colorMin

@@ -418,7 +418,6 @@ MonoBehaviour:
   m_armOffset: {x: 0, y: 0.15}
   move: {x: 0, y: 0}
   jumpAudio: {fileID: 8300000, guid: 67975c08d56ceb147bad38572d805aa8, type: 3}
-  respawnAudio: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
   m_focusIndicator: {fileID: 6654259643494522684}
   m_focusPrompt: {fileID: 3014861959506193302}
   m_aimObject: {fileID: 6654259643467443649}

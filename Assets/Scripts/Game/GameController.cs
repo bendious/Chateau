@@ -39,6 +39,7 @@ public class GameController : MonoBehaviour
 	public bool m_allowCutbacks = true;
 	public float m_zoneScalar = 1.0f;
 
+	[SerializeField] private GameObject m_loadingScreen;
 	public TMPro.TMP_Text m_timerUI;
 	public Canvas m_pauseUI;
 	public Canvas m_gameOverUI;
@@ -71,7 +72,7 @@ public class GameController : MonoBehaviour
 	public bool m_bossRoomSealed = false;
 
 
-	public static bool IsReloading { get; private set; }
+	public static bool IsSceneLoad { get; private set; }
 
 	public static GameController Instance { get; private set; }
 
@@ -105,6 +106,11 @@ public class GameController : MonoBehaviour
 	private void Awake()
 	{
 		Instance = this;
+
+		// TODO: use Animator on persistent object?
+		Image loadImage = m_loadingScreen.GetComponentsInChildren<Image>().Last()/*TODO*/;
+		float alpha = Mathf.Abs((Time.realtimeSinceStartup % 1.0f) - 0.5f) * 2.0f;
+		loadImage.color = new Color(loadImage.color.r, loadImage.color.g, loadImage.color.b, alpha);
 	}
 
 	private void Start()
@@ -179,13 +185,16 @@ public class GameController : MonoBehaviour
 			m_dialogueController.Play(null, Color.black, new DialogueController.Line[] { new DialogueController.Line { m_text = "Ah, welcome home." }, new DialogueController.Line { m_text = "You've been out for quite a while, haven't you?" }, new DialogueController.Line { m_text = "You're not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", m_replies = new DialogueController.Line.Reply[] { new DialogueController.Line.Reply { m_text = "Who are you, ya creep?" }, new DialogueController.Line.Reply { m_text = "Who are you?" }, new DialogueController.Line.Reply { m_text = "Who are you, sir?" } } }, new DialogueController.Line { m_text = "An old friend." }, new DialogueController.Line { m_text = "I'm not surprised you don't remember me. Is there anything you do remember, after all?" }, new DialogueController.Line { m_text = "But don't worry about me; you have more pressing concerns at the moment, I believe." } }, null);
 		}
 
-		IsReloading = false;
+		m_loadingScreen.SetActive(false);
+
+		IsSceneLoad = false;
 
 		StartCoroutine(MusicCoroutine());
 	}
 
 	private void OnDestroy()
 	{
+		IsSceneLoad = true;
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
 	}
 
@@ -250,6 +259,11 @@ public class GameController : MonoBehaviour
 		{
 			AnimateEntryDoor();
 		}
+	}
+
+	private void OnApplicationQuit()
+	{
+		IsSceneLoad = true;
 	}
 
 	private void OnPlayerLeft(PlayerInput player)
@@ -385,7 +399,7 @@ public class GameController : MonoBehaviour
 		}
 		ActivateMenu(m_gameOverUI, false);
 
-		IsReloading = true;
+		IsSceneLoad = true;
 
 		// prevent stale GameController asserts while reloading
 		foreach (EnemyController enemy in m_enemies)

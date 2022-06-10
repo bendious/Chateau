@@ -9,9 +9,6 @@ public class DespawnEffect : MonoBehaviour
 	[SerializeField] private bool m_enemyAutoTrigger; // TODO: split into separate script?
 
 
-	private bool m_isQuitting = false;
-
-
 	private void OnTriggerEnter2D(Collider2D collider)
 	{
 		ProcessCollision(collider);
@@ -24,7 +21,7 @@ public class DespawnEffect : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (m_isQuitting || GameController.IsReloading)
+		if (GameController.IsSceneLoad)
 		{
 			return;
 		}
@@ -34,11 +31,6 @@ public class DespawnEffect : MonoBehaviour
 		{
 			explosion.m_source = GetComponent<ItemController>().Cause;
 		}
-	}
-
-	private void OnApplicationQuit()
-	{
-		m_isQuitting = true;
 	}
 
 

@@ -15,8 +15,6 @@ public class Boss : MonoBehaviour
 	private bool m_started = false;
 	private bool m_activatedFully = false;
 
-	private bool m_isQuitting = false;
-
 
 	private void Awake()
 	{
@@ -26,7 +24,7 @@ public class Boss : MonoBehaviour
 
 	private void OnWillRenderObject()
 	{
-		if (!GameController.Instance.m_bossRoomSealed || m_started || GameController.IsReloading)
+		if (!GameController.Instance.m_bossRoomSealed || m_started || GameController.IsSceneLoad)
 		{
 			return;
 		}
@@ -56,7 +54,7 @@ public class Boss : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (m_isQuitting || GameController.IsReloading)
+		if (GameController.IsSceneLoad)
 		{
 			return;
 		}
@@ -71,11 +69,6 @@ public class Boss : MonoBehaviour
 		}
 
 		GameController.Instance.OnVictory();
-	}
-
-	private void OnApplicationQuit()
-	{
-		m_isQuitting = true;
 	}
 
 

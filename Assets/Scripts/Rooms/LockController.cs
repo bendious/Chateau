@@ -287,7 +287,7 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	private void OnDestroy()
 	{
-		if (GameController.IsReloading)
+		if (GameController.IsSceneLoad)
 		{
 			return;
 		}
