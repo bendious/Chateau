@@ -190,7 +190,7 @@ MonoBehaviour:
   m_damageBounceMagnitude: {x: 7, y: 7}
   m_armOffset: {x: 0, y: 0}
   move: {x: 0, y: 0}
-  m_allowedStates: 000000000100000002000000
+  m_allowedStates: 000000000200000003000000
   m_contactDamage: 1
   m_targetOffset: {x: 0, y: 0}
   m_target: {fileID: 0}

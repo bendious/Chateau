@@ -1202,6 +1202,8 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 892429466469811999, guid: 1187c6293fee67d4da01f8200f643835, type: 3}
     m_weight: 2
+  - m_object: {fileID: 6588378246716713556, guid: c247edf037d4fb347984cdee36601f9b, type: 3}
+    m_weight: 5
   - m_object: {fileID: 2645866617808041851, guid: 0112a6934fe93af4cac38fb37ef6b61c, type: 3}
     m_weight: 5
   - m_object: {fileID: 6831922291925941691, guid: a59b0c7f16c0a4b43838a3bf904c9952, type: 3}

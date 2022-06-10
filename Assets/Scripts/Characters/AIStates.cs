@@ -7,6 +7,7 @@ public abstract class AIState
 	public enum Type
 	{
 		Pursue,
+		PursueErratic,
 		Flee,
 		RamSwoop,
 
@@ -36,6 +37,7 @@ public abstract class AIState
 			{
 				// TODO: more granular priorities?
 				case Type.Pursue:
+				case Type.PursueErratic:
 					return distanceFromOffsetPos > ai.m_meleeRange && (numItems > 0 || ai.HoldCountMax <= 0) ? 1.0f : 0.0f;
 				case Type.Flee:
 					return GameController.Instance.Victory ? 100.0f : 0.0f;
@@ -48,7 +50,7 @@ public abstract class AIState
 				case Type.FindAmmo:
 					return ai.HoldCountMax <= 0 ? 0.0f : 1.0f - (float)numItems / ai.HoldCountMax;
 				case Type.Teleport:
-					return Random.value;
+					return Mathf.Max(0.0f, 1.0f - 1.0f / distanceFromOffsetPos);
 				default:
 					Debug.Assert(false, "Unhandled AIState.");
 					return 0.0f;
@@ -59,6 +61,8 @@ public abstract class AIState
 		{
 			case Type.Pursue:
 				return new AIPursue(ai);
+			case Type.PursueErratic:
+				return new AIPursueErratic(ai);
 			case Type.Flee:
 				return new AIFlee(ai);
 			case Type.Melee:
@@ -94,9 +98,9 @@ public abstract class AIState
 }
 
 
-public sealed class AIPursue : AIState
+public class AIPursue : AIState
 {
-	private readonly Vector2 m_targetOffset;
+	protected Vector2 m_targetOffset;
 
 
 	public AIPursue(EnemyController ai)
@@ -125,6 +129,30 @@ public sealed class AIPursue : AIState
 
 		return this;
 	}
+}
+
+public sealed class AIPursueErratic : AIPursue
+{
+	public float m_turnPct = 0.1f;
+
+
+	public AIPursueErratic(EnemyController ai)
+		: base(ai)
+	{
+		RandomizeTargetOffset();
+	}
+
+	public override AIState Update()
+	{
+		if (Random.value <= m_turnPct)
+		{
+			RandomizeTargetOffset();
+		}
+		return base.Update();
+	}
+
+
+	private void RandomizeTargetOffset() => m_targetOffset = Quaternion.Euler(0.0f, 0.0f, Random.Range(-90.0f, 90.0f)) * Vector2.up * m_targetOffset.magnitude;
 }
 
 

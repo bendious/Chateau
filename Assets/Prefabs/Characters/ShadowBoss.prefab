@@ -560,7 +560,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_allowedStates.Array.data[6]
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_teleportVFX.Array.data[0].m_object
@@ -647,7 +647,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_room: {fileID: 0}
-  m_duplicateLadderPct: 0.5
 --- !u!1001 &8203299277311398250
 PrefabInstance:
   m_ObjectHideFlags: 0
