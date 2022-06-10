@@ -248,12 +248,9 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 			arm.gameObject.SetActive(!hide);
 			changed = true;
 		}
-		if (changed)
+		if (!hide && changed && this is AvatarController avatar) // TEMP: move into AvatarController?
 		{
-			if (this is AvatarController avatar) // TEMP: move into AvatarController?
-			{
-				avatar.InventorySync();
-			}
+			avatar.InventorySync();
 		}
 	}
 }

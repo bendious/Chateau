@@ -117,6 +117,20 @@ public class RoomController : MonoBehaviour
 	private void Awake()
 	{
 		m_bounds = m_backdrop.GetComponent<SpriteRenderer>().bounds;
+		ObjectDespawn.OnExecute += OnObjectDespawn;
+	}
+
+	private void Start()
+	{
+		if (transform.parent != null)
+		{
+			LinkShadowsRecursive();
+		}
+	}
+
+	private void OnDestroy()
+	{
+		ObjectDespawn.OnExecute -= OnObjectDespawn;
 	}
 
 #if UNITY_EDITOR
@@ -744,6 +758,10 @@ public class RoomController : MonoBehaviour
 				// TODO: animation?
 			}
 		}
+
+		GameController.Instance.GetComponent<CompositeShadowCaster2D>().enabled = true; // NOTE that the top-level caster has to start disabled due to an assert from CompositeShadowCaster2D when empty of child casters
+		GetComponent<CompositeShadowCaster2D>().enabled = seal;
+		transform.SetParent(seal ? null : GameController.Instance.transform);
 	}
 
 
@@ -784,6 +802,32 @@ public class RoomController : MonoBehaviour
 			}
 		}
 		return default;
+	}
+
+	private void OnObjectDespawn(ObjectDespawn evt)
+	{
+		if (System.Array.Exists(m_doorwayInfos, info => info.m_blocker == evt.m_object))
+		{
+			LinkShadowsRecursive();
+		}
+	}
+
+	private void LinkShadowsRecursive()
+	{
+		// group this room's shadow casters under the top-level GameController caster
+		GameController.Instance.GetComponent<CompositeShadowCaster2D>().enabled = true; // NOTE that the top-level caster has to start disabled due to an assert from CompositeShadowCaster2D when empty of child casters
+		GetComponent<CompositeShadowCaster2D>().enabled = false;
+		transform.SetParent(GameController.Instance.transform);
+
+		// recurse into visible children
+		foreach (DoorwayInfo info in m_doorwayInfos)
+		{
+			RoomController childRoom = info.ChildRoom;
+			if (childRoom != null && (info.m_blocker == null || info.m_blocker.GetComponent<ShadowCaster2D>() == null))
+			{
+				childRoom.LinkShadowsRecursive();
+			}
+		}
 	}
 
 	private Bounds BoundsWithChildren(GameObject obj)

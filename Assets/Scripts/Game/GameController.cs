@@ -509,7 +509,7 @@ public class GameController : MonoBehaviour
 			if (nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Entrance))
 			{
 				Assert.IsNull(m_startRoom);
-				m_startRoom = Instantiate(m_entryRoomPrefabs.RandomWeighted()).GetComponent<RoomController>();
+				m_startRoom = Instantiate(m_entryRoomPrefabs.RandomWeighted(), transform).GetComponent<RoomController>();
 				m_startRoom.SetNodes(nodesList.ToArray());
 				++roomCount;
 			}
