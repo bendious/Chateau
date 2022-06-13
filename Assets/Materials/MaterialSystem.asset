@@ -113,6 +113,10 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 5faec733b5ad1fa4cb79a8fd734c269b, type: 3}
     - {fileID: 8300000, guid: 7bd8bd30fc129374db5d673fdf8d1da7, type: 3}
     - {fileID: 8300000, guid: 9e098dd5fb4496441a48f39aa8a1edb4, type: 3}
+  - m_material1: {fileID: 6200000, guid: 88fc809a785b2da40af7b8a91cb43635, type: 2}
+    m_material2: {fileID: 0}
+    m_collisionAudio:
+    - {fileID: 8300000, guid: 0fe455e5766bf91459b1bb3f33ab070e, type: 3}
   - m_material1: {fileID: 0}
     m_material2: {fileID: 0}
     m_collisionAudio:
