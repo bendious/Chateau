@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17b48a8fa2e91f74cbd5326b5b117c17, type: 3}
   m_Name: RoomTutorial
   m_EditorClassIdentifier: 
+  m_preconditionNames: []
   m_backdrops: []
   m_walls:
   - m_object:

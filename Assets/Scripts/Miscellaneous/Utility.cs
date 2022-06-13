@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -33,28 +34,30 @@ public static class Utility
 		return Enum.GetValues(typeof(T)).Length;
 	}
 
-	public static T RandomWeighted<T>(this System.Collections.Generic.IEnumerable<WeightedObject<T>> pairs)
+	public static T RandomWeighted<T>(this IEnumerable<WeightedObject<T>> pairs)
 	{
 		return RandomWeighted(pairs.Select(pair => pair.m_object).ToArray(), pairs.Select(pair => pair.m_weight).ToArray());
 	}
 
-	public static T RandomWeighted<T>(this T[] values, float[] weights)
+	public static T RandomWeighted<T>(this IEnumerable<T> values, IEnumerable<float> weights)
 	{
 		Assert.IsFalse(weights.Any(f => f < 0.0f));
 
 		// NOTE the array slice to handle values[] w/ shorter length than weights[] by ignoring the excess weights; the opposite situation works out equivalently w/o explicit handling since weightRandom will never result in looping beyond the number of weights given
-		float weightSum = weights[0 .. Math.Min(values.Length, weights.Length)].Sum();
+		int valueCount = values.Count();
+		Debug.Assert(valueCount == weights.Count());
+		float weightSum = weights.Sum();
 		float weightRandom = UnityEngine.Random.Range(0.0f, weightSum);
 
 		int idxItr = 0;
-		while (weightRandom > weights[idxItr])
+		while (weightRandom > weights.ElementAt(idxItr))
 		{
-			weightRandom -= weights[idxItr];
+			weightRandom -= weights.ElementAt(idxItr);
 			++idxItr;
 		}
 
-		Assert.IsTrue(weightRandom >= 0.0f && idxItr < values.Length);
-		return values[idxItr];
+		Assert.IsTrue(weightRandom >= 0.0f && idxItr < valueCount);
+		return values.ElementAt(idxItr);
 	}
 
 	public static T[] RandomWeightedOrder<T>(this WeightedObject<T>[] pairs)

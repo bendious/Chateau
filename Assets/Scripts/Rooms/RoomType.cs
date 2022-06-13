@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu]
 public class RoomType : ScriptableObject
 {
-	public string m_preconditionName; // TODO: less error-prone type?
+	public string[] m_preconditionNames; // TODO: less error-prone type?
 
 	[System.Serializable]
 	public class SpriteInfo

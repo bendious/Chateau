@@ -102,7 +102,7 @@ public class RoomController : MonoBehaviour
 	private /*readonly*/ RoomType.SpriteInfo m_wallInfo;
 	private /*readonly*/ Color m_wallColor;
 
-	private bool m_typePreconditionResult = true;
+	private float m_typePreconditionResult = 1.0f;
 
 
 	public static T RandomWeightedByKeyCount<T>(WeightedObject<T>[] candidates, System.Func<T, int> candidateToKeyDiff, float scalarPerDiff = 0.5f)
@@ -197,45 +197,6 @@ public class RoomController : MonoBehaviour
 
 	public void FinalizeRecursive(int doorwayDepth = 0, int npcDepth = 0)
 	{
-		// room type
-		// TODO: more deliberate choice? move after cutback creation to allow more flexibility in preconditions?
-		m_roomType = GameController.Instance.m_roomTypes.Where(type =>
-		{
-			if (string.IsNullOrEmpty(type.m_object.m_preconditionName))
-			{
-				return true;
-			}
-			SendMessage(type.m_object.m_preconditionName);
-			return m_typePreconditionResult;
-		}).RandomWeighted();
-		if (m_roomType.m_backdrops != null && m_roomType.m_backdrops.Length > 0)
-		{
-			RoomType.SpriteInfo backdrop = m_roomType.m_backdrops.RandomWeighted();
-			SpriteRenderer renderer = m_backdrop.GetComponent<SpriteRenderer>();
-			renderer.sprite = backdrop.m_sprite;
-			renderer.color = Utility.ColorRandom(backdrop.m_colorMin, backdrop.m_colorMax);
-		}
-
-		// per-area appearance
-		// TODO: separate RoomType into {Area/Room}Type? tend brighter based on progress?
-		RoomController areaParent = m_layoutNodes.First().AreaParent.m_room; // NOTE that all nodes w/i a single room should have the same area parent
-		m_wallInfo = areaParent != this ? areaParent.m_wallInfo : m_roomType.m_walls != null && m_roomType.m_walls.Length > 0 ? m_roomType.m_walls.RandomWeighted() : m_wallInfo;
-		m_wallColor = areaParent != this ? areaParent.m_wallColor : Utility.ColorRandom(m_wallInfo.m_colorMin, m_wallInfo.m_colorMax);
-		if (m_wallInfo.m_sprite != null)
-		{
-			foreach (GameObject obj in m_walls.Concat(m_doorwayInfos.Select(info => info.m_object)))
-			{
-				PlatformEffector2D platform = obj.GetComponent<PlatformEffector2D>();
-				if (platform != null && platform.enabled)
-				{
-					continue; // ignore one-way platforms
-				}
-				SpriteRenderer renderer = obj.GetComponent<SpriteRenderer>();
-				renderer.sprite = m_wallInfo.m_sprite;
-				renderer.color = m_wallColor; // TODO: slight variation?
-			}
-		}
-
 		// spawn fixed-placement node architecture
 		// NOTE the separate loops to ensure fixed-placement nodes are processed before flexible ones; also that this needs to be before flexibly-placed objects such as furniture
 		float fillPct = 0.0f;
@@ -326,6 +287,59 @@ public class RoomController : MonoBehaviour
 				continue;
 			}
 			Debug.Assert(doorwayInfo.SiblingRoom == null);
+		}
+
+		// room type
+		// TODO: more deliberate choice?
+		List<float> weightsScaled = new();
+		m_roomType = GameController.Instance.m_roomTypes.Where(type =>
+		{
+			float weightScaled = type.m_weight;
+			if (type.m_object.m_preconditionNames == null)
+			{
+				weightsScaled.Add(weightScaled);
+				return true;
+			}
+			foreach (string preconditionName in type.m_object.m_preconditionNames)
+			{
+				SendMessage(preconditionName);
+				if (m_typePreconditionResult <= 0.0f)
+				{
+					return false;
+				}
+				weightScaled *= m_typePreconditionResult;
+			}
+			weightsScaled.Add(weightScaled);
+			return true;
+		}).Select(weightedObj => weightedObj.m_object).RandomWeighted(weightsScaled);
+
+		// backdrop
+		if (m_roomType.m_backdrops != null && m_roomType.m_backdrops.Length > 0)
+		{
+			RoomType.SpriteInfo backdrop = m_roomType.m_backdrops.RandomWeighted();
+			SpriteRenderer renderer = m_backdrop.GetComponent<SpriteRenderer>();
+			renderer.sprite = backdrop.m_sprite;
+			renderer.color = Utility.ColorRandom(backdrop.m_colorMin, backdrop.m_colorMax);
+		}
+
+		// per-area appearance
+		// TODO: separate RoomType into {Area/Room}Type? tend brighter based on progress?
+		RoomController areaParent = m_layoutNodes.First().AreaParent.m_room; // NOTE that all nodes w/i a single room should have the same area parent
+		m_wallInfo = areaParent != this ? areaParent.m_wallInfo : m_roomType.m_walls != null && m_roomType.m_walls.Length > 0 ? m_roomType.m_walls.RandomWeighted() : m_wallInfo;
+		m_wallColor = areaParent != this ? areaParent.m_wallColor : Utility.ColorRandom(m_wallInfo.m_colorMin, m_wallInfo.m_colorMax);
+		if (m_wallInfo.m_sprite != null)
+		{
+			foreach (GameObject obj in m_walls.Concat(m_doorwayInfos.Select(info => info.m_object)))
+			{
+				PlatformEffector2D platform = obj.GetComponent<PlatformEffector2D>();
+				if (platform != null && platform.enabled)
+				{
+					continue; // ignore one-way platforms
+				}
+				SpriteRenderer renderer = obj.GetComponent<SpriteRenderer>();
+				renderer.sprite = m_wallInfo.m_sprite;
+				renderer.color = m_wallColor; // TODO: slight variation?
+			}
 		}
 
 		// spawn flexible node architecture
@@ -777,13 +791,19 @@ public class RoomController : MonoBehaviour
 	// called via SendMessage(RoomType.m_preconditionName)
 	public void IsAboveGround()
 	{
-		m_typePreconditionResult = transform.position.y >= 0.0f; // NOTE that the ground floor is always at y=0
+		m_typePreconditionResult = transform.position.y >= 0.0f ? 1.0f : 0.0f; // NOTE that the ground floor is always at y=0
 	}
 
 	// called via SendMessage(RoomType.m_preconditionName)
 	public void IsBelowGround()
 	{
-		m_typePreconditionResult = transform.position.y < 0.0f; // NOTE that the ground floor is always at y=0
+		m_typePreconditionResult = transform.position.y < 0.0f ? 1.0f : 0.0f; // NOTE that the ground floor is always at y=0
+	}
+
+	// called via SendMessage(RoomType.m_preconditionName)
+	public void PreferDeadEnds()
+	{
+		m_typePreconditionResult = System.Array.Exists(m_doorwayInfos, info => info.ChildRoom != null || info.SiblingRoom != null) ? 1.0f / GameController.Instance.m_roomTypes.Length : GameController.Instance.m_roomTypes.Length; // TODO: variable preference factor?
 	}
 
 
