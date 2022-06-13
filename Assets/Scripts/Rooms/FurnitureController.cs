@@ -2,7 +2,7 @@ using System.Linq;
 using UnityEngine;
 
 
-[DisallowMultipleComponent, RequireComponent(typeof(SpriteRenderer), typeof(BoxCollider2D))] // TODO: genericize for other types of colliders?
+[DisallowMultipleComponent, RequireComponent(typeof(SpriteRenderer), typeof(Collider2D))]
 public class FurnitureController : MonoBehaviour
 {
 	public Vector2 m_sizeMin = new(1.0f, 0.25f);
@@ -39,12 +39,16 @@ public class FurnitureController : MonoBehaviour
 		{
 			piece.localPosition = new(piece.localPosition.x, heightItr, piece.localPosition.z);
 			SpriteRenderer renderer = piece.GetComponent<SpriteRenderer>();
-			BoxCollider2D collider2d = piece.GetComponent<BoxCollider2D>(); // NOTE that Unity doesn't like naming variables 'collider' w/i a MonoBehaviour...
-			Vector2 colliderSizeDiff = renderer.size - collider2d.size;
+			BoxCollider2D boxCollider = piece.GetComponent<BoxCollider2D>(); // TODO: handle resizing other types of colliders?
+			Vector2 colliderSizeDiff = boxCollider == null ? Vector2.zero : renderer.size - boxCollider.size;
 
 			renderer.size = sizePiece;
-			collider2d.size = sizePiece - colliderSizeDiff; // NOTE that this assumes that the top edge of the collision box is aligned w/ the top border of the sliced sprite
-			collider2d.offset = new(0.0f, collider2d.size.y * 0.5f);
+			if (boxCollider != null)
+			{
+				// NOTE that this assumes that the top edge of the collision box is aligned w/ the top border of the sliced sprite
+				boxCollider.size = sizePiece - colliderSizeDiff;
+				boxCollider.offset = new(0.0f, boxCollider.size.y * 0.5f);
+			}
 
 			heightItr += heightPiece;
 		}

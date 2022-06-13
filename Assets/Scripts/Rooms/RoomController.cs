@@ -388,7 +388,7 @@ public class RoomController : MonoBehaviour
 		List<FurnitureController> furnitureList = new();
 		while (m_roomType.m_furniturePrefabs.Length > 0 && fillPct < m_roomType.m_fillPctMin)
 		{
-			FurnitureController furniture = Instantiate(m_roomType.m_furniturePrefabs.RandomWeighted(), transform).GetComponent<FurnitureController>(); // NOTE that we have to spawn before placement due to size randomization
+			FurnitureController furniture = Instantiate(m_roomType.m_furniturePrefabs.RandomWeighted(), transform).GetComponent<FurnitureController>(); // NOTE that we have to spawn before placement due to potential size randomization
 			Vector2 extentsEffective = extentsInterior * (1.0f - fillPct);
 			float width = furniture.RandomizeSize(extentsEffective);
 			furniture.transform.position = InteriorPosition(0.0f, furniture.gameObject, () => width = furniture.RandomizeSize(extentsEffective)); // TODO: detect and cleanup if failing to find enough space
@@ -848,7 +848,7 @@ public class RoomController : MonoBehaviour
 
 	private void OnObjectDespawn(ObjectDespawn evt)
 	{
-		if (System.Array.Exists(m_doorwayInfos, info => info.m_blocker == evt.m_object))
+		if (System.Array.Exists(m_doorwayInfos, info => info.m_blocker == evt.m_object && DoorwayIsOpen(info, true)))
 		{
 			LinkShadowsRecursive();
 		}
@@ -1133,9 +1133,9 @@ public class RoomController : MonoBehaviour
 		return connectionPoints;
 	}
 
-	private bool DoorwayIsOpen(DoorwayInfo doorwayInfo)
+	private bool DoorwayIsOpen(DoorwayInfo doorwayInfo, bool ignoreBlocker = false)
 	{
-		if (doorwayInfo.m_blocker != null)
+		if (!ignoreBlocker && doorwayInfo.m_blocker != null)
 		{
 			return false;
 		}
