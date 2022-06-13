@@ -163,6 +163,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_roomTypes.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_entryRoomPrefabs.Array.size
       value: 1
       objectReference: {fileID: 0}
@@ -170,6 +174,10 @@ PrefabInstance:
       propertyPath: m_roomTypes.Array.data[0].m_object
       value: 
       objectReference: {fileID: 11400000, guid: 51234ed93f124614b995ee23d12c3ee8, type: 2}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_roomTypes.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6215138850667383998, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0

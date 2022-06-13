@@ -102,6 +102,8 @@ public class RoomController : MonoBehaviour
 	private /*readonly*/ RoomType.SpriteInfo m_wallInfo;
 	private /*readonly*/ Color m_wallColor;
 
+	private bool m_typePreconditionResult = true;
+
 
 	public static T RandomWeightedByKeyCount<T>(WeightedObject<T>[] candidates, System.Func<T, int> candidateToKeyDiff, float scalarPerDiff = 0.5f)
 	{
@@ -196,8 +198,16 @@ public class RoomController : MonoBehaviour
 	public void FinalizeRecursive(int doorwayDepth = 0, int npcDepth = 0)
 	{
 		// room type
-		// TODO: more deliberate choice?
-		m_roomType = GameController.Instance.m_roomTypes.RandomWeighted();
+		// TODO: more deliberate choice? move after cutback creation to allow more flexibility in preconditions?
+		m_roomType = GameController.Instance.m_roomTypes.Where(type =>
+		{
+			if (string.IsNullOrEmpty(type.m_object.m_preconditionName))
+			{
+				return true;
+			}
+			SendMessage(type.m_object.m_preconditionName);
+			return m_typePreconditionResult;
+		}).RandomWeighted();
 		if (m_roomType.m_backdrops != null && m_roomType.m_backdrops.Length > 0)
 		{
 			RoomType.SpriteInfo backdrop = m_roomType.m_backdrops.RandomWeighted();
@@ -762,6 +772,18 @@ public class RoomController : MonoBehaviour
 		GameController.Instance.GetComponent<CompositeShadowCaster2D>().enabled = true; // NOTE that the top-level caster has to start disabled due to an assert from CompositeShadowCaster2D when empty of child casters
 		GetComponent<CompositeShadowCaster2D>().enabled = seal;
 		transform.SetParent(seal ? null : GameController.Instance.transform);
+	}
+
+	// called via SendMessage(RoomType.m_preconditionName)
+	public void IsAboveGround()
+	{
+		m_typePreconditionResult = transform.position.y >= 0.0f; // NOTE that the ground floor is always at y=0
+	}
+
+	// called via SendMessage(RoomType.m_preconditionName)
+	public void IsBelowGround()
+	{
+		m_typePreconditionResult = transform.position.y < 0.0f; // NOTE that the ground floor is always at y=0
 	}
 
 

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17b48a8fa2e91f74cbd5326b5b117c17, type: 3}
   m_Name: RoomEmpty
   m_EditorClassIdentifier: 
+  m_preconditionName: 
   m_backdrops: []
   m_walls:
   - m_object:
@@ -61,10 +62,6 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 8498127701983908984, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
     m_weight: 4
-  - m_object: {fileID: 5917400000691457811, guid: 2a16bb5b049dad841a615cda0532986c, type: 3}
-    m_weight: 2
-  - m_object: {fileID: 7985615140188058259, guid: cfbaadf79fc588048828fdf3288a20e1, type: 3}
-    m_weight: 1
   m_decorationsMin: 0
   m_decorationsMax: 2
   m_decorationHeightMin: 0.5
