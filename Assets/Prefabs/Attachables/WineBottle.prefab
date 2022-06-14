@@ -7,6 +7,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 527082021829585196, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: 88fc809a785b2da40af7b8a91cb43635, type: 2}
+    - target: {fileID: 848659554012485791, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_prefab
+      value: 
+      objectReference: {fileID: 4398339694799148722, guid: 6cf9d7eefe017c7458a97f68b968e321, type: 3}
     - target: {fileID: 1555945160637222004, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -82,7 +90,7 @@ PrefabInstance:
     - target: {fileID: 5849246084018440235, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
       propertyPath: m_Material
       value: 
-      objectReference: {fileID: 6200000, guid: 448cd1b924f918643b17c77e4777d707, type: 2}
+      objectReference: {fileID: 6200000, guid: 88fc809a785b2da40af7b8a91cb43635, type: 2}
     - target: {fileID: 5849246084018440235, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
       propertyPath: m_Offset.x
       value: 0.25

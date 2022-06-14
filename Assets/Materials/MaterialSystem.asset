@@ -62,6 +62,19 @@ MonoBehaviour:
     - {fileID: 8300000, guid: dd6057fd464f77942a0bf39c54651b32, type: 3}
     - {fileID: 8300000, guid: bdb49257b73be764a8c04e4f37302e0e, type: 3}
     - {fileID: 8300000, guid: 3318e557ea5714340abb5376ce7fb8c6, type: 3}
+  - m_material1: {fileID: 6200000, guid: 88fc809a785b2da40af7b8a91cb43635, type: 2}
+    m_material2: {fileID: 6200000, guid: 88fc809a785b2da40af7b8a91cb43635, type: 2}
+    m_collisionAudio:
+    - {fileID: 8300000, guid: 06aab318ec65a09499474b8a83dfbe38, type: 3}
+    - {fileID: 8300000, guid: 32e47553336ca8641aad26dc5d42ef2a, type: 3}
+    - {fileID: 8300000, guid: a138ec0f861ecda41b0e6328ab82aa2b, type: 3}
+    - {fileID: 8300000, guid: d723b086cd2132a408cd7e10ed27218f, type: 3}
+    - {fileID: 8300000, guid: e0732953a425a594586bf4de2049246e, type: 3}
+    - {fileID: 8300000, guid: 811a7059bd3c05c45bafc5d49d8a5538, type: 3}
+    - {fileID: 8300000, guid: ac4c8590e1a569540a791e88a1cf375d, type: 3}
+    - {fileID: 8300000, guid: 0d3115f0ee2c51e43a2b28aab32acb9c, type: 3}
+    - {fileID: 8300000, guid: 08bc974ff55217c43ab3a55da7f8212b, type: 3}
+    - {fileID: 8300000, guid: ae62202c967c54c4c8c0e1962546435a, type: 3}
   - m_material1: {fileID: 6200000, guid: 65f85a0b14295e647865f344b3250a49, type: 2}
     m_material2: {fileID: 0}
     m_collisionAudio:
@@ -116,7 +129,16 @@ MonoBehaviour:
   - m_material1: {fileID: 6200000, guid: 88fc809a785b2da40af7b8a91cb43635, type: 2}
     m_material2: {fileID: 0}
     m_collisionAudio:
-    - {fileID: 8300000, guid: 0fe455e5766bf91459b1bb3f33ab070e, type: 3}
+    - {fileID: 8300000, guid: 06aab318ec65a09499474b8a83dfbe38, type: 3}
+    - {fileID: 8300000, guid: 32e47553336ca8641aad26dc5d42ef2a, type: 3}
+    - {fileID: 8300000, guid: a138ec0f861ecda41b0e6328ab82aa2b, type: 3}
+    - {fileID: 8300000, guid: d723b086cd2132a408cd7e10ed27218f, type: 3}
+    - {fileID: 8300000, guid: e0732953a425a594586bf4de2049246e, type: 3}
+    - {fileID: 8300000, guid: 811a7059bd3c05c45bafc5d49d8a5538, type: 3}
+    - {fileID: 8300000, guid: ac4c8590e1a569540a791e88a1cf375d, type: 3}
+    - {fileID: 8300000, guid: 0d3115f0ee2c51e43a2b28aab32acb9c, type: 3}
+    - {fileID: 8300000, guid: 08bc974ff55217c43ab3a55da7f8212b, type: 3}
+    - {fileID: 8300000, guid: ae62202c967c54c4c8c0e1962546435a, type: 3}
   - m_material1: {fileID: 0}
     m_material2: {fileID: 0}
     m_collisionAudio:
