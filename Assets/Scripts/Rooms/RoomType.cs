@@ -7,11 +7,12 @@ public class RoomType : ScriptableObject
 	public string[] m_preconditionNames; // TODO: less error-prone type?
 
 	[System.Serializable]
-	public class SpriteInfo
+	public sealed class SpriteInfo
 	{
 		public Sprite m_sprite;
 		public Color m_colorMin = Color.gray;
 		public Color m_colorMax = Color.white;
+		public bool m_proportionalColor = false;
 	}
 	public WeightedObject<SpriteInfo>[] m_backdrops;
 	public WeightedObject<SpriteInfo>[] m_walls;
@@ -25,9 +26,14 @@ public class RoomType : ScriptableObject
 	public int m_itemsMin = 1;
 	public int m_itemsMax = 4;
 
-	public WeightedObject<GameObject>[] m_decorationPrefabs;
+	[System.Serializable] public sealed class DecorationInfo // TODO: merge w/ SpriteInfo?
+	{
+		public GameObject m_prefab;
+		public float m_rotationDegreesMax = 0.0f;
+		public float m_heightMin = 0.5f;
+		public float m_heightMax = 2.0f;
+	}
+	public WeightedObject<DecorationInfo>[] m_decorations;
 	public int m_decorationsMin = 0;
 	public int m_decorationsMax = 2;
-	public float m_decorationHeightMin = 0.5f;
-	public float m_decorationHeightMax = 2.0f;
 }

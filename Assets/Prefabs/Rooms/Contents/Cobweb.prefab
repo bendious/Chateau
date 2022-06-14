@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 8511431466954729088}
   - component: {fileID: 5221647274962502525}
-  - component: {fileID: 1294362130896739009}
+  - component: {fileID: 1648592583904057349}
   m_Layer: 0
-  m_Name: Painting0
+  m_Name: Cobweb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -74,7 +74,7 @@ SpriteRenderer:
   m_SortingLayerID: 44612063
   m_SortingLayer: -2
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: b1506d7594d2194468d7fa3622c9ce81, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 070d7e2984deac3499b03a8137f2b191, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -85,7 +85,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &1294362130896739009
+--- !u!114 &1648592583904057349
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -97,6 +97,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_colorMin: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
   m_colorMax: {r: 1, g: 1, b: 1, a: 1}
-  m_proportionalColor: 0
+  m_proportional: 1

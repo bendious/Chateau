@@ -319,14 +319,14 @@ public class RoomController : MonoBehaviour
 			RoomType.SpriteInfo backdrop = m_roomType.m_backdrops.RandomWeighted();
 			SpriteRenderer renderer = m_backdrop.GetComponent<SpriteRenderer>();
 			renderer.sprite = backdrop.m_sprite;
-			renderer.color = Utility.ColorRandom(backdrop.m_colorMin, backdrop.m_colorMax);
+			renderer.color = Utility.ColorRandom(backdrop.m_colorMin, backdrop.m_colorMax, backdrop.m_proportionalColor);
 		}
 
 		// per-area appearance
 		// TODO: separate RoomType into {Area/Room}Type? tend brighter based on progress?
 		RoomController areaParent = m_layoutNodes.First().AreaParent.m_room; // NOTE that all nodes w/i a single room should have the same area parent
 		m_wallInfo = areaParent != this ? areaParent.m_wallInfo : m_roomType.m_walls != null && m_roomType.m_walls.Length > 0 ? m_roomType.m_walls.RandomWeighted() : m_wallInfo;
-		m_wallColor = areaParent != this ? areaParent.m_wallColor : Utility.ColorRandom(m_wallInfo.m_colorMin, m_wallInfo.m_colorMax);
+		m_wallColor = areaParent != this ? areaParent.m_wallColor : Utility.ColorRandom(m_wallInfo.m_colorMin, m_wallInfo.m_colorMax, m_wallInfo.m_proportionalColor);
 		if (m_wallInfo.m_sprite != null)
 		{
 			foreach (GameObject obj in m_walls.Concat(m_doorwayInfos.Select(info => info.m_object)))
@@ -357,12 +357,13 @@ public class RoomController : MonoBehaviour
 				case LayoutGenerator.Node.Type.TutorialThrow:
 				case LayoutGenerator.Node.Type.TutorialInventory:
 				case LayoutGenerator.Node.Type.TutorialSwing:
-					GameObject prefab = m_roomType.m_decorationPrefabs[node.m_type - LayoutGenerator.Node.Type.TutorialMove].m_object;
-					Instantiate(prefab, InteriorPosition(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax, prefab), Quaternion.identity, transform);
+					RoomType.DecorationInfo info = m_roomType.m_decorations[node.m_type - LayoutGenerator.Node.Type.TutorialMove].m_object;
+					GameObject prefab = info.m_prefab;
+					Instantiate(prefab, InteriorPosition(info.m_heightMin, info.m_heightMax, prefab), info.m_rotationDegreesMax != 0.0f ? Quaternion.Euler(0.0f, 0.0f, Random.Range(-info.m_rotationDegreesMax, info.m_rotationDegreesMax)) : Quaternion.identity, transform);
 					if (node.m_type == LayoutGenerator.Node.Type.TutorialInteract && (GameController.Instance.m_avatars == null || !GameController.Instance.m_avatars.Any(avatar => avatar.GetComponentInChildren<ItemController>(true) != null)))
 					{
 						prefab = m_roomType.m_itemPrefabs.RandomWeighted(); // TODO: spawn on table
-						GameController.Instance.m_savableFactory.Instantiate(prefab, InteriorPosition(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax, prefab), Quaternion.identity);
+						GameController.Instance.m_savableFactory.Instantiate(prefab, InteriorPosition(0.0f, prefab), Quaternion.identity);
 					}
 					break;
 
@@ -444,9 +445,10 @@ public class RoomController : MonoBehaviour
 		int numDecorations = Random.Range(m_roomType.m_decorationsMin, m_roomType.m_decorationsMax + 1);
 		for (int i = 0; i < numDecorations; ++i)
 		{
-			GameObject decoPrefab = m_roomType.m_decorationPrefabs.RandomWeighted();
-			Vector3 spawnPos = InteriorPosition(Random.Range(m_roomType.m_decorationHeightMin, m_roomType.m_decorationHeightMax), decoPrefab); // TODO: uniform height per room?
-			/*GameObject decoration =*/ Instantiate(decoPrefab, spawnPos, Quaternion.identity, transform);
+			RoomType.DecorationInfo decoInfo = m_roomType.m_decorations.RandomWeighted();
+			GameObject decoPrefab = decoInfo.m_prefab;
+			Vector3 spawnPos = InteriorPosition(Random.Range(decoInfo.m_heightMin, decoInfo.m_heightMax), decoPrefab); // TODO: uniform height per decoration type per room?
+			/*GameObject decoration =*/ Instantiate(decoPrefab, spawnPos, decoInfo.m_rotationDegreesMax != 0.0f ? Quaternion.Euler(0.0f, 0.0f, Random.Range(-decoInfo.m_rotationDegreesMax, decoInfo.m_rotationDegreesMax)) : Quaternion.identity, transform);
 
 			//foreach (SpriteRenderer renderer in decoration.GetComponentsInChildren<SpriteRenderer>(true))
 			//{

@@ -19,31 +19,37 @@ MonoBehaviour:
       m_sprite: {fileID: 21300000, guid: 2543d0aa90cbd468da437e70810cba4d, type: 3}
       m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
       m_colorMax: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+      m_proportionalColor: 0
     m_weight: 1
   - m_object:
       m_sprite: {fileID: 21300000, guid: f196f46b66306e4478aecf6eba4fbb5f, type: 3}
       m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
       m_colorMax: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+      m_proportionalColor: 0
     m_weight: 1
   - m_object:
       m_sprite: {fileID: 21300000, guid: f196f46b66306e4478aecf6eba4fbb5f, type: 3}
       m_colorMin: {r: 0.3018868, g: 0, b: 0, a: 1}
       m_colorMax: {r: 1, g: 0, b: 0, a: 1}
+      m_proportionalColor: 1
     m_weight: 1
   - m_object:
       m_sprite: {fileID: 21300000, guid: e38c81291983cee41bb26e5d4796a7c1, type: 3}
       m_colorMin: {r: 0.20754719, g: 0.05321271, b: 0, a: 1}
       m_colorMax: {r: 1, g: 0.7666349, b: 0, a: 1}
+      m_proportionalColor: 1
     m_weight: 1
   - m_object:
       m_sprite: {fileID: 21300000, guid: 101d0eb0a5283394988213faf61fc46a, type: 3}
       m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
       m_colorMax: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+      m_proportionalColor: 0
     m_weight: 1
   - m_object:
       m_sprite: {fileID: 21300000, guid: b0009a72c2a670f47be7e5dc6d5dd001, type: 3}
       m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
       m_colorMax: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+      m_proportionalColor: 0
     m_weight: 1
   m_furniturePrefabs: []
   m_fillPctMin: 0
@@ -53,28 +59,66 @@ MonoBehaviour:
   m_itemRarePrefabs: []
   m_itemsMin: 0
   m_itemsMax: 0
-  m_decorationPrefabs:
-  - m_object: {fileID: 7287174281192745631, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
+  m_decorations:
+  - m_object:
+      m_prefab: {fileID: 7287174281192745631, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
+      m_rotationDegreesMax: 15
+      m_heightMin: 0.25
+      m_heightMax: 4
     m_weight: 1
-  - m_object: {fileID: 8676886319946764231, guid: 71b49dd434a813046b313f43ac1c5699, type: 3}
+  - m_object:
+      m_prefab: {fileID: 8676886319946764231, guid: 71b49dd434a813046b313f43ac1c5699, type: 3}
+      m_rotationDegreesMax: 15
+      m_heightMin: 0.25
+      m_heightMax: 4
     m_weight: 1
-  - m_object: {fileID: 8676886319946764231, guid: d6d57edb68b4d67469aacffc2b47cb4f, type: 3}
+  - m_object:
+      m_prefab: {fileID: 8676886319946764231, guid: d6d57edb68b4d67469aacffc2b47cb4f, type: 3}
+      m_rotationDegreesMax: 15
+      m_heightMin: 0.25
+      m_heightMax: 4
     m_weight: 1
-  - m_object: {fileID: 8676886319946764231, guid: 62568760e40bcb049adafccb2704952d, type: 3}
+  - m_object:
+      m_prefab: {fileID: 8676886319946764231, guid: 62568760e40bcb049adafccb2704952d, type: 3}
+      m_rotationDegreesMax: 15
+      m_heightMin: 0.25
+      m_heightMax: 4
     m_weight: 1
-  - m_object: {fileID: 8676886319946764231, guid: 3309dde898ea6bd47a977320d43f127b, type: 3}
+  - m_object:
+      m_prefab: {fileID: 8676886319946764231, guid: 3309dde898ea6bd47a977320d43f127b, type: 3}
+      m_rotationDegreesMax: 15
+      m_heightMin: 0.25
+      m_heightMax: 4
     m_weight: 1
-  - m_object: {fileID: 8676886319946764231, guid: 8366f5daea345764cb2809960b8bd9d5, type: 3}
+  - m_object:
+      m_prefab: {fileID: 8676886319946764231, guid: 8366f5daea345764cb2809960b8bd9d5, type: 3}
+      m_rotationDegreesMax: 15
+      m_heightMin: 0.25
+      m_heightMax: 4
     m_weight: 1
-  - m_object: {fileID: 8676886319946764231, guid: 361520148a494f04692f40ea0e301feb, type: 3}
+  - m_object:
+      m_prefab: {fileID: 8676886319946764231, guid: 361520148a494f04692f40ea0e301feb, type: 3}
+      m_rotationDegreesMax: 15
+      m_heightMin: 0.25
+      m_heightMax: 4
     m_weight: 1
-  - m_object: {fileID: 8676886319946764231, guid: e74f083f949510240b4012554ed14aff, type: 3}
+  - m_object:
+      m_prefab: {fileID: 8676886319946764231, guid: e74f083f949510240b4012554ed14aff, type: 3}
+      m_rotationDegreesMax: 15
+      m_heightMin: 0.25
+      m_heightMax: 4
     m_weight: 1
-  - m_object: {fileID: 4169426072936497791, guid: d1dd6aeb4450d1c47b2bd8598add16d7, type: 3}
+  - m_object:
+      m_prefab: {fileID: 4169426072936497791, guid: d1dd6aeb4450d1c47b2bd8598add16d7, type: 3}
+      m_rotationDegreesMax: 15
+      m_heightMin: 0.25
+      m_heightMax: 4
     m_weight: 1
-  - m_object: {fileID: 1215041682502348155, guid: f992c9e46b8dfff4aaa8341f6d79cc87, type: 3}
+  - m_object:
+      m_prefab: {fileID: 1215041682502348155, guid: f992c9e46b8dfff4aaa8341f6d79cc87, type: 3}
+      m_rotationDegreesMax: 15
+      m_heightMin: 0.25
+      m_heightMax: 4
     m_weight: 1
   m_decorationsMin: 0
   m_decorationsMax: 0
-  m_decorationHeightMin: 0.25
-  m_decorationHeightMax: 4

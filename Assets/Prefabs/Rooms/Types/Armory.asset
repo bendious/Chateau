@@ -18,37 +18,44 @@ MonoBehaviour:
       m_sprite: {fileID: 21300000, guid: 6e68c0d093f9505469997c5551fe6842, type: 3}
       m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
       m_colorMax: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+      m_proportionalColor: 0
     m_weight: 1
   m_walls:
   - m_object:
       m_sprite: {fileID: 21300000, guid: 2543d0aa90cbd468da437e70810cba4d, type: 3}
       m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
       m_colorMax: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+      m_proportionalColor: 0
     m_weight: 1
   - m_object:
       m_sprite: {fileID: 21300000, guid: f196f46b66306e4478aecf6eba4fbb5f, type: 3}
       m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
       m_colorMax: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+      m_proportionalColor: 0
     m_weight: 1
   - m_object:
       m_sprite: {fileID: 21300000, guid: f196f46b66306e4478aecf6eba4fbb5f, type: 3}
       m_colorMin: {r: 0.3018868, g: 0, b: 0, a: 1}
       m_colorMax: {r: 1, g: 0, b: 0, a: 1}
+      m_proportionalColor: 1
     m_weight: 1
   - m_object:
       m_sprite: {fileID: 21300000, guid: e38c81291983cee41bb26e5d4796a7c1, type: 3}
       m_colorMin: {r: 0.20754719, g: 0.05321271, b: 0, a: 1}
       m_colorMax: {r: 1, g: 0.7666349, b: 0, a: 1}
+      m_proportionalColor: 1
     m_weight: 1
   - m_object:
       m_sprite: {fileID: 21300000, guid: 101d0eb0a5283394988213faf61fc46a, type: 3}
       m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
       m_colorMax: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+      m_proportionalColor: 0
     m_weight: 1
   - m_object:
       m_sprite: {fileID: 21300000, guid: b0009a72c2a670f47be7e5dc6d5dd001, type: 3}
       m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
       m_colorMax: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+      m_proportionalColor: 0
     m_weight: 1
   m_furniturePrefabs:
   - m_object: {fileID: 3500915504940809235, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
@@ -84,12 +91,18 @@ MonoBehaviour:
     m_weight: 4
   m_itemsMin: 4
   m_itemsMax: 8
-  m_decorationPrefabs:
-  - m_object: {fileID: 8498127701983908984, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
+  m_decorations:
+  - m_object:
+      m_prefab: {fileID: 8498127701983908984, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
+      m_rotationDegreesMax: 15
+      m_heightMin: 0.5
+      m_heightMax: 2
     m_weight: 1
-  - m_object: {fileID: 7985615140188058259, guid: cfbaadf79fc588048828fdf3288a20e1, type: 3}
+  - m_object:
+      m_prefab: {fileID: 7985615140188058259, guid: cfbaadf79fc588048828fdf3288a20e1, type: 3}
+      m_rotationDegreesMax: 0
+      m_heightMin: 0.5
+      m_heightMax: 2
     m_weight: 0.5
   m_decorationsMin: 0
   m_decorationsMax: 2
-  m_decorationHeightMin: 0.5
-  m_decorationHeightMax: 2
