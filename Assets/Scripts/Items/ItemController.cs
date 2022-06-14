@@ -48,6 +48,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	private Collider2D[] m_colliders;
 	private SpriteRenderer m_renderer;
 	private Health m_health;
+	private Hazard m_hazard;
 
 	private IHolder m_holder;
 	public KinematicCharacter Cause { get; private set; }
@@ -74,6 +75,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		m_colliders = GetComponents<Collider2D>();
 		m_renderer = GetComponent<SpriteRenderer>();
 		m_health = GetComponent<Health>();
+		m_hazard = GetComponent<Hazard>();
 
 		m_holder = transform.parent == null ? null : transform.parent.GetComponent<IHolder>();
 #pragma warning disable IDE0031 // NOTE that we don't use null propagation since IHolderControllers can be Unity objects as well, which don't like ?? or ?.
@@ -140,6 +142,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		}
 
 		m_body.useFullKinematicContacts = true;
+
+		if (m_hazard != null)
+		{
+			m_hazard.enabled = false;
+		}
 
 		SetCause(holder.Component.transform.root.GetComponent<KinematicCharacter>());
 	}
@@ -253,6 +260,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 				m_drawObjectCurrent.transform.SetParent(null);
 				m_drawObjectCurrent = null;
 			}
+			return true;
+		}
+
+		if (isPressed && m_hazard != null)
+		{
+			m_hazard.enabled = true;
+			Detach(false);
 			return true;
 		}
 

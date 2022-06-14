@@ -287,7 +287,11 @@ public abstract class KinematicObject : MonoBehaviour
 				// push-through floor/walls prevention
 				if (hit.transform.parent == null && hit.rigidbody.IsTouchingLayers((LayerMask)GameController.Instance.m_layerWalls))
 				{
-					EnableCollision.TemporarilyDisableCollision(new Collider2D[] { m_collider }, new Collider2D[] { hit.collider }, m_wallPushDisableSeconds);
+					Hazard hazard = hit.collider.GetComponent<Hazard>();
+					if (hazard == null || !hazard.enabled) // TODO: more general way of ensuring "important" collisions aren't ignored?
+					{
+						EnableCollision.TemporarilyDisableCollision(new Collider2D[] { m_collider }, new Collider2D[] { hit.collider }, m_wallPushDisableSeconds);
+					}
 				}
 
 				continue; // don't get hung up on dynamic/carried/ignored objects

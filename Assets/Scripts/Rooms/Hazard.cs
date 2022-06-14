@@ -6,6 +6,16 @@ public class Hazard : MonoBehaviour
 	[SerializeField]
 	private float m_damage = 1.0f;
 
+	[SerializeField] private Vector2 m_damageImpulse;
+	[SerializeField] private WeightedObject<AudioClip>[] m_damageSfx;
+
+	[SerializeField] private bool m_singleUse;
+
+
+	private void Start()
+	{
+		// NOTE that this, although empty, ensures the enable/disable checkbox is shown in the Inspector
+	}
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
@@ -20,6 +30,11 @@ public class Hazard : MonoBehaviour
 
 	private void ApplyDamage(Collision2D collision)
 	{
+		if (!enabled)
+		{
+			return;
+		}
+
 		// TODO: check for unlocking
 
 		Health health = collision.gameObject.GetComponent<Health>();
@@ -28,5 +43,22 @@ public class Hazard : MonoBehaviour
 			return;
 		}
 		health.Decrement(gameObject, m_damage);
+
+		if (m_damageImpulse != Vector2.zero)
+		{
+			Vector2 contactPos = collision.GetContact(0).point; // TODO: handle multiple contact points?
+			GetComponent<Rigidbody2D>().AddForceAtPosition(m_damageImpulse, 2.0f * (Vector2)transform.position - contactPos);
+		}
+
+		// SFX
+		if (m_damageSfx.Length > 0)
+		{
+			GetComponent<AudioSource>().PlayOneShot(m_damageSfx.RandomWeighted());
+		}
+
+		if (m_singleUse)
+		{
+			enabled = false;
+		}
 	}
 }
