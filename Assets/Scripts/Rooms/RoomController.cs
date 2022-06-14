@@ -357,6 +357,8 @@ public class RoomController : MonoBehaviour
 				case LayoutGenerator.Node.Type.TutorialThrow:
 				case LayoutGenerator.Node.Type.TutorialInventory:
 				case LayoutGenerator.Node.Type.TutorialSwing:
+				case LayoutGenerator.Node.Type.TutorialCancel:
+				case LayoutGenerator.Node.Type.TutorialCatch:
 					RoomType.DecorationInfo info = m_roomType.m_decorations[node.m_type - LayoutGenerator.Node.Type.TutorialMove].m_object;
 					GameObject prefab = info.m_prefab;
 					Instantiate(prefab, InteriorPosition(info.m_heightMin, info.m_heightMax, prefab), info.m_rotationDegreesMax != 0.0f ? Quaternion.Euler(0.0f, 0.0f, Random.Range(-info.m_rotationDegreesMax, info.m_rotationDegreesMax)) : Quaternion.identity, transform);
