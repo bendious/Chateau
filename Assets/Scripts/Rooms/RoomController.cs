@@ -445,11 +445,19 @@ public class RoomController : MonoBehaviour
 		// spawn decoration(s)
 		// TODO: prioritize by area? take fillPct into account?
 		int numDecorations = Random.Range(m_roomType.m_decorationsMin, m_roomType.m_decorationsMax + 1);
+		float[] decorationTypeHeights = Enumerable.Repeat(float.MinValue, m_roomType.m_decorations.Length).ToArray(); // TODO: allow similar decoration types to share heights? share between rooms?
 		for (int i = 0; i < numDecorations; ++i)
 		{
 			RoomType.DecorationInfo decoInfo = m_roomType.m_decorations.RandomWeighted();
+			int decoIdx = System.Array.FindIndex(m_roomType.m_decorations, weightedInfo => weightedInfo.m_object == decoInfo); // TODO: efficiency?
+			float height = decorationTypeHeights[decoIdx];
+			if (height == float.MinValue)
+			{
+				height = Random.Range(decoInfo.m_heightMin, decoInfo.m_heightMax);
+				decorationTypeHeights[decoIdx] = height;
+			}
 			GameObject decoPrefab = decoInfo.m_prefab;
-			Vector3 spawnPos = InteriorPosition(Random.Range(decoInfo.m_heightMin, decoInfo.m_heightMax), decoPrefab); // TODO: uniform height per decoration type per room?
+			Vector3 spawnPos = InteriorPosition(height, height, decoPrefab);
 			/*GameObject decoration =*/ Instantiate(decoPrefab, spawnPos, decoInfo.m_rotationDegreesMax != 0.0f ? Quaternion.Euler(0.0f, 0.0f, Random.Range(-decoInfo.m_rotationDegreesMax, decoInfo.m_rotationDegreesMax)) : Quaternion.identity, transform);
 
 			//foreach (SpriteRenderer renderer in decoration.GetComponentsInChildren<SpriteRenderer>(true))
