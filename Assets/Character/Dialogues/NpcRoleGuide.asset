@@ -29,21 +29,21 @@ MonoBehaviour:
         m_replies:
         - m_text: Yes.
           m_preconditionName: 
-          m_preconditionData: 0
+          m_userdata: 0
           m_followUp:
           - I'm not surprised.
           m_eventName: 
           m_breakAfterward: 0
         - m_text: No.
           m_preconditionName: 
-          m_preconditionData: 0
+          m_userdata: 0
           m_followUp:
           - Really?
           m_eventName: 
           m_breakAfterward: 0
         - m_text: Maybe...
           m_preconditionName: 
-          m_preconditionData: 0
+          m_userdata: 0
           m_followUp:
           - Well, I sure am.
           m_eventName: 

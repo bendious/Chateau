@@ -27,16 +27,35 @@ MonoBehaviour:
         m_replies:
         - m_text: Yes
           m_preconditionName: 
-          m_preconditionData: 0
+          m_userdata: 0
           m_followUp: []
           m_eventName: MerchantSell
           m_breakAfterward: 0
         - m_text: No
           m_preconditionName: 
-          m_preconditionData: 0
+          m_userdata: 0
           m_followUp:
           - Well, don't forget to come find me when you do.
           m_eventName: 
+          m_breakAfterward: 1
+      m_loop: 1
+    m_weight: 0
+  - m_object:
+      m_lines:
+      - m_text: Need something I've memorized?
+        m_replies:
+        - m_text: Yes
+          m_preconditionName: 
+          m_userdata: 0
+          m_followUp: []
+          m_eventName: MerchantBuy
           m_breakAfterward: 0
-      m_loop: 0
+        - m_text: No
+          m_preconditionName: 
+          m_userdata: 0
+          m_followUp:
+          - Well, don't forget to come find me when you do.
+          m_eventName: 
+          m_breakAfterward: 1
+      m_loop: 1
     m_weight: 0

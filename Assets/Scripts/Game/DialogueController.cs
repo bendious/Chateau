@@ -26,7 +26,7 @@ public class DialogueController : MonoBehaviour
 		{
 			public string m_text;
 			public string m_preconditionName;
-			public int m_preconditionData;
+			public int m_userdata;
 			public string[] m_followUp;
 			public string m_eventName; // TODO: less error-prone type?
 			public bool m_breakAfterward;
@@ -108,13 +108,84 @@ public class DialogueController : MonoBehaviour
 
 	public void EnemyTypeHasSpawned(Line.Reply reply)
 	{
-		reply.m_deactivated = !GameController.Instance.EnemyTypeHasSpawned(reply.m_preconditionData);
+		reply.m_deactivated = !GameController.Instance.EnemyTypeHasSpawned(reply.m_userdata);
 	}
 
+	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName)
 	public void MerchantSell()
 	{
-		IAttachable[] attachables = m_avatar.GetComponentsInChildren<IAttachable>();
-		m_queue.Peek().m_replies[m_replyIdx].m_followUp = new string[] { attachables.Length <= 0 ? "No you don't..." : "Excellent!" };
+		IAttachable[] attachables = m_avatar.GetComponentsInChildren<IAttachable>(true);
+		if (attachables.Length <= 0)
+		{
+			m_queue.Enqueue(new Line { m_text = "No you don't..." });
+			m_loop = false;
+			return;
+		}
+
+		List<Line.Reply> replyList = new();
+		foreach (IAttachable attachable in attachables)
+		{
+			ItemController item = attachable as ItemController; // TODO: IAttachable.name?
+			replyList.Add(new Line.Reply { m_text = item == null ? "Backpack"/*?*/ : item.m_tooltip.Split('\n').First(), m_eventName = "MerchantDespawn", m_followUp = new string[] { "Thank you kindly! Rest assured I won't forget this." } });
+		}
+		replyList.Add(new Line.Reply { m_text = "Not now.", m_followUp = new string[] { "I see. Well, don't forget to come back if you change your mind." }, m_breakAfterward = true }); // TODO: variance?
+
+		Line line = new() { m_text = "Mind if I take one off your hands?", m_replies = replyList.ToArray() };
+		Debug.Assert(m_queue.Count == 1, "Out-of-order selling dialogue?");
+		m_queue.Enqueue(line);
+	}
+
+	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName)
+	public void MerchantDespawn()
+	{
+		// record acquisition
+		IAttachable[] attachables = m_avatar.GetComponentsInChildren<IAttachable>(true);
+		IAttachable attachable = attachables[m_replyIdx];
+		++GameController.MerchantAcquiredCounts[((ISavable)attachable).Type]; // TODO: don't assume all attachables are also savables?
+
+		// detach any children
+		Component attachableComp = attachable.Component;
+		foreach (IAttachable child in attachableComp.GetComponentsInChildren<IAttachable>(true))
+		{
+			if (child == attachable)
+			{
+				continue;
+			}
+			child.Detach(true);
+		}
+
+		// despawn
+		DespawnEffect despawnEffect = attachableComp.GetComponent<DespawnEffect>();
+		if (despawnEffect != null)
+		{
+			Destroy(despawnEffect);
+		}
+		Simulation.Schedule<ObjectDespawn>().m_object = attachableComp.gameObject;
+	}
+
+	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName)
+	public void MerchantBuy()
+	{
+		List<Line.Reply> replyList = new();
+		for (int type = 0, n = GameController.MerchantAcquiredCounts.Length; type < n; ++type)
+		{
+			if (GameController.MerchantAcquiredCounts[type] < 1) // TODO: variable acquisition threshold? fungible "materials" currency?
+			{
+				continue;
+			}
+			replyList.Add(new Line.Reply { m_text = GameController.Instance.m_savableFactory.m_savables[type].name, m_eventName = "MerchantSpawn", m_userdata = type, m_followUp = new string[] { "Here you go!" } }); // TODO: use ItemController.m_tooltip?
+		}
+
+		replyList.Add(new Line.Reply { m_text = "Nothing, thanks.", m_followUp = new string[] { "Oh, okay. Well, you know where to find me." }, m_breakAfterward = true });
+
+		m_queue.Enqueue(new Line { m_text = "What'll it be?", m_replies = replyList.ToArray() });
+	}
+
+	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName)
+	public void MerchantSpawn()
+	{
+		ISavable savable = GameController.Instance.m_savableFactory.Instantiate(m_queue.Peek().m_replies[m_replyIdx].m_userdata, m_avatar.transform.position, Quaternion.identity);
+		m_avatar.ChildAttach(savable.Component.GetComponent<IAttachable>()); // TODO: don't assume all savables are also attachable?
 	}
 
 

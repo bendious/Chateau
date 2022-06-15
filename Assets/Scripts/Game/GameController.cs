@@ -77,6 +77,7 @@ public class GameController : MonoBehaviour
 	public static GameController Instance { get; private set; }
 
 	public static NpcDialogue[][] Npcs { get; private set; }
+	public static int[] MerchantAcquiredCounts;
 
 	public static int ZonesFinishedCount { get; private set; }
 
@@ -159,6 +160,10 @@ public class GameController : MonoBehaviour
 		if (Npcs == null)
 		{
 			Npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => new NpcDialogue[] { a, b }).ToArray();
+		}
+		if (MerchantAcquiredCounts == null)
+		{
+			MerchantAcquiredCounts = new int[m_savableFactory.m_savables.Length]; // TODO: don't assume the same number/arrangement of savables in each scene?
 		}
 		if (m_enemySpawnCounts == null)
 		{
@@ -512,6 +517,8 @@ public class GameController : MonoBehaviour
 				m_startRoom = Instantiate(m_entryRoomPrefabs.RandomWeighted(), transform).GetComponent<RoomController>();
 				m_startRoom.SetNodes(nodesList.ToArray());
 				++roomCount;
+				Debug.Assert(LootRoom == null);
+				LootRoom = m_startRoom;
 			}
 			else
 			{
@@ -584,6 +591,8 @@ public class GameController : MonoBehaviour
 			saveFile.Write(attitudeIdx >= 0 ? attitudeIdx : System.Array.FindIndex(m_npcRoles, dialogueCheckFunc));
 		}));
 
+		saveFile.Write(MerchantAcquiredCounts, saveFile.Write);
+
 		saveFile.Write(m_enemySpawnCounts, saveFile.Write);
 
 		saveFile.Write(ZonesFinishedCount);
@@ -613,6 +622,8 @@ public class GameController : MonoBehaviour
 			}
 
 			Npcs = saveFile.ReadArray(() => saveFile.ReadArray(() => (saveFile.ReadInt32() == 0 ? m_npcAttitudes : m_npcRoles)[saveFile.ReadInt32()].m_object));
+
+			MerchantAcquiredCounts = saveFile.ReadArray(saveFile.ReadInt32);
 
 			saveFile.Read(out int[] spawnCountsPrev, saveFile.ReadInt32);
 			m_enemySpawnCounts = m_enemySpawnCounts == null ? spawnCountsPrev : m_enemySpawnCounts.Zip(spawnCountsPrev, (a, b) => System.Math.Max(a, b)).ToArray(); // TODO: don't assume array length will always match? guarantee accurate counts even if loading/quitting directly to/from non-saved scenes?

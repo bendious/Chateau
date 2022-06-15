@@ -25,7 +25,7 @@ MonoBehaviour:
         m_replies:
         - m_text: Slimes
           m_preconditionName: EnemyTypeHasSpawned
-          m_preconditionData: 0
+          m_userdata: 0
           m_followUp:
           - Ah, slimes.
           - They're slow, but be sure you don't get swarmed!
@@ -34,7 +34,7 @@ MonoBehaviour:
           m_breakAfterward: 0
         - m_text: Snakes
           m_preconditionName: EnemyTypeHasSpawned
-          m_preconditionData: 1
+          m_userdata: 1
           m_followUp:
           - Snakes?
           - Of course it had to be snakes.
@@ -44,7 +44,7 @@ MonoBehaviour:
           m_breakAfterward: 0
         - m_text: Spiders
           m_preconditionName: EnemyTypeHasSpawned
-          m_preconditionData: 2
+          m_userdata: 2
           m_followUp:
           - Yeah, we've got some big ones around here, don't we?
           - They're pretty skittish, even so; you never know where they're heading
@@ -54,7 +54,7 @@ MonoBehaviour:
           m_breakAfterward: 0
         - m_text: Bats
           m_preconditionName: EnemyTypeHasSpawned
-          m_preconditionData: 3
+          m_userdata: 3
           m_followUp:
           - Bats, yes!
           - So easy to miss!
@@ -64,7 +64,7 @@ MonoBehaviour:
           m_breakAfterward: 0
         - m_text: Skeletons
           m_preconditionName: EnemyTypeHasSpawned
-          m_preconditionData: 4
+          m_userdata: 4
           m_followUp:
           - Skeletons?
           - Oh, those things.
@@ -77,7 +77,7 @@ MonoBehaviour:
           m_breakAfterward: 0
         - m_text: Shadows
           m_preconditionName: EnemyTypeHasSpawned
-          m_preconditionData: 6
+          m_userdata: 6
           m_followUp:
           - Hmm, the worst; shadows...
           - They look like people, don't they?
@@ -90,7 +90,7 @@ MonoBehaviour:
           m_breakAfterward: 0
         - m_text: Nothing.
           m_preconditionName: 
-          m_preconditionData: 0
+          m_userdata: 0
           m_followUp:
           - Oh, okay.
           m_eventName: 

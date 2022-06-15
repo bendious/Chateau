@@ -21,7 +21,7 @@ public class DespawnEffect : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (GameController.IsSceneLoad)
+		if (GameController.IsSceneLoad || gameObject.activeSelf) // NOTE that if the game object is still active, then this script is getting removed while the object is still alive, so we shouldn't activate despawn effects
 		{
 			return;
 		}
