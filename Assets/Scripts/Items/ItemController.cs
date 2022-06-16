@@ -161,7 +161,10 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			avatar.ToggleOverlay(null, null);
 		}
 
-		m_holder.ChildDetach(this, noAutoReplace);
+		if (m_holder != null) // NOTE that this is valid for items attached to static geometry rather than an IHolder
+		{
+			m_holder.ChildDetach(this, noAutoReplace);
+		}
 
 		m_body.useFullKinematicContacts = false;
 
