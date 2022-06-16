@@ -354,7 +354,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		}
 
 		// check speed
-		float collisionSpeed = (kinematicObj == null ? collision.relativeVelocity.magnitude : (m_body.velocity - kinematicObj.velocity).magnitude) + Speed;
+		float collisionSpeed = (collision.relativeVelocity + (kinematicObj == null ? Vector2.zero : -kinematicObj.velocity)).magnitude + Speed;
 		if (collisionSpeed > m_swingInfo.m_damageThresholdSpeed)
 		{
 			if (m_audioSource.enabled)
