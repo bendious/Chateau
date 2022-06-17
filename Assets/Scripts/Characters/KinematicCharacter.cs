@@ -148,7 +148,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		m_wasGrounded = IsGrounded;
 		animator.SetBool("wallCling", IsWallClinging);
 		animator.SetBool("aimReverse", m_aimDir != 0 && (velocity.x < 0.0f) != (m_aimDir < 0));
-		animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / maxSpeed);
+		animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / (maxSpeed == 0.0f ? 1.0f : maxSpeed));
 
 		targetVelocity = move * maxSpeed;
 	}

@@ -34,6 +34,7 @@ public class LockController : MonoBehaviour, IUnlockable
 	public WeightedObject<CombinationSet>[] m_combinationSets;
 
 	public float m_keyHeightMax = 7.5f;
+	[SerializeField] private float m_keyDelaySeconds = 0.0f;
 
 	public WeightedObject<AudioClip>[] m_failureSFX;
 	public WeightedObject<AudioClip>[] m_unlockSFX;
@@ -50,6 +51,8 @@ public class LockController : MonoBehaviour, IUnlockable
 	private KeyInfo m_keyInfo;
 	private CombinationSet m_combinationSet;
 	private bool m_hasTrigger;
+
+	private bool m_unlockInProgress;
 
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
@@ -207,7 +210,7 @@ public class LockController : MonoBehaviour, IUnlockable
 			}
 			ISavable savableObj = obj.GetComponent<ISavable>();
 			ISavable savableKey = key.Component.GetComponent<ISavable>();
-			return savableObj != null && savableKey != null && (savableObj.Type == savableKey.Type || savableObj.Type == System.Array.IndexOf(GameController.Instance.m_savableFactory.m_savables, key.Component.gameObject)); // NOTE the extra check of SavableFactory.m_savables since the key might be a pre-spawned prefab
+			return savableObj != null && savableKey != null && savableObj.Type != -1 && (savableObj.Type == savableKey.Type || savableObj.Type == System.Array.IndexOf(GameController.Instance.m_savableFactory.m_savables, key.Component.gameObject)); // NOTE the extra check of SavableFactory.m_savables since the key might be a pre-spawned prefab
 		}
 
 		int matchingKeyIdx = -1;
@@ -276,11 +279,19 @@ public class LockController : MonoBehaviour, IUnlockable
 		{
 			if (IsValidNextKey(tf.gameObject))
 			{
-				// TODO: m_keyDelaySeconds
+				StartCoroutine(KeyUnlockDelayed(tf));
+			}
+		}
+	}
 
-				IKey key = tf.GetComponent<IKey>();
-				key.Use();
-				Unlock(key);
+	private void OnTriggerExit2D(Collider2D collider)
+	{
+		foreach (Transform tf in collider.GetComponentsInChildren<Transform>(true))
+		{
+			if (IsValidNextKey(tf.gameObject)) // TODO: cache?
+			{
+				m_unlockInProgress = false; // TODO: handle multiple keys?
+				break;
 			}
 		}
 	}
@@ -292,6 +303,15 @@ public class LockController : MonoBehaviour, IUnlockable
 			return;
 		}
 		OnTriggerEnter2D(collision.collider);
+	}
+
+	private void OnCollisionExit2D(Collision2D collision)
+	{
+		if (m_hasTrigger)
+		{
+			return;
+		}
+		OnTriggerExit2D(collision.collider);
 	}
 
 	private void OnDestroy()
@@ -429,5 +449,25 @@ public class LockController : MonoBehaviour, IUnlockable
 		{
 			GetComponent<SpriteRenderer>().sprite = m_keyInfo.m_doorSprites[^Mathf.Min(m_keyInfo.m_doorSprites.Length, m_keys.Count(key => !key.IsInPlace) + 1)];
 		}
+	}
+
+	private System.Collections.IEnumerator KeyUnlockDelayed(Transform tf)
+	{
+		m_unlockInProgress = true;
+		if (m_keyDelaySeconds > 0.0f)
+		{
+			float unlockTime = Time.time + m_keyDelaySeconds;
+			yield return new WaitUntil(() => !m_unlockInProgress || Time.time >= unlockTime);
+		}
+
+		if (!m_unlockInProgress)
+		{
+			yield break;
+		}
+		m_unlockInProgress = false;
+
+		IKey key = tf.GetComponent<IKey>();
+		key.Use();
+		Unlock(key);
 	}
 }

@@ -96,6 +96,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Torch
       objectReference: {fileID: 0}
+    - target: {fileID: 3278049672976657905, guid: 23f7dd1bdf1ed294e81efa2675d28cf7, type: 3}
+      propertyPath: m_savableType
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 5366467208283302185, guid: 23f7dd1bdf1ed294e81efa2675d28cf7, type: 3}
       propertyPath: m_BodyType
       value: 1

@@ -128,7 +128,8 @@ PrefabInstance:
       value: 'Emergency Medical Kit
 
 
-        <sprite index=5>: heal 1 hit point.'
+        <sprite index=5>(hold): heal 1 hit
+        point.'
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_healAmount

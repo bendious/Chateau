@@ -35,6 +35,8 @@ public class Health : MonoBehaviour
 	/// </summary>
 	public bool IsAlive => m_currentHP > 0;
 
+	public bool CanIncrement => m_currentHP < m_maxHP;
+
 
 	float m_currentHP;
 

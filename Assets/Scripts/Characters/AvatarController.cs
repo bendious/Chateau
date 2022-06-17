@@ -211,6 +211,11 @@ public class AvatarController : KinematicCharacter
 
 	private void LateUpdate()
 	{
+		if (!controlEnabled)
+		{
+			return;
+		}
+
 		// collect possible focus objects
 		m_focusObj = null;
 		Collider2D[] focusCandidates = Physics2D.OverlapCircleAll(FocusCollectPos, FocusRadius); // TODO: restrict to certain layers?

@@ -23,6 +23,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public float m_throwSpeed = 20.0f;
 	public float m_vfxAlpha = 0.5f;
 	public int m_healAmount = 0;
+	[SerializeField] private float m_healSeconds = 5.0f;
 
 	public bool m_detachOnDamage = false; // TODO: cumulative damage threshold?
 	[SerializeField] private bool m_keyDestroyAfterUse = true;
@@ -66,6 +67,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	[SerializeField]
 	private bool m_isReferenceKey;
+
+
+	private bool m_healInProgress;
 
 
 	private void Awake()
@@ -162,6 +166,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			avatar.ToggleOverlay(null, null);
 		}
 
+		m_healInProgress = false;
+
 		if (m_holder != null) // NOTE that this is valid for items attached to static geometry rather than an IHolder
 		{
 			m_holder.ChildDetach(this, noAutoReplace);
@@ -231,14 +237,14 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	public bool Use(bool isPressed)
 	{
-		if (isPressed && m_healAmount > 0)
+		if (m_healAmount > 0 && Cause.GetComponent<Health>().CanIncrement)
 		{
-			bool healed = Cause.GetComponent<Health>().Increment(m_healAmount);
-			if (healed)
+			m_healInProgress = isPressed;
+			if (m_healInProgress)
 			{
-				Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
-				return true;
+				StartCoroutine(HealDelayed());
 			}
+			return true;
 		}
 
 		TMP_Text text = GetComponentInChildren<TMP_Text>();
@@ -465,5 +471,36 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			return;
 		}
 		m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.Find(m_colliders.First().sharedMaterial).RandomMovementAudio()); // TODO: don't assume first collider is main material?
+	}
+
+	private IEnumerator HealDelayed()
+	{
+		AvatarController avatar = Cause.GetComponent<AvatarController>();
+		float speedPrev = avatar.maxSpeed;
+		if (speedPrev <= 0.0f)
+		{
+			yield break; // TODO: better way of detecting/preventing multiple HealDelayed() instances in progress?
+		}
+		avatar.maxSpeed = 0.0f;
+
+		// TODO: in-progress SFX/VFX/animation, UI?
+
+		float healTime = Time.time + m_healSeconds;
+		yield return new WaitUntil(() =>!m_healInProgress || Time.time >= healTime);
+
+		avatar.maxSpeed = speedPrev;
+
+		if (!m_healInProgress)
+		{
+			yield break;
+		}
+
+		bool healed = Cause.GetComponent<Health>().Increment(m_healAmount);
+		if (healed)
+		{
+			Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
+
+			// TODO: success SFX/VFX
+		}
 	}
 }
