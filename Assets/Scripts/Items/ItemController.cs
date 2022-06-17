@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.VFX;
 
 
 [DisallowMultipleComponent, RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), RequireComponent(typeof(SpriteRenderer))]
@@ -110,6 +111,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		if (m_trail != null)
 		{
 			m_trail.emitting = false;
+		}
+		foreach (VisualEffect vfx in GetComponentsInChildren<VisualEffect>(true))
+		{
+			if (vfx.enabled)
+			{
+				vfx.Play(); // TODO: determine why this doesn't work after arm hiding/revealing
+			}
 		}
 
 		if (m_isReferenceKey)

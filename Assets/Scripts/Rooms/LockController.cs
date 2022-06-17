@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -35,6 +36,7 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	public float m_keyHeightMax = 7.5f;
 	[SerializeField] private float m_keyDelaySeconds = 0.0f;
+	[SerializeField] private float m_vfxDisableDelaySeconds = 2.0f;
 
 	public WeightedObject<AudioClip>[] m_failureSFX;
 	public WeightedObject<AudioClip>[] m_unlockSFX;
@@ -396,7 +398,7 @@ public class LockController : MonoBehaviour, IUnlockable
 					if (vfx.enabled)
 					{
 						vfx.Stop();
-						// TODO: disable after short delay to prevent existing particles remaining while off-screen?
+						StartCoroutine(DisableDelayed(m_vfxDisableDelaySeconds, vfx)); // disable after short delay to prevent existing particles remaining while off-screen and becoming visible once not culled
 					}
 					else
 					{
@@ -451,7 +453,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		}
 	}
 
-	private System.Collections.IEnumerator KeyUnlockDelayed(Transform tf)
+	private IEnumerator KeyUnlockDelayed(Transform tf)
 	{
 		m_unlockInProgress = true;
 		if (m_keyDelaySeconds > 0.0f)
@@ -469,5 +471,11 @@ public class LockController : MonoBehaviour, IUnlockable
 		IKey key = tf.GetComponent<IKey>();
 		key.Use();
 		Unlock(key);
+	}
+
+	private IEnumerator DisableDelayed(float delay, Behaviour component)
+	{
+		yield return new WaitForSeconds(delay);
+		component.enabled = false;
 	}
 }
