@@ -30,16 +30,16 @@ public class FurnitureController : MonoBehaviour
 
 		// apply size evenly across pieces
 		// TODO: don't assume even stacking?
-		Transform[] pieces = GetComponentsInChildren<Transform>();
-		float heightPiece = heightTotal / pieces.Length;
+		SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>();
+		float heightPiece = heightTotal / renderers.Length;
 		Vector2 sizePiece = new(width, heightPiece);
 
-		float heightItr = pieces.First().localPosition.y;
-		foreach (Transform piece in pieces)
+		float heightItr = renderers.First().transform.localPosition.y;
+		foreach (SpriteRenderer renderer in renderers)
 		{
-			piece.localPosition = new(piece.localPosition.x, heightItr, piece.localPosition.z);
-			SpriteRenderer renderer = piece.GetComponent<SpriteRenderer>();
-			BoxCollider2D boxCollider = piece.GetComponent<BoxCollider2D>(); // TODO: handle resizing other types of colliders?
+			Transform tf = renderer.transform;
+			tf.localPosition = new(tf.localPosition.x, heightItr, tf.localPosition.z);
+			BoxCollider2D boxCollider = tf.GetComponent<BoxCollider2D>(); // TODO: handle resizing other types of colliders?
 			Vector2 colliderSizeDiff = boxCollider == null ? Vector2.zero : renderer.size - boxCollider.size;
 
 			renderer.size = sizePiece;
@@ -72,6 +72,7 @@ public class FurnitureController : MonoBehaviour
 
 		System.Collections.Generic.Queue<GameObject> itemsNext = null; // TODO: share across instances of the same type in the same room?
 		Vector3 size = GetComponent<Collider2D>().bounds.size; // NOTE that the collider likely hasn't updated its position, but the size should be valid
+		int numPlatforms = GetComponentsInChildren<SpriteRenderer>().Length; // TODO: decouple?
 		float extentX = size.x * 0.5f;
 		for (int i = 0; i < itemCount; ++i)
 		{
@@ -80,7 +81,7 @@ public class FurnitureController : MonoBehaviour
 				itemsNext = new(itemsFinal.RandomWeightedOrder());
 			}
 			GameObject itemPrefab = itemsNext.Dequeue();
-			Vector3 spawnCenterPos = ItemSpawnPositionInternal(itemPrefab, extentX, size.y);
+			Vector3 spawnCenterPos = ItemSpawnPositionInternal(itemPrefab, extentX, size.y, numPlatforms);
 			GameController.Instance.m_savableFactory.Instantiate(itemPrefab, spawnCenterPos, Quaternion.identity);
 		}
 
@@ -90,13 +91,13 @@ public class FurnitureController : MonoBehaviour
 	public Vector3 ItemSpawnPosition(GameObject itemPrefab)
 	{
 		Vector3 size = GetComponent<Collider2D>().bounds.size; // NOTE that the collider likely hasn't updated its position, but the size should be valid
-		return ItemSpawnPositionInternal(itemPrefab, size.x * 0.5f, size.y);
+		return ItemSpawnPositionInternal(itemPrefab, size.x * 0.5f, size.y, GetComponentsInChildren<SpriteRenderer>().Length);
 	}
 
 
-	private Vector3 ItemSpawnPositionInternal(GameObject itemPrefab, float extentX, float sizeY)
+	private Vector3 ItemSpawnPositionInternal(GameObject itemPrefab, float extentX, float sizeY, int numPlatforms)
 	{
 		// TODO: check for collision w/ existing colliders?
-		return (Vector2)transform.position + new Vector2(Random.Range(-extentX, extentX), sizeY * Random.Range(1, transform.childCount + 2)) + itemPrefab.OriginToCenterY(); // TODO: don't assume the furniture origin is at bottom center, but also don't use stale Collider2D bounds? more deliberate placement?
+		return (Vector2)transform.position + new Vector2(Random.Range(-extentX, extentX), sizeY * Random.Range(1, numPlatforms + 1)) + itemPrefab.OriginToCenterY(); // TODO: don't assume the furniture origin is at bottom center, but also don't use stale Collider2D bounds? more deliberate placement?
 	}
 }

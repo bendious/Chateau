@@ -24,6 +24,16 @@ MonoBehaviour:
     contents: 'TODO: split cull/non-cull into separate shaders for efficiency?'
     theme: Classic
     textSize: Small
+  - title: 
+    position:
+      serializedVersion: 2
+      x: 829
+      y: 169
+      width: 100
+      height: 100
+    contents: 'TODO: split by particle capacity for efficiency?'
+    theme: Classic
+    textSize: Small
   categories: []
   uiBounds:
     serializedVersion: 2
@@ -402,7 +412,7 @@ MonoBehaviour:
   - {fileID: 8926484042661614583}
   - {fileID: 8926484042661614585}
   dataType: 0
-  capacity: 100
+  capacity: 200
   stripCapacity: 16
   particlePerStripCount: 16
   needsComputeBounds: 1

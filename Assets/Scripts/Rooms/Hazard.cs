@@ -12,23 +12,46 @@ public class Hazard : MonoBehaviour
 	[SerializeField] private bool m_singleUse;
 
 
+	private bool m_hasTrigger;
+
+
 	private void Start()
 	{
-		// NOTE that this, although empty, ensures the enable/disable checkbox is shown in the Inspector
+		// NOTE that this, even if empty, ensures the enable/disable checkbox is shown in the Inspector, which we want since we manually check our enabled state in ApplyDamage()
+
+		m_hasTrigger = System.Array.Exists(GetComponents<Collider2D>(), collider => collider.isTrigger);
+	}
+
+	private void OnTriggerEnter2D(Collider2D collider)
+	{
+		ApplyDamage(null, collider);
+	}
+
+	private void OnTriggerStay2D(Collider2D collider)
+	{
+		ApplyDamage(null, collider);
 	}
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		ApplyDamage(collision);
+		if (m_hasTrigger)
+		{
+			return;
+		}
+		ApplyDamage(collision, collision.collider);
 	}
 
 	private void OnCollisionStay2D(Collision2D collision)
 	{
-		ApplyDamage(collision);
+		if (m_hasTrigger)
+		{
+			return;
+		}
+		ApplyDamage(collision, collision.collider);
 	}
 
 
-	private void ApplyDamage(Collision2D collision)
+	private void ApplyDamage(Collision2D collision, Collider2D collider)
 	{
 		if (!enabled)
 		{
@@ -37,7 +60,7 @@ public class Hazard : MonoBehaviour
 
 		// TODO: check for unlocking
 
-		Health health = collision.gameObject.GetComponent<Health>();
+		Health health = collider.GetComponent<Health>();
 		if (health == null)
 		{
 			return;
@@ -46,7 +69,7 @@ public class Hazard : MonoBehaviour
 
 		if (m_damageImpulse != Vector2.zero)
 		{
-			Vector2 contactPos = collision.GetContact(0).point; // TODO: handle multiple contact points?
+			Vector2 contactPos = collision == null ? collider.transform.position : collision.GetContact(0).point; // TODO: handle multiple contact points?
 			GetComponent<Rigidbody2D>().AddForceAtPosition(m_damageImpulse, 2.0f * (Vector2)transform.position - contactPos);
 		}
 

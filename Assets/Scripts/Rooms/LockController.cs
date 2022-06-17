@@ -49,6 +49,7 @@ public class LockController : MonoBehaviour, IUnlockable
 	private readonly List<IKey> m_keys = new();
 	private KeyInfo m_keyInfo;
 	private CombinationSet m_combinationSet;
+	private bool m_hasTrigger;
 
 
 	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
@@ -260,6 +261,8 @@ public class LockController : MonoBehaviour, IUnlockable
 		{
 			key.Lock = this;
 		}
+
+		m_hasTrigger = System.Array.Exists(GetComponents<Collider2D>(), collider => collider.isTrigger);
 	}
 
 	private void OnTriggerEnter2D(Collider2D collider)
@@ -273,6 +276,8 @@ public class LockController : MonoBehaviour, IUnlockable
 		{
 			if (IsValidNextKey(tf.gameObject))
 			{
+				// TODO: m_keyDelaySeconds
+
 				IKey key = tf.GetComponent<IKey>();
 				key.Use();
 				Unlock(key);
@@ -282,6 +287,10 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
+		if (m_hasTrigger)
+		{
+			return;
+		}
 		OnTriggerEnter2D(collision.collider);
 	}
 
@@ -351,20 +360,39 @@ public class LockController : MonoBehaviour, IUnlockable
 			}
 			else
 			{
+				Hazard hazard = GetComponent<Hazard>();
+				if (hazard != null)
+				{
+					hazard.enabled = !hazard.enabled;
+				}
 				Collider2D collider = GetComponent<Collider2D>();
 				if (collider != null)
 				{
-					collider.enabled = false;
+					collider.enabled = hazard != null && hazard.enabled;
 				}
 				VisualEffect vfx = GetComponent<VisualEffect>();
 				if (vfx != null)
 				{
-					vfx.Stop();
+					if (vfx.enabled)
+					{
+						vfx.Stop();
+						// TODO: disable after short delay to prevent existing particles remaining while off-screen?
+					}
+					else
+					{
+						vfx.enabled = true;
+						vfx.Play();
+					}
 				}
 				Light2D light = GetComponent<Light2D>();
 				if (light != null)
 				{
-					light.enabled = false;
+					light.enabled = !light.enabled;
+				}
+				LightFlicker lightFlicker = GetComponent<LightFlicker>();
+				if (lightFlicker != null)
+				{
+					lightFlicker.enabled = !lightFlicker.enabled;
 				}
 			}
 

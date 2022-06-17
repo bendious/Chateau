@@ -25,6 +25,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public int m_healAmount = 0;
 
 	public bool m_detachOnDamage = false; // TODO: cumulative damage threshold?
+	[SerializeField] private bool m_keyDestroyAfterUse = true;
 
 	public Collider2D[] m_nondamageColliders;
 
@@ -179,16 +180,27 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	void IKey.Use()
 	{
+		IsInPlace = true;
+
+		if (!m_keyDestroyAfterUse)
+		{
+			return;
+		}
+
 		if (m_holder != null)
 		{
 			Detach(false);
 		}
-		IsInPlace = true;
 		gameObject.SetActive(false);
 	}
 
 	public void Deactivate()
 	{
+		if (!m_keyDestroyAfterUse)
+		{
+			return;
+		}
+
 		Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
 	}
 
