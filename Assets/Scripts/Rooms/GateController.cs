@@ -20,6 +20,8 @@ public class GateController : MonoBehaviour, IUnlockable
 
 	public GameObject Parent { get; set; }
 
+	public bool HasChild => m_child != null;
+
 
 	private IUnlockable m_child;
 
@@ -38,7 +40,7 @@ public class GateController : MonoBehaviour, IUnlockable
 		m_child.Unlock(key);
 	}
 
-	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
+	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms) // TODO: split into Spawn{Lock/Keys}()?
 	{
 		// determine lock type
 		int keyRoomsCount = keyRooms == null ? 0 : keyRooms.Length;

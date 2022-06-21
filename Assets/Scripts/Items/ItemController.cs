@@ -245,7 +245,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	public bool Use(bool isPressed)
 	{
-		if (m_healAmount > 0 && Cause.GetComponent<Health>().CanIncrement)
+		if (m_healAmount > 0 && gameObject.activeInHierarchy && Cause.GetComponent<Health>().CanIncrement) // TODO: handle delay even when inactive? swap into active slot? cancel healing upon damage
 		{
 			m_healInProgress = isPressed;
 			if (m_healInProgress)

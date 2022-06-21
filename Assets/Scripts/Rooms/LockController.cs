@@ -48,6 +48,8 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	public GameObject Parent { get; set; }
 
+	public bool HasKeys => m_keys.Count > 0;
+
 
 	private readonly List<IKey> m_keys = new();
 	private KeyInfo m_keyInfo;
