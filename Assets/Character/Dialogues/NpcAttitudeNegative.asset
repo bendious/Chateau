@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
+      m_preconditionName: 
+      m_userdata: 0
       m_lines:
       - m_text: Well, well, well... Look who decided to actually show up!
         m_replies: []
@@ -30,4 +32,5 @@ MonoBehaviour:
           run things.
         m_replies: []
       m_loop: 0
+      m_singleUse: 1
     m_weight: 0

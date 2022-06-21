@@ -14,12 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
+      m_preconditionName: 
+      m_userdata: 0
       m_lines:
       - m_text: Isn't all this fascinating?
         m_replies: []
       m_loop: 0
+      m_singleUse: 0
     m_weight: 0
   - m_object:
+      m_preconditionName: 
+      m_userdata: 0
       m_lines:
       - m_text: Did you want to ask me about something else?
         m_replies:
@@ -96,4 +101,5 @@ MonoBehaviour:
           m_eventName: 
           m_breakAfterward: 1
       m_loop: 1
+      m_singleUse: 0
     m_weight: 0
