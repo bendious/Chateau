@@ -393,7 +393,7 @@ public class RoomController : MonoBehaviour
 		// spawn locks
 		foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
 		{
-			SpawnKeys<GateController>(doorwayInfo, gate => gate.HasChild); // NOTE that this has to be before furniture to ensure room w/o overlap
+			SpawnKeys(doorwayInfo, (unlockable, lockRoom, keyRooms) => unlockable.SpawnKeysStatic(lockRoom, keyRooms)); // NOTE that this has to be before furniture to ensure space w/o overlap
 		}
 
 		// spawn furniture
@@ -435,7 +435,7 @@ public class RoomController : MonoBehaviour
 				doorwayInfo.ChildRoom.FinalizeRecursive(doorwayDepth, npcDepth);
 			}
 
-			SpawnKeys<LockController>(doorwayInfo, lockController => lockController.HasKeys); // NOTE that this has to be after furniture for item key placement
+			SpawnKeys(doorwayInfo, (unlockable, lockRoom, keyRooms) => unlockable.SpawnKeysDynamic(lockRoom, keyRooms)); // NOTE that this has to be after furniture for item key placement
 		}
 
 		// spawn enemy spawn points
@@ -1054,15 +1054,15 @@ public class RoomController : MonoBehaviour
 		return directionalBlockerPrefabs != null && System.Array.Exists(directionalBlockerPrefabs, pair => blockerPrefab == pair.m_object); // TODO: don't assume directional gates will never want default ladders?
 	}
 
-	private void SpawnKeys<T>(DoorwayInfo doorwayInfo, System.Func<T, bool> keysExist) where T : IUnlockable
+	private void SpawnKeys(DoorwayInfo doorwayInfo, System.Action<IUnlockable, RoomController, RoomController[]> spawnAction)
 	{
 		if (doorwayInfo.ChildRoom == null && doorwayInfo.SiblingShallowerRoom == null)
 		{
 			return;
 		}
 
-		T gate = doorwayInfo.m_blocker == null ? default : doorwayInfo.m_blocker.GetComponent<T>();
-		if (gate == null || keysExist(gate))
+		IUnlockable unlockable = doorwayInfo.m_blocker == null ? null : doorwayInfo.m_blocker.GetComponent<IUnlockable>();
+		if (unlockable == null)
 		{
 			return;
 		}
@@ -1071,7 +1071,7 @@ public class RoomController : MonoBehaviour
 		LayoutGenerator.Node lockNode = doorwayInfo.ChildRoom == null ? null : GateNodeToChild(LayoutGenerator.Node.Type.Lock, doorwayInfo.ChildRoom.m_layoutNodes);
 		RoomController[] keyRooms = doorwayInfo.ChildRoom == null ? new RoomController[] { this } : lockNode?.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray();
 		bool excludeSelf = doorwayInfo.ChildRoom != null && Random.value < 0.5f; // TEMP?
-		gate.SpawnKeys(this, keyRooms == null || keyRooms.Length <= 0 ? null : excludeSelf ? keyRooms.Where(room => room != this).ToArray() : keyRooms);
+		spawnAction(unlockable, this, keyRooms == null || keyRooms.Length <= 0 ? null : excludeSelf ? keyRooms.Where(room => room != this).ToArray() : keyRooms);
 	}
 
 	private GameObject OpenDoorway(int index, bool open, bool spawnLadders)

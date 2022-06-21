@@ -6,7 +6,8 @@ public interface IUnlockable
 	public GameObject Parent { get; set; }
 
 
-	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms);
+	public void SpawnKeysStatic(RoomController lockRoom, RoomController[] keyRooms);
+	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms);
 
 	public bool IsValidNextKey(GameObject obj);
 

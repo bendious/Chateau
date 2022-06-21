@@ -20,8 +20,6 @@ public class GateController : MonoBehaviour, IUnlockable
 
 	public GameObject Parent { get; set; }
 
-	public bool HasChild => m_child != null;
-
 
 	private IUnlockable m_child;
 
@@ -40,8 +38,10 @@ public class GateController : MonoBehaviour, IUnlockable
 		m_child.Unlock(key);
 	}
 
-	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms) // TODO: split into Spawn{Lock/Keys}()?
+	public void SpawnKeysStatic(RoomController lockRoom, RoomController[] keyRooms)
 	{
+		Debug.Assert(m_child == null);
+
 		// determine lock type
 		int keyRoomsCount = keyRooms == null ? 0 : keyRooms.Length;
 		LockInfo lockInfo = RoomController.RandomWeightedByKeyCount(m_lockPrefabs, info =>
@@ -59,8 +59,10 @@ public class GateController : MonoBehaviour, IUnlockable
 
 		m_child = Instantiate(lockInfo.m_prefab, spawnPos, Quaternion.identity, transform.parent).GetComponent<IUnlockable>();
 		m_child.Parent = gameObject;
-		m_child.SpawnKeys(lockRoom, keyRooms);
+		m_child.SpawnKeysStatic(lockRoom, keyRooms);
 	}
+
+	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms) => m_child?.SpawnKeysDynamic(lockRoom, keyRooms);
 
 	public bool IsValidNextKey(GameObject obj)
 	{

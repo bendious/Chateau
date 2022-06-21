@@ -48,10 +48,9 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	public GameObject Parent { get; set; }
 
-	public bool HasKeys => m_keys.Count > 0;
-
 
 	private readonly List<IKey> m_keys = new();
+	private bool m_hasSpawnedKeys = false;
 	private KeyInfo m_keyInfo;
 	private CombinationSet m_combinationSet;
 	private bool m_hasTrigger;
@@ -59,8 +58,15 @@ public class LockController : MonoBehaviour, IUnlockable
 	private bool m_unlockInProgress;
 
 
-	public void SpawnKeys(RoomController lockRoom, RoomController[] keyRooms)
+	public void SpawnKeysStatic(RoomController lockRoom, RoomController[] keyRooms)
 	{
+	}
+
+	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms)
+	{
+		Debug.Assert(!m_hasSpawnedKeys); // NOTE that we can't just check m_keys due to the possibility of both spawned and within-prefab keys
+		m_hasSpawnedKeys = true;
+
 		// determine key type
 		int keyRoomCount = keyRooms == null ? 0 : keyRooms.Length;
 		RoomController[] keyOrLockRooms = keyRoomCount > 0 ? keyRooms : new RoomController[] { lockRoom };
