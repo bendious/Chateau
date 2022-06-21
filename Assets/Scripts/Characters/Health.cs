@@ -37,6 +37,8 @@ public class Health : MonoBehaviour
 
 	public bool CanIncrement => m_currentHP < m_maxHP;
 
+	public bool HealInProgress { get; private set; }
+
 
 	float m_currentHP;
 
@@ -72,6 +74,7 @@ public class Health : MonoBehaviour
 		}
 
 		// damage
+		HealCancel();
 		IncrementInternal(-1.0f * amount);
 		AudioSource audioSource = GetComponent<AudioSource>();
 		if (m_damageAudio != null)
@@ -121,6 +124,15 @@ public class Health : MonoBehaviour
 
 		return true;
 	}
+
+	public void HealStart(float delaySeconds, int amount, GameObject source)
+	{
+		Debug.Assert(!HealInProgress);
+		HealInProgress = true;
+		StartCoroutine(HealDelayed(delaySeconds, amount, source));
+	}
+
+	public void HealCancel() => HealInProgress = false; // NOTE that we don't forcibly stop HealDelayed() since it has cleanup to do
 
 #if DEBUG
 	/// <summary>
@@ -208,5 +220,32 @@ public class Health : MonoBehaviour
 		}
 
 		// TODO: adjust size of parent if its width is ever visible/used
+	}
+
+	private System.Collections.IEnumerator HealDelayed(float delaySeconds, int amount, GameObject source)
+	{
+		float speedPrev = m_character.maxSpeed;
+		Debug.Assert(speedPrev > 0.0f); // TODO: better way of detecting/preventing multiple HealDelayed() instances in progress?
+		m_character.maxSpeed = 0.0f;
+
+		// TODO: in-progress SFX/VFX/animation, UI?
+
+		float healTime = Time.time + delaySeconds;
+		yield return new WaitUntil(() => !HealInProgress || Time.time >= healTime);
+
+		m_character.maxSpeed = speedPrev;
+
+		if (!HealInProgress)
+		{
+			yield break;
+		}
+
+		bool healed = Increment(amount);
+		if (healed)
+		{
+			Simulation.Schedule<ObjectDespawn>().m_object = source;
+
+			// TODO: success SFX/VFX
+		}
 	}
 }

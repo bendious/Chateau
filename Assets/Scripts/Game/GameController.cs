@@ -597,12 +597,8 @@ public class GameController : MonoBehaviour
 
 		saveFile.Write(ZonesFinishedCount);
 
-		Object[] savables = m_savableTags.SelectMany(tag => GameObject.FindGameObjectsWithTag(tag)).Where(obj => obj.scene == SceneManager.GetActiveScene()).ToArray();
-		saveFile.Write(savables.Length);
-		foreach (GameObject obj in savables)
-		{
-			ISavable.Save(saveFile, obj.GetComponent<ISavable>());
-		}
+		GameObject[] savableObjs = m_savableTags.SelectMany(tag => GameObject.FindGameObjectsWithTag(tag)).Where(obj => obj.scene == SceneManager.GetActiveScene()).ToArray();
+		saveFile.Write(savableObjs, obj => ISavable.Save(saveFile, obj.GetComponent<ISavable>()));
 	}
 
 	private void Load()
@@ -630,11 +626,7 @@ public class GameController : MonoBehaviour
 
 			ZonesFinishedCount = System.Math.Max(ZonesFinishedCount, saveFile.ReadInt32()); // NOTE the max() to somewhat handle debug loading directly into non-saved scenes, incrementing ZonesFinishedCount, and then loading a saved scene
 
-			saveFile.Read(out int savablesCount);
-			for (int i = 0; i < savablesCount; ++i)
-			{
-				ISavable.Load(saveFile);
-			}
+			saveFile.ReadArray(() => ISavable.Load(saveFile));
 		}
 		catch (System.Exception e)
 		{
