@@ -19,8 +19,17 @@ MonoBehaviour:
       m_lines:
       - m_text: Oh!
         m_replies: []
-      - m_text: Hello there.
+      - m_text: Hello there, {avatar}.
         m_replies: []
       m_loop: 0
       m_singleUse: 1
     m_weight: 0
+  m_expressions:
+  - m_object:
+      m_key: avatar
+      m_replacement: my friend
+    m_weight: 1
+  - m_object:
+      m_key: Denied
+      m_replacement: Oh, okay.
+    m_weight: 1

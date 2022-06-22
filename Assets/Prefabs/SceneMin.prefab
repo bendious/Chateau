@@ -1321,6 +1321,8 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 11400000, guid: 9eabba7ea6dc477428519349a00d66a7, type: 2}
     m_weight: 1
+  - m_object: {fileID: 11400000, guid: f5f7a7ef2e93c6f4b98b9f193e44cb38, type: 2}
+    m_weight: 1
   m_doorInteractPrefabs:
   - {fileID: 5746196675388104066, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
   - {fileID: 9122007181668863787, guid: 18a928b181bfee64b887827ee31f4661, type: 3}

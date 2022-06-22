@@ -17,7 +17,8 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 
 	private bool m_isVice;
 
-	private WeightedObject<NpcDialogue.Info>[] m_dialogueCombined;
+	private WeightedObject<NpcDialogue.DialogueInfo>[] m_dialogueCombined;
+	private WeightedObject<NpcDialogue.ExpressionInfo>[] m_expressionsCombined;
 
 	private bool m_preconditionResult; // TODO: replace w/ Tuple argument to preconditions?
 
@@ -36,10 +37,11 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 		if (m_dialogueCombined == null)
 		{
 			m_dialogueCombined = GameController.Npcs[Index].SelectMany(source => source.m_dialogue).ToArray(); // NOTE the lack of deep-copying here, allowing the source NpcDialogue weights to be edited below and subsequently saved by GameController.Save() // TODO: avoid relying on runtime edits to ScriptableObject?
+			m_expressionsCombined = GameController.Npcs[Index].SelectMany(source => source.m_expressions).ToArray(); // NOTE the lack of deep-copying here since these shouldn't be edited anyway
 		}
 
 		// filter dialogue options
-		WeightedObject<NpcDialogue.Info>[] dialogueAllowed = m_dialogueCombined.Where(info =>
+		WeightedObject<NpcDialogue.DialogueInfo>[] dialogueAllowed = m_dialogueCombined.Where(info =>
 		{
 			if (info.m_weight < 0.0f)
 			{
@@ -54,23 +56,23 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 		}).ToArray();
 
 		// pick dialogue option
-		NpcDialogue.Info dialogueCur = dialogueAllowed.FirstOrDefault(dialogue => dialogue.m_weight == 0.0f)?.m_object;
+		NpcDialogue.DialogueInfo dialogueCur = dialogueAllowed.FirstOrDefault(dialogue => dialogue.m_weight == 0.0f)?.m_object;
 		if (dialogueCur == null)
 		{
 			dialogueCur = dialogueAllowed.RandomWeighted();
 		}
 
 		// play dialogue
-		GameController.Instance.m_dialogueController.Play(m_dialogueSprite, GetComponent<SpriteRenderer>().color, dialogueCur.m_lines, interactor.GetComponent<AvatarController>(), dialogueCur.m_loop);
+		GameController.Instance.m_dialogueController.Play(m_dialogueSprite, GetComponent<SpriteRenderer>().color, dialogueCur.m_lines, interactor.GetComponent<AvatarController>(), m_expressionsCombined, dialogueCur.m_loop);
 
 		// update weight
 		// TODO: save across instantiations/sessions?
-		WeightedObject<NpcDialogue.Info> weightedDialogueCur = m_dialogueCombined.First(dialogue => dialogue.m_object == dialogueCur); // TODO: support duplicate dialogue options?
+		WeightedObject<NpcDialogue.DialogueInfo> weightedDialogueCur = m_dialogueCombined.First(dialogue => dialogue.m_object == dialogueCur); // TODO: support duplicate dialogue options?
 		weightedDialogueCur.m_weight = weightedDialogueCur.m_object.m_singleUse ? -1.0f : weightedDialogueCur.m_weight == 0.0f ? 1.0f : weightedDialogueCur.m_weight * m_weightUseScalar;
 	}
 
 	// called via Interact()/SendMessage(NpcDialogue.Info.m_preconditionName)
-	public void HasFinishedZone(NpcDialogue.Info dialogue)
+	public void HasFinishedZone(NpcDialogue.DialogueInfo dialogue)
 	{
 		m_preconditionResult = GameController.ZonesFinishedCount >= dialogue.m_userdata;
 	}

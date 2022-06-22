@@ -26,3 +26,16 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 1
     m_weight: 0
+  m_expressions:
+  - m_object:
+      m_key: avatar
+      m_replacement: you
+    m_weight: 1
+  - m_object:
+      m_key: Denied
+      m_replacement: Fine.
+    m_weight: 1
+  - m_object:
+      m_key: Denied
+      m_replacement: I see.
+    m_weight: 1

@@ -60,13 +60,13 @@ public static class Utility
 		return values.ElementAt(idxItr);
 	}
 
-	public static T[] RandomWeightedOrder<T>(this WeightedObject<T>[] pairs)
+	public static T[] RandomWeightedOrder<T>(this IEnumerable<WeightedObject<T>> pairs)
 	{
 		Assert.IsFalse(pairs.Any(pair => pair.m_weight < 0.0f));
 		return pairs.OrderBy(pair => UnityEngine.Random.value / pair.m_weight).Select(pair => pair.m_object).ToArray();
 	}
 
-	public static T[] RandomWeightedOrder<T>(this T[] values, float[] weights)
+	public static T[] RandomWeightedOrder<T>(this IEnumerable<T> values, IEnumerable<float> weights)
 	{
 		return RandomWeightedOrder(values.Zip(weights, (value, weight) => new WeightedObject<T> { m_object = value, m_weight = weight }).ToArray());
 	}

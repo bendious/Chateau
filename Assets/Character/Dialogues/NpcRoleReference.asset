@@ -26,7 +26,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Did you want to ask me about something else?
+      - m_text: Did you want to ask me about something else, {avatar}?
         m_replies:
         - m_text: Slimes
           m_preconditionName: EnemyTypeHasSpawned
@@ -97,9 +97,10 @@ MonoBehaviour:
           m_preconditionName: 
           m_userdata: 0
           m_followUp:
-          - Oh, okay.
+          - '{Denied}'
           m_eventName: 
           m_breakAfterward: 1
       m_loop: 1
       m_singleUse: 0
     m_weight: 0
+  m_expressions: []

@@ -42,19 +42,20 @@ public class DialogueController : MonoBehaviour
 	public bool IsPlaying => gameObject.activeSelf;
 
 
-	private Line[] m_linesOrig;
+	private IEnumerable<Line> m_linesOrig;
 	private Queue<Line> m_queue;
 	private int m_revealedCharCount;
 	private float m_lastRevealTime;
 	private int m_replyIdx;
 	private Queue<string> m_queueFollowUp;
 	private AvatarController m_avatar;
+	private IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> m_expressions;
 	private bool m_loop;
 
 	private bool m_forceNewLine = false;
 
 
-	public void Play(Sprite sprite, Color spriteColor, Line[] lines, AvatarController avatar, bool loop = false, Action postDialogue = null)
+	public void Play(Sprite sprite, Color spriteColor, IEnumerable<Line> lines, AvatarController avatar, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions, bool loop = false, Action postDialogue = null)
 	{
 		m_image.enabled = sprite != null;
 		m_image.sprite = sprite;
@@ -67,6 +68,7 @@ public class DialogueController : MonoBehaviour
 		m_replyIdx = 0;
 		m_queueFollowUp = null;
 		m_avatar = avatar;
+		m_expressions = expressions;
 		m_loop = loop;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
@@ -133,7 +135,7 @@ public class DialogueController : MonoBehaviour
 			ItemController item = attachable as ItemController; // TODO: IAttachable.name?
 			replyList.Add(new Line.Reply { m_text = (item == null ? "Backpack"/*TODO*/ : item.m_tooltip.Split('\n').First()) + " - " + GameController.Instance.m_savableFactory.m_savables[savableType].m_materialCost, m_eventName = "MerchantDespawn", m_followUp = new string[] { "Thank you kindly! Rest assured I won't forget this." } });
 		}
-		replyList.Add(new Line.Reply { m_text = "Not now.", m_followUp = new string[] { "I see. Well, don't forget to come back if you change your mind." }, m_breakAfterward = true }); // TODO: variance?
+		replyList.Add(new Line.Reply { m_text = "Not now.", m_followUp = new string[] { "{Denied} Well, don't forget to come back if you change your mind, {avatar}." }, m_breakAfterward = true }); // TODO: more variance?
 
 		Line line = new() { m_text = "Mind if I take one off your hands?", m_replies = replyList.ToArray() };
 		Debug.Assert(m_queue.Count == 1, "Out-of-order selling dialogue?");
@@ -185,7 +187,7 @@ public class DialogueController : MonoBehaviour
 			replyList.Add(new Line.Reply { m_text = savableInfo.m_prefab.name + " - " + savableInfo.m_materialCost, m_eventName = enoughMaterials ? "MerchantSpawn" : null, m_userdata = type, m_followUp = new string[] { enoughMaterials ? "Here you go!" : "Hmm, I'll need more materials for that." } }); // TODO: use ItemController.m_tooltip?
 		}
 
-		replyList.Add(new Line.Reply { m_text = "Nothing, thanks.", m_followUp = new string[] { "Oh, okay. Well, you know where to find me." }, m_breakAfterward = true });
+		replyList.Add(new Line.Reply { m_text = "Nothing, thanks.", m_followUp = new string[] { "{Denied} Well, you know where to find me." }, m_breakAfterward = true });
 
 		m_queue.Enqueue(new Line { m_text = "What'd ya have in mind? We've got " + GameController.MerchantMaterials + " materials to work with.", m_replies = replyList.ToArray() });
 	}
@@ -205,6 +207,7 @@ public class DialogueController : MonoBehaviour
 	private System.Collections.IEnumerator AdvanceDialogue(Action postDialogue)
 	{
 		m_text.text = null;
+		NpcDialogue.ExpressionInfo[] expressionsOrdered = m_expressions.RandomWeightedOrder(); // TODO: re-order after each use?
 
 		// avatar setup
 		if (m_avatar == null)
@@ -227,8 +230,16 @@ public class DialogueController : MonoBehaviour
 			}
 
 			// current state
+			// TODO: don't redo every time
 			Line lineCur = m_queue.Peek();
 			string textCur = m_queueFollowUp != null ? m_queueFollowUp.Peek() : lineCur.m_text;
+			if (textCur != null)
+			{
+				foreach (NpcDialogue.ExpressionInfo expression in expressionsOrdered)
+				{
+					textCur = textCur.Replace("{" + expression.m_key + "}", expression.m_replacement); // TODO: support auto-capitalization?
+				}
+			}
 			int textCurLen = textCur.Length;
 
 			// maybe move to next line
@@ -255,6 +266,13 @@ public class DialogueController : MonoBehaviour
 					m_queue.Dequeue();
 					lineCur = m_queue.Count > 0 ? m_queue.Peek() : null;
 					textCur = lineCur?.m_text;
+					if (textCur != null)
+					{
+						foreach (NpcDialogue.ExpressionInfo expression in expressionsOrdered)
+						{
+							textCur = textCur.Replace("{" + expression.m_key + "}", expression.m_replacement); // TODO: support auto-capitalization?
+						}
+					}
 					textCurLen = textCur != null ? textCur.Length : 0;
 				}
 				m_revealedCharCount = 0;

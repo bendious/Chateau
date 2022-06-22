@@ -17,8 +17,9 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Customization rules!
+      - m_text: Customization rules, {avatar}!
         m_replies: []
       m_loop: 0
       m_singleUse: 0
     m_weight: 0
+  m_expressions: []

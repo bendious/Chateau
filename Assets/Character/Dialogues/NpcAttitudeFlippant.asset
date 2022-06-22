@@ -10,28 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40b15f190aba99942b804a292002a62c, type: 3}
-  m_Name: NpcAttitudeNegative
+  m_Name: NpcAttitudeFlippant
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Well, well, well... Look who decided to actually show up!
+      - m_text: Oh, have we met?
         m_replies: []
-      - m_text: The {avatar}!
+      - m_text: What was your name again, {avatar}?
         m_replies: []
-      - m_text: Finally! Do you even know how long you neglected this place?
+      - m_text: Nevermind, I don't actually care.
         m_replies: []
-      - m_text: But while you were gone, I realized something.
-        m_replies: []
-      - m_text: All of this? It isn't yours anymore.
-        m_replies: []
-      - m_text: It's mine, {avatar}.
-        m_replies: []
-      - m_text: You gave it up, and you can't just waltz in here and expect us to
-          even refrain from giving you the pummeling you deserve, much less let you
-          run things.
+      - m_text: I'd just forget it, anyway.
         m_replies: []
       m_loop: 0
       m_singleUse: 1
@@ -39,13 +31,13 @@ MonoBehaviour:
   m_expressions:
   - m_object:
       m_key: avatar
-      m_replacement: loser
+      m_replacement: yo
     m_weight: 1
   - m_object:
       m_key: avatar
-      m_replacement: poser
+      m_replacement: dude
     m_weight: 1
   - m_object:
       m_key: Denied
-      m_replacement: Psh!
+      m_replacement: Whatever.
     m_weight: 1

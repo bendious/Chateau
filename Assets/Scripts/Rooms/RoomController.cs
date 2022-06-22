@@ -365,7 +365,7 @@ public class RoomController : MonoBehaviour
 					if (node.m_type == LayoutGenerator.Node.Type.TutorialInteract && (GameController.Instance.m_avatars == null || !GameController.Instance.m_avatars.Any(avatar => avatar.GetComponentInChildren<ItemController>(true) != null)))
 					{
 						prefab = m_roomType.m_itemPrefabs.RandomWeighted(); // TODO: spawn on table
-						GameController.Instance.m_savableFactory.Instantiate(prefab, InteriorPosition(0.0f, prefab), Quaternion.identity);
+						GameController.Instance.m_savableFactory.Instantiate(prefab, InteriorPosition(0.0f), Quaternion.identity);
 					}
 					break;
 

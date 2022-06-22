@@ -20,7 +20,7 @@ public class InteractScene : MonoBehaviour, IInteractable
 		if (Depth > GameController.ZonesFinishedCount + 1)
 		{
 			// TODO: indicate w/ visual/audio rather than dialogue?
-			GameController.Instance.m_dialogueController.Play(null, Color.white, new DialogueController.Line[] { new DialogueController.Line { m_text = "Locked." } }, interactor.GetComponent<AvatarController>());
+			GameController.Instance.m_dialogueController.Play(null, Color.white, new DialogueController.Line[] { new DialogueController.Line { m_text = "Locked." } }, interactor.GetComponent<AvatarController>(), null);
 		}
 		else
 		{
