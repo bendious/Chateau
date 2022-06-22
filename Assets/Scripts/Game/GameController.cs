@@ -590,6 +590,7 @@ public class GameController : MonoBehaviour
 			int attitudeIdx = System.Array.FindIndex(m_npcAttitudes, dialogueCheckFunc);
 			saveFile.Write(attitudeIdx >= 0 ? 0 : 1);
 			saveFile.Write(attitudeIdx >= 0 ? attitudeIdx : System.Array.FindIndex(m_npcRoles, dialogueCheckFunc));
+			saveFile.Write(dialogue.m_dialogue, option => saveFile.Write(option.m_weight));
 		}));
 
 		saveFile.Write(MerchantAcquiredCounts, saveFile.Write);
@@ -619,7 +620,13 @@ public class GameController : MonoBehaviour
 				return;
 			}
 
-			Npcs = saveFile.ReadArray(() => saveFile.ReadArray(() => (saveFile.ReadInt32() == 0 ? m_npcAttitudes : m_npcRoles)[saveFile.ReadInt32()].m_object));
+			Npcs = saveFile.ReadArray(() => saveFile.ReadArray(() =>
+			{
+				NpcDialogue dialogueTmp = (saveFile.ReadInt32() == 0 ? m_npcAttitudes : m_npcRoles)[saveFile.ReadInt32()].m_object;
+				int idxItr = 0;
+				saveFile.ReadArray(() => dialogueTmp.m_dialogue[idxItr++].m_weight += saveFile.ReadSingle()); // NOTE the += to preserve weights edited outside saved levels when re-entering a saved level
+				return dialogueTmp;
+			}));
 
 			MerchantAcquiredCounts = saveFile.ReadArray(saveFile.ReadInt32);
 			saveFile.Read(out MerchantMaterials);

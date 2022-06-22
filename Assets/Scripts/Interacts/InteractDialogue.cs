@@ -35,7 +35,7 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 		// lazy initialize dialogue options
 		if (m_dialogueCombined == null)
 		{
-			m_dialogueCombined = GameController.Npcs[Index].SelectMany(source => source.m_dialogue.Select(dialogue => new WeightedObject<NpcDialogue.Info> { m_object = dialogue.m_object, m_weight = dialogue.m_weight })).ToArray(); // NOTE the copy to prevent affecting source object weights later
+			m_dialogueCombined = GameController.Npcs[Index].SelectMany(source => source.m_dialogue).ToArray(); // NOTE the lack of deep-copying here, allowing the source NpcDialogue weights to be edited below and subsequently saved by GameController.Save() // TODO: avoid relying on runtime edits to ScriptableObject?
 		}
 
 		// filter dialogue options
