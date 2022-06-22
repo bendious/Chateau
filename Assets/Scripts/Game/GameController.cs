@@ -78,6 +78,7 @@ public class GameController : MonoBehaviour
 
 	public static NpcDialogue[][] Npcs { get; private set; }
 	public static int[] MerchantAcquiredCounts;
+	public static int MerchantMaterials;
 
 	public static int ZonesFinishedCount { get; private set; }
 
@@ -592,6 +593,7 @@ public class GameController : MonoBehaviour
 		}));
 
 		saveFile.Write(MerchantAcquiredCounts, saveFile.Write);
+		saveFile.Write(MerchantMaterials);
 
 		saveFile.Write(m_enemySpawnCounts, saveFile.Write);
 
@@ -620,6 +622,7 @@ public class GameController : MonoBehaviour
 			Npcs = saveFile.ReadArray(() => saveFile.ReadArray(() => (saveFile.ReadInt32() == 0 ? m_npcAttitudes : m_npcRoles)[saveFile.ReadInt32()].m_object));
 
 			MerchantAcquiredCounts = saveFile.ReadArray(saveFile.ReadInt32);
+			saveFile.Read(out MerchantMaterials);
 
 			saveFile.Read(out int[] spawnCountsPrev, saveFile.ReadInt32);
 			m_enemySpawnCounts = m_enemySpawnCounts == null ? spawnCountsPrev : m_enemySpawnCounts.Zip(spawnCountsPrev, (a, b) => System.Math.Max(a, b)).ToArray(); // TODO: don't assume array length will always match? guarantee accurate counts even if loading/quitting directly to/from non-saved scenes?

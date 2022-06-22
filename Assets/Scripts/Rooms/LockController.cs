@@ -220,7 +220,7 @@ public class LockController : MonoBehaviour, IUnlockable
 			}
 			ISavable savableObj = obj.GetComponent<ISavable>();
 			ISavable savableKey = key.Component.GetComponent<ISavable>();
-			return savableObj != null && savableKey != null && savableObj.Type != -1 && (savableObj.Type == savableKey.Type || savableObj.Type == System.Array.IndexOf(GameController.Instance.m_savableFactory.m_savables, key.Component.gameObject)); // NOTE the extra check of SavableFactory.m_savables since the key might be a pre-spawned prefab
+			return savableObj != null && savableKey != null && savableObj.Type != -1 && (savableObj.Type == savableKey.Type || savableObj.Type == System.Array.FindIndex(GameController.Instance.m_savableFactory.m_savables, info => info.m_prefab == key.Component.gameObject)); // NOTE the extra check of SavableFactory.m_savables since the key might be a pre-spawned prefab
 		}
 
 		int matchingKeyIdx = -1;
