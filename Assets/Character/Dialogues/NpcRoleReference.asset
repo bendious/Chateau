@@ -97,7 +97,7 @@ MonoBehaviour:
           m_preconditionName: 
           m_userdata: 0
           m_followUp:
-          - '{Denied}'
+          - '{denied.}'
           m_eventName: 
           m_breakAfterward: 1
       m_loop: 1

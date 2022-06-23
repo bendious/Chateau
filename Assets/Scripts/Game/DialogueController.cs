@@ -133,9 +133,9 @@ public class DialogueController : MonoBehaviour
 				continue; // un-typed "savable", such as a torch
 			}
 			ItemController item = attachable as ItemController; // TODO: IAttachable.name?
-			replyList.Add(new Line.Reply { m_text = (item == null ? "Backpack"/*TODO*/ : item.m_tooltip.Split('\n').First()) + " - " + GameController.Instance.m_savableFactory.m_savables[savableType].m_materialCost, m_eventName = "MerchantDespawn", m_followUp = new string[] { "Thank you kindly! Rest assured I won't forget this." } });
+			replyList.Add(new Line.Reply { m_text = (item == null ? "Backpack"/*TODO*/ : item.m_tooltip.Split('\n').First()) + " - " + GameController.Instance.m_savableFactory.m_savables[savableType].m_materialCost, m_eventName = "MerchantDespawn", m_followUp = new string[] { "{thanks.} {assurance} I won't forget this." } });
 		}
-		replyList.Add(new Line.Reply { m_text = "Not now.", m_followUp = new string[] { "{Denied} Well, don't forget to come back if you change your mind, {avatar}." }, m_breakAfterward = true }); // TODO: more variance?
+		replyList.Add(new Line.Reply { m_text = "Not now.", m_followUp = new string[] { "{denied.} Just don't forget to come back if you change your mind, {avatar}." }, m_breakAfterward = true }); // TODO: more variance?
 
 		Line line = new() { m_text = "Mind if I take one off your hands?", m_replies = replyList.ToArray() };
 		Debug.Assert(m_queue.Count == 1, "Out-of-order selling dialogue?");
@@ -146,8 +146,8 @@ public class DialogueController : MonoBehaviour
 	public void MerchantDespawn()
 	{
 		// record acquisition
-		IAttachable[] attachables = m_avatar.GetComponentsInChildren<IAttachable>(true);
-		IAttachable attachable = attachables[m_replyIdx];
+		IEnumerable<IAttachable> attachables = m_avatar.GetComponentsInChildren<IAttachable>(true).Where(attachable => ((ISavable)attachable).Type >= 0); // TODO: don't assume all attachables are also savables?
+		IAttachable attachable = attachables.ElementAt(m_replyIdx);
 		int savableType = ((ISavable)attachable).Type; // TODO: don't assume all attachables are also savables?
 		++GameController.MerchantAcquiredCounts[savableType];
 		GameController.MerchantMaterials += GameController.Instance.m_savableFactory.m_savables[savableType].m_materialCost;
@@ -187,7 +187,7 @@ public class DialogueController : MonoBehaviour
 			replyList.Add(new Line.Reply { m_text = savableInfo.m_prefab.name + " - " + savableInfo.m_materialCost, m_eventName = enoughMaterials ? "MerchantSpawn" : null, m_userdata = type, m_followUp = new string[] { enoughMaterials ? "Here you go!" : "Hmm, I'll need more materials for that." } }); // TODO: use ItemController.m_tooltip?
 		}
 
-		replyList.Add(new Line.Reply { m_text = "Nothing, thanks.", m_followUp = new string[] { "{Denied} Well, you know where to find me." }, m_breakAfterward = true });
+		replyList.Add(new Line.Reply { m_text = "Nothing, thanks.", m_followUp = new string[] { "{denied.} {interjection} you know where to find me." }, m_breakAfterward = true });
 
 		m_queue.Enqueue(new Line { m_text = "What'd ya have in mind? We've got " + GameController.MerchantMaterials + " materials to work with.", m_replies = replyList.ToArray() });
 	}
@@ -230,17 +230,8 @@ public class DialogueController : MonoBehaviour
 			}
 
 			// current state
-			// TODO: don't redo every time
-			Line lineCur = m_queue.Peek();
-			string textCur = m_queueFollowUp != null ? m_queueFollowUp.Peek() : lineCur.m_text;
-			if (textCur != null)
-			{
-				foreach (NpcDialogue.ExpressionInfo expression in expressionsOrdered)
-				{
-					textCur = textCur.Replace("{" + expression.m_key + "}", expression.m_replacement); // TODO: support auto-capitalization?
-				}
-			}
-			int textCurLen = textCur.Length;
+			// TODO: don't redo every time?
+			Line lineCur = NextLine(out string textCur, out int textCurLen, expressionsOrdered);
 
 			// maybe move to next line
 			bool stillRevealing = m_revealedCharCount < textCurLen;
@@ -264,16 +255,7 @@ public class DialogueController : MonoBehaviour
 				else
 				{
 					m_queue.Dequeue();
-					lineCur = m_queue.Count > 0 ? m_queue.Peek() : null;
-					textCur = lineCur?.m_text;
-					if (textCur != null)
-					{
-						foreach (NpcDialogue.ExpressionInfo expression in expressionsOrdered)
-						{
-							textCur = textCur.Replace("{" + expression.m_key + "}", expression.m_replacement); // TODO: support auto-capitalization?
-						}
-					}
-					textCurLen = textCur != null ? textCur.Length : 0;
+					lineCur = NextLine(out textCur, out textCurLen, expressionsOrdered);
 				}
 				m_revealedCharCount = 0;
 				m_lastRevealTime = Time.time;
@@ -358,5 +340,42 @@ public class DialogueController : MonoBehaviour
 		postDialogue?.Invoke();
 		m_avatar.Controls.SwitchCurrentActionMap("Avatar"); // TODO: un-hardcode? check for other UI?
 		gameObject.SetActive(false);
+	}
+
+	private Line NextLine(out string text, out int textLen, IEnumerable<NpcDialogue.ExpressionInfo> expressionsOrdered)
+	{
+		Line line = m_queue.Count > 0 ? m_queue.Peek() : null;
+		text = m_queueFollowUp != null ? m_queueFollowUp.Peek() : line?.m_text;
+
+		if (!string.IsNullOrEmpty(text))
+		{
+			foreach (NpcDialogue.ExpressionInfo expression in expressionsOrdered)
+			{
+				text = text.Replace("{" + expression.m_key + "}", expression.m_replacement);
+			}
+
+			if (!string.IsNullOrEmpty(text)) // NOTE that we handle empty replacements even though we generally don't want to end up w/ an empty string
+			{
+				// compress double spaces to support blank expressions
+				text = text.Replace("  ", " ");
+
+				// auto-capitalize
+				char[] textArray = text.Trim().ToCharArray();
+				textArray[0] = char.ToUpper(textArray.First());
+				for (int i = 2; i < textArray.Length; ++i)
+				{
+					char c = textArray[i - 2];
+					if ((c == '.' || c == '?' || c == '!') && char.IsWhiteSpace(textArray[i - 1]))
+					{
+						textArray[i] = char.ToUpper(textArray[i]);
+					}
+				}
+				text = new string(textArray);
+			}
+		}
+
+		textLen = text != null ? text.Length : 0;
+
+		return line;
 	}
 }

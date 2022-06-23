@@ -30,6 +30,30 @@ MonoBehaviour:
       m_replacement: my friend
     m_weight: 1
   - m_object:
-      m_key: Denied
-      m_replacement: Oh, okay.
+      m_key: denied.
+      m_replacement: oh, okay.
+    m_weight: 1
+  - m_object:
+      m_key: thanks.
+      m_replacement: thank you kindly!
+    m_weight: 1
+  - m_object:
+      m_key: assurance
+      m_replacement: rest assured
+    m_weight: 1
+  - m_object:
+      m_key: doubt.
+      m_replacement: really?
+    m_weight: 1
+  - m_object:
+      m_key: confirmed.
+      m_replacement: yeah.
+    m_weight: 1
+  - m_object:
+      m_key: uncertainty.
+      m_replacement: well, I sure am.
+    m_weight: 1
+  - m_object:
+      m_key: interjection
+      m_replacement: well,
     m_weight: 1

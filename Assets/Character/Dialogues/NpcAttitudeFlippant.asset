@@ -38,6 +38,30 @@ MonoBehaviour:
       m_replacement: dude
     m_weight: 1
   - m_object:
-      m_key: Denied
-      m_replacement: Whatever.
+      m_key: denied.
+      m_replacement: whatever.
+    m_weight: 1
+  - m_object:
+      m_key: thanks.
+      m_replacement: nice.
+    m_weight: 1
+  - m_object:
+      m_key: assurance
+      m_replacement: hopefully
+    m_weight: 1
+  - m_object:
+      m_key: doubt.
+      m_replacement: hmm...
+    m_weight: 1
+  - m_object:
+      m_key: confirmed.
+      m_replacement: thought so!
+    m_weight: 1
+  - m_object:
+      m_key: uncertainty.
+      m_replacement: ha!
+    m_weight: 1
+  - m_object:
+      m_key: interjection
+      m_replacement: 
     m_weight: 1

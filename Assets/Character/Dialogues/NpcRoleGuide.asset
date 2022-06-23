@@ -73,21 +73,21 @@ MonoBehaviour:
           m_preconditionName: 
           m_userdata: 0
           m_followUp:
-          - I'm not surprised.
+          - '{confirmed.}'
           m_eventName: 
           m_breakAfterward: 0
         - m_text: No.
           m_preconditionName: 
           m_userdata: 0
           m_followUp:
-          - Really?
+          - '{doubt.}'
           m_eventName: 
           m_breakAfterward: 0
         - m_text: Maybe...
           m_preconditionName: 
           m_userdata: 0
           m_followUp:
-          - Well, I sure am.
+          - '{uncertainty.}'
           m_eventName: 
           m_breakAfterward: 0
       - m_text: This place is so big that I'd swear every time I walk through a door

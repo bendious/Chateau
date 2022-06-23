@@ -40,7 +40,7 @@ MonoBehaviour:
           m_preconditionName: 
           m_userdata: 0
           m_followUp:
-          - Well, don't forget to come find me when you do.
+          - '{interjection} don''t forget to come find me when you do.'
           m_eventName: 
           m_breakAfterward: 1
       m_loop: 1
@@ -62,9 +62,10 @@ MonoBehaviour:
           m_preconditionName: 
           m_userdata: 0
           m_followUp:
-          - Well, don't forget to come find me when you do.
+          - '{interjection} don''t forget to come find me when you do.'
           m_eventName: 
           m_breakAfterward: 1
       m_loop: 1
       m_singleUse: 0
     m_weight: 0
+  m_expressions: []
