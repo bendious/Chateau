@@ -98,11 +98,5 @@ MonoBehaviour:
       m_heightMin: 0.5
       m_heightMax: 2
     m_weight: 1
-  - m_object:
-      m_prefab: {fileID: 7985615140188058259, guid: cfbaadf79fc588048828fdf3288a20e1, type: 3}
-      m_rotationDegreesMax: 0
-      m_heightMin: 0.5
-      m_heightMax: 2
-    m_weight: 0.5
   m_decorationsMin: 0
   m_decorationsMax: 2

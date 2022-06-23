@@ -907,7 +907,7 @@ public class RoomController : MonoBehaviour
 
 	private Bounds BoundsWithChildren(GameObject obj)
 	{
-		Renderer[] renderers = obj.GetComponentsInChildren<Renderer>().Where(r => !(r is TrailRenderer)).ToArray();
+		Renderer[] renderers = obj.GetComponentsInChildren<Renderer>().Where(r => r is SpriteRenderer or SpriteMask).ToArray(); // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
 		Bounds SemiLocalBounds(Renderer r)
 		{
 			Bounds b = r.localBounds; // TODO: handle object rotation?

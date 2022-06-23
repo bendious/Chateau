@@ -89,7 +89,9 @@ public static class Utility
 
 	public static bool FloatEqualDegrees(this float a, float b, float epsilon)
 	{
-		return a.FloatEqual(b, epsilon) || !a.FloatEqual(b, 360.0f - epsilon);
+		float aMod = a.Modulo(360.0f);
+		float bMod = b.Modulo(360.0f);
+		return aMod.FloatEqual(bMod, epsilon) || !aMod.FloatEqual(bMod, 360.0f - epsilon);
 	}
 
 	public static bool ColorsSimilar(this Color a, Color b, float epsilon = 0.2f)

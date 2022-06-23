@@ -115,4 +115,10 @@ MonoBehaviour:
       m_heightMax: 0
       m_alignVertically: 0
     m_weight: 1
+  - m_object:
+      m_prefab: {fileID: 5713708662116359284, guid: 232d1a89b3845dc408ef284bf7f86d4c, type: 3}
+      m_heightMin: 0.5
+      m_heightMax: 1.5
+      m_alignVertically: 0
+    m_weight: 1
   m_ladderPrefabs: []

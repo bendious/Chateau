@@ -120,7 +120,13 @@ public class LockController : MonoBehaviour, IUnlockable
 			int keyIdx = 0;
 			foreach (IKey key in m_keys)
 			{
-				if (key is InteractToggle toggle)
+				// TODO: more generic handling?
+				if (key is InteractRotate rotator)
+				{
+					rotator.RotationCorrectDegrees = -360.0f * combination[comboIdx] / m_combinationSet.m_options.Length; // NOTE the negative due to clockwise clock rotation // TODO: parameterize?
+					++comboIdx;
+				}
+				else if (key is InteractToggle toggle)
 				{
 					toggle.SetToggleText(m_combinationSet, optionIdxToggle, combination[comboIdx]);
 					++comboIdx;
@@ -158,39 +164,31 @@ public class LockController : MonoBehaviour, IUnlockable
 		}
 
 		// allow duplicates in ordered keys
-		// TODO: re-enable after upgrading IKey.IsInPlace? allow duplicates before some originals?
-		SpriteRenderer[] colorKeyRenderers = orderObj != null ? orderObj.GetComponentsInChildren<SpriteRenderer>().ToArray() : GetComponentsInChildren<SpriteRenderer>();
-		//if (orderObj != null)
-		//{
-		//	int keyCountOrig = m_keys.Count;
-		//	for (int i = 0, repeatCount = Random.Range(0, colorKeyRenderers.Length - m_keys.Count + 1); i < repeatCount; ++i)
-		//	{
-		//		m_keys.Add(m_keys[Random.Range(0, keyCountOrig)]);
-		//	}
-		//}
+		// TODO: re-implement after upgrading IKey.IsInPlace? allow duplicates before some originals?
 
 		// match key color(s)
-		// TODO: better many-to-many logic
-		int colorIdx;
-		for (colorIdx = 0; colorIdx < colorKeyRenderers.Length; ++colorIdx)
+		// TODO: automatically disable extra keys, base on ColorRandomizer?
+		SpriteRenderer[] childKeyRenderers = (orderObj != null ? orderObj : gameObject).GetComponentsInChildren<IKey>().Select(key => key.Component.GetComponent<SpriteRenderer>()).Where(r => r != null).ToArray();
+		IEnumerable<SpriteRenderer> spawnedKeyRenderers = m_keys.Select(key => key.Component.GetComponent<SpriteRenderer>()).Where(r => r != null && !System.Array.Exists(childKeyRenderers, nonspawned => nonspawned.gameObject == r.gameObject)).ToArray();
+		if (childKeyRenderers.Length == 0)
 		{
-			SpriteRenderer rendererCur = colorKeyRenderers[colorIdx];
-			if (colorIdx < m_keys.Count)
+			// single-color self and keys
+			Color color = spawnedKeyRenderers.First().color;
+			GetComponent<SpriteRenderer>().color = color;
+			foreach (SpriteRenderer r in spawnedKeyRenderers)
 			{
-				rendererCur.color = m_keys[colorIdx].Component.GetComponent<SpriteRenderer>().color;
-			}
-			else if (rendererCur.GetComponent<ColorRandomizer>() != null) // TODO?
-			{
-				rendererCur.gameObject.SetActive(false);
-			}
-			else if (m_keys.Count > 0)
-			{
-				rendererCur.color = m_keys.First().Component.GetComponent<SpriteRenderer>().color;
+				r.color = color;
 			}
 		}
-		for (; colorIdx < m_keys.Count; ++colorIdx)
+		else if (spawnedKeyRenderers.Count() > 0)
 		{
-			m_keys[colorIdx].Component.GetComponent<SpriteRenderer>().color = colorKeyRenderers.First().color;
+			// multi-color children according to keys
+			int i = 0;
+			foreach (SpriteRenderer r in childKeyRenderers)
+			{
+				r.color = spawnedKeyRenderers.ElementAt(i * spawnedKeyRenderers.Count() / childKeyRenderers.Length).color;
+				++i;
+			}
 		}
 
 		// door setup based on keys
