@@ -129,8 +129,8 @@ TrailRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 1, b: 1, a: 1}
-      key1: {r: 1, g: 1, b: 1, a: 1}
+      key0: {r: 1, g: 1, b: 1, a: 0.49803922}
+      key1: {r: 1, g: 1, b: 1, a: 0}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -162,7 +162,7 @@ TrailRenderer:
     textureMode: 0
     shadowBias: 0.5
     generateLightingData: 0
-  m_MinVertexDistance: 0.1
+  m_MinVertexDistance: 0.01
   m_Autodestruct: 0
   m_Emitting: 0
 --- !u!114 &8653506315644129220
@@ -189,7 +189,9 @@ MonoBehaviour:
   m_throwSpeed: 20
   m_vfxAlpha: 0.5
   m_healAmount: 0
+  m_healSeconds: 5
   m_detachOnDamage: 0
+  m_keyDestroyAfterUse: 1
   m_nondamageColliders: []
   m_sourceTextOptions: []
   m_drawPrefab: {fileID: 0}

@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.VFX;
 
 
-[DisallowMultipleComponent, RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), RequireComponent(typeof(SpriteRenderer))]
+[DisallowMultipleComponent, RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), RequireComponent(typeof(SpriteRenderer)/*, typeof(TrailRenderer)*/)] // NOTE that we assume a TrailRenderer is present, but it can be on a child object
 public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, IKey, ISavable
 {
 	[TextArea]
@@ -53,6 +53,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	private Health m_health;
 	private Hazard m_hazard;
 
+	private Vector2 m_trailSizes;
+
 	private IHolder m_holder;
 	public KinematicCharacter Cause { get; private set; }
 
@@ -84,17 +86,14 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 #pragma warning disable IDE0031 // NOTE that we don't use null propagation since IHolderControllers can be Unity objects as well, which don't like ?? or ?.
 		SetCause(m_holder == null ? null : m_holder.Component.transform.root.GetComponent<KinematicCharacter>());
 #pragma warning restore IDE0031
-		if (m_trail != null)
+
+		Bounds aggregateBounds = m_colliders.First().bounds; // NOTE that we avoid default-initialization in case the aggregate bounds shouldn't include the origin
+		foreach (Collider2D collider in m_colliders)
 		{
-			Bounds aggregateBounds = m_colliders.First().bounds; // NOTE that we avoid default-initialization in case the aggregate bounds shouldn't include the origin
-			foreach (Collider2D collider in m_colliders)
-			{
-				aggregateBounds.Encapsulate(collider.bounds);
-			}
-			Vector3 size = aggregateBounds.size - (m_trail.transform.position - transform.position);
-			m_trail.widthCurve = AnimationCurve.Constant(0.0f, 0.0f, Mathf.Max(size.x, size.y));
-			m_trail.material.SetTexture("_MainTex", m_renderer.sprite.texture); // TODO: share w/ other same-texture items?
+			aggregateBounds.Encapsulate(collider.bounds);
 		}
+		m_trailSizes = aggregateBounds.size - (m_trail.transform.position - transform.position);
+		UpdateTrailWidth(m_holder != null);
 	}
 
 	private void OnEnable()
@@ -105,10 +104,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		}
 
 		// prevent stale VFX when re-enabling items
-		if (m_trail != null)
-		{
-			m_trail.emitting = false;
-		}
+		m_trail.emitting = false;
 		foreach (VisualEffect vfx in GetComponentsInChildren<VisualEffect>(true))
 		{
 			if (vfx.enabled)
@@ -158,6 +154,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			m_hazard.enabled = false;
 		}
 
+		UpdateTrailWidth(true);
+
 		SetCause(holder.Component.transform.root.GetComponent<KinematicCharacter>());
 	}
 
@@ -176,6 +174,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		{
 			causeHealth.HealCancel();
 		}
+
+		UpdateTrailWidth(false);
 
 		if (m_holder != null) // NOTE that this is valid for items attached to static geometry rather than an IHolder
 		{
@@ -347,7 +347,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			return;
 		}
 
-		m_trail.colorGradient = new() { colorKeys = new GradientColorKey[] { new(GameController.Instance.m_avatars.Contains(Cause) ? Color.white : Color.red, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new(m_vfxAlpha, 0.0f) } }; // NOTE that we have to replace the whole gradient rather than just setting individual attributes due to the annoying way LineRenderer prevents those changes
+		m_trail.colorGradient = new() { colorKeys = new GradientColorKey[] { new(GameController.Instance.m_avatars.Contains(Cause) ? Color.white : Color.red, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new(m_vfxAlpha, 0.0f), new(0.0f, 1.0f) } }; // NOTE that we have to replace the whole gradient rather than just setting individual attributes due to the annoying way LineRenderer prevents those changes
+	}
+
+	private void UpdateTrailWidth(bool wide)
+	{
+		System.Func<float, float, float> compareFunc = wide ? Mathf.Max : Mathf.Min;
+		m_trail.widthCurve = AnimationCurve.EaseInOut(0.0f, compareFunc(m_trailSizes.x, m_trailSizes.y), 1.0f, 0.0f);
 	}
 
 	private void ProcessCollision(Collision2D collision)
@@ -451,10 +457,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	private void EnableVFXAndDamage()
 	{
-		if (m_trail != null)
-		{
-			m_trail.emitting = true;
-		}
+		m_trail.emitting = true;
 		StartCoroutine(UpdateVFXAndCause());
 	}
 
