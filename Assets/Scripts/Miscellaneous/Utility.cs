@@ -105,26 +105,27 @@ public static class Utility
 		Color color = new(Mathf.Lerp(min.r, max.r, pcts[0]), Mathf.Lerp(min.g, max.g, pcts[1]), Mathf.Lerp(min.b, max.b, pcts[2]), Mathf.Lerp(min.a, max.a, pcts[3]));
 		if (ColorsSimilar(color, RoomController.m_oneWayPlatformColor, epsilon) || ColorsSimilar(color, Color.black, epsilon))
 		{
-			void FlipComponent(int idx)
-			{
-				// flip one component as far as it can go within the given range
-				float minComp = min[idx];
-				float maxComp = max[idx];
-				color[idx] = Mathf.Lerp(minComp, maxComp, (Mathf.InverseLerp(minComp, maxComp, color[idx]) + 0.5f) % 1.0f);
-			}
-
 			if (proportional)
 			{
 				for (int i = 0; i < 3; ++i)
 				{
-					FlipComponent(i);
+					color = color.ColorFlipComponent(i, min, max);
 				}
 			}
 			else
 			{
-				FlipComponent(UnityEngine.Random.Range(0, 3));
+				color = color.ColorFlipComponent(UnityEngine.Random.Range(0, 3), min, max);
 			}
 		}
+		return color;
+	}
+
+	public static Color ColorFlipComponent(this Color color, int idx, Color min, Color max)
+	{
+		// flip one component as far as it can go within the given range
+		float minComp = min[idx];
+		float maxComp = max[idx];
+		color[idx] = Mathf.Lerp(minComp, maxComp, (Mathf.InverseLerp(minComp, maxComp, color[idx]) + 0.5f) % 1.0f);
 		return color;
 	}
 

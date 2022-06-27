@@ -167,7 +167,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		// TODO: re-implement after upgrading IKey.IsInPlace? allow duplicates before some originals?
 
 		// match key color(s)
-		// TODO: automatically disable extra keys, base on ColorRandomizer?
+		// TODO: base on ColorRandomizer?
 		SpriteRenderer[] childKeyRenderers = (orderObj != null ? orderObj : gameObject).GetComponentsInChildren<IKey>().Select(key => key.Component.GetComponent<SpriteRenderer>()).Where(r => r != null).ToArray();
 		IEnumerable<SpriteRenderer> spawnedKeyRenderers = m_keys.Select(key => key.Component.GetComponent<SpriteRenderer>()).Where(r => r != null && !System.Array.Exists(childKeyRenderers, nonspawned => nonspawned.gameObject == r.gameObject)).ToArray();
 		if (childKeyRenderers.Length == 0)
@@ -183,11 +183,44 @@ public class LockController : MonoBehaviour, IUnlockable
 		else if (spawnedKeyRenderers.Count() > 0)
 		{
 			// multi-color children according to keys
-			int i = 0;
-			foreach (SpriteRenderer r in childKeyRenderers)
+			if (spawnedKeyRenderers.First().GetComponentInChildren<TMP_Text>() != null) // TODO: better determination of whether puzzles need to auto-disable extra child keys?
 			{
-				r.color = spawnedKeyRenderers.ElementAt(i * spawnedKeyRenderers.Count() / childKeyRenderers.Length).color;
-				++i;
+				int i = 0;
+				foreach (SpriteRenderer childR in childKeyRenderers)
+				{
+					childR.color = spawnedKeyRenderers.ElementAt(i * spawnedKeyRenderers.Count() / childKeyRenderers.Length).color;
+					++i;
+				}
+			}
+			else
+			{
+				// color match children one-to-one
+				int i = 0;
+				foreach (SpriteRenderer spawnedR in spawnedKeyRenderers)
+				{
+					// ensure colors are visually distinct
+					foreach (SpriteRenderer spawnedR2 in spawnedKeyRenderers)
+					{
+						if (spawnedR == spawnedR2)
+						{
+							break;
+						}
+						if (!spawnedR.color.ColorsSimilar(spawnedR2.color))
+						{
+							continue;
+						}
+						spawnedR.color = spawnedR.color.ColorFlipComponent(Random.Range(0, 3), Color.black, Color.white); // TODO: use ColorRandomizer range? ensure flipping component doesn't result in conflict w/ any previous color?
+					}
+
+					childKeyRenderers[i].color = spawnedR.color;
+					++i;
+				}
+
+				// auto-disable extras
+				for (; i < childKeyRenderers.Length; ++i)
+				{
+					childKeyRenderers[i].gameObject.SetActive(false);
+				}
 			}
 		}
 

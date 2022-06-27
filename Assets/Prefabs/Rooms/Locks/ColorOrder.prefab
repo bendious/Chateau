@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7748687664285506096}
   - component: {fileID: 3003973781618984146}
-  - component: {fileID: 4191201519117274940}
+  - component: {fileID: 1739339879038072186}
   m_Layer: 0
   m_Name: ColorOrder (3)
   m_TagString: Untagged
@@ -85,7 +85,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &4191201519117274940
+--- !u!114 &1739339879038072186
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -94,11 +94,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2407775744303161848}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
+  m_Script: {fileID: 11500000, guid: 172be350f375e494cb11024fb9a399de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_colorMin: 0.25
-  m_colorMax: 1
 --- !u!1 &2946047429406862322
 GameObject:
   m_ObjectHideFlags: 0
@@ -109,7 +107,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3989015633697416113}
   - component: {fileID: 3561971514767763420}
-  - component: {fileID: 2079654277656431757}
+  - component: {fileID: 1349311489233381622}
   m_Layer: 0
   m_Name: ColorOrder (2)
   m_TagString: Untagged
@@ -184,7 +182,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &2079654277656431757
+--- !u!114 &1349311489233381622
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -193,11 +191,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2946047429406862322}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
+  m_Script: {fileID: 11500000, guid: 172be350f375e494cb11024fb9a399de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_colorMin: 0.25
-  m_colorMax: 1
 --- !u!1 &3734108545349756049
 GameObject:
   m_ObjectHideFlags: 0
@@ -208,7 +204,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8922119488838340838}
   - component: {fileID: 8467682475222897749}
-  - component: {fileID: 50309770305492776}
+  - component: {fileID: 8438997265746790489}
   m_Layer: 0
   m_Name: ColorOrder (1)
   m_TagString: Untagged
@@ -283,7 +279,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &50309770305492776
+--- !u!114 &8438997265746790489
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -292,11 +288,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3734108545349756049}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
+  m_Script: {fileID: 11500000, guid: 172be350f375e494cb11024fb9a399de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_colorMin: 0.25
-  m_colorMax: 1
 --- !u!1 &7429547683255228525
 GameObject:
   m_ObjectHideFlags: 0
@@ -307,7 +301,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6083903494068487192}
   - component: {fileID: 8226783271618161550}
-  - component: {fileID: 4007440544001226504}
+  - component: {fileID: 564921093046141549}
   m_Layer: 0
   m_Name: ColorOrder
   m_TagString: Untagged
@@ -385,7 +379,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &4007440544001226504
+--- !u!114 &564921093046141549
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -394,8 +388,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 7429547683255228525}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
+  m_Script: {fileID: 11500000, guid: 172be350f375e494cb11024fb9a399de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_colorMin: 0.25
-  m_colorMax: 1
