@@ -107,8 +107,6 @@ public class RoomController : MonoBehaviour
 	private /*readonly*/ RoomType.SpriteInfo m_wallInfo;
 	private /*readonly*/ Color m_wallColor;
 
-	private float m_typePreconditionResult = 1.0f;
-
 
 	public static T RandomWeightedByKeyCount<T>(WeightedObject<T>[] candidates, System.Func<T, int> candidateToKeyDiff, float scalarPerDiff = 0.5f)
 	{
@@ -302,12 +300,13 @@ public class RoomController : MonoBehaviour
 			}
 			foreach (string preconditionName in type.m_object.m_preconditionNames)
 			{
-				SendMessage(preconditionName);
-				if (m_typePreconditionResult <= 0.0f)
+				SendMessageValue<float> result = new() { m_out = 1.0f };
+				SendMessage(preconditionName, result);
+				if (result.m_out <= 0.0f)
 				{
 					return false;
 				}
-				weightScaled *= m_typePreconditionResult;
+				weightScaled *= result.m_out;
 			}
 			weightsScaled.Add(weightScaled);
 			return true;
@@ -822,21 +821,21 @@ public class RoomController : MonoBehaviour
 	}
 
 	// called via SendMessage(RoomType.m_preconditionName)
-	public void IsAboveGround()
+	public void IsAboveGround(SendMessageValue<float> result)
 	{
-		m_typePreconditionResult = transform.position.y >= 0.0f ? 1.0f : 0.0f; // NOTE that the ground floor is always at y=0
+		result.m_out = transform.position.y >= 0.0f ? 1.0f : 0.0f; // NOTE that the ground floor is always at y=0
 	}
 
 	// called via SendMessage(RoomType.m_preconditionName)
-	public void IsBelowGround()
+	public void IsBelowGround(SendMessageValue<float> result)
 	{
-		m_typePreconditionResult = transform.position.y < 0.0f ? 1.0f : 0.0f; // NOTE that the ground floor is always at y=0
+		result.m_out = transform.position.y < 0.0f ? 1.0f : 0.0f; // NOTE that the ground floor is always at y=0
 	}
 
 	// called via SendMessage(RoomType.m_preconditionName)
-	public void PreferDeadEnds()
+	public void PreferDeadEnds(SendMessageValue<float> result)
 	{
-		m_typePreconditionResult = System.Array.Exists(m_doorwayInfos, info => info.ChildRoom != null || info.SiblingShallowerRoom != null || info.SiblingDeeperRoom != null) ? 1.0f / GameController.Instance.m_roomTypes.Length : GameController.Instance.m_roomTypes.Length; // TODO: variable preference factor?
+		result.m_out = System.Array.Exists(m_doorwayInfos, info => info.ChildRoom != null || info.SiblingShallowerRoom != null || info.SiblingDeeperRoom != null) ? 1.0f / GameController.Instance.m_roomTypes.Length : GameController.Instance.m_roomTypes.Length; // TODO: variable preference factor?
 	}
 
 

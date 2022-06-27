@@ -20,8 +20,6 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 	private WeightedObject<NpcDialogue.DialogueInfo>[] m_dialogueCombined;
 	private WeightedObject<NpcDialogue.ExpressionInfo>[] m_expressionsCombined;
 
-	private bool m_preconditionResult; // TODO: replace w/ Tuple argument to preconditions?
-
 
 	private void Start()
 	{
@@ -51,8 +49,9 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 			{
 				return true;
 			}
-			SendMessage(info.m_object.m_preconditionName, info.m_object);
-			return m_preconditionResult;
+			SendMessageValue<NpcDialogue.DialogueInfo, bool> inOutValues = new() { m_in = info.m_object };
+			SendMessage(info.m_object.m_preconditionName, inOutValues);
+			return inOutValues.m_out;
 		}).ToArray();
 
 		// pick dialogue option
@@ -72,8 +71,8 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 	}
 
 	// called via Interact()/SendMessage(NpcDialogue.Info.m_preconditionName)
-	public void HasFinishedZone(NpcDialogue.DialogueInfo dialogue)
+	public void HasFinishedZone(SendMessageValue<NpcDialogue.DialogueInfo, bool> info)
 	{
-		m_preconditionResult = GameController.ZonesFinishedCount >= dialogue.m_userdata;
+		info.m_out = GameController.ZonesFinishedCount >= info.m_in.m_userdata;
 	}
 }

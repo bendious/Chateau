@@ -6,10 +6,21 @@ using UnityEngine.Assertions;
 
 
 [Serializable]
-public class WeightedObject<T>
+public sealed class WeightedObject<T>
 {
 	public T m_object;
 	public float m_weight = 1.0f;
+}
+
+// used to return values from SendMessage() calls
+public sealed class SendMessageValue<OutT>
+{
+	public OutT m_out;
+}
+public sealed class SendMessageValue<InT, OutT>
+{
+	public InT m_in;
+	public OutT m_out;
 }
 
 
