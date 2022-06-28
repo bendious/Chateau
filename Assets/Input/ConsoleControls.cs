@@ -55,6 +55,15 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""TimerPause"",
+                    ""type"": ""Button"",
+                    ""id"": ""6f06d715-e84c-45f1-b483-e79a253f1921"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""NeverDie"",
                     ""type"": ""Button"",
                     ""id"": ""c70ddbb3-3271-47fb-bc47-a65c1d690460"",
@@ -121,6 +130,15 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""name"": ""KillAllEnemies"",
                     ""type"": ""Button"",
                     ""id"": ""7b7e707e-5367-47dd-be01-5801a51f8f92"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ReSetWaves"",
+                    ""type"": ""Button"",
+                    ""id"": ""8ed8b544-cf2e-4cb1-91fd-bdadde9bbdae"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -427,6 +445,28 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""action"": ""ExplosionDebug"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4abf5322-ae34-4eb5-a77e-94a09a3db0c2"",
+                    ""path"": ""<Keyboard>/t"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TimerPause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""764b7933-15de-4e61-88e7-7d7e4ef20f8b"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ReSetWaves"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -438,6 +478,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         m_Console_Toggle = m_Console.FindAction("Toggle", throwIfNotFound: true);
         m_Console_Shift = m_Console.FindAction("Shift", throwIfNotFound: true);
         m_Console_Pause = m_Console.FindAction("Pause", throwIfNotFound: true);
+        m_Console_TimerPause = m_Console.FindAction("TimerPause", throwIfNotFound: true);
         m_Console_NeverDie = m_Console.FindAction("NeverDie", throwIfNotFound: true);
         m_Console_PassiveAI = m_Console.FindAction("PassiveAI", throwIfNotFound: true);
         m_Console_AIDebugLevel = m_Console.FindAction("AIDebugLevel", throwIfNotFound: true);
@@ -446,6 +487,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         m_Console_RegenerateDisabled = m_Console.FindAction("RegenerateDisabled", throwIfNotFound: true);
         m_Console_SpawnEnemyWave = m_Console.FindAction("SpawnEnemyWave", throwIfNotFound: true);
         m_Console_KillAllEnemies = m_Console.FindAction("KillAllEnemies", throwIfNotFound: true);
+        m_Console_ReSetWaves = m_Console.FindAction("ReSetWaves", throwIfNotFound: true);
         m_Console_HarmHealAvatar = m_Console.FindAction("HarmHealAvatar", throwIfNotFound: true);
         m_Console_SpawnEnemy = m_Console.FindAction("SpawnEnemy", throwIfNotFound: true);
         m_Console_ControlsVisualization = m_Console.FindAction("ControlsVisualization", throwIfNotFound: true);
@@ -512,6 +554,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Console_Toggle;
     private readonly InputAction m_Console_Shift;
     private readonly InputAction m_Console_Pause;
+    private readonly InputAction m_Console_TimerPause;
     private readonly InputAction m_Console_NeverDie;
     private readonly InputAction m_Console_PassiveAI;
     private readonly InputAction m_Console_AIDebugLevel;
@@ -520,6 +563,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Console_RegenerateDisabled;
     private readonly InputAction m_Console_SpawnEnemyWave;
     private readonly InputAction m_Console_KillAllEnemies;
+    private readonly InputAction m_Console_ReSetWaves;
     private readonly InputAction m_Console_HarmHealAvatar;
     private readonly InputAction m_Console_SpawnEnemy;
     private readonly InputAction m_Console_ControlsVisualization;
@@ -531,6 +575,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         public InputAction @Toggle => m_Wrapper.m_Console_Toggle;
         public InputAction @Shift => m_Wrapper.m_Console_Shift;
         public InputAction @Pause => m_Wrapper.m_Console_Pause;
+        public InputAction @TimerPause => m_Wrapper.m_Console_TimerPause;
         public InputAction @NeverDie => m_Wrapper.m_Console_NeverDie;
         public InputAction @PassiveAI => m_Wrapper.m_Console_PassiveAI;
         public InputAction @AIDebugLevel => m_Wrapper.m_Console_AIDebugLevel;
@@ -539,6 +584,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         public InputAction @RegenerateDisabled => m_Wrapper.m_Console_RegenerateDisabled;
         public InputAction @SpawnEnemyWave => m_Wrapper.m_Console_SpawnEnemyWave;
         public InputAction @KillAllEnemies => m_Wrapper.m_Console_KillAllEnemies;
+        public InputAction @ReSetWaves => m_Wrapper.m_Console_ReSetWaves;
         public InputAction @HarmHealAvatar => m_Wrapper.m_Console_HarmHealAvatar;
         public InputAction @SpawnEnemy => m_Wrapper.m_Console_SpawnEnemy;
         public InputAction @ControlsVisualization => m_Wrapper.m_Console_ControlsVisualization;
@@ -561,6 +607,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @Pause.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnPause;
                 @Pause.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnPause;
                 @Pause.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnPause;
+                @TimerPause.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnTimerPause;
+                @TimerPause.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnTimerPause;
+                @TimerPause.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnTimerPause;
                 @NeverDie.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnNeverDie;
                 @NeverDie.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnNeverDie;
                 @NeverDie.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnNeverDie;
@@ -585,6 +634,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @KillAllEnemies.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnKillAllEnemies;
                 @KillAllEnemies.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnKillAllEnemies;
                 @KillAllEnemies.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnKillAllEnemies;
+                @ReSetWaves.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnReSetWaves;
+                @ReSetWaves.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnReSetWaves;
+                @ReSetWaves.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnReSetWaves;
                 @HarmHealAvatar.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnHarmHealAvatar;
                 @HarmHealAvatar.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnHarmHealAvatar;
                 @HarmHealAvatar.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnHarmHealAvatar;
@@ -610,6 +662,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @Pause.started += instance.OnPause;
                 @Pause.performed += instance.OnPause;
                 @Pause.canceled += instance.OnPause;
+                @TimerPause.started += instance.OnTimerPause;
+                @TimerPause.performed += instance.OnTimerPause;
+                @TimerPause.canceled += instance.OnTimerPause;
                 @NeverDie.started += instance.OnNeverDie;
                 @NeverDie.performed += instance.OnNeverDie;
                 @NeverDie.canceled += instance.OnNeverDie;
@@ -634,6 +689,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @KillAllEnemies.started += instance.OnKillAllEnemies;
                 @KillAllEnemies.performed += instance.OnKillAllEnemies;
                 @KillAllEnemies.canceled += instance.OnKillAllEnemies;
+                @ReSetWaves.started += instance.OnReSetWaves;
+                @ReSetWaves.performed += instance.OnReSetWaves;
+                @ReSetWaves.canceled += instance.OnReSetWaves;
                 @HarmHealAvatar.started += instance.OnHarmHealAvatar;
                 @HarmHealAvatar.performed += instance.OnHarmHealAvatar;
                 @HarmHealAvatar.canceled += instance.OnHarmHealAvatar;
@@ -655,6 +713,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         void OnToggle(InputAction.CallbackContext context);
         void OnShift(InputAction.CallbackContext context);
         void OnPause(InputAction.CallbackContext context);
+        void OnTimerPause(InputAction.CallbackContext context);
         void OnNeverDie(InputAction.CallbackContext context);
         void OnPassiveAI(InputAction.CallbackContext context);
         void OnAIDebugLevel(InputAction.CallbackContext context);
@@ -663,6 +722,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         void OnRegenerateDisabled(InputAction.CallbackContext context);
         void OnSpawnEnemyWave(InputAction.CallbackContext context);
         void OnKillAllEnemies(InputAction.CallbackContext context);
+        void OnReSetWaves(InputAction.CallbackContext context);
         void OnHarmHealAvatar(InputAction.CallbackContext context);
         void OnSpawnEnemy(InputAction.CallbackContext context);
         void OnControlsVisualization(InputAction.CallbackContext context);

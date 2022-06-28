@@ -10,6 +10,8 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 	public /*static*/ GameObject[] m_visualizationPrefabs;
 
 
+	public static bool TimerPaused { get; private set; }
+
 	public static bool NeverDie { get; private set; }
 
 	public static bool PassiveAI { get; private set; }
@@ -51,6 +53,7 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 		// TODO: detect even while editor is paused?
 		m_controls.Console.Pause.performed += ctx => UnityEditor.EditorApplication.isPaused = !UnityEditor.EditorApplication.isPaused; // NOTE that KeyCode.Pause is the 'Pause/Break' keyboard key, not Esc
 #endif
+		m_controls.Console.TimerPause.performed += ctx => ExecuteIfConsoleOpen(() => TimerPaused = !TimerPaused);
 		m_controls.Console.NeverDie.performed += ctx => ExecuteIfConsoleOpen(() => NeverDie = !NeverDie);
 		m_controls.Console.PassiveAI.performed += ctx => ExecuteIfConsoleOpen(() => PassiveAI = !PassiveAI);
 		m_controls.Console.AIDebugLevel.performed += ctx => ExecuteIfConsoleOpen(() => AIDebugLevel = (AIDebugLevel + 1) % Utility.EnumNumTypes<AIDebugLevels>());
@@ -59,6 +62,7 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 		m_controls.Console.RegenerateDisabled.performed += ctx => ExecuteIfConsoleOpen(() => RegenerateDisabled = !RegenerateDisabled);
 		m_controls.Console.SpawnEnemyWave.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.SpawnEnemyWave());
 		m_controls.Console.KillAllEnemies.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.DebugKillAllEnemies());
+		m_controls.Console.ReSetWaves.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.DebugResetWaves());
 		m_controls.Console.HarmHealAvatar.performed += ctx => ExecuteIfConsoleOpen(() =>
 		{
 			Health avatarHealth = GameController.Instance.m_avatars.First().GetComponent<Health>();

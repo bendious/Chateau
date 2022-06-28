@@ -477,6 +477,8 @@ public class GameController : MonoBehaviour
 			enemy.GetComponent<Health>().Die();
 		}
 	}
+
+	public void DebugResetWaves() => m_waveWeight = m_waveStartWeight;
 #endif
 
 
@@ -646,9 +648,16 @@ public class GameController : MonoBehaviour
 
 	private IEnumerator SpawnWavesCoroutine()
 	{
+		WaitUntil waitUntilUnpaused = new(() => !ConsoleCommands.TimerPaused);
+
 		while (m_nextWaveTime >= 0.0f)
 		{
-			yield return new WaitForSeconds(m_nextWaveTime - Time.time);
+			yield return ConsoleCommands.TimerPaused ? waitUntilUnpaused : new WaitForSeconds(m_nextWaveTime - Time.time);
+			if (ConsoleCommands.TimerPaused)
+			{
+				continue;
+			}
+
 			SpawnEnemyWave();
 			m_nextWaveTime = Time.time + Random.Range(m_waveSecondsMin, m_waveSecondsMax);
 		}
@@ -735,11 +744,14 @@ public class GameController : MonoBehaviour
 
 	private IEnumerator TimerCoroutine()
 	{
+		WaitForSeconds waitTime = new(1.0f);
+		WaitUntil waitUntilUnpaused = new(() => !ConsoleCommands.TimerPaused);
 		AudioSource source = GetComponent<AudioSource>();
 
 		while (m_nextWaveTime >= 0.0f)
 		{
-			yield return new WaitForSeconds(1.0f); // NOTE that we currently don't care whether the UI timer is precise within partial seconds
+			yield return ConsoleCommands.TimerPaused ? waitUntilUnpaused : waitTime; // NOTE that we currently don't care whether the UI timer is precise within partial seconds
+
 			float secondsRemaining = m_nextWaveTime - Time.time;
 			m_timerUI.text = System.TimeSpan.FromSeconds(secondsRemaining).ToString("m':'ss");
 			m_timerUI.color = EnemiesRemain() ? Color.red : Color.green;

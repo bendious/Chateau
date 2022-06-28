@@ -33,6 +33,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "TimerPause",
+                    "type": "Button",
+                    "id": "6f06d715-e84c-45f1-b483-e79a253f1921",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "NeverDie",
                     "type": "Button",
                     "id": "c70ddbb3-3271-47fb-bc47-a65c1d690460",
@@ -99,6 +108,15 @@
                     "name": "KillAllEnemies",
                     "type": "Button",
                     "id": "7b7e707e-5367-47dd-be01-5801a51f8f92",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ReSetWaves",
+                    "type": "Button",
+                    "id": "8ed8b544-cf2e-4cb1-91fd-bdadde9bbdae",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -403,6 +421,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "ExplosionDebug",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4abf5322-ae34-4eb5-a77e-94a09a3db0c2",
+                    "path": "<Keyboard>/t",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TimerPause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "764b7933-15de-4e61-88e7-7d7e4ef20f8b",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ReSetWaves",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
