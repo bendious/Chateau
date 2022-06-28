@@ -130,11 +130,10 @@ public class GameController : MonoBehaviour
 		int roomCount = 0;
 		bool failed = generator.ForEachNodeDepthFirst(node =>
 		{
-			Debug.Assert(node.m_room == null);
-			Assert.AreNotEqual(node.m_type, LayoutGenerator.Node.Type.TightCoupling);
+			Debug.Assert(node.m_room == null && node.m_type != LayoutGenerator.Node.Type.TightCoupling && node.m_type != LayoutGenerator.Node.Type.RootCoupling);
 
 			LayoutGenerator.Node parent = node.TightCoupleParent;
-			if (parent != parentPending && nodesPending.Count > 0 && nodesPending.First().DirectParentsInternal != parent?.DirectParentsInternal)
+			if (parent != parentPending && nodesPending.Count > 0)
 			{
 				roomCount = AddRoomsForNodes(nodesPending.ToArray(), roomCount);
 				if (roomCount == 0)
@@ -536,6 +535,7 @@ public class GameController : MonoBehaviour
 				if (spawnRoom == null)
 				{
 					// "I come back tomorrow."
+					Assert.IsTrue(nodesSplit.Count > 0);
 					nodesSplit.Enqueue(nodesList);
 					continue;
 				}
@@ -546,7 +546,7 @@ public class GameController : MonoBehaviour
 				Vector2[] allowedDirections = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical) ? new Vector2[] { Vector2.down, Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomDown) ? new Vector2[] { Vector2.down } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomUp) ? new Vector2[] { Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) ? new Vector2[] { Vector2.left, Vector2.right } : null;
 				foreach (GameObject roomPrefab in prefabsOrdered.RandomWeightedOrder())
 				{
-					childRoom = spawnRoom.SpawnChildRoom(roomPrefab, nodesList.ToArray(), allowedDirections);
+					childRoom = spawnRoom.SpawnChildRoom(roomPrefab, nodesList.ToArray(), allowedDirections); // TODO: bias RootCoupling child nodes toward existing leaf rooms?
 					if (childRoom != null)
 					{
 						++roomCount;

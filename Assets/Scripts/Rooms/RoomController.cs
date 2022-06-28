@@ -546,7 +546,7 @@ public class RoomController : MonoBehaviour
 				bboxNew.center = centerOrig + pos;
 
 				bool overlap = false;
-				foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
+				foreach (Renderer renderer in GetComponentsInChildren<Renderer>().Where(r => r is SpriteRenderer or SpriteMask)) // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
 				{
 					if (renderer.gameObject == m_backdrop || renderer.gameObject.layer == GameController.Instance.m_layerExterior)
 					{
@@ -1139,7 +1139,7 @@ public class RoomController : MonoBehaviour
 		}
 
 		// check non-null children
-		// TODO: prioritize by distance from endPosition?
+		// TODO: prioritize by distance from endPosition? handle sibling connections?
 		foreach (DoorwayInfo info in m_doorwayInfos.Where(info => info.ChildRoom != null))
 		{
 			List<RoomController> childPath = info.ChildRoom.RoomPathFromRoot(endPosition, prePath);

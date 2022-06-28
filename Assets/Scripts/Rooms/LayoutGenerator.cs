@@ -42,6 +42,7 @@ public class LayoutGenerator
 			BonusItems,
 			Boss,
 			TightCoupling,
+			RootCoupling, // TODO: replace w/ most-recent-common-ancestor logic?
 
 			BasementOrTower,
 			Corridor,
@@ -61,7 +62,7 @@ public class LayoutGenerator
 		public RoomController m_room = null;
 
 
-		public List<Node> DirectParents => DirectParentsInternal?.SelectMany(node => node.m_type == Type.TightCoupling ? node.DirectParents : new List<Node> { node }).ToList();
+		public List<Node> DirectParents => DirectParentsInternal?.SelectMany(node => node.m_type == Type.TightCoupling || node.m_type == Type.RootCoupling ? node.DirectParents : new List<Node> { node }).ToList();
 
 		public Node TightCoupleParent { get
 		{
@@ -69,13 +70,17 @@ public class LayoutGenerator
 			{
 				return null;
 			}
+			if (m_type == Type.RootCoupling)
+			{
+				return Root;
+			}
 			Node parentCoupling = DirectParentsInternal.FirstOrDefault(node => node.m_type == Type.TightCoupling);
 			if (parentCoupling != null)
 			{
-				Assert.IsTrue(parentCoupling.DirectParentsInternal.Count == 1);
+				UnityEngine.Debug.Assert(parentCoupling.DirectParentsInternal.Count == 1);
 				return parentCoupling.m_children.First() != this ? parentCoupling.m_children.First() : parentCoupling.DirectParentsInternal.First();
 			}
-			return DirectParentsInternal.First().TightCoupleParent; // TODO: don't assume that all branches will have the same tight coupling parent?
+			return DirectParentsInternal.First().TightCoupleParent; // TODO: don't assume that all branches will have the same tight coupling parent? find the most recent common ancestor?
 		} }
 
 		// NOTE that this relies upon the structure of layouts having multiple keys as the parents of a single lock at the end of each "area"
@@ -106,6 +111,9 @@ public class LayoutGenerator
 		internal bool m_processed = false;
 
 
+		private Node Root => DirectParentsInternal == null ? this : DirectParentsInternal.First().Root; // TODO: don't assume unique roots?
+
+
 		public Node(Type type, List<Node> children = null)
 		{
 			m_type = type;
@@ -115,15 +123,14 @@ public class LayoutGenerator
 			}
 		}
 
-		public static List<Node> Multiparents(List<Type> types, Node child)
+		public static List<Node> Multiparents(List<Node> parents, Node child)
 		{
-			List<Node> parents = new();
+			child.DirectParentsInternal = null;
 			List<Node> childList = new() { child };
-			foreach (Type type in types)
+			foreach (Node parent in parents)
 			{
-				parents.Add(new Node(type, childList));
+				parent.AppendLeafChildren(childList);
 			}
-			child.DirectParentsInternal = parents;
 			return parents;
 		}
 
@@ -150,6 +157,12 @@ public class LayoutGenerator
 
 		internal void DepthFirstQueue(Queue<Node> queue)
 		{
+			if (queue.Contains(this)) // NOTE that this check is necessary due to multi-parenting
+			{
+				return;
+			}
+			queue.Enqueue(this);
+
 			if (m_children != null)
 			{
 				foreach (Node child in m_children)
@@ -157,16 +170,34 @@ public class LayoutGenerator
 					child.DepthFirstQueue(queue);
 				}
 			}
-
-			if (!queue.Contains(this)) // NOTE that this check is necessary due to multi-parenting
-			{
-				queue.Enqueue(this);
-			}
 		}
 
-		internal Node Clone()
+		internal Node Clone(List<Node> descendantsExcluded = null)
 		{
-			return new Node(m_type, m_children?.Select(node => node.Clone()).ToList());
+			// determine full list of downstream nodes to handle/ignore
+			List<Node> multiparentDescendants = MultiparentDescendants;
+			if (multiparentDescendants != null)
+			{
+				if (descendantsExcluded == null)
+				{
+					descendantsExcluded = multiparentDescendants;
+				}
+				else
+				{
+					descendantsExcluded.AddRange(multiparentDescendants);
+				}
+			}
+
+			// duplicate (w/ pruning of handled/ignored nodes) child trees
+			List<Node> childrenDuplicated = m_children?.Where(child => descendantsExcluded == null || !descendantsExcluded.Exists(excluded => child.Equivalent(excluded)))?.Select(node => node.Clone(descendantsExcluded))?.ToList();
+			if (childrenDuplicated != null && childrenDuplicated.Count <= 0)
+			{
+				childrenDuplicated = null;
+			}
+
+			// return copy of self w/ duplicate children, merging in multiparent descendants appropriately
+			UnityEngine.Debug.Assert(multiparentDescendants == null || multiparentDescendants.Count() <= 1); // TODO: handle multiple multi-parent descendants?
+			return new Node(m_type, multiparentDescendants != null && multiparentDescendants.Count() > 0 ? Multiparents(childrenDuplicated, multiparentDescendants.First()) : childrenDuplicated);
 		}
 
 		internal void AddChildren(List<Node> children)
@@ -194,7 +225,7 @@ public class LayoutGenerator
 
 		internal void AppendLeafChildren(List<Node> children)
 		{
-			if (m_children == null)
+			if (m_children == null || m_children.Count <= 0)
 			{
 				AddChildren(children);
 				return;
@@ -204,6 +235,90 @@ public class LayoutGenerator
 			{
 				child.AppendLeafChildren(children);
 			}
+		}
+
+
+		private IEnumerable<Node> DescendantsRaw
+		{
+			get
+			{
+				if (m_children == null)
+				{
+					return null;
+				}
+				return m_children.Aggregate((IEnumerable<Node>)m_children, (prevList, node) =>
+				{
+					IEnumerable<Node> nodeDescendants = node.DescendantsRaw;
+					return nodeDescendants == null ? prevList : prevList.Concat(nodeDescendants);
+				});
+			}
+		}
+
+		private List<Node> MultiparentDescendants // TODO: efficiency?
+		{
+			get
+			{
+				// collect descendants that are visited multiple times when looking down the tree
+				IEnumerable<Node> descendants = DescendantsRaw;
+				IEnumerable<Node> descendantsMulti = descendants?.Where(n => descendants.Count(n2 => n == n2) > 1)?.Distinct();
+				if (descendantsMulti == null)
+				{
+					return null;
+				}
+
+				// remove redundant nodes already descendants of other held nodes
+				List<Node> descendantsMultiParents = new();
+				foreach (Node n in descendantsMulti)
+				{
+					bool isRedundant = false;
+					foreach (Node n2 in descendantsMulti)
+					{
+						if (n == n2)
+						{
+							continue;
+						}
+						if (n2.HasDescendant(n))
+						{
+							isRedundant = true;
+							break;
+						}
+					}
+					if (!isRedundant)
+					{
+						descendantsMultiParents.Add(n);
+					}
+				}
+				return descendantsMultiParents;
+			}
+		}
+
+		// this compares nodes regardless of whether they are pre- or post-replacement
+		private bool Equivalent(Node rhs)
+		{
+			if (this == rhs)
+			{
+				return true;
+			}
+			if (m_type != rhs.m_type)
+			{
+				return false;
+			}
+			if (m_children == null && rhs.m_children == null)
+			{
+				return true;
+			}
+			if (m_children == null || rhs.m_children == null || m_children.Count != rhs.m_children.Count) // TODO: allow extra children on one side as long as all existing children match?
+			{
+				return false;
+			}
+			for (int i = 0; i < m_children.Count && i < rhs.m_children.Count; ++i)
+			{
+				if (!m_children[i].Equivalent(rhs.m_children[i])) // TODO: don't require matching child order?
+				{
+					return false;
+				}
+			}
+			return true;
 		}
 	}
 
@@ -220,7 +335,7 @@ public class LayoutGenerator
 	private static readonly ReplacementRule[] m_rules =
 	{
 		new(Node.Type.Tutorial, new() { new(Node.Type.Entrance, new() { new(Node.Type.TutorialMove), new(Node.Type.TutorialAim), new(Node.Type.TutorialDrop, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomDown, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.TutorialJump, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomUp, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.TutorialInteract), new(Node.Type.TutorialUse), new(Node.Type.TutorialSwap), new(Node.Type.TutorialThrow), new(Node.Type.Secret, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.TutorialInventory), new(Node.Type.TutorialSwing), new(Node.Type.TutorialCancel), new(Node.Type.TutorialCatch) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }),
-		new(Node.Type.Entryway, new() { new(Node.Type.Entrance, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }), new(Node.Type.Corridor, new() { new(Node.Type.Npc, new() { new(Node.Type.Npc, new() { new(Node.Type.Npc, new() { new(Node.Type.Npc) }) }) }) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical) }) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical) }) }) }) }),
+		new(Node.Type.Entryway, new() { new(Node.Type.Entrance, Node.Multiparents(new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical) }) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical) }) }), new(Node.Type.Corridor) }, new(Node.Type.RootCoupling, new() { new(Node.Type.Npc), new(Node.Type.Npc), new(Node.Type.Npc), new(Node.Type.Npc) }))) }),
 		new(Node.Type.Zone1, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor), new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }) }),
 		new(Node.Type.Zone2, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceExtraLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor), new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }) }),
 		new(Node.Type.Zone3, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceExtraLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }) }) }) }),
@@ -336,14 +451,14 @@ public class LayoutGenerator
 
 		while (queue.TryDequeue(out Node next))
 		{
-			if (queue.Contains(next.TightCoupleParent))
+			if (next.DirectParents != null && Array.Exists(queue.ToArray(), queueNode => next.DirectParents.Contains(queueNode))) // efficiency?
 			{
-				// haven't processed our parent yet; try again later
+				// haven't processed all our parents yet; try again later
 				queue.Enqueue(next);
 				continue;
 			}
 
-			bool done = next.m_type != Node.Type.TightCoupling && f(next); // NOTE the deliberate skip of internal-only nodes
+			bool done = next.m_type != Node.Type.TightCoupling && next.m_type != Node.Type.RootCoupling && f(next); // NOTE the deliberate skip of internal-only nodes
 			if (done)
 			{
 				return true;
