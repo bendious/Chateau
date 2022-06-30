@@ -546,7 +546,7 @@ public class RoomController : MonoBehaviour
 				bboxNew.center = centerOrig + pos;
 
 				bool overlap = false;
-				foreach (Renderer renderer in GetComponentsInChildren<Renderer>().Where(r => r is SpriteRenderer or SpriteMask)) // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
+				foreach (Renderer renderer in GetComponentsInChildren<Renderer>().Where(r => r is SpriteRenderer or SpriteMask or MeshRenderer)) // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
 				{
 					if (renderer.gameObject == m_backdrop || renderer.gameObject.layer == GameController.Instance.m_layerExterior)
 					{
@@ -710,11 +710,7 @@ public class RoomController : MonoBehaviour
 			return childRoom;
 		}
 
-		bool requireImmediateChild = System.Array.Exists(layoutNodes, node => System.Array.Exists(m_layoutNodes, parentNode => (parentNode.m_type == LayoutGenerator.Node.Type.Lock || parentNode.m_type == LayoutGenerator.Node.Type.Secret) && parentNode == node.TightCoupleParent));
-		if (requireImmediateChild)
-		{
-			return null;
-		}
+		// NOTE that if we ever return to some rooms requiring direct parent-child connection, they should early-out here
 
 		// try spawning from children
 		return DoorwaysRandomOrder(i =>
@@ -888,6 +884,8 @@ public class RoomController : MonoBehaviour
 
 	private void LinkShadowsRecursive()
 	{
+		// TODO: check incoming doorway for blocker?
+
 		// group this room's shadow casters under the top-level GameController caster
 		GameController.Instance.GetComponent<CompositeShadowCaster2D>().enabled = true; // NOTE that the top-level caster has to start disabled due to an assert from CompositeShadowCaster2D when empty of child casters
 		GetComponent<CompositeShadowCaster2D>().enabled = false;
@@ -906,7 +904,7 @@ public class RoomController : MonoBehaviour
 
 	private Bounds BoundsWithChildren(GameObject obj)
 	{
-		Renderer[] renderers = obj.GetComponentsInChildren<Renderer>().Where(r => r is SpriteRenderer or SpriteMask).ToArray(); // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
+		Renderer[] renderers = obj.GetComponentsInChildren<Renderer>().Where(r => r is SpriteRenderer or SpriteMask or MeshRenderer).ToArray(); // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
 		Bounds SemiLocalBounds(Renderer r)
 		{
 			Bounds b = r.localBounds; // TODO: handle object rotation?
@@ -928,7 +926,8 @@ public class RoomController : MonoBehaviour
 
 	private LayoutGenerator.Node GateNodeToChild(LayoutGenerator.Node.Type gateType, LayoutGenerator.Node[] childNodes)
 	{
-		return m_layoutNodes.FirstOrDefault(node => node.m_type == gateType && System.Array.Exists(childNodes, childNode => childNode.DirectParents.Exists(childParentNode => node == childParentNode)));
+		IEnumerable<LayoutGenerator.Node> ancestors = m_layoutNodes.Select(node => node.FirstCommonAncestor(childNodes));
+		return ancestors.FirstOrDefault(node => node.m_type == gateType && System.Array.Exists(childNodes, childNode => node.HasDescendant(childNode)));
 	}
 
 	// TODO: inline?

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 
@@ -37,7 +38,7 @@ public class LayoutGenerator
 			RoomHorizontal,
 			Npc,
 			Key,
-			Lock,
+			Lock, // TODO: treat as an in-between node (like {Tight/Root}Coupling)?
 			Secret,
 			BonusItems,
 			Boss,
@@ -77,7 +78,7 @@ public class LayoutGenerator
 			Node parentCoupling = DirectParentsInternal.FirstOrDefault(node => node.m_type == Type.TightCoupling);
 			if (parentCoupling != null)
 			{
-				UnityEngine.Debug.Assert(parentCoupling.DirectParentsInternal.Count == 1);
+				Debug.Assert(parentCoupling.DirectParentsInternal.Count == 1);
 				return parentCoupling.m_children.First() != this ? parentCoupling.m_children.First() : parentCoupling.DirectParentsInternal.First();
 			}
 			return DirectParentsInternal.First().TightCoupleParent; // TODO: don't assume that all branches will have the same tight coupling parent? find the most recent common ancestor?
@@ -134,8 +135,7 @@ public class LayoutGenerator
 			return parents;
 		}
 
-
-		internal bool HasDescendant(Node node)
+		public bool HasDescendant(Node node)
 		{
 			if (m_children == null)
 			{
@@ -154,6 +154,35 @@ public class LayoutGenerator
 			}
 			return false;
 		}
+
+		public Node FirstCommonAncestor(IEnumerable<Node> nodes)
+		{
+			// search through ancestors breadth-first until all nodes[] entries have been accounted for
+			List<Node> nodesRemaining = new(nodes); // NOTE the copy to prevent editing the original sequence
+			Queue<Node> ancestorsNext = new(new Node[] { this });
+			while (ancestorsNext.TryDequeue(out Node ancestor))
+			{
+				int numRemoved = nodesRemaining.RemoveAll(descendant => ancestor == descendant || ancestor.HasDescendant(descendant)); // TODO: efficiency?
+				if (nodesRemaining.Count <= 0)
+				{
+					return ancestor;
+				}
+
+				if (numRemoved > 0)
+				{
+					ancestorsNext = new(); // we've found a common ancestor for some but not all of nodes[]; the overall first common ancestor must be an ancestor of this ancestor as well
+				}
+
+				foreach (Node parent in ancestor.DirectParentsInternal)
+				{
+					ancestorsNext.Enqueue(parent);
+				}
+			}
+
+			Debug.Assert(false, "No common ancestor?");
+			return null;
+		}
+
 
 		internal void DepthFirstQueue(Queue<Node> queue)
 		{
@@ -196,7 +225,7 @@ public class LayoutGenerator
 			}
 
 			// return copy of self w/ duplicate children, merging in multiparent descendants appropriately
-			UnityEngine.Debug.Assert(multiparentDescendants == null || multiparentDescendants.Count() <= 1); // TODO: handle multiple multi-parent descendants?
+			Debug.Assert(multiparentDescendants == null || multiparentDescendants.Count() <= 1); // TODO: handle multiple multi-parent descendants?
 			return new Node(m_type, multiparentDescendants != null && multiparentDescendants.Count() > 0 ? Multiparents(childrenDuplicated, multiparentDescendants.First()) : childrenDuplicated);
 		}
 
@@ -334,11 +363,11 @@ public class LayoutGenerator
 
 	private static readonly ReplacementRule[] m_rules =
 	{
-		new(Node.Type.Tutorial, new() { new(Node.Type.Entrance, new() { new(Node.Type.TutorialMove), new(Node.Type.TutorialAim), new(Node.Type.TutorialDrop, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomDown, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.TutorialJump, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomUp, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.TutorialInteract), new(Node.Type.TutorialUse), new(Node.Type.TutorialSwap), new(Node.Type.TutorialThrow), new(Node.Type.Secret, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.TutorialInventory), new(Node.Type.TutorialSwing), new(Node.Type.TutorialCancel), new(Node.Type.TutorialCatch) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }),
-		new(Node.Type.Entryway, new() { new(Node.Type.Entrance, Node.Multiparents(new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical) }) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical) }) }), new(Node.Type.Corridor) }, new(Node.Type.RootCoupling, new() { new(Node.Type.Npc), new(Node.Type.Npc), new(Node.Type.Npc), new(Node.Type.Npc) }))) }),
-		new(Node.Type.Zone1, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor), new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }) }),
-		new(Node.Type.Zone2, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceExtraLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor), new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }) }),
-		new(Node.Type.Zone3, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceExtraLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }) }) }) }),
+		new(Node.Type.Tutorial, new() { new(Node.Type.Entrance, new() { new(Node.Type.TutorialMove), new(Node.Type.TutorialAim), new(Node.Type.TutorialDrop, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomDown, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.TutorialJump, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomUp, new() { new(Node.Type.TutorialInteract), new(Node.Type.TutorialUse), new(Node.Type.TutorialSwap), new(Node.Type.TutorialThrow), new(Node.Type.Secret, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.TutorialInventory), new(Node.Type.TutorialSwing), new(Node.Type.TutorialCancel), new(Node.Type.TutorialCatch) }) }) }) }) }) }) }) }) }) }) }) }) }),
+		new(Node.Type.Entryway, new() { new(Node.Type.Entrance, Node.Multiparents(new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor) }) }) }) }) }) }) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical) }) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.GateLock, new() { new(Node.Type.RoomVertical) }) }), new(Node.Type.Corridor, new() { new(Node.Type.GateLock, new() { new(Node.Type.Room) }) }) }, new(Node.Type.RootCoupling, new() { new(Node.Type.Npc), new(Node.Type.Npc), new(Node.Type.Npc), new(Node.Type.Npc) }))) }),
+		new(Node.Type.Zone1, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor), new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }),
+		new(Node.Type.Zone2, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceExtraLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor), new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }),
+		new(Node.Type.Zone3, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.GateLock, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.SequenceExtraLarge, new() { new Node(Node.Type.GateLock, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }) }),
 
 		new(Node.Type.BasementOrTower, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical) }) }) }) }) }) }),
 		new(Node.Type.BasementOrTower, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical) }) }) }) }) }) }) }) }),
