@@ -163,6 +163,15 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""EnemiesPathfindTest"",
+                    ""type"": ""Button"",
+                    ""id"": ""cb8f03b3-0f38-419c-a8d1-073ac15765fb"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""ControlsVisualization"",
                     ""type"": ""Button"",
                     ""id"": ""14a9a58d-719c-49db-941e-04f20190a7ac"",
@@ -467,6 +476,17 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""action"": ""ReSetWaves"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2d6259cf-7fe3-40c4-9713-825998ef30a0"",
+                    ""path"": ""<Keyboard>/p"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EnemiesPathfindTest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -490,6 +510,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         m_Console_ReSetWaves = m_Console.FindAction("ReSetWaves", throwIfNotFound: true);
         m_Console_HarmHealAvatar = m_Console.FindAction("HarmHealAvatar", throwIfNotFound: true);
         m_Console_SpawnEnemy = m_Console.FindAction("SpawnEnemy", throwIfNotFound: true);
+        m_Console_EnemiesPathfindTest = m_Console.FindAction("EnemiesPathfindTest", throwIfNotFound: true);
         m_Console_ControlsVisualization = m_Console.FindAction("ControlsVisualization", throwIfNotFound: true);
         m_Console_UnlockAll = m_Console.FindAction("UnlockAll", throwIfNotFound: true);
     }
@@ -566,6 +587,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Console_ReSetWaves;
     private readonly InputAction m_Console_HarmHealAvatar;
     private readonly InputAction m_Console_SpawnEnemy;
+    private readonly InputAction m_Console_EnemiesPathfindTest;
     private readonly InputAction m_Console_ControlsVisualization;
     private readonly InputAction m_Console_UnlockAll;
     public struct ConsoleActions
@@ -587,6 +609,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         public InputAction @ReSetWaves => m_Wrapper.m_Console_ReSetWaves;
         public InputAction @HarmHealAvatar => m_Wrapper.m_Console_HarmHealAvatar;
         public InputAction @SpawnEnemy => m_Wrapper.m_Console_SpawnEnemy;
+        public InputAction @EnemiesPathfindTest => m_Wrapper.m_Console_EnemiesPathfindTest;
         public InputAction @ControlsVisualization => m_Wrapper.m_Console_ControlsVisualization;
         public InputAction @UnlockAll => m_Wrapper.m_Console_UnlockAll;
         public InputActionMap Get() { return m_Wrapper.m_Console; }
@@ -643,6 +666,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @SpawnEnemy.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnSpawnEnemy;
                 @SpawnEnemy.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnSpawnEnemy;
                 @SpawnEnemy.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnSpawnEnemy;
+                @EnemiesPathfindTest.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnEnemiesPathfindTest;
+                @EnemiesPathfindTest.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnEnemiesPathfindTest;
+                @EnemiesPathfindTest.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnEnemiesPathfindTest;
                 @ControlsVisualization.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnControlsVisualization;
                 @ControlsVisualization.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnControlsVisualization;
                 @ControlsVisualization.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnControlsVisualization;
@@ -698,6 +724,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @SpawnEnemy.started += instance.OnSpawnEnemy;
                 @SpawnEnemy.performed += instance.OnSpawnEnemy;
                 @SpawnEnemy.canceled += instance.OnSpawnEnemy;
+                @EnemiesPathfindTest.started += instance.OnEnemiesPathfindTest;
+                @EnemiesPathfindTest.performed += instance.OnEnemiesPathfindTest;
+                @EnemiesPathfindTest.canceled += instance.OnEnemiesPathfindTest;
                 @ControlsVisualization.started += instance.OnControlsVisualization;
                 @ControlsVisualization.performed += instance.OnControlsVisualization;
                 @ControlsVisualization.canceled += instance.OnControlsVisualization;
@@ -725,6 +754,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         void OnReSetWaves(InputAction.CallbackContext context);
         void OnHarmHealAvatar(InputAction.CallbackContext context);
         void OnSpawnEnemy(InputAction.CallbackContext context);
+        void OnEnemiesPathfindTest(InputAction.CallbackContext context);
         void OnControlsVisualization(InputAction.CallbackContext context);
         void OnUnlockAll(InputAction.CallbackContext context);
     }

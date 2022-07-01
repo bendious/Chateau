@@ -76,6 +76,15 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 			}
 		});
 		m_controls.Console.SpawnEnemy.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.DebugSpawnEnemy(Mathf.RoundToInt(m_controls.Console.SpawnEnemy.ReadValue<float>()) % 10));
+#if DEBUG
+		m_controls.Console.EnemiesPathfindTest.performed += ctx => ExecuteIfConsoleOpen(() =>
+		{
+			foreach (EnemyController enemy in FindObjectsOfType<EnemyController>())
+			{
+				enemy.DebugPathfindTest();
+			}
+		});
+#endif
 		m_controls.Console.ControlsVisualization.performed += ctx => ExecuteIfConsoleOpen(() =>
 		{
 			if (m_controlsVisualization != null)

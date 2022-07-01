@@ -311,6 +311,19 @@ public class EnemyController : KinematicCharacter
 		// TODO: cut off SFX if appropriate?
 	}
 
+#if DEBUG
+	public void DebugPathfindTest()
+	{
+		m_target = GameController.Instance.m_avatars.First().transform;
+		if (m_aiState != null)
+		{
+			m_aiState.Exit();
+		}
+		m_aiState = new AIPursue(this);
+		m_aiState.Enter();
+	}
+#endif
+
 
 	private Vector2 AimPosition()
 	{

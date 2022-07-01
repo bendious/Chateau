@@ -304,7 +304,8 @@ public class GameController : MonoBehaviour
 
 	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos, Vector2 offsetMag)
 	{
-		return m_startRoom.ChildPositionPath(startPos, targetPos, offsetMag, RoomController.ObstructionCheck.Full);
+		RoomController startRoom = m_startRoom.RoomFromPosition(startPos);
+		return startRoom.PositionPath(startPos, targetPos, offsetMag, RoomController.ObstructionCheck.Full);
 	}
 
 	public void TogglePause()

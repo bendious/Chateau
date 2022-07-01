@@ -141,6 +141,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "EnemiesPathfindTest",
+                    "type": "Button",
+                    "id": "cb8f03b3-0f38-419c-a8d1-073ac15765fb",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "ControlsVisualization",
                     "type": "Button",
                     "id": "14a9a58d-719c-49db-941e-04f20190a7ac",
@@ -443,6 +452,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "ReSetWaves",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2d6259cf-7fe3-40c4-9713-825998ef30a0",
+                    "path": "<Keyboard>/p",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "EnemiesPathfindTest",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

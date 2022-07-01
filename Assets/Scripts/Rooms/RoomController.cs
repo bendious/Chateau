@@ -91,6 +91,8 @@ public class RoomController : MonoBehaviour
 
 		public GameObject m_blocker;
 
+		public bool m_onewayBlocked;
+
 		private enum ConnectionType { None, Parent, Child, SiblingShallower, SiblingDeeper };
 		private ConnectionType m_connectionType;
 	}
@@ -249,7 +251,7 @@ public class RoomController : MonoBehaviour
 						// maybe add one-way lock
 						int siblingDepthComparison = sibling.m_layoutNodes.Max(node => node.Depth).CompareTo(m_layoutNodes.Max(node => node.Depth));
 						bool noLadder = siblingDepthComparison < 0 ? direction.y < 0.0f : direction.y > 0.0f;
-						bool cutbackIsLocked = GameController.Instance.RoomFromPosition(Vector2.zero).ChildRoomPath(direction.y > 0.0f ? transform.position : sibling.transform.position, direction.y > 0.0f ? sibling.transform.position : transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.Full) == null;
+						bool cutbackIsLocked = (direction.y > 0.0f ? this : sibling).RoomPath(direction.y > 0.0f ? sibling.transform.position : transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.Full) == null;
 						RoomController deeperRoom = noLadder ? (direction.y > 0.0f ? this : sibling) : siblingDepthComparison < 0 ? this : sibling;
 						if (cutbackIsLocked || Random.value <= m_cutbackSecretPct)
 						{
@@ -274,10 +276,18 @@ public class RoomController : MonoBehaviour
 						{
 							fillPct += BoundsWithChildren(ladder).extents.x / extentsInterior.x;
 						}
+						else if (direction.y > 0.0f)
+						{
+							doorwayInfo.m_onewayBlocked = true;
+						}
 						ladder = sibling.OpenDoorway(reverseIdx, true, !noLadder && siblingDepthComparison >= 0 && direction.y < 0.0f);
 						if (ladder != null)
 						{
 							fillPct += BoundsWithChildren(ladder).extents.x / extentsInterior.x;
+						}
+						else if (direction.y < 0.0f)
+						{
+							reverseInfo.m_onewayBlocked = true;
 						}
 					}
 				}
@@ -617,54 +627,10 @@ public class RoomController : MonoBehaviour
 		return m_spawnPoints[Random.Range(0, m_spawnPoints.Length)].transform.position;
 	}
 
-	public List<RoomController> ChildRoomPath(Vector2 startPosition, Vector2 endPosition, ObstructionCheck obstructionChecking)
+	public List<Vector2> PositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag, ObstructionCheck obstructionChecking)
 	{
-		// TODO: efficiency? handle multiple possible paths?
-		// find root-->start and root-->end paths
-		List<RoomController> startPath = RoomPathFromRoot(startPosition, new());
-		if (startPath == null)
-		{
-			return null; // TODO: find closest reachable point?
-		}
-		List<RoomController> endPath = RoomPathFromRoot(endPosition, new());
-		if (endPath == null)
-		{
-			return null; // TODO: find closest reachable point?
-		}
-
-		// remove shared trunk
-		RoomController lastSharedRoom = null;
-		while (startPath.Count > 0 && endPath.Count > 0 && startPath.First() == endPath.First())
-		{
-			lastSharedRoom = startPath.First();
-			startPath.RemoveAt(0);
-			endPath.RemoveAt(0);
-		}
-		Assert.IsNotNull(lastSharedRoom); // at least the root room should always be shared
-
-		// combine paths in order
-		startPath.Reverse();
-		startPath.Add(lastSharedRoom);
-		startPath.AddRange(endPath);
-
-		if (obstructionChecking != ObstructionCheck.None)
-		{
-			// check for obstructions
-			for (int i = 0; i < startPath.Count - 1; ++i)
-			{
-				if (startPath[i].RoomConnection(startPath[i + 1], obstructionChecking) == null)
-				{
-					return null;
-				}
-			}
-		}
-
-		return startPath;
-	}
-
-	public List<Vector2> ChildPositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag, ObstructionCheck obstructionChecking)
-	{
-		List<RoomController> roomPath = ChildRoomPath(startPosition, endPositionPreoffset, obstructionChecking);
+		Debug.Assert(m_bounds.Contains(startPosition));
+		List<RoomController> roomPath = RoomPath(endPositionPreoffset, obstructionChecking); // TODO: factor in startPosition
 		if (roomPath == null)
 		{
 			return null;
@@ -1006,8 +972,16 @@ public class RoomController : MonoBehaviour
 
 		childRoom.SetNodes(childNodes);
 
-		OpenDoorway(index, true, !noLadder && replaceDirection.y > 0.0f);
-		childRoom.OpenDoorway(reverseIdx, true, !noLadder && replaceDirection.y < 0.0f);
+		GameObject ladder = OpenDoorway(index, true, !noLadder && replaceDirection.y > 0.0f);
+		if (ladder == null && replaceDirection.y > 0.0f)
+		{
+			doorwayInfo.m_onewayBlocked = true;
+		}
+		GameObject ladderReverse = childRoom.OpenDoorway(reverseIdx, true, !noLadder && replaceDirection.y < 0.0f);
+		if (ladderReverse == null && replaceDirection.y > 0.0f)
+		{
+			reverseDoorwayInfo.m_onewayBlocked = true;
+		}
 	}
 
 	private float SpawnDoor(ref int doorwayDepth, bool isEntrance, float extentsInteriorX)
@@ -1096,6 +1070,10 @@ public class RoomController : MonoBehaviour
 		if (spawnLadders && m_ladderRungPrefabs != null && m_ladderRungPrefabs.Length > 0)
 		{
 			ladder = SpawnLadder(doorway);
+			if (ladder != null)
+			{
+				doorwayInfo.m_onewayBlocked = false; // NOTE that we don't ever set m_onewayBlocked to true here since during waves this function is called to seal the room w/o spawning ladders, but the ladders themselves remain for later
+			}
 		}
 
 		// enable/disable doorway
@@ -1138,37 +1116,80 @@ public class RoomController : MonoBehaviour
 		return ladder;
 	}
 
-	private List<RoomController> RoomPathFromRoot(Vector2 endPosition, List<RoomController> prePath)
+	private struct AStarPath : System.IComparable<AStarPath>
 	{
-		// TODO: A* algorithm?
+		public List<RoomController> m_path;
+		public float m_distanceCur;
+		public float m_distanceTotalEst;
 
-		prePath = new(prePath); // NOTE the copy to prevent storing up entries from other branches of the recursion
-		prePath.Add(this);
+		public int CompareTo(AStarPath other) => m_distanceTotalEst.CompareTo(other.m_distanceTotalEst);
+	}
+	private List<RoomController> RoomPath(Vector2 endPosition, ObstructionCheck obstructionChecking) // TODO: factor in startPosition
+	{
+		List<RoomController> visitedRooms = new();
+		HeapQueue<AStarPath> paths = new();
+		AStarPath pathItr = new() { m_path = new() { this }, m_distanceCur = 0.0f, m_distanceTotalEst = endPosition.ManhattanDistance(transform.position) }; // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
+		RoomController endRoom = GameController.Instance.RoomFromPosition(endPosition); // TODO: don't require starting at the root room to find any arbitrary room?
 
-		Vector3 pos3D = new(endPosition.x, endPosition.y, m_bounds.center.z);
-		if (m_bounds.Contains(pos3D))
+		while (pathItr.m_path.Last() != endRoom)
 		{
-			return prePath;
-		}
-
-		// check non-null children
-		// TODO: prioritize by distance from endPosition? handle sibling connections?
-		foreach (DoorwayInfo info in m_doorwayInfos.Where(info => info.ChildRoom != null))
-		{
-			List<RoomController> childPath = info.ChildRoom.RoomPathFromRoot(endPosition, prePath);
-			if (childPath != null)
+			RoomController roomCur = pathItr.m_path.Last();
+			foreach (DoorwayInfo info in roomCur.m_doorwayInfos)
 			{
-				return childPath;
+				RoomController roomNext = info.ConnectedRoom;
+				if (roomNext == null || visitedRooms.Contains(roomNext) || IsObstructed(info, obstructionChecking))
+				{
+					continue;
+				}
+				visitedRooms.Add(roomNext);
+
+				List<RoomController> newPath = new(pathItr.m_path); // NOTE the copy to prevent editing other branches' paths
+				newPath.Add(roomNext);
+
+				Vector2 posNew = roomNext == endRoom ? endPosition : roomNext.transform.position; // TODO: use doorway positions?
+				float distanceCurNew = pathItr.m_distanceCur + posNew.ManhattanDistance(roomCur.transform.position); // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
+				paths.Push(new AStarPath() { m_path = newPath, m_distanceCur = distanceCurNew, m_distanceTotalEst = distanceCurNew + posNew.ManhattanDistance(endPosition) });
 			}
+
+			if (paths.IsEmpty)
+			{
+				return null; // TODO: find closest reachable point?
+			}
+			pathItr = paths.Pop();
 		}
 
-		return null;
+		return pathItr.m_path;
+	}
+
+	// TODO: move into DoorwayInfo?
+	private bool IsObstructed(DoorwayInfo info, ObstructionCheck checkLevel, bool ignoreOnewayBlockages = false)
+	{
+		if (checkLevel == ObstructionCheck.None)
+		{
+			return false;
+		}
+		if (checkLevel == ObstructionCheck.Directional && m_layoutNodes.Any(fromNode => info.ConnectedRoom.m_layoutNodes.Any(toNode => fromNode.HasDescendant(toNode))))
+		{
+			return false;
+		}
+		if (!ignoreOnewayBlockages && info.m_onewayBlocked)
+		{
+			return true;
+		}
+		if (DoorwayIsOpen(info)) // TODO: also check reverse doorway
+		{
+			return false;
+		}
+		if (info.m_blocker != null && (checkLevel == ObstructionCheck.Full || info.m_blocker.GetComponent<IUnlockable>() != null))
+		{
+			return true;
+		}
+		return false;
 	}
 
 	private Vector2[] RoomConnection(RoomController to, ObstructionCheck obstructionChecking)
 	{
 		// TODO: efficiency?
-		bool checkObstructions = obstructionChecking == ObstructionCheck.Full || (obstructionChecking == ObstructionCheck.Directional && !m_layoutNodes.Any(fromNode => System.Array.Exists(to.m_layoutNodes, toNode => fromNode.HasDescendant(toNode)))); // TODO: also check directional sibling paths?
 		Vector2[] connectionPoints = new Vector2[2];
 		int outputIdx = 0;
 		foreach (DoorwayInfo[] infoArray in new DoorwayInfo[][] { m_doorwayInfos, to.m_doorwayInfos })
@@ -1180,21 +1201,13 @@ public class RoomController : MonoBehaviour
 				{
 					continue;
 				}
-
-				if (checkObstructions)
+				if (IsObstructed(info, obstructionChecking, outputIdx == 1))
 				{
-					if (info.m_blocker != null && (obstructionChecking == ObstructionCheck.Full || info.m_blocker.GetComponent<IUnlockable>() != null))
-					{
-						continue;
-					}
-					if (info.m_object.activeSelf)
-					{
-						PlatformEffector2D oneway = info.m_object.GetComponent<PlatformEffector2D>();
-						if (oneway == null || !oneway.enabled)
-						{
-							continue;
-						}
-					}
+					continue;
+				}
+				if (outputIdx == 1)
+				{
+					// TODO: guarantee corresponding DoorwayInfos when rooms have multiple connections, prioritize between multiple valid connections?
 				}
 
 				foundConnection = true;
@@ -1213,7 +1226,7 @@ public class RoomController : MonoBehaviour
 
 	private bool DoorwayIsOpen(DoorwayInfo doorwayInfo, bool ignoreBlocker = false)
 	{
-		if (!ignoreBlocker && doorwayInfo.m_blocker != null)
+		if (!ignoreBlocker && doorwayInfo.m_blocker != null && doorwayInfo.m_blocker.GetComponents<Collider2D>().Any(collider => !collider.isTrigger && collider.isActiveAndEnabled))
 		{
 			return false;
 		}
