@@ -1771,12 +1771,16 @@ MonoBehaviour:
   m_doorwayInfos:
   - m_object: {fileID: 409852463158594107}
     m_blocker: {fileID: 0}
+    m_onewayBlocked: 0
   - m_object: {fileID: 7910571754348373109}
     m_blocker: {fileID: 0}
+    m_onewayBlocked: 0
   - m_object: {fileID: 5416165761018516747}
     m_blocker: {fileID: 0}
+    m_onewayBlocked: 0
   - m_object: {fileID: 3865645025881897782}
     m_blocker: {fileID: 0}
+    m_onewayBlocked: 0
 --- !u!114 &4560272222065776976
 MonoBehaviour:
   m_ObjectHideFlags: 0

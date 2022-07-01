@@ -251,7 +251,7 @@ public class RoomController : MonoBehaviour
 						// maybe add one-way lock
 						int siblingDepthComparison = sibling.m_layoutNodes.Max(node => node.Depth).CompareTo(m_layoutNodes.Max(node => node.Depth));
 						bool noLadder = siblingDepthComparison < 0 ? direction.y < 0.0f : direction.y > 0.0f;
-						bool cutbackIsLocked = (direction.y > 0.0f ? this : sibling).RoomPath(direction.y > 0.0f ? sibling.transform.position : transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.Full) == null;
+						bool cutbackIsLocked = (direction.y > 0.0f ? this : sibling).RoomPath(direction.y > 0.0f ? transform.position : sibling.transform.position, direction.y > 0.0f ? sibling.transform.position : transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.Full) == null;
 						RoomController deeperRoom = noLadder ? (direction.y > 0.0f ? this : sibling) : siblingDepthComparison < 0 ? this : sibling;
 						if (cutbackIsLocked || Random.value <= m_cutbackSecretPct)
 						{
@@ -497,7 +497,7 @@ public class RoomController : MonoBehaviour
 
 	public RoomController RoomFromPosition(Vector2 position)
 	{
-		// TODO: efficiency?
+		// TODO: efficiency? don't require starting at the root room to guarantee traversal success?
 		Vector3 pos3D = position;
 		pos3D.z = m_bounds.center.z;
 		if (m_bounds.Contains(pos3D))
@@ -629,8 +629,7 @@ public class RoomController : MonoBehaviour
 
 	public List<Vector2> PositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag, ObstructionCheck obstructionChecking)
 	{
-		Debug.Assert(m_bounds.Contains(startPosition));
-		List<RoomController> roomPath = RoomPath(endPositionPreoffset, obstructionChecking); // TODO: factor in startPosition
+		List<RoomController> roomPath = RoomPath(startPosition, endPositionPreoffset, obstructionChecking);
 		if (roomPath == null)
 		{
 			return null;
@@ -763,6 +762,7 @@ public class RoomController : MonoBehaviour
 			posItr.y -= spawnBunched ? rungOnlyHeight : rungHeightTotal;
 		}
 
+		m_doorwayInfos.First(info => info.m_object == doorway || info.m_blocker == doorway).m_onewayBlocked = false;
 		return firstRung;
 	}
 
@@ -978,7 +978,7 @@ public class RoomController : MonoBehaviour
 			doorwayInfo.m_onewayBlocked = true;
 		}
 		GameObject ladderReverse = childRoom.OpenDoorway(reverseIdx, true, !noLadder && replaceDirection.y < 0.0f);
-		if (ladderReverse == null && replaceDirection.y > 0.0f)
+		if (ladderReverse == null && replaceDirection.y < 0.0f)
 		{
 			reverseDoorwayInfo.m_onewayBlocked = true;
 		}
@@ -1066,14 +1066,11 @@ public class RoomController : MonoBehaviour
 		GameObject doorway = doorwayInfo.m_object;
 
 		// spawn ladder rungs
+		// NOTE that we don't set m_onewayBlocked when not spawning a ladder, since that can happen from SealRoom()
 		GameObject ladder = null;
 		if (spawnLadders && m_ladderRungPrefabs != null && m_ladderRungPrefabs.Length > 0)
 		{
 			ladder = SpawnLadder(doorway);
-			if (ladder != null)
-			{
-				doorwayInfo.m_onewayBlocked = false; // NOTE that we don't ever set m_onewayBlocked to true here since during waves this function is called to seal the room w/o spawning ladders, but the ladders themselves remain for later
-			}
 		}
 
 		// enable/disable doorway
@@ -1116,49 +1113,53 @@ public class RoomController : MonoBehaviour
 		return ladder;
 	}
 
-	private struct AStarPath : System.IComparable<AStarPath>
+	private class AStarPath : System.IComparable<AStarPath>
 	{
 		public List<RoomController> m_path;
+		public Vector2 m_endPos;
 		public float m_distanceCur;
 		public float m_distanceTotalEst;
 
 		public int CompareTo(AStarPath other) => m_distanceTotalEst.CompareTo(other.m_distanceTotalEst);
 	}
-	private List<RoomController> RoomPath(Vector2 endPosition, ObstructionCheck obstructionChecking) // TODO: factor in startPosition
+	// TODO: merge w/ PositionPath()?
+	private List<RoomController> RoomPath(Vector2 startPos, Vector2 endPos, ObstructionCheck obstructionChecking)
 	{
+		Debug.Assert(m_bounds.Contains(startPos));
+
 		List<RoomController> visitedRooms = new();
 		HeapQueue<AStarPath> paths = new();
-		AStarPath pathItr = new() { m_path = new() { this }, m_distanceCur = 0.0f, m_distanceTotalEst = endPosition.ManhattanDistance(transform.position) }; // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
-		RoomController endRoom = GameController.Instance.RoomFromPosition(endPosition); // TODO: don't require starting at the root room to find any arbitrary room?
+		paths.Push(new() { m_path = new() { this }, m_endPos = startPos, m_distanceCur = 0.0f, m_distanceTotalEst = endPos.ManhattanDistance(startPos) }); // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
+		RoomController endRoom = GameController.Instance.RoomFromPosition(endPos); // TODO: don't require starting at the root room to find any arbitrary room?
 
-		while (pathItr.m_path.Last() != endRoom)
+		AStarPath pathItr;
+		while (paths.TryPop(out pathItr) && pathItr.m_path.Last() != endRoom)
 		{
 			RoomController roomCur = pathItr.m_path.Last();
+			if (visitedRooms.Contains(roomCur))
+			{
+				continue;
+			}
+			visitedRooms.Add(roomCur);
+
 			foreach (DoorwayInfo info in roomCur.m_doorwayInfos)
 			{
 				RoomController roomNext = info.ConnectedRoom;
-				if (roomNext == null || visitedRooms.Contains(roomNext) || IsObstructed(info, obstructionChecking))
+				if (roomNext == null || IsObstructed(info, obstructionChecking))
 				{
 					continue;
 				}
-				visitedRooms.Add(roomNext);
 
 				List<RoomController> newPath = new(pathItr.m_path); // NOTE the copy to prevent editing other branches' paths
 				newPath.Add(roomNext);
 
-				Vector2 posNew = roomNext == endRoom ? endPosition : roomNext.transform.position; // TODO: use doorway positions?
-				float distanceCurNew = pathItr.m_distanceCur + posNew.ManhattanDistance(roomCur.transform.position); // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
-				paths.Push(new AStarPath() { m_path = newPath, m_distanceCur = distanceCurNew, m_distanceTotalEst = distanceCurNew + posNew.ManhattanDistance(endPosition) });
+				Vector2 posNew = roomNext == endRoom ? endPos : roomCur.RoomConnection(roomNext, ObstructionCheck.None)[1];
+				float distanceCurNew = pathItr.m_distanceCur + pathItr.m_endPos.ManhattanDistance(posNew); // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
+				paths.Push(new AStarPath() { m_path = newPath, m_endPos = posNew, m_distanceCur = distanceCurNew, m_distanceTotalEst = distanceCurNew + posNew.ManhattanDistance(endPos) });
 			}
-
-			if (paths.IsEmpty)
-			{
-				return null; // TODO: find closest reachable point?
-			}
-			pathItr = paths.Pop();
 		}
 
-		return pathItr.m_path;
+		return pathItr?.m_path; // TODO: find closest reachable point if pathItr is null?
 	}
 
 	// TODO: move into DoorwayInfo?

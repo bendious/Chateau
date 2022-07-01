@@ -59,6 +59,17 @@ public class HeapQueue<T> where T : IComparable<T>
 		return item;
 	}
 
+	public bool TryPop(out T next)
+	{
+		if (IsEmpty)
+		{
+			next = default;
+			return false;
+		}
+		next = Pop();
+		return true;
+	}
+
 
 	int Compare(T A, T B) => A.CompareTo(B);
 
