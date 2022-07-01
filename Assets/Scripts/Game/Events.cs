@@ -65,6 +65,16 @@ public class ObjectDespawn : Event<ObjectDespawn>
 }
 
 /// <summary>
+/// This event is fired for deferred camera target removal.
+/// </summary>
+public class CameraTargetRemove : Event<CameraTargetRemove>
+{
+	public Transform m_transform;
+
+	public override void Execute() => GameController.Instance.RemoveCameraTargets(m_transform);
+}
+
+/// <summary>
 /// Fired to respawn a non-final avatar.
 /// </summary>
 public class AvatarRespawn : Event<AvatarRespawn>

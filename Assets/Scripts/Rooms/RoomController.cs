@@ -57,7 +57,7 @@ public class RoomController : MonoBehaviour
 		return boundsInterior;
 	} }
 
-	public Vector2 ParentDoorwayPosition => RoomConnection(m_layoutNodes.FirstOrDefault(node => node.TightCoupleParent != null && node.TightCoupleParent.m_room != null && node.TightCoupleParent.m_room != this).TightCoupleParent.m_room, ObstructionCheck.None)[1];
+	public Vector2 ParentDoorwayPosition => RoomConnection(m_doorwayInfos.Select(info => info.ParentRoom).First(parentRoom => parentRoom != null), ObstructionCheck.None)[1];
 
 	public Transform[] BackdropsRecursive => m_doorwayInfos.Where(info => info.ChildRoom != null).SelectMany(info => info.ChildRoom.BackdropsRecursive).Concat(new Transform[] { m_backdrop.transform }).ToArray();
 
@@ -323,9 +323,15 @@ public class RoomController : MonoBehaviour
 
 		// per-area appearance
 		// TODO: separate RoomType into {Area/Room}Type? tend brighter based on progress?
-		RoomController areaParent = m_layoutNodes.First().AreaParent.m_room; // NOTE that all nodes w/i a single room should have the same area parent
-		m_wallInfo = areaParent != this ? areaParent.m_wallInfo : m_roomType.m_walls != null && m_roomType.m_walls.Length > 0 ? m_roomType.m_walls.RandomWeighted() : m_wallInfo;
-		m_wallColor = areaParent != this ? areaParent.m_wallColor : Utility.ColorRandom(m_wallInfo.m_colorMin, m_wallInfo.m_colorMax, m_wallInfo.m_proportionalColor);
+		IEnumerable<RoomController> areaParents = m_layoutNodes.SelectMany(node => node.AreaParents).Select(node => node.m_room).Distinct();
+		RoomController areaParent = areaParents.FirstOrDefault(room => room.m_wallInfo != null);
+		bool isAreaInit = areaParent == null;
+		if (isAreaInit)
+		{
+			areaParent = areaParents.First();
+		}
+		m_wallInfo = areaParent.m_wallInfo ?? (m_roomType.m_walls != null && m_roomType.m_walls.Length > 0 ? m_roomType.m_walls.RandomWeighted() : default);
+		m_wallColor = isAreaInit ? Utility.ColorRandom(m_wallInfo.m_colorMin, m_wallInfo.m_colorMax, m_wallInfo.m_proportionalColor) : areaParent.m_wallColor;
 		if (m_wallInfo.m_sprite != null)
 		{
 			foreach (GameObject obj in m_walls.Concat(m_doorwayInfos.Select(info => info.m_object)))
@@ -692,6 +698,14 @@ public class RoomController : MonoBehaviour
 			return null;
 		}
 
+		// ensure areas end up grouped under a single room rather than spread out in different directions
+		bool isSameArea = m_layoutNodes.First().AreaParents == layoutNodes.First().AreaParents; // NOTE the assumption that all nodes w/i a single room share an area
+		RoomController areaHeadRoom = isSameArea ? null : m_doorwayInfos.Select(info => info.ChildRoom).FirstOrDefault(childRoom => childRoom != null && childRoom.m_layoutNodes.First().AreaParents == layoutNodes.First().AreaParents);
+		if (areaHeadRoom != null)
+		{
+			return areaHeadRoom.SpawnChildRoom(roomPrefab, layoutNodes, allowedDirections);
+		}
+
 		RoomController childRoom = DoorwaysRandomOrder(i =>
 		{
 			DoorwayInfo doorway = m_doorwayInfos[i];
@@ -926,7 +940,7 @@ public class RoomController : MonoBehaviour
 
 	private LayoutGenerator.Node GateNodeToChild(LayoutGenerator.Node.Type gateType, LayoutGenerator.Node[] childNodes)
 	{
-		IEnumerable<LayoutGenerator.Node> ancestors = m_layoutNodes.Select(node => node.FirstCommonAncestor(childNodes));
+		IEnumerable<LayoutGenerator.Node> ancestors = m_layoutNodes.Select(node => node.FirstCommonAncestor(childNodes)).Distinct();
 		return ancestors.FirstOrDefault(node => node.m_type == gateType && System.Array.Exists(childNodes, childNode => node.HasDescendant(childNode)));
 	}
 

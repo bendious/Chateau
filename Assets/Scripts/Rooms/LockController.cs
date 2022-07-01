@@ -414,6 +414,8 @@ public class LockController : MonoBehaviour, IUnlockable
 				parentLock.Unlock(key);
 			}
 
+			GameController.Instance.AddCameraTargets(transform);
+
 			// destroy/disable ourself
 			if (m_destroyOnUnlock)
 			{
@@ -421,6 +423,8 @@ public class LockController : MonoBehaviour, IUnlockable
 			}
 			else
 			{
+				Simulation.Schedule<CameraTargetRemove>(1.0f).m_transform = transform; // TODO: guarantee camera reaches us?
+
 				Hazard hazard = GetComponent<Hazard>();
 				if (hazard != null)
 				{

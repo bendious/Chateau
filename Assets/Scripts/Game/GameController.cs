@@ -130,10 +130,10 @@ public class GameController : MonoBehaviour
 		int roomCount = 0;
 		bool failed = generator.ForEachNodeDepthFirst(node =>
 		{
-			Debug.Assert(node.m_room == null && node.m_type != LayoutGenerator.Node.Type.TightCoupling && node.m_type != LayoutGenerator.Node.Type.RootCoupling);
+			Debug.Assert(node.m_room == null && node.m_type != LayoutGenerator.Node.Type.TightCoupling && node.m_type != LayoutGenerator.Node.Type.AreaDivider);
 
 			LayoutGenerator.Node parent = node.TightCoupleParent;
-			if (parent != parentPending && nodesPending.Count > 0)
+			if (parent != parentPending && nodesPending.Count > 0 && parentPending != null)
 			{
 				roomCount = AddRoomsForNodes(nodesPending.ToArray(), roomCount);
 				if (roomCount == 0)
