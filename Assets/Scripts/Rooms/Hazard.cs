@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 
@@ -19,7 +20,7 @@ public class Hazard : MonoBehaviour
 	{
 		// NOTE that this, even if empty, ensures the enable/disable checkbox is shown in the Inspector, which we want since we manually check our enabled state in ApplyDamage()
 
-		m_hasTrigger = System.Array.Exists(GetComponents<Collider2D>(), collider => collider.isTrigger);
+		m_hasTrigger = GetComponents<Collider2D>().Any(collider => collider.isTrigger);
 	}
 
 	private void OnTriggerEnter2D(Collider2D collider)

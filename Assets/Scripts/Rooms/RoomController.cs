@@ -437,7 +437,7 @@ public class RoomController : MonoBehaviour
 		int furnitureRemaining = furnitureList.Count - 1;
 		foreach (FurnitureController furniture in furnitureList)
 		{
-			itemCount += furniture.SpawnItems(System.Array.Exists(m_layoutNodes, node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType, itemCount, furnitureRemaining);
+			itemCount += furniture.SpawnItems(m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType, itemCount, furnitureRemaining);
 			--furnitureRemaining;
 		}
 
@@ -706,7 +706,7 @@ public class RoomController : MonoBehaviour
 
 	public GameObject SpawnLadder(GameObject doorway, GameObject prefabForced = null, bool spawnBunched = false)
 	{
-		Assert.IsTrue(System.Array.Exists(m_doorwayInfos, info => info.m_object == doorway || info.m_blocker == doorway));
+		Assert.IsTrue(m_doorwayInfos.Any(info => info.m_object == doorway || info.m_blocker == doorway));
 
 		// determine rung count/height
 		GameObject ladderRungPrefab = prefabForced != null ? prefabForced : m_ladderRungPrefabs.RandomWeighted();
@@ -811,7 +811,7 @@ public class RoomController : MonoBehaviour
 	// called via SendMessage(RoomType.m_preconditionName)
 	public void PreferDeadEnds(SendMessageValue<float> result)
 	{
-		result.m_out = System.Array.Exists(m_doorwayInfos, info => info.ChildRoom != null || info.SiblingShallowerRoom != null || info.SiblingDeeperRoom != null) ? 1.0f / GameController.Instance.m_roomTypes.Length : GameController.Instance.m_roomTypes.Length; // TODO: variable preference factor?
+		result.m_out = m_doorwayInfos.Any(info => info.ChildRoom != null || info.SiblingShallowerRoom != null || info.SiblingDeeperRoom != null) ? 1.0f / GameController.Instance.m_roomTypes.Length : GameController.Instance.m_roomTypes.Length; // TODO: variable preference factor?
 	}
 
 
@@ -856,7 +856,7 @@ public class RoomController : MonoBehaviour
 
 	private void OnObjectDespawn(ObjectDespawn evt)
 	{
-		if (System.Array.Exists(m_doorwayInfos, info => info.m_blocker == evt.m_object && DoorwayIsOpen(info, true)))
+		if (m_doorwayInfos.Any(info => info.m_blocker == evt.m_object && DoorwayIsOpen(info, true)))
 		{
 			LinkShadowsRecursive();
 		}
@@ -907,7 +907,7 @@ public class RoomController : MonoBehaviour
 	private LayoutGenerator.Node GateNodeToChild(LayoutGenerator.Node.Type gateType, LayoutGenerator.Node[] childNodes)
 	{
 		IEnumerable<LayoutGenerator.Node> ancestors = m_layoutNodes.Select(node => node.FirstCommonAncestor(childNodes)).Distinct();
-		return ancestors.FirstOrDefault(node => node.m_type == gateType && System.Array.Exists(childNodes, childNode => node.HasDescendant(childNode)));
+		return ancestors.FirstOrDefault(node => node.m_type == gateType && childNodes.Any(childNode => node.HasDescendant(childNode)));
 	}
 
 	// TODO: inline?
@@ -1037,7 +1037,7 @@ public class RoomController : MonoBehaviour
 			shadowCaster.NonpublicSetterWorkaround("m_ShapePathHash", shapePath.GetHashCode());
 		}
 
-		return directionalBlockerPrefabs != null && System.Array.Exists(directionalBlockerPrefabs, pair => blockerPrefab == pair.m_object); // TODO: don't assume directional gates will never want default ladders?
+		return directionalBlockerPrefabs != null && directionalBlockerPrefabs.Any(pair => blockerPrefab == pair.m_object); // TODO: don't assume directional gates will never want default ladders?
 	}
 
 	private void SpawnKeys(DoorwayInfo doorwayInfo, System.Action<IUnlockable, RoomController, RoomController[]> spawnAction)

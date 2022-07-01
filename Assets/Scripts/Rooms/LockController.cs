@@ -169,7 +169,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		// match key color(s)
 		// TODO: base on ColorRandomizer?
 		SpriteRenderer[] childKeyRenderers = (orderObj != null ? orderObj : gameObject).GetComponentsInChildren<IKey>().Select(key => key.Component.GetComponent<SpriteRenderer>()).Where(r => r != null).ToArray();
-		IEnumerable<SpriteRenderer> spawnedKeyRenderers = m_keys.Select(key => key.Component.GetComponent<SpriteRenderer>()).Where(r => r != null && !System.Array.Exists(childKeyRenderers, nonspawned => nonspawned.gameObject == r.gameObject)).ToArray();
+		IEnumerable<SpriteRenderer> spawnedKeyRenderers = m_keys.Select(key => key.Component.GetComponent<SpriteRenderer>()).Where(r => r != null && !childKeyRenderers.Any(nonspawned => nonspawned.gameObject == r.gameObject)).ToArray();
 		if (childKeyRenderers.Length == 0)
 		{
 			// single-color self and keys
@@ -266,7 +266,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		{
 			// unordered
 			matchingKeyIdx = m_keys.FindIndex(key => CheckKey(key));
-			retVal = matchingKeyIdx >= 0 || (m_keyInfo.m_genericKeys && System.Array.Exists(m_keyInfo.m_prefabs, keyPrefab => CheckKey(keyPrefab.m_object.GetComponent<IKey>())));
+			retVal = matchingKeyIdx >= 0 || (m_keyInfo.m_genericKeys && m_keyInfo.m_prefabs.Any(keyPrefab => CheckKey(keyPrefab.m_object.GetComponent<IKey>())));
 		}
 
 		// swap out generic keys if necessary
@@ -306,7 +306,7 @@ public class LockController : MonoBehaviour, IUnlockable
 			key.Lock = this;
 		}
 
-		m_hasTrigger = System.Array.Exists(GetComponents<Collider2D>(), collider => collider.isTrigger);
+		m_hasTrigger = GetComponents<Collider2D>().Any(collider => collider.isTrigger);
 	}
 
 	private void OnTriggerEnter2D(Collider2D collider)
