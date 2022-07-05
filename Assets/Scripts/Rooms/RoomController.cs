@@ -57,7 +57,7 @@ public class RoomController : MonoBehaviour
 		return boundsInterior;
 	} }
 
-	public Vector2 ParentDoorwayPosition => RoomConnection(m_doorwayInfos.Select(info => info.ParentRoom).First(parentRoom => parentRoom != null), ObstructionCheck.None)[1];
+	public Vector2 ParentDoorwayPosition => Connection(m_doorwayInfos.Select(info => info.ParentRoom).First(parentRoom => parentRoom != null), ObstructionCheck.None, Vector2.zero)[1];
 
 	public Transform[] BackdropsRecursive => m_doorwayInfos.Where(info => info.ChildRoom != null).SelectMany(info => info.ChildRoom.BackdropsRecursive).Concat(new Transform[] { m_backdrop.transform }).ToArray();
 
@@ -67,31 +67,35 @@ public class RoomController : MonoBehaviour
 	{
 		public /*readonly*/ GameObject m_object;
 
-		public RoomController ParentRoom
+
+		internal RoomController ParentRoom
 		{
 			get => m_connectionType != ConnectionType.Parent ? null : ConnectedRoom;
 			set { Debug.Assert(ConnectedRoom == null || value == null); m_connectionType = ConnectionType.Parent; ConnectedRoom = value; }
 		}
-		public RoomController ChildRoom
+		internal RoomController ChildRoom
 		{
 			get => m_connectionType != ConnectionType.Child ? null : ConnectedRoom;
 			set { Debug.Assert(ConnectedRoom == null || value == null); m_connectionType = ConnectionType.Child; ConnectedRoom = value; }
 		}
-		public RoomController SiblingShallowerRoom
+		internal RoomController SiblingShallowerRoom
 		{
 			get => m_connectionType != ConnectionType.SiblingShallower ? null : ConnectedRoom;
 			set { Debug.Assert(ConnectedRoom == null || value == null); m_connectionType = ConnectionType.SiblingShallower; ConnectedRoom = value; }
 		}
-		public RoomController SiblingDeeperRoom
+		internal RoomController SiblingDeeperRoom
 		{
 			get => m_connectionType != ConnectionType.SiblingDeeper ? null : ConnectedRoom;
 			set { Debug.Assert(ConnectedRoom == null || value == null); m_connectionType = ConnectionType.SiblingDeeper; ConnectedRoom = value; }
 		}
-		public RoomController ConnectedRoom { get; private set; }
+		internal RoomController ConnectedRoom { get; private set; }
 
-		public GameObject m_blocker;
+		internal GameObject m_blocker;
 
-		public bool m_onewayBlocked;
+		internal bool m_onewayBlocked;
+
+		internal /*readonly*/ DoorwayInfo m_infoReverse;
+
 
 		private enum ConnectionType { None, Parent, Child, SiblingShallower, SiblingDeeper };
 		private ConnectionType m_connectionType;
@@ -259,8 +263,7 @@ public class RoomController : MonoBehaviour
 							noLadder = deeperRoom.SpawnGate(deeperRoom != this ? reverseInfo : doorwayInfo, cutbackIsLocked, Vector2.zero, 1, deeperRoom != this ? doorwayInfo : reverseInfo); // NOTE the exclusion of directional gates since some of them aren't physical blockages
 						}
 
-						// open doorways & maybe spawn ladder
-						// NOTE that this has to be AFTER checking ChildRoomPath() above
+						// connect doorways
 						if (deeperRoom == this)
 						{
 							doorwayInfo.SiblingShallowerRoom = sibling;
@@ -271,7 +274,12 @@ public class RoomController : MonoBehaviour
 							doorwayInfo.SiblingDeeperRoom = sibling;
 							reverseInfo.SiblingShallowerRoom = this;
 						}
-						GameObject ladder = OpenDoorway(doorwayIdx, true, !noLadder && siblingDepthComparison <= 0 && direction.y > 0.0f);
+						doorwayInfo.m_infoReverse = reverseInfo;
+						reverseInfo.m_infoReverse = doorwayInfo;
+
+						// open doorways & maybe spawn ladder
+						// NOTE that this has to be AFTER checking ChildRoomPath() above
+						GameObject ladder = OpenDoorway(doorwayInfo, true, !noLadder && siblingDepthComparison <= 0 && direction.y > 0.0f);
 						if (ladder != null)
 						{
 							fillPct += BoundsWithChildren(ladder).extents.x / extentsInterior.x;
@@ -280,7 +288,7 @@ public class RoomController : MonoBehaviour
 						{
 							doorwayInfo.m_onewayBlocked = true;
 						}
-						ladder = sibling.OpenDoorway(reverseIdx, true, !noLadder && siblingDepthComparison >= 0 && direction.y < 0.0f);
+						ladder = sibling.OpenDoorway(reverseInfo, true, !noLadder && siblingDepthComparison >= 0 && direction.y < 0.0f);
 						if (ladder != null)
 						{
 							fillPct += BoundsWithChildren(ladder).extents.x / extentsInterior.x;
@@ -639,7 +647,7 @@ public class RoomController : MonoBehaviour
 		List<Vector2> waypointPath = new();
 		for (int i = 0, n = roomPath.Count - 1; i < n; ++i)
 		{
-			Vector2[] connectionPoints = roomPath[i].RoomConnection(roomPath[i + 1], obstructionChecking);
+			Vector2[] connectionPoints = roomPath[i].Connection(roomPath[i + 1], obstructionChecking, waypointPath.Count <= 0 ? startPosition : waypointPath.Last());
 			Assert.IsTrue(connectionPoints.Length > 0 && !connectionPoints.Contains(Vector2.zero));
 			waypointPath.AddRange(connectionPoints);
 		}
@@ -777,7 +785,7 @@ public class RoomController : MonoBehaviour
 			}
 
 			bool wasOpen = DoorwayIsOpen(doorwayInfo);
-			OpenDoorway(i, !seal, false);
+			OpenDoorway(doorwayInfo, !seal, false);
 
 			if (seal && wasOpen)
 			{
@@ -819,6 +827,8 @@ public class RoomController : MonoBehaviour
 
 	private Vector2 DoorwayDirection(DoorwayInfo doorwayInfo)
 	{
+		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo));
+
 		GameObject doorway = doorwayInfo.m_object;
 		Vector2 pivotToDoorway = (Vector2)doorway.transform.position - (Vector2)transform.position;
 		Vector3 doorwaySize = DoorwaySize(doorway);
@@ -955,7 +965,9 @@ public class RoomController : MonoBehaviour
 		RoomController childRoom = Instantiate(roomPrefab, childPivotPos, Quaternion.identity).GetComponent<RoomController>();
 		doorwayInfo.ChildRoom = childRoom;
 		DoorwayInfo reverseDoorwayInfo = childRoom.m_doorwayInfos[reverseIdx];
+		doorwayInfo.m_infoReverse = reverseDoorwayInfo;
 		reverseDoorwayInfo.ParentRoom = this;
+		reverseDoorwayInfo.m_infoReverse = doorwayInfo;
 
 		LayoutGenerator.Node blockerNode = GateNodeToChild(LayoutGenerator.Node.Type.Lock, childNodes);
 		bool isLock = blockerNode != null;
@@ -972,12 +984,12 @@ public class RoomController : MonoBehaviour
 
 		childRoom.SetNodes(childNodes);
 
-		GameObject ladder = OpenDoorway(index, true, !noLadder && replaceDirection.y > 0.0f);
+		GameObject ladder = OpenDoorway(doorwayInfo, true, !noLadder && replaceDirection.y > 0.0f);
 		if (ladder == null && replaceDirection.y > 0.0f)
 		{
 			doorwayInfo.m_onewayBlocked = true;
 		}
-		GameObject ladderReverse = childRoom.OpenDoorway(reverseIdx, true, !noLadder && replaceDirection.y < 0.0f);
+		GameObject ladderReverse = childRoom.OpenDoorway(reverseDoorwayInfo, true, !noLadder && replaceDirection.y < 0.0f);
 		if (ladderReverse == null && replaceDirection.y < 0.0f)
 		{
 			reverseDoorwayInfo.m_onewayBlocked = true;
@@ -999,6 +1011,8 @@ public class RoomController : MonoBehaviour
 
 	private bool SpawnGate(DoorwayInfo doorwayInfo, bool isLock, Vector2 replaceDirection, int preferredKeyCount, DoorwayInfo reverseInfo)
 	{
+		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo));
+
 		// create gate
 		Assert.IsNull(doorwayInfo.m_blocker);
 		WeightedObject<GameObject>[] directionalBlockerPrefabs = isLock ? m_doorDirectionalPrefabs.FirstOrDefault(pair => pair.m_direction == replaceDirection).m_prefabs : null; // TODO: don't assume that secrets will never be directional?
@@ -1042,6 +1056,8 @@ public class RoomController : MonoBehaviour
 
 	private void SpawnKeys(DoorwayInfo doorwayInfo, System.Action<IUnlockable, RoomController, RoomController[]> spawnAction)
 	{
+		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo));
+
 		if (doorwayInfo.ChildRoom == null && doorwayInfo.SiblingShallowerRoom == null)
 		{
 			return;
@@ -1060,9 +1076,10 @@ public class RoomController : MonoBehaviour
 		spawnAction(unlockable, this, keyRooms == null || keyRooms.Length <= 0 ? null : excludeSelf ? keyRooms.Where(room => room != this).ToArray() : keyRooms);
 	}
 
-	private GameObject OpenDoorway(int index, bool open, bool spawnLadders)
+	private GameObject OpenDoorway(DoorwayInfo doorwayInfo, bool open, bool spawnLadders)
 	{
-		DoorwayInfo doorwayInfo = m_doorwayInfos[index];
+		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo));
+
 		GameObject doorway = doorwayInfo.m_object;
 
 		// spawn ladder rungs
@@ -1145,7 +1162,7 @@ public class RoomController : MonoBehaviour
 			foreach (DoorwayInfo info in roomCur.m_doorwayInfos)
 			{
 				RoomController roomNext = info.ConnectedRoom;
-				if (roomNext == null || IsObstructed(info, obstructionChecking))
+				if (roomNext == null || roomCur.IsObstructed(info, obstructionChecking))
 				{
 					continue;
 				}
@@ -1153,7 +1170,7 @@ public class RoomController : MonoBehaviour
 				List<RoomController> newPath = new(pathItr.m_path); // NOTE the copy to prevent editing other branches' paths
 				newPath.Add(roomNext);
 
-				Vector2 posNew = roomNext == endRoom ? endPos : roomCur.RoomConnection(roomNext, ObstructionCheck.None)[1];
+				Vector2 posNew = roomNext == endRoom ? endPos : roomCur.Connection(roomNext, ObstructionCheck.None, pathItr.m_endPos)[1];
 				float distanceCurNew = pathItr.m_distanceCur + pathItr.m_endPos.ManhattanDistance(posNew); // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
 				paths.Push(new AStarPath() { m_path = newPath, m_endPos = posNew, m_distanceCur = distanceCurNew, m_distanceTotalEst = distanceCurNew + posNew.ManhattanDistance(endPos) });
 			}
@@ -1165,6 +1182,8 @@ public class RoomController : MonoBehaviour
 	// TODO: move into DoorwayInfo?
 	private bool IsObstructed(DoorwayInfo info, ObstructionCheck checkLevel, bool ignoreOnewayBlockages = false)
 	{
+		Debug.Assert(m_doorwayInfos.Contains(info));
+
 		if (checkLevel == ObstructionCheck.None)
 		{
 			return false;
@@ -1173,11 +1192,11 @@ public class RoomController : MonoBehaviour
 		{
 			return false;
 		}
-		if (!ignoreOnewayBlockages && info.m_onewayBlocked)
+		if (!ignoreOnewayBlockages && info.m_onewayBlocked) // TODO: check reverse one-way sometimes?
 		{
 			return true;
 		}
-		if (DoorwayIsOpen(info)) // TODO: also check reverse doorway
+		if (DoorwayIsOpen(info) && info.ConnectedRoom.DoorwayIsOpen(info.m_infoReverse))
 		{
 			return false;
 		}
@@ -1188,45 +1207,32 @@ public class RoomController : MonoBehaviour
 		return false;
 	}
 
-	private Vector2[] RoomConnection(RoomController to, ObstructionCheck obstructionChecking)
+	private Vector2[] Connection(RoomController to, ObstructionCheck obstructionChecking, Vector2 priorityPos)
 	{
-		// TODO: efficiency?
-		Vector2[] connectionPoints = new Vector2[2];
-		int outputIdx = 0;
-		foreach (DoorwayInfo[] infoArray in new DoorwayInfo[][] { m_doorwayInfos, to.m_doorwayInfos })
+		bool foundConnection = false;
+		foreach (DoorwayInfo info in m_doorwayInfos.OrderBy(info => Vector2.Distance(priorityPos, info.m_object.transform.position)))
 		{
-			bool foundConnection = false;
-			foreach (DoorwayInfo info in infoArray)
+			if (info.ConnectedRoom != to || info.m_infoReverse.ConnectedRoom != this)
 			{
-				if (info.ConnectedRoom != to && info.ConnectedRoom != this)
-				{
-					continue;
-				}
-				if (IsObstructed(info, obstructionChecking, outputIdx == 1))
-				{
-					continue;
-				}
-				if (outputIdx == 1)
-				{
-					// TODO: guarantee corresponding DoorwayInfos when rooms have multiple connections, prioritize between multiple valid connections?
-				}
+				continue;
+			}
+			foundConnection = true;
+			if (IsObstructed(info, obstructionChecking) || info.ConnectedRoom.IsObstructed(info.m_infoReverse, obstructionChecking, true))
+			{
+				continue;
+			}
 
-				foundConnection = true;
-				connectionPoints[outputIdx] = info.m_object.transform.position;
-				break;
-			}
-			if (!foundConnection)
-			{
-				return null;
-			}
-			++outputIdx;
+			return new Vector2[] { info.m_object.transform.position, info.m_infoReverse.m_object.transform.position };
 		}
 
-		return connectionPoints;
+		Debug.Assert(foundConnection);
+		return null;
 	}
 
 	private bool DoorwayIsOpen(DoorwayInfo doorwayInfo, bool ignoreBlocker = false)
 	{
+		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo));
+
 		if (!ignoreBlocker && doorwayInfo.m_blocker != null && doorwayInfo.m_blocker.GetComponents<Collider2D>().Any(collider => !collider.isTrigger && collider.isActiveAndEnabled))
 		{
 			return false;
