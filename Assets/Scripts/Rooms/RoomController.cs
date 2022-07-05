@@ -292,7 +292,7 @@ public class RoomController : MonoBehaviour
 					Vector2 direction = doorwayInfo.DirectionOutward();
 					GameObject doorway = doorwayInfo.m_object;
 					Vector2 doorwayPos = doorway.transform.position;
-					RoomController sibling = GameController.Instance.RoomFromPosition(doorwayPos + direction);
+					RoomController sibling = FromPosition(doorwayPos + direction);
 					if (sibling != null)
 					{
 						// fetch sibling doorway info
@@ -562,29 +562,21 @@ public class RoomController : MonoBehaviour
 		}
 	}
 
-	public RoomController RoomFromPosition(Vector2 position)
+	public RoomController FromPosition(Vector2 position)
 	{
-		// TODO: efficiency? don't require starting at the root room to guarantee traversal success?
-		Vector3 pos3D = position;
-		pos3D.z = m_bounds.center.z;
-		if (m_bounds.Contains(pos3D))
+		RoomController parentRoom = m_doorwayInfos.Select(info => info.ParentRoom).FirstOrDefault(parent => parent != null);
+		if (parentRoom != null)
 		{
-			return this;
+			// traverse to root room
+			return parentRoom.FromPosition(position);
 		}
-		foreach (DoorwayInfo info in m_doorwayInfos)
+		else
 		{
-			if (info.ChildRoom == null)
-			{
-				// TODO: allow searching parents, too?
-				continue;
-			}
-			RoomController childRoom = info.ChildRoom.RoomFromPosition(position);
-			if (childRoom != null)
-			{
-				return childRoom;
-			}
+			// find matching room from descendants
+			Vector3 pos3D = position;
+			pos3D.z = m_bounds.center.z; // TODO: don't assume that all rooms share depth?
+			return FromPositionInternal(pos3D);
 		}
-		return null;
 	}
 
 	public Vector3 InteriorPosition(float heightMax, GameObject preventOverlapPrefab = null, System.Action resizeAction = null, System.Action failureAction = null)
@@ -1186,7 +1178,7 @@ public class RoomController : MonoBehaviour
 		List<RoomController> visitedRooms = new();
 		HeapQueue<AStarPath> paths = new();
 		paths.Push(new() { m_pathRooms = new() { this }, m_pathPositions = new() { startPos }, m_distanceCur = 0.0f, m_distanceTotalEst = startPos.ManhattanDistance(endPos) }); // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
-		RoomController endRoom = GameController.Instance.RoomFromPosition(endPos); // TODO: don't require starting at the root room to find any arbitrary room?
+		RoomController endRoom = FromPosition(endPos);
 
 		AStarPath pathItr;
 		while (paths.TryPop(out pathItr) && pathItr.m_pathRooms.Last() != endRoom)
@@ -1251,6 +1243,30 @@ public class RoomController : MonoBehaviour
 		}
 
 		Debug.Assert(foundConnection);
+		return null;
+	}
+
+	private RoomController FromPositionInternal(Vector3 pos3D)
+	{
+		// TODO: efficiency?
+
+		if (m_bounds.Contains(pos3D))
+		{
+			return this;
+		}
+
+		foreach (DoorwayInfo info in m_doorwayInfos)
+		{
+			if (info.ChildRoom == null)
+			{
+				continue;
+			}
+			RoomController childRoom = info.ChildRoom.FromPositionInternal(pos3D);
+			if (childRoom != null)
+			{
+				return childRoom;
+			}
+		}
 		return null;
 	}
 }

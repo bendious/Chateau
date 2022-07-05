@@ -299,12 +299,12 @@ public class GameController : MonoBehaviour
 
 	public RoomController RoomFromPosition(Vector2 position)
 	{
-		return m_startRoom.RoomFromPosition(position);
+		return m_startRoom.FromPosition(position);
 	}
 
 	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos, Vector2 offsetMag)
 	{
-		RoomController startRoom = m_startRoom.RoomFromPosition(startPos);
+		RoomController startRoom = RoomFromPosition(startPos);
 		return startRoom.PositionPath(startPos, targetPos, offsetMag, RoomController.ObstructionCheck.Full);
 	}
 
@@ -338,11 +338,11 @@ public class GameController : MonoBehaviour
 	public void RemoveUnreachableEnemies()
 	{
 		// TODO: don't assume we're locked into individual rooms?
-		RoomController[] reachableRooms = m_avatars.Where(avatar => avatar.IsAlive).Select(avatar => m_startRoom.RoomFromPosition(avatar.transform.position)).ToArray();
+		RoomController[] reachableRooms = m_avatars.Where(avatar => avatar.IsAlive).Select(avatar => RoomFromPosition(avatar.transform.position)).ToArray();
 
 		foreach (EnemyController enemy in m_enemies)
 		{
-			if (reachableRooms.Contains(m_startRoom.RoomFromPosition(enemy.transform.position)))
+			if (reachableRooms.Contains(RoomFromPosition(enemy.transform.position)))
 			{
 				continue;
 			}
@@ -679,7 +679,7 @@ public class GameController : MonoBehaviour
 	{
 		m_waveSpawningInProgress = true;
 
-		RoomController[] rooms = m_avatars.Select(avatar => m_startRoom.RoomFromPosition(avatar.transform.position)).ToArray();
+		RoomController[] rooms = m_avatars.Select(avatar => RoomFromPosition(avatar.transform.position)).ToArray();
 		foreach (RoomController room in rooms) // TODO: seal all rooms?
 		{
 			room.SealRoom(true);
@@ -719,7 +719,7 @@ public class GameController : MonoBehaviour
 
 	private void SpawnEnemy(GameObject enemyPrefab)
 	{
-		Vector3 spawnPos = m_startRoom.RoomFromPosition(m_avatars[Random.Range(0, m_avatars.Count())].transform.position).SpawnPointRandom();
+		Vector3 spawnPos = RoomFromPosition(m_avatars[Random.Range(0, m_avatars.Count())].transform.position).SpawnPointRandom();
 		m_enemies.Add(Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>());
 	}
 
@@ -736,7 +736,7 @@ public class GameController : MonoBehaviour
 		if (m_enemies.Count == 0 && !m_waveSpawningInProgress && !m_bossRoomSealed)
 		{
 			// TODO: slight time delay?
-			foreach (RoomController room in m_avatars.Select(avatar => m_startRoom.RoomFromPosition(avatar.transform.position)))
+			foreach (RoomController room in m_avatars.Select(avatar => RoomFromPosition(avatar.transform.position)))
 			{
 				room.SealRoom(false);
 			}
