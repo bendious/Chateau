@@ -696,27 +696,20 @@ public class RoomController : MonoBehaviour
 
 	public List<Vector2> PositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag, ObstructionCheck obstructionChecking)
 	{
-		List<RoomController> roomPath = RoomPath(startPosition, endPositionPreoffset, obstructionChecking);
+		AStarPath roomPath = RoomPath(startPosition, endPositionPreoffset, obstructionChecking);
 		if (roomPath == null)
 		{
 			return null;
 		}
+		List<Vector2> waypointPath = roomPath.m_pathPositions;
 
-		// convert rooms to waypoints
-		List<Vector2> waypointPath = new();
-		for (int i = 0, n = roomPath.Count - 1; i < n; ++i)
-		{
-			Vector2[] connectionPoints = roomPath[i].Connection(roomPath[i + 1], obstructionChecking, waypointPath.Count <= 0 ? startPosition : waypointPath.Last());
-			Assert.IsTrue(connectionPoints.Length > 0 && !connectionPoints.Contains(Vector2.zero));
-			waypointPath.AddRange(connectionPoints);
-		}
-
-		// add valid end point
+		// offset end point
+		// TODO: allow offset to cross room edges?
 		float semifinalX = waypointPath.Count > 0 ? waypointPath.Last().x : startPosition.x;
 		Vector2 endPos = endPositionPreoffset + (semifinalX >= endPositionPreoffset.x ? offsetMag : new Vector2(-offsetMag.x, offsetMag.y));
-		Bounds endRoomBounds = roomPath.Last().m_bounds;
+		Bounds endRoomBounds = roomPath.m_pathRooms.Last().m_bounds;
 		endRoomBounds.Expand(new Vector3(-1.0f, -1.0f, 0.0f)); // TODO: dynamically determine wall thickness?
-		waypointPath.Add(endRoomBounds.Contains(new(endPos.x, endPos.y, endRoomBounds.center.z)) ? endPos : endRoomBounds.ClosestPoint(endPos)); // TODO: flip offset if closest interior point is significantly different from endPos?
+		waypointPath[^1] = endRoomBounds.Contains(new(endPos.x, endPos.y, endRoomBounds.center.z)) ? endPos : endRoomBounds.ClosestPoint(endPos); // TODO: flip offset if closest interior point is significantly different from endPos?
 
 		return waypointPath;
 	}
@@ -1178,27 +1171,27 @@ public class RoomController : MonoBehaviour
 
 	private class AStarPath : System.IComparable<AStarPath>
 	{
-		public List<RoomController> m_path;
-		public Vector2 m_endPos;
+		public List<RoomController> m_pathRooms;
+		public List<Vector2> m_pathPositions;
 		public float m_distanceCur;
 		public float m_distanceTotalEst;
 
 		public int CompareTo(AStarPath other) => m_distanceTotalEst.CompareTo(other.m_distanceTotalEst);
 	}
-	// TODO: merge w/ PositionPath()?
-	private List<RoomController> RoomPath(Vector2 startPos, Vector2 endPos, ObstructionCheck obstructionChecking)
+
+	private AStarPath RoomPath(Vector2 startPos, Vector2 endPos, ObstructionCheck obstructionChecking)
 	{
 		Debug.Assert(m_bounds.Contains(startPos));
 
 		List<RoomController> visitedRooms = new();
 		HeapQueue<AStarPath> paths = new();
-		paths.Push(new() { m_path = new() { this }, m_endPos = startPos, m_distanceCur = 0.0f, m_distanceTotalEst = endPos.ManhattanDistance(startPos) }); // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
+		paths.Push(new() { m_pathRooms = new() { this }, m_pathPositions = new() { startPos }, m_distanceCur = 0.0f, m_distanceTotalEst = startPos.ManhattanDistance(endPos) }); // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
 		RoomController endRoom = GameController.Instance.RoomFromPosition(endPos); // TODO: don't require starting at the root room to find any arbitrary room?
 
 		AStarPath pathItr;
-		while (paths.TryPop(out pathItr) && pathItr.m_path.Last() != endRoom)
+		while (paths.TryPop(out pathItr) && pathItr.m_pathRooms.Last() != endRoom)
 		{
-			RoomController roomCur = pathItr.m_path.Last();
+			RoomController roomCur = pathItr.m_pathRooms.Last();
 			if (visitedRooms.Contains(roomCur))
 			{
 				continue;
@@ -1213,16 +1206,30 @@ public class RoomController : MonoBehaviour
 					continue;
 				}
 
-				List<RoomController> newPath = new(pathItr.m_path); // NOTE the copy to prevent editing other branches' paths
-				newPath.Add(roomNext);
+				// NOTE that we don't immediately break if roomNext is endRoom, since there can be multiple valid paths and we're only guaranteed to have the shortest length when popping from paths[]
 
-				Vector2 posNew = roomNext == endRoom ? endPos : roomCur.Connection(roomNext, ObstructionCheck.None, pathItr.m_endPos)[1];
-				float distanceCurNew = pathItr.m_distanceCur + pathItr.m_endPos.ManhattanDistance(posNew); // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
-				paths.Push(new AStarPath() { m_path = newPath, m_endPos = posNew, m_distanceCur = distanceCurNew, m_distanceTotalEst = distanceCurNew + posNew.ManhattanDistance(endPos) });
+				Vector2 posPrev = pathItr.m_pathPositions.Last();
+				Vector2[] connectionPoints = roomCur.Connection(roomNext, obstructionChecking, posPrev);
+				Vector2 posNew = roomNext == endRoom ? endPos : connectionPoints.Last();
+				float distanceCurNew = pathItr.m_distanceCur + posPrev.ManhattanDistance(posNew); // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
+
+				// NOTE the copy to prevent editing other branches' paths
+				// TODO: efficiency?
+				List<RoomController> roomPathNew = new(pathItr.m_pathRooms);
+				roomPathNew.Add(roomNext);
+				List<Vector2> posPathNew = new(pathItr.m_pathPositions);
+				posPathNew.AddRange(connectionPoints);
+				if (roomNext == endRoom)
+				{
+					posPathNew.Add(posNew);
+				}
+
+				// TODO: weight distances based on jumps/traversal required?
+				paths.Push(new AStarPath() { m_pathRooms = roomPathNew, m_pathPositions = posPathNew, m_distanceCur = distanceCurNew, m_distanceTotalEst = distanceCurNew + posNew.ManhattanDistance(endPos) });
 			}
 		}
 
-		return pathItr?.m_path; // TODO: find closest reachable point if pathItr is null?
+		return pathItr; // TODO: find closest reachable point if pathItr is null?
 	}
 
 	private Vector2[] Connection(RoomController to, ObstructionCheck obstructionChecking, Vector2 priorityPos)
