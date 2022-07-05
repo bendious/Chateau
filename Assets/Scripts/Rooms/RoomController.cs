@@ -49,7 +49,7 @@ public class RoomController : MonoBehaviour
 	};
 
 
-	public GameObject[] DoorwaysUpwardOpen => m_doorwayInfos.Where(info => DoorwayIsOpen(info) && DoorwayDirection(info) == Vector2.up).Select(info => info.m_object).ToArray();
+	public GameObject[] DoorwaysUpwardOpen => m_doorwayInfos.Where(info => info.IsOpen() && info.DirectionOutward() == Vector2.up).Select(info => info.m_object).ToArray();
 
 	public Bounds BoundsInterior { get {
 		Bounds boundsInterior = m_bounds; // NOTE the copy since Expand() modifies the given struct
@@ -99,6 +99,65 @@ public class RoomController : MonoBehaviour
 
 		private enum ConnectionType { None, Parent, Child, SiblingShallower, SiblingDeeper };
 		private ConnectionType m_connectionType;
+
+
+		internal Vector2 Size() => m_object.GetComponent<BoxCollider2D>().size * m_object.transform.localScale; // NOTE that we can't use Collider2D.bounds since this can be called before physics has run
+
+		internal Vector2 DirectionOutward()
+		{
+			// TODO: don't assume convex room shapes?
+			Vector2 roomToDoorway = (Vector2)m_object.transform.position - (Vector2)m_object.transform.parent.transform.position;
+			Vector3 doorwaySize = Size();
+			return doorwaySize.x > doorwaySize.y ? new Vector2(0.0f, Mathf.Sign(roomToDoorway.y)) : new Vector2(Mathf.Sign(roomToDoorway.x), 0.0f);
+		}
+
+		internal bool IsObstructed(ObstructionCheck checkLevel, bool ignoreOnewayBlockages = false)
+		{
+			RoomController room = m_object.transform.parent.GetComponent<RoomController>(); // TODO: cache reference?
+			Debug.Assert(room != null && room.m_doorwayInfos.Contains(this));
+			if (checkLevel == ObstructionCheck.None)
+			{
+				return false;
+			}
+			if (checkLevel == ObstructionCheck.Directional && room.m_layoutNodes.Any(fromNode => ConnectedRoom.m_layoutNodes.Any(toNode => fromNode.HasDescendant(toNode))))
+			{
+				return false;
+			}
+			if (!ignoreOnewayBlockages && m_onewayBlocked) // TODO: check reverse one-way sometimes?
+			{
+				return true;
+			}
+			if (IsOpen() && m_infoReverse.IsOpen())
+			{
+				return false;
+			}
+			if (m_blocker != null && (checkLevel == ObstructionCheck.Full || m_blocker.GetComponent<IUnlockable>() != null))
+			{
+				return true;
+			}
+			return false;
+		}
+
+		internal bool IsOpen(bool ignoreBlocker = false)
+		{
+			if (!ignoreBlocker && m_blocker != null && m_blocker.GetComponents<Collider2D>().Any(collider => !collider.isTrigger && collider.isActiveAndEnabled))
+			{
+				return false;
+			}
+
+			if (!m_object.activeSelf)
+			{
+				return true;
+			}
+
+			PlatformEffector2D platform = m_object.GetComponent<PlatformEffector2D>();
+			if (platform != null && platform.enabled)
+			{
+				return true;
+			}
+
+			return false;
+		}
 	}
 	[SerializeField]
 	private /*readonly*/ DoorwayInfo[] m_doorwayInfos;
@@ -230,7 +289,7 @@ public class RoomController : MonoBehaviour
 				// maybe add cutback
 				if (GameController.Instance.m_allowCutbacks && doorwayInfo.ConnectedRoom == null)
 				{
-					Vector2 direction = DoorwayDirection(doorwayInfo);
+					Vector2 direction = doorwayInfo.DirectionOutward();
 					GameObject doorway = doorwayInfo.m_object;
 					Vector2 doorwayPos = doorway.transform.position;
 					RoomController sibling = GameController.Instance.RoomFromPosition(doorwayPos + direction);
@@ -784,13 +843,13 @@ public class RoomController : MonoBehaviour
 				continue;
 			}
 
-			bool wasOpen = DoorwayIsOpen(doorwayInfo);
+			bool wasOpen = doorwayInfo.IsOpen();
 			OpenDoorway(doorwayInfo, !seal, false);
 
 			if (seal && wasOpen)
 			{
 				GameObject doorway = doorwayInfo.m_object;
-				Vector2 doorwaySize = DoorwaySize(doorway);
+				Vector2 doorwaySize = doorwayInfo.Size();
 				VisualEffect vfx = Instantiate(m_doorSealVFX, doorway.transform.position + new Vector3(0.0f, -0.5f * doorwaySize.y, 0.0f), Quaternion.identity).GetComponent<VisualEffect>();
 				vfx.SetVector3("StartAreaSize", new Vector3(doorwaySize.x, 0.0f, 0.0f));
 
@@ -823,26 +882,14 @@ public class RoomController : MonoBehaviour
 	}
 
 
-	private Vector2 DoorwaySize(GameObject doorway) => doorway.GetComponent<BoxCollider2D>().size * doorway.transform.localScale; // NOTE that we can't use Collider2D.bounds since this can be called before physics has run
-
-	private Vector2 DoorwayDirection(DoorwayInfo doorwayInfo)
-	{
-		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo));
-
-		GameObject doorway = doorwayInfo.m_object;
-		Vector2 pivotToDoorway = (Vector2)doorway.transform.position - (Vector2)transform.position;
-		Vector3 doorwaySize = DoorwaySize(doorway);
-		return doorwaySize.x > doorwaySize.y ? new Vector2(0.0f, Mathf.Sign(pivotToDoorway.y)) : new Vector2(Mathf.Sign(pivotToDoorway.x), 0.0f);
-	}
-
 	private int[] DoorwayReverseIndices(Vector2 replaceDirection)
 	{
 		List<int> indices = new();
 		for (int i = 0; i < m_doorwayInfos.Length; ++i)
 		{
-			GameObject doorway = m_doorwayInfos[i].m_object;
-			Vector3 doorwaySize = DoorwaySize(doorway);
-			if (Vector2.Dot((Vector2)transform.position - (Vector2)doorway.transform.position, replaceDirection) > 0.0f && doorwaySize.x > doorwaySize.y == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y))) // TODO: better way of determining reverse direction doorway?
+			DoorwayInfo doorwayInfo = m_doorwayInfos[i];
+			Vector3 doorwaySize = doorwayInfo.Size();
+			if (Vector2.Dot((Vector2)transform.position - (Vector2)doorwayInfo.m_object.transform.position, replaceDirection) > 0.0f && doorwaySize.x > doorwaySize.y == (Mathf.Abs(replaceDirection.x) < Mathf.Abs(replaceDirection.y))) // TODO: better way of determining reverse direction doorway?
 			{
 				indices.Add(i);
 			}
@@ -866,7 +913,7 @@ public class RoomController : MonoBehaviour
 
 	private void OnObjectDespawn(ObjectDespawn evt)
 	{
-		if (m_doorwayInfos.Any(info => info.m_blocker == evt.m_object && DoorwayIsOpen(info, true)))
+		if (m_doorwayInfos.Any(info => info.m_blocker == evt.m_object && info.IsOpen(true)))
 		{
 			LinkShadowsRecursive();
 		}
@@ -874,8 +921,6 @@ public class RoomController : MonoBehaviour
 
 	private void LinkShadowsRecursive()
 	{
-		// TODO: check incoming doorway for blocker?
-
 		// group this room's shadow casters under the top-level GameController caster
 		GameController.Instance.GetComponent<CompositeShadowCaster2D>().enabled = true; // NOTE that the top-level caster has to start disabled due to an assert from CompositeShadowCaster2D when empty of child casters
 		GetComponent<CompositeShadowCaster2D>().enabled = false;
@@ -885,7 +930,8 @@ public class RoomController : MonoBehaviour
 		foreach (DoorwayInfo info in m_doorwayInfos)
 		{
 			RoomController childRoom = info.ChildRoom;
-			if (childRoom != null && (info.m_blocker == null || info.m_blocker.GetComponent<ShadowCaster2D>() == null))
+			static bool allowsLight(DoorwayInfo info) => info.m_blocker == null || info.m_blocker.GetComponent<ShadowCaster2D>() == null;
+			if (childRoom != null && allowsLight(info) && allowsLight(info.m_infoReverse))
 			{
 				childRoom.LinkShadowsRecursive();
 			}
@@ -924,7 +970,7 @@ public class RoomController : MonoBehaviour
 	private void MaybeReplaceDoor(int index, GameObject roomPrefab, LayoutGenerator.Node[] childNodes, Vector2[] allowedDirections)
 	{
 		DoorwayInfo doorwayInfo = m_doorwayInfos[index];
-		Vector2 replaceDirection = DoorwayDirection(doorwayInfo);
+		Vector2 replaceDirection = doorwayInfo.DirectionOutward();
 		if (allowedDirections != null && !allowedDirections.Contains(replaceDirection))
 		{
 			return;
@@ -1031,7 +1077,7 @@ public class RoomController : MonoBehaviour
 		reverseInfo.m_blocker = doorwayInfo.m_blocker;
 
 		// resize gate to fit doorway
-		Vector2 size = DoorwaySize(doorway);
+		Vector2 size = doorwayInfo.Size();
 		doorwayInfo.m_blocker.GetComponent<BoxCollider2D>().size = size;
 		doorwayInfo.m_blocker.GetComponent<SpriteRenderer>().size = size;
 		VisualEffect vfx = doorwayInfo.m_blocker.GetComponent<VisualEffect>();
@@ -1114,9 +1160,9 @@ public class RoomController : MonoBehaviour
 		if (!open)
 		{
 			// move any newly colliding objects into room
-			Vector2 doorwaySize = DoorwaySize(doorway);
+			Vector2 doorwaySize = doorwayInfo.Size();
 			Collider2D[] colliders = Physics2D.OverlapBoxAll(doorway.transform.position, doorwaySize, 0.0f);
-			Vector2 intoRoom = -DoorwayDirection(doorwayInfo);
+			Vector2 intoRoom = -doorwayInfo.DirectionOutward();
 			foreach (Collider2D collider in colliders)
 			{
 				if (collider.attachedRigidbody == null || collider.attachedRigidbody.bodyType == RigidbodyType2D.Static || collider.transform.parent != null)
@@ -1162,7 +1208,7 @@ public class RoomController : MonoBehaviour
 			foreach (DoorwayInfo info in roomCur.m_doorwayInfos)
 			{
 				RoomController roomNext = info.ConnectedRoom;
-				if (roomNext == null || roomCur.IsObstructed(info, obstructionChecking))
+				if (roomNext == null || info.IsObstructed(obstructionChecking))
 				{
 					continue;
 				}
@@ -1179,34 +1225,6 @@ public class RoomController : MonoBehaviour
 		return pathItr?.m_path; // TODO: find closest reachable point if pathItr is null?
 	}
 
-	// TODO: move into DoorwayInfo?
-	private bool IsObstructed(DoorwayInfo info, ObstructionCheck checkLevel, bool ignoreOnewayBlockages = false)
-	{
-		Debug.Assert(m_doorwayInfos.Contains(info));
-
-		if (checkLevel == ObstructionCheck.None)
-		{
-			return false;
-		}
-		if (checkLevel == ObstructionCheck.Directional && m_layoutNodes.Any(fromNode => info.ConnectedRoom.m_layoutNodes.Any(toNode => fromNode.HasDescendant(toNode))))
-		{
-			return false;
-		}
-		if (!ignoreOnewayBlockages && info.m_onewayBlocked) // TODO: check reverse one-way sometimes?
-		{
-			return true;
-		}
-		if (DoorwayIsOpen(info) && info.ConnectedRoom.DoorwayIsOpen(info.m_infoReverse))
-		{
-			return false;
-		}
-		if (info.m_blocker != null && (checkLevel == ObstructionCheck.Full || info.m_blocker.GetComponent<IUnlockable>() != null))
-		{
-			return true;
-		}
-		return false;
-	}
-
 	private Vector2[] Connection(RoomController to, ObstructionCheck obstructionChecking, Vector2 priorityPos)
 	{
 		bool foundConnection = false;
@@ -1217,7 +1235,7 @@ public class RoomController : MonoBehaviour
 				continue;
 			}
 			foundConnection = true;
-			if (IsObstructed(info, obstructionChecking) || info.ConnectedRoom.IsObstructed(info.m_infoReverse, obstructionChecking, true))
+			if (info.IsObstructed(obstructionChecking) || info.m_infoReverse.IsObstructed(obstructionChecking, true))
 			{
 				continue;
 			}
@@ -1227,29 +1245,5 @@ public class RoomController : MonoBehaviour
 
 		Debug.Assert(foundConnection);
 		return null;
-	}
-
-	private bool DoorwayIsOpen(DoorwayInfo doorwayInfo, bool ignoreBlocker = false)
-	{
-		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo));
-
-		if (!ignoreBlocker && doorwayInfo.m_blocker != null && doorwayInfo.m_blocker.GetComponents<Collider2D>().Any(collider => !collider.isTrigger && collider.isActiveAndEnabled))
-		{
-			return false;
-		}
-
-		GameObject doorway = doorwayInfo.m_object;
-		if (!doorway.activeSelf)
-		{
-			return true;
-		}
-
-		PlatformEffector2D platform = doorway.GetComponent<PlatformEffector2D>();
-		if (platform != null && platform.enabled)
-		{
-			return true;
-		}
-
-		return false;
 	}
 }
