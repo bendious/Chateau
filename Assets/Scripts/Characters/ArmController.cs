@@ -82,7 +82,9 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 	private void LateUpdate()
 	{
-		// update color/alpha
+		// update layer/color/alpha
+		// TODO: efficiency?
+		gameObject.layer = transform.parent.gameObject.layer;
 		m_renderer.color = m_rendererParent.color;
 	}
 

@@ -363,8 +363,22 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			return;
 		}
 
+		// if still and supported, set our layer to whatever we're resting on and sleep
+		// TODO: better logic for determining when about to sleep? don't assume only one collision at a time?
 		GameObject mainObj = collision.rigidbody == null ? collision.gameObject : collision.rigidbody.gameObject;
 		KinematicObject kinematicObj = mainObj.GetComponent<KinematicObject>();
+		float collisionSpeed = (collision.relativeVelocity + (kinematicObj == null ? Vector2.zero : -kinematicObj.velocity)).magnitude + Speed;
+		if (collisionSpeed < Physics2D.linearSleepTolerance)
+		{
+			ContactPoint2D supportingContact = collision.contacts.FirstOrDefault(contact => contact.normal.y > 0.0f); // TODO: handle multiple supporting contacts? better support angle?
+			if (supportingContact.collider != null)
+			{
+				gameObject.layer = supportingContact.collider.gameObject.layer;
+				m_body.Sleep(); // NOTE that changing the object's layer wakes it, so we have to manually Sleep() here
+			}
+			return;
+		}
+
 		if ((kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, false, 0.0f, null)) || collision.collider.transform.root == transform.root)
 		{
 			return;
@@ -395,7 +409,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		}
 
 		// check speed
-		float collisionSpeed = (collision.relativeVelocity + (kinematicObj == null ? Vector2.zero : -kinematicObj.velocity)).magnitude + Speed;
 		if (collisionSpeed > m_swingInfo.m_damageThresholdSpeed)
 		{
 			if (m_audioSource.enabled)
