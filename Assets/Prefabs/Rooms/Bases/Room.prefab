@@ -1748,6 +1748,9 @@ MonoBehaviour:
   m_doorSecretPrefabs:
   - m_object: {fileID: 2530109060553961877, guid: b214be9997254b949af66fe5a19fae4f, type: 3}
     m_weight: 1
+  m_lockOrderedPrefabs:
+  - {fileID: 1365230811573513431, guid: fe495bb420265d946a84ada74b132a5a, type: 3}
+  - {fileID: 6676558204597996972, guid: a07871bf36908524ea4aba70a9bb16f1, type: 3}
   m_doorSealVFX: {fileID: 5619937708861602581, guid: d64f2849f48fc6644bde5562c716f1c1, type: 3}
   m_spawnPointPrefabs:
   - m_object: {fileID: 7287174281192745631, guid: 196ada7618954f24ab2fd50f97411481, type: 3}
@@ -1770,17 +1773,9 @@ MonoBehaviour:
   m_cutbackSecretPct: 0.5
   m_doorwayInfos:
   - m_object: {fileID: 409852463158594107}
-    m_blocker: {fileID: 0}
-    m_onewayBlocked: 0
   - m_object: {fileID: 7910571754348373109}
-    m_blocker: {fileID: 0}
-    m_onewayBlocked: 0
   - m_object: {fileID: 5416165761018516747}
-    m_blocker: {fileID: 0}
-    m_onewayBlocked: 0
   - m_object: {fileID: 3865645025881897782}
-    m_blocker: {fileID: 0}
-    m_onewayBlocked: 0
 --- !u!114 &4560272222065776976
 MonoBehaviour:
   m_ObjectHideFlags: 0

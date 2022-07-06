@@ -128,6 +128,7 @@ public class GameController : MonoBehaviour
 		LayoutGenerator.Node parentPending = null;
 		List<LayoutGenerator.Node> nodesPending = new();
 		int roomCount = 0;
+		int orderedLockIdx = 0;
 		bool failed = generator.ForEachNodeDepthFirst(node =>
 		{
 			Debug.Assert(node.m_room == null && node.m_type != LayoutGenerator.Node.Type.TightCoupling && node.m_type != LayoutGenerator.Node.Type.AreaDivider);
@@ -135,7 +136,7 @@ public class GameController : MonoBehaviour
 			LayoutGenerator.Node parent = node.TightCoupleParent;
 			if (parent != parentPending && nodesPending.Count > 0 && parentPending != null)
 			{
-				roomCount = AddRoomsForNodes(nodesPending.ToArray(), roomCount);
+				roomCount = AddRoomsForNodes(nodesPending.ToArray(), roomCount, ref orderedLockIdx);
 				if (roomCount == 0)
 				{
 					return true;
@@ -147,7 +148,7 @@ public class GameController : MonoBehaviour
 			nodesPending.Add(node);
 			return false;
 		});
-		failed = failed || AddRoomsForNodes(nodesPending.ToArray(), roomCount) == 0;
+		failed = failed || AddRoomsForNodes(nodesPending.ToArray(), roomCount, ref orderedLockIdx) == 0;
 		if (failed)
 		{
 			Retry(true); // TODO: more efficient way to guarantee room spawning?
@@ -170,7 +171,9 @@ public class GameController : MonoBehaviour
 			m_enemySpawnCounts = new int[m_enemyPrefabs.Length]; // TODO: don't assume the same number/arrangement of enemies in each scene
 		}
 
-		m_startRoom.FinalizeRecursive();
+		int doorwayDepth = 0;
+		int npcDepth = 0;
+		m_startRoom.FinalizeRecursive(ref doorwayDepth, ref npcDepth);
 
 		if (m_avatars.Count > 0)
 		{
@@ -483,7 +486,7 @@ public class GameController : MonoBehaviour
 #endif
 
 
-	private int AddRoomsForNodes(LayoutGenerator.Node[] nodes, int roomCount)
+	private int AddRoomsForNodes(LayoutGenerator.Node[] nodes, int roomCount, ref int orderedLockIdx)
 	{
 		List<LayoutGenerator.Node> nodesShuffled = nodes.OrderBy(node => Random.value).ToList();
 		Queue<List<LayoutGenerator.Node>> nodesSplit = new();
@@ -501,7 +504,7 @@ public class GameController : MonoBehaviour
 					break; // start new room
 				}
 				newList.Add(node);
-				isDoor = node.m_type == LayoutGenerator.Node.Type.Lock || node.m_type == LayoutGenerator.Node.Type.Secret; // TODO: function?
+				isDoor = node.m_type == LayoutGenerator.Node.Type.Lock || node.m_type == LayoutGenerator.Node.Type.LockOrdered || node.m_type == LayoutGenerator.Node.Type.Secret; // TODO: function?
 				if (isDoor)
 				{
 					++numDoors;
@@ -549,7 +552,7 @@ public class GameController : MonoBehaviour
 				Vector2[] allowedDirections = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical) ? new Vector2[] { Vector2.down, Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomDown) ? new Vector2[] { Vector2.down } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomUp) ? new Vector2[] { Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) ? new Vector2[] { Vector2.left, Vector2.right } : null;
 				foreach (GameObject roomPrefab in prefabsOrdered.RandomWeightedOrder())
 				{
-					childRoom = spawnRoom.SpawnChildRoom(roomPrefab, nodesList.ToArray(), allowedDirections); // TODO: bias RootCoupling child nodes toward existing leaf rooms?
+					childRoom = spawnRoom.SpawnChildRoom(roomPrefab, nodesList.ToArray(), allowedDirections, ref orderedLockIdx); // TODO: bias RootCoupling child nodes toward existing leaf rooms?
 					if (childRoom != null)
 					{
 						++roomCount;

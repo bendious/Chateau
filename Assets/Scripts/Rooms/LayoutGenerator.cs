@@ -39,6 +39,7 @@ public class LayoutGenerator
 			Npc,
 			Key,
 			Lock, // TODO: treat as an in-between node (like {Tight/Root}Coupling)?
+			LockOrdered,
 			Secret,
 			BonusItems,
 			Boss,
@@ -195,6 +196,9 @@ public class LayoutGenerator
 				}
 				else
 				{
+					// NOTE that we have to exclude descendantsExcluded[] from multiparentDescendants[] to avoid infinite loops due to branches w/ child branches
+					IEnumerable<Node> sharedNodes = multiparentDescendants.Intersect(descendantsExcluded);
+					multiparentDescendants.RemoveAll(node => sharedNodes.Contains(node));
 					descendantsExcluded.AddRange(multiparentDescendants);
 				}
 			}
@@ -346,7 +350,7 @@ public class LayoutGenerator
 	private static readonly ReplacementRule[] m_rules =
 	{
 		new(Node.Type.Tutorial, new() { new(Node.Type.Entrance, new() { new(Node.Type.TutorialMove), new(Node.Type.TutorialAim), new(Node.Type.TutorialDrop, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomDown, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.TutorialJump, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomUp, new() { new(Node.Type.TutorialInteract), new(Node.Type.TutorialUse), new(Node.Type.TutorialSwap), new(Node.Type.TutorialThrow), new(Node.Type.Secret, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.TutorialInventory), new(Node.Type.TutorialSwing), new(Node.Type.TutorialCancel), new(Node.Type.TutorialCatch) }) }) }) }) }) }) }) }) }) }) }) }) }),
-		new(Node.Type.Entryway, new() { new(Node.Type.Entrance, Node.Multiparents(new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor) }) }) }) }) }) }) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.Lock, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical) }) }) }), new(Node.Type.BasementOrTower, new() { new(Node.Type.Lock, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical) }) }) }), new(Node.Type.Corridor, new() { new(Node.Type.Lock, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Room) }) }) }) }, new(Node.Type.Npc, new() { new(Node.Type.Npc), new(Node.Type.Npc), new(Node.Type.Npc) }))) }),
+		new(Node.Type.Entryway, new() { new(Node.Type.Entrance, Node.Multiparents(new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.LockOrdered, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.LockOrdered, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomUp, new() { new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }), new(Node.Type.BasementOrTower), new(Node.Type.BasementOrTower), new(Node.Type.Corridor) }, new(Node.Type.Npc, new() { new(Node.Type.Npc), new(Node.Type.Npc), new(Node.Type.Npc) }))) }), // TODO: move directional requirement into data?
 		new(Node.Type.Zone1, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor), new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }) }) }),
 		new(Node.Type.Zone2, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceExtraLarge, new() { new Node(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor), new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }) }) }),
 		new(Node.Type.Zone3, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceExtraLarge, new() { new Node(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }),

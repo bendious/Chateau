@@ -32,7 +32,6 @@ public class GateController : MonoBehaviour, IUnlockable
 		}
 
 		// TODO: check for full unlocking first?
-		Parent.GetComponent<RoomController>().SpawnLadder(gameObject, m_ladderPrefabs?.RandomWeighted(), true);
 		IKey key = collider.GetComponent<IKey>();
 		key.Use();
 		m_child.Unlock(key);
@@ -71,6 +70,11 @@ public class GateController : MonoBehaviour, IUnlockable
 
 	public bool Unlock(IKey key)
 	{
+		if (m_ladderPrefabs != null && m_ladderPrefabs.Length > 0)
+		{
+			Parent.GetComponent<RoomController>().SpawnLadder(gameObject, m_ladderPrefabs.RandomWeighted(), true);
+		}
+
 		GameController.Instance.AddCameraTargets(transform);
 		Simulation.Schedule<ObjectDespawn>(1.0f).m_object = gameObject; // TODO: guarantee camera reaches us?
 		return true;

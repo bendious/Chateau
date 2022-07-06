@@ -22,6 +22,7 @@ public class RoomController : MonoBehaviour
 	public WeightedObject<GameObject>[] m_doorPrefabs;
 	public DirectionalDoors[] m_doorDirectionalPrefabs;
 	public WeightedObject<GameObject>[] m_doorSecretPrefabs;
+	[SerializeField] private GameObject[] m_lockOrderedPrefabs;
 
 	public GameObject m_doorSealVFX;
 
@@ -263,7 +264,7 @@ public class RoomController : MonoBehaviour
 		}
 	}
 
-	public void FinalizeRecursive(int doorwayDepth = 0, int npcDepth = 0)
+	public void FinalizeRecursive(ref int doorwayDepth, ref int npcDepth)
 	{
 		// spawn fixed-placement node architecture
 		// NOTE the separate loops to ensure fixed-placement nodes are processed before flexible ones; also that this needs to be before flexibly-placed objects such as furniture
@@ -314,12 +315,33 @@ public class RoomController : MonoBehaviour
 						// maybe add one-way lock
 						int siblingDepthComparison = sibling.m_layoutNodes.Max(node => node.Depth).CompareTo(m_layoutNodes.Max(node => node.Depth));
 						bool noLadder = siblingDepthComparison < 0 ? direction.y < 0.0f : direction.y > 0.0f;
-						bool cutbackIsLocked = (direction.y > 0.0f ? this : sibling).RoomPath(direction.y > 0.0f ? transform.position : sibling.transform.position, direction.y > 0.0f ? sibling.transform.position : transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.Full) == null;
+						AStarPath path = (direction.y > 0.0f ? this : sibling).RoomPath(direction.y > 0.0f ? transform.position : sibling.transform.position, direction.y > 0.0f ? sibling.transform.position : transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.Full);
+						bool cutbackIsLocked = path == null;
 						RoomController deeperRoom = noLadder ? (direction.y > 0.0f ? this : sibling) : siblingDepthComparison < 0 ? this : sibling;
 						if (cutbackIsLocked || Random.value <= m_cutbackSecretPct)
 						{
 							// add one-way lock
-							noLadder = deeperRoom.SpawnGate(deeperRoom != this ? reverseInfo : doorwayInfo, cutbackIsLocked, Vector2.zero, 1, deeperRoom != this ? doorwayInfo : reverseInfo); // NOTE the exclusion of directional gates since some of them aren't physical blockages
+							noLadder = deeperRoom.SpawnGate(deeperRoom != this ? reverseInfo : doorwayInfo, cutbackIsLocked, Vector2.zero, 1, deeperRoom != this ? doorwayInfo : reverseInfo, -1); // NOTE the exclusion of directional gates since some of them aren't physical blockages
+						}
+						if (!cutbackIsLocked)
+						{
+							// create one-way loop
+							for (int pathIdx = path.m_pathRooms.Count - 1; pathIdx > 0; --pathIdx) // NOTE the reversed path direction
+							{
+								IEnumerable<DoorwayInfo> infos = path.m_pathRooms[pathIdx].m_doorwayInfos.Where(info => info.ConnectedRoom == path.m_pathRooms[pathIdx - 1]);
+								foreach (DoorwayInfo info in infos)
+								{
+									if (info.DirectionOutward() == Vector2.up)
+									{
+										//info.m_onewayBlocked = true; // TODO: guarantee this won't create a softlock
+										break;
+									}
+								}
+							}
+						}
+						if (noLadder)
+						{
+							(direction.y > 0.0f ? doorwayInfo : reverseInfo).m_onewayBlocked = true;
 						}
 
 						// connect doorways
@@ -336,26 +358,10 @@ public class RoomController : MonoBehaviour
 						doorwayInfo.m_infoReverse = reverseInfo;
 						reverseInfo.m_infoReverse = doorwayInfo;
 
-						// open doorways & maybe spawn ladder
+						// open doorways
 						// NOTE that this has to be AFTER checking ChildRoomPath() above
-						GameObject ladder = OpenDoorway(doorwayInfo, true, !noLadder && siblingDepthComparison <= 0 && direction.y > 0.0f);
-						if (ladder != null)
-						{
-							fillPct += BoundsWithChildren(ladder).extents.x / extentsInterior.x;
-						}
-						else if (direction.y > 0.0f)
-						{
-							doorwayInfo.m_onewayBlocked = true;
-						}
-						ladder = sibling.OpenDoorway(reverseInfo, true, !noLadder && siblingDepthComparison >= 0 && direction.y < 0.0f);
-						if (ladder != null)
-						{
-							fillPct += BoundsWithChildren(ladder).extents.x / extentsInterior.x;
-						}
-						else if (direction.y < 0.0f)
-						{
-							reverseInfo.m_onewayBlocked = true;
-						}
+						OpenDoorway(doorwayInfo, true);
+						sibling.OpenDoorway(reverseInfo, true);
 					}
 				}
 
@@ -421,6 +427,29 @@ public class RoomController : MonoBehaviour
 				SpriteRenderer renderer = obj.GetComponent<SpriteRenderer>();
 				renderer.sprite = m_wallInfo.m_sprite;
 				renderer.color = m_wallColor; // TODO: slight variation?
+			}
+		}
+
+		// spawn ladders
+		if (m_ladderRungPrefabs != null && m_ladderRungPrefabs.Length > 0)
+		{
+			foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
+			{
+				if (doorwayInfo.m_onewayBlocked || doorwayInfo.ConnectedRoom == null || doorwayInfo.DirectionOutward().y <= 0.0f)
+				{
+					continue;
+				}
+
+				GameObject ladder = SpawnLadder(doorwayInfo.m_object);
+
+				if (ladder != null)
+				{
+					fillPct += BoundsWithChildren(ladder).extents.x / extentsInterior.x;
+				}
+				else
+				{
+					doorwayInfo.m_onewayBlocked = true;
+				}
 			}
 		}
 
@@ -514,7 +543,7 @@ public class RoomController : MonoBehaviour
 			if (doorwayInfo.ChildRoom != null)
 			{
 				// TODO: move to earlier loop?
-				doorwayInfo.ChildRoom.FinalizeRecursive(doorwayDepth, npcDepth);
+				doorwayInfo.ChildRoom.FinalizeRecursive(ref doorwayDepth, ref npcDepth);
 			}
 
 			SpawnKeys(doorwayInfo, (unlockable, lockRoom, keyRooms) => unlockable.SpawnKeysDynamic(lockRoom, keyRooms)); // NOTE that this has to be after furniture for item key placement
@@ -706,7 +735,7 @@ public class RoomController : MonoBehaviour
 		return waypointPath;
 	}
 
-	public RoomController SpawnChildRoom(GameObject roomPrefab, LayoutGenerator.Node[] layoutNodes, Vector2[] allowedDirections = null)
+	public RoomController SpawnChildRoom(GameObject roomPrefab, LayoutGenerator.Node[] layoutNodes, Vector2[] allowedDirections, ref int orderedLockIdx)
 	{
 		// prevent putting keys behind their lock
 		// NOTE that we check all nodes' depth even though all nodes w/i a single room should be at the same depth
@@ -720,9 +749,10 @@ public class RoomController : MonoBehaviour
 		RoomController areaHeadRoom = isSameArea ? null : m_doorwayInfos.Select(info => info.ChildRoom).FirstOrDefault(childRoom => childRoom != null && childRoom.m_layoutNodes.First().AreaParents == layoutNodes.First().AreaParents);
 		if (areaHeadRoom != null)
 		{
-			return areaHeadRoom.SpawnChildRoom(roomPrefab, layoutNodes, allowedDirections);
+			return areaHeadRoom.SpawnChildRoom(roomPrefab, layoutNodes, allowedDirections, ref orderedLockIdx);
 		}
 
+		int orderedLockIdxTmp = orderedLockIdx; // due to not being able to use an outside reference inside a lambda
 		RoomController childRoom = DoorwaysRandomOrder(i =>
 		{
 			DoorwayInfo doorway = m_doorwayInfos[i];
@@ -732,9 +762,10 @@ public class RoomController : MonoBehaviour
 			}
 
 			// maybe replace/remove
-			MaybeReplaceDoor(i, roomPrefab, layoutNodes, allowedDirections);
+			MaybeReplaceDoor(i, roomPrefab, layoutNodes, allowedDirections, ref orderedLockIdxTmp);
 			return doorway.ChildRoom;
 		});
+		orderedLockIdx = orderedLockIdxTmp;
 
 		if (childRoom != null)
 		{
@@ -744,15 +775,17 @@ public class RoomController : MonoBehaviour
 		// NOTE that if we ever return to some rooms requiring direct parent-child connection, they should early-out here
 
 		// try spawning from children
-		return DoorwaysRandomOrder(i =>
+		RoomController newRoom = DoorwaysRandomOrder(i =>
 		{
 			DoorwayInfo doorway = m_doorwayInfos[i];
 			if (doorway.ChildRoom == null)
 			{
 				return null;
 			}
-			return doorway.ChildRoom.SpawnChildRoom(roomPrefab, layoutNodes, allowedDirections);
+			return doorway.ChildRoom.SpawnChildRoom(roomPrefab, layoutNodes, allowedDirections, ref orderedLockIdxTmp);
 		});
+		orderedLockIdx = orderedLockIdxTmp;
+		return newRoom;
 	}
 
 	public GameObject SpawnLadder(GameObject doorway, GameObject prefabForced = null, bool spawnBunched = false)
@@ -829,7 +862,7 @@ public class RoomController : MonoBehaviour
 			}
 
 			bool wasOpen = doorwayInfo.IsOpen();
-			OpenDoorway(doorwayInfo, !seal, false);
+			OpenDoorway(doorwayInfo, !seal);
 
 			if (seal && wasOpen)
 			{
@@ -952,7 +985,7 @@ public class RoomController : MonoBehaviour
 	}
 
 	// TODO: inline?
-	private void MaybeReplaceDoor(int index, GameObject roomPrefab, LayoutGenerator.Node[] childNodes, Vector2[] allowedDirections)
+	private void MaybeReplaceDoor(int index, GameObject roomPrefab, LayoutGenerator.Node[] childNodes, Vector2[] allowedDirections, ref int orderedLockIdx)
 	{
 		DoorwayInfo doorwayInfo = m_doorwayInfos[index];
 		Vector2 replaceDirection = doorwayInfo.DirectionOutward();
@@ -1004,27 +1037,23 @@ public class RoomController : MonoBehaviour
 		bool isLock = blockerNode != null;
 		if (!isLock)
 		{
+			blockerNode = GateNodeToChild(LayoutGenerator.Node.Type.LockOrdered, childNodes);
+		}
+		bool isOrderedLock = !isLock && blockerNode != null;
+		if (!isLock && !isOrderedLock)
+		{
 			blockerNode = GateNodeToChild(LayoutGenerator.Node.Type.Secret, childNodes);
 		}
-		bool noLadder = false;
 		if (blockerNode != null)
 		{
 			bool excludeSelf = Random.value < 0.5f; // TEMP?
-			noLadder = SpawnGate(doorwayInfo, isLock, replaceDirection, blockerNode.DirectParents.Count(node => node.m_type == LayoutGenerator.Node.Type.Key && (!excludeSelf || node.m_room != this)), reverseDoorwayInfo);
+			doorwayInfo.m_onewayBlocked = SpawnGate(doorwayInfo, isLock || isOrderedLock, replaceDirection, blockerNode.DirectParents.Count(node => node.m_type == LayoutGenerator.Node.Type.Key && (!excludeSelf || node.m_room != this)), reverseDoorwayInfo, isOrderedLock ? orderedLockIdx++ : -1);
 		}
 
 		childRoom.SetNodes(childNodes);
 
-		GameObject ladder = OpenDoorway(doorwayInfo, true, !noLadder && replaceDirection.y > 0.0f);
-		if (ladder == null && replaceDirection.y > 0.0f)
-		{
-			doorwayInfo.m_onewayBlocked = true;
-		}
-		GameObject ladderReverse = childRoom.OpenDoorway(reverseDoorwayInfo, true, !noLadder && replaceDirection.y < 0.0f);
-		if (ladderReverse == null && replaceDirection.y < 0.0f)
-		{
-			reverseDoorwayInfo.m_onewayBlocked = true;
-		}
+		OpenDoorway(doorwayInfo, true);
+		childRoom.OpenDoorway(reverseDoorwayInfo, true);
 	}
 
 	private float SpawnDoor(ref int doorwayDepth, bool isEntrance, float extentsInteriorX)
@@ -1040,14 +1069,14 @@ public class RoomController : MonoBehaviour
 		return BoundsWithChildren(doorInteract.gameObject).extents.x / extentsInteriorX;
 	}
 
-	private bool SpawnGate(DoorwayInfo doorwayInfo, bool isLock, Vector2 replaceDirection, int preferredKeyCount, DoorwayInfo reverseInfo)
+	private bool SpawnGate(DoorwayInfo doorwayInfo, bool isLock, Vector2 replaceDirection, int preferredKeyCount, DoorwayInfo reverseInfo, int orderedLockIdx)
 	{
 		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo));
 
 		// create gate
 		Assert.IsNull(doorwayInfo.m_blocker);
 		WeightedObject<GameObject>[] directionalBlockerPrefabs = isLock ? m_doorDirectionalPrefabs.FirstOrDefault(pair => pair.m_direction == replaceDirection).m_prefabs : null; // TODO: don't assume that secrets will never be directional?
-		GameObject blockerPrefab = RandomWeightedByKeyCount(isLock ? (directionalBlockerPrefabs != null ? directionalBlockerPrefabs.Concat(m_doorPrefabs).ToArray() : m_doorPrefabs) : m_doorSecretPrefabs, prefab =>
+		GameObject blockerPrefab = orderedLockIdx >= 0 ? m_lockOrderedPrefabs[orderedLockIdx] : RandomWeightedByKeyCount(isLock ? (directionalBlockerPrefabs != null ? directionalBlockerPrefabs.Concat(m_doorPrefabs).ToArray() : m_doorPrefabs) : m_doorSecretPrefabs, prefab =>
 		{
 			LockController lockComp = prefab.GetComponent<LockController>();
 			WeightedObject<LockController.KeyInfo>[] keys = lockComp == null ? null : lockComp.m_keyPrefabs;
@@ -1107,19 +1136,11 @@ public class RoomController : MonoBehaviour
 		spawnAction(unlockable, this, keyRooms == null || keyRooms.Length <= 0 ? null : excludeSelf ? keyRooms.Where(room => room != this).ToArray() : keyRooms);
 	}
 
-	private GameObject OpenDoorway(DoorwayInfo doorwayInfo, bool open, bool spawnLadders)
+	private void OpenDoorway(DoorwayInfo doorwayInfo, bool open)
 	{
 		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo));
 
 		GameObject doorway = doorwayInfo.m_object;
-
-		// spawn ladder rungs
-		// NOTE that we don't set m_onewayBlocked when not spawning a ladder, since that can happen from SealRoom()
-		GameObject ladder = null;
-		if (spawnLadders && m_ladderRungPrefabs != null && m_ladderRungPrefabs.Length > 0)
-		{
-			ladder = SpawnLadder(doorway);
-		}
 
 		// enable/disable doorway
 		PlatformEffector2D effector = doorway.GetComponent<PlatformEffector2D>();
@@ -1157,8 +1178,6 @@ public class RoomController : MonoBehaviour
 				collider.transform.position += (Vector3)(((Vector2)doorway.transform.position - (Vector2)collider.bounds.center) * intoRoom.Abs() + ((Vector2)collider.bounds.extents + doorwaySize * 0.5f) * intoRoom); // this essentially moves the object to the doorway center and then inward by the total extents of the two, all restricted to the doorway direction axis
 			}
 		}
-
-		return ladder;
 	}
 
 	private class AStarPath : System.IComparable<AStarPath>
@@ -1201,7 +1220,7 @@ public class RoomController : MonoBehaviour
 				// NOTE that we don't immediately break if roomNext is endRoom, since there can be multiple valid paths and we're only guaranteed to have the shortest length when popping from paths[]
 
 				Vector2 posPrev = pathItr.m_pathPositions.Last();
-				Vector2[] connectionPoints = roomCur.Connection(roomNext, obstructionChecking, posPrev);
+				Vector2[] connectionPoints = new Vector2[] { info.m_object.transform.position, info.m_infoReverse.m_object.transform.position }; // NOTE that we don't use Connection() since we want this particular doorway and have already done obstruction checking
 				Vector2 posNew = roomNext == endRoom ? endPos : connectionPoints.Last();
 				float distanceCurNew = pathItr.m_distanceCur + posPrev.ManhattanDistance(posNew); // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
 

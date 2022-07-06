@@ -89,7 +89,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
       propertyPath: m_keyPrefabs.Array.size
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
       propertyPath: m_keyPrefabs.Array.data[0].m_object.m_genericKeys
@@ -431,6 +431,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_damage: 1
+  m_damageImpulse: {x: 0, y: 0}
+  m_damageSfx: []
+  m_singleUse: 0
 --- !u!114 &3286500664980312624
 MonoBehaviour:
   m_ObjectHideFlags: 0
