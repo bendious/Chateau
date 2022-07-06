@@ -37,6 +37,7 @@ public class GameController : MonoBehaviour
 	public GameObject[] m_doorInteractPrefabs;
 
 	public bool m_allowCutbacks = true;
+	[SerializeField] private bool m_waveSealing = false;
 	public float m_zoneScalar = 1.0f;
 
 	[SerializeField] private GameObject m_loadingScreen;
@@ -682,10 +683,13 @@ public class GameController : MonoBehaviour
 	{
 		m_waveSpawningInProgress = true;
 
-		RoomController[] rooms = m_avatars.Select(avatar => RoomFromPosition(avatar.transform.position)).ToArray();
-		foreach (RoomController room in rooms) // TODO: seal all rooms?
+		RoomController[] sealedRooms = m_waveSealing ? m_avatars.Select(avatar => RoomFromPosition(avatar.transform.position)).ToArray() : null;
+		if (m_waveSealing)
 		{
-			room.SealRoom(true);
+			foreach (RoomController room in sealedRooms)
+			{
+				room.SealRoom(true);
+			}
 		}
 
 		m_waveWeight += Random.Range(m_waveEscalationMin, m_waveEscalationMax); // TODO: exponential/logistic escalation?
@@ -711,9 +715,9 @@ public class GameController : MonoBehaviour
 		m_waveSpawningInProgress = false;
 
 		// unseal rooms if the last enemy was killed immediately
-		if (m_enemies.Count == 0 && !m_bossRoomSealed)
+		if (m_waveSealing && m_enemies.Count == 0 && !m_bossRoomSealed)
 		{
-			foreach (RoomController room in rooms)
+			foreach (RoomController room in sealedRooms)
 			{
 				room.SealRoom(false);
 			}
@@ -736,7 +740,7 @@ public class GameController : MonoBehaviour
 
 		m_enemies.Remove(enemy);
 
-		if (m_enemies.Count == 0 && !m_waveSpawningInProgress && !m_bossRoomSealed)
+		if (m_waveSealing && m_enemies.Count == 0 && !m_waveSpawningInProgress && !m_bossRoomSealed)
 		{
 			// TODO: slight time delay?
 			foreach (RoomController room in m_avatars.Select(avatar => RoomFromPosition(avatar.transform.position)))
