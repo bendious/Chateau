@@ -59,6 +59,7 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 		m_controls.Console.AIDebugLevel.performed += ctx => ExecuteIfConsoleOpen(() => AIDebugLevel = (AIDebugLevel + 1) % Utility.EnumNumTypes<AIDebugLevels>());
 		m_controls.Console.ExplosionDebug.performed += ctx => ExecuteIfConsoleOpen(() => ExplosionDebug = !ExplosionDebug);
 		m_controls.Console.LayoutDebugLevel.performed += ctx => ExecuteIfConsoleOpen(() => LayoutDebugLevel = (LayoutDebugLevels)(((int)LayoutDebugLevel + 1) % Utility.EnumNumTypes<LayoutDebugLevels>()));
+		m_controls.Console.LayoutOutputSeed.performed += ctx => ExecuteIfConsoleOpen(() => Debug.Log(GameController.Seed));
 		m_controls.Console.RegenerateDisabled.performed += ctx => ExecuteIfConsoleOpen(() => RegenerateDisabled = !RegenerateDisabled);
 		m_controls.Console.SpawnEnemyWave.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.SpawnEnemyWave());
 		m_controls.Console.KillAllEnemies.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.DebugKillAllEnemies());

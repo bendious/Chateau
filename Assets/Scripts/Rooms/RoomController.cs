@@ -1077,7 +1077,7 @@ public class RoomController : MonoBehaviour
 		// create gate
 		Assert.IsNull(doorwayInfo.m_blocker);
 		WeightedObject<GameObject>[] directionalBlockerPrefabs = isLock ? m_doorDirectionalPrefabs.FirstOrDefault(pair => pair.m_direction == replaceDirection).m_prefabs : null; // TODO: don't assume that secrets will never be directional?
-		GameObject blockerPrefab = orderedLockIdx >= 0 ? m_lockOrderedPrefabs[orderedLockIdx] : RandomWeightedByKeyCount(isLock ? (directionalBlockerPrefabs != null ? directionalBlockerPrefabs.Concat(m_doorPrefabs).ToArray() : m_doorPrefabs) : m_doorSecretPrefabs, prefab =>
+		GameObject blockerPrefab = orderedLockIdx >= 0 ? m_lockOrderedPrefabs[System.Math.Min(orderedLockIdx, m_lockOrderedPrefabs.Length - 1)] : RandomWeightedByKeyCount(isLock ? (directionalBlockerPrefabs != null ? directionalBlockerPrefabs.Concat(m_doorPrefabs).ToArray() : m_doorPrefabs) : m_doorSecretPrefabs, prefab =>
 		{
 			LockController lockComp = prefab.GetComponent<LockController>();
 			WeightedObject<LockController.KeyInfo>[] keys = lockComp == null ? null : lockComp.m_keyPrefabs;

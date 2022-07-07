@@ -87,6 +87,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "LayoutOutputSeed",
+                    "type": "Button",
+                    "id": "662e5242-2242-45bc-895d-d5e125023e9a",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "RegenerateDisabled",
                     "type": "Button",
                     "id": "22fffc5b-2ccb-4c2a-b3f7-26196c2ffb47",
@@ -463,6 +472,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "EnemiesPathfindTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "af10196f-60bf-48e4-9e44-c01de789aaf4",
+                    "path": "<Keyboard>/o",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LayoutOutputSeed",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

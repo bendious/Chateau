@@ -1,3 +1,6 @@
+//#define FIXED_SEED
+
+
 using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
@@ -96,6 +99,9 @@ public class GameController : MonoBehaviour
 	private string[] m_savableTags;
 
 
+	public static int Seed => m_seed;
+	private static int m_seed;
+
 	private RoomController m_startRoom;
 
 	private float m_waveWeight;
@@ -109,6 +115,11 @@ public class GameController : MonoBehaviour
 	private void Awake()
 	{
 		Instance = this;
+
+#if !FIXED_SEED
+		m_seed = Random.Range(int.MinValue, int.MaxValue); // TODO: don't use Random to seed Random?
+#endif
+		Random.InitState(m_seed);
 
 		// TODO: use Animator on persistent object?
 		Image loadImage = m_loadingScreen.GetComponentsInChildren<Image>().Last()/*TODO*/;
@@ -152,6 +163,9 @@ public class GameController : MonoBehaviour
 		failed = failed || AddRoomsForNodes(nodesPending.ToArray(), roomCount, ref orderedLockIdx) == 0;
 		if (failed)
 		{
+#if FIXED_SEED
+			++m_seed; // to prevent infinite failure loop
+#endif
 			Retry(true); // TODO: more efficient way to guarantee room spawning?
 			return;
 		}
