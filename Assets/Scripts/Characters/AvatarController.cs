@@ -199,10 +199,13 @@ public class AvatarController : KinematicCharacter
 			if (m_aimVfx.enabled)
 			{
 				ItemController primaryItem = GetComponentInChildren<ItemController>();
-				Vector3 forward = (aimPos - (Vector2)transform.position).normalized;
-				m_aimVfx.SetVector3(m_forwardID, forward);
-				m_aimVfx.SetFloat(m_forwardToUpID, primaryItem.transform.rotation.eulerAngles.z * Mathf.Deg2Rad + Mathf.PI * 0.5f - Mathf.Atan2(forward.y, forward.x));
-				m_aimVfx.SetVector3(m_spawnOffsetID, primaryItem.TrailPosition - transform.position);
+				if (primaryItem != null)
+				{
+					Vector3 forward = (aimPos - (Vector2)transform.position).normalized;
+					m_aimVfx.SetVector3(m_forwardID, forward);
+					m_aimVfx.SetFloat(m_forwardToUpID, primaryItem.transform.rotation.eulerAngles.z * Mathf.Deg2Rad + Mathf.PI * 0.5f - Mathf.Atan2(forward.y, forward.x));
+					m_aimVfx.SetVector3(m_spawnOffsetID, primaryItem.TrailPosition - transform.position);
+				}
 			}
 		}
 
@@ -381,7 +384,7 @@ public class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnThrow(InputValue input)
 	{
-		ItemController primaryItem = GetComponentInChildren<ItemController>(true);
+		ItemController primaryItem = GetComponentInChildren<ItemController>();
 		if (primaryItem == null)
 		{
 			return;
