@@ -336,6 +336,27 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: ControlsKeyboardMouse_11
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 0
+        width: 100
+        height: 100
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5d373976abca5a849b53d3a99f8209fd
+      internalID: 168444711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -352,6 +373,7 @@ TextureImporter:
       ControlsKeyboardMouse_5: -775531053
       ControlsKeyboardMouse_4: 1000850045
       ControlsKeyboardMouse_1: 1736272635
+      ControlsKeyboardMouse_11: 168444711
       ControlsKeyboardMouse_9: 501135511
       ControlsKeyboardMouse_3: -1685612523
       ControlsKeyboardMouse_0: 968249049
