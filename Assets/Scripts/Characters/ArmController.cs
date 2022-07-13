@@ -225,7 +225,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 			renderer.flipY = leftFacingCached;
 			if (renderer.gameObject != gameObject)
 			{
-				m_aimDegreesItem = DampedSpring(m_aimDegreesItem, IsSwinging ? 0.0f : AimDegreesRaw(renderer.transform.position, Vector2.zero, aimPositionItem) - m_aimDegreesArm + (LeftFacing ? -m_aimDegreesItemRestOffsetAbs : m_aimDegreesItemRestOffsetAbs), m_swingInfoCur.m_aimSpringDampPct, true, m_aimStiffness, ref m_aimVelocityItem);
+				m_aimDegreesItem = DampedSpring(m_aimDegreesItem, IsSwinging ? 0.0f : AimDegreesRaw(renderer.transform.position, Vector2.zero, aimPositionItem) - m_aimDegreesArm + (LeftFacing ? -m_aimDegreesItemRestOffsetAbs : m_aimDegreesItemRestOffsetAbs), 1.0f, true, m_aimStiffness, ref m_aimVelocityItem); // NOTE that aiming for all items uses critical damping rather than m_swingInfoCur.m_aimSpringDampPct, to prevent overly-annoying aim jiggle // TODO: parameterize?
 				renderer.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesItem);
 			}
 		}
