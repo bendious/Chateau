@@ -159,7 +159,7 @@ MonoBehaviour:
     m_secondsMax: 0.5
     m_periodSecondsMin: 0.1
     m_periodSecondsMax: 0.5
-  m_lightSprites: []
+  m_sprites: []
   m_flickerSfx:
   - m_object: {fileID: 8300000, guid: 26ecdb4afea26944cba84ddea33e67be, type: 3}
     m_weight: 1

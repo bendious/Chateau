@@ -36,7 +36,7 @@ public class LightFlicker : MonoBehaviour
 		m_periodSecondsMax = 0.5f,
 	};
 
-	public WeightedObject<Sprite>[] m_lightSprites;
+	[SerializeField] private WeightedObject<Sprite>[] m_sprites;
 
 	public WeightedObject<AudioClip>[] m_flickerSfx;
 	public float m_flickerSfxDelayMax = 0.0f;
@@ -55,6 +55,9 @@ public class LightFlicker : MonoBehaviour
 	}
 
 
+	private static int m_emissivePctID;
+
+
 	private LightInfo[] m_lights;
 	private RendererInfo[] m_renderers;
 
@@ -68,13 +71,14 @@ public class LightFlicker : MonoBehaviour
 
 	private void OnEnable()
 	{
+		m_emissivePctID = Shader.PropertyToID("_EmissivePct");
+
 		m_lights = GetComponentsInChildren<Light2D>(true).Select(light => new LightInfo { m_light = light, m_intensityMax = light.intensity }).ToArray();
 		m_renderers = GetComponentsInChildren<SpriteRenderer>(true).Select(renderer => new RendererInfo { m_renderer = renderer, m_colorMax = renderer.color }).ToArray();
 
 		m_phase = Random.Range(0.0f, 1.0f);
 		m_flickerToggleTime = Time.time + Random.Range(m_nonFlickerInfo.m_secondsMin, m_nonFlickerInfo.m_secondsMax);
 
-		RandomizeLightSprite();
 		StartCoroutine(UpdateIntensity());
 	}
 
@@ -94,14 +98,14 @@ public class LightFlicker : MonoBehaviour
 	}
 
 
-	private void RandomizeLightSprite()
+	private void SetSprites(bool random)
 	{
-		if (m_lightSprites.Length <= 0 || m_lights.Length <= 0)
+		if (m_sprites.Length <= 0 || m_lights.Length <= 0)
 		{
 			return;
 		}
 
-		Sprite lightSpriteNew = m_lightSprites.RandomWeighted();
+		Sprite spriteNew = random ? m_sprites.RandomWeighted() : m_sprites.First().m_object; // TODO: parameterize non-flicker sprite behavior?
 		foreach (LightInfo info in m_lights)
 		{
 			if (info.m_light.lightType != Light2D.LightType.Sprite)
@@ -109,7 +113,11 @@ public class LightFlicker : MonoBehaviour
 				continue;
 			}
 
-			info.m_light.NonpublicSetterWorkaround("m_LightCookieSprite", lightSpriteNew);
+			info.m_light.NonpublicSetterWorkaround("m_LightCookieSprite", spriteNew);
+		}
+		foreach (RendererInfo info in m_renderers)
+		{
+			info.m_renderer.sprite = spriteNew;
 		}
 	}
 
@@ -153,7 +161,7 @@ public class LightFlicker : MonoBehaviour
 					}
 				}
 
-				RandomizeLightSprite();
+				SetSprites(m_isFlickering);
 			}
 
 			// maybe advance phase
@@ -175,6 +183,10 @@ public class LightFlicker : MonoBehaviour
 			foreach (RendererInfo info in m_renderers)
 			{
 				info.m_renderer.color = info.m_colorMax * new Color(intensityT, intensityT, intensityT, 1.0f);
+				foreach (Material material in info.m_renderer.materials)
+				{
+					material.SetFloat(m_emissivePctID, intensityT); // TODO: avoid creating separate material instances for each renderer?
+				}
 			}
 
 			yield return m_fullCurveFlicker && !m_isFlickering ? new WaitForSeconds(m_flickerToggleTime - Time.time) : null; // TODO: non-constant updating also for long-period lights?
