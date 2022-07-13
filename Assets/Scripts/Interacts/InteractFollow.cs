@@ -48,6 +48,8 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 		return avatar.m_follower == null || avatar.m_follower == this;
 	}
 
+	public float Priority(KinematicCharacter interactor) => m_followCharacter == interactor ? float.MaxValue : IsInPlace ? 0.5f : 1.0f;
+
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
 		if (m_followCharacter == null)

@@ -9,5 +9,7 @@ public interface IInteractable
 	public bool CanInteract(KinematicCharacter interactor) => true;
 	public bool CanInteractReverse(KinematicCharacter interactor) => false;
 
+	public float Priority(KinematicCharacter interactor) => 1.0f;
+
 	public void Interact(KinematicCharacter interactor, bool reverse);
 }

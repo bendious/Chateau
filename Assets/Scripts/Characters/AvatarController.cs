@@ -227,7 +227,7 @@ public class AvatarController : KinematicCharacter
 		// TODO: more nuanced prioritization?
 		Vector2 priorityPos = FocusPriorityPos;
 		float distSqFocus = float.MaxValue;
-		bool focusCanInteract = false;
+		float focusPriority = -1.0f;
 		float focusYMax = float.MinValue;
 		foreach (Collider2D candidate in focusCandidates)
 		{
@@ -238,14 +238,14 @@ public class AvatarController : KinematicCharacter
 
 			// prioritize interactable objects
 			IInteractable candidateInteract = candidate.GetComponent<IInteractable>();
-			bool candidateCanInteract = candidateInteract != null && candidateInteract.CanInteract(this);
+			float candidatePriority = candidateInteract != null && candidateInteract.CanInteract(this) ? candidateInteract.Priority(this) : 0.0f;
 
 			// prioritize by mouse position
 			float distSqCur = (priorityPos - (Vector2)candidate.transform.position).sqrMagnitude;
 
-			if (candidateCanInteract && !focusCanInteract || ((candidateCanInteract || !focusCanInteract) && distSqCur < distSqFocus))
+			if (candidatePriority > focusPriority || (candidatePriority >= focusPriority && distSqCur < distSqFocus))
 			{
-				focusCanInteract = candidateCanInteract;
+				focusPriority = candidatePriority;
 				distSqFocus = distSqCur;
 				m_focusObj = candidate.gameObject;
 				focusYMax = candidate.bounds.max.y;
@@ -253,6 +253,7 @@ public class AvatarController : KinematicCharacter
 		}
 
 		// place focus indicator if appropriate
+		bool focusCanInteract = focusPriority > 0.0f;
 		if (focusCanInteract)
 		{
 			m_focusIndicator.transform.SetPositionAndRotation(m_focusObj.transform.position, m_focusObj.transform.rotation);
