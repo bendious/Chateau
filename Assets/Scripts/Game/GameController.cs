@@ -793,7 +793,7 @@ public class GameController : MonoBehaviour
 		{
 			yield return new WaitForSeconds(Random.Range(m_musicDelayMin, m_musicDelayMax)); // TODO: take into account length of current audio?
 
-			if (!source.isPlaying)
+			if (!source.isPlaying) // TODO: check boss room ambiance/music
 			{
 				source.clip = m_ambientMusic.RandomWeighted();
 				source.Play();

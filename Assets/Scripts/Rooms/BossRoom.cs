@@ -59,6 +59,7 @@ public class BossRoom : MonoBehaviour
 		GameController.Instance.m_bossRoomSealed = true;
 
 		// play ambiance SFX
+		// TODO: fade out any currently-playing music
 		AudioSource[] sources = GetComponents<AudioSource>();
 		AudioSource source0 = sources.First();
 		source0.Play();
