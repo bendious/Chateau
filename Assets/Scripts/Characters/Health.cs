@@ -29,6 +29,10 @@ public class Health : MonoBehaviour
 
 	[SerializeField] private Gradient m_gradient;
 
+	[SerializeField] private float m_blinkSeconds = 0.3f;
+	[SerializeField] private Color m_blinkColor = new(1.0f, 0.25f, 0.25f);
+	[SerializeField] private float m_blinkSecondsPost = 0.25f;
+
 
 	/// <summary>
 	/// Indicates if the entity should be considered 'alive'.
@@ -118,6 +122,7 @@ public class Health : MonoBehaviour
 		{
 			// TODO: disable from animation trigger & make timer a fallback?
 			Simulation.Schedule<EnableDamage>(m_invincibilityTime).m_health = this;
+			StartCoroutine(InvincibilityBlink(m_invincibilityTime - m_blinkSecondsPost));
 		}
 
 		SyncUI();
@@ -222,17 +227,37 @@ public class Health : MonoBehaviour
 		// TODO: adjust size of parent if its width is ever visible/used
 	}
 
+	private System.Collections.IEnumerator InvincibilityBlink(float secondsMax)
+	{
+		float timeMax = Time.time + secondsMax;
+		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+		float colorT = 0.0f;
+		float tPerSec = 1.0f / m_blinkSeconds;
+		Color colorOrig = renderer.color;
+
+		while (m_invincible && Time.time < timeMax)
+		{
+			colorT = (colorT + Time.deltaTime * tPerSec).Modulo(1.0f); // NOTE that this is deliberately discontinuous when passing 1.0 // TODO: smoothly vary down as well as up?
+			renderer.color = Color.Lerp(colorOrig, m_blinkColor, colorT);
+			yield return null;
+		}
+
+		renderer.color = colorOrig;
+	}
+
 	private System.Collections.IEnumerator HealDelayed(float delaySeconds, int amount, GameObject source)
 	{
 		float speedPrev = m_character.maxSpeed;
 		Debug.Assert(speedPrev > 0.0f); // TODO: better way of detecting/preventing multiple HealDelayed() instances in progress?
-		m_character.maxSpeed = 0.0f;
+		m_character.maxSpeed = 0.0f; // TODO: also prevent jump/swing/etc?
+		m_animator.SetBool("healing", true);
 
-		// TODO: in-progress SFX/VFX/animation, UI?
+		// TODO: in-progress SFX/VFX, UI?
 
 		float healTime = Time.time + delaySeconds;
 		yield return new WaitUntil(() => !HealInProgress || Time.time >= healTime);
 
+		m_animator.SetBool("healing", false);
 		m_character.maxSpeed = speedPrev;
 
 		if (!HealInProgress)

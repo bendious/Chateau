@@ -304,6 +304,11 @@ public class AvatarController : KinematicCharacter
 		DetachAll();
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
 
+		if (GameController.IsSceneLoad) // NOTE that this is more about application shutdown than scene-to-scene load
+		{
+			return;
+		}
+
 		Simulation.Schedule<ObjectDespawn>().m_object = m_focusIndicator;
 		Simulation.Schedule<ObjectDespawn>().m_object = m_focusPrompt.gameObject;
 		Simulation.Schedule<ObjectDespawn>().m_object = m_aimObject;
@@ -691,6 +696,7 @@ public class AvatarController : KinematicCharacter
 			return;
 		}
 
+		enemy.GetComponent<Health>().Decrement(gameObject, GetComponentInChildren<ArmController>(true).m_swingInfoDefault.m_damage); // TODO: knock back w/o damage? parameterize/vary damage?
 		bool hurt = health.Decrement(enemy.gameObject, enemy.m_contactDamage);
 		if (!hurt)
 		{

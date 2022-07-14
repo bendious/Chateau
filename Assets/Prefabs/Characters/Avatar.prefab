@@ -675,7 +675,7 @@ MonoBehaviour:
   m_UIPadding: 5
   m_damageAudio: {fileID: 8300000, guid: 6c05149e5a2fba64ba172e25a61074b7, type: 3}
   m_deathAudio: {fileID: 8300000, guid: e18959d46b63f3c4c8cc020a433cf848, type: 3}
-  m_invincibilityTime: 1
+  m_invincibilityTime: 2
   m_invincible: 0
   m_gradient:
     serializedVersion: 2
@@ -706,6 +706,9 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
+  m_blinkSeconds: 0.3
+  m_blinkColor: {r: 1, g: 0.25, b: 0.25, a: 1}
+  m_blinkSecondsPost: 0.25
 --- !u!114 &6654259642884158826
 MonoBehaviour:
   m_ObjectHideFlags: 0

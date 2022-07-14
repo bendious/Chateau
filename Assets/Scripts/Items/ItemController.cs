@@ -24,7 +24,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public float m_throwSpeed = 20.0f;
 	public float m_vfxAlpha = 0.5f;
 	public int m_healAmount = 0;
-	[SerializeField] private float m_healSeconds = 5.0f;
+	[SerializeField] private float m_healSeconds = 3.0f;
 
 	public bool m_detachOnDamage = false; // TODO: cumulative damage threshold?
 	[SerializeField] private bool m_keyDestroyAfterUse = true;
