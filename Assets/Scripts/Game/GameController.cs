@@ -376,11 +376,12 @@ public class GameController : MonoBehaviour
 
 	public void OnGameOver() => ActivateMenu(m_gameOverUI, true);
 
-	public void DeleteSave()
+	public void DeleteSaveAndQuit()
 	{
 		PlayerPrefs.DeleteAll(); // TODO: separate setup/configuration from game data
-		SaveHelpers.Delete(SceneManager.GetSceneAt(0)); // TODO: don't assume only first scene stores contents?
+		SaveHelpers.Delete();
 		ZonesFinishedCount = 0;
+		Quit(true);
 	}
 
 	public void Retry(bool noInventoryClear)
@@ -459,16 +460,19 @@ public class GameController : MonoBehaviour
 		// TODO: roll credits / etc.?
 	}
 
-	public void Quit()
+	public void Quit(bool isSaveDeletion)
 	{
-		if (m_avatars.Count > 1)
+		if (!isSaveDeletion)
 		{
-			OnPlayerLeft(m_avatars.Last().GetComponent<PlayerInput>());
-			return;
-		}
+			if (m_avatars.Count > 1)
+			{
+				OnPlayerLeft(m_avatars.Last().GetComponent<PlayerInput>());
+				return;
+			}
 
-		m_avatars.First().DetachAll(); // to save even items being held
-		Save(); // TODO: prompt player?
+			m_avatars.First().DetachAll(); // to save even items being held
+			Save(); // TODO: prompt player?
+		}
 
 #if UNITY_EDITOR
 		UnityEditor.EditorApplication.isPlaying = false;
@@ -603,7 +607,7 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
-		using SaveWriter saveFile = new(activeScene);
+		using SaveWriter saveFile = new();
 
 		saveFile.Write(Npcs, npc => saveFile.Write(npc, dialogue =>
 		{
@@ -635,7 +639,7 @@ public class GameController : MonoBehaviour
 
 		try
 		{
-			using SaveReader saveFile = new(activeScene);
+			using SaveReader saveFile = new();
 			if (!saveFile.IsOpen)
 			{
 				return;

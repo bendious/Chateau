@@ -27,6 +27,7 @@ public class DialogueController : MonoBehaviour
 			public string m_text;
 			public string m_preconditionName;
 			public int m_userdata;
+			public object m_userdataObj;
 			public string[] m_followUp;
 			public string m_eventName; // TODO: less error-prone type?
 			public bool m_breakAfterward;
@@ -83,7 +84,7 @@ public class DialogueController : MonoBehaviour
 		Line.Reply replyCur = repliesCur?[m_replyIdx];
 		if (!string.IsNullOrEmpty(replyCur?.m_eventName))
 		{
-			gameObject.SendMessage(replyCur.m_eventName);
+			gameObject.SendMessage(replyCur.m_eventName, replyCur);
 		}
 
 		if (m_queueFollowUp == null && replyCur?.m_followUp != null && replyCur.m_followUp.Length > 0)
@@ -114,7 +115,7 @@ public class DialogueController : MonoBehaviour
 	}
 
 	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName)
-	public void MerchantSell()
+	public void MerchantSell(Line.Reply reply)
 	{
 		IAttachable[] attachables = m_avatar.GetComponentsInChildren<IAttachable>(true);
 		if (attachables.Length <= 0)
@@ -143,7 +144,7 @@ public class DialogueController : MonoBehaviour
 	}
 
 	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName)
-	public void MerchantDespawn()
+	public void MerchantDespawn(Line.Reply reply)
 	{
 		// record acquisition
 		IEnumerable<IAttachable> attachables = m_avatar.GetComponentsInChildren<IAttachable>(true).Where(attachable => ((ISavable)attachable).Type >= 0); // TODO: don't assume all attachables are also savables?
@@ -173,7 +174,7 @@ public class DialogueController : MonoBehaviour
 	}
 
 	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName)
-	public void MerchantBuy()
+	public void MerchantBuy(Line.Reply reply)
 	{
 		List<Line.Reply> replyList = new();
 		for (int type = 0, n = GameController.MerchantAcquiredCounts.Length; type < n; ++type)
@@ -193,9 +194,9 @@ public class DialogueController : MonoBehaviour
 	}
 
 	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName)
-	public void MerchantSpawn()
+	public void MerchantSpawn(Line.Reply reply)
 	{
-		int savableType = m_queue.Peek().m_replies[m_replyIdx].m_userdata;
+		int savableType = reply.m_userdata;
 		int cost = GameController.Instance.m_savableFactory.m_savables[savableType].m_materialCost;
 		Debug.Assert(GameController.MerchantMaterials >= cost);
 		ISavable savable = GameController.Instance.m_savableFactory.Instantiate(savableType, m_avatar.transform.position, Quaternion.identity);
@@ -203,11 +204,14 @@ public class DialogueController : MonoBehaviour
 		GameController.MerchantMaterials -= cost;
 	}
 
+	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName)
+	public void ActivateInteract(Line.Reply reply) => ((InteractScene)reply.m_userdataObj).StartAnimation(m_avatar);
+
 
 	private System.Collections.IEnumerator AdvanceDialogue(Action postDialogue)
 	{
 		m_text.text = null;
-		NpcDialogue.ExpressionInfo[] expressionsOrdered = m_expressions.RandomWeightedOrder(); // TODO: re-order after each use?
+		NpcDialogue.ExpressionInfo[] expressionsOrdered = m_expressions?.RandomWeightedOrder(); // TODO: re-order after each use?
 
 		// avatar setup
 		if (m_avatar == null)
@@ -349,9 +353,12 @@ public class DialogueController : MonoBehaviour
 
 		if (!string.IsNullOrEmpty(text))
 		{
-			foreach (NpcDialogue.ExpressionInfo expression in expressionsOrdered)
+			if (expressionsOrdered != null)
 			{
-				text = text.Replace("{" + expression.m_key + "}", expression.m_replacement);
+				foreach (NpcDialogue.ExpressionInfo expression in expressionsOrdered)
+				{
+					text = text.Replace("{" + expression.m_key + "}", expression.m_replacement);
+				}
 			}
 
 			if (!string.IsNullOrEmpty(text)) // NOTE that we handle empty replacements even though we generally don't want to end up w/ an empty string
@@ -365,7 +372,7 @@ public class DialogueController : MonoBehaviour
 				for (int i = 2; i < textArray.Length; ++i)
 				{
 					char c = textArray[i - 2];
-					if ((c == '.' || c == '?' || c == '!') && char.IsWhiteSpace(textArray[i - 1]))
+					if ((c == '.' || c == '?' || c == '!') && char.IsWhiteSpace(textArray[i - 1])) // TODO: don't capitalize after ellipses?
 					{
 						textArray[i] = char.ToUpper(textArray[i]);
 					}

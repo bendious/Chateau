@@ -138,10 +138,6 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 570584706558630123, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_text
-      value: Entryway
-      objectReference: {fileID: 0}
     - target: {fileID: 1817590265900586355, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_Name
       value: SceneMin
@@ -161,10 +157,6 @@ PrefabInstance:
     - target: {fileID: 3349931415391940688, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_Name
       value: EntrywayButton
-      objectReference: {fileID: 0}
-    - target: {fileID: 5271682946291878117, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_AdditionalShaderChannelsFlag
-      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_type

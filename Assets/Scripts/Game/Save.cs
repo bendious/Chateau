@@ -12,9 +12,9 @@ public class SaveWriter : System.IDisposable
 #endif
 
 
-	public SaveWriter(Scene scene)
+	public SaveWriter()
 	{
-		m_writer = new(File.Create(SaveHelpers.SaveFilePath(scene)));
+		m_writer = new(File.Create(SaveHelpers.SaveFilePath()));
 		Write(SaveHelpers.m_saveVersion);
 	}
 
@@ -63,9 +63,9 @@ public class SaveReader : System.IDisposable
 #endif
 
 
-	public SaveReader(Scene scene)
+	public SaveReader()
 	{
-		string filePath = SaveHelpers.SaveFilePath(scene);
+		string filePath = SaveHelpers.SaveFilePath();
 		if (!File.Exists(filePath))
 		{
 			return;
@@ -131,10 +131,10 @@ internal static class SaveHelpers
 #endif
 
 
-	public static void Delete(Scene scene) => File.Delete(SaveFilePath(scene));
+	public static void Delete() => File.Delete(SaveFilePath());
 
 
-	internal static string SaveFilePath(Scene scene) => Path.Combine(Application.persistentDataPath, scene.name + m_saveFileSuffix);
+	internal static string SaveFilePath() => Path.Combine(Application.persistentDataPath, "Save" + m_saveFileSuffix);
 
 
 #if DEBUG
