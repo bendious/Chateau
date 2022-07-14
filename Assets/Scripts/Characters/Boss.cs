@@ -63,7 +63,7 @@ public class Boss : MonoBehaviour
 
 		// spawn ladder(s) if necessary
 		RoomController roomComp = m_room.GetComponent<RoomController>();
-		foreach (GameObject doorway in roomComp.DoorwaysUpwardOpen)
+		foreach (GameObject doorway in roomComp.DoorwaysUpwardUnblocked)
 		{
 			roomComp.SpawnLadder(doorway, m_room.m_spawnedLadderPrefabs.RandomWeighted(), true);
 		}

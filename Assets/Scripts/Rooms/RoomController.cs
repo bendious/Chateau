@@ -50,7 +50,7 @@ public class RoomController : MonoBehaviour
 	};
 
 
-	public GameObject[] DoorwaysUpwardOpen => m_doorwayInfos.Where(info => info.IsOpen() && info.DirectionOutward() == Vector2.up).Select(info => info.m_object).ToArray();
+	public GameObject[] DoorwaysUpwardUnblocked => m_doorwayInfos.Where(info => !info.m_onewayBlocked && info.IsOpen() && info.DirectionOutward() == Vector2.up).Select(info => info.m_object).ToArray();
 
 	public Bounds BoundsInterior { get {
 		Bounds boundsInterior = m_bounds; // NOTE the copy since Expand() modifies the given struct
@@ -120,7 +120,7 @@ public class RoomController : MonoBehaviour
 			{
 				return false;
 			}
-			if (checkLevel == ObstructionCheck.Directional && room.m_layoutNodes.Any(fromNode => ConnectedRoom.m_layoutNodes.Any(toNode => fromNode.HasDescendant(toNode))))
+			if (checkLevel == ObstructionCheck.Directional && room.m_layoutNodes.Any(fromNode => fromNode.m_children.Count > 0 && fromNode.m_children.All(toNode => ConnectedRoom.m_layoutNodes.Contains(toNode))))
 			{
 				return false;
 			}
@@ -249,6 +249,15 @@ public class RoomController : MonoBehaviour
 				}
 			}
 		}
+
+		foreach (DoorwayInfo info in m_doorwayInfos)
+		{
+			if (info.m_onewayBlocked)
+			{
+				// draw simple arrow pointing inward to indicate allowed direction
+				UnityEditor.Handles.DrawLines(new Vector3[] { info.m_object.transform.position + new Vector3(0.5f, 0.5f, 0.0f), info.m_object.transform.position, info.m_object.transform.position, 2.0f * info.m_infoReverse.m_object.transform.position - info.m_object.transform.position });
+			}
+		}
 	}
 #endif
 
@@ -266,6 +275,12 @@ public class RoomController : MonoBehaviour
 
 	public void FinalizeRecursive(ref int doorwayDepth, ref int npcDepth)
 	{
+		// record/increment depths since we need the original values after passing the incremented values to our descendants
+		int doorwayDepthLocal = doorwayDepth;
+		int npcDepthLocal = npcDepth;
+		npcDepth += m_layoutNodes.Count(node => node.m_type == LayoutGenerator.Node.Type.Npc);
+		doorwayDepth += m_layoutNodes.Count(node => node.m_type == LayoutGenerator.Node.Type.Entrance || node.m_type == LayoutGenerator.Node.Type.ExitDoor);
+
 		// spawn fixed-placement node architecture
 		// NOTE the separate loops to ensure fixed-placement nodes are processed before flexible ones; also that this needs to be before flexibly-placed objects such as furniture
 		float fillPct = 0.0f;
@@ -275,7 +290,8 @@ public class RoomController : MonoBehaviour
 			switch (node.m_type)
 			{
 				case LayoutGenerator.Node.Type.Entrance:
-					fillPct += SpawnDoor(ref doorwayDepth, true, extentsInterior.x);
+					fillPct += SpawnDoor(doorwayDepthLocal, true, extentsInterior.x);
+					++doorwayDepthLocal;
 					break;
 			}
 		}
@@ -325,15 +341,16 @@ public class RoomController : MonoBehaviour
 						}
 						if (!cutbackIsLocked)
 						{
-							// create one-way loop
-							for (int pathIdx = path.m_pathRooms.Count - 1; pathIdx > 0; --pathIdx) // NOTE the reversed path direction
+							// try creating one-way loop
+							int traversalDir = noLadder || Random.value < 0.5f ? -1 : 1; // NOTE the forced reversed path direction when the cutback is one-way to avoid one-ways in opposite directions
+							for (int pathIdx = traversalDir > 0 ? 0 : path.m_pathRooms.Count - 1; traversalDir < 0 ? pathIdx > 0 : pathIdx < path.m_pathRooms.Count - 1; pathIdx += traversalDir)
 							{
-								IEnumerable<DoorwayInfo> infos = path.m_pathRooms[pathIdx].m_doorwayInfos.Where(info => info.ConnectedRoom == path.m_pathRooms[pathIdx - 1]);
+								IEnumerable<DoorwayInfo> infos = path.m_pathRooms[pathIdx].m_doorwayInfos.Where(info => info.ConnectedRoom == path.m_pathRooms[pathIdx + traversalDir] && path.m_pathPositions.Contains(info.m_object.transform.position)); // TODO: simpler way of ensuring the correct doorway for room pairs w/ multiple connections?
 								foreach (DoorwayInfo info in infos)
 								{
-									if (info.DirectionOutward() == Vector2.up)
+									if (info.DirectionOutward() == Vector2.up) // TODO: non-vertical one-way blockages?
 									{
-										//info.m_onewayBlocked = true; // TODO: guarantee this won't create a softlock
+										info.m_onewayBlocked = true;
 										break;
 									}
 								}
@@ -430,6 +447,16 @@ public class RoomController : MonoBehaviour
 			}
 		}
 
+		// finalize children
+		// NOTE that this has to be BEFORE spawning ladders in order to ensure all cutbacks are opened first
+		foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
+		{
+			if (doorwayInfo.ChildRoom != null)
+			{
+				doorwayInfo.ChildRoom.FinalizeRecursive(ref doorwayDepth, ref npcDepth);
+			}
+		}
+
 		// spawn ladders
 		if (m_ladderRungPrefabs != null && m_ladderRungPrefabs.Length > 0)
 		{
@@ -483,19 +510,20 @@ public class RoomController : MonoBehaviour
 					break;
 
 				case LayoutGenerator.Node.Type.ExitDoor:
-					fillPct += SpawnDoor(ref doorwayDepth, false, extentsInterior.x);
+					fillPct += SpawnDoor(doorwayDepthLocal, false, extentsInterior.x);
+					++doorwayDepthLocal;
 					break;
 
 				case LayoutGenerator.Node.Type.Npc:
 					int sceneIdx = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
-					if (sceneIdx == 0 ? npcDepth > GameController.ZonesFinishedCount : npcDepth + GameController.ZonesFinishedCount >= sceneIdx) // TODO: don't assume that the first scene is where NPCs congregate?
+					if (sceneIdx == 0 ? npcDepthLocal > GameController.ZonesFinishedCount : npcDepthLocal + GameController.ZonesFinishedCount >= sceneIdx) // TODO: don't assume that the first scene is where NPCs congregate?
 					{
 						break;
 					}
 					GameObject npcPrefab = m_npcPrefabs.RandomWeighted();
 					InteractDialogue npc = Instantiate(npcPrefab, InteriorPosition(0.0f) + (Vector3)npcPrefab.OriginToCenterY(), Quaternion.identity).GetComponent<InteractDialogue>();
-					npc.Index = npcDepth + sceneIdx;
-					++npcDepth;
+					npc.Index = npcDepthLocal + sceneIdx;
+					++npcDepthLocal;
 					break;
 
 				default:
@@ -539,15 +567,9 @@ public class RoomController : MonoBehaviour
 			--furnitureRemaining;
 		}
 
-		// finalize children/doorways
+		// spawn keys
 		foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
 		{
-			if (doorwayInfo.ChildRoom != null)
-			{
-				// TODO: move to earlier loop?
-				doorwayInfo.ChildRoom.FinalizeRecursive(ref doorwayDepth, ref npcDepth);
-			}
-
 			SpawnKeys(doorwayInfo, (unlockable, lockRoom, keyRooms) => unlockable.SpawnKeysDynamic(lockRoom, keyRooms)); // NOTE that this has to be after furniture for item key placement
 		}
 
@@ -1049,7 +1071,7 @@ public class RoomController : MonoBehaviour
 		if (blockerNode != null)
 		{
 			bool excludeSelf = Random.value < 0.5f; // TEMP?
-			doorwayInfo.m_onewayBlocked = SpawnGate(doorwayInfo, isLock || isOrderedLock, replaceDirection, blockerNode.DirectParents.Count(node => node.m_type == LayoutGenerator.Node.Type.Key && (!excludeSelf || node.m_room != this)), reverseDoorwayInfo, isOrderedLock ? orderedLockIdx++ : -1);
+			doorwayInfo.m_onewayBlocked |= SpawnGate(doorwayInfo, isLock || isOrderedLock, replaceDirection, blockerNode.DirectParents.Count(node => node.m_type == LayoutGenerator.Node.Type.Key && (!excludeSelf || node.m_room != this)), reverseDoorwayInfo, isOrderedLock ? orderedLockIdx++ : -1);
 		}
 
 		childRoom.SetNodes(childNodes);
@@ -1058,7 +1080,7 @@ public class RoomController : MonoBehaviour
 		childRoom.OpenDoorway(reverseDoorwayInfo, true);
 	}
 
-	private float SpawnDoor(ref int doorwayDepth, bool isEntrance, float extentsInteriorX)
+	private float SpawnDoor(int doorwayDepth, bool isEntrance, float extentsInteriorX)
 	{
 		GameObject[] doorInteractPrefabs = GameController.Instance.m_doorInteractPrefabs;
 		GameObject doorPrefab = doorInteractPrefabs[System.Math.Min(doorInteractPrefabs.Length - 1, doorwayDepth)];
@@ -1067,7 +1089,6 @@ public class RoomController : MonoBehaviour
 		{
 			doorInteract.Depth = doorwayDepth;
 		}
-		++doorwayDepth;
 		return BoundsWithChildren(doorInteract.gameObject).extents.x / extentsInteriorX;
 	}
 
@@ -1184,7 +1205,7 @@ public class RoomController : MonoBehaviour
 
 	private class AStarPath : System.IComparable<AStarPath>
 	{
-		public List<RoomController> m_pathRooms;
+		public List<RoomController> m_pathRooms; // TODO: store DoorwayInfos to ensure correct paths w/ multiple connections between room pairs?
 		public List<Vector2> m_pathPositions;
 		public float m_distanceCur;
 		public float m_distanceTotalEst;
