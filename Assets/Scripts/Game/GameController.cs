@@ -33,6 +33,9 @@ public class GameController : MonoBehaviour
 	public WeightedObject<GameObject>[] m_entryRoomPrefabs;
 	public WeightedObject<GameObject>[] m_roomPrefabs;
 	public WeightedObject<GameObject>[] m_bossRoomPrefabs;
+	public WeightedObject<GameObject>[] m_gatePrefabs;
+	public WeightedObject<GameObject>[] m_lockPrefabs;
+	public WeightedObject<GameObject>[] m_keyPrefabs;
 	public WeightedObject<RoomType>[] m_roomTypes;
 	public WeightedObject<GameObject>[] m_enemyPrefabs;
 	[SerializeField] private WeightedObject<NpcDialogue>[] m_npcRoles;

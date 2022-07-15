@@ -45,9 +45,13 @@ public static class Utility
 		return Enum.GetValues(typeof(T)).Length;
 	}
 
+	public static IEnumerable<WeightedObject<T>> CombineWeighted<T>(this IEnumerable<WeightedObject<T>> a, IEnumerable<WeightedObject<T>> b) => CombineWeighted(a, b, WeightedObjectToObject, WeightedObjectToObject);
+
+	public static IEnumerable<WeightedObject<T1>> CombineWeighted<T1, T2, TKey>(this IEnumerable<WeightedObject<T1>> a, IEnumerable<WeightedObject<T2>> b, Func<WeightedObject<T1>, TKey> aToKey, Func<WeightedObject<T2>, TKey> bToKey) => a.Join(b, aToKey, bToKey, (pair1, pair2) => new WeightedObject<T1> { m_object = pair1.m_object, m_weight = pair1.m_weight * pair2.m_weight });
+
 	public static T RandomWeighted<T>(this IEnumerable<WeightedObject<T>> pairs)
 	{
-		return RandomWeighted(pairs.Select(pair => pair.m_object).ToArray(), pairs.Select(pair => pair.m_weight).ToArray());
+		return RandomWeighted(pairs.Select(WeightedObjectToObject), pairs.Select(pair => pair.m_weight));
 	}
 
 	public static T RandomWeighted<T>(this IEnumerable<T> values, IEnumerable<float> weights)
@@ -71,18 +75,15 @@ public static class Utility
 		return values.ElementAt(idxItr);
 	}
 
-	public static T[] RandomWeightedOrder<T>(this IEnumerable<WeightedObject<T>> pairs)
+	public static IEnumerable<T> RandomWeightedOrder<T>(this IEnumerable<WeightedObject<T>> pairs)
 	{
 		Assert.IsFalse(pairs.Any(pair => pair.m_weight < 0.0f));
-		return pairs.OrderBy(pair => UnityEngine.Random.value / pair.m_weight).Select(pair => pair.m_object).ToArray();
+		return pairs.OrderBy(pair => UnityEngine.Random.value / pair.m_weight).Select(WeightedObjectToObject);
 	}
 
-	public static T[] RandomWeightedOrder<T>(this IEnumerable<T> values, IEnumerable<float> weights)
-	{
-		return RandomWeightedOrder(values.Zip(weights, (value, weight) => new WeightedObject<T> { m_object = value, m_weight = weight }).ToArray());
-	}
+	public static IEnumerable<T> RandomWeightedOrder<T>(this IEnumerable<T> values, IEnumerable<float> weights) => RandomWeightedOrder(values.Zip(weights, (value, weight) => new WeightedObject<T> { m_object = value, m_weight = weight }));
 
-	public static T RandomWeightedEnum<T>(this float[] weights) where T : System.Enum
+	public static T RandomWeightedEnum<T>(this float[] weights) where T : Enum
 	{
 		/*const*/ int typeCount = EnumNumTypes<T>();
 		Assert.IsTrue(weights.Length <= typeCount);
@@ -198,4 +199,7 @@ public static class Utility
 		System.Reflection.FieldInfo setterWorkaround = component.GetType().GetField(fieldName, flags);
 		setterWorkaround.SetValue(component, value);
 	}
+
+
+	private static T WeightedObjectToObject<T>(WeightedObject<T> pair) => pair.m_object;
 }

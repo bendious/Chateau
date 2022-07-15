@@ -1443,6 +1443,53 @@ MonoBehaviour:
   - m_object: {fileID: 3219298760607032273, guid: b2846bbea2ec52e4082109700bc8c035, type: 3}
     m_weight: 0.25
   m_bossRoomPrefabs: []
+  m_gatePrefabs:
+  - m_object: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 2530109060553961877, guid: b214be9997254b949af66fe5a19fae4f, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 1365230811573513431, guid: fe495bb420265d946a84ada74b132a5a, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 3346888056824497695, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 6676558204597996972, guid: a07871bf36908524ea4aba70a9bb16f1, type: 3}
+    m_weight: 1
+  m_lockPrefabs:
+  - m_object: {fileID: 5718300461762894371, guid: e360d6e48b098a443847f39c71734a9b, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 128592948153001037, guid: 8882c998d89b943488c134f27df4165b, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 3391462495616687843, guid: 0a1f24eb2c6158b40b7e584086eed3ce, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 5713708662116359284, guid: 232d1a89b3845dc408ef284bf7f86d4c, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 5713708662116359284, guid: 758626dde12796e4faf65df01d8186a4, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 5713708662116359284, guid: a3dea159a26855e4685c1afb4ce386f2, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 7322114707904146115, guid: 89c226c321c72e24990f120783bd766e, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 5713708662116359284, guid: 8c3fc5c56eed601468de8c07cda1bb7a, type: 3}
+    m_weight: 1
+  m_keyPrefabs:
+  - m_object: {fileID: 7680583005214381087, guid: a7c46a786f6b16841b2341cb70a08253, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 6152125228709660974, guid: c8502590ca924fb42b44ab31ce5740d9, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 3916154150493127968, guid: de4eda1bf76463147931e4988117aeb6, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 5021475883566326867, guid: bff239aa65d864f4688a85f9f1775bc4, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 706043663315506005, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 2985935573955904460, guid: d0f5470f46df30c4b9004f62adc55cc9, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8498127701983908984, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
+    m_weight: 1
   m_roomTypes:
   - m_object: {fileID: 11400000, guid: d334c59576f62e94ca99e526e7ae5ee7, type: 2}
     m_weight: 1

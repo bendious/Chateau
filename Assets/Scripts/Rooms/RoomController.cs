@@ -120,7 +120,7 @@ public class RoomController : MonoBehaviour
 			{
 				return false;
 			}
-			if (checkLevel == ObstructionCheck.Directional && room.m_layoutNodes.Any(fromNode => fromNode.m_children.Count > 0 && fromNode.m_children.All(toNode => ConnectedRoom.m_layoutNodes.Contains(toNode))))
+			if (checkLevel == ObstructionCheck.Directional && room.m_layoutNodes.Any(fromNode => fromNode.m_children != null && fromNode.m_children.Count > 0 && fromNode.m_children.All(toNode => ConnectedRoom.m_layoutNodes.Contains(toNode))))
 			{
 				return false;
 			}
@@ -174,14 +174,15 @@ public class RoomController : MonoBehaviour
 	private /*readonly*/ Color m_wallColor;
 
 
-	public static T RandomWeightedByKeyCount<T>(WeightedObject<T>[] candidates, System.Func<T, int> candidateToKeyDiff, float scalarPerDiff = 0.5f)
+	public static T RandomWeightedByKeyCount<T>(IEnumerable<WeightedObject<T>> candidates, System.Func<T, int> candidateToKeyDiff, float scalarPerDiff = 0.5f)
 	{
 		// NOTE the copy to avoid altering existing weights
-		return candidates.Select(candidate =>
+		IEnumerable<WeightedObject<T>> candidatesProcessed = candidates.Select(candidate =>
 		{
 			int keyCountDiff = candidateToKeyDiff(candidate.m_object);
 			return new WeightedObject<T> { m_object = candidate.m_object, m_weight = candidate.m_weight / (1 + keyCountDiff * scalarPerDiff) };
-		}).RandomWeighted();
+		});
+		return candidatesProcessed.Count() <= 0 ? default : candidatesProcessed.RandomWeighted();
 	}
 
 
@@ -342,6 +343,7 @@ public class RoomController : MonoBehaviour
 						if (!cutbackIsLocked)
 						{
 							// try creating one-way loop
+							// TODO: prevent overlapping loops in opposite directions
 							int traversalDir = noLadder || Random.value < 0.5f ? -1 : 1; // NOTE the forced reversed path direction when the cutback is one-way to avoid one-ways in opposite directions
 							for (int pathIdx = traversalDir > 0 ? 0 : path.m_pathRooms.Count - 1; traversalDir < 0 ? pathIdx > 0 : pathIdx < path.m_pathRooms.Count - 1; pathIdx += traversalDir)
 							{
@@ -480,6 +482,13 @@ public class RoomController : MonoBehaviour
 			}
 		}
 
+		// spawn locks
+		// NOTE that this is done before flexible node architecture since some locks (e.g. ladders) have required positioning
+		foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
+		{
+			SpawnKeys(doorwayInfo, (unlockable, lockRoom, keyRooms) => unlockable.SpawnKeysStatic(lockRoom, keyRooms)); // NOTE that this has to be before furniture to ensure space w/o overlap
+		}
+
 		// spawn flexible node architecture
 		foreach (LayoutGenerator.Node node in m_layoutNodes)
 		{
@@ -529,12 +538,6 @@ public class RoomController : MonoBehaviour
 				default:
 					break;
 			}
-		}
-
-		// spawn locks
-		foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
-		{
-			SpawnKeys(doorwayInfo, (unlockable, lockRoom, keyRooms) => unlockable.SpawnKeysStatic(lockRoom, keyRooms)); // NOTE that this has to be before furniture to ensure space w/o overlap
 		}
 
 		// spawn furniture
@@ -1099,11 +1102,12 @@ public class RoomController : MonoBehaviour
 		// create gate
 		Assert.IsNull(doorwayInfo.m_blocker);
 		WeightedObject<GameObject>[] directionalBlockerPrefabs = isLock ? m_doorDirectionalPrefabs.FirstOrDefault(pair => pair.m_direction == replaceDirection).m_prefabs : null; // TODO: don't assume that secrets will never be directional?
-		GameObject blockerPrefab = orderedLockIdx >= 0 ? m_lockOrderedPrefabs[System.Math.Min(orderedLockIdx, m_lockOrderedPrefabs.Length - 1)] : RandomWeightedByKeyCount(isLock ? (directionalBlockerPrefabs != null ? directionalBlockerPrefabs.Concat(m_doorPrefabs).ToArray() : m_doorPrefabs) : m_doorSecretPrefabs, prefab =>
+		GameObject blockerPrefab = orderedLockIdx >= 0 ? m_lockOrderedPrefabs[System.Math.Min(orderedLockIdx, m_lockOrderedPrefabs.Length - 1)] : RandomWeightedByKeyCount((isLock ? (directionalBlockerPrefabs != null ? directionalBlockerPrefabs.Concat(m_doorPrefabs) : m_doorPrefabs) : m_doorSecretPrefabs).CombineWeighted(GameController.Instance.m_gatePrefabs), prefab =>
 		{
 			LockController lockComp = prefab.GetComponent<LockController>();
-			WeightedObject<LockController.KeyInfo>[] keys = lockComp == null ? null : lockComp.m_keyPrefabs;
-			return keys == null || keys.Length <= 0 ? preferredKeyCount : keys.Min(key => key.m_object.m_keyCountMax - preferredKeyCount < 0 ? int.MaxValue : key.m_object.m_keyCountMax - preferredKeyCount);
+			IEnumerable<WeightedObject<LockController.KeyInfo>> keys = lockComp == null ? null : lockComp.m_keyPrefabs;
+			keys = keys?.CombineWeighted(GameController.Instance.m_keyPrefabs, info => info.m_object.m_prefabs?.FirstOrDefault(prefab => GameController.Instance.m_keyPrefabs.Any(key => key.m_object == prefab.m_object)).m_object, pair => pair.m_object);
+			return keys == null || keys.Count() <= 0 ? preferredKeyCount : keys.Min(key => key.m_object.m_keyCountMax - preferredKeyCount < 0 ? int.MaxValue : key.m_object.m_keyCountMax - preferredKeyCount);
 		});
 		GameObject doorway = doorwayInfo.m_object;
 		doorwayInfo.m_blocker = Instantiate(blockerPrefab, doorway.transform.position, Quaternion.identity, transform);

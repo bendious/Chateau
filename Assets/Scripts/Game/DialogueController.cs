@@ -211,7 +211,7 @@ public class DialogueController : MonoBehaviour
 	private System.Collections.IEnumerator AdvanceDialogue(Action postDialogue)
 	{
 		m_text.text = null;
-		NpcDialogue.ExpressionInfo[] expressionsOrdered = m_expressions?.RandomWeightedOrder(); // TODO: re-order after each use?
+		IEnumerable<NpcDialogue.ExpressionInfo> expressionsOrdered = m_expressions?.RandomWeightedOrder(); // TODO: re-order after each use?
 
 		// avatar setup
 		if (m_avatar == null)

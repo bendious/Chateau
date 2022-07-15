@@ -72,10 +72,10 @@ public class LockController : MonoBehaviour, IUnlockable
 		RoomController[] keyOrLockRooms = keyRoomCount > 0 ? keyRooms : new RoomController[] { lockRoom };
 		if (m_keyPrefabs.Length > 0)
 		{
-			m_keyInfo = RoomController.RandomWeightedByKeyCount(m_keyPrefabs, info => info.m_keyCountMax - keyRoomCount < 0 ? int.MaxValue : info.m_keyCountMax - keyRoomCount);
+			m_keyInfo = RoomController.RandomWeightedByKeyCount(m_keyPrefabs.CombineWeighted(GameController.Instance.m_keyPrefabs, info => info.m_object.m_prefabs?.FirstOrDefault(prefab => GameController.Instance.m_keyPrefabs.Any(key => key.m_object == prefab.m_object)).m_object, pair => pair.m_object), info => info.m_keyCountMax - keyRoomCount < 0 ? int.MaxValue : info.m_keyCountMax - keyRoomCount);
 		}
 
-		if (keyRooms == null)
+		if (keyRooms == null || m_keyInfo.m_keyCountMax <= 0)
 		{
 			return; // NOTE that this is valid in the Entryway, where locks are spawned w/o keys
 		}

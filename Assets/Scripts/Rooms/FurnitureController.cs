@@ -61,11 +61,9 @@ public class FurnitureController : MonoBehaviour
 		// determine final spawn types/weights based on furniture and room type
 		int minItemsOtherFurniture = itemCountExisting + furnitureRemaining * m_itemsMin; // TODO: don't assume all future furniture will have the same m_itemsMin
 		int itemCount = Random.Range(Mathf.Max(m_itemsMin, roomType.m_itemsMin - minItemsOtherFurniture), Mathf.Min(m_itemsMax, roomType.m_itemsMax - minItemsOtherFurniture) + 1);
-		WeightedObject<GameObject>[] furnitureItems = rare ? m_itemRarePrefabs : m_itemPrefabs;
-		WeightedObject<GameObject>[] roomItems = rare ? roomType.m_itemRarePrefabs : roomType.m_itemPrefabs;
-		WeightedObject<GameObject>[] itemsFinal = furnitureItems.Join(roomItems, pair => pair.m_object, pair => pair.m_object, (pair1, pair2) => new WeightedObject<GameObject> { m_object = pair1.m_object, m_weight = pair1.m_weight * pair2.m_weight }).ToArray();
+		System.Collections.Generic.IEnumerable<WeightedObject<GameObject>> itemsFinal = (rare ? m_itemRarePrefabs : m_itemPrefabs).CombineWeighted(rare ? roomType.m_itemRarePrefabs : roomType.m_itemPrefabs);
 
-		if (itemsFinal.Length <= 0)
+		if (itemsFinal.Count() <= 0)
 		{
 			return 0; // NOTE that this is valid for non-bonus Entryway rooms
 		}
