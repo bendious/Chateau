@@ -392,7 +392,7 @@ public class RoomController : MonoBehaviour
 		// room type
 		// TODO: more deliberate choice?
 		List<float> weightsScaled = new();
-		m_roomType = GameController.Instance.m_roomTypes.Where(type =>
+		m_roomType = (m_layoutNodes.Length == 1 && m_layoutNodes.First().m_type == LayoutGenerator.Node.Type.Room ? GameController.Instance.m_roomTypesSecret : GameController.Instance.m_roomTypes).Where(type =>
 		{
 			float weightScaled = type.m_weight;
 			if (type.m_object.m_preconditionNames == null)
@@ -589,6 +589,7 @@ public class RoomController : MonoBehaviour
 		// TODO: prioritize by area? take fillPct into account?
 		int numDecorations = Random.Range(m_roomType.m_decorationsMin, m_roomType.m_decorationsMax + 1);
 		float[] decorationTypeHeights = Enumerable.Repeat(float.MinValue, m_roomType.m_decorations.Length).ToArray(); // TODO: allow similar decoration types to share heights? share between rooms?
+		float roomHeight = extentsInterior.y * 2.0f;
 		for (int i = 0; i < numDecorations; ++i)
 		{
 			RoomType.DecorationInfo decoInfo = m_roomType.m_decorations.RandomWeighted();
@@ -596,7 +597,7 @@ public class RoomController : MonoBehaviour
 			float height = decorationTypeHeights[decoIdx];
 			if (height == float.MinValue)
 			{
-				height = Random.Range(decoInfo.m_heightMin, decoInfo.m_heightMax);
+				height = Random.Range(decoInfo.m_heightMin, Mathf.Min(roomHeight, decoInfo.m_heightMax));
 				decorationTypeHeights[decoIdx] = height;
 			}
 			GameObject decoPrefab = decoInfo.m_prefab;
