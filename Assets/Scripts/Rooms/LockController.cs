@@ -135,9 +135,9 @@ public class LockController : MonoBehaviour, IUnlockable
 				{
 					int startIdx = Mathf.RoundToInt(keyIdx * digitsPerKey);
 					int endIdx = Mathf.RoundToInt((keyIdx + 1) * digitsPerKey);
-					string prepend = keyIdx == 0 ? "" : "<sprite index=0>";
+					string prepend = keyIdx == 0 ? "" : "<sprite index=0 tint=1>";
 					IEnumerable<string> keyText = combination[startIdx .. endIdx].Select(idx => m_combinationSet.m_options[idx].m_strings[optionIdxText]);
-					string append = keyIdx == keyOrLockRooms.Length - 1 ? "" : "<sprite index=0>";
+					string append = keyIdx == keyOrLockRooms.Length - 1 ? "" : "<sprite index=0 tint=1>";
 
 					if (key is ItemController item)
 					{
