@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 
@@ -23,10 +24,10 @@ public class KeyStatic : MonoBehaviour, IKey
 	public void Deactivate()
 	{
 		GetComponent<UnityEngine.Rendering.Universal.Light2D>().enabled = false;
-		Canvas canvas = GetComponentInChildren<Canvas>();
-		if (canvas != null)
+		TMP_Text text = GetComponentInChildren<TMP_Text>();
+		if (text != null)
 		{
-			canvas.enabled = false;
+			text.enabled = false;
 		}
 	}
 }
