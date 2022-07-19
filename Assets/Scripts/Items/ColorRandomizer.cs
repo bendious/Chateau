@@ -13,6 +13,14 @@ public class ColorRandomizer : MonoBehaviour
 	// NOTE that this has to be Awake() rather than Start() since some other components do color-based logic after spawning
 	private void Awake()
 	{
-		GetComponent<SpriteRenderer>().color = Utility.ColorRandom(m_colorMin, m_colorMax, m_proportional); // TODO: more deliberate choice?
+		Color color = Utility.ColorRandom(m_colorMin, m_colorMax, m_proportional); // TODO: more deliberate choice?
+		foreach (SpriteRenderer r in GetComponentsInChildren<SpriteRenderer>())
+		{
+			if (r.GetComponentInParent<ColorRandomizer>() != this)
+			{
+				continue; // skip descendants w/ a more immediate ColorRandomizer
+			}
+			r.color = color;
+		}
 	}
 }
