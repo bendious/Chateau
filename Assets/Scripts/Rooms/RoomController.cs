@@ -177,7 +177,7 @@ public class RoomController : MonoBehaviour
 	public static T RandomWeightedByKeyCount<T>(IEnumerable<WeightedObject<T>> candidates, System.Func<T, int> candidateToKeyDiff, float scalarPerDiff = 0.5f)
 	{
 		// NOTE the copy to avoid altering existing weights
-		IEnumerable<WeightedObject<T>> candidatesProcessed = candidates.Select(candidate =>
+		IEnumerable<WeightedObject<T>> candidatesProcessed = candidates.Where(candidate => candidate.m_object != null).Select(candidate =>
 		{
 			int keyCountDiff = candidateToKeyDiff(candidate.m_object);
 			return new WeightedObject<T> { m_object = candidate.m_object, m_weight = candidate.m_weight / (1 + keyCountDiff * scalarPerDiff) };
@@ -1107,7 +1107,7 @@ public class RoomController : MonoBehaviour
 		{
 			LockController lockComp = prefab.GetComponent<LockController>();
 			IEnumerable<WeightedObject<LockController.KeyInfo>> keys = lockComp == null ? null : lockComp.m_keyPrefabs;
-			keys = keys?.CombineWeighted(GameController.Instance.m_keyPrefabs, info => info.m_object.m_prefabs?.FirstOrDefault(prefab => GameController.Instance.m_keyPrefabs.Any(key => key.m_object == prefab.m_object)).m_object, pair => pair.m_object);
+			keys = keys?.CombineWeighted(GameController.Instance.m_keyPrefabs, info => info.m_object.m_prefabs.FirstOrDefault(prefab => GameController.Instance.m_keyPrefabs.Any(key => key.m_object == prefab.m_object))?.m_object, pair => pair.m_object);
 			return keys == null || keys.Count() <= 0 ? preferredKeyCount : keys.Min(key => key.m_object.m_keyCountMax - preferredKeyCount < 0 ? int.MaxValue : key.m_object.m_keyCountMax - preferredKeyCount);
 		});
 		GameObject doorway = doorwayInfo.m_object;

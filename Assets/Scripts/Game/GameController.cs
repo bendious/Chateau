@@ -84,7 +84,9 @@ public class GameController : MonoBehaviour
 
 	public static GameController Instance { get; private set; }
 
-	public static NpcDialogue[][] Npcs { get; private set; }
+	public static NpcDialogue[] NpcDialogues(int index) => m_npcs[index].m_dialogues;
+	public static Color NpcColor(int index) => m_npcs[index].m_color;
+
 	public static int[] MerchantAcquiredCounts;
 	public static int MerchantMaterials;
 
@@ -107,6 +109,13 @@ public class GameController : MonoBehaviour
 	private static int m_seed;
 
 	private RoomController m_startRoom;
+
+	private struct NpcInfo
+	{
+		public Color m_color;
+		public NpcDialogue[] m_dialogues;
+	}
+	private static NpcInfo[] m_npcs;
 
 	private float m_waveWeight;
 	private float m_nextWaveTime = 0.0f;
@@ -177,9 +186,9 @@ public class GameController : MonoBehaviour
 		Load();
 
 		// first-time initializations
-		if (Npcs == null)
+		if (m_npcs == null)
 		{
-			Npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => new NpcDialogue[] { a, b }).ToArray();
+			m_npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => new NpcDialogue[] { a, b }).Select(dialogue => new NpcInfo { m_color = Utility.ColorRandom(Color.black, Color.white, false), m_dialogues = dialogue }).ToArray(); // TODO: ensure good colors w/o repeats?
 		}
 		if (MerchantAcquiredCounts == null)
 		{
@@ -613,14 +622,18 @@ public class GameController : MonoBehaviour
 
 		using SaveWriter saveFile = new();
 
-		saveFile.Write(Npcs, npc => saveFile.Write(npc, dialogue =>
+		saveFile.Write(m_npcs, npc =>
 		{
-			bool dialogueCheckFunc(WeightedObject<NpcDialogue> dialogueWeighted) => dialogue == dialogueWeighted.m_object;
-			int attitudeIdx = System.Array.FindIndex(m_npcAttitudes, dialogueCheckFunc);
-			saveFile.Write(attitudeIdx >= 0 ? 0 : 1);
-			saveFile.Write(attitudeIdx >= 0 ? attitudeIdx : System.Array.FindIndex(m_npcRoles, dialogueCheckFunc));
-			saveFile.Write(dialogue.m_dialogue, option => saveFile.Write(option.m_weight));
-		}));
+			saveFile.Write(npc.m_dialogues, dialogue =>
+			{
+				bool dialogueCheckFunc(WeightedObject<NpcDialogue> dialogueWeighted) => dialogue == dialogueWeighted.m_object;
+				int attitudeIdx = System.Array.FindIndex(m_npcAttitudes, dialogueCheckFunc);
+				saveFile.Write(attitudeIdx >= 0 ? 0 : 1);
+				saveFile.Write(attitudeIdx >= 0 ? attitudeIdx : System.Array.FindIndex(m_npcRoles, dialogueCheckFunc));
+				saveFile.Write(dialogue.m_dialogue, option => saveFile.Write(option.m_weight));
+			});
+			saveFile.Write(npc.m_color);
+		});
 
 		saveFile.Write(MerchantAcquiredCounts, saveFile.Write);
 		saveFile.Write(MerchantMaterials);
@@ -649,13 +662,17 @@ public class GameController : MonoBehaviour
 				return;
 			}
 
-			Npcs = saveFile.ReadArray(() => saveFile.ReadArray(() =>
+			m_npcs = saveFile.ReadArray(() =>
 			{
-				NpcDialogue dialogueTmp = (saveFile.ReadInt32() == 0 ? m_npcAttitudes : m_npcRoles)[saveFile.ReadInt32()].m_object;
-				int idxItr = 0;
-				saveFile.ReadArray(() => dialogueTmp.m_dialogue[idxItr++].m_weight += saveFile.ReadSingle()); // NOTE the += to preserve weights edited outside saved levels when re-entering a saved level
-				return dialogueTmp;
-			}));
+				NpcDialogue[] dialogue = saveFile.ReadArray(() =>
+				{
+					NpcDialogue dialogueTmp = (saveFile.ReadInt32() == 0 ? m_npcAttitudes : m_npcRoles)[saveFile.ReadInt32()].m_object;
+					int idxItr = 0;
+					saveFile.ReadArray(() => dialogueTmp.m_dialogue[idxItr++].m_weight += saveFile.ReadSingle()); // NOTE the += to preserve weights edited outside saved levels when re-entering a saved level
+					return dialogueTmp;
+				});
+				return new NpcInfo { m_color = saveFile.ReadColor(), m_dialogues = dialogue };
+			});
 
 			MerchantAcquiredCounts = saveFile.ReadArray(saveFile.ReadInt32);
 			saveFile.Read(out MerchantMaterials);

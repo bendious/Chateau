@@ -216,8 +216,11 @@ public class DialogueController : MonoBehaviour
 		// avatar setup
 		if (m_avatar == null)
 		{
+			Canvas canvas = GetComponent<Canvas>();
+			canvas.enabled = false; // don't show dialogue box until we're ready
 			yield return new WaitUntil(() => GameController.Instance.m_avatars.Count > 0);
 			m_avatar = GameController.Instance.m_avatars.First(); // TODO: don't assume that the first avatar will always remain?
+			canvas.enabled = true;
 		}
 		m_avatar.Controls.SwitchCurrentActionMap("UI"); // TODO: un-hardcode?
 		InputAction submitKey = m_avatar.Controls.actions["Submit"];

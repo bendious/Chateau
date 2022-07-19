@@ -98,13 +98,8 @@ public class SaveReader : System.IDisposable
 		Read(out v.z);
 	}
 
-	public void Read(out Color v)
-	{
-		Read(out v.r);
-		Read(out v.g);
-		Read(out v.b);
-		Read(out v.a);
-	}
+	public Color ReadColor() => new(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
+	public void Read(out Color v) => v = ReadColor();
 
 	public T[] ReadArray<T>(System.Func<T> loadFunc)
 	{

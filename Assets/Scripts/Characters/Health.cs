@@ -27,7 +27,8 @@ public class Health : MonoBehaviour
 	public float m_invincibilityTime = m_invincibilityTimeDefault; // TODO: vary by animation played?
 	public bool m_invincible;
 
-	[SerializeField] private Gradient m_gradient;
+	public Gradient m_gradient;
+
 
 	[SerializeField] private float m_blinkSeconds = 0.3f;
 	[SerializeField] private Color m_blinkColor = new(1.0f, 0.25f, 0.25f);

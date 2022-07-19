@@ -24,6 +24,15 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 	private void Start()
 	{
 		m_isVice = Random.value > 0.5f; // TODO: choose exactly one NPC
+
+		// set NPC appearance
+		// TODO: move elsewhere?
+		SpriteRenderer r = GetComponent<SpriteRenderer>();
+		Color colorOrig = r.color;
+		Color colorNew = GameController.NpcColor(Index);
+		r.color = colorNew;
+		Gradient gradient = GetComponent<Health>().m_gradient;
+		gradient.colorKeys = gradient.colorKeys.Select(key => key.color.ColorsSimilar(colorOrig, 0.01f) ? new GradientColorKey { color = colorNew, time = key.time } : key).ToArray();
 	}
 
 
@@ -34,8 +43,9 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 		// lazy initialize dialogue options
 		if (m_dialogueCombined == null)
 		{
-			m_dialogueCombined = GameController.Npcs[Index].SelectMany(source => source.m_dialogue).ToArray(); // NOTE the lack of deep-copying here, allowing the source NpcDialogue weights to be edited below and subsequently saved by GameController.Save() // TODO: avoid relying on runtime edits to ScriptableObject?
-			m_expressionsCombined = GameController.Npcs[Index].SelectMany(source => source.m_expressions).ToArray(); // NOTE the lack of deep-copying here since these shouldn't be edited anyway
+			NpcDialogue[] dialogue = GameController.NpcDialogues(Index);
+			m_dialogueCombined = dialogue.SelectMany(source => source.m_dialogue).ToArray(); // NOTE the lack of deep-copying here, allowing the source NpcDialogue weights to be edited below and subsequently saved by GameController.Save() // TODO: avoid relying on runtime edits to ScriptableObject?
+			m_expressionsCombined = dialogue.SelectMany(source => source.m_expressions).ToArray(); // NOTE the lack of deep-copying here since these shouldn't be edited anyway
 		}
 
 		// filter dialogue options
