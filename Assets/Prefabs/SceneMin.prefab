@@ -1446,6 +1446,8 @@ MonoBehaviour:
   m_gatePrefabs:
   - m_object: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
     m_weight: 1
+  - m_object: {fileID: 3900856540646818196, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+    m_weight: 1
   - m_object: {fileID: 2530109060553961877, guid: b214be9997254b949af66fe5a19fae4f, type: 3}
     m_weight: 1
   - m_object: {fileID: 1365230811573513431, guid: fe495bb420265d946a84ada74b132a5a, type: 3}

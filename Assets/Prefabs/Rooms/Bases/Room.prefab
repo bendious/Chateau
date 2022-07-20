@@ -1745,6 +1745,9 @@ MonoBehaviour:
     m_prefabs:
     - m_object: {fileID: 6676558204597996972, guid: a07871bf36908524ea4aba70a9bb16f1, type: 3}
       m_weight: 1
+  m_doorBreakablePrefabs:
+  - m_object: {fileID: 3900856540646818196, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+    m_weight: 1
   m_doorSecretPrefabs:
   - m_object: {fileID: 2530109060553961877, guid: b214be9997254b949af66fe5a19fae4f, type: 3}
     m_weight: 1
@@ -1770,7 +1773,7 @@ MonoBehaviour:
   - m_object: {fileID: 6981071687859246632, guid: 17e8567260500674f88fe723983904c9, type: 3}
     m_weight: 1
   m_ladderRungSkewMax: 0.2
-  m_cutbackSecretPct: 0.5
+  m_cutbackBreakablePct: 0.5
   m_doorwayInfos:
   - m_object: {fileID: 409852463158594107}
   - m_object: {fileID: 7910571754348373109}

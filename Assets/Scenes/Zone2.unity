@@ -219,7 +219,7 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 253480046431362865, guid: 8a825b8c0c06b0645845758aaaf352be, type: 3}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_gatePrefabs.Array.data[4].m_weight
+      propertyPath: m_gatePrefabs.Array.data[5].m_weight
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
