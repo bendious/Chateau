@@ -344,6 +344,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4333001622786782380}
     m_Modifications:
+    - target: {fileID: 2497957854252019124, guid: 50c2a709aa9f4534fa768eec998e40d1, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3937696079720831540, guid: 50c2a709aa9f4534fa768eec998e40d1, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -400,8 +404,7 @@ PrefabInstance:
       propertyPath: m_fontSize
       value: 3.55
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 2497957854252019124, guid: 50c2a709aa9f4534fa768eec998e40d1, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 50c2a709aa9f4534fa768eec998e40d1, type: 3}
 --- !u!4 &8464393176017672759 stripped
 Transform:

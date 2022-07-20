@@ -351,6 +351,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1654968743986135579}
     m_Modifications:
+    - target: {fileID: 2517146506085588116, guid: eb0a8933375e73043884379117e19395, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3954641779373583124, guid: eb0a8933375e73043884379117e19395, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -399,8 +403,7 @@ PrefabInstance:
       propertyPath: m_Name
       value: PuzzlePieceMasked
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 2517146506085588116, guid: eb0a8933375e73043884379117e19395, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: eb0a8933375e73043884379117e19395, type: 3}
 --- !u!4 &7772417642069168304 stripped
 Transform:

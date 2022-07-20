@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 
@@ -30,10 +31,14 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 	}
 
 
-	private void Start()
+	private void Awake()
 	{
 		m_correctPosition = transform.position;
 		m_correctRotationDegrees = transform.rotation.eulerAngles.z;
+	}
+
+	private void Start()
+	{
 		transform.SetPositionAndRotation(GameController.Instance.RoomFromPosition(transform.position).InteriorPosition((Lock as LockController).m_keyHeightMax, gameObject), Quaternion.Euler(0.0f, 0.0f, UnityEngine.Random.Range(0.0f, 360.0f)));
 	}
 
@@ -45,7 +50,11 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 			return false;
 		}
 		AvatarController avatar = interactor.GetComponent<AvatarController>();
-		return avatar.m_follower == null || avatar.m_follower == this;
+		if (avatar.m_follower != null && avatar.m_follower != this)
+		{
+			return false;
+		}
+		return transform.parent.parent == GameController.Instance.RoomFromPosition(interactor.transform.position).transform;
 	}
 
 	public float Priority(KinematicCharacter interactor) => m_followCharacter == interactor ? float.MaxValue : IsInPlace ? 0.5f : 1.0f;
@@ -59,17 +68,30 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 			Tuple<Vector3, float> followTf = FollowTransform();
 			m_followOffset = Quaternion.Inverse(Quaternion.Euler(0.0f, 0.0f, followTf.Item2)) * (transform.position - followTf.Item1);
 			m_followOffsetDegrees = transform.rotation.eulerAngles.z - followTf.Item2;
+
+			// edit sorting order to put this "on top" w/o changing other relationships
+			InteractFollow[] siblings = transform.parent.parent.GetComponentsInChildren<InteractFollow>(); // TODO: work even between different rooms?
+			int orderItr = 0;
+			foreach (InteractFollow interact in siblings.OrderBy(i => i == this ? int.MaxValue : i.GetComponent<SpriteRenderer>().sortingOrder))
+			{
+				foreach (Renderer renderer in interact.GetComponentsInChildren<Renderer>().Where(r => r is not SpriteMask)) // NOTE that this includes SpriteRenderers as well as MeshRenderers for text
+				{
+					renderer.sortingOrder = orderItr;
+					SpriteMask mask = renderer.GetComponent<SpriteMask>();
+					if (mask != null)
+					{
+						mask.frontSortingOrder = orderItr;
+						mask.backSortingOrder = orderItr - 1;
+					}
+					orderItr += 10; // NOTE that we don't use sorting order offsets of 1 except for the avatar focus indicator // TODO: parameterize offset amount?
+				}
+			}
+
 			StartCoroutine(Follow());
 		}
 		else
 		{
-			interactor.GetComponent<AvatarController>().m_follower = null;
-			m_followCharacter = null;
-			if (IsInPlace)
-			{
-				transform.SetPositionAndRotation(m_correctPosition, Quaternion.Euler(0.0f, 0.0f, m_correctRotationDegrees));
-			}
-			(Lock as LockController).CheckInput();
+			StopFollowing();
 		}
 	}
 
@@ -99,11 +121,32 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 
 	private IEnumerator Follow()
 	{
-		while (m_followCharacter != null) // TODO: limit to start room?
+		Bounds followBounds = transform.parent.parent.GetComponent<RoomController>().BoundsInterior; // TODO: parameterize?
+
+		while (m_followCharacter != null && followBounds.Contains(m_followCharacter.transform.position))
 		{
 			Tuple<Vector3, float> followTf = FollowTransform();
-			transform.SetPositionAndRotation(followTf.Item1 + Quaternion.Euler(0.0f, 0.0f, followTf.Item2) * m_followOffset, Quaternion.Euler(0.0f, 0.0f, followTf.Item2 + m_followOffsetDegrees));
+			transform.SetPositionAndRotation(followBounds.ClosestPoint(followTf.Item1 + Quaternion.Euler(0.0f, 0.0f, followTf.Item2) * m_followOffset), Quaternion.Euler(0.0f, 0.0f, followTf.Item2 + m_followOffsetDegrees));
 			yield return null;
+		}
+
+		StopFollowing();
+	}
+
+	private void StopFollowing()
+	{
+		if (m_followCharacter == null)
+		{
+			return;
+		}
+
+		m_followCharacter.GetComponent<AvatarController>().m_follower = null;
+		m_followCharacter = null;
+
+		if (IsInPlace)
+		{
+			transform.SetPositionAndRotation(m_correctPosition, Quaternion.Euler(0.0f, 0.0f, m_correctRotationDegrees));
+			(Lock as LockController).CheckInput();
 		}
 	}
 }
