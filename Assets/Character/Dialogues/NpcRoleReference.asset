@@ -44,7 +44,7 @@ MonoBehaviour:
           - Snakes?
           - Of course it had to be snakes.
           - They're quick, so stay on your toes!
-          - Landing on top of them is a particularly easy way to take multiple bites.
+          - If you get up above them, though, you're probably safe.
           m_eventName: 
           m_breakAfterward: 0
         - m_text: Spiders
@@ -91,6 +91,14 @@ MonoBehaviour:
           - Don't trifle with them. Deal with them quickly and they're no big deal,
             but let them alone and before you know it pain will be striking from
             the darkness.
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: '"The King"'
+          m_preconditionName: SecretFound
+          m_userdata: 0
+          m_followUp:
+          - '"The King", eh?'
+          - Sounds familiar, but I must admit I can't recall where I've heard it.
           m_eventName: 
           m_breakAfterward: 0
         - m_text: Nothing.

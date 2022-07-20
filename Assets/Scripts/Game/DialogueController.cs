@@ -109,9 +109,16 @@ public class DialogueController : MonoBehaviour
 		}
 	}
 
+	// called via AdvanceDialogue()/SendMessage(Line.Reply.m_preconditionName)
 	public void EnemyTypeHasSpawned(Line.Reply reply)
 	{
 		reply.m_deactivated = !GameController.Instance.EnemyTypeHasSpawned(reply.m_userdata);
+	}
+
+	// called via AdvanceDialogue()/SendMessage(Line.Reply.m_preconditionName)
+	public void SecretFound(Line.Reply reply)
+	{
+		reply.m_deactivated = !GameController.SecretFound(reply.m_userdata);
 	}
 
 	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName)

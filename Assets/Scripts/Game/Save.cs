@@ -1,6 +1,6 @@
 using System.IO;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 
 public class SaveWriter : System.IDisposable
@@ -21,6 +21,8 @@ public class SaveWriter : System.IDisposable
 	public void Dispose() => m_writer.Dispose();
 
 
+	public void Write(bool x) => m_writer.WriteLine(x);
+
 	public void Write(int x) => m_writer.WriteLine(x);
 
 	public void Write(float x) => m_writer.WriteLine(x);
@@ -40,9 +42,9 @@ public class SaveWriter : System.IDisposable
 		Write(v.a);
 	}
 
-	public void Write<T>(T[] array, System.Action<T> saveFunc)
+	public void Write<T>(System.Collections.Generic.IEnumerable<T> array, System.Action<T> saveFunc)
 	{
-		Write(array.Length);
+		Write(array.Count());
 		foreach (T element in array)
 		{
 			saveFunc(element);
@@ -84,6 +86,9 @@ public class SaveReader : System.IDisposable
 
 	public void Dispose() => m_reader?.Dispose();
 
+
+	public bool ReadBoolean() => m_reader.ReadBoolean();
+	public void Read(out bool x) => x = ReadBoolean();
 
 	public int ReadInt32() => m_reader.ReadInt32();
 	public void Read(out int x) => x = ReadInt32();
@@ -133,26 +138,14 @@ internal static class SaveHelpers
 
 
 #if DEBUG
-	internal static int ReadInt32(this StreamReader r)
-	{
-		return int.Parse(r.ReadLine());
-	}
-
-	internal static float ReadSingle(this StreamReader r)
-	{
-		return float.Parse(r.ReadLine());
-	}
+	internal static bool ReadBoolean(this StreamReader r) => bool.Parse(r.ReadLine());
+	internal static int ReadInt32(this StreamReader r) => int.Parse(r.ReadLine());
+	internal static float ReadSingle(this StreamReader r) => float.Parse(r.ReadLine());
 
 #else
 	// TODO: better Write()/WriteLine() abstraction?
-	internal static void WriteLine(this BinaryWriter w, int x)
-	{
-		w.Write(x);
-	}
-
-	internal static void WriteLine(this BinaryWriter w, float x)
-	{
-		w.Write(x);
-	}
+	internal static void WriteLine(this BinaryWriter w, bool x) => w.Write(x);
+	internal static void WriteLine(this BinaryWriter w, int x) => w.Write(x);
+	internal static void WriteLine(this BinaryWriter w, float x) => w.Write(x);
 #endif
 }

@@ -92,6 +92,9 @@ public class GameController : MonoBehaviour
 
 	public static int ZonesFinishedCount { get; private set; }
 
+	public static bool SecretFound(int index) => m_secretsFoundBitmask[index];
+	public static void SetSecretFound(int index) => m_secretsFoundBitmask.Set(index, true);
+
 
 	public RoomController LootRoom { get; private set; }
 
@@ -123,6 +126,8 @@ public class GameController : MonoBehaviour
 
 	private readonly List<EnemyController> m_enemies = new();
 	private static int[] m_enemySpawnCounts;
+
+	private static readonly BitArray m_secretsFoundBitmask = new(sizeof(int) * 8); // TODO: avoid limiting to a single int?
 
 
 	private void Awake()
@@ -394,6 +399,7 @@ public class GameController : MonoBehaviour
 		PlayerPrefs.DeleteAll(); // TODO: separate setup/configuration from game data
 		SaveHelpers.Delete();
 		ZonesFinishedCount = 0;
+		m_secretsFoundBitmask.SetAll(false);
 		Quit(true);
 	}
 
@@ -515,6 +521,8 @@ public class GameController : MonoBehaviour
 	}
 
 	public void DebugResetWaves() => m_waveWeight = m_waveStartWeight;
+
+	public static void DebugFinishAllZones() => ZonesFinishedCount = 3; // TODO: remove hardcoding?
 #endif
 
 
@@ -642,6 +650,10 @@ public class GameController : MonoBehaviour
 
 		saveFile.Write(ZonesFinishedCount);
 
+		int[] secretsFoundArray = new int[1]; // TODO: avoid limiting to a single int?
+		m_secretsFoundBitmask.CopyTo(secretsFoundArray, 0);
+		saveFile.Write(secretsFoundArray.First());
+
 		GameObject[] savableObjs = m_savableTags.SelectMany(tag => GameObject.FindGameObjectsWithTag(tag)).Where(obj => obj.scene == SceneManager.GetActiveScene()).ToArray();
 		saveFile.Write(savableObjs, obj => ISavable.Save(saveFile, obj.GetComponent<ISavable>()));
 	}
@@ -681,6 +693,8 @@ public class GameController : MonoBehaviour
 			m_enemySpawnCounts = m_enemySpawnCounts == null ? spawnCountsPrev : m_enemySpawnCounts.Zip(spawnCountsPrev, (a, b) => System.Math.Max(a, b)).ToArray(); // TODO: don't assume array length will always match? guarantee accurate counts even if loading/quitting directly to/from non-saved scenes?
 
 			ZonesFinishedCount = System.Math.Max(ZonesFinishedCount, saveFile.ReadInt32()); // NOTE the max() to somewhat handle debug loading directly into non-saved scenes, incrementing ZonesFinishedCount, and then loading a saved scene
+
+			m_secretsFoundBitmask.Or(new BitArray(new int[] { saveFile.ReadInt32() })); // NOTE the OR to handle debug loading directly into non-saved scenes, editing m_secretsFoundBitmask, and then loading a saved scene
 
 			saveFile.ReadArray(() => ISavable.Load(saveFile));
 		}

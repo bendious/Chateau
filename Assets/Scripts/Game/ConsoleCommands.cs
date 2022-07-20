@@ -106,9 +106,16 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 		});
 		m_controls.Console.UnlockAll.performed += ctx =>
 		{
-			foreach (LockController lockObj in FindObjectsOfType<LockController>())
+			if (m_controls.Console.Shift.IsPressed())
 			{
-				lockObj.Unlock(null);
+				GameController.DebugFinishAllZones();
+			}
+			else
+			{
+				foreach (LockController lockObj in FindObjectsOfType<LockController>())
+				{
+					lockObj.Unlock(null);
+				}
 			}
 		};
 	}
