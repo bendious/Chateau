@@ -47,6 +47,7 @@ public class RoomController : MonoBehaviour
 	{
 		None,
 		Directional,
+		LocksOnly,
 		Full
 	};
 
@@ -338,7 +339,7 @@ public class RoomController : MonoBehaviour
 				// maybe add one-way lock
 				int siblingDepthComparison = sibling.m_layoutNodes.Max(node => node.Depth).CompareTo(m_layoutNodes.Max(node => node.Depth));
 				bool noLadder = siblingDepthComparison < 0 ? direction.y < 0.0f : direction.y > 0.0f;
-				AStarPath path = (direction.y > 0.0f ? this : sibling).RoomPath(direction.y > 0.0f ? transform.position : sibling.transform.position, direction.y > 0.0f ? sibling.transform.position : transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.Full);
+				AStarPath path = (direction.y > 0.0f ? this : sibling).RoomPath(direction.y > 0.0f ? transform.position : sibling.transform.position, direction.y > 0.0f ? sibling.transform.position : transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly);
 				bool cutbackIsLocked = path == null;
 				RoomController deeperRoom = noLadder ? (direction.y > 0.0f ? this : sibling) : siblingDepthComparison < 0 ? this : sibling;
 				if (cutbackIsLocked || Random.value <= m_cutbackBreakablePct)
@@ -349,18 +350,29 @@ public class RoomController : MonoBehaviour
 				}
 				if (!cutbackIsLocked)
 				{
-					// try creating one-way loop
-					// TODO: prevent overlapping loops in opposite directions
-					int traversalDir = noLadder || Random.value < 0.5f ? -1 : 1; // NOTE the forced reversed path direction when the cutback is one-way to avoid one-ways in opposite directions
-					for (int pathIdx = traversalDir > 0 ? 0 : path.m_pathRooms.Count - 1; traversalDir < 0 ? pathIdx > 0 : pathIdx < path.m_pathRooms.Count - 1; pathIdx += traversalDir)
+					// check for one-way loop traversal
+					int pathIdx = 0;
+					int posIdx = -1;
+					DoorwayInfo[] pathDoorwaysForward = path.m_pathRooms.GetRange(0, path.m_pathRooms.Count - 1).Select(room =>
 					{
-						IEnumerable<DoorwayInfo> infos = path.m_pathRooms[pathIdx].m_doorwayInfos.Where(info => info.ConnectedRoom == path.m_pathRooms[pathIdx + traversalDir] && path.m_pathPositions.Contains(info.m_object.transform.position)); // TODO: simpler way of ensuring the correct doorway for room pairs w/ multiple connections?
-						foreach (DoorwayInfo info in infos)
+						++pathIdx;
+						posIdx += 2;
+						return room.m_doorwayInfos.First(info => info.ConnectedRoom == path.m_pathRooms[pathIdx] && path.m_pathPositions[posIdx] == (Vector2)info.m_object.transform.position); // TODO: simpler way of ensuring the correct doorway for room pairs w/ multiple connections?
+					}).ToArray();
+					bool canTraverseForward = !noLadder && pathDoorwaysForward.All(info => !info.m_infoReverse.m_onewayBlocked); // NOTE the forced reversed path direction when the cutback is one-way to avoid one-ways in opposite directions
+					bool canTraverseBackward = pathDoorwaysForward.All(info => !info.m_onewayBlocked);
+
+					if (canTraverseForward || canTraverseBackward)
+					{
+						// try creating one-ways
+						int traversalDir = !canTraverseForward || (canTraverseBackward && Random.value < 0.5f) ? -1 : 1;
+						for (int doorwayIdx = traversalDir > 0 ? 0 : pathDoorwaysForward.Length - 1; traversalDir < 0 ? doorwayIdx > 0 : doorwayIdx < pathDoorwaysForward.Length - 1; doorwayIdx += traversalDir)
 						{
+							DoorwayInfo infoForward = pathDoorwaysForward[doorwayIdx];
+							DoorwayInfo info = traversalDir < 0 ? infoForward.m_infoReverse : infoForward;
 							if (info.DirectionOutward() == Vector2.up) // TODO: non-vertical one-way blockages?
 							{
 								info.m_onewayBlocked = true;
-								break;
 							}
 						}
 					}
