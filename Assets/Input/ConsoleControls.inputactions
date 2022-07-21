@@ -175,6 +175,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "InteractDialogueRandomize",
+                    "type": "Button",
+                    "id": "61e8649c-69e2-44ef-b600-0d5cffad428f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -483,6 +492,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "LayoutOutputSeed",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "37978d95-9624-4d8b-8406-e7e21fcb8475",
+                    "path": "<Keyboard>/i",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "InteractDialogueRandomize",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

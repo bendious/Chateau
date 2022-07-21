@@ -9,15 +9,15 @@ using UnityEngine.InputSystem;
 [DisallowMultipleComponent]
 public class DialogueController : MonoBehaviour
 {
-	public UnityEngine.UI.Image m_image;
-	public TMP_Text m_text;
-	public GameObject m_continueIndicator;
+	[SerializeField] private UnityEngine.UI.Image m_image;
+	[SerializeField] private TMP_Text m_text;
+	[SerializeField] private GameObject m_continueIndicator;
 	[SerializeField] private GameObject m_replyTemplate;
 
-	public float m_revealSeconds = 0.1f;
-	public float m_revealSecondsFast = 0.01f;
+	[SerializeField] private float m_revealSeconds = 0.1f;
+	[SerializeField] private float m_revealSecondsFast = 0.01f;
 
-	public float m_indicatorSpacing = 7.5f;
+	[SerializeField] private float m_indicatorSpacing = 7.5f;
 
 
 	[Serializable] public class Line
@@ -43,14 +43,12 @@ public class DialogueController : MonoBehaviour
 	public bool IsPlaying => gameObject.activeSelf;
 
 
-	private IEnumerable<Line> m_linesOrig;
 	private Queue<Line> m_queue;
 	private int m_revealedCharCount;
 	private float m_lastRevealTime;
 	private int m_replyIdx;
 	private Queue<string> m_queueFollowUp;
 	private AvatarController m_avatar;
-	private IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> m_expressions;
 	private bool m_loop;
 
 	private bool m_forceNewLine = false;
@@ -62,18 +60,15 @@ public class DialogueController : MonoBehaviour
 		m_image.sprite = sprite;
 		m_image.color = spriteColor;
 
-		m_linesOrig = lines;
-		m_queue = new(m_linesOrig);
 		m_revealedCharCount = 0;
 		m_lastRevealTime = Time.time;
 		m_replyIdx = 0;
 		m_queueFollowUp = null;
 		m_avatar = avatar;
-		m_expressions = expressions;
 		m_loop = loop;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
-		StartCoroutine(AdvanceDialogue(postDialogue));
+		StartCoroutine(AdvanceDialogue(lines, expressions, postDialogue));
 	}
 
 	public void OnReplySelected(GameObject replyObject)
@@ -109,19 +104,19 @@ public class DialogueController : MonoBehaviour
 		}
 	}
 
-	// called via AdvanceDialogue()/SendMessage(Line.Reply.m_preconditionName)
+	// called via AdvanceDialogue()/SendMessage(Line.Reply.m_preconditionName, Line.Reply)
 	public void EnemyTypeHasSpawned(Line.Reply reply)
 	{
 		reply.m_deactivated = !GameController.Instance.EnemyTypeHasSpawned(reply.m_userdata);
 	}
 
-	// called via AdvanceDialogue()/SendMessage(Line.Reply.m_preconditionName)
+	// called via AdvanceDialogue()/SendMessage(Line.Reply.m_preconditionName, Line.Reply)
 	public void SecretFound(Line.Reply reply)
 	{
 		reply.m_deactivated = !GameController.SecretFound(reply.m_userdata);
 	}
 
-	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName)
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)")]
 	public void MerchantSell(Line.Reply reply)
 	{
 		IAttachable[] attachables = m_avatar.GetComponentsInChildren<IAttachable>(true);
@@ -150,7 +145,7 @@ public class DialogueController : MonoBehaviour
 		m_queue.Enqueue(line);
 	}
 
-	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName)
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)")]
 	public void MerchantDespawn(Line.Reply reply)
 	{
 		// record acquisition
@@ -180,7 +175,7 @@ public class DialogueController : MonoBehaviour
 		Simulation.Schedule<ObjectDespawn>().m_object = attachableComp.gameObject;
 	}
 
-	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName)
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)")]
 	public void MerchantBuy(Line.Reply reply)
 	{
 		List<Line.Reply> replyList = new();
@@ -200,7 +195,7 @@ public class DialogueController : MonoBehaviour
 		m_queue.Enqueue(new Line { m_text = "What'd ya have in mind? We've got " + GameController.MerchantMaterials + " materials to work with.", m_replies = replyList.ToArray() });
 	}
 
-	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName)
+	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)
 	public void MerchantSpawn(Line.Reply reply)
 	{
 		int savableType = reply.m_userdata;
@@ -211,14 +206,15 @@ public class DialogueController : MonoBehaviour
 		GameController.MerchantMaterials -= cost;
 	}
 
-	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName)
+	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)
 	public void ActivateInteract(Line.Reply reply) => ((InteractScene)reply.m_userdataObj).StartAnimation(m_avatar);
 
 
-	private System.Collections.IEnumerator AdvanceDialogue(Action postDialogue)
+	private System.Collections.IEnumerator AdvanceDialogue(IEnumerable<Line> linesOrig, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions, Action postDialogue)
 	{
 		m_text.text = null;
-		IEnumerable<NpcDialogue.ExpressionInfo> expressionsOrdered = m_expressions?.RandomWeightedOrder(); // TODO: re-order after each use?
+		m_queue = new(linesOrig);
+		NpcDialogue.ExpressionInfo[] expressionsOrdered = expressions?.RandomWeightedOrder().ToArray(); // NOTE the conversion to an array to prevent IEnumerable re-calculating w/ each access // TODO: re-order after each line?
 
 		// avatar setup
 		if (m_avatar == null)
@@ -347,7 +343,7 @@ public class DialogueController : MonoBehaviour
 
 			if (m_loop && m_queue.Count <= 0)
 			{
-				m_queue = new(m_linesOrig);
+				m_queue = new(linesOrig);
 			}
 		}
 
@@ -367,7 +363,7 @@ public class DialogueController : MonoBehaviour
 			{
 				foreach (NpcDialogue.ExpressionInfo expression in expressionsOrdered)
 				{
-					text = text.Replace("{" + expression.m_key + "}", expression.m_replacement);
+					text = text.ReplaceFirst("{" + expression.m_key + "}", expression.m_replacement);
 				}
 			}
 
@@ -382,7 +378,7 @@ public class DialogueController : MonoBehaviour
 				for (int i = 2; i < textArray.Length; ++i)
 				{
 					char c = textArray[i - 2];
-					if ((c == '.' || c == '?' || c == '!') && char.IsWhiteSpace(textArray[i - 1])) // TODO: don't capitalize after ellipses?
+					if (((c == '.' && (i < 3 || textArray[i - 3] != '.')) || c == '?' || c == '!') && char.IsWhiteSpace(textArray[i - 1])) // NOTE the extra logic to avoid capitalizing after ellipses
 					{
 						textArray[i] = char.ToUpper(textArray[i]);
 					}

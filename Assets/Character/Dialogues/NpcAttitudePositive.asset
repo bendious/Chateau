@@ -38,6 +38,14 @@ MonoBehaviour:
       m_replacement: thank you kindly!
     m_weight: 1
   - m_object:
+      m_key: thanks.
+      m_replacement: great!
+    m_weight: 1
+  - m_object:
+      m_key: thanks.
+      m_replacement: thank you so much.
+    m_weight: 1
+  - m_object:
       m_key: assurance
       m_replacement: rest assured
     m_weight: 1
@@ -56,4 +64,20 @@ MonoBehaviour:
   - m_object:
       m_key: interjection
       m_replacement: well,
+    m_weight: 1
+  - m_object:
+      m_key: request.
+      m_replacement: a favor, if you please.
+    m_weight: 1
+  - m_object:
+      m_key: request.
+      m_replacement: I know this is asking a lot, but...
+    m_weight: 1
+  - m_object:
+      m_key: request.
+      m_replacement: please...
+    m_weight: 1
+  - m_object:
+      m_key: request.
+      m_replacement: do you think you could help us out?
     m_weight: 1

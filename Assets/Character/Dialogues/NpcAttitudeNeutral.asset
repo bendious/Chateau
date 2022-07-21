@@ -63,3 +63,15 @@ MonoBehaviour:
       m_key: interjection
       m_replacement: regardless,
     m_weight: 1
+  - m_object:
+      m_key: request.
+      m_replacement: if you want, well...
+    m_weight: 1
+  - m_object:
+      m_key: request.
+      m_replacement: do you think you could help us out?
+    m_weight: 1
+  - m_object:
+      m_key: request.
+      m_replacement: you might already know, but...
+    m_weight: 1

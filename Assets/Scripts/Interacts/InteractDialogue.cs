@@ -85,4 +85,19 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 	{
 		info.m_out = GameController.ZonesFinishedCount >= info.m_in.m_userdata;
 	}
+
+	// called via Interact()/SendMessage(NpcDialogue.Info.m_preconditionName)
+	public void HasNotFinishedZone(SendMessageValue<NpcDialogue.DialogueInfo, bool> info)
+	{
+		info.m_out = GameController.ZonesFinishedCount < info.m_in.m_userdata;
+	}
+
+
+#if DEBUG
+	public void DebugReset()
+	{
+		m_dialogueCombined = null;
+		m_expressionsCombined = null;
+	}
+#endif
 }

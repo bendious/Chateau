@@ -197,6 +197,15 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""InteractDialogueRandomize"",
+                    ""type"": ""Button"",
+                    ""id"": ""61e8649c-69e2-44ef-b600-0d5cffad428f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -507,6 +516,17 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""action"": ""LayoutOutputSeed"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""37978d95-9624-4d8b-8406-e7e21fcb8475"",
+                    ""path"": ""<Keyboard>/i"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""InteractDialogueRandomize"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -534,6 +554,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         m_Console_EnemiesPathfindTest = m_Console.FindAction("EnemiesPathfindTest", throwIfNotFound: true);
         m_Console_ControlsVisualization = m_Console.FindAction("ControlsVisualization", throwIfNotFound: true);
         m_Console_UnlockAll = m_Console.FindAction("UnlockAll", throwIfNotFound: true);
+        m_Console_InteractDialogueRandomize = m_Console.FindAction("InteractDialogueRandomize", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -612,6 +633,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Console_EnemiesPathfindTest;
     private readonly InputAction m_Console_ControlsVisualization;
     private readonly InputAction m_Console_UnlockAll;
+    private readonly InputAction m_Console_InteractDialogueRandomize;
     public struct ConsoleActions
     {
         private @ConsoleControls m_Wrapper;
@@ -635,6 +657,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         public InputAction @EnemiesPathfindTest => m_Wrapper.m_Console_EnemiesPathfindTest;
         public InputAction @ControlsVisualization => m_Wrapper.m_Console_ControlsVisualization;
         public InputAction @UnlockAll => m_Wrapper.m_Console_UnlockAll;
+        public InputAction @InteractDialogueRandomize => m_Wrapper.m_Console_InteractDialogueRandomize;
         public InputActionMap Get() { return m_Wrapper.m_Console; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -701,6 +724,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @UnlockAll.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnUnlockAll;
                 @UnlockAll.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnUnlockAll;
                 @UnlockAll.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnUnlockAll;
+                @InteractDialogueRandomize.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnInteractDialogueRandomize;
+                @InteractDialogueRandomize.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnInteractDialogueRandomize;
+                @InteractDialogueRandomize.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnInteractDialogueRandomize;
             }
             m_Wrapper.m_ConsoleActionsCallbackInterface = instance;
             if (instance != null)
@@ -762,6 +788,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @UnlockAll.started += instance.OnUnlockAll;
                 @UnlockAll.performed += instance.OnUnlockAll;
                 @UnlockAll.canceled += instance.OnUnlockAll;
+                @InteractDialogueRandomize.started += instance.OnInteractDialogueRandomize;
+                @InteractDialogueRandomize.performed += instance.OnInteractDialogueRandomize;
+                @InteractDialogueRandomize.canceled += instance.OnInteractDialogueRandomize;
             }
         }
     }
@@ -787,5 +816,6 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         void OnEnemiesPathfindTest(InputAction.CallbackContext context);
         void OnControlsVisualization(InputAction.CallbackContext context);
         void OnUnlockAll(InputAction.CallbackContext context);
+        void OnInteractDialogueRandomize(InputAction.CallbackContext context);
     }
 }

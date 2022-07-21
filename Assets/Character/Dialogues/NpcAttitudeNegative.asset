@@ -46,6 +46,10 @@ MonoBehaviour:
       m_replacement: poser
     m_weight: 1
   - m_object:
+      m_key: avatar
+      m_replacement: jerk
+    m_weight: 1
+  - m_object:
       m_key: denied.
       m_replacement: psh!
     m_weight: 1
@@ -72,4 +76,12 @@ MonoBehaviour:
   - m_object:
       m_key: interjection
       m_replacement: just
+    m_weight: 1
+  - m_object:
+      m_key: request.
+      m_replacement: get yourself together!
+    m_weight: 1
+  - m_object:
+      m_key: request.
+      m_replacement: you selfish {avatar}.
     m_weight: 1

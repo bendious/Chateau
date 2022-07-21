@@ -325,11 +325,14 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		PlayMovementAudio();
 	}
 
-	public void MergeWithSourceText(string prepend, IEnumerable<string> mainElements, string append)
+	public void MergeWithSourceText(IEnumerable<string> elements)
 	{
-		string[] sourceText = m_sourceTextOptions.RandomWeighted();
-		string aggregateText = sourceText.Zip(mainElements, (source, piece) => source.Replace("#", piece.Trim())).Aggregate("", (a, b) => a + "\n" + b);
-		GetComponentInChildren<TMP_Text>().text = prepend + aggregateText + append;
+		string aggregateText = m_sourceTextOptions.RandomWeighted().Aggregate((a, b) => a + "\n" + b);
+		foreach (string element in elements)
+		{
+			aggregateText = aggregateText.ReplaceFirst("#", element);
+		}
+		GetComponentInChildren<TMP_Text>().text = aggregateText;
 	}
 
 

@@ -77,7 +77,6 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 			}
 		});
 		m_controls.Console.SpawnEnemy.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.DebugSpawnEnemy(Mathf.RoundToInt(m_controls.Console.SpawnEnemy.ReadValue<float>()) % 10));
-#if DEBUG
 		m_controls.Console.EnemiesPathfindTest.performed += ctx => ExecuteIfConsoleOpen(() =>
 		{
 			foreach (EnemyController enemy in FindObjectsOfType<EnemyController>())
@@ -85,7 +84,6 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 				enemy.DebugPathfindTest();
 			}
 		});
-#endif
 		m_controls.Console.ControlsVisualization.performed += ctx => ExecuteIfConsoleOpen(() =>
 		{
 			if (m_controlsVisualization != null)
@@ -116,6 +114,14 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 				{
 					lockObj.Unlock(null);
 				}
+			}
+		};
+		m_controls.Console.InteractDialogueRandomize.performed += ctx =>
+		{
+			GameController.Instance.NpcsRandomize();
+			foreach (InteractDialogue interact in FindObjectsOfType<InteractDialogue>())
+			{
+				interact.DebugReset();
 			}
 		};
 	}

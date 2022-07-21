@@ -192,6 +192,17 @@ public static class Utility
 		return Mathf.RoundToInt(Mathf.Log(mask, 2.0f));
 	}
 
+	// see String.Replace() as well as https://lonewolfonline.net/replace-first-occurrence-string/
+	public static string ReplaceFirst(this string source, string oldValue, string newValue)
+	{
+		int index = source.IndexOf(oldValue);
+		if (index < 0)
+		{
+			return source;
+		}
+		return source.Remove(index, oldValue.Length).Insert(index, newValue);
+	}
+
 	public static void NonpublicSetterWorkaround(this object component, string fieldName, object value)
 	{
 		// see https://forum.unity.com/threads/lwrp-light-2d-change-sprite-in-script.753542/ for explanation of workaround for serialized properties not having public setters

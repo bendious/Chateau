@@ -23,6 +23,11 @@ MonoBehaviour:
         m_replies: []
       - m_text: Nice going, {avatar}!
         m_replies: []
+      - m_text: Have you found a way into the next wing yet?
+        m_replies: []
+      - m_text: The wiring by the door is dangerous, but there must be a way to deal
+          with that.
+        m_replies: []
       m_loop: 0
       m_singleUse: 1
     m_weight: 0
@@ -33,6 +38,9 @@ MonoBehaviour:
       - m_text: Ah, you got another one? Most excellent!
         m_replies: []
       - m_text: Keep up the good work, {avatar}!
+        m_replies: []
+      - m_text: Only one more wing to go, if you can get up to it. The ladder broke
+          a long time ago.
         m_replies: []
       m_loop: 0
       m_singleUse: 1
@@ -59,6 +67,64 @@ MonoBehaviour:
       - m_text: Don't expect to attack anything up close and walk away unharmed.
         m_replies: []
       - m_text: Generally speaking, throwing things is much safer than swinging them.
+        m_replies: []
+      m_loop: 0
+      m_singleUse: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: HasNotFinishedZone
+      m_userdata: 3
+      m_lines:
+      - m_text: Hey, {avatar}.
+        m_replies: []
+      - m_text: '{request.}'
+        m_replies: []
+      - m_text: This place is being overrun.
+        m_replies: []
+      - m_text: There are... <i>things</i> in here. They've settled into each of
+          the building's wings, and honestly...
+        m_replies: []
+      - m_text: I think you're the only one here who can really take them on.
+        m_replies: []
+      - m_text: '{request.} {request.}'
+        m_replies: []
+      - m_text: This is technically your house, after all...
+        m_replies:
+        - m_text: No way.
+          m_preconditionName: 
+          m_userdata: 0
+          m_followUp:
+          - '{denied.}'
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: Alright.
+          m_preconditionName: 
+          m_userdata: 0
+          m_followUp:
+          - '{thanks.}'
+          - The first wing is through the door right over there marked by torches.
+            You can't miss it.
+          - Well, okay, in this place you definitely can miss it. But I'm sure you'll
+            figure it out!
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: Already done.
+          m_preconditionName: 
+          m_userdata: 0
+          m_followUp:
+          - Umm, are you sure? You might want to re-check that...
+          m_eventName: 
+          m_breakAfterward: 0
+      m_loop: 0
+      m_singleUse: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: HasNotFinishedZone
+      m_userdata: 3
+      m_lines:
+      - m_text: Oh, and if you see the others around, tell 'em to meet up here.
+        m_replies: []
+      - m_text: I don't know what they're thinking, wandering around like that...
         m_replies: []
       m_loop: 0
       m_singleUse: 0

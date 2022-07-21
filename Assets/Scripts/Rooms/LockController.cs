@@ -135,17 +135,16 @@ public class LockController : MonoBehaviour, IUnlockable
 				{
 					int startIdx = Mathf.RoundToInt(keyIdx * digitsPerKey);
 					int endIdx = Mathf.RoundToInt((keyIdx + 1) * digitsPerKey);
-					string prepend = keyIdx == 0 ? "" : "<sprite index=0 tint=1>";
-					IEnumerable<string> keyText = combination[startIdx .. endIdx].Select(idx => m_combinationSet.m_options[idx].m_strings[optionIdxText]);
-					string append = keyIdx == keyOrLockRooms.Length - 1 ? "" : "<sprite index=0 tint=1>";
+					const string spriteText = "<sprite index=0 tint=1>";
+					IEnumerable<string> keyText = Enumerable.Repeat(spriteText, startIdx).Concat(combination[startIdx .. endIdx].Select(idx => m_combinationSet.m_options[idx].m_strings[optionIdxText])).Concat(Enumerable.Repeat(spriteText, combination.Length - endIdx));
 
 					if (key is ItemController item)
 					{
-						item.MergeWithSourceText(prepend, keyText, append);
+						item.MergeWithSourceText(keyText);
 					}
 					else
 					{
-						key.Component.GetComponentInChildren<TMP_Text>().text = prepend + keyText.Aggregate("", (str, strNew) => str + strNew) + append; // TODO: embed w/i (short) flavor text or use sprites?
+						key.Component.GetComponentInChildren<TMP_Text>().text = keyText.Aggregate((str, strNew) => str + strNew); // TODO: embed w/i (short) flavor text?
 					}
 					++keyIdx;
 				}

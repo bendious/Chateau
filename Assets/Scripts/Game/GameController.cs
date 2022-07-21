@@ -193,7 +193,7 @@ public class GameController : MonoBehaviour
 		// first-time initializations
 		if (m_npcs == null)
 		{
-			m_npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => new NpcDialogue[] { a, b }).Select(dialogue => new NpcInfo { m_color = Utility.ColorRandom(Color.black, Color.white, false), m_dialogues = dialogue }).ToArray(); // TODO: ensure good colors w/o repeats?
+			NpcsRandomize();
 		}
 		if (MerchantAcquiredCounts == null)
 		{
@@ -453,7 +453,7 @@ public class GameController : MonoBehaviour
 
 		foreach (AvatarController avatar in m_avatars)
 		{
-			avatar.Respawn(!noInventoryClear && !Victory, true);
+			avatar.Respawn(!noInventoryClear && !Victory && ZonesFinishedCount < SceneManager.GetActiveScene().buildIndex, true);
 		}
 
 		SceneManager.LoadScene(name);
@@ -523,7 +523,15 @@ public class GameController : MonoBehaviour
 	public void DebugResetWaves() => m_waveWeight = m_waveStartWeight;
 
 	public static void DebugFinishAllZones() => ZonesFinishedCount = 3; // TODO: remove hardcoding?
+
+	public
+#else
+	private
 #endif
+		void NpcsRandomize()
+	{
+		m_npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => new NpcDialogue[] { a, b }).Select(dialogue => new NpcInfo { m_color = Utility.ColorRandom(Color.black, Color.white, false), m_dialogues = dialogue }).ToArray(); // TODO: ensure good colors w/o repeats?
+	}
 
 
 	private int AddRoomsForNodes(LayoutGenerator.Node[] nodes, int roomCount, ref int orderedLockIdx)
