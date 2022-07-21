@@ -167,8 +167,6 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 		DetachAll();
 
-		animator.SetTrigger("hurt");
-		animator.SetTrigger("startDeath");
 		animator.SetBool("dead", true);
 
 		m_collider.enabled = false;

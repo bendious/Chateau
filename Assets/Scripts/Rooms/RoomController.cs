@@ -446,7 +446,7 @@ public class RoomController : MonoBehaviour
 		{
 			areaParent = areaParents.First();
 		}
-		m_wallInfo = areaParent.m_wallInfo ?? (m_roomType.m_walls != null && m_roomType.m_walls.Length > 0 ? m_roomType.m_walls.RandomWeighted() : default);
+		m_wallInfo = areaParent.m_wallInfo ?? (m_roomType.m_walls != null && m_roomType.m_walls.Length > 0 ? m_roomType.m_walls.RandomWeighted() : new RoomType.SpriteInfo());
 		m_wallColor = isAreaInit ? Utility.ColorRandom(m_wallInfo.m_colorMin, m_wallInfo.m_colorMax, m_wallInfo.m_proportionalColor) : areaParent.m_wallColor;
 		if (m_wallInfo.m_sprite != null)
 		{

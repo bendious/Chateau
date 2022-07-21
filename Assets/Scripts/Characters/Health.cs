@@ -118,9 +118,10 @@ public class Health : MonoBehaviour
 		}
 
 		// invincibility period
-		m_invincible = true;
-		if (!isDead)
+		if (!isDead && m_invincibilityTime > 0.0f)
 		{
+			m_invincible = true;
+
 			// TODO: disable from animation trigger & make timer a fallback?
 			Simulation.Schedule<EnableDamage>(m_invincibilityTime).m_health = this;
 			StartCoroutine(InvincibilityBlink(m_invincibilityTime - m_blinkSecondsPost));
