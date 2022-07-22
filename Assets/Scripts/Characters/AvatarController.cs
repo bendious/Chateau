@@ -155,6 +155,11 @@ public class AvatarController : KinematicCharacter
 
 	protected override void FixedUpdate()
 	{
+		base.FixedUpdate();
+
+		Vector2 aimPosConstrained = m_aimObject.transform.position; // TODO: improve start/respawn aim position
+		Vector2 aimPos = aimPosConstrained;
+
 		if (controlEnabled)
 		{
 			// determine aim position(s)
@@ -168,48 +173,46 @@ public class AvatarController : KinematicCharacter
 			aimPctsFromCenter = aimPctsFromCenter.Clamp(-1.0f, 1.0f);
 			CinemachineVirtualCamera vCam = GameController.Instance.m_virtualCamera;
 			Vector2 screenSizeWS = vCam == null ? Vector2.zero : new Vector2(vCam.m_Lens.OrthographicSize * vCam.m_Lens.Aspect, vCam.m_Lens.OrthographicSize) * 2.0f;
-			Vector2 aimPosConstrained = transform.position + (Vector3)(screenSizeWS * aimPctsFromCenter * (m_looking ? m_lookScreenPercentMax : 0.5f));
-			Vector2 aimPos = m_usingMouse ? camera.ScreenToWorldPoint(m_mousePosPixels) : aimPosConstrained;
-
-			// aim camera/sprite
-			m_aimObject.transform.position = aimPosConstrained;
-			m_aimDir = aimPos.x > transform.position.x ? 1 : -1;
-
-			// aim arms/items
-			// primary aim
-			ArmController[] arms = GetComponentsInChildren<ArmController>();
-			ArmController primaryArm = arms.Length == 0 ? null : arms.First().transform.childCount > 0 || (arms.Last().transform.childCount == 0 && !LeftFacing) ? arms.First() : arms.Last();
-			if (primaryArm != null)
-			{
-				primaryArm.UpdateAim(m_armOffset, aimPos, aimPos);
-			}
-
-			// secondary hold
-			Vector3 secondaryAimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, LeftFacing ? 180.0f - m_secondaryDegrees : m_secondaryDegrees) * Vector3.right;
-			for (int i = 0; i < arms.Length; ++i)
-			{
-				if (arms[i] == primaryArm)
-				{
-					continue;
-				}
-				arms[i].UpdateAim(m_armOffset, secondaryAimPos, aimPos);
-			}
-
-			// aim VFX
-			if (m_aimVfx.enabled)
-			{
-				ItemController primaryItem = GetComponentInChildren<ItemController>();
-				if (primaryItem != null)
-				{
-					Vector3 forward = (aimPos - (Vector2)transform.position).normalized;
-					m_aimVfx.SetVector3(m_forwardID, forward);
-					m_aimVfx.SetFloat(m_forwardToUpID, primaryItem.transform.rotation.eulerAngles.z * Mathf.Deg2Rad + Mathf.PI * 0.5f - Mathf.Atan2(forward.y, forward.x));
-					m_aimVfx.SetVector3(m_spawnOffsetID, primaryItem.TrailPosition - transform.position);
-				}
-			}
+			aimPosConstrained = transform.position + (Vector3)(screenSizeWS * aimPctsFromCenter * (m_looking ? m_lookScreenPercentMax : 0.5f));
+			aimPos = m_usingMouse ? camera.ScreenToWorldPoint(m_mousePosPixels) : aimPosConstrained;
 		}
 
-		base.FixedUpdate();
+		// aim camera/sprite
+		m_aimObject.transform.position = aimPosConstrained;
+		m_aimDir = aimPos.x > transform.position.x ? 1 : -1;
+
+		// aim arms/items
+		// primary aim
+		ArmController[] arms = GetComponentsInChildren<ArmController>();
+		ArmController primaryArm = arms.Length == 0 ? null : arms.First().transform.childCount > 0 || (arms.Last().transform.childCount == 0 && !LeftFacing) ? arms.First() : arms.Last();
+		if (primaryArm != null)
+		{
+			primaryArm.UpdateAim(ArmOffset, aimPos, aimPos);
+		}
+
+		// secondary hold
+		Vector3 secondaryAimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, LeftFacing ? 180.0f - m_secondaryDegrees : m_secondaryDegrees) * Vector3.right;
+		for (int i = 0; i < arms.Length; ++i)
+		{
+			if (arms[i] == primaryArm)
+			{
+				continue;
+			}
+			arms[i].UpdateAim(ArmOffset, secondaryAimPos, aimPos);
+		}
+
+		// aim VFX
+		if (m_aimVfx.enabled)
+		{
+			ItemController primaryItem = GetComponentInChildren<ItemController>();
+			if (primaryItem != null)
+			{
+				Vector3 forward = (aimPos - (Vector2)transform.position).normalized;
+				m_aimVfx.SetVector3(m_forwardID, forward);
+				m_aimVfx.SetFloat(m_forwardToUpID, primaryItem.transform.rotation.eulerAngles.z * Mathf.Deg2Rad + Mathf.PI * 0.5f - Mathf.Atan2(forward.y, forward.x));
+				m_aimVfx.SetVector3(m_spawnOffsetID, primaryItem.TrailPosition - transform.position);
+			}
+		}
 	}
 
 	private void LateUpdate()

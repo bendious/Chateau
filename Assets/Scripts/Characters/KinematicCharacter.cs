@@ -36,7 +36,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	/// </summary>
 	public Vector2 m_damageBounceMagnitude = new(3.5f, 3.5f);
 
-	public Vector2 m_armOffset;
+	[SerializeField] private Vector2 m_armOffset;
 
 
 	/// <summary>
@@ -71,6 +71,8 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	public Vector3 ChildAttachPointLocal => Vector3.zero;
 
 	public bool LeftFacing => spriteRenderer.flipX;
+
+	public Vector2 ArmOffset => LeftFacing ? new(-m_armOffset.x, m_armOffset.y) : m_armOffset;
 
 	public bool IsPickingUp { get; protected set; }
 

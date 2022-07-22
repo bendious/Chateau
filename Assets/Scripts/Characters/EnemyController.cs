@@ -123,7 +123,7 @@ public class EnemyController : KinematicCharacter
 				Vector2 targetPosSafe = AimPosition();
 				if (primaryArm != null)
 				{
-					primaryArm.UpdateAim(m_armOffset, targetPosSafe, targetPosSafe);
+					primaryArm.UpdateAim(ArmOffset, targetPosSafe, targetPosSafe);
 				}
 
 				int i = primaryArm == null ? -1 : 0;
@@ -134,7 +134,7 @@ public class EnemyController : KinematicCharacter
 						continue;
 					}
 					Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, ++i * System.Math.Min(60, 360 / arms.Length)) * (targetPosSafe - (Vector2)transform.position);
-					arm.UpdateAim(m_armOffset, aimPos, targetPosSafe);
+					arm.UpdateAim(ArmOffset, aimPos, targetPosSafe);
 				}
 			}
 		}

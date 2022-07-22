@@ -330,7 +330,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		string aggregateText = m_sourceTextOptions.RandomWeighted().Aggregate((a, b) => a + "\n" + b);
 		foreach (string element in elements)
 		{
-			aggregateText = aggregateText.ReplaceFirst("#", element);
+			aggregateText = aggregateText.ReplaceFirst("#", element.Trim());
 		}
 		GetComponentInChildren<TMP_Text>().text = aggregateText;
 	}

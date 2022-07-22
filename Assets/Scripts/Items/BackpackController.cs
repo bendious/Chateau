@@ -79,7 +79,7 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable, 
 	{
 		while (true)
 		{
-			transform.localPosition = (Vector3)transform.parent.GetComponent<KinematicCharacter>().m_armOffset + AttachOffsetLocal; // TODO: lerp?
+			transform.localPosition = (Vector3)transform.parent.GetComponent<KinematicCharacter>().ArmOffset + AttachOffsetLocal; // TODO: lerp?
 
 			yield return null;
 		}
