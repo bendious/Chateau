@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -42,6 +43,8 @@ public class DialogueController : MonoBehaviour
 
 	public bool IsPlaying => gameObject.activeSelf;
 
+
+	private static Regex m_tagMatcher = new(@"<(.+)>.*</\1>");
 
 	private Queue<Line> m_queue;
 	private int m_revealedCharCount;
@@ -228,14 +231,16 @@ public class DialogueController : MonoBehaviour
 		m_avatar.Controls.SwitchCurrentActionMap("UI"); // TODO: un-hardcode?
 		InputAction submitKey = m_avatar.Controls.actions["Submit"];
 
+		WaitUntil replyWait = new(() => !m_replyTemplate.transform.parent.gameObject.activeInHierarchy);
+		int tagCharCount = 0;
+
 		while (m_queue.Count > 0)
 		{
 			// handle input for reply selection
 			if (m_replyTemplate.transform.parent.gameObject.activeInHierarchy)
 			{
 				// wait for OnReplySelected()
-				WaitUntil waitCondition = new(() => !m_replyTemplate.transform.parent.gameObject.activeInHierarchy);
-				yield return waitCondition;
+				yield return replyWait;
 				continue;
 			}
 
@@ -244,7 +249,7 @@ public class DialogueController : MonoBehaviour
 			Line lineCur = NextLine(out string textCur, out int textCurLen, expressionsOrdered);
 
 			// maybe move to next line
-			bool stillRevealing = m_revealedCharCount < textCurLen;
+			bool stillRevealing = m_revealedCharCount + tagCharCount < textCurLen;
 			if (m_forceNewLine || (submitKey.WasPressedThisFrame() && !stillRevealing))
 			{
 				// next line
@@ -280,13 +285,37 @@ public class DialogueController : MonoBehaviour
 			{
 				// reveal next letter(s)
 				int numToReveal = (int)((Time.time - nextRevealTime) / revealDurationCur) + 1;
-				m_revealedCharCount = Math.Min(m_revealedCharCount + numToReveal, textCurLen);
+				m_revealedCharCount = Math.Min(m_revealedCharCount + numToReveal, textCurLen - tagCharCount);
 				m_lastRevealTime += revealDurationCur * numToReveal;
 
-				// update UI
-				m_text.text = textCur?[0 .. m_revealedCharCount];
+				// ensure matching tags
+				// TODO: only parse newly added characters?
+				tagCharCount = 0;
+				List<string> endTags = new();
+				MatchCollection matches = m_tagMatcher.Matches(textCur);
+				foreach (Match match in matches)
+				{
+					Debug.Assert(match.Success);
+					if (match.Index < m_revealedCharCount)
+					{
+						string endTag = "</" + match.Groups[1] + ">";
+						tagCharCount += endTag.Length - 1; // -1 due to '/' not being contained in opening tag
+						if (match.Index + match.Length - tagCharCount - endTag.Length >= m_revealedCharCount)
+						{
+							endTags.Add(endTag);
+						}
+						else
+						{
+							tagCharCount += endTag.Length;
+						}
+					}
+				}
+				endTags.Reverse(); // since closing tags should be in reverse order of the opening tags
 
-				if (m_queue.Count > 0 && m_revealedCharCount >= textCurLen)
+				// update UI
+				m_text.text = textCur == null ? null : textCur[0 .. (m_revealedCharCount + tagCharCount)] + endTags.Aggregate("", (a, b) => a + b);
+
+				if (m_queue.Count > 0 && m_revealedCharCount + tagCharCount >= textCurLen)
 				{
 					yield return null; // to allow TMP to catch up with us & calculate bounds
 
@@ -339,7 +368,7 @@ public class DialogueController : MonoBehaviour
 				}
 			}
 
-			yield return null;
+			yield return null; // TODO: don't process every frame w/o losing responsiveness?
 
 			if (m_loop && m_queue.Count <= 0)
 			{

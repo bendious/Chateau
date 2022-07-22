@@ -522,7 +522,7 @@ public class GameController : MonoBehaviour
 
 	public void DebugResetWaves() => m_waveWeight = m_waveStartWeight;
 
-	public static void DebugFinishAllZones() => ZonesFinishedCount = 3; // TODO: remove hardcoding?
+	public static void DebugToggleAllZones() => ZonesFinishedCount = ZonesFinishedCount == 3 ? 0 : 3; // TODO: remove hardcoding?
 
 	public
 #else

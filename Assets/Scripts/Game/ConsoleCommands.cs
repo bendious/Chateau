@@ -106,7 +106,7 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 		{
 			if (m_controls.Console.Shift.IsPressed())
 			{
-				GameController.DebugFinishAllZones();
+				GameController.DebugToggleAllZones();
 			}
 			else
 			{
