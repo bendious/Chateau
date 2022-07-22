@@ -6,148 +6,148 @@ TextureImporter:
   internalIDToNameTable:
   - first:
       213: 4250926123117471553
-    second: EnemyIdle_0
+    second: SlimeIdle_0
   - first:
       213: -8626430948324366259
-    second: EnemyIdle_1
+    second: SlimeIdle_1
   - first:
       213: -6599519009133296541
-    second: EnemyIdle_2
+    second: SlimeIdle_2
   - first:
       213: -4137714196570529883
-    second: EnemyIdle_3
+    second: SlimeIdle_3
   - first:
       213: 1558792902711424901
-    second: EnemyIdle_4
+    second: SlimeIdle_4
   - first:
       213: 4083628424625405360
-    second: EnemyIdle_5
+    second: SlimeIdle_5
   - first:
       213: -800174519175370468
-    second: EnemyIdle_6
+    second: SlimeIdle_6
   - first:
       213: 5397975490625903457
-    second: EnemyIdle_7
+    second: SlimeIdle_7
   - first:
       213: -2292051563450731795
-    second: EnemyIdle_8
+    second: SlimeIdle_8
   - first:
       213: 8046221937238875741
-    second: EnemyIdle_9
+    second: SlimeIdle_9
   - first:
       213: -1911661629280461423
-    second: EnemyIdle_10
+    second: SlimeIdle_10
   - first:
       213: -3694711524240207550
-    second: EnemyIdle_11
+    second: SlimeIdle_11
   - first:
       213: -8367205577823325385
-    second: EnemyIdle_12
+    second: SlimeIdle_12
   - first:
       213: 7923652759977848444
-    second: EnemyIdle_13
+    second: SlimeIdle_13
   - first:
       213: -8811486713536899203
-    second: EnemyIdle_14
+    second: SlimeIdle_14
   - first:
       213: -2227811224880392320
-    second: EnemyIdle_15
+    second: SlimeIdle_15
   - first:
       213: -7431990202634592073
-    second: EnemyIdle_16
+    second: SlimeIdle_16
   - first:
       213: -781749100953568232
-    second: EnemyIdle_17
+    second: SlimeIdle_17
   - first:
       213: -3561567941321891658
-    second: EnemyIdle_18
+    second: SlimeIdle_18
   - first:
       213: 1103029824894431229
-    second: EnemyIdle_19
+    second: SlimeIdle_19
   - first:
       213: 8364947481816118182
-    second: EnemyIdle_20
+    second: SlimeIdle_20
   - first:
       213: -4689384519538984025
-    second: EnemyIdle_21
+    second: SlimeIdle_21
   - first:
       213: 662232649014303170
-    second: EnemyIdle_22
+    second: SlimeIdle_22
   - first:
       213: -3124154863182941861
-    second: EnemyIdle_23
+    second: SlimeIdle_23
   - first:
       213: 5674232886818905516
-    second: EnemyIdle_24
+    second: SlimeIdle_24
   - first:
       213: -7491215280504266555
-    second: EnemyIdle_25
+    second: SlimeIdle_25
   - first:
       213: -7522605916704644062
-    second: EnemyIdle_26
+    second: SlimeIdle_26
   - first:
       213: -5023540826923673731
-    second: EnemyIdle_27
+    second: SlimeIdle_27
   - first:
       213: 849165507010968834
-    second: EnemyIdle_28
+    second: SlimeIdle_28
   - first:
       213: 8406071627315556976
-    second: EnemyIdle_29
+    second: SlimeIdle_29
   - first:
       213: 8966948659316001411
-    second: EnemyIdle_30
+    second: SlimeIdle_30
   - first:
       213: -1184023329454687247
-    second: EnemyIdle_31
+    second: SlimeIdle_31
   - first:
       213: -3101495029596761616
-    second: EnemyIdle_32
+    second: SlimeIdle_32
   - first:
       213: 8822648940508315731
-    second: EnemyIdle_33
+    second: SlimeIdle_33
   - first:
       213: 3353963689198264338
-    second: EnemyIdle_34
+    second: SlimeIdle_34
   - first:
       213: 8247848304654393482
-    second: EnemyIdle_35
+    second: SlimeIdle_35
   - first:
       213: -8648508642028357287
-    second: EnemyIdle_36
+    second: SlimeIdle_36
   - first:
       213: -2681484474142548522
-    second: EnemyIdle_37
+    second: SlimeIdle_37
   - first:
       213: -7954368255334752861
-    second: EnemyIdle_38
+    second: SlimeIdle_38
   - first:
       213: 5536231140731700174
-    second: EnemyIdle_39
+    second: SlimeIdle_39
   - first:
       213: -2120571105170325146
-    second: EnemyIdle_40
+    second: SlimeIdle_40
   - first:
       213: 3897173392494542476
-    second: EnemyIdle_41
+    second: SlimeIdle_41
   - first:
       213: 5541135898002719470
-    second: EnemyIdle_42
+    second: SlimeIdle_42
   - first:
       213: 3510839507952243081
-    second: EnemyIdle_43
+    second: SlimeIdle_43
   - first:
       213: 8003988807459990185
-    second: EnemyIdle_44
+    second: SlimeIdle_44
   - first:
       213: 4479256130746501506
-    second: EnemyIdle_45
+    second: SlimeIdle_45
   - first:
       213: -3678711361014398480
-    second: EnemyIdle_46
+    second: SlimeIdle_46
   - first:
       213: -1189272267582357026
-    second: EnemyIdle_47
+    second: SlimeIdle_47
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -262,7 +262,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: EnemyIdle_0
+      name: SlimeIdle_0
       rect:
         serializedVersion: 2
         x: 0
@@ -283,7 +283,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_1
+      name: SlimeIdle_1
       rect:
         serializedVersion: 2
         x: 128
@@ -304,7 +304,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_2
+      name: SlimeIdle_2
       rect:
         serializedVersion: 2
         x: 256
@@ -325,7 +325,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_3
+      name: SlimeIdle_3
       rect:
         serializedVersion: 2
         x: 384
@@ -346,7 +346,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_4
+      name: SlimeIdle_4
       rect:
         serializedVersion: 2
         x: 512
@@ -367,7 +367,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_5
+      name: SlimeIdle_5
       rect:
         serializedVersion: 2
         x: 640
@@ -388,7 +388,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_6
+      name: SlimeIdle_6
       rect:
         serializedVersion: 2
         x: 768
@@ -409,7 +409,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_7
+      name: SlimeIdle_7
       rect:
         serializedVersion: 2
         x: 896
@@ -430,7 +430,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_8
+      name: SlimeIdle_8
       rect:
         serializedVersion: 2
         x: 0
@@ -451,7 +451,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_9
+      name: SlimeIdle_9
       rect:
         serializedVersion: 2
         x: 128
@@ -472,7 +472,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_10
+      name: SlimeIdle_10
       rect:
         serializedVersion: 2
         x: 256
@@ -493,7 +493,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_11
+      name: SlimeIdle_11
       rect:
         serializedVersion: 2
         x: 384
@@ -514,7 +514,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_12
+      name: SlimeIdle_12
       rect:
         serializedVersion: 2
         x: 512
@@ -535,7 +535,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_13
+      name: SlimeIdle_13
       rect:
         serializedVersion: 2
         x: 640
@@ -556,7 +556,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_14
+      name: SlimeIdle_14
       rect:
         serializedVersion: 2
         x: 768
@@ -577,7 +577,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_15
+      name: SlimeIdle_15
       rect:
         serializedVersion: 2
         x: 896
@@ -598,7 +598,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_16
+      name: SlimeIdle_16
       rect:
         serializedVersion: 2
         x: 0
@@ -619,7 +619,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_17
+      name: SlimeIdle_17
       rect:
         serializedVersion: 2
         x: 128
@@ -640,7 +640,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_18
+      name: SlimeIdle_18
       rect:
         serializedVersion: 2
         x: 256
@@ -661,7 +661,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_19
+      name: SlimeIdle_19
       rect:
         serializedVersion: 2
         x: 384
@@ -682,7 +682,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_20
+      name: SlimeIdle_20
       rect:
         serializedVersion: 2
         x: 512
@@ -703,7 +703,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_21
+      name: SlimeIdle_21
       rect:
         serializedVersion: 2
         x: 640
@@ -724,7 +724,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_22
+      name: SlimeIdle_22
       rect:
         serializedVersion: 2
         x: 768
@@ -745,7 +745,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_23
+      name: SlimeIdle_23
       rect:
         serializedVersion: 2
         x: 896
@@ -766,7 +766,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_24
+      name: SlimeIdle_24
       rect:
         serializedVersion: 2
         x: 0
@@ -787,7 +787,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_25
+      name: SlimeIdle_25
       rect:
         serializedVersion: 2
         x: 128
@@ -808,7 +808,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_26
+      name: SlimeIdle_26
       rect:
         serializedVersion: 2
         x: 256
@@ -829,7 +829,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_27
+      name: SlimeIdle_27
       rect:
         serializedVersion: 2
         x: 384
@@ -850,7 +850,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_28
+      name: SlimeIdle_28
       rect:
         serializedVersion: 2
         x: 512
@@ -871,7 +871,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_29
+      name: SlimeIdle_29
       rect:
         serializedVersion: 2
         x: 640
@@ -892,7 +892,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_30
+      name: SlimeIdle_30
       rect:
         serializedVersion: 2
         x: 768
@@ -913,7 +913,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_31
+      name: SlimeIdle_31
       rect:
         serializedVersion: 2
         x: 896
@@ -934,7 +934,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_32
+      name: SlimeIdle_32
       rect:
         serializedVersion: 2
         x: 0
@@ -955,7 +955,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_33
+      name: SlimeIdle_33
       rect:
         serializedVersion: 2
         x: 128
@@ -976,7 +976,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_34
+      name: SlimeIdle_34
       rect:
         serializedVersion: 2
         x: 256
@@ -997,7 +997,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_35
+      name: SlimeIdle_35
       rect:
         serializedVersion: 2
         x: 384
@@ -1018,7 +1018,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_36
+      name: SlimeIdle_36
       rect:
         serializedVersion: 2
         x: 512
@@ -1039,7 +1039,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_37
+      name: SlimeIdle_37
       rect:
         serializedVersion: 2
         x: 640
@@ -1060,7 +1060,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_38
+      name: SlimeIdle_38
       rect:
         serializedVersion: 2
         x: 768
@@ -1081,7 +1081,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_39
+      name: SlimeIdle_39
       rect:
         serializedVersion: 2
         x: 896
@@ -1102,7 +1102,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_40
+      name: SlimeIdle_40
       rect:
         serializedVersion: 2
         x: 0
@@ -1123,7 +1123,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_41
+      name: SlimeIdle_41
       rect:
         serializedVersion: 2
         x: 128
@@ -1144,7 +1144,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_42
+      name: SlimeIdle_42
       rect:
         serializedVersion: 2
         x: 256
@@ -1165,7 +1165,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_43
+      name: SlimeIdle_43
       rect:
         serializedVersion: 2
         x: 384
@@ -1186,7 +1186,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_44
+      name: SlimeIdle_44
       rect:
         serializedVersion: 2
         x: 512
@@ -1207,7 +1207,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_45
+      name: SlimeIdle_45
       rect:
         serializedVersion: 2
         x: 640
@@ -1228,7 +1228,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_46
+      name: SlimeIdle_46
       rect:
         serializedVersion: 2
         x: 768
@@ -1249,7 +1249,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyIdle_47
+      name: SlimeIdle_47
       rect:
         serializedVersion: 2
         x: 896
@@ -1280,54 +1280,54 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      EnemyIdle_5: 4083628424625405360
-      EnemyIdle_10: -1911661629280461423
-      EnemyIdle_42: 5541135898002719470
-      EnemyIdle_3: -4137714196570529883
-      EnemyIdle_7: 5397975490625903457
-      EnemyIdle_44: 8003988807459990185
-      EnemyIdle_24: 5674232886818905516
-      EnemyIdle_30: 8966948659316001411
-      EnemyIdle_15: -2227811224880392320
-      EnemyIdle_40: -2120571105170325146
-      EnemyIdle_1: -8626430948324366259
-      EnemyIdle_36: -8648508642028357287
-      EnemyIdle_26: -7522605916704644062
-      EnemyIdle_13: 7923652759977848444
-      EnemyIdle_38: -7954368255334752861
-      EnemyIdle_17: -781749100953568232
-      EnemyIdle_20: 8364947481816118182
-      EnemyIdle_9: 8046221937238875741
-      EnemyIdle_22: 662232649014303170
-      EnemyIdle_46: -3678711361014398480
-      EnemyIdle_25: -7491215280504266555
-      EnemyIdle_28: 849165507010968834
-      EnemyIdle_8: -2292051563450731795
-      EnemyIdle_18: -3561567941321891658
-      EnemyIdle_27: -5023540826923673731
-      EnemyIdle_35: 8247848304654393482
-      EnemyIdle_2: -6599519009133296541
-      EnemyIdle_32: -3101495029596761616
-      EnemyIdle_47: -1189272267582357026
-      EnemyIdle_4: 1558792902711424901
-      EnemyIdle_0: 4250926123117471553
-      EnemyIdle_39: 5536231140731700174
-      EnemyIdle_12: -8367205577823325385
-      EnemyIdle_43: 3510839507952243081
-      EnemyIdle_6: -800174519175370468
-      EnemyIdle_23: -3124154863182941861
-      EnemyIdle_33: 8822648940508315731
-      EnemyIdle_31: -1184023329454687247
-      EnemyIdle_34: 3353963689198264338
-      EnemyIdle_14: -8811486713536899203
-      EnemyIdle_29: 8406071627315556976
-      EnemyIdle_21: -4689384519538984025
-      EnemyIdle_45: 4479256130746501506
-      EnemyIdle_16: -7431990202634592073
-      EnemyIdle_41: 3897173392494542476
-      EnemyIdle_37: -2681484474142548522
-      EnemyIdle_11: -3694711524240207550
-      EnemyIdle_19: 1103029824894431229
+      SlimeIdle_5: 4083628424625405360
+      SlimeIdle_10: -1911661629280461423
+      SlimeIdle_42: 5541135898002719470
+      SlimeIdle_3: -4137714196570529883
+      SlimeIdle_7: 5397975490625903457
+      SlimeIdle_44: 8003988807459990185
+      SlimeIdle_24: 5674232886818905516
+      SlimeIdle_30: 8966948659316001411
+      SlimeIdle_15: -2227811224880392320
+      SlimeIdle_40: -2120571105170325146
+      SlimeIdle_1: -8626430948324366259
+      SlimeIdle_36: -8648508642028357287
+      SlimeIdle_26: -7522605916704644062
+      SlimeIdle_13: 7923652759977848444
+      SlimeIdle_38: -7954368255334752861
+      SlimeIdle_17: -781749100953568232
+      SlimeIdle_20: 8364947481816118182
+      SlimeIdle_9: 8046221937238875741
+      SlimeIdle_22: 662232649014303170
+      SlimeIdle_46: -3678711361014398480
+      SlimeIdle_25: -7491215280504266555
+      SlimeIdle_28: 849165507010968834
+      SlimeIdle_8: -2292051563450731795
+      SlimeIdle_18: -3561567941321891658
+      SlimeIdle_27: -5023540826923673731
+      SlimeIdle_35: 8247848304654393482
+      SlimeIdle_2: -6599519009133296541
+      SlimeIdle_32: -3101495029596761616
+      SlimeIdle_47: -1189272267582357026
+      SlimeIdle_4: 1558792902711424901
+      SlimeIdle_0: 4250926123117471553
+      SlimeIdle_39: 5536231140731700174
+      SlimeIdle_12: -8367205577823325385
+      SlimeIdle_43: 3510839507952243081
+      SlimeIdle_6: -800174519175370468
+      SlimeIdle_23: -3124154863182941861
+      SlimeIdle_33: 8822648940508315731
+      SlimeIdle_31: -1184023329454687247
+      SlimeIdle_34: 3353963689198264338
+      SlimeIdle_14: -8811486713536899203
+      SlimeIdle_29: 8406071627315556976
+      SlimeIdle_21: -4689384519538984025
+      SlimeIdle_45: 4479256130746501506
+      SlimeIdle_16: -7431990202634592073
+      SlimeIdle_41: 3897173392494542476
+      SlimeIdle_37: -2681484474142548522
+      SlimeIdle_11: -3694711524240207550
+      SlimeIdle_19: 1103029824894431229
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

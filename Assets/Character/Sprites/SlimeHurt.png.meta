@@ -145,7 +145,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: EnemyHurt_0
+      name: SlimeHurt_0
       rect:
         serializedVersion: 2
         x: 0
@@ -153,7 +153,7 @@ TextureImporter:
         width: 128
         height: 126
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -166,7 +166,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyHurt_1
+      name: SlimeHurt_1
       rect:
         serializedVersion: 2
         x: 128
@@ -174,7 +174,7 @@ TextureImporter:
         width: 128
         height: 126
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -187,7 +187,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyHurt_2
+      name: SlimeHurt_2
       rect:
         serializedVersion: 2
         x: 256
@@ -195,7 +195,7 @@ TextureImporter:
         width: 128
         height: 126
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -208,7 +208,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyHurt_3
+      name: SlimeHurt_3
       rect:
         serializedVersion: 2
         x: 0
@@ -216,7 +216,7 @@ TextureImporter:
         width: 128
         height: 126
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -229,7 +229,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyHurt_4
+      name: SlimeHurt_4
       rect:
         serializedVersion: 2
         x: 128
@@ -237,7 +237,7 @@ TextureImporter:
         width: 128
         height: 126
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -250,7 +250,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyHurt_5
+      name: SlimeHurt_5
       rect:
         serializedVersion: 2
         x: 256
@@ -258,7 +258,7 @@ TextureImporter:
         width: 128
         height: 126
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -271,7 +271,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyHurt_6
+      name: SlimeHurt_6
       rect:
         serializedVersion: 2
         x: 0
@@ -279,7 +279,7 @@ TextureImporter:
         width: 128
         height: 126
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -292,7 +292,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyHurt_7
+      name: SlimeHurt_7
       rect:
         serializedVersion: 2
         x: 128
@@ -300,7 +300,7 @@ TextureImporter:
         width: 128
         height: 126
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -313,7 +313,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyHurt_8
+      name: SlimeHurt_8
       rect:
         serializedVersion: 2
         x: 256
@@ -321,7 +321,7 @@ TextureImporter:
         width: 128
         height: 126
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -344,15 +344,15 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      EnemyHurt_2: 3526224325475147133
-      EnemyHurt_4: 3262533386225973127
-      EnemyHurt_0: 9070047781385175422
-      EnemyHurt_8: 1043005496857988974
-      EnemyHurt_3: 6607760220047812143
-      EnemyHurt_7: -2982624892928026159
-      EnemyHurt_6: -1985681711978549883
-      EnemyHurt_1: 7045151022295745011
-      EnemyHurt_5: -1344351576063992055
+      SlimeHurt_7: -2982624892928026159
+      SlimeHurt_5: -1344351576063992055
+      SlimeHurt_8: 1043005496857988974
+      SlimeHurt_3: 6607760220047812143
+      SlimeHurt_0: 9070047781385175422
+      SlimeHurt_1: 7045151022295745011
+      SlimeHurt_2: 3526224325475147133
+      SlimeHurt_6: -1985681711978549883
+      SlimeHurt_4: 3262533386225973127
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

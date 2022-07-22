@@ -6,28 +6,28 @@ TextureImporter:
   internalIDToNameTable:
   - first:
       213: 7003975502510558183
-    second: EnemyDeath_0
+    second: SlimeDeath_0
   - first:
       213: -1488558319661869774
-    second: EnemyDeath_1
+    second: SlimeDeath_1
   - first:
       213: 3934497181408197059
-    second: EnemyDeath_2
+    second: SlimeDeath_2
   - first:
       213: 1445799458632272015
-    second: EnemyDeath_3
+    second: SlimeDeath_3
   - first:
       213: -6647632493804449350
-    second: EnemyDeath_4
+    second: SlimeDeath_4
   - first:
       213: -5494614063893397770
-    second: EnemyDeath_5
+    second: SlimeDeath_5
   - first:
       213: -5427934351343933045
-    second: EnemyDeath_6
+    second: SlimeDeath_6
   - first:
       213: -1320843793470758863
-    second: EnemyDeath_7
+    second: SlimeDeath_7
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -142,7 +142,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: EnemyDeath_0
+      name: SlimeDeath_0
       rect:
         serializedVersion: 2
         x: 0
@@ -163,7 +163,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyDeath_1
+      name: SlimeDeath_1
       rect:
         serializedVersion: 2
         x: 128
@@ -184,7 +184,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyDeath_2
+      name: SlimeDeath_2
       rect:
         serializedVersion: 2
         x: 256
@@ -205,7 +205,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyDeath_3
+      name: SlimeDeath_3
       rect:
         serializedVersion: 2
         x: 384
@@ -226,7 +226,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyDeath_4
+      name: SlimeDeath_4
       rect:
         serializedVersion: 2
         x: 0
@@ -247,7 +247,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyDeath_5
+      name: SlimeDeath_5
       rect:
         serializedVersion: 2
         x: 128
@@ -268,7 +268,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyDeath_6
+      name: SlimeDeath_6
       rect:
         serializedVersion: 2
         x: 256
@@ -289,7 +289,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyDeath_7
+      name: SlimeDeath_7
       rect:
         serializedVersion: 2
         x: 384
@@ -320,14 +320,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      EnemyDeath_2: 3934497181408197059
-      EnemyDeath_0: 7003975502510558183
-      EnemyDeath_4: -6647632493804449350
-      EnemyDeath_3: 1445799458632272015
-      EnemyDeath_7: -1320843793470758863
-      EnemyDeath_1: -1488558319661869774
-      EnemyDeath_6: -5427934351343933045
-      EnemyDeath_5: -5494614063893397770
+      SlimeDeath_2: 3934497181408197059
+      SlimeDeath_0: 7003975502510558183
+      SlimeDeath_4: -6647632493804449350
+      SlimeDeath_3: 1445799458632272015
+      SlimeDeath_7: -1320843793470758863
+      SlimeDeath_1: -1488558319661869774
+      SlimeDeath_6: -5427934351343933045
+      SlimeDeath_5: -5494614063893397770
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

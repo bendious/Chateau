@@ -6,49 +6,49 @@ TextureImporter:
   internalIDToNameTable:
   - first:
       213: 3822349845581434254
-    second: EnemyRun_0
+    second: SlimeRun_0
   - first:
       213: -7786183542486924054
-    second: EnemyRun_1
+    second: SlimeRun_1
   - first:
       213: -8414793482567314535
-    second: EnemyRun_2
+    second: SlimeRun_2
   - first:
       213: 1712683479587804553
-    second: EnemyRun_3
+    second: SlimeRun_3
   - first:
       213: -4984374510609326218
-    second: EnemyRun_4
+    second: SlimeRun_4
   - first:
       213: 8538721944496944130
-    second: EnemyRun_5
+    second: SlimeRun_5
   - first:
       213: 7059929140351375017
-    second: EnemyRun_6
+    second: SlimeRun_6
   - first:
       213: 6051196897441162237
-    second: EnemyRun_7
+    second: SlimeRun_7
   - first:
       213: 4729075069621027019
-    second: EnemyRun_8
+    second: SlimeRun_8
   - first:
       213: 624187872198101331
-    second: EnemyRun_9
+    second: SlimeRun_9
   - first:
       213: -3042644892438721373
-    second: EnemyRun_10
+    second: SlimeRun_10
   - first:
       213: 7175590935015506657
-    second: EnemyRun_11
+    second: SlimeRun_11
   - first:
       213: -6045425598937861363
-    second: EnemyRun_12
+    second: SlimeRun_12
   - first:
       213: -2667009722241765782
-    second: EnemyRun_13
+    second: SlimeRun_13
   - first:
       213: 4262380141682064467
-    second: EnemyRun_14
+    second: SlimeRun_14
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -163,7 +163,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: EnemyRun_0
+      name: SlimeRun_0
       rect:
         serializedVersion: 2
         x: 0
@@ -184,7 +184,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyRun_1
+      name: SlimeRun_1
       rect:
         serializedVersion: 2
         x: 128
@@ -205,7 +205,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyRun_2
+      name: SlimeRun_2
       rect:
         serializedVersion: 2
         x: 256
@@ -226,7 +226,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyRun_3
+      name: SlimeRun_3
       rect:
         serializedVersion: 2
         x: 384
@@ -247,7 +247,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyRun_4
+      name: SlimeRun_4
       rect:
         serializedVersion: 2
         x: 512
@@ -268,7 +268,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyRun_5
+      name: SlimeRun_5
       rect:
         serializedVersion: 2
         x: 0
@@ -289,7 +289,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyRun_6
+      name: SlimeRun_6
       rect:
         serializedVersion: 2
         x: 128
@@ -310,7 +310,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyRun_7
+      name: SlimeRun_7
       rect:
         serializedVersion: 2
         x: 256
@@ -331,7 +331,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyRun_8
+      name: SlimeRun_8
       rect:
         serializedVersion: 2
         x: 384
@@ -352,7 +352,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyRun_9
+      name: SlimeRun_9
       rect:
         serializedVersion: 2
         x: 512
@@ -373,7 +373,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyRun_10
+      name: SlimeRun_10
       rect:
         serializedVersion: 2
         x: 0
@@ -394,7 +394,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyRun_11
+      name: SlimeRun_11
       rect:
         serializedVersion: 2
         x: 128
@@ -415,7 +415,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyRun_12
+      name: SlimeRun_12
       rect:
         serializedVersion: 2
         x: 256
@@ -436,7 +436,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyRun_13
+      name: SlimeRun_13
       rect:
         serializedVersion: 2
         x: 384
@@ -457,7 +457,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EnemyRun_14
+      name: SlimeRun_14
       rect:
         serializedVersion: 2
         x: 512
@@ -488,21 +488,21 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      EnemyRun_4: -4984374510609326218
-      EnemyRun_13: -2667009722241765782
-      EnemyRun_2: -8414793482567314535
-      EnemyRun_1: -7786183542486924054
-      EnemyRun_11: 7175590935015506657
-      EnemyRun_10: -3042644892438721373
-      EnemyRun_12: -6045425598937861363
-      EnemyRun_6: 7059929140351375017
-      EnemyRun_14: 4262380141682064467
-      EnemyRun_3: 1712683479587804553
-      EnemyRun_0: 3822349845581434254
-      EnemyRun_8: 4729075069621027019
-      EnemyRun_5: 8538721944496944130
-      EnemyRun_7: 6051196897441162237
-      EnemyRun_9: 624187872198101331
+      SlimeRun_4: -4984374510609326218
+      SlimeRun_13: -2667009722241765782
+      SlimeRun_2: -8414793482567314535
+      SlimeRun_1: -7786183542486924054
+      SlimeRun_11: 7175590935015506657
+      SlimeRun_10: -3042644892438721373
+      SlimeRun_12: -6045425598937861363
+      SlimeRun_6: 7059929140351375017
+      SlimeRun_14: 4262380141682064467
+      SlimeRun_3: 1712683479587804553
+      SlimeRun_0: 3822349845581434254
+      SlimeRun_8: 4729075069621027019
+      SlimeRun_5: 8538721944496944130
+      SlimeRun_7: 6051196897441162237
+      SlimeRun_9: 624187872198101331
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
