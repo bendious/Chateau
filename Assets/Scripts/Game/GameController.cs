@@ -124,7 +124,7 @@ public class GameController : MonoBehaviour
 	private float m_nextWaveTime = 0.0f;
 	private bool m_waveSpawningInProgress = false;
 
-	private readonly List<EnemyController> m_enemies = new();
+	private readonly List<EnemyController> m_waveEnemies = new();
 	private static int[] m_enemySpawnCounts;
 
 	private static readonly BitArray m_secretsFoundBitmask = new(sizeof(int) * 8); // TODO: avoid limiting to a single int?
@@ -341,7 +341,7 @@ public class GameController : MonoBehaviour
 	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos, Vector2 offsetMag)
 	{
 		RoomController startRoom = RoomFromPosition(startPos);
-		return startRoom.PositionPath(startPos, targetPos, offsetMag, RoomController.ObstructionCheck.Full);
+		return startRoom?.PositionPath(startPos, targetPos, offsetMag, RoomController.ObstructionCheck.Full);
 	}
 
 	public void TogglePause()
@@ -358,12 +358,12 @@ public class GameController : MonoBehaviour
 
 	public void EnemyAdd(EnemyController enemy)
 	{
-		m_enemies.Add(enemy);
+		m_waveEnemies.Add(enemy);
 	}
 
-	public bool EnemiesRemain()
+	public bool WaveEnemiesRemain()
 	{
-		return m_waveSpawningInProgress || m_enemies.Count > 0;
+		return m_waveSpawningInProgress || m_waveEnemies.Count > 0;
 	}
 
 	public bool EnemyTypeHasSpawned(int typeIndex)
@@ -376,7 +376,7 @@ public class GameController : MonoBehaviour
 		// TODO: don't assume we're locked into individual rooms?
 		RoomController[] reachableRooms = m_avatars.Where(avatar => avatar.IsAlive).Select(avatar => RoomFromPosition(avatar.transform.position)).ToArray();
 
-		foreach (EnemyController enemy in m_enemies)
+		foreach (EnemyController enemy in m_waveEnemies)
 		{
 			if (reachableRooms.Contains(RoomFromPosition(enemy.transform.position)))
 			{
@@ -446,7 +446,7 @@ public class GameController : MonoBehaviour
 		IsSceneLoad = true;
 
 		// prevent stale GameController asserts while reloading
-		foreach (EnemyController enemy in m_enemies)
+		foreach (EnemyController enemy in m_waveEnemies)
 		{
 			enemy.gameObject.SetActive(false);
 		}
@@ -514,7 +514,7 @@ public class GameController : MonoBehaviour
 
 	public void DebugKillAllEnemies()
 	{
-		foreach (EnemyController enemy in m_enemies)
+		foreach (EnemyController enemy in m_waveEnemies)
 		{
 			enemy.GetComponent<Health>().Die();
 		}
@@ -776,7 +776,7 @@ public class GameController : MonoBehaviour
 		m_waveSpawningInProgress = false;
 
 		// unseal rooms if the last enemy was killed immediately
-		if (m_waveSealing && m_enemies.Count == 0 && !m_bossRoomSealed)
+		if (m_waveSealing && m_waveEnemies.Count == 0 && !m_bossRoomSealed)
 		{
 			foreach (RoomController room in sealedRooms)
 			{
@@ -788,7 +788,7 @@ public class GameController : MonoBehaviour
 	private void SpawnEnemy(GameObject enemyPrefab)
 	{
 		Vector3 spawnPos = RoomFromPosition(m_avatars[Random.Range(0, m_avatars.Count())].transform.position).SpawnPointRandom();
-		m_enemies.Add(Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>());
+		m_waveEnemies.Add(Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>());
 	}
 
 	private void OnObjectDespawn(ObjectDespawn evt)
@@ -799,9 +799,9 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
-		m_enemies.Remove(enemy);
+		m_waveEnemies.Remove(enemy);
 
-		if (m_waveSealing && m_enemies.Count == 0 && !m_waveSpawningInProgress && !m_bossRoomSealed)
+		if (m_waveSealing && m_waveEnemies.Count == 0 && !m_waveSpawningInProgress && !m_bossRoomSealed)
 		{
 			// TODO: slight time delay?
 			foreach (RoomController room in m_avatars.Select(avatar => RoomFromPosition(avatar.transform.position)))
@@ -823,7 +823,7 @@ public class GameController : MonoBehaviour
 
 			float secondsRemaining = m_nextWaveTime - Time.time;
 			m_timerUI.text = System.TimeSpan.FromSeconds(secondsRemaining).ToString("m':'ss");
-			m_timerUI.color = EnemiesRemain() ? Color.red : Color.green;
+			m_timerUI.color = WaveEnemiesRemain() ? Color.red : Color.green;
 
 			if (secondsRemaining >= 1.0f && secondsRemaining <= m_waveWeight + 1.0f)
 			{

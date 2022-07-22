@@ -40,6 +40,7 @@ public class LayoutGenerator
 			RoomHorizontal,
 			RoomSecret,
 			Npc,
+			Enemy,
 			Key,
 			Lock, // TODO: treat as an in-between node (like {Tight/Root}Coupling)?
 			LockOrdered,
@@ -371,6 +372,8 @@ public class LayoutGenerator
 		// serial chains
 		// NOTE that the leaf Keys are required for the following Locks
 		new(Node.Type.Sequence, new() { new(Node.Type.Gate, new() { new(Node.Type.Key), new(Node.Type.PossibleBonus) }) }),
+		new(Node.Type.Sequence, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Key) }) }) }),
+		new(Node.Type.Sequence, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Enemy), new(Node.Type.Key) }) }) }),
 		new(Node.Type.PossibleBonus, null, 2.0f),
 		new(Node.Type.PossibleBonus, new() { new(Node.Type.Gate, new() { new(Node.Type.BonusItems) }) }),
 

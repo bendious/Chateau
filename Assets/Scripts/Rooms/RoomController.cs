@@ -558,6 +558,12 @@ public class RoomController : MonoBehaviour
 					++npcDepthLocal;
 					break;
 
+				case LayoutGenerator.Node.Type.Enemy:
+					// TODO: include in GameController.m_{waveEnemies/enemySpawnCounts}[] once room is opened
+					GameObject enemyPrefab = GameController.Instance.m_enemyPrefabs.RandomWeighted(GameController.Instance.m_enemyPrefabs.Select(pair => 1.0f / pair.m_weight)).m_object; // NOTE that m_enemyPrefabs[] uses "weight" as enemy toughness rather than chance to spawn
+					Instantiate(enemyPrefab, InteriorPosition(0.0f) + (Vector3)enemyPrefab.OriginToCenterY(), Quaternion.identity);
+					break;
+
 				default:
 					break;
 			}
