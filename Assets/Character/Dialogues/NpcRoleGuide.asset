@@ -244,4 +244,34 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
     m_weight: 0
-  m_expressions: []
+  - m_object:
+      m_preconditionName: HasFinishedZone
+      m_userdata: 1
+      m_lines:
+      - m_text: Been talking to Martha?
+        m_replies: []
+      - m_text: She's a pain sometimes, honestly, but don't let that bug you too
+          much.
+        m_replies: []
+      - m_text: Get used to her talents and she'll be one of your biggest assets.
+        m_replies: []
+      m_loop: 0
+      m_singleUse: 0
+    m_weight: 1
+  - m_object:
+      m_preconditionName: HasFinishedZone
+      m_userdata: 1
+      m_lines:
+      - m_text: Me? I'm not actually from around here, you know.
+        m_replies: []
+      - m_text: I'm just your humble guide, hoping to make your trials here a little
+          less arduous than mine were in my home.
+        m_replies: []
+      m_loop: 0
+      m_singleUse: 0
+    m_weight: 1
+  m_expressions:
+  - m_object:
+      m_key: name
+      m_replacement: Theresa
+    m_weight: 1

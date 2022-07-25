@@ -47,3 +47,7 @@ MonoBehaviour:
       m_key: avatar
       m_replacement: child
     m_weight: 1
+  - m_object:
+      m_key: name
+      m_replacement: Will
+    m_weight: 1

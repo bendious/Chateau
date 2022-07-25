@@ -1530,13 +1530,13 @@ MonoBehaviour:
   m_npcRoles:
   - m_object: {fileID: 11400000, guid: 8620c986938d35e489ba749b30b261f5, type: 2}
     m_weight: 1e+27
+  - m_object: {fileID: 11400000, guid: a4d57240072259046ba25a999d984f47, type: 2}
+    m_weight: 1e+13
   - m_object: {fileID: 11400000, guid: 253660f765b3ae44fa1b73d1f26a6594, type: 2}
     m_weight: 1
   - m_object: {fileID: 11400000, guid: 249d36032d347d240b8638f14da317f9, type: 2}
     m_weight: 1
   - m_object: {fileID: 11400000, guid: 23ae61cdb98cd1d47a9a15914cfdf4d7, type: 2}
-    m_weight: 1
-  - m_object: {fileID: 11400000, guid: a4d57240072259046ba25a999d984f47, type: 2}
     m_weight: 1
   m_npcAttitudes:
   - m_object: {fileID: 11400000, guid: eeef22f43d928934d9f902dbd6ac6bbb, type: 2}
