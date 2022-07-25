@@ -55,7 +55,7 @@ public class LockController : MonoBehaviour, IUnlockable
 	private CombinationSet m_combinationSet;
 	private bool m_hasTrigger;
 
-	private bool m_unlockInProgress;
+	private int m_unlockInProgressCount;
 
 
 	public void SpawnKeysStatic(RoomController lockRoom, RoomController[] keyRooms)
@@ -315,24 +315,25 @@ public class LockController : MonoBehaviour, IUnlockable
 			return;
 		}
 
-		foreach (Transform tf in collider.GetComponentsInChildren<Transform>(true))
+		foreach (Transform tf in m_keyDelaySeconds > 0.0f ? new Transform[] { collider.transform } : collider.GetComponentsInChildren<Transform>(true)) // NOTE that keys w/ delays require direct trigger contact
 		{
 			if (IsValidNextKey(tf.gameObject))
 			{
 				StartCoroutine(KeyUnlockDelayed(tf));
+				if (!enabled)
+				{
+					break; // prevent consuming generic keys after already unlocked
+				}
 			}
 		}
 	}
 
 	private void OnTriggerExit2D(Collider2D collider)
 	{
-		foreach (Transform tf in collider.GetComponentsInChildren<Transform>(true))
+		// NOTE that keys w/ delays require direct trigger contact
+		if (IsValidNextKey(collider.gameObject)) // TODO: cache?
 		{
-			if (IsValidNextKey(tf.gameObject)) // TODO: cache?
-			{
-				m_unlockInProgress = false; // TODO: handle multiple keys?
-				break;
-			}
+			--m_unlockInProgressCount;
 		}
 	}
 
@@ -497,18 +498,18 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	private IEnumerator KeyUnlockDelayed(Transform tf)
 	{
-		m_unlockInProgress = true;
+		++m_unlockInProgressCount;
 		if (m_keyDelaySeconds > 0.0f)
 		{
 			float unlockTime = Time.time + m_keyDelaySeconds;
-			yield return new WaitUntil(() => !m_unlockInProgress || Time.time >= unlockTime);
+			yield return new WaitUntil(() => m_unlockInProgressCount == 0 || Time.time >= unlockTime);
 		}
 
-		if (!m_unlockInProgress)
+		if (m_unlockInProgressCount == 0)
 		{
 			yield break;
 		}
-		m_unlockInProgress = false;
+		m_unlockInProgressCount = 0;
 
 		IKey key = tf.GetComponent<IKey>();
 		key.Use();
