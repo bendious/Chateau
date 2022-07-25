@@ -13,10 +13,11 @@ public class EnemyController : KinematicCharacter
 
 	public float m_contactDamage = 1.0f;
 
+	public bool m_passive;
+
 	public Vector2 m_targetOffset = Vector2.zero;
 	public Transform m_target;
-	[SerializeField]
-	private float m_replanSecondsMax = 2.0f;
+	[SerializeField] private float m_replanSecondsMax = 2.0f;
 
 	public float m_meleeRange = 1.0f;
 
@@ -50,14 +51,13 @@ public class EnemyController : KinematicCharacter
 		{
 			return;
 		}
-
-		foreach (ArmController arm in GetComponentsInChildren<ArmController>())
+		if (m_passive)
 		{
-			if (arm.transform.childCount > 0)
-			{
-				return;
-			}
-			arm.ChildAttach(GameController.Instance.m_savableFactory.Instantiate(m_heldPrefab, transform.position, transform.rotation).GetComponent<ItemController>());
+			StartCoroutine(SpawnHeldItemsWhenActive());
+		}
+		else
+		{
+			_ = SpawnHeldItemsWhenActive(); // NOTE the return value discard to indicate that we are deliberately not using StartCoroutine() and don't need to be warned
 		}
 	}
 
@@ -81,7 +81,7 @@ public class EnemyController : KinematicCharacter
 
 	protected override void Update()
 	{
-		if (ConsoleCommands.PassiveAI)
+		if (m_passive || ConsoleCommands.PassiveAI)
 		{
 			move = Vector2.zero;
 		}
@@ -112,6 +112,11 @@ public class EnemyController : KinematicCharacter
 	protected override void FixedUpdate()
 	{
 		base.FixedUpdate();
+
+		if (m_passive || ConsoleCommands.PassiveAI)
+		{
+			return;
+		}
 
 		// aim items
 		if (HoldCountMax > 0)
@@ -324,6 +329,23 @@ public class EnemyController : KinematicCharacter
 	}
 #endif
 
+
+	private System.Collections.IEnumerator SpawnHeldItemsWhenActive()
+	{
+		if (m_passive)
+		{
+			yield return new WaitUntil(() => !m_passive);
+		}
+
+		foreach (ArmController arm in GetComponentsInChildren<ArmController>())
+		{
+			if (arm.transform.childCount > 0)
+			{
+				continue;
+			}
+			arm.ChildAttach(GameController.Instance.m_savableFactory.Instantiate(m_heldPrefab, transform.position, transform.rotation).GetComponent<ItemController>());
+		}
+	}
 
 	private Vector2 AimPosition()
 	{

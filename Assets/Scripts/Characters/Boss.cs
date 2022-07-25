@@ -78,9 +78,10 @@ public class Boss : MonoBehaviour
 		StopAllCoroutines();
 		m_started = false;
 		m_activatedFully = false;
-		EnemyController controller = GetComponent<EnemyController>();
-		controller.enabled = false;
-		controller.Teleport(m_startPos); // TODO: set goal and navigate rather than snapping?
+		EnemyController enemy = GetComponent<EnemyController>();
+		enemy.m_passive = true;
+		enemy.gravityModifier = 1.0f;
+		enemy.Teleport(m_startPos);
 		GetComponent<Health>().m_invincible = true;
 	}
 #endif
@@ -115,6 +116,8 @@ public class Boss : MonoBehaviour
 		}
 
 		// float into air
+		EnemyController enemy = GetComponent<EnemyController>();
+		enemy.gravityModifier = 0.0f;
 		float yTarget = transform.position.y + 4.5f; // TODO: unhardcode?
 		float ySpeedCur = 0.0f;
 		while (!transform.position.y.FloatEqual(yTarget))
@@ -144,8 +147,7 @@ public class Boss : MonoBehaviour
 
 		// enable boss
 		GetComponent<Health>().m_invincible = false;
-		EnemyController enemy = GetComponent<EnemyController>();
-		enemy.enabled = true;
+		enemy.m_passive = false;
 		GameController.Instance.EnemyAdd(enemy);
 	}
 }

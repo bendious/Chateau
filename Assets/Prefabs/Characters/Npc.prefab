@@ -96,6 +96,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_invincible
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_gradient.ctime1
       value: 65535
       objectReference: {fileID: 0}

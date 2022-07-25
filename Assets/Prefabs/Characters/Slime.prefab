@@ -192,6 +192,7 @@ MonoBehaviour:
   move: {x: 0, y: 0}
   m_allowedStates: 000000000200000003000000
   m_contactDamage: 1
+  m_passive: 0
   m_targetOffset: {x: 0, y: 0}
   m_target: {fileID: 0}
   m_replanSecondsMax: 2
@@ -355,6 +356,9 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
+  m_blinkSeconds: 0.3
+  m_blinkColor: {r: 1, g: 0.25, b: 0.25, a: 1}
+  m_blinkSecondsPost: 0.25
 --- !u!114 &5933622131622539874
 MonoBehaviour:
   m_ObjectHideFlags: 0
