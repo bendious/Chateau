@@ -408,7 +408,7 @@ public sealed class AIFindAmmo : AIState
 
 			// prioritize by pathfind distance
 			// TODO: efficiency? also prioritize based on item damage? de-prioritize based on vertical distance / passing through m_ai.m_target? use RandomWeighted() to allow retries to bypass unreachable "closest" options?
-			System.Collections.Generic.List<Vector2> path = GameController.Instance.Pathfind(m_ai.transform.position, tf.position, Vector2.zero);
+			System.Collections.Generic.List<Vector2> path = GameController.Instance.Pathfind(m_ai.transform.position, tf.position, Vector2.zero, m_ai.GetComponent<Collider2D>().bounds.extents.y);
 			if (path == null)
 			{
 				continue; // ignore unreachable items

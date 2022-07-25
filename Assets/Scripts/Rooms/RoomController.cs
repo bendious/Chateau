@@ -339,7 +339,7 @@ public class RoomController : MonoBehaviour
 				// maybe add one-way lock
 				int siblingDepthComparison = sibling.m_layoutNodes.Max(node => node.Depth).CompareTo(m_layoutNodes.Max(node => node.Depth));
 				bool noLadder = siblingDepthComparison < 0 ? direction.y < 0.0f : direction.y > 0.0f;
-				AStarPath path = (direction.y > 0.0f ? this : sibling).RoomPath(direction.y > 0.0f ? transform.position : sibling.transform.position, direction.y > 0.0f ? sibling.transform.position : transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly);
+				AStarPath path = (direction.y > 0.0f ? this : sibling).RoomPath(direction.y > 0.0f ? transform.position : sibling.transform.position, direction.y > 0.0f ? sibling.transform.position : transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly, -1.0f);
 				bool cutbackIsLocked = path == null;
 				RoomController deeperRoom = noLadder ? (direction.y > 0.0f ? this : sibling) : siblingDepthComparison < 0 ? this : sibling;
 				if (cutbackIsLocked || Random.value <= m_cutbackBreakablePct)
@@ -772,9 +772,9 @@ public class RoomController : MonoBehaviour
 		return m_spawnPoints[Random.Range(0, m_spawnPoints.Length)].transform.position;
 	}
 
-	public List<Vector2> PositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag, ObstructionCheck obstructionChecking)
+	public List<Vector2> PositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag, ObstructionCheck obstructionChecking, float characterExtentY)
 	{
-		AStarPath roomPath = RoomPath(startPosition, endPositionPreoffset, obstructionChecking);
+		AStarPath roomPath = RoomPath(startPosition, endPositionPreoffset, obstructionChecking, characterExtentY);
 		if (roomPath == null)
 		{
 			return null;
@@ -1244,7 +1244,7 @@ public class RoomController : MonoBehaviour
 		public int CompareTo(AStarPath other) => m_distanceTotalEst.CompareTo(other.m_distanceTotalEst);
 	}
 
-	private AStarPath RoomPath(Vector2 startPos, Vector2 endPos, ObstructionCheck obstructionChecking)
+	private AStarPath RoomPath(Vector2 startPos, Vector2 endPos, ObstructionCheck obstructionChecking, float characterExtentY)
 	{
 		Debug.Assert(m_bounds.Contains(startPos));
 
@@ -1275,6 +1275,15 @@ public class RoomController : MonoBehaviour
 
 				Vector2 posPrev = pathItr.m_pathPositions.Last();
 				Vector2[] connectionPoints = new Vector2[] { info.m_object.transform.position, info.m_infoReverse.m_object.transform.position }; // NOTE that we don't use Connection() since we want this particular doorway and have already done obstruction checking
+				if (characterExtentY >= 0.0f && info.DirectionOutward().y == 0.0f)
+				{
+					// edit y-coordinate of horizontal doorways to match character midpoint
+					float yAdjusted = roomCur.transform.position.y + characterExtentY; // TODO: don't assume all horizontal doors are at floor height?
+					for (int i = 0; i < connectionPoints.Length; ++i)
+					{
+						connectionPoints[i].y = yAdjusted;
+					}
+				}
 				Vector2 posNew = roomNext == endRoom ? endPos : connectionPoints.Last();
 				float distanceCurNew = pathItr.m_distanceCur + posPrev.ManhattanDistance(posNew); // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
 
@@ -1312,7 +1321,7 @@ public class RoomController : MonoBehaviour
 				continue;
 			}
 
-			return new Vector2[] { info.m_object.transform.position, info.m_infoReverse.m_object.transform.position };
+			return new Vector2[] { info.m_object.transform.position, info.m_infoReverse.m_object.transform.position }; // TODO: edit y-coordinate of horizontal doorways to match character midpoint?
 		}
 
 		Debug.Assert(foundConnection);
