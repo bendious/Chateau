@@ -111,6 +111,8 @@ public class GameController : MonoBehaviour
 	public static int Seed => m_seed;
 	private static int m_seed;
 
+	private static int m_sceneIndexPrev = -1;
+
 	private RoomController m_startRoom;
 
 	private struct NpcInfo
@@ -210,7 +212,7 @@ public class GameController : MonoBehaviour
 
 		if (m_avatars.Count > 0)
 		{
-			AnimateEntryDoor();
+			EnterAtDoor(m_avatars);
 		}
 
 		// TODO: system?
@@ -298,7 +300,7 @@ public class GameController : MonoBehaviour
 
 		if (m_startRoom != null)
 		{
-			AnimateEntryDoor();
+			EnterAtDoor(new AvatarController[] { m_avatars.Last() });
 		}
 	}
 
@@ -431,9 +433,15 @@ public class GameController : MonoBehaviour
 
 	public void LoadScene(string name, bool save, bool noInventoryClear)
 	{
+		Scene sceneCur = SceneManager.GetActiveScene();
+		if (!IsSceneLoad && sceneCur.name != name)
+		{
+			m_sceneIndexPrev = sceneCur.buildIndex;
+		}
+
 		if (save)
 		{
-			PlayerPrefs.SetInt(m_tutorialCompleteKey, 1);
+			PlayerPrefs.SetInt(m_tutorialCompleteKey, 1); // TODO: move into save file?
 			Save();
 		}
 
@@ -453,7 +461,7 @@ public class GameController : MonoBehaviour
 
 		foreach (AvatarController avatar in m_avatars)
 		{
-			avatar.Respawn(!noInventoryClear && !Victory && ZonesFinishedCount < SceneManager.GetActiveScene().buildIndex, true);
+			avatar.Respawn(!noInventoryClear && !Victory && ZonesFinishedCount < sceneCur.buildIndex, true);
 		}
 
 		SceneManager.LoadScene(name);
@@ -620,10 +628,25 @@ public class GameController : MonoBehaviour
 		return roomCount;
 	}
 
-	private void AnimateEntryDoor()
+	private void EnterAtDoor(IEnumerable<AvatarController> avatars)
 	{
-		Animator doorAnimator = m_startRoom.GetComponentsInChildren<Animator>().First(animator => Vector2.Distance(animator.transform.position, Vector2.zero) < 1.0f); // TODO: more reliable way of determining entry door?
-		doorAnimator.SetTrigger("activate");
+		// find closest door prioritized by previous scene
+		InteractScene[] doors = FindObjectsOfType<InteractScene>();
+		InteractScene door = m_sceneIndexPrev < 0 ? null : doors.Where(interact => interact.DestinationIndex == m_sceneIndexPrev).OrderBy(interact => interact.transform.position.sqrMagnitude).FirstOrDefault();
+		if (door == null)
+		{
+			door = doors.First(interact => Vector2.Distance(interact.transform.position, Vector2.zero) < 1.0f); // TODO: remove assumption that there will be a door at the origin?
+		}
+
+		// place avatar(s) and aim(s)
+		foreach (AvatarController avatar in avatars)
+		{
+			avatar.Teleport(door.transform.position + (Vector3)avatar.gameObject.OriginToCenterY());
+			avatar.m_aimObject.transform.position = avatar.transform.position;
+		}
+
+		// animate door
+		door.GetComponent<Animator>().SetTrigger("activate");
 	}
 
 	private void Save()
@@ -696,7 +719,7 @@ public class GameController : MonoBehaviour
 
 			// NOTE the somewhat awkward handling for entering a loaded scene after having incremented merchant numbers // TODO: prevent merchant services before returning to Entryway?
 			int i = 0;
-			MerchantAcquiredCounts = saveFile.ReadArray(() =>
+			MerchantAcquiredCounts = MerchantAcquiredCounts == null ? saveFile.ReadArray(saveFile.ReadInt32) : saveFile.ReadArray(() =>
 			{
 				MerchantAcquiredCounts[i] = System.Math.Max(MerchantAcquiredCounts[i], saveFile.ReadInt32());
 				return MerchantAcquiredCounts[i++];

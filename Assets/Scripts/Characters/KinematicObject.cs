@@ -102,9 +102,13 @@ public abstract class KinematicObject : MonoBehaviour
 	/// <param name="position"></param>
 	public void Teleport(Vector3 position)
 	{
-		body.position = position;
+		transform.position = position;
+		if (body != null)
+		{
+			body.position = position;
+			body.velocity *= 0;
+		}
 		velocity *= 0;
-		body.velocity *= 0;
 	}
 
 	protected virtual void Awake()

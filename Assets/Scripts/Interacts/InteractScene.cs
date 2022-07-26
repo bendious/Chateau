@@ -1,4 +1,6 @@
+using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 [DisallowMultipleComponent, RequireComponent(typeof(Collider2D))]
@@ -11,11 +13,19 @@ public class InteractScene : MonoBehaviour, IInteractable
 
 	public int Depth { private get; set; }
 
+	public int DestinationIndex => string.IsNullOrEmpty(m_sceneDestination) ? -1 : Enumerable.Range(0, SceneManager.sceneCountInBuildSettings).First(idx => SceneUtility.GetScenePathByBuildIndex(idx).Contains(m_sceneDestination)); // NOTE that we can't use SceneManager.GetSceneBy*() since they only check loaded scenes for some reason; see https://forum.unity.com/threads/get-the-name-of-an-unloaded-scene-from-scenemanager.373969/ // TODO: more robust check? efficiency?
+
 
 	private bool m_activated = false;
 
 
-	public bool CanInteract(KinematicCharacter interactor) => (m_isSaveDeletion || !string.IsNullOrEmpty(m_sceneDestination)) && !GameController.Instance.m_dialogueController.IsPlaying;
+	private void Start()
+	{
+		// NOTE empty override to force enable/disable checkbox in Inspector...
+	}
+
+
+	public bool CanInteract(KinematicCharacter interactor) => enabled && (m_isSaveDeletion || !string.IsNullOrEmpty(m_sceneDestination)) && !GameController.Instance.m_dialogueController.IsPlaying;
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
