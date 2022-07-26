@@ -92,7 +92,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	protected override void ComputeVelocity()
 	{
-		if (m_jump)
+		if (m_jump && maxSpeed > 0.0f)
 		{
 			if (IsGrounded)
 			{
@@ -126,16 +126,17 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 					Bounce(Quaternion.Euler(0.0f, 0.0f, m_wallNormal.x < 0.0f ? -m_wallJumpDegrees : m_wallJumpDegrees) * m_wallNormal * jumpTakeOffSpeed);
 				}
 			}
-			m_jump = false;
 		}
 		else if (m_stopJump)
 		{
-			m_stopJump = false;
 			if (velocity.y > 0.0f)
 			{
 				velocity.y *= m_jumpDeceleration;
 			}
 		}
+
+		m_jump = false;
+		m_stopJump = false;
 
 		if (m_aimDir > 0 || (m_aimDir == 0 && move.x >= minMoveDistance))
 		{
