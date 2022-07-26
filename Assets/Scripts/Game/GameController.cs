@@ -73,8 +73,6 @@ public class GameController : MonoBehaviour
 	public float m_waveEnemyDelayMin = 0.5f;
 	public float m_waveEnemyDelayMax = 2.0f;
 
-	[SerializeField] private string m_tutorialCompleteKey = "TutorialComplete";
-
 
 	[HideInInspector]
 	public bool m_bossRoomSealed = false;
@@ -190,7 +188,7 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
-		Load();
+		bool saveExists = Load();
 
 		// first-time initializations
 		if (m_npcs == null)
@@ -215,9 +213,9 @@ public class GameController : MonoBehaviour
 			EnterAtDoor(m_avatars);
 		}
 
-		// TODO: system?
-		if (!PlayerPrefs.HasKey(m_tutorialCompleteKey))
+		if (!saveExists)
 		{
+			// TODO: move earlier?
 			const string tutorialSceneName = "Tutorial"; // TODO: un-hardcode?
 			if (SceneManager.GetActiveScene().name != tutorialSceneName)
 			{
@@ -398,7 +396,6 @@ public class GameController : MonoBehaviour
 
 	public void DeleteSaveAndQuit()
 	{
-		PlayerPrefs.DeleteAll(); // TODO: separate setup/configuration from game data
 		SaveHelpers.Delete();
 		ZonesFinishedCount = 0;
 		m_secretsFoundBitmask.SetAll(false);
@@ -441,7 +438,6 @@ public class GameController : MonoBehaviour
 
 		if (save)
 		{
-			PlayerPrefs.SetInt(m_tutorialCompleteKey, 1); // TODO: move into save file?
 			Save();
 		}
 
@@ -651,10 +647,8 @@ public class GameController : MonoBehaviour
 
 	private void Save()
 	{
-		PlayerPrefs.Save();
-
 		Scene activeScene = SceneManager.GetActiveScene();
-		if (activeScene.buildIndex != 0) // TODO: don't assume only first scene stores contents?
+		if (activeScene.buildIndex != 0 && SaveHelpers.Exists()) // NOTE that we have to initially create saves from the tutorial scene in order to avoid an infinite loop from Start() tutorial-load check // TODO: don't assume only first scene stores contents?
 		{
 			return;
 		}
@@ -689,12 +683,12 @@ public class GameController : MonoBehaviour
 		saveFile.Write(savableObjs, obj => ISavable.Save(saveFile, obj.GetComponent<ISavable>()));
 	}
 
-	private void Load()
+	private bool Load()
 	{
 		Scene activeScene = SceneManager.GetActiveScene();
 		if (activeScene.buildIndex != 0) // TODO: don't assume only first scene stores contents?
 		{
-			return;
+			return SaveHelpers.Exists();
 		}
 
 		try
@@ -702,7 +696,7 @@ public class GameController : MonoBehaviour
 			using SaveReader saveFile = new();
 			if (!saveFile.IsOpen)
 			{
-				return;
+				return false;
 			}
 
 			m_npcs = saveFile.ReadArray(() =>
@@ -738,7 +732,10 @@ public class GameController : MonoBehaviour
 		catch (System.Exception e)
 		{
 			Debug.LogError("Invalid save file: " + e.Message);
+			// NOTE that we still return true since the save exists, even though it's apparently corrupted
 		}
+
+		return true;
 	}
 
 	private IEnumerator SpawnWavesCoroutine()

@@ -130,6 +130,7 @@ internal static class SaveHelpers
 	private const string m_saveFileSuffix = ".dat";
 #endif
 
+	public static bool Exists() => File.Exists(SaveFilePath());
 
 	public static void Delete() => File.Delete(SaveFilePath());
 
