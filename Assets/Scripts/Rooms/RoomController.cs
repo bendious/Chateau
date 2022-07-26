@@ -62,7 +62,11 @@ public class RoomController : MonoBehaviour
 
 	public Vector2 ParentDoorwayPosition => Connection(m_doorwayInfos.Select(info => info.ParentRoom).First(parentRoom => parentRoom != null), ObstructionCheck.None, Vector2.zero)[1];
 
-	public Transform[] BackdropsRecursive => m_doorwayInfos.Where(info => info.ChildRoom != null).SelectMany(info => info.ChildRoom.BackdropsRecursive).Concat(new Transform[] { m_backdrop.transform }).ToArray();
+	public IEnumerable<Transform> BackdropsAboveGroundRecursive
+	{ get {
+		IEnumerable<Transform> childBackdrops = m_doorwayInfos.Where(info => info.ChildRoom != null).SelectMany(info => info.ChildRoom.BackdropsAboveGroundRecursive);
+		return (m_bounds.max.y > 0.0f) ? childBackdrops.Concat(new Transform[] { m_backdrop.transform }) : childBackdrops;
+	} }
 
 
 	[System.Serializable]
@@ -198,7 +202,7 @@ public class RoomController : MonoBehaviour
 	{
 		if (transform.parent != null)
 		{
-			LinkShadowsRecursive();
+			LinkRecursive();
 		}
 	}
 
@@ -301,7 +305,7 @@ public class RoomController : MonoBehaviour
 
 		// open cutbacks
 		// NOTE that this has to be before flexible-placement spawning to avoid overlap w/ ladders
-		if (GameController.Instance.m_allowCutbacks && m_layoutNodes.All(node => node.m_type != LayoutGenerator.Node.Type.RoomSecret))
+		if (GameController.Instance.m_allowCutbacks && m_layoutNodes.All(node => node.m_type != LayoutGenerator.Node.Type.RoomSecret && node.m_type != LayoutGenerator.Node.Type.RoomIndefinite))
 		{
 			foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
 			{
@@ -315,7 +319,7 @@ public class RoomController : MonoBehaviour
 				GameObject doorway = doorwayInfo.m_object;
 				Vector2 doorwayPos = doorway.transform.position;
 				RoomController sibling = FromPosition(doorwayPos + direction);
-				if (sibling == null || sibling.m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret))
+				if (sibling == null || sibling.m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret || node.m_type == LayoutGenerator.Node.Type.RoomIndefinite)) // TODO: allow some cutbacks in indefinite room generation?
 				{
 					continue;
 				}
@@ -990,16 +994,53 @@ public class RoomController : MonoBehaviour
 	{
 		if (m_doorwayInfos.Any(info => info.m_blocker == evt.m_object && info.IsOpen(true)))
 		{
-			LinkShadowsRecursive();
+			LinkRecursive();
 		}
 	}
 
-	private void LinkShadowsRecursive()
+	private void LinkRecursive()
 	{
 		// group this room's shadow casters under the top-level GameController caster
 		GameController.Instance.GetComponent<CompositeShadowCaster2D>().enabled = true; // NOTE that the top-level caster has to start disabled due to an assert from CompositeShadowCaster2D when empty of child casters
 		GetComponent<CompositeShadowCaster2D>().enabled = false;
 		transform.SetParent(GameController.Instance.transform);
+
+		// runtime generation if requested
+		const int depthMax = 20; // TODO: parameterize? delete existing rooms rather than limiting?
+		if (!m_doorwayInfos.Any(info => info.ChildRoom != null) && m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomIndefinite && node.Depth < depthMax))
+		{
+			int dummyIdx = -1;
+			List<LayoutGenerator.Node> newNodes = null;
+			for (int i = 0, n = Random.Range(1, 3); i < n; ++i)
+			{
+				// create and link nodes
+				if (newNodes == null)
+				{
+					newNodes = new() { new(LayoutGenerator.Node.Type.Secret, new() { new(LayoutGenerator.Node.Type.TightCoupling, new() { new(LayoutGenerator.Node.Type.RoomIndefinite) }) }) }; // TODO: streamline?
+					foreach (LayoutGenerator.Node node in m_layoutNodes)
+					{
+						node.AddChildren(newNodes);
+					}
+				}
+
+				// create room
+				RoomController newRoom = SpawnChildRoom(GameController.Instance.m_roomPrefabs.RandomWeighted(), newNodes.SelectMany(node => node.WithDescendants).ToArray(), new Vector2[] { Vector2.left, Vector2.right, Vector2.down }, ref dummyIdx); // TODO: allow upward generation as long as it doesn't break through the ground?
+				if (newRoom != null)
+				{
+					newRoom.FinalizeRecursive(ref dummyIdx, ref dummyIdx);
+					newNodes = null;
+				}
+			}
+
+			// cleanup if the last room was canceled
+			if (newNodes != null)
+			{
+				foreach (LayoutGenerator.Node node in newNodes)
+				{
+					node.DirectParents.Remove(node);
+				}
+			}
+		}
 
 		// recurse into visible children
 		foreach (DoorwayInfo info in m_doorwayInfos)
@@ -1008,7 +1049,7 @@ public class RoomController : MonoBehaviour
 			static bool allowsLight(DoorwayInfo info) => info.m_blocker == null || info.m_blocker.GetComponent<ShadowCaster2D>() == null;
 			if (childRoom != null && allowsLight(info) && allowsLight(info.m_infoReverse))
 			{
-				childRoom.LinkShadowsRecursive();
+				childRoom.LinkRecursive();
 			}
 		}
 	}
@@ -1213,7 +1254,9 @@ public class RoomController : MonoBehaviour
 
 			// change color/shadows for user visibility
 			// TODO: match wall texture?
-			doorway.GetComponent<SpriteRenderer>().color = open ? m_oneWayPlatformColor : m_wallColor;
+			SpriteRenderer renderer = doorway.GetComponent<SpriteRenderer>();
+			renderer.color = open ? m_oneWayPlatformColor : m_wallColor;
+			renderer.sprite = open ? GameController.Instance.m_roomPrefabs.First().m_object.GetComponent<RoomController>().m_backdrop.GetComponent<SpriteRenderer>().sprite : m_wallInfo.m_sprite; // TODO: more robust way of getting default texture?
 			doorway.GetComponent<ShadowCaster2D>().enabled = !open;
 		}
 

@@ -1581,7 +1581,6 @@ MonoBehaviour:
   m_waveEscalationMax: 0
   m_waveEnemyDelayMin: 0
   m_waveEnemyDelayMax: 0
-  m_tutorialCompleteKey: TutorialComplete
   m_bossRoomSealed: 0
   m_savableTags:
   - Savable
@@ -2114,7 +2113,7 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 1
   m_Sprite: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
-  m_Color: {r: 0.25, g: 0.25, b: 0.25, a: 0.5019608}
+  m_Color: {r: 0.25, g: 0.25, b: 0.25, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

@@ -96,8 +96,8 @@ public class GameController : MonoBehaviour
 
 	public RoomController LootRoom { get; private set; }
 
-	public Transform[] RoomBackdrops => m_roomBackdropsInternal.Value;
-	private readonly System.Lazy<Transform[]> m_roomBackdropsInternal = new(() => Instance.m_startRoom.BackdropsRecursive, false);
+	public Transform[] RoomBackdropsAboveGround => m_roomBackdropsAboveGroundInternal.Value;
+	private readonly System.Lazy<Transform[]> m_roomBackdropsAboveGroundInternal = new(() => Instance.m_startRoom.BackdropsAboveGroundRecursive.ToArray(), false);
 
 	public bool Victory { get; private set; }
 
@@ -551,7 +551,8 @@ public class GameController : MonoBehaviour
 			do
 			{
 				LayoutGenerator.Node node = nodesShuffled[i];
-				if ((node.m_type == LayoutGenerator.Node.Type.Room && newList.Count > 0) || ((node.m_type == LayoutGenerator.Node.Type.RoomVertical || node.m_type == LayoutGenerator.Node.Type.RoomDown || node.m_type == LayoutGenerator.Node.Type.RoomUp || node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) && newList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical || node.m_type == LayoutGenerator.Node.Type.RoomDown || node.m_type == LayoutGenerator.Node.Type.RoomUp || node.m_type == LayoutGenerator.Node.Type.RoomHorizontal)))
+				static bool isExtraRoomType(LayoutGenerator.Node.Type t) => t == LayoutGenerator.Node.Type.RoomVertical || t == LayoutGenerator.Node.Type.RoomDown || t == LayoutGenerator.Node.Type.RoomUp || t == LayoutGenerator.Node.Type.RoomHorizontal || t == LayoutGenerator.Node.Type.RoomIndefinite; // TODO: move into LayoutGenerator?
+				if ((node.m_type == LayoutGenerator.Node.Type.Room && newList.Count > 0) || (isExtraRoomType(node.m_type) && newList.Exists(newNode => isExtraRoomType(newNode.m_type))))
 				{
 					break; // start new room
 				}

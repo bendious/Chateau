@@ -39,6 +39,7 @@ public class LayoutGenerator
 			RoomVertical,
 			RoomHorizontal,
 			RoomSecret,
+			RoomIndefinite,
 			Npc,
 			Enemy,
 			Key,
@@ -51,7 +52,8 @@ public class LayoutGenerator
 			TightCoupling,
 			AreaDivider,
 
-			BasementOrTower,
+			Basement,
+			Tower,
 			Corridor,
 			Sequence,
 			SequenceMedium,
@@ -96,6 +98,8 @@ public class LayoutGenerator
 			List<Node> parents = DirectParents;
 			return parents == null ? 0 : parents.Max(node => node.Depth) + 1;
 		} }
+
+		public IEnumerable<Node> WithDescendants => m_children == null ? new Node[] { this } : m_children.SelectMany(node => node.WithDescendants).Concat(new Node[] { this });
 
 
 		internal List<Node> DirectParentsInternal;
@@ -355,13 +359,13 @@ public class LayoutGenerator
 	private static readonly ReplacementRule[] m_rules =
 	{
 		new(Node.Type.Tutorial, new() { new(Node.Type.Entrance, new() { new(Node.Type.TutorialMove), new(Node.Type.TutorialAim), new(Node.Type.TutorialDrop, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomDown, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.TutorialJump, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomUp, new() { new(Node.Type.TutorialInteract), new(Node.Type.TutorialUse), new(Node.Type.TutorialSwap), new(Node.Type.TutorialThrow), new(Node.Type.GateBreakable, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.TutorialInventory), new(Node.Type.TutorialSwing), new(Node.Type.TutorialCancel), new(Node.Type.TutorialCatch), new(Node.Type.TutorialPassThrough), new(Node.Type.TutorialLook) }) }) }) }) }) }) }) }) }) }) }) }) }),
-		new(Node.Type.Entryway, new() { new(Node.Type.Entrance, Node.Multiparents(new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.LockOrdered, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.LockOrdered, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomUp, new() { new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }), new(Node.Type.BasementOrTower), new(Node.Type.BasementOrTower), new(Node.Type.Corridor) }, new(Node.Type.Npc, new() { new(Node.Type.Npc), new(Node.Type.Npc), new(Node.Type.Npc) }))) }), // TODO: move directional requirement into data?
+		new(Node.Type.Entryway, new() { new(Node.Type.Entrance, Node.Multiparents(new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.LockOrdered, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor, new() { new(Node.Type.LockOrdered, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomUp, new() { new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }), new(Node.Type.Basement, new() { new(Node.Type.Secret, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomIndefinite, new() { new(Node.Type.Secret) }) }) }) }), new(Node.Type.Tower), new(Node.Type.Corridor) }, new(Node.Type.Npc, new() { new(Node.Type.Npc), new(Node.Type.Npc), new(Node.Type.Npc) }))) }), // TODO: move directional requirement into data?
 		new(Node.Type.Zone1, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.Secret, new() { new Node(Node.Type.AreaDivider, new() { new Node(Node.Type.RoomSecret) }) }), new Node(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor), new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }) }) }),
 		new(Node.Type.Zone2, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceExtraLarge, new() { new Node(Node.Type.Secret, new() { new Node(Node.Type.AreaDivider, new() { new Node(Node.Type.RoomSecret) }) }), new Node(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor), new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }) }) }),
 		new(Node.Type.Zone3, new() { new(Node.Type.Entrance, new() { new(Node.Type.Key, new() { new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceMedium, new() { new Node(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceLarge, new() { new Node(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceExtraLarge, new() { new Node(Node.Type.Secret, new() { new Node(Node.Type.AreaDivider, new() { new Node(Node.Type.RoomSecret) }) }), new Node(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }),
 
-		new(Node.Type.BasementOrTower, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical) }) }) }) }) }) }),
-		new(Node.Type.BasementOrTower, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical) }) }) }) }) }) }) }) }),
+		new(Node.Type.Basement, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomDown, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical) }) }) }) }) }) }),
+		new(Node.Type.Tower, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomUp, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomVertical) }) }) }) }) }) }) }) }),
 		new(Node.Type.Corridor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal) }) }) }) }) }) }),
 		new(Node.Type.Corridor, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomHorizontal) }) }) }) }) }) }) }) }),
 
