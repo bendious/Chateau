@@ -32,6 +32,11 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	public float m_jumpDeceleration = 0.5f;
 
 	/// <summary>
+	/// Max dash velocity
+	/// </summary>
+	[SerializeField] private Vector2 m_dashVelocity = new(15.0f, 0.0f);
+
+	/// <summary>
 	/// A velocity directed and sent to Bounce() when taking nonlethal damage
 	/// </summary>
 	public Vector2 m_damageBounceMagnitude = new(3.5f, 3.5f);
@@ -59,6 +64,11 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	/// </summary>
 	protected bool m_stopJump;
 
+	/// <summary>
+	/// Set to true to initiate a dash.
+	/// </summary>
+	protected bool m_dash;
+
 
 	private SpriteRenderer spriteRenderer;
 	protected Animator animator;
@@ -80,6 +90,8 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 
 	private bool m_wasGrounded;
+
+	private bool m_dashAvailable = true;
 
 
 	protected override void Awake()
@@ -135,8 +147,20 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 			}
 		}
 
+		if (IsGrounded || IsWallClinging)
+		{
+			m_dashAvailable = true;
+		}
+		if (m_dash && m_dashAvailable && !HasForcedVelocity)
+		{
+			Bounce(new Vector2(LeftFacing ? -m_dashVelocity.x : m_dashVelocity.x, m_dashVelocity.y));
+			animator.SetTrigger("dash");
+			m_dashAvailable = false;
+		}
+
 		m_jump = false;
 		m_stopJump = false;
+		m_dash = false;
 
 		if (m_aimDir > 0 || (m_aimDir == 0 && move.x >= minMoveDistance))
 		{

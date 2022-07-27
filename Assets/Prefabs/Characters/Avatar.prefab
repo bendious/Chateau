@@ -414,6 +414,7 @@ MonoBehaviour:
   jumpTakeOffSpeed: 15
   m_wallJumpDegrees: 45
   m_jumpDeceleration: 0.5
+  m_dashVelocity: {x: 15, y: 0}
   m_damageBounceMagnitude: {x: 7, y: 7}
   m_armOffset: {x: 0, y: 0.15}
   move: {x: 0, y: 0}
