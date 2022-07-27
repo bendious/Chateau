@@ -1,9 +1,8 @@
 fileFormatVersion: 2
-guid: a9a3318575ced5744952e5270529e497
+guid: 50d6cc713f2c0074c8b3bd6742cfbef4
 labels:
-- Effect
-folderAsset: yes
-DefaultImporter:
+- Ui
+PrefabImporter:
   externalObjects: {}
   userData: 
   assetBundleName: 

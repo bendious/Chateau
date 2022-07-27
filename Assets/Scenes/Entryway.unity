@@ -202,9 +202,13 @@ PrefabInstance:
       propertyPath: m_doorInteractPrefabs.Array.data[3]
       value: 
       objectReference: {fileID: 253480046431362865, guid: 8a825b8c0c06b0645845758aaaf352be, type: 3}
+    - target: {fileID: 5811658771368823199, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_Lens.m_SensorSize.x
+      value: 2.1565495
+      objectReference: {fileID: 0}
     - target: {fileID: 8494391376400586852, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -80
+      value: -120
       objectReference: {fileID: 0}
     - target: {fileID: 8982816860446960670, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_RootOrder

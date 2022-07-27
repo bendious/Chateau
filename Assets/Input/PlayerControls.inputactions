@@ -24,18 +24,9 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "LookToggle",
+                    "name": "Jump",
                     "type": "Button",
-                    "id": "9f37780f-e37f-4b0f-aea6-47ea933ae5a0",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "Press(behavior=2)",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Swing",
-                    "type": "Button",
-                    "id": "19d204a9-b40e-4133-a353-9d62960a9d0d",
+                    "id": "cbe824c7-9bee-4578-9dc0-7a89106ee33a",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "Press(behavior=2)",
@@ -51,9 +42,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Jump",
+                    "name": "Swing",
                     "type": "Button",
-                    "id": "cbe824c7-9bee-4578-9dc0-7a89106ee33a",
+                    "id": "19d204a9-b40e-4133-a353-9d62960a9d0d",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "Press(behavior=2)",
@@ -75,6 +66,15 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "LookToggle",
+                    "type": "Button",
+                    "id": "9f37780f-e37f-4b0f-aea6-47ea933ae5a0",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press(behavior=2)",
                     "initialStateCheck": false
                 }
             ],
@@ -195,7 +195,7 @@
                     "path": "<Keyboard>/rightArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "KeyboardOnly",
+                    "groups": "KeyboardOnly;Keyboard&Mouse",
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -206,7 +206,7 @@
                     "path": "<Keyboard>/leftArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "KeyboardOnly",
+                    "groups": "KeyboardOnly;Keyboard&Mouse",
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -217,7 +217,7 @@
                     "path": "<Keyboard>/downArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "KeyboardOnly",
+                    "groups": "KeyboardOnly;Keyboard&Mouse",
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -228,7 +228,7 @@
                     "path": "<Keyboard>/upArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "KeyboardOnly",
+                    "groups": "KeyboardOnly;Keyboard&Mouse",
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -257,23 +257,45 @@
                 },
                 {
                     "name": "",
-                    "id": "d8c43260-909b-4f19-ab06-62caeb61a164",
-                    "path": "<Mouse>/rightButton",
+                    "id": "309fa7ef-a809-44bf-86c5-30306dea34a4",
+                    "path": "<Keyboard>/x",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Throw",
+                    "groups": "Keyboard&Mouse;KeyboardOnly",
+                    "action": "Drop",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "32d44f84-9922-44f4-a8d1-38a6b056d4e0",
-                    "path": "<Gamepad>/leftTrigger",
+                    "id": "e97e0e01-ded1-4e8a-bbab-a974e66b9fcb",
+                    "path": "<Gamepad>/buttonNorth",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "Throw",
+                    "groups": "Gamepad",
+                    "action": "Drop",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3c966664-0cfc-4543-8572-351a48edc43d",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse;KeyboardOnly",
+                    "action": "Dash",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b70a59b8-2d91-411e-960b-d72238827104",
+                    "path": "<Gamepad>/leftStickPress",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Dash",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -301,23 +323,23 @@
                 },
                 {
                     "name": "",
-                    "id": "309fa7ef-a809-44bf-86c5-30306dea34a4",
-                    "path": "<Keyboard>/x",
+                    "id": "d8c43260-909b-4f19-ab06-62caeb61a164",
+                    "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard&Mouse;KeyboardOnly",
-                    "action": "Drop",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Throw",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "e97e0e01-ded1-4e8a-bbab-a974e66b9fcb",
-                    "path": "<Gamepad>/buttonNorth",
+                    "id": "32d44f84-9922-44f4-a8d1-38a6b056d4e0",
+                    "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Gamepad",
-                    "action": "Drop",
+                    "groups": ";Gamepad",
+                    "action": "Throw",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -340,28 +362,6 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse;KeyboardOnly",
                     "action": "LookToggle",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "3c966664-0cfc-4543-8572-351a48edc43d",
-                    "path": "<Keyboard>/c",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse;KeyboardOnly",
-                    "action": "Dash",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "b70a59b8-2d91-411e-960b-d72238827104",
-                    "path": "<Gamepad>/leftStickPress",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "Dash",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

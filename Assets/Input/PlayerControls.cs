@@ -46,18 +46,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""LookToggle"",
+                    ""name"": ""Jump"",
                     ""type"": ""Button"",
-                    ""id"": ""9f37780f-e37f-4b0f-aea6-47ea933ae5a0"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": ""Press(behavior=2)"",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Swing"",
-                    ""type"": ""Button"",
-                    ""id"": ""19d204a9-b40e-4133-a353-9d62960a9d0d"",
+                    ""id"": ""cbe824c7-9bee-4578-9dc0-7a89106ee33a"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": ""Press(behavior=2)"",
@@ -73,9 +64,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Jump"",
+                    ""name"": ""Swing"",
                     ""type"": ""Button"",
-                    ""id"": ""cbe824c7-9bee-4578-9dc0-7a89106ee33a"",
+                    ""id"": ""19d204a9-b40e-4133-a353-9d62960a9d0d"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": ""Press(behavior=2)"",
@@ -97,6 +88,15 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LookToggle"",
+                    ""type"": ""Button"",
+                    ""id"": ""9f37780f-e37f-4b0f-aea6-47ea933ae5a0"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Press(behavior=2)"",
                     ""initialStateCheck"": false
                 }
             ],
@@ -217,7 +217,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""path"": ""<Keyboard>/rightArrow"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""KeyboardOnly"",
+                    ""groups"": ""KeyboardOnly;Keyboard&Mouse"",
                     ""action"": ""Look"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
@@ -228,7 +228,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""path"": ""<Keyboard>/leftArrow"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""KeyboardOnly"",
+                    ""groups"": ""KeyboardOnly;Keyboard&Mouse"",
                     ""action"": ""Look"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
@@ -239,7 +239,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""path"": ""<Keyboard>/downArrow"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""KeyboardOnly"",
+                    ""groups"": ""KeyboardOnly;Keyboard&Mouse"",
                     ""action"": ""Look"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
@@ -250,7 +250,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""path"": ""<Keyboard>/upArrow"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""KeyboardOnly"",
+                    ""groups"": ""KeyboardOnly;Keyboard&Mouse"",
                     ""action"": ""Look"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
@@ -279,23 +279,45 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""d8c43260-909b-4f19-ab06-62caeb61a164"",
-                    ""path"": ""<Mouse>/rightButton"",
+                    ""id"": ""309fa7ef-a809-44bf-86c5-30306dea34a4"",
+                    ""path"": ""<Keyboard>/x"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""Throw"",
+                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
+                    ""action"": ""Drop"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""32d44f84-9922-44f4-a8d1-38a6b056d4e0"",
-                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""id"": ""e97e0e01-ded1-4e8a-bbab-a974e66b9fcb"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": "";Gamepad"",
-                    ""action"": ""Throw"",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Drop"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3c966664-0cfc-4543-8572-351a48edc43d"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
+                    ""action"": ""Dash"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b70a59b8-2d91-411e-960b-d72238827104"",
+                    ""path"": ""<Gamepad>/leftStickPress"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Dash"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -323,23 +345,23 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""309fa7ef-a809-44bf-86c5-30306dea34a4"",
-                    ""path"": ""<Keyboard>/x"",
+                    ""id"": ""d8c43260-909b-4f19-ab06-62caeb61a164"",
+                    ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
-                    ""action"": ""Drop"",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Throw"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""e97e0e01-ded1-4e8a-bbab-a974e66b9fcb"",
-                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""id"": ""32d44f84-9922-44f4-a8d1-38a6b056d4e0"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Gamepad"",
-                    ""action"": ""Drop"",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Throw"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -362,28 +384,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
                     ""action"": ""LookToggle"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""3c966664-0cfc-4543-8572-351a48edc43d"",
-                    ""path"": ""<Keyboard>/c"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse;KeyboardOnly"",
-                    ""action"": ""Dash"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""b70a59b8-2d91-411e-960b-d72238827104"",
-                    ""path"": ""<Gamepad>/leftStickPress"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Gamepad"",
-                    ""action"": ""Dash"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1050,12 +1050,12 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         m_Avatar = asset.FindActionMap("Avatar", throwIfNotFound: true);
         m_Avatar_Move = m_Avatar.FindAction("Move", throwIfNotFound: true);
         m_Avatar_Look = m_Avatar.FindAction("Look", throwIfNotFound: true);
-        m_Avatar_LookToggle = m_Avatar.FindAction("LookToggle", throwIfNotFound: true);
-        m_Avatar_Swing = m_Avatar.FindAction("Swing", throwIfNotFound: true);
-        m_Avatar_Throw = m_Avatar.FindAction("Throw", throwIfNotFound: true);
         m_Avatar_Jump = m_Avatar.FindAction("Jump", throwIfNotFound: true);
+        m_Avatar_Throw = m_Avatar.FindAction("Throw", throwIfNotFound: true);
+        m_Avatar_Swing = m_Avatar.FindAction("Swing", throwIfNotFound: true);
         m_Avatar_Dash = m_Avatar.FindAction("Dash", throwIfNotFound: true);
         m_Avatar_Drop = m_Avatar.FindAction("Drop", throwIfNotFound: true);
+        m_Avatar_LookToggle = m_Avatar.FindAction("LookToggle", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1135,24 +1135,24 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private IAvatarActions m_AvatarActionsCallbackInterface;
     private readonly InputAction m_Avatar_Move;
     private readonly InputAction m_Avatar_Look;
-    private readonly InputAction m_Avatar_LookToggle;
-    private readonly InputAction m_Avatar_Swing;
-    private readonly InputAction m_Avatar_Throw;
     private readonly InputAction m_Avatar_Jump;
+    private readonly InputAction m_Avatar_Throw;
+    private readonly InputAction m_Avatar_Swing;
     private readonly InputAction m_Avatar_Dash;
     private readonly InputAction m_Avatar_Drop;
+    private readonly InputAction m_Avatar_LookToggle;
     public struct AvatarActions
     {
         private @PlayerControls m_Wrapper;
         public AvatarActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Avatar_Move;
         public InputAction @Look => m_Wrapper.m_Avatar_Look;
-        public InputAction @LookToggle => m_Wrapper.m_Avatar_LookToggle;
-        public InputAction @Swing => m_Wrapper.m_Avatar_Swing;
-        public InputAction @Throw => m_Wrapper.m_Avatar_Throw;
         public InputAction @Jump => m_Wrapper.m_Avatar_Jump;
+        public InputAction @Throw => m_Wrapper.m_Avatar_Throw;
+        public InputAction @Swing => m_Wrapper.m_Avatar_Swing;
         public InputAction @Dash => m_Wrapper.m_Avatar_Dash;
         public InputAction @Drop => m_Wrapper.m_Avatar_Drop;
+        public InputAction @LookToggle => m_Wrapper.m_Avatar_LookToggle;
         public InputActionMap Get() { return m_Wrapper.m_Avatar; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1168,24 +1168,24 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Look.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnLook;
                 @Look.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnLook;
                 @Look.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnLook;
-                @LookToggle.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnLookToggle;
-                @LookToggle.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnLookToggle;
-                @LookToggle.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnLookToggle;
-                @Swing.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnSwing;
-                @Swing.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnSwing;
-                @Swing.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnSwing;
-                @Throw.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnThrow;
-                @Throw.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnThrow;
-                @Throw.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnThrow;
                 @Jump.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnJump;
                 @Jump.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnJump;
                 @Jump.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnJump;
+                @Throw.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnThrow;
+                @Throw.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnThrow;
+                @Throw.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnThrow;
+                @Swing.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnSwing;
+                @Swing.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnSwing;
+                @Swing.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnSwing;
                 @Dash.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnDash;
                 @Dash.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnDash;
                 @Dash.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnDash;
                 @Drop.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnDrop;
                 @Drop.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnDrop;
                 @Drop.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnDrop;
+                @LookToggle.started -= m_Wrapper.m_AvatarActionsCallbackInterface.OnLookToggle;
+                @LookToggle.performed -= m_Wrapper.m_AvatarActionsCallbackInterface.OnLookToggle;
+                @LookToggle.canceled -= m_Wrapper.m_AvatarActionsCallbackInterface.OnLookToggle;
             }
             m_Wrapper.m_AvatarActionsCallbackInterface = instance;
             if (instance != null)
@@ -1196,24 +1196,24 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Look.started += instance.OnLook;
                 @Look.performed += instance.OnLook;
                 @Look.canceled += instance.OnLook;
-                @LookToggle.started += instance.OnLookToggle;
-                @LookToggle.performed += instance.OnLookToggle;
-                @LookToggle.canceled += instance.OnLookToggle;
-                @Swing.started += instance.OnSwing;
-                @Swing.performed += instance.OnSwing;
-                @Swing.canceled += instance.OnSwing;
-                @Throw.started += instance.OnThrow;
-                @Throw.performed += instance.OnThrow;
-                @Throw.canceled += instance.OnThrow;
                 @Jump.started += instance.OnJump;
                 @Jump.performed += instance.OnJump;
                 @Jump.canceled += instance.OnJump;
+                @Throw.started += instance.OnThrow;
+                @Throw.performed += instance.OnThrow;
+                @Throw.canceled += instance.OnThrow;
+                @Swing.started += instance.OnSwing;
+                @Swing.performed += instance.OnSwing;
+                @Swing.canceled += instance.OnSwing;
                 @Dash.started += instance.OnDash;
                 @Dash.performed += instance.OnDash;
                 @Dash.canceled += instance.OnDash;
                 @Drop.started += instance.OnDrop;
                 @Drop.performed += instance.OnDrop;
                 @Drop.canceled += instance.OnDrop;
+                @LookToggle.started += instance.OnLookToggle;
+                @LookToggle.performed += instance.OnLookToggle;
+                @LookToggle.canceled += instance.OnLookToggle;
             }
         }
     }
@@ -1411,12 +1411,12 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     {
         void OnMove(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
-        void OnLookToggle(InputAction.CallbackContext context);
-        void OnSwing(InputAction.CallbackContext context);
-        void OnThrow(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
+        void OnThrow(InputAction.CallbackContext context);
+        void OnSwing(InputAction.CallbackContext context);
         void OnDash(InputAction.CallbackContext context);
         void OnDrop(InputAction.CallbackContext context);
+        void OnLookToggle(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {
