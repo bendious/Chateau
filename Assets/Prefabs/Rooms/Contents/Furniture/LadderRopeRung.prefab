@@ -409,7 +409,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_lineOffset: {x: 0, y: 0, z: 0}
-  m_lengthMin: 0.05
+  m_lengthMin: 0.1
 --- !u!114 &8231474267442183190
 MonoBehaviour:
   m_ObjectHideFlags: 0

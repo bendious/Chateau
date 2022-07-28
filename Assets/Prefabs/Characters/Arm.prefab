@@ -250,7 +250,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_lineOffset: {x: 0, y: -0.075, z: 0}
-  m_lengthMin: 0.05
+  m_lengthMin: 0.1
 --- !u!120 &2961888344388029937
 LineRenderer:
   m_ObjectHideFlags: 0

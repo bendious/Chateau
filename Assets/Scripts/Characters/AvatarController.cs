@@ -234,7 +234,7 @@ public class AvatarController : KinematicCharacter
 		float focusYMax = float.MinValue;
 		foreach (Collider2D candidate in focusCandidates)
 		{
-			if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, false, 0.0f, null, true))
+			if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, false, 0.0f, null, false, true))
 			{
 				continue; // ignore ourself / attached/ignored objects
 			}

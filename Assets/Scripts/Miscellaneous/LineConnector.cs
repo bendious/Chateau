@@ -6,7 +6,7 @@ using UnityEngine;
 public class LineConnector : MonoBehaviour
 {
 	public Vector3 m_lineOffset;
-	public float m_lengthMin = 0.05f;
+	public float m_lengthMin = 0.1f;
 
 
 	private LineRenderer[] m_lines;

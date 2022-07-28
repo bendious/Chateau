@@ -68,8 +68,6 @@ public abstract class KinematicObject : MonoBehaviour
 	private const float shellRadius = 0.01f;
 
 
-	private int m_spawnCheckFrameCount = 2; // NOTE that since we use Collider2D.GetContacts(), we can't just check immediately in Start() or FixedUpdate() before physics first runs...
-
 	private KinematicCharacter m_character;
 	protected Collider2D m_collider; // TODO: handle multi-collider objects?
 	private AvatarController m_avatar;
@@ -143,27 +141,29 @@ public abstract class KinematicObject : MonoBehaviour
 			return;
 		}
 
-		if (m_spawnCheckFrameCount > 0)
+		// if partially overlapping other geometry, separate
+		// TODO: efficiency?
+		System.Collections.Generic.List<ContactPoint2D> contacts = new();
+		m_collider.GetContacts(contacts);
+		Vector2 totalOverlap = Vector2.zero;
+		foreach (ContactPoint2D contact in contacts)
 		{
-			// if spawned partially overlapping other geometry, separate
-			System.Collections.Generic.List<ContactPoint2D> contacts = new();
-			m_collider.GetContacts(contacts);
-
-			Vector2 totalOverlap = Vector2.zero;
-			foreach (ContactPoint2D contact in contacts)
+			if (ShouldIgnore(contact.rigidbody, new Collider2D[] { contact.collider }, false, body.mass, typeof(AnchoredJoint2D), true))
 			{
-				if (ShouldIgnore(contact.rigidbody, new Collider2D[] { contact.collider }, false, body.mass, typeof(AnchoredJoint2D)))
-				{
-					continue;
-				}
-				Vector2 newOverlap = contact.normal * -contact.separation;
-				totalOverlap.x = Mathf.Abs(newOverlap.x) > Mathf.Abs(totalOverlap.x) ? newOverlap.x : totalOverlap.x;
-				totalOverlap.y = Mathf.Abs(newOverlap.y) > Mathf.Abs(totalOverlap.y) ? newOverlap.y : totalOverlap.y;
+				continue;
 			}
-			transform.position += (Vector3)totalOverlap;
 
-			--m_spawnCheckFrameCount;
+			Vector2 newOverlap = contact.normal * -contact.separation;
+			if (newOverlap.x.FloatEqual(0.0f) && newOverlap.y.FloatEqual(0.0f))
+			{
+				continue;
+			}
+
+			// TODO: reconcile overlaps in opposing directions?
+			totalOverlap.x = Mathf.Abs(newOverlap.x) > Mathf.Abs(totalOverlap.x) ? newOverlap.x : totalOverlap.x;
+			totalOverlap.y = Mathf.Abs(newOverlap.y) > Mathf.Abs(totalOverlap.y) ? newOverlap.y : totalOverlap.y;
 		}
+		transform.position += (Vector3)totalOverlap;
 
 		//if already falling, fall faster than the jump speed, otherwise use normal gravity.
 		velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0.0f ? gravityModifier : 1.0f) * Time.fixedDeltaTime * Physics2D.gravity;
@@ -203,7 +203,7 @@ public abstract class KinematicObject : MonoBehaviour
 		PerformMovement(move, true, ref isNearGround);
 	}
 
-	public bool ShouldIgnore(Rigidbody2D body, Collider2D[] colliders, bool ignoreStatics, float dynamicsMassThreshold, Type ignoreChildrenExcept, bool ignorePhysicsSystem = false)
+	public bool ShouldIgnore(Rigidbody2D body, Collider2D[] colliders, bool ignoreStatics, float dynamicsMassThreshold, Type ignoreChildrenExcept, bool processOneWayPlatforms = false, bool ignorePhysicsSystem = false)
 	{
 		Assert.IsTrue(colliders != null && colliders.Length > 0);
 		GameObject otherObj = colliders.First().gameObject; // NOTE that we don't use the rigid body's object since that can be separate from the collider object (e.g. characters and arms) // TODO: ensure all colliders are from the same object & body?
@@ -223,12 +223,15 @@ public abstract class KinematicObject : MonoBehaviour
 		{
 			return true; // ignore non-root bodies (e.g. arms)
 		}
-		for (Transform transformItr = otherObj.transform; transformItr != null; transformItr = transformItr.parent)
+		if (otherObj.GetComponentsInParent<Transform>().Any(transformItr => transformItr == transform))
 		{
-			if (transformItr == transform)
-			{
-				return true; // ignore child objects
-			}
+			return true; // ignore child objects
+		}
+
+		// if partway through a one-way platform, ignore it
+		if (processOneWayPlatforms && colliders.All(collider => collider.gameObject.layer == GameController.Instance.m_layerOneWay && m_collider.bounds.min.y + m_platformTopEpsilon < collider.bounds.max.y))
+		{
+			return true;
 		}
 
 		if (ignorePhysicsSystem)
@@ -286,7 +289,7 @@ public abstract class KinematicObject : MonoBehaviour
 		for (int i = 0; i < count; i++)
 		{
 			RaycastHit2D hit = hitBuffer[i];
-			if (ShouldIgnore(hit.rigidbody, new Collider2D[] { hit.collider }, false, body.mass, typeof(AnchoredJoint2D)))
+			if (ShouldIgnore(hit.rigidbody, new Collider2D[] { hit.collider }, false, body.mass, typeof(AnchoredJoint2D), true))
 			{
 				// push-through floor/walls prevention
 				if (hit.transform.parent == null && hit.rigidbody.IsTouchingLayers((LayerMask)GameController.Instance.m_layerWalls))
@@ -299,10 +302,6 @@ public abstract class KinematicObject : MonoBehaviour
 				}
 
 				continue; // don't get hung up on dynamic/carried/ignored objects
-			}
-			if (hit.collider.gameObject.layer == GameController.Instance.m_layerOneWay && m_collider.bounds.min.y + m_platformTopEpsilon < hit.collider.bounds.max.y)
-			{
-				continue; // if partway through a one-way platform, ignore it
 			}
 
 			Vector2 currentNormal = hit.normal;
