@@ -13,6 +13,7 @@ public abstract class AIState
 
 		Melee,
 		Throw,
+		ThrowAll,
 		FindAmmo,
 
 		Teleport,
@@ -30,6 +31,7 @@ public abstract class AIState
 		Vector2 targetOffset = ai.m_target == null ? Vector2.zero : ai.m_target.transform.position.x < ai.transform.position.x ? ai.m_targetOffset : new(-ai.m_targetOffset.x, ai.m_targetOffset.y);
 		float distanceFromOffsetPos = ai.m_target == null ? float.MaxValue : Vector2.Distance(ai.transform.position, (Vector2)ai.m_target.transform.position + targetOffset);
 		int numItems = ai.GetComponentsInChildren<ItemController>().Length;
+		float itemHoldPct = (float)numItems / System.Math.Max(1, ai.HoldCountMax);
 
 		float[] priorities = allowedTypes.Select(type =>
 		{
@@ -45,12 +47,14 @@ public abstract class AIState
 					return numItems > 0 && distanceFromTarget <= ai.m_meleeRange ? 1.0f : 0.0f;
 				case Type.Throw:
 					return ai.m_target != null && distanceFromTarget > ai.m_meleeRange && numItems > 0 ? 1.0f : 0.0f;
+				case Type.ThrowAll:
+					return ai.m_target != null && distanceFromTarget > ai.m_meleeRange && numItems > 1 ? itemHoldPct : 0.0f;
 				case Type.RamSwoop:
 					return distanceFromOffsetPos <= ai.m_meleeRange + ai.GetComponent<Collider2D>().bounds.extents.magnitude ? 1.0f : 0.0f; // TODO: better conditions?
 				case Type.FindAmmo:
-					return ai.HoldCountMax <= 0 ? 0.0f : 1.0f - (float)numItems / ai.HoldCountMax;
+					return ai.HoldCountMax <= 0 ? 0.0f : 1.0f - itemHoldPct;
 				case Type.Teleport:
-					return Mathf.Max(0.0f, 1.0f - 1.0f / distanceFromOffsetPos);
+					return Mathf.Max(0.0f, AITeleport.CooldownPct * (1.0f - 1.0f / distanceFromOffsetPos));
 				default:
 					Debug.Assert(false, "Unhandled AIState.");
 					return 0.0f;
@@ -69,6 +73,8 @@ public abstract class AIState
 				return new AIMelee(ai);
 			case Type.Throw:
 				return new AIThrow(ai);
+			case Type.ThrowAll:
+				return new AIThrowAll(ai);
 			case Type.RamSwoop:
 				return new AIRamSwoop(ai);
 			case Type.FindAmmo:
@@ -220,13 +226,13 @@ public sealed class AIMelee : AIState
 }
 
 
-public sealed class AIThrow : AIState
+public class AIThrow : AIState
 {
 	public float m_waitSeconds = 0.5f;
 
 
-	private float m_startTime = 0.0f;
-	private float m_throwTime = 0.0f;
+	protected float m_startTime { get; private set; }
+	protected float m_throwTime { get; private set; }
 
 
 	public AIThrow(EnemyController ai)
@@ -273,6 +279,41 @@ public sealed class AIThrow : AIState
 
 		// finished
 		return null;
+	}
+}
+
+
+// TODO: aim arms such that non-primary occupied arms tend to point somewhat in the general direction of the target?
+public sealed class AIThrowAll : AIThrow
+{
+	private readonly float m_spinScalar;
+
+	private bool m_hasThrown = false;
+
+
+	public AIThrowAll(EnemyController ai)
+		: base(ai)
+	{
+		m_spinScalar = 360.0f / m_waitSeconds;
+	}
+
+	public override AIState Update()
+	{
+		// arm spin during pre-throw
+		m_ai.AimOffsetDegrees = (!m_hasThrown && Time.time < m_startTime + m_waitSeconds) ? (Time.time - m_startTime) * m_spinScalar : 0.0f;
+
+		AIState retVal = base.Update();
+
+		if (!m_hasThrown && m_throwTime != 0.0f)
+		{
+			foreach (ItemController item in m_ai.GetComponentsInChildren<ItemController>())
+			{
+				item.Throw();
+			}
+			m_hasThrown = true;
+		}
+
+		return retVal;
 	}
 }
 
@@ -435,6 +476,9 @@ public sealed class AITeleport : AIState
 	public float m_delaySeconds = 0.5f;
 
 
+	public static float CooldownPct => Time.time < m_lastFinishTime ? 0.0f : (Time.time - m_lastFinishTime) / (Time.time - m_lastFinishTime + m_cooldownHalflifeSeconds);
+
+
 	private readonly float m_preDelayTime;
 	private readonly float m_midDelayTime;
 	private readonly float m_postDelayTime;
@@ -443,11 +487,17 @@ public sealed class AITeleport : AIState
 	private bool m_teleported;
 
 
+	private const float m_cooldownHalflifeSeconds = 1.0f;
+	private static float m_lastFinishTime;
+
+
 	public AITeleport(EnemyController ai) : base(ai)
 	{
 		m_preDelayTime = Time.time + m_delaySeconds;
 		m_midDelayTime = Time.time + m_delaySeconds * 2.0f;
 		m_postDelayTime = Time.time + m_delaySeconds * 3.0f;
+
+		m_lastFinishTime = m_postDelayTime;
 	}
 
 	public override AIState Update()

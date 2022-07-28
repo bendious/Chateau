@@ -31,6 +31,9 @@ public class EnemyController : KinematicCharacter
 	private GameObject m_heldPrefab;
 
 
+	public float AimOffsetDegrees { private get; set; }
+
+
 	private float m_targetSelectTimeNext;
 	private AIState m_aiState;
 
@@ -376,6 +379,12 @@ public class EnemyController : KinematicCharacter
 		float gravity = /*Physics2D.gravity.y*/-9.81f; // TODO: determine why Physics2D.gravity does not match the outcome
 		float launchSlopePerSec = posDiff.y / timeDiffApprox - gravity * timeDiffApprox;
 		aimPos.y = aimItem.transform.position.y + launchSlopePerSec * timeDiffApprox;
+
+		// add rotational offset if set
+		if (AimOffsetDegrees != 0.0f)
+		{
+			aimPos = (Vector2)(Quaternion.Euler(0.0f, 0.0f, AimOffsetDegrees) * (aimPos - (Vector2)transform.position)) + (Vector2)transform.position;
+		}
 
 		return aimPos;
 	}

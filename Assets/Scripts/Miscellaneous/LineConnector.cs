@@ -29,7 +29,8 @@ public class LineConnector : MonoBehaviour
 
 	private void LateUpdate()
 	{
-		Vector3 shoulderPosLocal = transform.parent.position + (Vector3)(m_character != null ? m_character.ArmOffset : Vector2.zero) + (m_arm == null ? Vector3.zero : (Vector3)(Vector2)m_arm.m_offset) - transform.position; // NOTE the removal of Z from m_arm.m_offset
+		Quaternion rotChar = m_character == null ? Quaternion.identity : m_character.transform.rotation;
+		Vector3 shoulderPosLocal = transform.parent.position + (rotChar * (m_character != null ? m_character.ArmOffset : Vector2.zero) + (m_arm == null ? Vector3.zero : (Vector3)(Vector2)m_arm.m_offset)) - transform.position; // NOTE the removal of Z from m_arm.m_offset
 		Color color = m_parentRenderer.color;
 		System.Lazy<Gradient> newGradient = new(() => new Gradient() { colorKeys = new GradientColorKey[] { new GradientColorKey(color, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new GradientAlphaKey(color.a, 0.0f) } }, false); // TODO: support non-constant gradients?
 
@@ -39,10 +40,10 @@ public class LineConnector : MonoBehaviour
 			// calculate start/end
 			// TODO: simplify?
 			Vector3 offsetOriented = m_arm != null && m_arm.LeftFacing ? -m_lineOffset : m_lineOffset;
-			Quaternion rotInv = Quaternion.Inverse(transform.rotation);
+			Quaternion rotInvLine = Quaternion.Inverse(line.transform.rotation);
 			AnchoredJoint2D joint = m_joints.Length > i ? m_joints[i] : null;
 			Vector3 startPosLocal = offsetOriented + (joint == null ? Vector3.zero : (Vector3)joint.anchor);
-			Vector3 endPosLocal = rotInv * (joint == null ? shoulderPosLocal : (joint.connectedBody == null ? (Vector3)joint.connectedAnchor : joint.connectedBody.transform.position + joint.connectedBody.transform.rotation * joint.connectedAnchor) - transform.position) + offsetOriented;
+			Vector3 endPosLocal = rotInvLine * (joint == null ? shoulderPosLocal : (joint.connectedBody == null ? (Vector3)joint.connectedAnchor : joint.connectedBody.transform.position + joint.connectedBody.transform.rotation * joint.connectedAnchor) - transform.position) + offsetOriented;
 
 			// update renderer
 			line.enabled = ((Vector2)endPosLocal - (Vector2)startPosLocal).sqrMagnitude >= m_lengthMin * m_lengthMin;
