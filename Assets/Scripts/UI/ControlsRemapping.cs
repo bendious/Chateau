@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -15,10 +14,9 @@ public class ControlsRemapping : MonoBehaviour
 	public static InputActionAsset Controls;
 	public static Action<InputAction> SuccessfulRebinding;
 
-	public static Dictionary<string, string> OverridesDictionary = new();
-
 
 	private const string m_filename = "/controlsOverrides.dat";
+	private static string Filepath => Application.persistentDataPath + m_filename;
 
 
 	private void Awake()
@@ -31,7 +29,7 @@ public class ControlsRemapping : MonoBehaviour
 
 		Controls = m_controls;
 
-		if (File.Exists(Application.persistentDataPath + m_filename))
+		if (File.Exists(Filepath))
 		{
 			LoadControlOverrides();
 		}
@@ -47,7 +45,6 @@ public class ControlsRemapping : MonoBehaviour
 			.OnCancel(operation => SuccessfulRebinding?.Invoke(null))
 			.OnComplete(operation => {
 				operation.Dispose();
-				AddOverrideToDictionary(actionToRebind.id, actionToRebind.bindings[targetBinding].effectivePath, targetBinding);
 				SaveControlOverrides();
 				SuccessfulRebinding?.Invoke(actionToRebind);
 			})
@@ -64,56 +61,37 @@ public class ControlsRemapping : MonoBehaviour
 			.OnCancel(operation => SuccessfulRebinding?.Invoke(null))
 			.OnComplete(operation => {
 				operation.Dispose();
-				AddOverrideToDictionary(actionToRebind.id, actionToRebind.bindings[targetBinding].effectivePath, targetBinding);
 				SaveControlOverrides();
 				SuccessfulRebinding?.Invoke(actionToRebind);
 			})
 			.Start();
 	}
 
-
-	private static void AddOverrideToDictionary(Guid actionId, string path, int bindingIndex)
+	public static void RestoreDefaults()
 	{
-		string key = string.Format("{0} : {1}", actionId.ToString(), bindingIndex);
-
-		if (OverridesDictionary.ContainsKey(key))
+		Controls.RemoveAllBindingOverrides();
+		File.Delete(Filepath);
+		foreach (InputActionDisplay display in FindObjectsOfType<InputActionDisplay>()) // TODO: efficiency?
 		{
-			OverridesDictionary[key] = path;
-		}
-		else
-		{
-			OverridesDictionary.Add(key, path);
+			display.RefreshButtonText();
 		}
 	}
 
-	// TODO: use Unity functions?
+
 	private static void SaveControlOverrides()
 	{
-		FileStream file = new(Application.persistentDataPath + m_filename, FileMode.OpenOrCreate);
-		BinaryFormatter bf = new();
-		bf.Serialize(file, OverridesDictionary);
-		file.Close();
+		using FileStream file = new(Filepath, FileMode.OpenOrCreate);
+		new BinaryFormatter().Serialize(file, Controls.SaveBindingOverridesAsJson());
 	}
 
 	private static void LoadControlOverrides()
 	{
-		if (!File.Exists(Application.persistentDataPath + m_filename))
+		if (!File.Exists(Filepath))
 		{
 			return;
 		}
 
-		FileStream file = new(Application.persistentDataPath + m_filename, FileMode.Open);
-		BinaryFormatter bf = new();
-		OverridesDictionary = bf.Deserialize(file) as Dictionary<string, string>;
-		file.Close();
-
-		foreach (KeyValuePair<string, string> item in OverridesDictionary)
-		{
-			// TODO: sanitize input?
-			string[] split = item.Key.Split(new string[] { " : " }, StringSplitOptions.None);
-			Guid id = Guid.Parse(split[0]);
-			int index = int.Parse(split[1]);
-			Controls./*asset.*/FindAction(id).ApplyBindingOverride(index, item.Value);
-		}
+		using FileStream file = new(Filepath, FileMode.Open);
+		Controls.LoadBindingOverridesFromJson(new BinaryFormatter().Deserialize(file) as string);
 	}
 }
