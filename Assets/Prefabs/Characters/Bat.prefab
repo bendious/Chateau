@@ -176,6 +176,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: 74ec83d22f6d9f24e910afefc39d0b64, type: 3}
     - target: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_damageBounceMagnitude.y
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
       propertyPath: m_attackSFX.Array.data[10]
       value: 
       objectReference: {fileID: 8300000, guid: 58cbfcab26e0f7a4db3a0c9b3e954447, type: 3}
