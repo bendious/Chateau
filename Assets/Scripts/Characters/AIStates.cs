@@ -14,6 +14,7 @@ public abstract class AIState
 		Melee,
 		Throw,
 		ThrowAll,
+		ThrowAllNarrow,
 		FindAmmo,
 
 		Teleport,
@@ -48,7 +49,9 @@ public abstract class AIState
 				case Type.Throw:
 					return ai.m_target != null && distanceFromTarget > ai.m_meleeRange && numItems > 0 ? 1.0f : 0.0f;
 				case Type.ThrowAll:
-					return ai.m_target != null && distanceFromTarget > ai.m_meleeRange && numItems > 1 ? itemHoldPct : 0.0f;
+					return ai.m_target != null && numItems > 1 ? itemHoldPct : 0.0f;
+				case Type.ThrowAllNarrow:
+					return ai.m_target != null && numItems > 1 ? itemHoldPct : 0.0f;
 				case Type.RamSwoop:
 					return distanceFromOffsetPos <= ai.m_meleeRange + ai.GetComponent<Collider2D>().bounds.extents.magnitude ? 1.0f : 0.0f; // TODO: better conditions?
 				case Type.FindAmmo:
@@ -75,6 +78,8 @@ public abstract class AIState
 				return new AIThrow(ai);
 			case Type.ThrowAll:
 				return new AIThrowAll(ai);
+			case Type.ThrowAllNarrow:
+				return new AIThrowAllNarrow(ai);
 			case Type.RamSwoop:
 				return new AIRamSwoop(ai);
 			case Type.FindAmmo:
@@ -283,18 +288,17 @@ public class AIThrow : AIState
 }
 
 
-// TODO: aim arms such that non-primary occupied arms tend to point somewhat in the general direction of the target?
-public sealed class AIThrowAll : AIThrow
+public class AIThrowAll : AIThrow
 {
 	private readonly float m_spinScalar;
 
-	private bool m_hasThrown = false;
+	protected bool m_hasThrown = false;
 
 
 	public AIThrowAll(EnemyController ai)
 		: base(ai)
 	{
-		m_spinScalar = 360.0f / m_waitSeconds;
+		m_spinScalar = 360.0f / m_waitSeconds; // TODO: move to Update() if m_waitSeconds ever needs to be set externally
 	}
 
 	public override AIState Update()
@@ -314,6 +318,46 @@ public sealed class AIThrowAll : AIThrow
 		}
 
 		return retVal;
+	}
+
+	public override void Exit()
+	{
+		base.Exit();
+		m_ai.AimOffsetDegrees = 0.0f; // in case of canceling during pre-throw
+	}
+}
+
+
+public sealed class AIThrowAllNarrow : AIThrowAll
+{
+	public float m_narrowingPct = 0.25f;
+
+
+	private readonly float m_narrowingScalar;
+
+
+	public AIThrowAllNarrow(EnemyController ai)
+		: base(ai)
+	{
+		m_narrowingScalar = 1.0f / m_waitSeconds; // TODO: move to Update() if m_waitSeconds ever needs to be set externally
+	}
+
+	public override AIState Update()
+	{
+		// arm narrowing during pre-throw
+		m_ai.AimScalar = (!m_hasThrown && Time.time < m_startTime + m_waitSeconds) ? Mathf.Lerp(1.0f, m_narrowingPct, (Time.time - m_startTime) * m_narrowingScalar) : 1.0f;
+
+		AIState retVal = base.Update();
+
+		m_ai.AimOffsetDegrees = 0.0f; // negate pre-throw spin from AIThrowAll
+
+		return retVal;
+	}
+
+	public override void Exit()
+	{
+		base.Exit();
+		m_ai.AimScalar = 1.0f; // in case of canceling during pre-throw
 	}
 }
 

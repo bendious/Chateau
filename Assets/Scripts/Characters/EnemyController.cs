@@ -32,6 +32,7 @@ public class EnemyController : KinematicCharacter
 
 
 	public float AimOffsetDegrees { private get; set; }
+	public float AimScalar { private get; set; } = 1.0f;
 
 
 	private float m_targetSelectTimeNext;
@@ -134,14 +135,15 @@ public class EnemyController : KinematicCharacter
 					primaryArm.UpdateAim(ArmOffset, targetPosSafe, targetPosSafe);
 				}
 
-				int i = primaryArm == null ? -1 : 0;
-				foreach (ArmController arm in arms)
+				int offsetScalar = primaryArm == null ? 0 : 1;
+				foreach (ArmController arm in arms.OrderBy(arm => -arm.transform.childCount)) // NOTE the ordering to aim non-empty arms first
 				{
 					if (arm == primaryArm)
 					{
-						continue;
+						continue; // primaryArm is already aimed
 					}
-					Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, ++i * System.Math.Min(60, 360 / arms.Length)) * (targetPosSafe - (Vector2)transform.position);
+					Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, offsetScalar * System.Math.Min(60, 360 / arms.Length) * AimScalar) * (targetPosSafe - (Vector2)transform.position); // TODO: remove hardcoded max?
+					offsetScalar = offsetScalar <= 0 ? -offsetScalar + 1 : -offsetScalar; // this groups any arms w/ items around the primary arm in both directions
 					arm.UpdateAim(ArmOffset, aimPos, targetPosSafe);
 				}
 			}
@@ -372,18 +374,20 @@ public class EnemyController : KinematicCharacter
 			return aimPos;
 		}
 
-		// approximate the parabolic trajectory
-		// given ax^2 + bx + c = 0, b = (-c - ax^2) / x = -c/x - ax
-		Vector2 posDiff = aimPos - (Vector2)aimItem.transform.position;
-		float timeDiffApprox = posDiff.magnitude / aimItem.m_throwSpeed;
-		float gravity = /*Physics2D.gravity.y*/-9.81f; // TODO: determine why Physics2D.gravity does not match the outcome
-		float launchSlopePerSec = posDiff.y / timeDiffApprox - gravity * timeDiffApprox;
-		aimPos.y = aimItem.transform.position.y + launchSlopePerSec * timeDiffApprox;
-
-		// add rotational offset if set
 		if (AimOffsetDegrees != 0.0f)
 		{
+			// add rotational offset
 			aimPos = (Vector2)(Quaternion.Euler(0.0f, 0.0f, AimOffsetDegrees) * (aimPos - (Vector2)transform.position)) + (Vector2)transform.position;
+		}
+		else
+		{
+			// approximate the parabolic trajectory
+			// given ax^2 + bx + c = 0, b = (-c - ax^2) / x = -c/x - ax
+			Vector2 posDiff = aimPos - (Vector2)aimItem.transform.position;
+			float timeDiffApprox = posDiff.magnitude / aimItem.m_throwSpeed;
+			float gravity = /*Physics2D.gravity.y*/-9.81f; // TODO: determine why Physics2D.gravity does not match the outcome
+			float launchSlopePerSec = posDiff.y / timeDiffApprox - gravity * timeDiffApprox;
+			aimPos.y = aimItem.transform.position.y + launchSlopePerSec * timeDiffApprox;
 		}
 
 		return aimPos;
