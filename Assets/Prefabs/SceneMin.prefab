@@ -1582,6 +1582,8 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 8300000, guid: 4a3bf59a4223c4544bfac5904e037e21, type: 3}
     m_weight: 1
+  - m_object: {fileID: 8300000, guid: cddb5b9affcb44e49ad2ca1fd5e11398, type: 3}
+    m_weight: 1
   m_musicDelayMin: 30
   m_musicDelayMax: 120
   m_victoryAudio: {fileID: 0}
