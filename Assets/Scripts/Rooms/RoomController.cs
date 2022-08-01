@@ -521,9 +521,9 @@ public class RoomController : MonoBehaviour
 		{
 			switch (node.m_type)
 			{
+				case LayoutGenerator.Node.Type.TutorialPlatforms:
 				case LayoutGenerator.Node.Type.TutorialMove:
 				case LayoutGenerator.Node.Type.TutorialAim:
-				case LayoutGenerator.Node.Type.TutorialDrop:
 				case LayoutGenerator.Node.Type.TutorialJump:
 				case LayoutGenerator.Node.Type.TutorialInteract:
 				case LayoutGenerator.Node.Type.TutorialUse:
@@ -535,7 +535,9 @@ public class RoomController : MonoBehaviour
 				case LayoutGenerator.Node.Type.TutorialCatch:
 				case LayoutGenerator.Node.Type.TutorialPassThrough:
 				case LayoutGenerator.Node.Type.TutorialLook:
-					RoomType.DecorationInfo info = m_roomType.m_decorations[node.m_type - LayoutGenerator.Node.Type.TutorialMove].m_object;
+				case LayoutGenerator.Node.Type.TutorialDrop:
+				case LayoutGenerator.Node.Type.TutorialDash:
+					RoomType.DecorationInfo info = m_roomType.m_decorations[node.m_type - LayoutGenerator.Node.Type.TutorialPlatforms].m_object;
 					GameObject prefab = info.m_prefab;
 					Instantiate(prefab, InteriorPosition(info.m_heightMin, info.m_heightMax, prefab), info.m_rotationDegreesMax != 0.0f ? Quaternion.Euler(0.0f, 0.0f, Random.Range(-info.m_rotationDegreesMax, info.m_rotationDegreesMax)) : Quaternion.identity, transform);
 					if (node.m_type == LayoutGenerator.Node.Type.TutorialInteract && (GameController.Instance.m_avatars == null || !GameController.Instance.m_avatars.Any(avatar => avatar.GetComponentInChildren<ItemController>(true) != null)))

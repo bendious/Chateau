@@ -110,7 +110,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 200
+        y: 300
         width: 100
         height: 100
       alignment: 7
@@ -131,7 +131,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 100
-        y: 200
+        y: 300
         width: 100
         height: 100
       alignment: 7
@@ -152,7 +152,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 200
-        y: 200
+        y: 300
         width: 100
         height: 100
       alignment: 7
@@ -173,7 +173,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 300
-        y: 200
+        y: 300
         width: 100
         height: 100
       alignment: 7
@@ -194,7 +194,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 100
+        y: 200
         width: 100
         height: 100
       alignment: 7
@@ -215,7 +215,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 100
-        y: 100
+        y: 200
         width: 100
         height: 100
       alignment: 7
@@ -236,7 +236,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 200
-        y: 100
+        y: 200
         width: 100
         height: 100
       alignment: 7
@@ -257,7 +257,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 300
-        y: 100
+        y: 200
         width: 100
         height: 100
       alignment: 7
@@ -278,7 +278,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
+        y: 100
         width: 100
         height: 100
       alignment: 7
@@ -299,7 +299,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 100
-        y: 0
+        y: 100
         width: 100
         height: 100
       alignment: 7
@@ -320,7 +320,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 200
-        y: 0
+        y: 100
         width: 100
         height: 100
       alignment: 7
@@ -341,7 +341,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 300
-        y: 0
+        y: 100
         width: 100
         height: 100
       alignment: 7
@@ -353,6 +353,27 @@ TextureImporter:
       bones: []
       spriteID: e5d6125006b2a5246b5b621746cd7259
       internalID: 1897316764
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ControlsGamepad_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 100
+        height: 100
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a34679d8ee0f5214e812d0785b9e8455
+      internalID: 2106750671
       vertices: []
       indices: 
       edges: []
@@ -380,6 +401,7 @@ TextureImporter:
       ControlsGamepad_1: 494622720
       ControlsGamepad_9: -1218049510
       ControlsGamepad_0: -1896411195
+      ControlsGamepad_12: 2106750671
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
