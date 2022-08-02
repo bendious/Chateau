@@ -4,6 +4,7 @@ using UnityEngine;
 public interface IUnlockable
 {
 	public GameObject Parent { get; set; }
+	public bool IsLocked { get; }
 
 
 	public void SpawnKeysStatic(RoomController lockRoom, RoomController[] keyRooms);

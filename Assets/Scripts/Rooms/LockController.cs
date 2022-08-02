@@ -47,6 +47,7 @@ public class LockController : MonoBehaviour, IUnlockable
 
 
 	public GameObject Parent { get; set; }
+	public bool IsLocked => enabled;
 
 
 	private readonly List<IKey> m_keys = new();
@@ -85,7 +86,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		for (int i = 0; i < keyOrLockRooms.Length && i < m_keyInfo.m_keyCountMax; ++i)
 		{
 			GameObject keyPrefab = m_keyInfo.m_prefabs.RandomWeighted();
-			GameObject keyObj = keyOrLockRooms[i].SpawnKey(keyPrefab, m_keyHeightMax);
+			GameObject keyObj = keyOrLockRooms[i].SpawnKey(keyPrefab, m_keyHeightMax, false);
 			foreach (IKey key in keyObj.GetComponentsInChildren<IKey>())
 			{
 				key.Lock = this;

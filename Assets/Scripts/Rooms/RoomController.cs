@@ -38,6 +38,7 @@ public class RoomController : MonoBehaviour
 	public float m_ladderRungSkewMax = 0.2f;
 
 	[SerializeField] private float m_cutbackBreakablePct = 0.5f;
+	[SerializeField] private float m_furnitureLockPct = 0.5f;
 
 
 	public static readonly Color m_oneWayPlatformColor = new(0.3f, 0.2f, 0.1f);
@@ -577,7 +578,7 @@ public class RoomController : MonoBehaviour
 
 		// spawn furniture
 		// NOTE that this has to be before keys to allow spawning them on furniture
-		List<FurnitureController> furnitureList = new();
+		List<System.Tuple<FurnitureController, IUnlockable>> furnitureList = new();
 		while (m_roomType.m_furniturePrefabs.Length > 0 && fillPct < m_roomType.m_fillPctMin)
 		{
 			FurnitureController furniture = Instantiate(m_roomType.m_furniturePrefabs.RandomWeighted(), transform).GetComponent<FurnitureController>(); // NOTE that we have to spawn before placement due to potential size randomization
@@ -592,17 +593,36 @@ public class RoomController : MonoBehaviour
 			{
 				break; // must have failed to find a valid placement position
 			}
-			furnitureList.Add(furniture);
+			IUnlockable furnitureLock = furniture.GetComponent<IUnlockable>();
+			bool isLocked = furnitureLock != null && Random.value < m_furnitureLockPct; // TODO: more deliberate choice?
+			furnitureList.Add(System.Tuple.Create(furniture, isLocked ? furnitureLock : null));
 			fillPct += width * 0.5f / extentsInterior.x;
+
+			if (furnitureLock != null)
+			{
+				if (isLocked)
+				{
+					furnitureLock.SpawnKeysStatic(this, new RoomController[] { this });
+				}
+				else
+				{
+					furnitureLock.Unlock(null);
+				}
+			}
 		}
 
 		// spawn items
 		int itemCount = 0;
 		int furnitureRemaining = furnitureList.Count - 1;
-		foreach (FurnitureController furniture in furnitureList)
+		foreach (System.Tuple<FurnitureController, IUnlockable> furniture in furnitureList)
 		{
-			itemCount += furniture.SpawnItems(m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType, itemCount, furnitureRemaining);
+			itemCount += furniture.Item1.SpawnItems(m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType, itemCount, furnitureRemaining);
 			--furnitureRemaining;
+
+			if (furniture.Item2 != null)
+			{
+				furniture.Item2.SpawnKeysDynamic(this, new RoomController[] { this }); // TODO: spaced-out keys?
+			}
 		}
 
 		// spawn keys
@@ -761,20 +781,29 @@ public class RoomController : MonoBehaviour
 		return pos;
 	}
 
-	public GameObject SpawnKey(GameObject prefab, float nonitemHeightMax)
+	public GameObject SpawnKey(GameObject prefab, float nonitemHeightMax, bool noLock)
 	{
 		bool isItem = prefab.GetComponent<Rigidbody2D>() != null; // TODO: ignore non-dynamic bodies?
 		Vector3 spawnPos = isItem ? Vector3.zero : InteriorPosition(nonitemHeightMax, prefab); // TODO: prioritize placing non-items close to self if multiple in this room?
 		if (isItem)
 		{
-			FurnitureController[] allFurniture = transform.GetComponentsInChildren<FurnitureController>();
-			if (allFurniture.Length <= 0)
+			IEnumerable<FurnitureController> validFurniture = transform.GetComponentsInChildren<FurnitureController>();
+			if (noLock)
+			{
+				// TODO: encourage keys w/i locks as long as no cycles form?
+				validFurniture = validFurniture.Where(furniture =>
+				{
+					IUnlockable furnitureLock = furniture.GetComponent<IUnlockable>();
+					return furnitureLock == null || !furnitureLock.IsLocked;
+				});
+			}
+			if (validFurniture.Count() <= 0)
 			{
 				spawnPos = InteriorPosition(0.0f);
 			}
 			else
 			{
-				FurnitureController chosenFurniture = allFurniture[Random.Range(0, allFurniture.Length)]; // TODO: prioritize based on furniture type / existing items?
+				FurnitureController chosenFurniture = validFurniture.ElementAt(Random.Range(0, validFurniture.Count())); // TODO: prioritize based on furniture type / existing items?
 				return chosenFurniture.SpawnKey(prefab);
 			}
 

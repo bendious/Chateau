@@ -19,6 +19,7 @@ public class GateController : MonoBehaviour, IUnlockable
 
 
 	public GameObject Parent { get; set; }
+	public bool IsLocked => m_child != null && m_child.IsLocked;
 
 
 	private IUnlockable m_child;
