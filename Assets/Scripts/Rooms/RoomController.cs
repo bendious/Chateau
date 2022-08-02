@@ -761,16 +761,26 @@ public class RoomController : MonoBehaviour
 		return pos;
 	}
 
-	public Vector3 ItemSpawnPosition(GameObject itemPrefab)
+	public GameObject SpawnKey(GameObject prefab, float nonitemHeightMax)
 	{
-		FurnitureController[] allFurniture = transform.GetComponentsInChildren<FurnitureController>();
-		if (allFurniture.Length <= 0)
+		bool isItem = prefab.GetComponent<Rigidbody2D>() != null; // TODO: ignore non-dynamic bodies?
+		Vector3 spawnPos = isItem ? Vector3.zero : InteriorPosition(nonitemHeightMax, prefab); // TODO: prioritize placing non-items close to self if multiple in this room?
+		if (isItem)
 		{
-			return InteriorPosition(0.0f);
-		}
+			FurnitureController[] allFurniture = transform.GetComponentsInChildren<FurnitureController>();
+			if (allFurniture.Length <= 0)
+			{
+				spawnPos = InteriorPosition(0.0f);
+			}
+			else
+			{
+				FurnitureController chosenFurniture = allFurniture[Random.Range(0, allFurniture.Length)]; // TODO: prioritize based on furniture type / existing items?
+				return chosenFurniture.SpawnKey(prefab);
+			}
 
-		FurnitureController chosenFurniture = allFurniture[Random.Range(0, allFurniture.Length)]; // TODO: prioritize based on furniture type / existing items?
-		return chosenFurniture.ItemSpawnPosition(itemPrefab);
+			spawnPos += (Vector3)prefab.OriginToCenterY();
+		}
+		return prefab.GetComponent<ISavable>() == null ? Instantiate(prefab, spawnPos, Quaternion.identity) : GameController.Instance.m_savableFactory.Instantiate(prefab, spawnPos, Quaternion.identity);
 	}
 
 	public Vector3 SpawnPointRandom()

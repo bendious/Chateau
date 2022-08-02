@@ -85,13 +85,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		for (int i = 0; i < keyOrLockRooms.Length && i < m_keyInfo.m_keyCountMax; ++i)
 		{
 			GameObject keyPrefab = m_keyInfo.m_prefabs.RandomWeighted();
-			bool isItem = keyPrefab.GetComponent<Rigidbody2D>() != null;
-			Vector3 spawnPos = isItem ? keyOrLockRooms[i].ItemSpawnPosition(keyPrefab) : keyOrLockRooms[i].InteriorPosition(m_keyHeightMax, keyPrefab); // TODO: prioritize placing non-items close to self if multiple in this room?
-			if (isItem)
-			{
-				spawnPos += (Vector3)keyPrefab.OriginToCenterY();
-			}
-			GameObject keyObj = keyPrefab.GetComponent<ISavable>() == null ? Instantiate(keyPrefab, spawnPos, Quaternion.identity) : GameController.Instance.m_savableFactory.Instantiate(keyPrefab, spawnPos, Quaternion.identity);
+			GameObject keyObj = keyOrLockRooms[i].SpawnKey(keyPrefab, m_keyHeightMax);
 			foreach (IKey key in keyObj.GetComponentsInChildren<IKey>())
 			{
 				key.Lock = this;

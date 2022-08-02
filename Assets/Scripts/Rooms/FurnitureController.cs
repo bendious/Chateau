@@ -5,15 +5,16 @@ using UnityEngine;
 [DisallowMultipleComponent, RequireComponent(typeof(SpriteRenderer), typeof(Collider2D))]
 public class FurnitureController : MonoBehaviour
 {
-	public Vector2 m_sizeMin = new(1.0f, 0.25f);
-	public Vector2 m_sizeMax = new(4.0f, 0.5f);
+	[SerializeField] protected int m_itemsMin = 1;
+	[SerializeField] protected int m_itemsMax = 4;
+
+
+	[SerializeField] private Vector2 m_sizeMin = new(1.0f, 0.25f);
+	[SerializeField] private Vector2 m_sizeMax = new(4.0f, 0.5f);
 
 	// NOTE that these weights are multiplied by RoomTypes'
-	public WeightedObject<GameObject>[] m_itemPrefabs;
-	public WeightedObject<GameObject>[] m_itemRarePrefabs;
-
-	public int m_itemsMin = 1;
-	public int m_itemsMax = 4;
+	[SerializeField] private WeightedObject<GameObject>[] m_itemPrefabs;
+	[SerializeField] private WeightedObject<GameObject>[] m_itemRarePrefabs;
 
 
 	private void Start()
@@ -56,11 +57,10 @@ public class FurnitureController : MonoBehaviour
 		return width;
 	}
 
-	public int SpawnItems(bool rare, RoomType roomType, int itemCountExisting, int furnitureRemaining)
+	public virtual int SpawnItems(bool rare, RoomType roomType, int itemCountExisting, int furnitureRemaining)
 	{
 		// determine final spawn types/weights based on furniture and room type
-		int minItemsOtherFurniture = itemCountExisting + furnitureRemaining * m_itemsMin; // TODO: don't assume all future furniture will have the same m_itemsMin
-		int itemCount = Random.Range(Mathf.Max(m_itemsMin, roomType.m_itemsMin - minItemsOtherFurniture), Mathf.Min(m_itemsMax, roomType.m_itemsMax - minItemsOtherFurniture) + 1);
+		int itemCount = ItemCount(itemCountExisting, furnitureRemaining, roomType);
 		System.Collections.Generic.IEnumerable<WeightedObject<GameObject>> itemsFinal = (rare ? m_itemRarePrefabs : m_itemPrefabs).CombineWeighted(rare ? roomType.m_itemRarePrefabs : roomType.m_itemPrefabs);
 
 		if (itemsFinal.Count() <= 0)
@@ -86,10 +86,18 @@ public class FurnitureController : MonoBehaviour
 		return itemCount;
 	}
 
-	public Vector3 ItemSpawnPosition(GameObject itemPrefab)
+	public virtual GameObject SpawnKey(GameObject prefab)
 	{
 		Vector3 size = GetComponent<Collider2D>().bounds.size; // NOTE that the collider likely hasn't updated its position, but the size should be valid
-		return ItemSpawnPositionInternal(itemPrefab, size.x * 0.5f, size.y, GetComponentsInChildren<SpriteRenderer>().Length);
+		Vector3 spawnPos = ItemSpawnPositionInternal(prefab, size.x * 0.5f, size.y, GetComponentsInChildren<SpriteRenderer>().Length);
+		return prefab.GetComponent<ISavable>() == null ? Instantiate(prefab, spawnPos, Quaternion.identity) : GameController.Instance.m_savableFactory.Instantiate(prefab, spawnPos, Quaternion.identity);
+	}
+
+
+	protected int ItemCount(int itemCountExisting, int furnitureRemaining, RoomType roomType)
+	{
+		int minItemsOtherFurniture = itemCountExisting + furnitureRemaining * m_itemsMin; // TODO: don't assume all future furniture will have the same m_itemsMin
+		return Random.Range(Mathf.Max(m_itemsMin, roomType.m_itemsMin - minItemsOtherFurniture), Mathf.Min(m_itemsMax, roomType.m_itemsMax - minItemsOtherFurniture) + 1); // TODO: correlate w/ size?
 	}
 
 
