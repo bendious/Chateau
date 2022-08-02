@@ -10,10 +10,9 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 	public IUnlockable Lock { get; set; }
 
 
-	[SerializeField]
-	private float m_maxSnapDistance = 0.5f;
-	[SerializeField]
-	private float m_maxSnapDegrees = 45.0f;
+	[SerializeField] private InteractFollow[] m_snapPrecursors;
+	[SerializeField] private float m_maxSnapDistance = 0.5f;
+	[SerializeField] private float m_maxSnapDegrees = 45.0f;
 
 
 	private Vector3 m_correctPosition;
@@ -103,6 +102,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 
 	public void Deactivate()
 	{
+		transform.SetPositionAndRotation(m_correctPosition, Quaternion.Euler(0.0f, 0.0f, m_correctRotationDegrees)); // in case we were put within range w/o snapping
 		m_followCharacter = null;
 		GetComponent<UnityEngine.Rendering.Universal.Light2D>().enabled = false;
 		enabled = false;
@@ -143,7 +143,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 		m_followCharacter.GetComponent<AvatarController>().m_follower = null;
 		m_followCharacter = null;
 
-		if (IsInPlace)
+		if (IsInPlace && (m_snapPrecursors.Length <= 0 || m_snapPrecursors.Any(interact => interact.IsInPlace)))
 		{
 			transform.SetPositionAndRotation(m_correctPosition, Quaternion.Euler(0.0f, 0.0f, m_correctRotationDegrees));
 			(Lock as LockController).CheckInput();

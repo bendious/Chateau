@@ -1774,6 +1774,7 @@ MonoBehaviour:
     m_weight: 1
   m_ladderRungSkewMax: 0.2
   m_cutbackBreakablePct: 0.5
+  m_furnitureLockPct: 0.5
   m_doorwayInfos:
   - m_object: {fileID: 409852463158594107}
   - m_object: {fileID: 7910571754348373109}

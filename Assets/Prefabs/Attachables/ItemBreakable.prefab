@@ -62,6 +62,20 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8260530995564227012, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
   m_PrefabInstance: {fileID: 1748383854632968752}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &848659554012485791
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7701380722503224308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b10adb0928a4164d99a4172c09b8c0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_prefab: {fileID: 2158762121723618205, guid: 5d56a388687728e48abd3b552aa0597d, type: 3}
+  m_enemyAutoTrigger: 0
 --- !u!114 &5798313233011251755
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81,7 +95,7 @@ MonoBehaviour:
   m_UIPadding: 5
   m_damageAudio: {fileID: 0}
   m_deathAudio: {fileID: 0}
-  m_invincibilityTime: 1
+  m_invincibilityTime: 0
   m_invincible: 0
   m_gradient:
     serializedVersion: 2
@@ -112,17 +126,6 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
---- !u!114 &848659554012485791
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7701380722503224308}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b10adb0928a4164d99a4172c09b8c0b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_prefab: {fileID: 2158762121723618205, guid: 5d56a388687728e48abd3b552aa0597d, type: 3}
-  m_enemyAutoTrigger: 0
+  m_blinkSeconds: 0.3
+  m_blinkColor: {r: 1, g: 0.25, b: 0.25, a: 1}
+  m_blinkSecondsPost: 0.25
