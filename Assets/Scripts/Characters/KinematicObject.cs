@@ -32,8 +32,6 @@ public abstract class KinematicObject : MonoBehaviour
 	/// </summary>
 	public float m_wallClingGravityScalar = 0.1f;
 
-	public Vector2 m_velocityForcedSmoothTimes = new(0.25f, 0.1f);
-
 	/// <summary>
 	/// The current velocity of the entity.
 	/// </summary>
@@ -65,7 +63,7 @@ public abstract class KinematicObject : MonoBehaviour
 	protected RaycastHit2D[] hitBuffer = new RaycastHit2D[16];
 
 	protected const float minMoveDistance = 0.001f;
-	private const float shellRadius = 0.01f;
+	private const float m_shellRadius = Utility.FloatEpsilon;
 
 
 	private KinematicCharacter m_character;
@@ -75,6 +73,7 @@ public abstract class KinematicObject : MonoBehaviour
 	private Vector2 m_velocityForced = Vector2.zero;
 	private Vector2 m_velocityForcedWeight = Vector2.zero;
 	private Vector2 m_velocityForcedWeightVel = Vector2.zero;
+	private Vector2 m_velocityForcedSmoothTimes = Vector2.one;
 
 	private int m_layerIdxOrig;
 	private const float m_platformTopEpsilon = 0.1f;
@@ -87,11 +86,12 @@ public abstract class KinematicObject : MonoBehaviour
 	/// Bounce the objects velocity in a direction.
 	/// </summary>
 	/// <param name="dir"></param>
-	public void Bounce(Vector2 dir)
+	public void Bounce(Vector2 dir, float decayTimeX = 0.25f, float decayTimeY = 0.1f)
 	{
 		m_velocityForced = dir;
 		m_velocityForcedWeight = Vector2.one;
 		m_velocityForcedWeightVel = Vector2.zero;
+		m_velocityForcedSmoothTimes = new(decayTimeX, decayTimeY);
 	}
 
 	/// <summary>
@@ -285,7 +285,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 		// check if we hit anything in current direction of travel
 		// TODO: prevent getting stuck in floors/ceilings if starting slightly overlapped
-		int count = m_collider.Cast(move, contactFilter, hitBuffer, distance + shellRadius, true); // NOTE that we ignore child colliders such as arms
+		int count = m_collider.Cast(move, contactFilter, hitBuffer, distance + m_shellRadius, true); // NOTE that we ignore child colliders such as arms
 		for (int i = 0; i < count; i++)
 		{
 			RaycastHit2D hit = hitBuffer[i];
@@ -342,7 +342,7 @@ public abstract class KinematicObject : MonoBehaviour
 				}
 			}
 			// remove shellDistance from actual move distance.
-			float modifiedDistance = hit.distance - shellRadius; // TODO: don't move backward when colliding from multiple directions in-place
+			float modifiedDistance = hit.distance - m_shellRadius; // TODO: don't move backward when colliding from multiple directions in-place
 			distance = modifiedDistance < distance ? modifiedDistance : distance;
 		}
 		body.position += move.normalized * distance;

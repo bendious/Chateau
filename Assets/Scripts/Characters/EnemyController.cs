@@ -307,17 +307,17 @@ public class EnemyController : KinematicCharacter
 
 	public void PlayAttackEffects()
 	{
-		animator.SetBool("attacking", true);
+		m_animator.SetBool("attacking", true);
 
 		if (m_attackSFX.Length > 0)
 		{
-			audioSource.PlayOneShot(m_attackSFX[Random.Range(0, m_attackSFX.Length)]);
+			m_audioSource.PlayOneShot(m_attackSFX[Random.Range(0, m_attackSFX.Length)]);
 		}
 	}
 
 	public void StopAttackEffects()
 	{
-		animator.SetBool("attacking", false);
+		m_animator.SetBool("attacking", false);
 		// TODO: cut off SFX if appropriate?
 	}
 

@@ -408,13 +408,30 @@ MonoBehaviour:
   m_minWallClingNormalY: 0
   gravityModifier: 3
   m_wallClingGravityScalar: 0.1
-  m_velocityForcedSmoothTimes: {x: 0.25, y: 0.1}
   velocity: {x: 0, y: 0}
   maxSpeed: 10
   jumpTakeOffSpeed: 15
   m_wallJumpDegrees: 45
   m_jumpDeceleration: 0.5
-  m_dashVelocity: {x: 15, y: 0}
+  m_dashVelocity: {x: 25, y: 0}
+  m_dashSecondsXY: {x: 0.2, y: 0.2}
+  m_dashSFX:
+  - m_object: {fileID: 8300000, guid: bd75c6b6ef0eb684e8159da49bdc2be8, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 0ad195f3e50a81f4d87df76997aed45a, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 2388c76a05b5c4749a7ea100bf840f97, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: d3ebcb25a086bf24c8554ee23419b72c, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 420bca66a35b3fc47a37cb340a588bc1, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: c007f7f67a5b15b4f9ec486c994f9353, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 93307bca5ec809546a95699495ed2d58, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 557e38e6757b38848af7882841ed803c, type: 3}
+    m_weight: 1
   m_damageBounceMagnitude: {x: 7, y: 7}
   m_armOffset: {x: 0, y: 0.15}
   move: {x: 0, y: 0}

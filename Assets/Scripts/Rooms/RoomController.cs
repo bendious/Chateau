@@ -690,7 +690,7 @@ public class RoomController : MonoBehaviour
 			if (preventOverlapPrefab != null)
 			{
 				bboxNew = BoundsWithChildren(preventOverlapPrefab);
-				bboxNew.Expand(new Vector3(-0.01f, -0.01f, float.MaxValue)); // NOTE the slight x/y contraction to avoid always collecting the floor when up against it
+				bboxNew.Expand(new Vector3(-Utility.FloatEpsilon, -Utility.FloatEpsilon, float.MaxValue)); // NOTE the slight x/y contraction to avoid always collecting the floor when up against it
 			}
 
 			float xDiffMax = boundsInterior.extents.x - bboxNew.extents.x;

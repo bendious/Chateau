@@ -13,7 +13,7 @@ using UnityEngine.UI;
 public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
 	public float m_smoothTime = 0.05f;
-	public float m_smoothEpsilon = 0.01f;
+	public float m_smoothEpsilon = Utility.FloatEpsilon;
 	public GraphicRaycaster m_raycaster;
 	public TMP_Text m_tooltip;
 	public bool m_draggable = false;

@@ -34,7 +34,17 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	/// <summary>
 	/// Max dash velocity
 	/// </summary>
-	[SerializeField] private Vector2 m_dashVelocity = new(15.0f, 0.0f);
+	[SerializeField] private Vector2 m_dashVelocity = new(25.0f, 0.0f);
+
+	/// <summary>
+	/// Dash x/y component durations
+	/// </summary>
+	[SerializeField] private Vector2 m_dashSecondsXY = new(0.2f, 0.2f);
+
+	/// <summary>
+	/// Dash SFX audio clips
+	/// </summary>
+	[SerializeField] private WeightedObject<AudioClip>[] m_dashSFX;
 
 	/// <summary>
 	/// A velocity directed and sent to Bounce() when taking nonlethal damage
@@ -70,9 +80,9 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	protected bool m_dash;
 
 
-	private SpriteRenderer spriteRenderer;
-	protected Animator animator;
-	protected AudioSource audioSource;
+	private SpriteRenderer m_spriteRenderer;
+	protected Animator m_animator;
+	protected AudioSource m_audioSource;
 
 
 	public int HoldCountMax => GetComponentsInChildren<IHolder>().Where(holder => holder.Component != this).Sum(holder => holder.HoldCountMax);
@@ -80,7 +90,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	public Vector3 AttachOffsetLocal => Vector3.zero;
 	public Vector3 ChildAttachPointLocal => Vector3.zero;
 
-	public bool LeftFacing => spriteRenderer.flipX;
+	public bool LeftFacing => m_spriteRenderer.flipX;
 
 	public Vector2 ArmOffset => LeftFacing ? new(-m_armOffset.x, m_armOffset.y) : m_armOffset;
 
@@ -97,9 +107,9 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	protected override void Awake()
 	{
 		base.Awake();
-		spriteRenderer = GetComponent<SpriteRenderer>();
-		animator = GetComponent<Animator>();
-		audioSource = GetComponent<AudioSource>();
+		m_spriteRenderer = GetComponent<SpriteRenderer>();
+		m_animator = GetComponent<Animator>();
+		m_audioSource = GetComponent<AudioSource>();
 	}
 
 	protected override void ComputeVelocity()
@@ -153,9 +163,15 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		}
 		if (m_dash && m_dashAvailable && !HasForcedVelocity)
 		{
-			Bounce(new Vector2(LeftFacing ? -m_dashVelocity.x : m_dashVelocity.x, m_dashVelocity.y));
-			animator.SetTrigger("dash");
+			float moveDirX = (IsWallClinging ? m_wallNormal : move).x;
+			Bounce(moveDirX < -Utility.FloatEpsilon || (moveDirX.FloatEqual(0.0f) && LeftFacing) ? new Vector2(-m_dashVelocity.x, m_dashVelocity.y) : m_dashVelocity, m_dashSecondsXY.x, m_dashSecondsXY.y);
+			m_animator.SetBool("dash", true);
+			m_audioSource.PlayOneShot(m_dashSFX.RandomWeighted());
 			m_dashAvailable = false;
+		}
+		else if (!HasForcedVelocity) // TODO: take into account other sources of forced velocity?
+		{
+			m_animator.SetBool("dash", false);
 		}
 
 		m_jump = false;
@@ -164,18 +180,18 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 		if (m_aimDir > 0 || (m_aimDir == 0 && move.x >= minMoveDistance))
 		{
-			spriteRenderer.flipX = false;
+			m_spriteRenderer.flipX = false;
 		}
 		else if (m_aimDir < 0 || (m_aimDir == 0 && move.x <= -minMoveDistance))
 		{
-			spriteRenderer.flipX = true;
+			m_spriteRenderer.flipX = true;
 		}
 
-		animator.SetBool("grounded", IsGrounded || m_wasGrounded);
+		m_animator.SetBool("grounded", IsGrounded || m_wasGrounded);
 		m_wasGrounded = IsGrounded;
-		animator.SetBool("wallCling", IsWallClinging);
-		animator.SetBool("aimReverse", m_aimDir != 0 && (velocity.x < 0.0f) != (m_aimDir < 0));
-		animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / (maxSpeed == 0.0f ? 1.0f : maxSpeed));
+		m_animator.SetBool("wallCling", IsWallClinging);
+		m_animator.SetBool("aimReverse", m_aimDir != 0 && (velocity.x < 0.0f) != (m_aimDir < 0)); // NOTE that we compare x-velocity to 0.0 rather than Utility.FloatEpsilon since reverse aim needs to remain stable as velocity decays
+		m_animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / (maxSpeed == 0.0f ? 1.0f : maxSpeed));
 
 		targetVelocity = move * maxSpeed;
 	}
@@ -194,7 +210,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 		DetachAll();
 
-		animator.SetBool("dead", true);
+		m_animator.SetBool("dead", true);
 
 		m_collider.enabled = false;
 		body.simulated = false;

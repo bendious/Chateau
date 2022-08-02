@@ -26,6 +26,9 @@ public sealed class SendMessageValue<InT, OutT>
 
 public static class Utility
 {
+	public const float FloatEpsilon = 0.01f;
+
+
 	public static int Modulo(this int x, int m)
 	{
 		int r = x % m;
@@ -94,7 +97,7 @@ public static class Utility
 	}
 
 	// NOTE that Mathf.Approximately() uses float.Epsilon, which is uselessly strict
-	public static bool FloatEqual(this float a, float b, float epsilon = 0.01f)
+	public static bool FloatEqual(this float a, float b, float epsilon = FloatEpsilon)
 	{
 		return Mathf.Abs(a - b) < epsilon;
 	}

@@ -32,7 +32,7 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 		Color colorNew = GameController.NpcColor(Index);
 		r.color = colorNew;
 		Gradient gradient = GetComponent<Health>().m_gradient;
-		gradient.colorKeys = gradient.colorKeys.Select(key => key.color.ColorsSimilar(colorOrig, 0.01f) ? new GradientColorKey { color = colorNew, time = key.time } : key).ToArray();
+		gradient.colorKeys = gradient.colorKeys.Select(key => key.color.ColorsSimilar(colorOrig, Utility.FloatEpsilon) ? new GradientColorKey { color = colorNew, time = key.time } : key).ToArray();
 	}
 
 

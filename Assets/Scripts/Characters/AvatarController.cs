@@ -58,14 +58,14 @@ public class AvatarController : KinematicCharacter
 
 	public PlayerInput Controls { get; private set; }
 
-	public bool IsAlive => ConsoleCommands.NeverDie || health.IsAlive;
+	public bool IsAlive => ConsoleCommands.NeverDie || m_health.IsAlive;
 
 
 	private float m_lightRadiusOrig;
 	private float m_lightDistanceOrig;
 
 	private JumpState jumpState = JumpState.Grounded;
-	private Health health;
+	private Health m_health;
 
 	private bool controlEnabled = true; // TODO: remove?
 
@@ -115,7 +115,7 @@ public class AvatarController : KinematicCharacter
 		m_focusPrompt.transform.SetParent(null);
 		m_aimObject.transform.SetParent(null);
 
-		health = GetComponent<Health>();
+		m_health = GetComponent<Health>();
 
 		m_aimVfx = GetComponent<VisualEffect>();
 		m_spriteID = Shader.PropertyToID("Sprite");
@@ -710,7 +710,7 @@ public class AvatarController : KinematicCharacter
 		}
 
 		enemy.GetComponent<Health>().Decrement(gameObject, GetComponentInChildren<ArmController>(true).m_swingInfoDefault.m_damage); // TODO: knock back w/o damage? parameterize/vary damage?
-		bool hurt = health.Decrement(enemy.gameObject, enemy.m_contactDamage);
+		bool hurt = m_health.Decrement(enemy.gameObject, enemy.m_contactDamage);
 		if (!hurt)
 		{
 			return;
@@ -736,7 +736,7 @@ public class AvatarController : KinematicCharacter
 			InventorySync();
 		}
 
-		health.Respawn();
+		m_health.Respawn();
 
 		Vector3 spawnPos = gameObject.OriginToCenterY();
 		if (!resetPosition)
@@ -758,8 +758,8 @@ public class AvatarController : KinematicCharacter
 
 		jumpState = JumpState.Grounded;
 
-		animator.SetBool("dead", false);
-		animator.SetTrigger("respawn");
+		m_animator.SetBool("dead", false);
+		m_animator.SetTrigger("respawn");
 
 		ScaleLight(); // TODO: separate OnSceneLoaded()?
 	}
@@ -857,7 +857,7 @@ public class AvatarController : KinematicCharacter
 		}
 
 		DeactivateAllControl();
-		animator.SetTrigger("victory");
+		m_animator.SetTrigger("victory");
 		GetComponent<Health>().m_invincible = true;
 	}
 
@@ -867,7 +867,8 @@ public class AvatarController : KinematicCharacter
 		m_focusIndicator.SetActive(false);
 		m_focusPrompt.gameObject.SetActive(false);
 		StopAiming();
-		// TODO: cancel any in-progress healing/etc?
+		m_health.HealCancel();
+		// TODO: event to allow other delayed actions to self-cancel?
 	}
 
 	// called from animation trigger as well as the EnableControl event
@@ -931,9 +932,9 @@ public class AvatarController : KinematicCharacter
 			case JumpState.Jumping:
 				if (!IsGrounded)
 				{
-					if (audioSource && jumpAudio)
+					if (m_audioSource && jumpAudio)
 					{
-						audioSource.PlayOneShot(jumpAudio);
+						m_audioSource.PlayOneShot(jumpAudio);
 					}
 					jumpState = JumpState.InFlight;
 				}
