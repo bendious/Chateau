@@ -67,6 +67,10 @@ public class ChestController : FurnitureController, IInteractable
 		// activate any pre-spawned keys
 		foreach (GameObject obj in m_prespawnedKeys)
 		{
+			if (obj == null) // NOTE that this is possible if locks have been unlocked via other means (e.g. guesswork, console command)
+			{
+				continue;
+			}
 			obj.SetActive(true);
 		}
 		m_prespawnedKeys.Clear();

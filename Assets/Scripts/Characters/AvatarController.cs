@@ -867,6 +867,7 @@ public class AvatarController : KinematicCharacter
 		m_focusIndicator.SetActive(false);
 		m_focusPrompt.gameObject.SetActive(false);
 		StopAiming();
+		// TODO: cancel any in-progress healing/etc?
 	}
 
 	// called from animation trigger as well as the EnableControl event

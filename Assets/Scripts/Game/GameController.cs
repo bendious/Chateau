@@ -471,7 +471,7 @@ public class GameController : MonoBehaviour
 		{
 			avatar.OnVictory();
 		}
-		m_timerUI.text = "WIN!";
+		m_timerUI.text = null;
 		m_nextWaveTime = -1.0f;
 		StopAllCoroutines(); // TODO: allow ambient music to restart after victory music?
 

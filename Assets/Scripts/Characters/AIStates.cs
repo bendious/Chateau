@@ -236,8 +236,8 @@ public class AIThrow : AIState
 	public float m_waitSeconds = 0.5f;
 
 
-	protected float m_startTime { get; private set; }
-	protected float m_throwTime { get; private set; }
+	protected float StartTime { get; private set; }
+	protected float ThrowTime { get; private set; }
 
 
 	public AIThrow(EnemyController ai)
@@ -247,7 +247,7 @@ public class AIThrow : AIState
 
 	public override void Enter()
 	{
-		m_startTime = Time.time;
+		StartTime = Time.time;
 	}
 
 	public override AIState Update()
@@ -255,29 +255,29 @@ public class AIThrow : AIState
 		m_ai.move = Vector2.zero;
 
 		// pre-throw
-		if (Time.time < m_startTime + m_waitSeconds)
+		if (Time.time < StartTime + m_waitSeconds)
 		{
 			return this;
 		}
 
-		if (m_throwTime == 0.0f)
+		if (ThrowTime == 0.0f)
 		{
 			// aim
 			ItemController item = m_ai.GetComponentInChildren<ItemController>(); // NOTE that we can't cache this since it's possible for it to be snatched away between frames
 			if (item == null)
 			{
-				m_throwTime = Time.time; // NOTE that we could return null in order to immediately cancel, but we instead keep going, as if confused, to reward players for snatching AI items
+				ThrowTime = Time.time; // NOTE that we could return null in order to immediately cancel, but we instead keep going, as if confused, to reward players for snatching AI items
 			}
 			else if (item.Speed < item.m_swingInfo.m_damageThresholdSpeed) // TODO: better aimReady flag?
 			{
 				item.Throw();
-				m_throwTime = Time.time;
+				ThrowTime = Time.time;
 			}
 			return this;
 		}
 
 		// post-throw
-		if (Time.time < m_throwTime + m_waitSeconds)
+		if (Time.time < ThrowTime + m_waitSeconds)
 		{
 			return this;
 		}
@@ -304,11 +304,11 @@ public class AIThrowAll : AIThrow
 	public override AIState Update()
 	{
 		// arm spin during pre-throw
-		m_ai.AimOffsetDegrees = (!m_hasThrown && Time.time < m_startTime + m_waitSeconds) ? (Time.time - m_startTime) * m_spinScalar : 0.0f;
+		m_ai.AimOffsetDegrees = (!m_hasThrown && Time.time < StartTime + m_waitSeconds) ? (Time.time - StartTime) * m_spinScalar : 0.0f;
 
 		AIState retVal = base.Update();
 
-		if (!m_hasThrown && m_throwTime != 0.0f)
+		if (!m_hasThrown && ThrowTime != 0.0f)
 		{
 			foreach (ItemController item in m_ai.GetComponentsInChildren<ItemController>())
 			{
@@ -345,7 +345,7 @@ public sealed class AIThrowAllNarrow : AIThrowAll
 	public override AIState Update()
 	{
 		// arm narrowing during pre-throw
-		m_ai.AimScalar = (!m_hasThrown && Time.time < m_startTime + m_waitSeconds) ? Mathf.Lerp(1.0f, m_narrowingPct, (Time.time - m_startTime) * m_narrowingScalar) : 1.0f;
+		m_ai.AimScalar = (!m_hasThrown && Time.time < StartTime + m_waitSeconds) ? Mathf.Lerp(1.0f, m_narrowingPct, (Time.time - StartTime) * m_narrowingScalar) : 1.0f;
 
 		AIState retVal = base.Update();
 
@@ -473,6 +473,12 @@ public sealed class AIFindAmmo : AIState
 		}
 
 		return this;
+	}
+
+	public override void Exit()
+	{
+		base.Exit();
+		m_ai.m_target = null; // to prevent subsequent states aiming at / attacking items
 	}
 
 
