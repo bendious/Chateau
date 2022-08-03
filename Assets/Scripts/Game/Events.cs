@@ -53,6 +53,28 @@ public class EnableDamage : Event<EnableDamage>
 }
 
 /// <summary>
+/// This event is fired when damage is applied to a Health component.
+/// </summary>
+public class OnHealthDecrement : Event<OnHealthDecrement>
+{
+	public Health m_health;
+	public GameObject m_damageSource;
+
+	public override void Execute() { }
+}
+
+/// <summary>
+/// This event is fired when "fatal" damage is applied to a Health component.
+/// </summary>
+public class OnHealthDeath : Event<OnHealthDeath>
+{
+	public Health m_health;
+	public GameObject m_damageSource;
+
+	public override void Execute() { }
+}
+
+/// <summary>
 /// This event is fired when any game object is destroyed.
 /// </summary>
 public class ObjectDespawn : Event<ObjectDespawn>

@@ -44,6 +44,14 @@ public class EnemyController : KinematicCharacter
 	private float m_dropDecayVel;
 
 
+	protected override void Awake()
+	{
+		base.Awake();
+
+		OnHealthDecrement.OnExecute += OnDamage;
+		OnHealthDeath.OnExecute += OnDeath;
+	}
+
 	protected override void Start()
 	{
 		base.Start();
@@ -176,12 +184,23 @@ public class EnemyController : KinematicCharacter
 	}
 #endif
 
-
-	public override void OnDamage(GameObject source)
+	protected override void OnDestroy()
 	{
-		base.OnDamage(source);
+		base.OnDestroy();
 
-		AIState stateNew = m_aiState?.OnDamage(source);
+		OnHealthDecrement.OnExecute -= OnDamage;
+		OnHealthDeath.OnExecute -= OnDeath;
+	}
+
+
+	private void OnDamage(OnHealthDecrement evt)
+	{
+		if (evt.m_health.gameObject != gameObject)
+		{
+			return;
+		}
+
+		AIState stateNew = m_aiState?.OnDamage(evt.m_damageSource);
 		if (stateNew != m_aiState)
 		{
 			// NOTE that we can't split this across frames since we might not get another Update() call due to death
@@ -194,16 +213,13 @@ public class EnemyController : KinematicCharacter
 		}
 	}
 
-	public override bool OnDeath()
+	private void OnDeath(OnHealthDeath evt)
 	{
-		if (!base.OnDeath())
+		if (evt.m_health.gameObject != gameObject)
 		{
-			return false;
+			return;
 		}
-
 		enabled = false;
-
-		return true;
 	}
 
 

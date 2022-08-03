@@ -27,12 +27,7 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 
 		// set NPC appearance
 		// TODO: move elsewhere?
-		SpriteRenderer r = GetComponent<SpriteRenderer>();
-		Color colorOrig = r.color;
-		Color colorNew = GameController.NpcColor(Index);
-		r.color = colorNew;
-		Gradient gradient = GetComponent<Health>().m_gradient;
-		gradient.colorKeys = gradient.colorKeys.Select(key => key.color.ColorsSimilar(colorOrig, Utility.FloatEpsilon) ? new GradientColorKey { color = colorNew, time = key.time } : key).ToArray();
+		GetComponent<SpriteRenderer>().color = GameController.NpcColor(Index);
 	}
 
 

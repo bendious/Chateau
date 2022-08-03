@@ -110,7 +110,17 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		m_spriteRenderer = GetComponent<SpriteRenderer>();
 		m_animator = GetComponent<Animator>();
 		m_audioSource = GetComponent<AudioSource>();
+
+		OnHealthDecrement.OnExecute += OnDamage;
+		OnHealthDeath.OnExecute += OnDeath;
 	}
+
+	protected virtual void OnDestroy()
+	{
+		OnHealthDecrement.OnExecute -= OnDamage;
+		OnHealthDeath.OnExecute -= OnDeath;
+	}
+
 
 	protected override void ComputeVelocity()
 	{
@@ -197,15 +207,25 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	}
 
 
-	public virtual void OnDamage(GameObject source)
+	private void OnDamage(OnHealthDecrement evt)
 	{
+		if (evt.m_health.gameObject != gameObject)
+		{
+			return;
+		}
+
 		// knock away from source
-		Vector2 bounceVecOriented = transform.position.x < source.transform.position.x ? new(-m_damageBounceMagnitude.x, m_damageBounceMagnitude.y) : m_damageBounceMagnitude;
+		Vector2 bounceVecOriented = transform.position.x < evt.m_damageSource.transform.position.x ? new(-m_damageBounceMagnitude.x, m_damageBounceMagnitude.y) : m_damageBounceMagnitude;
 		Bounce(bounceVecOriented);
 	}
 
-	public virtual bool OnDeath()
+	private void OnDeath(OnHealthDeath evt)
 	{
+		if (evt.m_health.gameObject != gameObject)
+		{
+			return;
+		}
+
 		// TODO: early-out if already dead?
 
 		DetachAll();
@@ -213,11 +233,9 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		m_animator.SetBool("dead", true);
 
 		m_collider.enabled = false;
-		body.simulated = false;
+		body.simulated = false; // TODO: continue simulating physics movement?
 
 		Bounce(Vector2.zero); // to remove any current forced input
-
-		return true;
 	}
 
 	public bool ChildAttach(IAttachable attachee)

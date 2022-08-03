@@ -129,19 +129,17 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	private void OnCollisionStay2D(Collision2D collision)
 	{
-		List<ContactPoint2D> contacts = new();
-		int contactCount = collision.GetContacts(contacts);
-		ProcessCollision(collision.collider, collision.rigidbody, collision.relativeVelocity, collision.otherCollider, collision.otherRigidbody, contacts, contactCount);
+		OnCollisionEnter2D(collision);
 	}
 
 	private void OnTriggerEnter2D(Collider2D collider)
 	{
-		ProcessCollision(collider, collider.attachedRigidbody, m_body.velocity, m_colliders.First(), m_body, null, 0); // TODO: better guess at which m_colliders[] entry is involved?
+		ProcessCollision(collider, collider.attachedRigidbody, m_body.velocity, m_colliders.OrderBy(c => Vector2.Distance(c.bounds.center, collider.bounds.center)).First(), m_body, null, 0); // TODO: better guess at which m_colliders[] entry is involved?
 	}
 
 	private void OnTriggerStay2D(Collider2D collider)
 	{
-		ProcessCollision(collider, collider.attachedRigidbody, m_body.velocity, m_colliders.First(), m_body, null, 0); // TODO: better guess at which m_colliders[] entry is involved?
+		OnTriggerEnter2D(collider);
 	}
 
 

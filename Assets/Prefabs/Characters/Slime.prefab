@@ -181,13 +181,14 @@ MonoBehaviour:
   m_minWallClingNormalY: 3.4028235e+38
   gravityModifier: 1
   m_wallClingGravityScalar: 0.1
-  m_velocityForcedSmoothTimes: {x: 0.25, y: 0.1}
   velocity: {x: 0, y: 0}
   maxSpeed: 2
   jumpTakeOffSpeed: 10
   m_wallJumpDegrees: 45
   m_jumpDeceleration: 0.5
   m_dashVelocity: {x: 15, y: 0}
+  m_dashSecondsXY: {x: 0.2, y: 0.2}
+  m_dashSFX: []
   m_damageBounceMagnitude: {x: 7, y: 0}
   m_armOffset: {x: 0, y: 0}
   move: {x: 0, y: 0}
@@ -328,6 +329,7 @@ MonoBehaviour:
   m_deathAudio: {fileID: 8300000, guid: b7f741588644cd64bbee6387cb54a96d, type: 3}
   m_invincibilityTime: 0
   m_invincible: 0
+  m_gradientActive: 1
   m_gradient:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 1, a: 1}

@@ -352,11 +352,11 @@ public abstract class KinematicObject : MonoBehaviour
 		{
 			if (m_avatar != null)
 			{
-				m_avatar.OnDeath();
+				m_avatar.Teleport(Vector3.zero); // TODO: better handling?
 			}
 			else
 			{
-				DespawnSelf();
+				DespawnSelf(); // TODO: ensure important objects such as keys aren't despawned?
 			}
 		}
 	}

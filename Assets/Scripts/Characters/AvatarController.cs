@@ -130,6 +130,8 @@ public class AvatarController : KinematicCharacter
 		Controls = GetComponent<PlayerInput>();
 		Controls.actions.FindActionMap("AlwaysOn").Enable();
 
+		OnHealthDecrement.OnExecute += OnDamage;
+		OnHealthDeath.OnExecute += OnDeath;
 		ObjectDespawn.OnExecute += OnObjectDespawn;
 
 		Light2D light = GetComponent<Light2D>();
@@ -302,9 +304,13 @@ public class AvatarController : KinematicCharacter
 		m_focusPrompt.gameObject.SetActive(focusCanInteract);
 	}
 
-	private void OnDestroy()
+	protected override void OnDestroy()
 	{
+		base.OnDestroy();
+
 		DetachAll();
+		OnHealthDecrement.OnExecute -= OnDamage;
+		OnHealthDeath.OnExecute -= OnDeath;
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
 
 		if (GameController.IsSceneLoad) // NOTE that this is more about application shutdown than scene-to-scene load
@@ -646,9 +652,12 @@ public class AvatarController : KinematicCharacter
 		GameController.Instance.TogglePause();
 	}
 
-	public override void OnDamage(GameObject source)
+	private void OnDamage(OnHealthDecrement evt)
 	{
-		base.OnDamage(source);
+		if (evt.m_health.gameObject != gameObject)
+		{
+			return;
+		}
 
 		// forcibly exit overlay/inventory if active
 		if (m_overlayCanvas.gameObject.activeSelf)
@@ -661,11 +670,11 @@ public class AvatarController : KinematicCharacter
 		}
 	}
 
-	public override bool OnDeath()
+	private void OnDeath(OnHealthDeath evt)
 	{
-		if (ConsoleCommands.NeverDie || !base.OnDeath())
+		if (evt.m_health.gameObject != gameObject)
 		{
-			return false;
+			return;
 		}
 
 		DeactivateAllControl();
@@ -683,8 +692,6 @@ public class AvatarController : KinematicCharacter
 
 			Simulation.Schedule<AvatarRespawn>(m_respawnSeconds).m_avatar = this;
 		}
-
-		return true;
 	}
 
 	public override bool CanDamage(GameObject target)
