@@ -5,7 +5,9 @@ labels:
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - m_spriteUnlocked: {fileID: 21300000, guid: 95b97ae279ec6bc42ba66b13c03d41a5, type: 3}
+  - m_spriteOpen: {fileID: 21300000, guid: 004eeb2339ed10c47aca6bd10e6c5a90, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

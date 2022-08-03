@@ -43,6 +43,7 @@ public class GameController : MonoBehaviour
 	[SerializeField] private WeightedObject<NpcDialogue>[] m_npcAttitudes;
 	public GameObject[] m_doorInteractPrefabs;
 
+	public bool m_allowHiddenDestructibles = true;
 	public bool m_allowCutbacks = true;
 	[SerializeField] private bool m_waveSealing = false;
 	public float m_zoneScalar = 1.0f;

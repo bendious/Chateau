@@ -15,6 +15,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: Painting1
       objectReference: {fileID: 0}
+    - target: {fileID: 7399987855739166497, guid: 9bc35a99190ef604596b1767a2105127, type: 3}
+      propertyPath: m_Size.x
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7399987855739166497, guid: 9bc35a99190ef604596b1767a2105127, type: 3}
+      propertyPath: m_Size.y
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7399987855739166497, guid: 9bc35a99190ef604596b1767a2105127, type: 3}
+      propertyPath: m_Offset.y
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7399987855739166497, guid: 9bc35a99190ef604596b1767a2105127, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7399987855739166497, guid: 9bc35a99190ef604596b1767a2105127, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 0.8
+      objectReference: {fileID: 0}
     - target: {fileID: 8511431466954729088, guid: 9bc35a99190ef604596b1767a2105127, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -80,4 +100,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_colorMin: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_colorMax: {r: 1, g: 1, b: 1, a: 1}
-  m_proportionalColor: 0
+  m_proportional: 0

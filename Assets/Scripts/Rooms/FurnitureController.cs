@@ -12,6 +12,8 @@ public class FurnitureController : MonoBehaviour
 	[SerializeField] private Vector2 m_sizeMin = new(1.0f, 0.25f);
 	[SerializeField] private Vector2 m_sizeMax = new(4.0f, 0.5f);
 
+	[SerializeField] private SpriteRenderer[] m_childRenderers;
+
 	// NOTE that these weights are multiplied by RoomTypes'
 	[SerializeField] private WeightedObject<GameObject>[] m_itemPrefabs;
 	[SerializeField] private WeightedObject<GameObject>[] m_itemRarePrefabs;
@@ -31,16 +33,27 @@ public class FurnitureController : MonoBehaviour
 
 		// apply size evenly across pieces
 		// TODO: don't assume even stacking?
-		SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>();
-		float heightPiece = heightTotal / renderers.Length;
+		float heightPiece = heightTotal / (m_childRenderers.Length + 1);
 		Vector2 sizePiece = new(width, heightPiece);
 
-		float heightItr = renderers.First().transform.localPosition.y;
-		foreach (SpriteRenderer renderer in renderers)
+		float heightItr = transform.localPosition.y;
+		foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>())
 		{
+			BoxCollider2D boxCollider = renderer.GetComponent<BoxCollider2D>(); // TODO: handle resizing other types of colliders?
+			if (renderer.gameObject != gameObject && !m_childRenderers.Contains(renderer))
+			{
+				// only resize width
+				// TODO: preserve ratio?
+				renderer.size = new(width, renderer.size.y);
+				if (boxCollider != null)
+				{
+					boxCollider.size = new(width, boxCollider.size.y);
+				}
+				continue;
+			}
+
 			Transform tf = renderer.transform;
 			tf.localPosition = new(tf.localPosition.x, heightItr, tf.localPosition.z);
-			BoxCollider2D boxCollider = tf.GetComponent<BoxCollider2D>(); // TODO: handle resizing other types of colliders?
 			Vector2 colliderSizeDiff = boxCollider == null ? Vector2.zero : renderer.size - boxCollider.size;
 
 			renderer.size = sizePiece;
@@ -70,7 +83,7 @@ public class FurnitureController : MonoBehaviour
 
 		System.Collections.Generic.Queue<GameObject> itemsNext = null; // TODO: share across instances of the same type in the same room?
 		Vector3 size = GetComponent<Collider2D>().bounds.size; // NOTE that the collider likely hasn't updated its position, but the size should be valid
-		int numPlatforms = GetComponentsInChildren<SpriteRenderer>().Length; // TODO: decouple?
+		int numPlatforms = (m_childRenderers.Length + 1);
 		float extentX = size.x * 0.5f;
 		for (int i = 0; i < itemCount; ++i)
 		{
@@ -89,7 +102,7 @@ public class FurnitureController : MonoBehaviour
 	public virtual GameObject SpawnKey(GameObject prefab)
 	{
 		Vector3 size = GetComponent<Collider2D>().bounds.size; // NOTE that the collider likely hasn't updated its position, but the size should be valid
-		Vector3 spawnPos = ItemSpawnPositionInternal(prefab, size.x * 0.5f, size.y, GetComponentsInChildren<SpriteRenderer>().Length);
+		Vector3 spawnPos = ItemSpawnPositionInternal(prefab, size.x * 0.5f, size.y, (m_childRenderers.Length + 1));
 		return prefab.GetComponent<ISavable>() == null ? Instantiate(prefab, spawnPos, Quaternion.identity) : GameController.Instance.m_savableFactory.Instantiate(prefab, spawnPos, Quaternion.identity);
 	}
 

@@ -122,12 +122,26 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	// TODO: combine w/ ArmController version?
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		ProcessCollision(collision);
+		List<ContactPoint2D> contacts = new();
+		int contactCount = collision.GetContacts(contacts);
+		ProcessCollision(collision.collider, collision.rigidbody, collision.relativeVelocity, collision.otherCollider, collision.otherRigidbody, contacts, contactCount);
 	}
 
 	private void OnCollisionStay2D(Collision2D collision)
 	{
-		ProcessCollision(collision);
+		List<ContactPoint2D> contacts = new();
+		int contactCount = collision.GetContacts(contacts);
+		ProcessCollision(collision.collider, collision.rigidbody, collision.relativeVelocity, collision.otherCollider, collision.otherRigidbody, contacts, contactCount);
+	}
+
+	private void OnTriggerEnter2D(Collider2D collider)
+	{
+		ProcessCollision(collider, collider.attachedRigidbody, m_body.velocity, m_colliders.First(), m_body, null, 0); // TODO: better guess at which m_colliders[] entry is involved?
+	}
+
+	private void OnTriggerStay2D(Collider2D collider)
+	{
+		ProcessCollision(collider, collider.attachedRigidbody, m_body.velocity, m_colliders.First(), m_body, null, 0); // TODO: better guess at which m_colliders[] entry is involved?
 	}
 
 
@@ -359,7 +373,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		m_trail.widthCurve = AnimationCurve.EaseInOut(0.0f, compareFunc(m_trailSizes.x, m_trailSizes.y), 1.0f, 0.0f);
 	}
 
-	private void ProcessCollision(Collision2D collision)
+	private void ProcessCollision(Collider2D collider, Rigidbody2D rigidbody, Vector2 relativeVelocity, Collider2D otherCollider, Rigidbody2D otherRigidbody, List<ContactPoint2D> contacts, int contactCount) // NOTE the separate contactCount since Collision2D.GetContacts() can have null end entries
 	{
 		if (!gameObject.activeSelf) // e.g. we're a bomb that has just gone off
 		{
@@ -368,12 +382,12 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 		// if still and supported, set our layer to whatever we're resting on and sleep
 		// TODO: better logic for determining when about to sleep? don't assume only one collision at a time?
-		GameObject mainObj = collision.rigidbody == null ? collision.gameObject : collision.rigidbody.gameObject;
+		GameObject mainObj = rigidbody == null ? collider.gameObject : rigidbody.gameObject;
 		KinematicObject kinematicObj = mainObj.GetComponent<KinematicObject>();
-		float collisionSpeed = (collision.relativeVelocity + (kinematicObj == null ? Vector2.zero : -kinematicObj.velocity)).magnitude + Speed;
+		float collisionSpeed = (relativeVelocity + (kinematicObj == null ? Vector2.zero : -kinematicObj.velocity)).magnitude + Speed;
 		if (collisionSpeed < Physics2D.linearSleepTolerance)
 		{
-			ContactPoint2D supportingContact = collision.contacts.FirstOrDefault(contact => contact.normal.y > 0.0f); // TODO: handle multiple supporting contacts? better support angle?
+			ContactPoint2D supportingContact = contacts == null ? default : contacts.FirstOrDefault(contact => contact.normal.y > 0.0f); // TODO: handle multiple supporting contacts? better support angle?
 			if (supportingContact.collider != null)
 			{
 				gameObject.layer = supportingContact.collider.gameObject.layer;
@@ -382,7 +396,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			return;
 		}
 
-		if ((kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, false, 0.0f, null)) || collision.collider.transform.root == transform.root)
+		if ((kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, false, 0.0f, null)) || collider.transform.root == transform.root)
 		{
 			return;
 		}
@@ -392,7 +406,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		Health otherHealth = mainObj.GetComponent<Health>();
 		if (!isDetached && otherHealth == null)
 		{
-			if (collision.rigidbody == null || collision.rigidbody.bodyType != RigidbodyType2D.Dynamic)
+			if (rigidbody == null || rigidbody.bodyType != RigidbodyType2D.Dynamic)
 			{
 				return;
 			}
@@ -400,7 +414,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 		// maybe attach to character
 		// TODO: extend to BackpackController as well?
-		bool canDamage = Cause != null && Cause.CanDamage(mainObj) && !m_nondamageColliders.Contains(collision.otherCollider);
+		bool canDamage = Cause != null && Cause.CanDamage(mainObj) && !m_nondamageColliders.Contains(otherCollider);
 		KinematicCharacter character = kinematicObj as KinematicCharacter; // NOTE that this works since objects shouldn't ever have multiple different KinematicObject-derived components
 		if (isDetached && !canDamage) // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus or if it is a secondary (non-damaging) collider making collision
 		{
@@ -416,8 +430,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		{
 			if (m_audioSource.enabled)
 			{
-				PhysicsMaterial2D material1 = collision.collider.sharedMaterial != null || collision.rigidbody == null ? collision.collider.sharedMaterial : collision.rigidbody.sharedMaterial;
-				PhysicsMaterial2D material2 = collision.otherCollider.sharedMaterial != null || collision.otherRigidbody == null ? collision.otherCollider.sharedMaterial : collision.otherRigidbody.sharedMaterial;
+				PhysicsMaterial2D material1 = collider.sharedMaterial != null || rigidbody == null ? collider.sharedMaterial : rigidbody.sharedMaterial;
+				PhysicsMaterial2D material2 = otherCollider.sharedMaterial != null || otherRigidbody == null ? otherCollider.sharedMaterial : otherRigidbody.sharedMaterial;
 				m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.PairBestMatch(material1, material2).RandomCollisionAudio());
 			}
 
@@ -436,7 +450,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 				{
 					Detach(true);
 				}
-				ItemController otherItem = collision.collider.GetComponent<ItemController>();
+				ItemController otherItem = collider.GetComponent<ItemController>();
 				if (otherItem != null && otherItem.m_detachOnDamage)
 				{
 					otherItem.Detach(true);
@@ -462,8 +476,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			SetCause(character);
 			EnableVFXAndDamage(); // mostly to prevent m_cause from remaining set and allowing damage if run into fast enough
 		}
-		List<ContactPoint2D> contacts = new();
-		int contactCount = collision.GetContacts(contacts);
 		for (int i = 0; i < contactCount; ++i) // NOTE that we can't use foreach() since GetContacts() can have null end entries
 		{
 			ContactPoint2D pos = contacts[i];

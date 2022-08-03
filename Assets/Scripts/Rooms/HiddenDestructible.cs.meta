@@ -1,10 +1,12 @@
 fileFormatVersion: 2
-guid: ea99a6f75da1568449a2048453638a9d
+guid: e7ab9a2d40f30d44f84d32538a2c965e
+labels:
+- Architecture
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - m_audioOutro: {fileID: 8300000, guid: 7392dd28435646f4c8c9bbf84154c707, type: 3}
+  - m_hiddenPrefab: {fileID: 3555861821833049639, guid: 2bdd4fb54c65f1c4883b62708c428588, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

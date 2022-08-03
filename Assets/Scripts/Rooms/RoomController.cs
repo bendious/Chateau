@@ -69,6 +69,8 @@ public class RoomController : MonoBehaviour
 		return (m_bounds.max.y > 0.0f) ? childBackdrops.Concat(new Transform[] { m_backdrop.transform }) : childBackdrops;
 	} }
 
+	public RoomType RoomType { get; private set; }
+
 
 	[System.Serializable]
 	private class DoorwayInfo
@@ -176,7 +178,6 @@ public class RoomController : MonoBehaviour
 
 	private /*readonly*/ GameObject[] m_spawnPoints;
 
-	private /*readonly*/ RoomType m_roomType = null;
 	private /*readonly*/ RoomType.SpriteInfo m_wallInfo;
 	private /*readonly*/ Color m_wallColor;
 
@@ -221,9 +222,9 @@ public class RoomController : MonoBehaviour
 		}
 
 		Vector3 centerPosItr = m_bounds.center;
-		if (m_roomType != null)
+		if (RoomType != null)
 		{
-			UnityEditor.Handles.Label(centerPosItr, m_roomType.ToString()); // TODO: prevent drift from Scene camera?
+			UnityEditor.Handles.Label(centerPosItr, RoomType.ToString()); // TODO: prevent drift from Scene camera?
 		}
 
 		foreach (LayoutGenerator.Node node in m_layoutNodes)
@@ -411,7 +412,7 @@ public class RoomController : MonoBehaviour
 		// room type
 		// TODO: more deliberate choice?
 		List<float> weightsScaled = new();
-		m_roomType = (m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret) ? GameController.Instance.m_roomTypesSecret : GameController.Instance.m_roomTypes).Where(type =>
+		RoomType = (m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret) ? GameController.Instance.m_roomTypesSecret : GameController.Instance.m_roomTypes).Where(type =>
 		{
 			float weightScaled = type.m_weight;
 			if (type.m_object.m_preconditionNames == null)
@@ -434,9 +435,9 @@ public class RoomController : MonoBehaviour
 		}).Select(weightedObj => weightedObj.m_object).RandomWeighted(weightsScaled);
 
 		// backdrop
-		if (m_roomType.m_backdrops != null && m_roomType.m_backdrops.Length > 0)
+		if (RoomType.m_backdrops != null && RoomType.m_backdrops.Length > 0)
 		{
-			RoomType.SpriteInfo backdrop = m_roomType.m_backdrops.RandomWeighted();
+			RoomType.SpriteInfo backdrop = RoomType.m_backdrops.RandomWeighted();
 			SpriteRenderer renderer = m_backdrop.GetComponent<SpriteRenderer>();
 			renderer.sprite = backdrop.m_sprite;
 			renderer.color = Utility.ColorRandom(backdrop.m_colorMin, backdrop.m_colorMax, backdrop.m_proportionalColor);
@@ -451,7 +452,7 @@ public class RoomController : MonoBehaviour
 		{
 			areaParent = areaParents.First();
 		}
-		m_wallInfo = areaParent.m_wallInfo ?? (m_roomType.m_walls != null && m_roomType.m_walls.Length > 0 ? m_roomType.m_walls.RandomWeighted() : new RoomType.SpriteInfo());
+		m_wallInfo = areaParent.m_wallInfo ?? (RoomType.m_walls != null && RoomType.m_walls.Length > 0 ? RoomType.m_walls.RandomWeighted() : new RoomType.SpriteInfo());
 		m_wallColor = isAreaInit ? Utility.ColorRandom(m_wallInfo.m_colorMin, m_wallInfo.m_colorMax, m_wallInfo.m_proportionalColor) : areaParent.m_wallColor;
 		if (m_wallInfo.m_sprite != null)
 		{
@@ -538,12 +539,12 @@ public class RoomController : MonoBehaviour
 				case LayoutGenerator.Node.Type.TutorialLook:
 				case LayoutGenerator.Node.Type.TutorialDrop:
 				case LayoutGenerator.Node.Type.TutorialDash:
-					RoomType.DecorationInfo info = m_roomType.m_decorations[node.m_type - LayoutGenerator.Node.Type.TutorialPlatforms].m_object;
+					RoomType.DecorationInfo info = RoomType.m_decorations[node.m_type - LayoutGenerator.Node.Type.TutorialPlatforms].m_object;
 					GameObject prefab = info.m_prefab;
 					Instantiate(prefab, InteriorPosition(info.m_heightMin, info.m_heightMax, prefab), info.m_rotationDegreesMax != 0.0f ? Quaternion.Euler(0.0f, 0.0f, Random.Range(-info.m_rotationDegreesMax, info.m_rotationDegreesMax)) : Quaternion.identity, transform);
 					if (node.m_type == LayoutGenerator.Node.Type.TutorialInteract && (GameController.Instance.m_avatars == null || !GameController.Instance.m_avatars.Any(avatar => avatar.GetComponentInChildren<ItemController>(true) != null)))
 					{
-						prefab = m_roomType.m_itemPrefabs.RandomWeighted(); // TODO: spawn on table
+						prefab = RoomType.m_itemPrefabs.RandomWeighted(); // TODO: spawn on table
 						GameController.Instance.m_savableFactory.Instantiate(prefab, InteriorPosition(0.0f), Quaternion.identity);
 					}
 					break;
@@ -579,9 +580,9 @@ public class RoomController : MonoBehaviour
 		// spawn furniture
 		// NOTE that this has to be before keys to allow spawning them on furniture
 		List<System.Tuple<FurnitureController, IUnlockable>> furnitureList = new();
-		while (m_roomType.m_furniturePrefabs.Length > 0 && fillPct < m_roomType.m_fillPctMin)
+		while (RoomType.m_furniturePrefabs.Length > 0 && fillPct < RoomType.m_fillPctMin)
 		{
-			FurnitureController furniture = Instantiate(m_roomType.m_furniturePrefabs.RandomWeighted(), transform).GetComponent<FurnitureController>(); // NOTE that we have to spawn before placement due to potential size randomization
+			FurnitureController furniture = Instantiate(RoomType.m_furniturePrefabs.RandomWeighted(), transform).GetComponent<FurnitureController>(); // NOTE that we have to spawn before placement due to potential size randomization
 			Vector2 extentsEffective = extentsInterior * (1.0f - fillPct);
 			float width = furniture.RandomizeSize(extentsEffective);
 			furniture.transform.position = InteriorPosition(0.0f, furniture.gameObject, () => width = furniture.RandomizeSize(extentsEffective), () =>
@@ -616,7 +617,7 @@ public class RoomController : MonoBehaviour
 		int furnitureRemaining = furnitureList.Count - 1;
 		foreach (System.Tuple<FurnitureController, IUnlockable> furniture in furnitureList)
 		{
-			itemCount += furniture.Item1.SpawnItems(m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.BonusItems), m_roomType, itemCount, furnitureRemaining);
+			itemCount += furniture.Item1.SpawnItems(m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.BonusItems), RoomType, itemCount, furnitureRemaining);
 			--furnitureRemaining;
 
 			if (furniture.Item2 != null)
@@ -642,13 +643,13 @@ public class RoomController : MonoBehaviour
 
 		// spawn decoration(s)
 		// TODO: prioritize by area? take fillPct into account?
-		int numDecorations = Random.Range(m_roomType.m_decorationsMin, m_roomType.m_decorationsMax + 1);
-		float[] decorationTypeHeights = Enumerable.Repeat(float.MinValue, m_roomType.m_decorations.Length).ToArray(); // TODO: allow similar decoration types to share heights? share between rooms?
+		int numDecorations = Random.Range(RoomType.m_decorationsMin, RoomType.m_decorationsMax + 1);
+		float[] decorationTypeHeights = Enumerable.Repeat(float.MinValue, RoomType.m_decorations.Length).ToArray(); // TODO: allow similar decoration types to share heights? share between rooms?
 		float roomHeight = extentsInterior.y * 2.0f;
 		for (int i = 0; i < numDecorations; ++i)
 		{
-			RoomType.DecorationInfo decoInfo = m_roomType.m_decorations.RandomWeighted();
-			int decoIdx = System.Array.FindIndex(m_roomType.m_decorations, weightedInfo => weightedInfo.m_object == decoInfo); // TODO: efficiency?
+			RoomType.DecorationInfo decoInfo = RoomType.m_decorations.RandomWeighted();
+			int decoIdx = System.Array.FindIndex(RoomType.m_decorations, weightedInfo => weightedInfo.m_object == decoInfo); // TODO: efficiency?
 			float height = decorationTypeHeights[decoIdx];
 			if (height == float.MinValue)
 			{
@@ -787,7 +788,7 @@ public class RoomController : MonoBehaviour
 		Vector3 spawnPos = isItem ? Vector3.zero : InteriorPosition(nonitemHeightMax, prefab); // TODO: prioritize placing non-items close to self if multiple in this room?
 		if (isItem)
 		{
-			IEnumerable<FurnitureController> validFurniture = transform.GetComponentsInChildren<FurnitureController>();
+			IEnumerable<FurnitureController> validFurniture = transform.GetComponentsInChildren<FurnitureController>(true);
 			if (noLock)
 			{
 				// TODO: encourage keys w/i locks as long as no cycles form?
