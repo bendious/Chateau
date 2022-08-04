@@ -24,7 +24,8 @@ public class RoomController : MonoBehaviour
 	[SerializeField] private WeightedObject<GameObject>[] m_doorBreakablePrefabs;
 	[SerializeField] private WeightedObject<GameObject>[] m_doorSecretPrefabs;
 	[SerializeField] private GameObject[] m_lockOrderedPrefabs;
-	[SerializeField] private WeightedObject<GameObject>[] m_exteriorAbovePrefabs;
+	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsAbove;
+	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsBelow;
 
 	public GameObject m_doorSealVFX;
 
@@ -56,18 +57,22 @@ public class RoomController : MonoBehaviour
 
 	public GameObject[] DoorwaysUpwardUnblocked => m_doorwayInfos.Where(info => !info.m_onewayBlocked && info.IsOpen() && info.DirectionOutward() == Vector2.up).Select(info => info.m_object).ToArray();
 
+	public /*readonly*/ Bounds Bounds { get; private set; }
+
 	public Bounds BoundsInterior { get {
-		Bounds boundsInterior = m_bounds; // NOTE the copy since Expand() modifies the given struct
+		Bounds boundsInterior = Bounds; // NOTE the copy since Expand() modifies the given struct
 		boundsInterior.Expand(new Vector3(-1.0f, -1.0f, float.MaxValue)); // TODO: dynamically determine wall thickness?
 		return boundsInterior;
 	} }
 
 	public Vector2 ParentDoorwayPosition => Connection(m_doorwayInfos.Select(info => info.ParentRoom).First(parentRoom => parentRoom != null), ObstructionCheck.None, Vector2.zero)[1];
 
+	public IEnumerable<RoomController> WithDescendants => new RoomController[] { this }.Concat(m_doorwayInfos.Where(info => info.ChildRoom != null).SelectMany(info => info.ChildRoom.WithDescendants)); // TODO: efficiency?
+
 	public IEnumerable<Transform> BackdropsAboveGroundRecursive
 	{ get {
 		IEnumerable<Transform> childBackdrops = m_doorwayInfos.Where(info => info.ChildRoom != null).SelectMany(info => info.ChildRoom.BackdropsAboveGroundRecursive);
-		return (m_bounds.max.y > 0.0f) ? childBackdrops.Concat(new Transform[] { m_backdrop.transform }) : childBackdrops;
+		return (Bounds.max.y > 0.0f) ? childBackdrops.Concat(new Transform[] { m_backdrop.transform }) : childBackdrops;
 	} }
 
 	public RoomType RoomType { get; private set; }
@@ -173,8 +178,6 @@ public class RoomController : MonoBehaviour
 	[SerializeField]
 	private /*readonly*/ DoorwayInfo[] m_doorwayInfos;
 
-	private /*readonly*/ Bounds m_bounds;
-
 	private /*readonly*/ LayoutGenerator.Node[] m_layoutNodes;
 
 	private /*readonly*/ GameObject[] m_spawnPoints;
@@ -200,7 +203,7 @@ public class RoomController : MonoBehaviour
 
 	private void Awake()
 	{
-		m_bounds = m_backdrop.GetComponent<SpriteRenderer>().bounds;
+		Bounds = m_backdrop.GetComponent<SpriteRenderer>().bounds;
 		ObjectDespawn.OnExecute += OnObjectDespawn;
 	}
 
@@ -225,7 +228,7 @@ public class RoomController : MonoBehaviour
 			return;
 		}
 
-		Vector3 centerPosItr = m_bounds.center;
+		Vector3 centerPosItr = Bounds.center;
 		if (RoomType != null)
 		{
 			UnityEditor.Handles.Label(centerPosItr, RoomType.ToString()); // TODO: prevent drift from Scene camera?
@@ -677,17 +680,40 @@ public class RoomController : MonoBehaviour
 				renderer.flipX = Random.Range(0, 2) != 0;
 			}
 		}
+	}
 
-		// spawn exterior decorations
-		Vector3 spawnPosAbove = m_bounds.center;
-		spawnPosAbove.y = m_bounds.max.y;
-		bool hasSpaceAbove = transform.position.y >= 0.0f && Physics2D.OverlapArea(spawnPosAbove + new Vector3(-m_bounds.extents.x + m_physicsCheckEpsilon, m_physicsCheckEpsilon), spawnPosAbove + new Vector3(m_bounds.extents.x - m_physicsCheckEpsilon, 1.0f/*?*/)) == null; // TODO: efficiency? allow partial-coverage decorations for wide rooms only half covered above?
-		if (hasSpaceAbove)
+	public void FinalizeTopDown(float widthIncrement)
+	{
+		// shared logic
+		float widthIncrementHalf = widthIncrement * 0.5f;
+		void TrySpawningExteriorDecoration(WeightedObject<GameObject>[] prefabs, Vector3 position, float heightOverride, bool isBelow)
 		{
-			SpriteRenderer renderer = Instantiate(m_exteriorAbovePrefabs.RandomWeighted(), spawnPosAbove, transform.rotation, transform).GetComponent<SpriteRenderer>();
-			renderer.size = new(m_bounds.size.x, renderer.size.y);
+			bool hasSpace = position.y > 0.0f && Physics2D.OverlapArea(position + new Vector3(-widthIncrementHalf + m_physicsCheckEpsilon, isBelow ? -m_physicsCheckEpsilon : m_physicsCheckEpsilon), position + new Vector3(widthIncrementHalf - m_physicsCheckEpsilon, isBelow ? -1.0f : 1.0f)) == null; // TODO: efficiency? more nuanced height check?
+			if (!hasSpace)
+			{
+				return;
+			}
+
+			SpriteRenderer renderer = Instantiate(prefabs.RandomWeighted(), position, transform.rotation, transform).GetComponent<SpriteRenderer>();
+			renderer.size = new(widthIncrement, heightOverride >= 0.0f ? heightOverride : renderer.size.y);
+			BoxCollider2D collider = renderer.GetComponent<BoxCollider2D>();
+			collider.size = renderer.size;
+			collider.offset = new(collider.offset.x, collider.size.y * (isBelow ? -0.5f : 0.5f));
 		}
-		// TODO: exterior below decorations
+
+		// try to spawn exterior decorations
+		// TODO: more deliberate choices? combine adjacent instantiations when possible?
+		for (int i = 0, n = Mathf.RoundToInt(Bounds.size.x / widthIncrement); i < n; ++i)
+		{
+			// above
+			Vector3 exteriorPos = new(Bounds.min.x + widthIncrementHalf + widthIncrement * i, Bounds.max.y, Bounds.center.z);
+			TrySpawningExteriorDecoration(m_exteriorPrefabsAbove, exteriorPos, -1.0f, false);
+
+			// below
+			exteriorPos.y = Bounds.min.y;
+			RaycastHit2D raycast = Physics2D.Raycast(exteriorPos + Vector3.down * m_physicsCheckEpsilon, Vector2.down, transform.position.y);
+			TrySpawningExteriorDecoration(m_exteriorPrefabsBelow, exteriorPos, raycast.distance == 0.0f ? transform.position.y : raycast.distance + m_physicsCheckEpsilon, true);
+		}
 	}
 
 	public RoomController FromPosition(Vector2 position)
@@ -702,7 +728,7 @@ public class RoomController : MonoBehaviour
 		{
 			// find matching room from descendants
 			Vector3 pos3D = position;
-			pos3D.z = m_bounds.center.z; // TODO: don't assume that all rooms share depth?
+			pos3D.z = Bounds.center.z; // TODO: don't assume that all rooms share depth?
 			return FromPositionInternal(pos3D);
 		}
 	}
@@ -846,7 +872,7 @@ public class RoomController : MonoBehaviour
 		// TODO: allow offset to cross room edges?
 		float semifinalX = waypointPath.Count > 0 ? waypointPath.Last().x : startPosition.x;
 		Vector2 endPos = endPositionPreoffset + (semifinalX >= endPositionPreoffset.x ? offsetMag : new Vector2(-offsetMag.x, offsetMag.y));
-		Bounds endRoomBounds = roomPath.m_pathRooms.Last().m_bounds;
+		Bounds endRoomBounds = roomPath.m_pathRooms.Last().Bounds;
 		endRoomBounds.Expand(new Vector3(-1.0f, -1.0f)); // TODO: dynamically determine wall thickness?
 		waypointPath[^1] = endRoomBounds.Contains(new(endPos.x, endPos.y, endRoomBounds.center.z)) ? endPos : endRoomBounds.ClosestPoint(endPos); // TODO: flip offset if closest interior point is significantly different from endPos?
 
@@ -1158,7 +1184,7 @@ public class RoomController : MonoBehaviour
 		Bounds childBounds = otherRoom.m_backdrop.GetComponent<SpriteRenderer>().bounds; // NOTE that we can't use m_bounds since uninstantiated prefabs don't have Awake() called on them
 		Vector2 doorwayPos = doorway.transform.position;
 		int reverseIdx = -1;
-		float doorwayToEdge = Mathf.Min(m_bounds.max.x - doorwayPos.x, m_bounds.max.y - doorwayPos.y, doorwayPos.x - m_bounds.min.x, doorwayPos.y - m_bounds.min.y); // TODO: don't assume convex rooms?
+		float doorwayToEdge = Mathf.Min(Bounds.max.x - doorwayPos.x, Bounds.max.y - doorwayPos.y, doorwayPos.x - Bounds.min.x, doorwayPos.y - Bounds.min.y); // TODO: don't assume convex rooms?
 		Vector2 childPivotPos = Vector2.zero;
 		Vector2 childPivotToCenter = childBounds.center - roomPrefab.transform.position;
 		bool isOpen = false;
@@ -1346,7 +1372,7 @@ public class RoomController : MonoBehaviour
 
 	private AStarPath RoomPath(Vector2 startPos, Vector2 endPos, ObstructionCheck obstructionChecking, float characterExtentY)
 	{
-		Debug.Assert(m_bounds.Contains(startPos));
+		Debug.Assert(Bounds.Contains(startPos));
 
 		List<RoomController> visitedRooms = new();
 		HeapQueue<AStarPath> paths = new();
@@ -1432,7 +1458,7 @@ public class RoomController : MonoBehaviour
 	{
 		// TODO: efficiency?
 
-		if (m_bounds.Contains(pos3D))
+		if (Bounds.Contains(pos3D))
 		{
 			return this;
 		}

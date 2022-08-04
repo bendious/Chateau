@@ -122,7 +122,7 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 		{
 			if (IsValidNextKey(key.Component.gameObject))
 			{
-				Unlock(collision.gameObject.GetComponent<IKey>());
+				Unlock(key);
 				break;
 			}
 		}

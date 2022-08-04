@@ -208,6 +208,12 @@ public class GameController : MonoBehaviour
 		int doorwayDepth = 0;
 		int npcDepth = 0;
 		m_startRoom.FinalizeRecursive(ref doorwayDepth, ref npcDepth);
+		RoomController[] roomsHighToLow = m_startRoom.WithDescendants.OrderBy(room => -room.transform.position.y).ToArray();
+		float roomWidthMin = roomsHighToLow.Min(room => room.Bounds.size.x);
+		foreach (RoomController room in roomsHighToLow)
+		{
+			room.FinalizeTopDown(roomWidthMin);
+		}
 
 		if (m_avatars.Count > 0)
 		{
