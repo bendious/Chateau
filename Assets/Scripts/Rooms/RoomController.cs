@@ -24,6 +24,7 @@ public class RoomController : MonoBehaviour
 	[SerializeField] private WeightedObject<GameObject>[] m_doorBreakablePrefabs;
 	[SerializeField] private WeightedObject<GameObject>[] m_doorSecretPrefabs;
 	[SerializeField] private GameObject[] m_lockOrderedPrefabs;
+	[SerializeField] private WeightedObject<GameObject>[] m_exteriorAbovePrefabs;
 
 	public GameObject m_doorSealVFX;
 
@@ -182,6 +183,9 @@ public class RoomController : MonoBehaviour
 	private /*readonly*/ Color m_wallColor;
 
 
+	private const float m_physicsCheckEpsilon = 0.1f; // NOTE that Utility.FloatEpsilon is too small to prevent false positives from rooms adjacent to the checked area
+
+
 	public static T RandomWeightedByKeyCount<T>(IEnumerable<WeightedObject<T>> candidates, System.Func<T, int> candidateToKeyDiff, float scalarPerDiff = 0.5f)
 	{
 		// NOTE the copy to avoid altering existing weights
@@ -264,7 +268,7 @@ public class RoomController : MonoBehaviour
 			if (info.m_onewayBlocked)
 			{
 				// draw simple arrow pointing inward to indicate allowed direction
-				UnityEditor.Handles.DrawLines(new Vector3[] { info.m_object.transform.position + new Vector3(0.5f, 0.5f, 0.0f), info.m_object.transform.position, info.m_object.transform.position, 2.0f * info.m_infoReverse.m_object.transform.position - info.m_object.transform.position });
+				UnityEditor.Handles.DrawLines(new Vector3[] { info.m_object.transform.position + new Vector3(0.5f, 0.5f), info.m_object.transform.position, info.m_object.transform.position, 2.0f * info.m_infoReverse.m_object.transform.position - info.m_object.transform.position });
 			}
 		}
 	}
@@ -641,7 +645,7 @@ public class RoomController : MonoBehaviour
 			m_spawnPoints[spawnIdx] = Instantiate(spawnPrefab, spawnPos, Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f)), transform);
 		}
 
-		// spawn decoration(s)
+		// spawn interior decorations
 		// TODO: prioritize by area? take fillPct into account?
 		int numDecorations = Random.Range(RoomType.m_decorationsMin, RoomType.m_decorationsMax + 1);
 		float[] decorationTypeHeights = Enumerable.Repeat(float.MinValue, RoomType.m_decorations.Length).ToArray(); // TODO: allow similar decoration types to share heights? share between rooms?
@@ -673,6 +677,17 @@ public class RoomController : MonoBehaviour
 				renderer.flipX = Random.Range(0, 2) != 0;
 			}
 		}
+
+		// spawn exterior decorations
+		Vector3 spawnPosAbove = m_bounds.center;
+		spawnPosAbove.y = m_bounds.max.y;
+		bool hasSpaceAbove = transform.position.y >= 0.0f && Physics2D.OverlapArea(spawnPosAbove + new Vector3(-m_bounds.extents.x + m_physicsCheckEpsilon, m_physicsCheckEpsilon), spawnPosAbove + new Vector3(m_bounds.extents.x - m_physicsCheckEpsilon, 1.0f/*?*/)) == null; // TODO: efficiency? allow partial-coverage decorations for wide rooms only half covered above?
+		if (hasSpaceAbove)
+		{
+			SpriteRenderer renderer = Instantiate(m_exteriorAbovePrefabs.RandomWeighted(), spawnPosAbove, transform.rotation, transform).GetComponent<SpriteRenderer>();
+			renderer.size = new(m_bounds.size.x, renderer.size.y);
+		}
+		// TODO: exterior below decorations
 	}
 
 	public RoomController FromPosition(Vector2 position)
@@ -832,7 +847,7 @@ public class RoomController : MonoBehaviour
 		float semifinalX = waypointPath.Count > 0 ? waypointPath.Last().x : startPosition.x;
 		Vector2 endPos = endPositionPreoffset + (semifinalX >= endPositionPreoffset.x ? offsetMag : new Vector2(-offsetMag.x, offsetMag.y));
 		Bounds endRoomBounds = roomPath.m_pathRooms.Last().m_bounds;
-		endRoomBounds.Expand(new Vector3(-1.0f, -1.0f, 0.0f)); // TODO: dynamically determine wall thickness?
+		endRoomBounds.Expand(new Vector3(-1.0f, -1.0f)); // TODO: dynamically determine wall thickness?
 		waypointPath[^1] = endRoomBounds.Contains(new(endPos.x, endPos.y, endRoomBounds.center.z)) ? endPos : endRoomBounds.ClosestPoint(endPos); // TODO: flip offset if closest interior point is significantly different from endPos?
 
 		return waypointPath;
@@ -971,8 +986,8 @@ public class RoomController : MonoBehaviour
 			{
 				GameObject doorway = doorwayInfo.m_object;
 				Vector2 doorwaySize = doorwayInfo.Size();
-				VisualEffect vfx = Instantiate(m_doorSealVFX, doorway.transform.position + new Vector3(0.0f, -0.5f * doorwaySize.y, 0.0f), Quaternion.identity).GetComponent<VisualEffect>();
-				vfx.SetVector3("StartAreaSize", new Vector3(doorwaySize.x, 0.0f, 0.0f));
+				VisualEffect vfx = Instantiate(m_doorSealVFX, doorway.transform.position + new Vector3(0.0f, -0.5f * doorwaySize.y), Quaternion.identity).GetComponent<VisualEffect>();
+				vfx.SetVector3("StartAreaSize", new Vector3(doorwaySize.x, 0.0f));
 
 				doorway.GetComponent<AudioSource>().Play();
 				// TODO: animation?
@@ -1154,7 +1169,7 @@ public class RoomController : MonoBehaviour
 			childPivotPos = doorwayPos + replaceDirection * (doorwayToEdge + childDoorwayToEdge) - childDoorwayPosLocal;
 
 			// check for obstructions
-			isOpen = Physics2D.OverlapBox(childPivotPos + childPivotToCenter, childBounds.size - new Vector3(0.1f, 0.1f, 0.0f), 0.0f) == null; // NOTE the small size reduction to avoid always collecting ourself
+			isOpen = Physics2D.OverlapBox(childPivotPos + childPivotToCenter, childBounds.size - new Vector3(m_physicsCheckEpsilon, m_physicsCheckEpsilon), 0.0f) == null; // NOTE the small size reduction to avoid always collecting ourself
 			if (isOpen)
 			{
 				reverseIdx = idxCandidate;
@@ -1242,7 +1257,7 @@ public class RoomController : MonoBehaviour
 		if (shadowCaster != null)
 		{
 			Vector3 extents = size * 0.5f;
-			Vector3[] shapePath = new Vector3[] { new(-extents.x, -extents.y, 0.0f), new(extents.x, -extents.y, 0.0f), new(extents.x, extents.y, 0.0f), new(-extents.x, extents.y, 0.0f) };
+			Vector3[] shapePath = new Vector3[] { new(-extents.x, -extents.y), new(extents.x, -extents.y), new(extents.x, extents.y), new(-extents.x, extents.y) };
 
 			shadowCaster.NonpublicSetterWorkaround("m_ShapePath", shapePath);
 			shadowCaster.NonpublicSetterWorkaround("m_ShapePathHash", shapePath.GetHashCode());

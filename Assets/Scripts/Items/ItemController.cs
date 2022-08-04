@@ -300,7 +300,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			if (isPressed && (m_drawObjectCurrent == null || m_drawObjectCurrent.transform.parent != transform))
 			{
 				m_drawObjectCurrent = Instantiate(m_drawPrefab, transform);
-				m_drawObjectCurrent.transform.localPosition = new Vector3(m_renderer.localBounds.max.x, 0.0f, 0.0f);
+				m_drawObjectCurrent.transform.localPosition = new Vector3(m_renderer.localBounds.max.x, 0.0f);
 			}
 			else if (!isPressed && m_drawObjectCurrent != null)
 			{
