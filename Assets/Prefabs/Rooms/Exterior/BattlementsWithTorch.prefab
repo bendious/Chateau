@@ -97,7 +97,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4285416120347012822, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
       propertyPath: m_NormalMapQuality
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4285416120347012822, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
       propertyPath: m_PointLightOuterRadius
@@ -126,6 +126,10 @@ PrefabInstance:
     - target: {fileID: 7026518177385776451, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
       propertyPath: m_Layer
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7207381608454924267, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
+      propertyPath: m_PropertySheet.m_Float.m_Array.Array.data[4].m_Value
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 8498127701983908984, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
       propertyPath: m_Name
