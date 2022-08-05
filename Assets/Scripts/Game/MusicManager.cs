@@ -51,7 +51,11 @@ public class MusicManager : MonoBehaviour
 	}
 
 #if DEBUG
-	public void DebugTest() => m_nextPlayTime = Time.time;
+	public void DebugTest()
+	{
+		FadeOut(2.0f);
+		m_nextPlayTime = Time.time;
+	}
 #endif
 
 

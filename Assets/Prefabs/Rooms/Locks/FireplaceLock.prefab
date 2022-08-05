@@ -315,7 +315,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.25
+  m_Volume: 1
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -359,7 +359,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -453,7 +453,7 @@ MonoBehaviour:
   m_vfxDisableDelaySeconds: 2
   m_failureSFX: []
   m_unlockSFX:
-  - m_object: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
+  - m_object: {fileID: 8300000, guid: 12b87efc1fcf3094bbd6e9cb21e805a9, type: 3}
     m_weight: 1
   m_destroyOnUnlock: 0
 --- !u!114 &5848845379622224117
@@ -493,9 +493,11 @@ MonoBehaviour:
     m_PostInfinity: 0
     m_RotationOrder: 4
   m_sprites: []
-  m_flickerSfx: []
+  m_flickerSfx:
+  - m_object: {fileID: 8300000, guid: 5f31d85b0de2879488883e72375b40bc, type: 3}
+    m_weight: 1
   m_flickerSfxDelayMax: 0
-  m_randomSfxStartPosition: 0
+  m_randomSfxStartPosition: 1
   m_fullCurveFlicker: 0
   m_nonFlickerInfo:
     m_secondsMin: 0.1

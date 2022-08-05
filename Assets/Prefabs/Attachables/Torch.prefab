@@ -788,9 +788,11 @@ MonoBehaviour:
     m_PostInfinity: 0
     m_RotationOrder: 4
   m_sprites: []
-  m_flickerSfx: []
+  m_flickerSfx:
+  - m_object: {fileID: 8300000, guid: e94cf7e2b5f75ec4a9251f654b157ff1, type: 3}
+    m_weight: 1
   m_flickerSfxDelayMax: 0
-  m_randomSfxStartPosition: 0
+  m_randomSfxStartPosition: 1
   m_fullCurveFlicker: 0
   m_nonFlickerInfo:
     m_secondsMin: 0.1
