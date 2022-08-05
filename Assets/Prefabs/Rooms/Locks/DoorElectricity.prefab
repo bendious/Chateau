@@ -401,8 +401,13 @@ MonoBehaviour:
     m_PreInfinity: 0
     m_PostInfinity: 0
     m_RotationOrder: 4
+  m_sprites: []
+  m_flickerSfx:
+  - m_object: {fileID: 8300000, guid: 59db993da0fdb1442b6f58e7f5f9d9e1, type: 3}
+    m_weight: 1
+  m_flickerSfxDelayMax: 0
+  m_randomSfxStartPosition: 1
   m_fullCurveFlicker: 0
-  m_randomSFXStartPosition: 1
   m_nonFlickerInfo:
     m_secondsMin: 0.5
     m_secondsMax: 1
@@ -413,11 +418,6 @@ MonoBehaviour:
     m_secondsMax: 0.5
     m_periodSecondsMin: 0.1
     m_periodSecondsMax: 0.5
-  m_lightSprites: []
-  m_flickerSfx:
-  - m_object: {fileID: 8300000, guid: 59db993da0fdb1442b6f58e7f5f9d9e1, type: 3}
-    m_weight: 1
-  m_flickerSfxDelayMax: 0
 --- !u!114 &2261526499625535253
 MonoBehaviour:
   m_ObjectHideFlags: 0

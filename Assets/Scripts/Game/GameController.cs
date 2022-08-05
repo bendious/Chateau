@@ -55,6 +55,7 @@ public class GameController : MonoBehaviour
 
 	public MaterialSystem m_materialSystem;
 	public SavableFactory m_savableFactory;
+	public LightFlicker m_lightFlickerMaster;
 
 	[SerializeField]
 	private WeightedObject<AudioClip>[] m_timerWarnSFX;

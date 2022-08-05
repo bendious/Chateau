@@ -147,18 +147,6 @@ MonoBehaviour:
     m_PreInfinity: 0
     m_PostInfinity: 0
     m_RotationOrder: 4
-  m_fullCurveFlicker: 0
-  m_randomSFXStartPosition: 0
-  m_nonFlickerInfo:
-    m_secondsMin: 1
-    m_secondsMax: 10
-    m_periodSecondsMin: 4
-    m_periodSecondsMax: 8
-  m_flickerInfo:
-    m_secondsMin: 0.1
-    m_secondsMax: 0.5
-    m_periodSecondsMin: 0.1
-    m_periodSecondsMax: 0.5
   m_sprites: []
   m_flickerSfx:
   - m_object: {fileID: 8300000, guid: 26ecdb4afea26944cba84ddea33e67be, type: 3}
@@ -170,6 +158,18 @@ MonoBehaviour:
   - m_object: {fileID: 8300000, guid: 4cbfa539f60bc0d4daec200437fa1464, type: 3}
     m_weight: 1
   m_flickerSfxDelayMax: 0
+  m_randomSfxStartPosition: 0
+  m_fullCurveFlicker: 0
+  m_nonFlickerInfo:
+    m_secondsMin: 1
+    m_secondsMax: 10
+    m_periodSecondsMin: 4
+    m_periodSecondsMax: 8
+  m_flickerInfo:
+    m_secondsMin: 0.1
+    m_secondsMax: 0.5
+    m_periodSecondsMin: 0.1
+    m_periodSecondsMax: 0.5
 --- !u!1001 &2401056385985618570
 PrefabInstance:
   m_ObjectHideFlags: 0

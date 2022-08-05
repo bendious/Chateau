@@ -787,8 +787,11 @@ MonoBehaviour:
     m_PreInfinity: 0
     m_PostInfinity: 0
     m_RotationOrder: 4
+  m_sprites: []
+  m_flickerSfx: []
+  m_flickerSfxDelayMax: 0
+  m_randomSfxStartPosition: 0
   m_fullCurveFlicker: 0
-  m_randomSFXStartPosition: 0
   m_nonFlickerInfo:
     m_secondsMin: 0.1
     m_secondsMax: 0.5
@@ -799,9 +802,6 @@ MonoBehaviour:
     m_secondsMax: 0.5
     m_periodSecondsMin: 0.1
     m_periodSecondsMax: 0.5
-  m_lightSprites: []
-  m_flickerSfx: []
-  m_flickerSfxDelayMax: 0
 --- !u!4 &6394764923307723889 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 996511831040732740, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}

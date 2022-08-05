@@ -450,6 +450,7 @@ MonoBehaviour:
   m_combinationSets: []
   m_keyHeightMax: 7.5
   m_keyDelaySeconds: 3
+  m_vfxDisableDelaySeconds: 2
   m_failureSFX: []
   m_unlockSFX:
   - m_object: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
@@ -491,8 +492,11 @@ MonoBehaviour:
     m_PreInfinity: 0
     m_PostInfinity: 0
     m_RotationOrder: 4
+  m_sprites: []
+  m_flickerSfx: []
+  m_flickerSfxDelayMax: 0
+  m_randomSfxStartPosition: 0
   m_fullCurveFlicker: 0
-  m_randomSFXStartPosition: 0
   m_nonFlickerInfo:
     m_secondsMin: 0.1
     m_secondsMax: 0.5
@@ -503,9 +507,6 @@ MonoBehaviour:
     m_secondsMax: 0.5
     m_periodSecondsMin: 0.1
     m_periodSecondsMax: 0.5
-  m_lightSprites: []
-  m_flickerSfx: []
-  m_flickerSfxDelayMax: 0
 --- !u!114 &6034779674882206485
 MonoBehaviour:
   m_ObjectHideFlags: 0
