@@ -59,12 +59,6 @@ public class GameController : MonoBehaviour
 
 	[SerializeField]
 	private WeightedObject<AudioClip>[] m_timerWarnSFX;
-	[SerializeField]
-	private WeightedObject<AudioClip>[] m_ambientMusic;
-	[SerializeField]
-	private float m_musicDelayMin = 30.0f;
-	[SerializeField]
-	private float m_musicDelayMax = 120.0f;
 	public AudioClip m_victoryAudio;
 
 	public float m_waveSecondsMin = 45.0f;
@@ -237,8 +231,6 @@ public class GameController : MonoBehaviour
 		m_loadingScreen.SetActive(false);
 
 		IsSceneLoad = false;
-
-		StartCoroutine(MusicCoroutine());
 	}
 
 	private void OnDestroy()
@@ -481,12 +473,9 @@ public class GameController : MonoBehaviour
 		}
 		m_timerUI.text = null;
 		m_nextWaveTime = -1.0f;
-		StopAllCoroutines(); // TODO: allow ambient music to restart after victory music?
+		StopAllCoroutines();
 
-		// NOTE that we have to use a component that won't be playing any more audio rather than using PlayOneShot(), which leaves the music running even after level load
-		AudioSource source = GetComponent<AudioSource>();
-		source.clip = m_victoryAudio;
-		source.Play();
+		GetComponent<MusicManager>().Play(m_victoryAudio);
 
 		// TODO: roll credits / etc.?
 	}
@@ -540,10 +529,7 @@ public class GameController : MonoBehaviour
 #else
 	private
 #endif
-		void NpcsRandomize()
-	{
-		m_npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => new NpcDialogue[] { a, b }).Select(dialogue => new NpcInfo { m_color = Utility.ColorRandom(Color.black, Color.white, false), m_dialogues = dialogue }).ToArray(); // TODO: ensure good colors w/o repeats?
-	}
+		void NpcsRandomize() => m_npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => new NpcDialogue[] { a, b }).Select(dialogue => new NpcInfo { m_color = Utility.ColorRandom(Color.black, Color.white, false), m_dialogues = dialogue }).ToArray(); // TODO: ensure good colors w/o repeats?
 
 
 	private int AddRoomsForNodes(LayoutGenerator.Node[] nodes, int roomCount, ref int orderedLockIdx)
@@ -769,11 +755,7 @@ public class GameController : MonoBehaviour
 #else
 	private
 #endif
-		void SpawnEnemyWave()
-	{
-		// TODO: ensure the previous wave is over?
-		StartCoroutine(SpawnEnemyWaveCoroutine());
-	}
+		void SpawnEnemyWave() => StartCoroutine(SpawnEnemyWaveCoroutine()); // TODO: ensure the previous wave is over first?
 
 	private IEnumerator SpawnEnemyWaveCoroutine()
 	{
@@ -863,22 +845,6 @@ public class GameController : MonoBehaviour
 			if (secondsRemaining >= 1.0f && secondsRemaining <= m_waveWeight + 1.0f)
 			{
 				source.PlayOneShot(m_timerWarnSFX.RandomWeighted());
-			}
-		}
-	}
-
-	private IEnumerator MusicCoroutine()
-	{
-		AudioSource source = GetComponent<AudioSource>();
-
-		while (true)
-		{
-			yield return new WaitForSeconds(Random.Range(m_musicDelayMin, m_musicDelayMax)); // TODO: take into account length of current audio?
-
-			if (!source.isPlaying) // TODO: check boss room ambiance/music
-			{
-				source.clip = m_ambientMusic.RandomWeighted();
-				source.Play();
 			}
 		}
 	}

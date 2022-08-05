@@ -10,7 +10,8 @@ public class BossRoom : MonoBehaviour
 
 	public WeightedObject<GameObject>[] m_spawnedLadderPrefabs;
 
-	public AudioClip m_audioOutro;
+	[SerializeField] private AudioClip m_audioOutro;
+	[SerializeField] private AudioClip m_music;
 
 
 	private Boss m_boss;
@@ -59,11 +60,13 @@ public class BossRoom : MonoBehaviour
 		GameController.Instance.m_bossRoomSealed = true;
 
 		// play ambiance SFX
-		// TODO: fade out any currently-playing music
+		// TODO: use MusicManager to prevent music starting during ambiance (once it supports multiple sources)
 		AudioSource[] sources = GetComponents<AudioSource>();
 		AudioSource source0 = sources.First();
 		source0.Play();
-		sources[1].PlayScheduled(AudioSettings.dspTime + source0.clip.length);
+		AudioSource source1 = sources[1];
+		source1.PlayScheduled(AudioSettings.dspTime + source0.clip.length);
+		GameController.Instance.GetComponent<MusicManager>().FadeOut(source0.clip.length + source1.clip.length); // TODO: more deliberate fade-out time?
 	}
 
 	private void OnTriggerExit2D(Collider2D collider)
@@ -85,7 +88,7 @@ public class BossRoom : MonoBehaviour
 		sources[1].loop = false;
 		sources.First().clip = m_audioOutro;
 		sources.First().PlayScheduled(AudioSettings.dspTime + sources[1].clip.length - sources[1].time);
-		sources[2].Play();
+		GameController.Instance.GetComponent<MusicManager>().Play(m_music);
 	}
 
 	public void EndFight()

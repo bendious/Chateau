@@ -124,6 +124,7 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 				interact.DebugReset();
 			}
 		};
+		m_controls.Console.MusicTest.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.GetComponent<MusicManager>().DebugTest());
 	}
 
 	private void OnDisable()

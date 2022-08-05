@@ -206,6 +206,15 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MusicTest"",
+                    ""type"": ""Button"",
+                    ""id"": ""fb4533ee-82d8-4f23-b0d6-7e5b8dcb736a"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -527,6 +536,17 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""action"": ""InteractDialogueRandomize"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5df28d5f-2587-4563-b1e7-c0f25809787d"",
+                    ""path"": ""<Keyboard>/m"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MusicTest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -555,6 +575,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         m_Console_ControlsVisualization = m_Console.FindAction("ControlsVisualization", throwIfNotFound: true);
         m_Console_UnlockAll = m_Console.FindAction("UnlockAll", throwIfNotFound: true);
         m_Console_InteractDialogueRandomize = m_Console.FindAction("InteractDialogueRandomize", throwIfNotFound: true);
+        m_Console_MusicTest = m_Console.FindAction("MusicTest", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -634,6 +655,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Console_ControlsVisualization;
     private readonly InputAction m_Console_UnlockAll;
     private readonly InputAction m_Console_InteractDialogueRandomize;
+    private readonly InputAction m_Console_MusicTest;
     public struct ConsoleActions
     {
         private @ConsoleControls m_Wrapper;
@@ -658,6 +680,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         public InputAction @ControlsVisualization => m_Wrapper.m_Console_ControlsVisualization;
         public InputAction @UnlockAll => m_Wrapper.m_Console_UnlockAll;
         public InputAction @InteractDialogueRandomize => m_Wrapper.m_Console_InteractDialogueRandomize;
+        public InputAction @MusicTest => m_Wrapper.m_Console_MusicTest;
         public InputActionMap Get() { return m_Wrapper.m_Console; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -727,6 +750,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @InteractDialogueRandomize.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnInteractDialogueRandomize;
                 @InteractDialogueRandomize.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnInteractDialogueRandomize;
                 @InteractDialogueRandomize.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnInteractDialogueRandomize;
+                @MusicTest.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnMusicTest;
+                @MusicTest.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnMusicTest;
+                @MusicTest.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnMusicTest;
             }
             m_Wrapper.m_ConsoleActionsCallbackInterface = instance;
             if (instance != null)
@@ -791,6 +817,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @InteractDialogueRandomize.started += instance.OnInteractDialogueRandomize;
                 @InteractDialogueRandomize.performed += instance.OnInteractDialogueRandomize;
                 @InteractDialogueRandomize.canceled += instance.OnInteractDialogueRandomize;
+                @MusicTest.started += instance.OnMusicTest;
+                @MusicTest.performed += instance.OnMusicTest;
+                @MusicTest.canceled += instance.OnMusicTest;
             }
         }
     }
@@ -817,5 +846,6 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         void OnControlsVisualization(InputAction.CallbackContext context);
         void OnUnlockAll(InputAction.CallbackContext context);
         void OnInteractDialogueRandomize(InputAction.CallbackContext context);
+        void OnMusicTest(InputAction.CallbackContext context);
     }
 }

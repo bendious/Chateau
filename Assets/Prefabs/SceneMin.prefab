@@ -1377,6 +1377,7 @@ GameObject:
   - component: {fileID: 2675486868126292844}
   - component: {fileID: 2679582467263965267}
   - component: {fileID: 8234990168385210965}
+  - component: {fileID: 7576226454887440344}
   m_Layer: 0
   m_Name: GameController
   m_TagString: GameController
@@ -1571,23 +1572,6 @@ MonoBehaviour:
   m_timerWarnSFX:
   - m_object: {fileID: 8300000, guid: 441ca23bce59faf45a18db4b601db42f, type: 3}
     m_weight: 1
-  m_ambientMusic:
-  - m_object: {fileID: 8300000, guid: 49ba588079fa3c84bafa890d317e15fd, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: 53e4126a8a47a1e43a584006db1a7786, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: 170c942b371e1064a9e0c092081caba4, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: 4ea896355fec1b34daf24caec397fd36, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: b962351ea5856c74abd52d3463d03b20, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: 4a3bf59a4223c4544bfac5904e037e21, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: cddb5b9affcb44e49ad2ca1fd5e11398, type: 3}
-    m_weight: 1
-  m_musicDelayMin: 30
-  m_musicDelayMax: 120
   m_victoryAudio: {fileID: 0}
   m_waveSecondsMin: 0
   m_waveSecondsMax: 0
@@ -1800,6 +1784,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_controls: {fileID: -944628639613478452, guid: 176f72829d0e1524e8d944c58c0eda4a, type: 3}
+--- !u!114 &7576226454887440344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1239318319195568209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcf4ff566c5d9574c869576763a545ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_music:
+  - m_object: {fileID: 8300000, guid: 170c942b371e1064a9e0c092081caba4, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: b962351ea5856c74abd52d3463d03b20, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 4a3bf59a4223c4544bfac5904e037e21, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 4ea896355fec1b34daf24caec397fd36, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 53e4126a8a47a1e43a584006db1a7786, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 49ba588079fa3c84bafa890d317e15fd, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: cddb5b9affcb44e49ad2ca1fd5e11398, type: 3}
+    m_weight: 1
+  m_delayMin: 30
+  m_delayMax: 120
 --- !u!1 &1363946684423264017
 GameObject:
   m_ObjectHideFlags: 0
