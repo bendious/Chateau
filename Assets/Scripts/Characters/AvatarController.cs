@@ -233,7 +233,7 @@ public class AvatarController : KinematicCharacter
 		Vector2 priorityPos = FocusPriorityPos;
 		float distSqFocus = float.MaxValue;
 		float focusPriority = -1.0f;
-		float focusYMax = float.MinValue;
+		Vector2 focusTop = Vector2.zero;
 		foreach (Collider2D candidate in focusCandidates)
 		{
 			if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, false, 0.0f, null, false, true))
@@ -253,7 +253,7 @@ public class AvatarController : KinematicCharacter
 				focusPriority = candidatePriority;
 				distSqFocus = distSqCur;
 				m_focusObj = candidate.gameObject;
-				focusYMax = candidate.bounds.max.y;
+				focusTop = new(candidate.bounds.center.x, candidate.bounds.max.y);
 			}
 		}
 
@@ -297,7 +297,7 @@ public class AvatarController : KinematicCharacter
 
 			m_focusIndicator.transform.localScale = m_focusObj.transform.localScale; // NOTE that w/o this, swapping between renderer draw modes was doing weird things to the indicator's scale...
 
-			m_focusPrompt.transform.position = new Vector3(m_focusIndicator.transform.position.x, focusYMax, m_focusIndicator.transform.position.z) + m_focusPromptOffset;
+			m_focusPrompt.transform.position = new Vector3(focusTop.x, focusTop.y, m_focusIndicator.transform.position.z) + m_focusPromptOffset;
 			m_focusPrompt.SetSprite(m_focusObj.GetComponent<IInteractable>().CanInteractReverse(this) ? 1 : 0);
 		}
 		m_focusIndicator.SetActive(focusCanInteract);

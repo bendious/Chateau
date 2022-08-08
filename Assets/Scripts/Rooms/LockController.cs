@@ -292,7 +292,7 @@ public class LockController : MonoBehaviour, IUnlockable
 	}
 
 
-	private void Awake()
+	private void Start()
 	{
 		m_keys.AddRange(GetComponentsInChildren<IKey>());
 		foreach (IKey key in m_keys)

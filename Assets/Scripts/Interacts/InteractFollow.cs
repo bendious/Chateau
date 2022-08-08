@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Linq;
 using UnityEngine;
 
@@ -13,6 +12,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 	[SerializeField] private InteractFollow[] m_snapPrecursors;
 	[SerializeField] private float m_maxSnapDistance = 0.5f;
 	[SerializeField] private float m_maxSnapDegrees = 45.0f;
+	[SerializeField] private int m_splitCountMax;
 
 
 	private Vector3 m_correctPosition;
@@ -32,6 +32,41 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 
 	private void Awake()
 	{
+		if (m_splitCountMax > 0) // TODO: separate component?
+		{
+			SpriteRenderer rendererLocal = GetComponent<SpriteRenderer>();
+			Tuple<Sprite, Bounds>[] spritesAndBounds = VoronoiMasks(UnityEngine.Random.Range(2, m_splitCountMax + 1), rendererLocal.size.x, rendererLocal.sprite.pixelsPerUnit); // TODO: don't assume square SpriteRenderer size? influence number of pieces based on intended difficulty?
+			m_splitCountMax = 0; // NOTE that this is BEFORE duplication
+			bool flipX = UnityEngine.Random.value < 0.5f;
+			bool flipY = UnityEngine.Random.value < 0.5f;
+			foreach (Tuple<Sprite, Bounds> pair in spritesAndBounds)
+			{
+				// TODO: skip if no pixels are visible? update m_snapPrecursors
+				InteractFollow newInteract = pair == spritesAndBounds.First() ? this : Instantiate(gameObject, transform.parent).GetComponent<InteractFollow>();
+				newInteract.Lock = Lock;
+				newInteract.GetComponent<SpriteMask>().sprite = pair.Item1;
+
+				SpriteRenderer rendererChild = newInteract.GetComponent<SpriteRenderer>();
+				rendererChild.flipX = flipX;
+				rendererChild.flipY = flipY;
+
+				BoxCollider2D trigger = newInteract.GetComponent<BoxCollider2D>();
+				trigger.size = pair.Item2.size;
+				trigger.offset = pair.Item2.center; // NOTE that this is unaffected by flip{X/Y} since only the rendered sprite is flipped and not the masks
+
+				foreach (Transform childTf in newInteract.GetComponentsInChildren<Transform>())
+				{
+					if (childTf == newInteract.transform)
+					{
+						continue;
+					}
+					childTf.localPosition = pair.Item2.center;
+				}
+			}
+
+			enabled = false; // to fix in place as the starting piece // NOTE that this is AFTER duplication
+		}
+
 		m_correctPosition = transform.position;
 		m_correctRotationDegrees = transform.rotation.eulerAngles.z;
 	}
@@ -104,10 +139,84 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 	{
 		transform.SetPositionAndRotation(m_correctPosition, Quaternion.Euler(0.0f, 0.0f, m_correctRotationDegrees)); // in case we were put within range w/o snapping
 		m_followCharacter = null;
-		GetComponent<UnityEngine.Rendering.Universal.Light2D>().enabled = false;
+		GetComponentInChildren<UnityEngine.Rendering.Universal.Light2D>().enabled = false;
 		enabled = false;
 	}
 
+
+	private static Tuple<Sprite, Bounds>[] VoronoiMasks(int count, float sizeWS, float pixelsPerUnit)
+	{
+		// pick random points in UV space
+		System.Collections.Generic.List<Vector2> sites = new();
+		for (int i = 0; i < count; i++)
+		{
+			sites.Add(new Vector2(UnityEngine.Random.Range(0.0f, 1.0f), UnityEngine.Random.Range(0.0f, 1.0f)));
+		}
+
+		// TODO: spread points via Voronoi relax?
+
+		// determine closest site to each texel
+		// TODO: efficiency?
+		int sizeTexels = Mathf.RoundToInt(sizeWS * pixelsPerUnit);
+		int[,] perTexelIndices = new int[sizeTexels, sizeTexels];
+		for (int x = 0; x < sizeTexels; ++x)
+		{
+			for (int y = 0; y < sizeTexels; ++y)
+			{
+				float uvPerTexel = 1.0f / (sizeTexels - 1);
+				Vector2 texelUV = new(x * uvPerTexel, y * uvPerTexel);
+				float distSqMin = float.MaxValue;
+				int nearestIdx = -1;
+				int idx = 0;
+				foreach (Vector2 site in sites)
+				{
+					float distSq = (site - texelUV).sqrMagnitude;
+					if (distSq < distSqMin)
+					{
+						distSqMin = distSq;
+						nearestIdx = idx;
+					}
+					++idx;
+				}
+				perTexelIndices[x, y] = nearestIdx;
+			}
+		}
+
+		// TODO: enumerate adjacent Voronoi cells for m_snapPrecursors[]?
+
+		// create textures/sprites
+		Tuple<Sprite, Bounds>[] sprites = new Tuple<Sprite, Bounds>[count];
+		for (int i = 0; i < sprites.Length; ++i)
+		{
+			Texture2D texture = new(sizeTexels, sizeTexels, TextureFormat.Alpha8, false) { name = "Voronoi texture" };
+			float minX = float.MaxValue;
+			float minY = float.MaxValue;
+			float maxX = float.MinValue;
+			float maxY = float.MinValue;
+			for (int x = 0; x < sizeTexels; ++x)
+			{
+				for (int y = 0; y < sizeTexels; ++y)
+				{
+					if (perTexelIndices[x, y] == i)
+					{
+						texture.SetPixel(x, y, Color.white);
+						minX = Mathf.Min(x, minX);
+						minY = Mathf.Min(y, minY);
+						maxX = Mathf.Max(x, maxX);
+						maxY = Mathf.Max(y, maxY);
+					}
+					else
+					{
+						texture.SetPixel(x, y, Color.clear);
+					}
+				}
+			}
+			texture.Apply(false, true);
+			sprites[i] = Tuple.Create(Sprite.Create(texture, new Rect(0, 0, sizeTexels, sizeTexels), Vector2.one * 0.5f), new Bounds(new Vector2(minX + maxX, minY + maxY) / sizeTexels - Vector2.one, new Vector2(maxX - minX, maxY - minY) / pixelsPerUnit)); // TODO: don't assume central pivot?
+			sprites[i].Item1.name = "Voronoi sprite";
+		}
+		return sprites;
+	}
 
 	private Tuple<Vector3, float> FollowTransform()
 	{
@@ -119,7 +228,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 		return Tuple.Create(m_followCharacter.transform.position + offset, Mathf.Atan2(offset.y, offset.x) * Mathf.Rad2Deg);
 	}
 
-	private IEnumerator Follow()
+	private System.Collections.IEnumerator Follow()
 	{
 		Bounds followBounds = transform.parent.parent.GetComponent<RoomController>().BoundsInterior; // TODO: parameterize?
 
