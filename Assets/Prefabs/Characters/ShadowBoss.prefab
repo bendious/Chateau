@@ -456,7 +456,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_allowedStates.Array.size
-      value: 8
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_allowedStates.Array.data[6]
@@ -464,11 +464,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_allowedStates.Array.data[7]
-      value: 8
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_allowedStates.Array.data[8]
-      value: 8
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_teleportVFX.Array.data[0].m_object
