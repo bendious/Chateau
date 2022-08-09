@@ -614,7 +614,7 @@ public class RoomController : MonoBehaviour
 				}
 				else
 				{
-					furnitureLock.Unlock(null);
+					furnitureLock.Unlock(null, true);
 				}
 			}
 		}

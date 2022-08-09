@@ -47,7 +47,7 @@ public class HiddenDestructible : MonoBehaviour
 			}
 			else
 			{
-				hiddenLock.Unlock(null);
+				hiddenLock.Unlock(null, true);
 			}
 		}
 	}

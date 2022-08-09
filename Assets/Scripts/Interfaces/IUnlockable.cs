@@ -12,5 +12,5 @@ public interface IUnlockable
 
 	public bool IsValidNextKey(GameObject obj);
 
-	public bool Unlock(IKey key);
+	public bool Unlock(IKey key, bool silent = false);
 }

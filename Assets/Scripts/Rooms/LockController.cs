@@ -381,18 +381,21 @@ public class LockController : MonoBehaviour, IUnlockable
 #else
 	private
 #endif
-		bool Unlock(IKey key)
+		bool Unlock(IKey key, bool silent = false)
 	{
 		// handle given key
-		AudioSource audio = GetComponent<AudioSource>();
+		AudioSource audio = silent ? null : GetComponent<AudioSource>();
 		if (key != null)
 		{
 			if (!IsValidNextKey(key.Component.gameObject)) // TODO: move to ButtonController?
 			{
 				// TODO: visual indication of failure?
-				audio.clip = m_failureSFX.RandomWeighted();
-				audio.time = 0.0f;
-				audio.Play();
+				if (!silent)
+				{
+					audio.clip = m_failureSFX.RandomWeighted();
+					audio.time = 0.0f;
+					audio.Play();
+				}
 
 				foreach (IKey entry in m_keys)
 				{
@@ -414,10 +417,13 @@ public class LockController : MonoBehaviour, IUnlockable
 			IUnlockable parentLock = Parent == null ? null : Parent.GetComponent<IUnlockable>();
 			if (parentLock != null)
 			{
-				parentLock.Unlock(key);
+				parentLock.Unlock(key, silent);
 			}
 
-			GameController.Instance.AddCameraTargets(transform);
+			if (!silent)
+			{
+				GameController.Instance.AddCameraTargets(transform);
+			}
 
 			// destroy/disable ourself
 			if (m_destroyOnUnlock)
@@ -484,9 +490,12 @@ public class LockController : MonoBehaviour, IUnlockable
 		UpdateSprite();
 
 		// TODO: unlock animation/VFX/etc.
-		audio.clip = m_unlockSFX.RandomWeighted();
-		audio.time = 0.0f;
-		audio.Play();
+		if (!silent)
+		{
+			audio.clip = m_unlockSFX.RandomWeighted();
+			audio.time = 0.0f;
+			audio.Play();
+		}
 
 		return true;
 	}

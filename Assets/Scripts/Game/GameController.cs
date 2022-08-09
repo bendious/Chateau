@@ -57,8 +57,7 @@ public class GameController : MonoBehaviour
 	public SavableFactory m_savableFactory;
 	public LightFlicker m_lightFlickerMaster;
 
-	[SerializeField]
-	private WeightedObject<AudioClip>[] m_timerWarnSFX;
+	[SerializeField] private WeightedObject<AudioClip>[] m_timerWarnSFX;
 	public AudioClip m_victoryAudio;
 
 	public float m_waveSecondsMin = 45.0f;
@@ -70,8 +69,7 @@ public class GameController : MonoBehaviour
 	public float m_waveEnemyDelayMax = 2.0f;
 
 
-	[HideInInspector]
-	public bool m_bossRoomSealed = false;
+	[HideInInspector] public bool m_bossRoomSealed = false;
 
 
 	public static bool IsSceneLoad { get; private set; }
@@ -98,14 +96,13 @@ public class GameController : MonoBehaviour
 	public bool Victory { get; private set; }
 
 
-	[SerializeField]
-	private string[] m_savableTags;
+	[SerializeField] private string[] m_savableTags;
 
 
 	public static int Seed => m_seed;
 	private static int m_seed;
 
-	private static int m_sceneIndexPrev = -1;
+	public static int SceneIndexPrev { get; private set; } = -1;
 
 	private RoomController m_startRoom;
 
@@ -433,7 +430,7 @@ public class GameController : MonoBehaviour
 		Scene sceneCur = SceneManager.GetActiveScene();
 		if (!IsSceneLoad && sceneCur.name != name)
 		{
-			m_sceneIndexPrev = sceneCur.buildIndex;
+			SceneIndexPrev = sceneCur.buildIndex;
 		}
 
 		if (save)
@@ -623,7 +620,7 @@ public class GameController : MonoBehaviour
 	{
 		// find closest door prioritized by previous scene
 		InteractScene[] doors = FindObjectsOfType<InteractScene>();
-		InteractScene door = m_sceneIndexPrev < 0 ? null : doors.Where(interact => interact.DestinationIndex == m_sceneIndexPrev).OrderBy(interact => interact.transform.position.sqrMagnitude).FirstOrDefault();
+		InteractScene door = SceneIndexPrev < 0 ? null : doors.Where(interact => interact.DestinationIndex == SceneIndexPrev).OrderBy(interact => interact.transform.position.sqrMagnitude).FirstOrDefault();
 		if (door == null)
 		{
 			door = doors.First(interact => Vector2.Distance(interact.transform.position, Vector2.zero) < 1.0f); // TODO: remove assumption that there will be a door at the origin?

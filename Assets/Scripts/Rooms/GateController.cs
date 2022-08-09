@@ -70,14 +70,17 @@ public class GateController : MonoBehaviour, IUnlockable
 		return m_child != null && m_child.IsValidNextKey(obj);
 	}
 
-	public bool Unlock(IKey key)
+	public bool Unlock(IKey key, bool silent = false)
 	{
 		if (m_ladderPrefabs != null && m_ladderPrefabs.Length > 0)
 		{
 			Parent.GetComponent<RoomController>().SpawnLadder(gameObject, m_ladderPrefabs.RandomWeighted(), true);
 		}
 
-		GameController.Instance.AddCameraTargets(transform);
+		if (!silent)
+		{
+			GameController.Instance.AddCameraTargets(transform);
+		}
 		Simulation.Schedule<ObjectDespawn>(1.0f).m_object = gameObject; // TODO: guarantee camera reaches us?
 		return true;
 	}

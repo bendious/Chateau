@@ -102,7 +102,7 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 
 	public bool IsValidNextKey(GameObject obj) => m_keyObj == obj;
 
-	public bool Unlock(IKey key)
+	public bool Unlock(IKey key, bool silent = false)
 	{
 		Debug.Assert(key == null || IsValidNextKey(key.Component.gameObject));
 		GetComponent<SpriteRenderer>().sprite = m_spriteUnlocked;
@@ -110,7 +110,10 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 		if (key != null)
 		{
 			key.Deactivate();
-			GetComponent<AudioSource>().PlayOneShot(m_unlockSFX.RandomWeighted()); // TODO: 'silent' param rather than assuming that non-key unlocks always correlate w/ silent unlocks?
+		}
+		if (!silent)
+		{
+			GetComponent<AudioSource>().PlayOneShot(m_unlockSFX.RandomWeighted());
 		}
 		return true;
 	}
