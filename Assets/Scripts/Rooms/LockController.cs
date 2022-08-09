@@ -292,15 +292,23 @@ public class LockController : MonoBehaviour, IUnlockable
 	}
 
 
-	private void Start()
+	private void Awake()
 	{
 		m_keys.AddRange(GetComponentsInChildren<IKey>());
-		foreach (IKey key in m_keys)
-		{
-			key.Lock = this;
-		}
 
 		m_hasTrigger = GetComponents<Collider2D>().Any(collider => collider.isTrigger);
+	}
+
+	private void Start()
+	{
+		foreach (IKey key in GetComponentsInChildren<IKey>())
+		{
+			key.Lock = this;
+			if (!m_keys.Contains(key))
+			{
+				m_keys.Add(key);
+			}
+		}
 	}
 
 	private void OnTriggerEnter2D(Collider2D collider)
