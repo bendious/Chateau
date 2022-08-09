@@ -115,7 +115,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1429021414608366857}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.65, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0.65, y: 1.65, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -521,7 +521,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5484244720352284811}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.65, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0.65, y: 1.65, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -870,6 +870,7 @@ MonoBehaviour:
       m_orderPrefabs: []
       m_keyCountMax: 4
       m_combinationDigits: 4
+      m_genericKeys: 0
     m_weight: 1
   m_combinationSets:
   - m_object:
@@ -893,6 +894,8 @@ MonoBehaviour:
       m_spriteUsagePct: 1
     m_weight: 1
   m_keyHeightMax: 7.5
+  m_keyDelaySeconds: 0
+  m_vfxDisableDelaySeconds: 2
   m_failureSFX: []
   m_unlockSFX:
   - m_object: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
@@ -1032,7 +1035,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6256117976150905625}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.5, y: -0.025, z: 0}
+  m_LocalPosition: {x: -0.5, y: 1.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1352,7 +1355,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8951763560780246740}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.5, y: -0.025, z: 0}
+  m_LocalPosition: {x: -0.5, y: 1.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

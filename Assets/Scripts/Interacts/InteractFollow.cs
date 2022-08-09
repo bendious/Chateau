@@ -9,11 +9,15 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 	public IUnlockable Lock { get; set; }
 
 
+	[SerializeField] private WeightedObject<Sprite>[] m_spriteAlternates;
+
 	[SerializeField] private InteractFollow[] m_snapPrecursors;
 	[SerializeField] private float m_maxSnapDistance = 0.5f;
 	[SerializeField] private float m_maxSnapDegrees = 45.0f;
 	[SerializeField] private int m_splitCountMax;
 
+
+	private RoomController m_room;
 
 	private Vector3 m_correctPosition;
 	private float m_correctRotationDegrees;
@@ -32,13 +36,23 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 
 	private void Awake()
 	{
+		m_room = GameController.Instance.RoomFromPosition(transform.position);
+
+		SpriteRenderer rendererLocal = GetComponent<SpriteRenderer>();
+		if (m_spriteAlternates != null && m_spriteAlternates.Length > 0)
+		{
+			rendererLocal.sprite = m_spriteAlternates.RandomWeighted();
+			m_spriteAlternates = null; // NOTE that this is BEFORE duplication
+		}
+
 		if (m_splitCountMax > 0) // TODO: separate component?
 		{
-			SpriteRenderer rendererLocal = GetComponent<SpriteRenderer>();
-			Tuple<Sprite, Bounds>[] spritesAndBounds = VoronoiMasks(UnityEngine.Random.Range(2, m_splitCountMax + 1), rendererLocal.size.x, rendererLocal.sprite.pixelsPerUnit); // TODO: don't assume square SpriteRenderer size? influence number of pieces based on intended difficulty?
+			// NOTE that this is BEFORE VoronoiMasks()
+			rendererLocal.flipX = UnityEngine.Random.value < 0.5f;
+			rendererLocal.flipY = UnityEngine.Random.value < 0.5f;
+
+			Tuple<Sprite, Bounds>[] spritesAndBounds = VoronoiMasks(UnityEngine.Random.Range(2, m_splitCountMax + 1), rendererLocal); // TODO: influence number of pieces based on size / intended difficulty?
 			m_splitCountMax = 0; // NOTE that this is BEFORE duplication
-			bool flipX = UnityEngine.Random.value < 0.5f;
-			bool flipY = UnityEngine.Random.value < 0.5f;
 			foreach (Tuple<Sprite, Bounds> pair in spritesAndBounds)
 			{
 				// TODO: skip if no pixels are visible? update m_snapPrecursors
@@ -47,8 +61,8 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 				newInteract.GetComponent<SpriteMask>().sprite = pair.Item1;
 
 				SpriteRenderer rendererChild = newInteract.GetComponent<SpriteRenderer>();
-				rendererChild.flipX = flipX;
-				rendererChild.flipY = flipY;
+				rendererChild.flipX = rendererLocal.flipX;
+				rendererChild.flipY = rendererLocal.flipY;
 
 				BoxCollider2D trigger = newInteract.GetComponent<BoxCollider2D>();
 				trigger.size = pair.Item2.size;
@@ -67,13 +81,17 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 			enabled = false; // to fix in place as the starting piece // NOTE that this is AFTER duplication
 		}
 
+		// ensure we haven't expanded beyond room bounds due to sprite change/flip
+		// TODO: more robust checks against room sides/top?
+		transform.position += new Vector3(0.0f, Mathf.Max(0.0f, m_room.transform.position.y - rendererLocal.bounds.min.y));
+
 		m_correctPosition = transform.position;
 		m_correctRotationDegrees = transform.rotation.eulerAngles.z;
 	}
 
 	private void Start()
 	{
-		transform.SetPositionAndRotation(GameController.Instance.RoomFromPosition(transform.position).InteriorPosition((Lock as LockController).m_keyHeightMax, gameObject), Quaternion.Euler(0.0f, 0.0f, UnityEngine.Random.Range(0.0f, 360.0f)));
+		transform.SetPositionAndRotation(m_room.InteriorPosition((Lock as LockController).m_keyHeightMax, gameObject), Quaternion.Euler(0.0f, 0.0f, UnityEngine.Random.Range(0.0f, 360.0f)));
 	}
 
 
@@ -88,7 +106,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 		{
 			return false;
 		}
-		return transform.parent.parent == GameController.Instance.RoomFromPosition(interactor.transform.position).transform;
+		return m_room == GameController.Instance.RoomFromPosition(interactor.transform.position);
 	}
 
 	public float Priority(KinematicCharacter interactor) => m_followCharacter == interactor ? float.MaxValue : IsInPlace ? 0.5f : 1.0f;
@@ -104,7 +122,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 			m_followOffsetDegrees = transform.rotation.eulerAngles.z - followTf.Item2;
 
 			// edit sorting order to put this "on top" w/o changing other relationships
-			InteractFollow[] siblings = transform.parent.parent.GetComponentsInChildren<InteractFollow>(); // TODO: work even between different rooms?
+			InteractFollow[] siblings = m_room.GetComponentsInChildren<InteractFollow>(); // TODO: work even between different rooms?
 			int orderItr = 0;
 			foreach (InteractFollow interact in siblings.OrderBy(i => i == this ? int.MaxValue : i.GetComponent<SpriteRenderer>().sortingOrder))
 			{
@@ -144,7 +162,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 	}
 
 
-	private static Tuple<Sprite, Bounds>[] VoronoiMasks(int count, float sizeWS, float pixelsPerUnit)
+	private static Tuple<Sprite, Bounds>[] VoronoiMasks(int count, SpriteRenderer renderer)
 	{
 		// pick random points in UV space
 		System.Collections.Generic.List<Vector2> sites = new();
@@ -157,14 +175,14 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 
 		// determine closest site to each texel
 		// TODO: efficiency?
-		int sizeTexels = Mathf.RoundToInt(sizeWS * pixelsPerUnit);
-		int[,] perTexelIndices = new int[sizeTexels, sizeTexels];
-		for (int x = 0; x < sizeTexels; ++x)
+		Vector2Int sizeTexels = Vector2Int.RoundToInt(renderer.sprite.rect.size);
+		Vector2 uvPerTexel = Vector2.one / (sizeTexels - Vector2Int.one);
+		int[,] perTexelIndices = new int[sizeTexels.x, sizeTexels.y];
+		for (int x = 0; x < sizeTexels.x; ++x)
 		{
-			for (int y = 0; y < sizeTexels; ++y)
+			for (int y = 0; y < sizeTexels.y; ++y)
 			{
-				float uvPerTexel = 1.0f / (sizeTexels - 1);
-				Vector2 texelUV = new(x * uvPerTexel, y * uvPerTexel);
+				Vector2 texelUV = new Vector2(x, y) * uvPerTexel;
 				float distSqMin = float.MaxValue;
 				int nearestIdx = -1;
 				int idx = 0;
@@ -188,14 +206,15 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 		Tuple<Sprite, Bounds>[] sprites = new Tuple<Sprite, Bounds>[count];
 		for (int i = 0; i < sprites.Length; ++i)
 		{
-			Texture2D texture = new(sizeTexels, sizeTexels, TextureFormat.Alpha8, false) { name = "Voronoi texture" };
+			// create/fill texture
+			Texture2D texture = new(sizeTexels.x, sizeTexels.y, TextureFormat.Alpha8, false) { name = "Voronoi texture" };
 			float minX = float.MaxValue;
 			float minY = float.MaxValue;
 			float maxX = float.MinValue;
 			float maxY = float.MinValue;
-			for (int x = 0; x < sizeTexels; ++x)
+			for (int x = 0; x < sizeTexels.x; ++x)
 			{
-				for (int y = 0; y < sizeTexels; ++y)
+				for (int y = 0; y < sizeTexels.y; ++y)
 				{
 					if (perTexelIndices[x, y] == i)
 					{
@@ -212,7 +231,22 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 				}
 			}
 			texture.Apply(false, true);
-			sprites[i] = Tuple.Create(Sprite.Create(texture, new Rect(0, 0, sizeTexels, sizeTexels), Vector2.one * 0.5f), new Bounds(new Vector2(minX + maxX, minY + maxY) / sizeTexels - Vector2.one, new Vector2(maxX - minX, maxY - minY) / pixelsPerUnit)); // TODO: don't assume central pivot?
+
+			// create sprite
+			Vector2 pivotUV = renderer.sprite.pivot / sizeTexels;
+			if (renderer.flipX)
+			{
+				pivotUV.x = 1.0f - pivotUV.x;
+			}
+			if (renderer.flipY)
+			{
+				pivotUV.y = 1.0f - pivotUV.y;
+			}
+			float pixelsPerUnit = renderer.sprite.pixelsPerUnit;
+			Vector2 offsetTexels = new Vector2(minX + maxX, minY + maxY) * 0.5f;
+			Vector2 offsetUV = offsetTexels / sizeTexels - pivotUV;
+			Vector2 offsetWS = offsetUV * sizeTexels / pixelsPerUnit;
+			sprites[i] = Tuple.Create(Sprite.Create(texture, new Rect(0, 0, sizeTexels.x, sizeTexels.y), pivotUV, pixelsPerUnit), new Bounds(offsetWS, new Vector2(maxX - minX, maxY - minY) / pixelsPerUnit));
 			sprites[i].Item1.name = "Voronoi sprite";
 		}
 		return sprites;
@@ -230,12 +264,12 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 
 	private System.Collections.IEnumerator Follow()
 	{
-		Bounds followBounds = transform.parent.parent.GetComponent<RoomController>().BoundsInterior; // TODO: parameterize?
+		Bounds followBounds = m_room.BoundsInterior;
 
 		while (m_followCharacter != null && followBounds.Contains(m_followCharacter.transform.position))
 		{
 			Tuple<Vector3, float> followTf = FollowTransform();
-			transform.SetPositionAndRotation(followBounds.ClosestPoint(followTf.Item1 + Quaternion.Euler(0.0f, 0.0f, followTf.Item2) * m_followOffset), Quaternion.Euler(0.0f, 0.0f, followTf.Item2 + m_followOffsetDegrees));
+			transform.SetPositionAndRotation(followBounds.ClosestPoint(followTf.Item1 + Quaternion.Euler(0.0f, 0.0f, followTf.Item2) * m_followOffset), Quaternion.Euler(0.0f, 0.0f, followTf.Item2 + m_followOffsetDegrees)); // TODO: limit entire bounding box rather than just the pivot point to followBounds
 			yield return null;
 		}
 
