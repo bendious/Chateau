@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class BackgroundResize : MonoBehaviour
 {
-	[SerializeField] private Vector3 m_scalar = new(1.5f, 1.5f, 1.0f);
+	[SerializeField] private Vector3 m_margin = new(30.0f, 15.0f, 0.0f); // TODO: determine automatically based on camera/avatar settings?
 
 
 	private void Start()
@@ -18,8 +18,11 @@ public class BackgroundResize : MonoBehaviour
 				bbox.Encapsulate(room.GetComponent<SpriteRenderer>().bounds);
 				return bbox;
 			});
-			transform.localScale = Vector3.Scale(lookoutBbox.extents, m_scalar);
-			transform.position = new(lookoutBbox.center.x, lookoutBbox.min.y, lookoutBbox.center.z);
+			Vector3 extentsExpanded = lookoutBbox.extents + m_margin;
+			float aspectRatio = Camera.main.aspect;
+			Vector3 aspectRatioMins = new(extentsExpanded.y * aspectRatio, extentsExpanded.x / aspectRatio, 0.0f); // since very wide/short and very tall/narrow layouts cause the camera to zoom significantly farther than the extents in one direction
+			transform.localScale = Vector3.Max(extentsExpanded, aspectRatioMins);
+			transform.position = new(lookoutBbox.center.x, transform.position.y, lookoutBbox.center.z);
 		}
 		StartCoroutine(delayedSetTransform());
 	}
