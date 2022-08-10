@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using UnityEngine.VFX;
 [DisallowMultipleComponent, RequireComponent(typeof(AudioSource))]
 public class LockController : MonoBehaviour, IUnlockable
 {
-	[System.Serializable]
+	[Serializable]
 	public struct KeyInfo
 	{
 		public Sprite[] m_doorSprites;
@@ -20,9 +21,9 @@ public class LockController : MonoBehaviour, IUnlockable
 		public int m_combinationDigits;
 		[SerializeField] internal bool m_genericKeys;
 	}
-	[System.Serializable] public class CombinationSet
+	[Serializable] public class CombinationSet
 	{
-		[System.Serializable]
+		[Serializable]
 		public class Option
 		{
 			public string[] m_strings;
@@ -50,7 +51,7 @@ public class LockController : MonoBehaviour, IUnlockable
 	public bool IsLocked => enabled;
 
 
-	private readonly List<IKey> m_keys = new();
+	private readonly List<Tuple<IKey, GameObject>> m_keys = new();
 	private bool m_hasSpawnedKeys = false;
 	private KeyInfo m_keyInfo;
 	private CombinationSet m_combinationSet;
@@ -90,11 +91,12 @@ public class LockController : MonoBehaviour, IUnlockable
 			foreach (IKey key in keyObj.GetComponentsInChildren<IKey>())
 			{
 				key.Lock = this;
-				m_keys.Add(key);
+				m_keys.Add(Tuple.Create(key, keyObj));
 			}
 		}
 
 		// setup key(s)
+		// TODO: move into Start() to ensure late-added keys (e.g. puzzle pieces) are present?
 		if (m_keyInfo.m_combinationDigits > 0)
 		{
 			// assign combination
@@ -102,47 +104,61 @@ public class LockController : MonoBehaviour, IUnlockable
 			int[] combination = new int[m_keyInfo.m_combinationDigits];
 			for (int digitIdx = 0; digitIdx < m_keyInfo.m_combinationDigits; ++digitIdx)
 			{
-				combination[digitIdx] = Random.Range(0, m_combinationSet.m_options.Length); // TODO: recognize & act upon "special" combinations (0333, 0666, real words, etc.)?
+				combination[digitIdx] = UnityEngine.Random.Range(0, m_combinationSet.m_options.Length); // TODO: recognize & act upon "special" combinations (0333, 0666, real words, etc.)?
 			}
 
 			// distribute combination among keys/children
-			bool useSprites = m_combinationSet.m_spriteUsagePct > 0.0f && Random.value <= m_combinationSet.m_spriteUsagePct; // NOTE the prevention of rare unexpected results when usage percent is 0 or 1
+			bool useSprites = m_combinationSet.m_spriteUsagePct > 0.0f && UnityEngine.Random.value <= m_combinationSet.m_spriteUsagePct; // NOTE the prevention of rare unexpected results when usage percent is 0 or 1
 			int optionsCount = m_combinationSet.m_options.First().m_strings.Length; // TODO: don't assume all options have the same m_strings.Length?
-			int optionIdxToggle = useSprites ? -1 : Random.Range(0, optionsCount);
-			int optionIdxText = Random.Range(0, optionsCount); // NOTE that this can differ from optionIdxToggle even when not using sprites, in order to allow logically equivalent options within individual puzzles
+			int optionIdxToggle = useSprites ? -1 : UnityEngine.Random.Range(0, optionsCount);
+			int optionIdxText = UnityEngine.Random.Range(0, optionsCount); // NOTE that this can differ from optionIdxToggle even when not using sprites, in order to allow logically equivalent options within individual puzzles
 			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / keyOrLockRooms.Length;
 			int comboIdx = 0;
-			int keyIdx = 0;
-			foreach (IKey key in m_keys)
+			int keyIdx = -1;
+			GameObject keyObjPrev = null;
+			foreach (Tuple<IKey, GameObject> key in m_keys)
 			{
+				// determine how much of the combination this key gets
+				if (key.Item2 != keyObjPrev) // TODO: don't assume m_keys[] is ordered?
+				{
+					keyIdx = (keyIdx + 1) % combination.Length;
+				}
+				float startIdxF = (keyIdx * digitsPerKey) % combination.Length;
+				int startIdx = Mathf.RoundToInt(startIdxF);
+				int endIdx = Mathf.RoundToInt(startIdxF + digitsPerKey);
+
+				// pass to key component
 				// TODO: more generic handling?
-				if (key is InteractRotate rotator)
+				if (key.Item1 is InteractRotate rotator)
 				{
 					rotator.RotationCorrectDegrees = -360.0f * combination[comboIdx] / m_combinationSet.m_options.Length; // NOTE the negative due to clockwise clock rotation // TODO: parameterize?
-					++comboIdx;
+					comboIdx = (comboIdx + 1) % combination.Length;
 				}
-				else if (key is InteractToggle toggle)
+				else if (key.Item1 is InteractToggle toggle)
 				{
 					toggle.SetToggleText(m_combinationSet, optionIdxToggle, combination[comboIdx]);
-					++comboIdx;
+					if (!toggle.enabled && (comboIdx < startIdx || comboIdx >= endIdx))
+					{
+						toggle.gameObject.SetActive(false);
+					}
+					comboIdx = (comboIdx + 1) % combination.Length;
 				}
 				else
 				{
-					int startIdx = Mathf.RoundToInt(keyIdx * digitsPerKey);
-					int endIdx = Mathf.RoundToInt((keyIdx + 1) * digitsPerKey);
 					const string spriteText = "<sprite index=0 tint=1>";
 					IEnumerable<string> keyText = Enumerable.Repeat(spriteText, startIdx).Concat(combination[startIdx .. endIdx].Select(idx => m_combinationSet.m_options[idx].m_strings[optionIdxText])).Concat(Enumerable.Repeat(spriteText, combination.Length - endIdx));
 
-					if (key is ItemController item)
+					if (key.Item1 is ItemController item)
 					{
 						item.MergeWithSourceText(keyText);
 					}
 					else
 					{
-						key.Component.GetComponentInChildren<TMP_Text>().text = keyText.Aggregate((str, strNew) => str + strNew); // TODO: embed w/i (short) flavor text?
+						key.Item1.Component.GetComponentInChildren<TMP_Text>().text = keyText.Aggregate((str, strNew) => str + strNew); // TODO: embed w/i (short) flavor text?
 					}
-					++keyIdx;
 				}
+
+				keyObjPrev = key.Item2;
 			}
 		}
 
@@ -150,7 +166,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		GameObject orderObj = null;
 		if (m_keys.Count > 1 && m_keyInfo.m_orderPrefabs != null && m_keyInfo.m_orderPrefabs.Length > 0)
 		{
-			int spawnRoomIdx = Random.Range(0, keyOrLockRooms.Length + 1);
+			int spawnRoomIdx = UnityEngine.Random.Range(0, keyOrLockRooms.Length + 1);
 			RoomController spawnRoom = spawnRoomIdx >= keyOrLockRooms.Length ? lockRoom : keyOrLockRooms[spawnRoomIdx];
 			GameObject orderPrefab = m_keyInfo.m_orderPrefabs.RandomWeighted();
 			Vector3 spawnPos = spawnRoom.InteriorPosition(m_keyHeightMax, orderPrefab);
@@ -163,7 +179,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		// match key color(s)
 		// TODO: base on ColorRandomizer?
 		SpriteRenderer[] childKeyRenderers = (orderObj != null ? orderObj : gameObject).GetComponentsInChildren<IKey>().Select(key => key.Component.GetComponent<SpriteRenderer>()).Where(r => r != null).ToArray();
-		IEnumerable<SpriteRenderer> spawnedKeyRenderers = m_keys.Select(key => key.Component.GetComponent<SpriteRenderer>()).Where(r => r != null && !childKeyRenderers.Any(nonspawned => nonspawned.gameObject == r.gameObject)).ToArray();
+		IEnumerable<SpriteRenderer> spawnedKeyRenderers = m_keys.Select(key => key.Item1.Component.GetComponent<SpriteRenderer>()).Where(r => r != null && !childKeyRenderers.Any(nonspawned => nonspawned.gameObject == r.gameObject)).ToArray();
 		if (childKeyRenderers.Length == 0)
 		{
 			// single-color self and keys
@@ -190,8 +206,10 @@ public class LockController : MonoBehaviour, IUnlockable
 			{
 				// color match children one-to-one
 				int i = 0;
-				foreach (SpriteRenderer spawnedR in spawnedKeyRenderers)
+				for (; i < childKeyRenderers.Length && i < spawnedKeyRenderers.Count(); ++i)
 				{
+					SpriteRenderer spawnedR = spawnedKeyRenderers.ElementAt(i);
+
 					// ensure colors are visually distinct
 					foreach (SpriteRenderer spawnedR2 in spawnedKeyRenderers)
 					{
@@ -203,14 +221,19 @@ public class LockController : MonoBehaviour, IUnlockable
 						{
 							continue;
 						}
-						spawnedR.color = spawnedR.color.ColorFlipComponent(Random.Range(0, 3), Color.black, Color.white); // TODO: use ColorRandomizer range? ensure flipping component doesn't result in conflict w/ any previous color?
+						spawnedR.color = spawnedR.color.ColorFlipComponent(UnityEngine.Random.Range(0, 3), Color.black, Color.white); // TODO: use ColorRandomizer range? ensure flipping component doesn't result in conflict w/ any previous color?
 					}
 
 					childKeyRenderers[i].color = spawnedR.color;
-					++i;
 				}
 
-				// auto-disable extras
+				// match extra spawned colors
+				for (; i < spawnedKeyRenderers.Count(); ++i)
+				{
+					spawnedKeyRenderers.ElementAt(i).color = childKeyRenderers[i % childKeyRenderers.Length].color;
+				}
+
+				// auto-disable extra children
 				for (; i < childKeyRenderers.Length; ++i)
 				{
 					childKeyRenderers[i].gameObject.SetActive(false);
@@ -245,7 +268,7 @@ public class LockController : MonoBehaviour, IUnlockable
 			}
 			ISavable savableObj = obj.GetComponent<ISavable>();
 			ISavable savableKey = key.Component.GetComponent<ISavable>();
-			return savableObj != null && savableKey != null && savableObj.Type != -1 && (savableObj.Type == savableKey.Type || savableObj.Type == System.Array.FindIndex(GameController.Instance.m_savableFactory.m_savables, info => info.m_prefab == key.Component.gameObject)); // NOTE the extra check of SavableFactory.m_savables since the key might be a pre-spawned prefab
+			return savableObj != null && savableKey != null && savableObj.Type != -1 && (savableObj.Type == savableKey.Type || savableObj.Type == Array.FindIndex(GameController.Instance.m_savableFactory.m_savables, info => info.m_prefab == key.Component.gameObject)); // NOTE the extra check of SavableFactory.m_savables since the key might be a pre-spawned prefab
 		}
 
 		int matchingKeyIdx = -1;
@@ -253,13 +276,13 @@ public class LockController : MonoBehaviour, IUnlockable
 		if (m_keyInfo.m_orderPrefabs != null && m_keyInfo.m_orderPrefabs.Length > 0)
 		{
 			// ordered
-			matchingKeyIdx = m_keys.FindIndex(key => !key.IsInPlace);
-			retVal = matchingKeyIdx >= 0 && (CheckKey(m_keys[matchingKeyIdx]) || (m_keyInfo.m_genericKeys && m_keyInfo.m_prefabs.Length > matchingKeyIdx && CheckKey(m_keyInfo.m_prefabs[matchingKeyIdx].m_object.GetComponent<IKey>())));
+			matchingKeyIdx = m_keys.FindIndex(key => !key.Item1.IsInPlace);
+			retVal = matchingKeyIdx >= 0 && (CheckKey(m_keys[matchingKeyIdx].Item1) || (m_keyInfo.m_genericKeys && m_keyInfo.m_prefabs.Length > matchingKeyIdx && CheckKey(m_keyInfo.m_prefabs[matchingKeyIdx].m_object.GetComponent<IKey>())));
 		}
 		else
 		{
 			// unordered
-			matchingKeyIdx = m_keys.FindIndex(key => CheckKey(key));
+			matchingKeyIdx = m_keys.FindIndex(key => CheckKey(key.Item1));
 			retVal = matchingKeyIdx >= 0 || (m_keyInfo.m_genericKeys && m_keyInfo.m_prefabs.Any(keyPrefab => CheckKey(keyPrefab.m_object.GetComponent<IKey>())));
 		}
 
@@ -269,7 +292,7 @@ public class LockController : MonoBehaviour, IUnlockable
 			IKey newKey = obj.GetComponent<IKey>();
 			if (m_keys[matchingKeyIdx] != newKey)
 			{
-				m_keys[matchingKeyIdx] = newKey;
+				m_keys[matchingKeyIdx] = Tuple.Create(newKey, obj);
 			}
 		}
 
@@ -278,9 +301,9 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	public bool CheckInput()
 	{
-		foreach (IKey key in m_keys)
+		foreach (Tuple<IKey, GameObject> key in m_keys)
 		{
-			if (!key.IsInPlace)
+			if (!key.Item1.IsInPlace)
 			{
 				// NOTE that we don't play m_failureSFX since this is called by InteractToggle() every time the input is toggled
 				return false;
@@ -294,7 +317,7 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	private void Awake()
 	{
-		m_keys.AddRange(GetComponentsInChildren<IKey>());
+		m_keys.AddRange(GetComponentsInChildren<IKey>().Select(key => Tuple.Create(key, gameObject))); // NOTE that we use our own game object for in-prefab keys
 
 		m_hasTrigger = GetComponents<Collider2D>().Any(collider => collider.isTrigger);
 	}
@@ -304,9 +327,9 @@ public class LockController : MonoBehaviour, IUnlockable
 		foreach (IKey key in GetComponentsInChildren<IKey>())
 		{
 			key.Lock = this;
-			if (!m_keys.Contains(key))
+			if (!m_keys.Any(pair => pair.Item1 == key))
 			{
-				m_keys.Add(key);
+				m_keys.Add(Tuple.Create(key, key.Component.gameObject)); // NOTE that we use the key's game object for late-added keys
 			}
 		}
 	}
@@ -365,9 +388,9 @@ public class LockController : MonoBehaviour, IUnlockable
 			return;
 		}
 
-		foreach (IKey key in m_keys)
+		foreach (Tuple<IKey, GameObject> key in m_keys)
 		{
-			key.Deactivate();
+			key.Item1.Deactivate();
 		}
 		if (Parent != null)
 		{
@@ -397,9 +420,9 @@ public class LockController : MonoBehaviour, IUnlockable
 					audio.Play();
 				}
 
-				foreach (IKey entry in m_keys)
+				foreach (Tuple<IKey, GameObject> entry in m_keys)
 				{
-					entry.IsInPlace = false;
+					entry.Item1.IsInPlace = false;
 				}
 				UpdateSprite();
 
@@ -410,7 +433,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		}
 
 		// check for full unlocking
-		int remainingKeys = m_keys.Count(key => !key.IsInPlace);
+		int remainingKeys = m_keys.Count(key => !key.Item1.IsInPlace);
 		if (key == null || remainingKeys <= 0)
 		{
 			// unlock parent
@@ -474,13 +497,13 @@ public class LockController : MonoBehaviour, IUnlockable
 			enabled = false;
 
 			// deactivate keys
-			foreach (IKey keyEntry in m_keys)
+			foreach (Tuple<IKey, GameObject> keyEntry in m_keys)
 			{
-				if (keyEntry == null || keyEntry.Component == null)
+				if (keyEntry.Item1 == null || keyEntry.Item1.Component == null)
 				{
 					continue;
 				}
-				keyEntry.Deactivate();
+				keyEntry.Item1.Deactivate();
 			}
 			m_keys.Clear();
 		}
@@ -504,7 +527,7 @@ public class LockController : MonoBehaviour, IUnlockable
 	{
 		if (m_keyInfo.m_doorSprites != null && m_keyInfo.m_doorSprites.Length > 0)
 		{
-			GetComponent<SpriteRenderer>().sprite = m_keyInfo.m_doorSprites[^Mathf.Min(m_keyInfo.m_doorSprites.Length, m_keys.Count(key => !key.IsInPlace) + 1)];
+			GetComponent<SpriteRenderer>().sprite = m_keyInfo.m_doorSprites[^Mathf.Min(m_keyInfo.m_doorSprites.Length, m_keys.Count(key => !key.Item1.IsInPlace) + 1)];
 		}
 	}
 

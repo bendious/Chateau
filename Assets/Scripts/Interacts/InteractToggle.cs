@@ -1,4 +1,3 @@
-using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -30,8 +29,13 @@ public class InteractToggle : MonoBehaviour, IInteractable, IKey
 		m_audioSource = GetComponent<AudioSource>();
 	}
 
+	private void Start()
+	{
+		// NOTE that this is required, even though empty, to ensure enable/disable checkbox appears in the Inspector
+	}
 
-	public bool CanInteract(KinematicCharacter interactor) => m_toggleSet != null && m_toggleSet.m_options.Length > 1;
+
+	public bool CanInteract(KinematicCharacter interactor) => enabled && m_toggleSet != null && m_toggleSet.m_options.Length > 1;
 	public bool CanInteractReverse(KinematicCharacter interactor) => CanInteract(interactor);
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
@@ -55,19 +59,19 @@ public class InteractToggle : MonoBehaviour, IInteractable, IKey
 		m_toggleSet = set;
 		m_optionIndex = optionIndex;
 		m_idxCorrect = indexCorrect;
-		m_idxCurrent = 0;
+		m_idxCurrent = enabled ? Random.Range(0, m_toggleSet.m_options.Length) : m_idxCorrect;
 
-		if (m_toggleSet == null)
-		{
-			return;
-		}
 		UpdateVisuals();
 	}
 
 	public void Deactivate()
 	{
-		SetToggleText(null, 0, -1);
-		GetComponent<UnityEngine.Rendering.Universal.Light2D>().enabled = false;
+		// force correct state in case we were unlocked via console command / etc.
+		m_idxCurrent = m_idxCorrect;
+		UpdateVisuals();
+
+		enabled = false;
+		GetComponentInChildren<UnityEngine.Rendering.Universal.Light2D>().enabled = false;
 	}
 
 
