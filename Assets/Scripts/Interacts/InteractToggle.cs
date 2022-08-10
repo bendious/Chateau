@@ -29,9 +29,9 @@ public class InteractToggle : MonoBehaviour, IInteractable, IKey
 		m_audioSource = GetComponent<AudioSource>();
 	}
 
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "UNT0001:Empty Unity message", Justification = "Required to ensure enable/disable checkbox appears in the Inspector")]
 	private void Start()
 	{
-		// NOTE that this is required, even though empty, to ensure enable/disable checkbox appears in the Inspector
 	}
 
 
@@ -49,20 +49,18 @@ public class InteractToggle : MonoBehaviour, IInteractable, IKey
 		m_audioSource.Play();
 	}
 
-	public void Use()
-	{
-		Debug.Assert(false, "Trying to Use() an InteractToggle.");
-	}
 
-	public void SetToggleText(LockController.CombinationSet set, int optionIndex, int indexCorrect)
+	public void SetCombination(LockController.CombinationSet set, int[] combination, int optionIndex, int indexCorrect, int startIndex, int endIndex, bool useSprites)
 	{
 		m_toggleSet = set;
-		m_optionIndex = optionIndex;
+		m_optionIndex = useSprites ? -1 : optionIndex;
 		m_idxCorrect = indexCorrect;
 		m_idxCurrent = enabled ? Random.Range(0, m_toggleSet.m_options.Length) : m_idxCorrect;
 
 		UpdateVisuals();
 	}
+
+	public void Use() => Debug.LogError("Trying to Use() an InteractToggle.");
 
 	public void Deactivate()
 	{

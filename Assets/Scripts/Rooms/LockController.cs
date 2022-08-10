@@ -108,10 +108,9 @@ public class LockController : MonoBehaviour, IUnlockable
 			}
 
 			// distribute combination among keys/children
-			bool useSprites = m_combinationSet.m_spriteUsagePct > 0.0f && UnityEngine.Random.value <= m_combinationSet.m_spriteUsagePct; // NOTE the prevention of rare unexpected results when usage percent is 0 or 1
+			bool useSprites = false;
 			int optionsCount = m_combinationSet.m_options.First().m_strings.Length; // TODO: don't assume all options have the same m_strings.Length?
-			int optionIdxToggle = useSprites ? -1 : UnityEngine.Random.Range(0, optionsCount);
-			int optionIdxText = UnityEngine.Random.Range(0, optionsCount); // NOTE that this can differ from optionIdxToggle even when not using sprites, in order to allow logically equivalent options within individual puzzles
+			int optionIdx = -1;
 			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / keyOrLockRooms.Length;
 			int comboIdx = 0;
 			int keyIdx = -1;
@@ -121,6 +120,8 @@ public class LockController : MonoBehaviour, IUnlockable
 				// determine how much of the combination this key gets
 				if (key.Item2 != keyObjPrev) // TODO: don't assume m_keys[] is ordered?
 				{
+					useSprites = m_combinationSet.m_spriteUsagePct > 0.0f && UnityEngine.Random.value <= m_combinationSet.m_spriteUsagePct; // NOTE the prevention of rare unexpected results when usage percent is 0 or 1
+					optionIdx = UnityEngine.Random.Range(0, optionsCount);
 					keyIdx = (keyIdx + 1) % combination.Length;
 				}
 				float startIdxF = (keyIdx * digitsPerKey) % combination.Length;
@@ -128,36 +129,14 @@ public class LockController : MonoBehaviour, IUnlockable
 				int endIdx = Mathf.RoundToInt(startIdxF + digitsPerKey);
 
 				// pass to key component
-				// TODO: more generic handling?
-				if (key.Item1 is InteractRotate rotator)
+				key.Item1.SetCombination(m_combinationSet, combination, optionIdx, combination[comboIdx], startIdx, endIdx, useSprites);
+				if (!key.Item1.Component.enabled && (comboIdx < startIdx || comboIdx >= endIdx))
 				{
-					rotator.RotationCorrectDegrees = -360.0f * combination[comboIdx] / m_combinationSet.m_options.Length; // NOTE the negative due to clockwise clock rotation // TODO: parameterize?
-					comboIdx = (comboIdx + 1) % combination.Length;
-				}
-				else if (key.Item1 is InteractToggle toggle)
-				{
-					toggle.SetToggleText(m_combinationSet, optionIdxToggle, combination[comboIdx]);
-					if (!toggle.enabled && (comboIdx < startIdx || comboIdx >= endIdx))
-					{
-						toggle.gameObject.SetActive(false);
-					}
-					comboIdx = (comboIdx + 1) % combination.Length;
-				}
-				else
-				{
-					const string spriteText = "<sprite index=0 tint=1>";
-					IEnumerable<string> keyText = Enumerable.Repeat(spriteText, startIdx).Concat(combination[startIdx .. endIdx].Select(idx => m_combinationSet.m_options[idx].m_strings[optionIdxText])).Concat(Enumerable.Repeat(spriteText, combination.Length - endIdx));
-
-					if (key.Item1 is ItemController item)
-					{
-						item.MergeWithSourceText(keyText);
-					}
-					else
-					{
-						key.Item1.Component.GetComponentInChildren<TMP_Text>().text = keyText.Aggregate((str, strNew) => str + strNew); // TODO: embed w/i (short) flavor text?
-					}
+					key.Item1.Component.gameObject.SetActive(false);
 				}
 
+				// iterate
+				comboIdx = (comboIdx + 1) % combination.Length;
 				keyObjPrev = key.Item2;
 			}
 		}

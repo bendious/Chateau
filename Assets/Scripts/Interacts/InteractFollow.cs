@@ -148,10 +148,9 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 	}
 
 
-	public void Use()
-	{
-		Debug.Assert(false, "Trying to Use() an InteractFollow.");
-	}
+	public void SetCombination(LockController.CombinationSet set, int[] combination, int optionIndex, int indexCorrect, int startIndex, int endIndex, bool useSprites) => Debug.LogError("Can't SetCombination() on InteractFollow");
+
+	public void Use() => Debug.LogError("Can't Use() an InteractFollow.");
 
 	public void Deactivate()
 	{

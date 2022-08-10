@@ -1,3 +1,4 @@
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -15,6 +16,8 @@ public class KeyStatic : MonoBehaviour, IKey
 		IsInPlace = true;
 	}
 
+
+	public void SetCombination(LockController.CombinationSet set, int[] combination, int optionIndex, int indexCorrect, int startIndex, int endIndex, bool useSprites) => GetComponentInChildren<TMP_Text>().text = IKey.CombinationToText(set, combination, optionIndex, startIndex, endIndex).Aggregate((str, strNew) => str + strNew); // TODO: embed w/i (short) flavor text?
 
 	public void Use()
 	{

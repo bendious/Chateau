@@ -42,6 +42,11 @@ public class InteractRotate : MonoBehaviour, IInteractable, IKey
 	}
 
 
+	public void SetCombination(LockController.CombinationSet set, int[] combination, int optionIndex, int indexCorrect, int startIndex, int endIndex, bool useSprites)
+	{
+		RotationCorrectDegrees = -360.0f * indexCorrect / set.m_options.Length; // NOTE the negative due to clockwise clock rotation // TODO: parameterize?
+	}
+
 	public void Use()
 	{
 		Debug.Assert(false, "Trying to Use() an InteractRotate.");

@@ -205,6 +205,17 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		}
 	}
 
+	public void SetCombination(LockController.CombinationSet set, int[] combination, int optionIndex, int indexCorrect, int startIndex, int endIndex, bool useSprites)
+	{
+		IEnumerable<string> elements = IKey.CombinationToText(set, combination, optionIndex, startIndex, endIndex);
+		string aggregateText = m_sourceTextOptions.RandomWeighted().Aggregate((a, b) => a + "\n" + b);
+		foreach (string element in elements)
+		{
+			aggregateText = aggregateText.ReplaceFirst("#", element.Trim());
+		}
+		GetComponentInChildren<TMP_Text>().text = aggregateText;
+	}
+
 	void IKey.Use()
 	{
 		IsInPlace = true;
@@ -335,16 +346,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		EnableVFXAndDamage();
 
 		PlayMovementAudio();
-	}
-
-	public void MergeWithSourceText(IEnumerable<string> elements)
-	{
-		string aggregateText = m_sourceTextOptions.RandomWeighted().Aggregate((a, b) => a + "\n" + b);
-		foreach (string element in elements)
-		{
-			aggregateText = aggregateText.ReplaceFirst("#", element.Trim());
-		}
-		GetComponentInChildren<TMP_Text>().text = aggregateText;
 	}
 
 

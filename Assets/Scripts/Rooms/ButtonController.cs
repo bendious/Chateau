@@ -25,6 +25,8 @@ public class ButtonController : MonoBehaviour, IInteractable, IKey
 	}
 
 
+	public void SetCombination(LockController.CombinationSet set, int[] combination, int optionIndex, int indexCorrect, int startIndex, int endIndex, bool useSprites) => Debug.LogError("Can't SetCombination() on ButtonController");
+
 	public void Use()
 	{
 		Lock.Unlock(this);
