@@ -288,7 +288,7 @@ public class GameController : MonoBehaviour
 			}
 
 			// NOTE that we don't replace the whole m_Targets array in case a non-avatar object is also present
-			AddCameraTargets(avatar.m_aimObject.transform, avatar.transform);
+			AddCameraTargets(avatar.transform);
 
 			isFirst = false;
 		}

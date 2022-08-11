@@ -37,23 +37,17 @@ public class AvatarController : KinematicCharacter
 
 	public Vector3 m_focusPromptOffset = new(0.0f, 0.3f, -0.15f);
 
-	[HideInInspector]
-	public InteractFollow m_follower;
+	[HideInInspector] public InteractFollow m_follower;
 
-	[SerializeField]
-	private float m_lookScreenPercentMax = 0.75f;
+	[SerializeField] private float m_lookScreenPercentMax = 0.75f;
 
-	[SerializeField]
-	private float m_moveSpringDampTime = 0.15f;
+	[SerializeField] private float m_moveSpringDampTime = 0.15f;
 
-	[SerializeField]
-	private float m_secondaryDegrees = -45.0f;
+	[SerializeField] private float m_secondaryDegrees = -45.0f;
 
-	[SerializeField]
-	private float m_coyoteTime = 0.15f;
+	[SerializeField] private float m_coyoteTime = 0.15f;
 
-	[SerializeField]
-	private float m_respawnSeconds = 30.0f;
+	[SerializeField] private float m_respawnSeconds = 30.0f;
 
 
 	public PlayerInput Controls { get; private set; }
@@ -159,6 +153,8 @@ public class AvatarController : KinematicCharacter
 	{
 		base.FixedUpdate();
 
+		GameController.Instance.m_virtualCamera.GetComponentInChildren<CinemachineConfiner2D>().m_BoundingShape2D = m_looking ? null : GameController.Instance.RoomFromPosition(transform.position).GetComponentInChildren<PolygonCollider2D>(); // TODO: efficiency? better co-op handling?
+
 		Vector2 aimPosConstrained = m_aimObject.transform.position; // TODO: improve start/respawn aim position
 		Vector2 aimPos = aimPosConstrained;
 
@@ -175,7 +171,7 @@ public class AvatarController : KinematicCharacter
 			aimPctsFromCenter = aimPctsFromCenter.Clamp(-1.0f, 1.0f);
 			CinemachineVirtualCamera vCam = GameController.Instance.m_virtualCamera;
 			Vector2 screenSizeWS = vCam == null ? Vector2.zero : new Vector2(vCam.m_Lens.OrthographicSize * vCam.m_Lens.Aspect, vCam.m_Lens.OrthographicSize) * 2.0f;
-			aimPosConstrained = transform.position + (Vector3)(screenSizeWS * aimPctsFromCenter * (m_looking ? m_lookScreenPercentMax : 0.5f));
+			aimPosConstrained = transform.position + (Vector3)(screenSizeWS * aimPctsFromCenter * m_lookScreenPercentMax);
 			aimPos = m_usingMouse ? camera.ScreenToWorldPoint(m_mousePosPixels) : aimPosConstrained;
 		}
 
@@ -371,6 +367,14 @@ public class AvatarController : KinematicCharacter
 	public void OnLookToggle(InputValue input)
 	{
 		m_looking = input.isPressed;
+		if (m_looking)
+		{
+			GameController.Instance.AddCameraTargets(m_aimObject.transform);
+		}
+		else
+		{
+			GameController.Instance.RemoveCameraTargets(m_aimObject.transform);
+		}
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
@@ -761,7 +765,7 @@ public class AvatarController : KinematicCharacter
 		Teleport(spawnPos);
 		m_aimObject.transform.position = spawnPos;
 
-		GameController.Instance.AddCameraTargets(m_aimObject.transform, transform);
+		GameController.Instance.AddCameraTargets(transform);
 
 		jumpState = JumpState.Grounded;
 

@@ -688,7 +688,7 @@ public class RoomController : MonoBehaviour
 		float widthIncrementHalf = widthIncrement * 0.5f;
 		void TrySpawningExteriorDecoration(WeightedObject<GameObject>[] prefabs, Vector3 position, float heightOverride, bool isBelow)
 		{
-			bool hasSpace = position.y > 0.0f && Physics2D.OverlapArea(position + new Vector3(-widthIncrementHalf + m_physicsCheckEpsilon, isBelow ? -m_physicsCheckEpsilon : m_physicsCheckEpsilon), position + new Vector3(widthIncrementHalf - m_physicsCheckEpsilon, isBelow ? -1.0f : 1.0f)) == null; // TODO: efficiency? more nuanced height check?
+			bool hasSpace = position.y > 0.0f && !Physics2D.OverlapAreaAll(position + new Vector3(-widthIncrementHalf + m_physicsCheckEpsilon, isBelow ? -m_physicsCheckEpsilon : m_physicsCheckEpsilon), position + new Vector3(widthIncrementHalf - m_physicsCheckEpsilon, isBelow ? -1.0f : 1.0f)).Any(collider => !collider.isTrigger); // TODO: efficiency? more nuanced height check?
 			if (!hasSpace)
 			{
 				return;
@@ -1195,7 +1195,7 @@ public class RoomController : MonoBehaviour
 			childPivotPos = doorwayPos + replaceDirection * (doorwayToEdge + childDoorwayToEdge) - childDoorwayPosLocal;
 
 			// check for obstructions
-			isOpen = Physics2D.OverlapBox(childPivotPos + childPivotToCenter, childBounds.size - new Vector3(m_physicsCheckEpsilon, m_physicsCheckEpsilon), 0.0f) == null; // NOTE the small size reduction to avoid always collecting ourself
+			isOpen = !Physics2D.OverlapBoxAll(childPivotPos + childPivotToCenter, childBounds.size - new Vector3(m_physicsCheckEpsilon, m_physicsCheckEpsilon), 0.0f).Any(collider => !collider.isTrigger); // NOTE the small size reduction to avoid always collecting ourself
 			if (isOpen)
 			{
 				reverseIdx = idxCandidate;
