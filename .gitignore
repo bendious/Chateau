@@ -486,3 +486,4 @@ Build.app
 *.DS_Store
 .~lock*#
 *.zip
+Backup.meta

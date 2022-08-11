@@ -143,11 +143,11 @@ public class RoomController : MonoBehaviour
 			{
 				return true;
 			}
-			if (IsOpen() && m_infoReverse.IsOpen())
+			if (!IsOpen(true) || !m_infoReverse.IsOpen(true)) // NOTE that we check m_blocker separately from IsOpen(), since destructible blockers sometimes need to be ignored
 			{
-				return false;
+				return true;
 			}
-			if (m_blocker != null && (checkLevel == ObstructionCheck.Full || m_blocker.GetComponent<IUnlockable>() != null))
+			if (m_blocker != null && (checkLevel == ObstructionCheck.Full || m_blocker.GetComponent<IUnlockable>() != null)) // NOTE that m_infoReverse.m_blocker should always be the same as m_blocker, so we only check one
 			{
 				return true;
 			}

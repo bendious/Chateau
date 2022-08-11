@@ -27,8 +27,7 @@ public class EnemyController : KinematicCharacter
 	public WeightedObject<GameObject>[] m_teleportVFX;
 
 
-	[SerializeField]
-	private GameObject m_heldPrefab;
+	[SerializeField] private GameObject m_heldPrefab;
 
 
 	public float AimOffsetDegrees { private get; set; }
@@ -42,6 +41,9 @@ public class EnemyController : KinematicCharacter
 	private List<Vector2> m_pathfindWaypoints;
 
 	private float m_dropDecayVel;
+
+
+	private bool ShouldSkipUpdates => m_passive || ConsoleCommands.PassiveAI || HasForcedVelocity;
 
 
 	protected override void Awake()
@@ -93,7 +95,7 @@ public class EnemyController : KinematicCharacter
 
 	protected override void Update()
 	{
-		if (m_passive || ConsoleCommands.PassiveAI)
+		if (ShouldSkipUpdates)
 		{
 			move = Vector2.zero;
 		}
@@ -125,7 +127,7 @@ public class EnemyController : KinematicCharacter
 	{
 		base.FixedUpdate();
 
-		if (m_passive || ConsoleCommands.PassiveAI)
+		if (ShouldSkipUpdates)
 		{
 			return;
 		}
@@ -248,16 +250,10 @@ public class EnemyController : KinematicCharacter
 
 			m_targetSelectTimeNext = Time.time + Random.Range(m_replanSecondsMax * 0.5f, m_replanSecondsMax); // TODO: parameterize "min" time even though it's not a hard minimum?
 		}
-		if (m_target == null)
+		if (m_target == null || ShouldSkipUpdates)
 		{
 			move = Vector2.zero;
-			return false; // TODO: flag to trigger idle behavior?
-		}
-
-		if (HasForcedVelocity)
-		{
-			move = Vector2.zero;
-			return false;
+			return false; // TODO: flag to trigger idle behavior if unable to find target?
 		}
 
 		// pathfind
@@ -321,6 +317,15 @@ public class EnemyController : KinematicCharacter
 		return m_pathfindWaypoints.Count == 0;
 	}
 
+	public void ClearPath(bool immediateRepath)
+	{
+		if (immediateRepath)
+		{
+			m_pathfindTimeNext = Time.time;
+		}
+		m_pathfindWaypoints = null;
+	}
+
 	public void PlayAttackEffects()
 	{
 		m_animator.SetBool("attacking", true);
@@ -366,10 +371,19 @@ public class EnemyController : KinematicCharacter
 			}
 			arm.ChildAttach(GameController.Instance.m_savableFactory.Instantiate(m_heldPrefab, transform.position, transform.rotation).GetComponent<ItemController>());
 		}
+
+		// clear AI state in case we had just planned to go get items
+		if (m_aiState != null)
+		{
+			m_aiState.Exit();
+			m_aiState = null;
+		}
 	}
 
 	private Vector2 AimPosition()
 	{
+		// TODO: option to stop tracking target during certain actions?
+
 		// base target position
 		Vector2 aimPos = m_target == null ? (Vector2)transform.position + (LeftFacing ? Vector2.left : Vector2.right) : m_target.position;
 

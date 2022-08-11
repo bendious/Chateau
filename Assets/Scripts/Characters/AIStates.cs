@@ -94,8 +94,8 @@ public abstract class AIState
 
 	public virtual void Enter() {}
 	public abstract AIState Update();
-	public virtual AIState OnDamage(GameObject source) { return null; }
-	public virtual void Exit() {}
+	public virtual AIState OnDamage(GameObject source) => null;
+	public virtual void Exit() => m_ai.ClearPath(true);
 
 #if UNITY_EDITOR
 	public void DebugGizmo()
@@ -236,8 +236,11 @@ public class AIThrow : AIState
 	public float m_waitSeconds = 0.5f;
 
 
-	protected float StartTime { get; private set; }
-	protected float ThrowTime { get; private set; }
+	// NOTE the use of relative rather than absolute times to avoid jumping to the end if started while passive
+	protected float PreSecondsRemaining { get; private set; }
+	private float m_postSecondsRemaining;
+
+	protected bool m_hasThrown = false;
 
 
 	public AIThrow(EnemyController ai)
@@ -247,7 +250,8 @@ public class AIThrow : AIState
 
 	public override void Enter()
 	{
-		StartTime = Time.time;
+		PreSecondsRemaining = m_waitSeconds;
+		m_postSecondsRemaining = m_waitSeconds;
 	}
 
 	public override AIState Update()
@@ -255,30 +259,28 @@ public class AIThrow : AIState
 		m_ai.move = Vector2.zero;
 
 		// pre-throw
-		if (Time.time < StartTime + m_waitSeconds)
+		if (PreSecondsRemaining > 0.0f)
 		{
+			PreSecondsRemaining -= Time.deltaTime;
 			return this;
 		}
 
-		if (ThrowTime == 0.0f)
+		// aim/throw
+		if (!m_hasThrown)
 		{
-			// aim
 			ItemController item = m_ai.GetComponentInChildren<ItemController>(); // NOTE that we can't cache this since it's possible for it to be snatched away between frames
-			if (item == null)
-			{
-				ThrowTime = Time.time; // NOTE that we could return null in order to immediately cancel, but we instead keep going, as if confused, to reward players for snatching AI items
-			}
-			else if (item.Speed < item.m_swingInfo.m_damageThresholdSpeed) // TODO: better aimReady flag?
+			if (item != null && item.Speed < item.m_swingInfo.m_damageThresholdSpeed) // NOTE that if all items have been snatched we could return null in order to immediately cancel, but we instead keep going, as if confused, to reward players for snatching AI items // TODO: better aimReady flag?
 			{
 				item.Throw();
-				ThrowTime = Time.time;
+				m_hasThrown = true;
 			}
-			return this;
+			// NOTE that we go ahead and start decrementing m_postSecondsRemaining in order to avoid getting stuck if there are no items left or our aim never steadies
 		}
 
 		// post-throw
-		if (Time.time < ThrowTime + m_waitSeconds)
+		if (m_postSecondsRemaining > 0.0f)
 		{
+			m_postSecondsRemaining -= Time.deltaTime;
 			return this;
 		}
 
@@ -292,7 +294,7 @@ public class AIThrowAll : AIThrow
 {
 	private readonly float m_spinScalar;
 
-	protected bool m_hasThrown = false;
+	protected bool m_hasThrownAll = false;
 
 
 	public AIThrowAll(EnemyController ai)
@@ -304,17 +306,17 @@ public class AIThrowAll : AIThrow
 	public override AIState Update()
 	{
 		// arm spin during pre-throw
-		m_ai.AimOffsetDegrees = (!m_hasThrown && Time.time < StartTime + m_waitSeconds) ? (Time.time - StartTime) * m_spinScalar : 0.0f;
+		m_ai.AimOffsetDegrees = !m_hasThrown ? (m_waitSeconds - PreSecondsRemaining) * m_spinScalar : 0.0f;
 
 		AIState retVal = base.Update();
 
-		if (!m_hasThrown && ThrowTime != 0.0f)
+		if (m_hasThrown && !m_hasThrownAll)
 		{
 			foreach (ItemController item in m_ai.GetComponentsInChildren<ItemController>())
 			{
 				item.Throw();
 			}
-			m_hasThrown = true;
+			m_hasThrownAll = true;
 		}
 
 		return retVal;
@@ -345,7 +347,7 @@ public sealed class AIThrowAllNarrow : AIThrowAll
 	public override AIState Update()
 	{
 		// arm narrowing during pre-throw
-		m_ai.AimScalar = (!m_hasThrown && Time.time < StartTime + m_waitSeconds) ? Mathf.Lerp(1.0f, m_narrowingPct, (Time.time - StartTime) * m_narrowingScalar) : 1.0f;
+		m_ai.AimScalar = !m_hasThrown ? Mathf.Lerp(1.0f, m_narrowingPct, (m_waitSeconds - PreSecondsRemaining) * m_narrowingScalar) : 1.0f;
 
 		AIState retVal = base.Update();
 
@@ -417,6 +419,8 @@ public sealed class AIRamSwoop : AIState
 
 	public override void Exit()
 	{
+		base.Exit();
+
 		m_ai.transform.rotation = Quaternion.identity;
 
 		m_ai.StopAttackEffects();

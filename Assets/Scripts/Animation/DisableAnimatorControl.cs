@@ -1,9 +1,12 @@
 using UnityEngine;
 
 
-public class DisablePlayerControl : StateMachineBehaviour
+public class DisableAnimatorControl : StateMachineBehaviour
 {
 	private AvatarController m_avatar;
+	private EnemyController m_enemy;
+
+	private bool m_wasPassive;
 
 
 	// OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
@@ -14,6 +17,12 @@ public class DisablePlayerControl : StateMachineBehaviour
 		{
 			m_avatar.DeactivateAllControl();
 		}
+		m_enemy = animator.GetComponent<EnemyController>();
+		if (m_enemy != null)
+		{
+			m_wasPassive = m_enemy.m_passive;
+			m_enemy.m_passive = true;
+		}
 	}
 
 	// OnStateExit is called when a transition ends and the state machine finishes evaluating this state
@@ -22,6 +31,10 @@ public class DisablePlayerControl : StateMachineBehaviour
 		if (m_avatar != null)
 		{
 			m_avatar.EnablePlayerControl();
+		}
+		if (m_enemy != null)
+		{
+			m_enemy.m_passive = m_wasPassive;
 		}
 	}
 }
