@@ -548,7 +548,8 @@ public class RoomController : MonoBehaviour
 				case LayoutGenerator.Node.Type.TutorialDash:
 					RoomType.DecorationInfo info = RoomType.m_decorations[node.m_type - LayoutGenerator.Node.Type.TutorialPlatforms].m_object;
 					GameObject prefab = info.m_prefab;
-					Instantiate(prefab, InteriorPosition(info.m_heightMin, info.m_heightMax, prefab), info.m_rotationDegreesMax != 0.0f ? Quaternion.Euler(0.0f, 0.0f, Random.Range(-info.m_rotationDegreesMax, info.m_rotationDegreesMax)) : Quaternion.identity, transform);
+					Quaternion rotation = info.m_rotationDegreesMax == 0.0f ? Quaternion.identity : Quaternion.Euler(0.0f, 0.0f, Random.Range(-info.m_rotationDegreesMax, info.m_rotationDegreesMax));
+					Instantiate(prefab, InteriorPosition(info.m_heightMin, info.m_heightMax, prefab, rotation), rotation, transform);
 					if (node.m_type == LayoutGenerator.Node.Type.TutorialInteract && (GameController.Instance.m_avatars == null || !GameController.Instance.m_avatars.Any(avatar => avatar.GetComponentInChildren<ItemController>(true) != null)))
 					{
 						prefab = RoomType.m_itemPrefabs.RandomWeighted(); // TODO: spawn on table
@@ -592,7 +593,7 @@ public class RoomController : MonoBehaviour
 			FurnitureController furniture = Instantiate(RoomType.m_furniturePrefabs.RandomWeighted(), transform).GetComponent<FurnitureController>(); // NOTE that we have to spawn before placement due to potential size randomization
 			Vector2 extentsEffective = extentsInterior * (1.0f - fillPct);
 			float width = furniture.RandomizeSize(extentsEffective);
-			furniture.transform.position = InteriorPosition(0.0f, furniture.gameObject, () => width = furniture.RandomizeSize(extentsEffective), () =>
+			furniture.transform.position = InteriorPosition(0.0f, furniture.gameObject, null, () => width = furniture.RandomizeSize(extentsEffective), () =>
 			{
 				Simulation.Schedule<ObjectDespawn>().m_object = furniture.gameObject;
 				furniture = null;
@@ -644,8 +645,9 @@ public class RoomController : MonoBehaviour
 		for (int spawnIdx = 0; spawnIdx < m_spawnPoints.Length; ++spawnIdx)
 		{
 			GameObject spawnPrefab = m_spawnPointPrefabs.RandomWeighted();
-			Vector3 spawnPos = InteriorPosition(float.MaxValue, spawnPrefab); // NOTE that we don't account for maximum enemy size, relying on KinematicObject's spawn checks to prevent getting stuck in walls
-			m_spawnPoints[spawnIdx] = Instantiate(spawnPrefab, spawnPos, Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f)), transform);
+			Quaternion rotation = Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f));
+			Vector3 spawnPos = InteriorPosition(float.MaxValue, spawnPrefab, rotation); // NOTE that we don't account for maximum enemy size, relying upon KinematicObject's checks to prevent getting stuck in walls
+			m_spawnPoints[spawnIdx] = Instantiate(spawnPrefab, spawnPos, rotation, transform);
 		}
 
 		// spawn interior decorations
@@ -664,12 +666,13 @@ public class RoomController : MonoBehaviour
 				decorationTypeHeights[decoIdx] = height;
 			}
 			GameObject decoPrefab = decoInfo.m_prefab;
-			Vector3 spawnPos = InteriorPosition(height, height, decoPrefab, null, () => decoPrefab = null);
+			Quaternion rotation = decoInfo.m_rotationDegreesMax == 0.0f ? Quaternion.identity : Quaternion.Euler(0.0f, 0.0f, Random.Range(-decoInfo.m_rotationDegreesMax, decoInfo.m_rotationDegreesMax));
+			Vector3 spawnPos = InteriorPosition(height, height, decoPrefab, rotation, null, () => decoPrefab = null);
 			if (decoPrefab == null)
 			{
 				continue; // must not have found a valid placement position
 			}
-			GameObject decoration = Instantiate(decoPrefab, spawnPos, decoInfo.m_rotationDegreesMax != 0.0f ? Quaternion.Euler(0.0f, 0.0f, Random.Range(-decoInfo.m_rotationDegreesMax, decoInfo.m_rotationDegreesMax)) : Quaternion.identity, transform);
+			GameObject decoration = Instantiate(decoPrefab, spawnPos, rotation, transform);
 
 			foreach (SpriteRenderer renderer in decoration.GetComponentsInChildren<SpriteRenderer>(true))
 			{
@@ -733,12 +736,12 @@ public class RoomController : MonoBehaviour
 		}
 	}
 
-	public Vector3 InteriorPosition(float heightMax, GameObject preventOverlapPrefab = null, System.Action resizeAction = null, System.Action failureAction = null)
+	public Vector3 InteriorPosition(float heightMax, GameObject preventOverlapPrefab = null, Quaternion? rotation = null, System.Action resizeAction = null, System.Action failureAction = null)
 	{
-		return InteriorPosition(0.0f, heightMax, preventOverlapPrefab, resizeAction, failureAction);
+		return InteriorPosition(0.0f, heightMax, preventOverlapPrefab, rotation, resizeAction, failureAction);
 	}
 
-	public Vector3 InteriorPosition(float heightMin, float heightMax, GameObject preventOverlapPrefab = null, System.Action resizeAction = null, System.Action failureAction = null)
+	public Vector3 InteriorPosition(float heightMin, float heightMax, GameObject preventOverlapPrefab = null, Quaternion? rotation = null, System.Action resizeAction = null, System.Action failureAction = null)
 	{
 		Bounds boundsInterior = BoundsInterior;
 
@@ -751,7 +754,7 @@ public class RoomController : MonoBehaviour
 			Bounds bboxNew = new();
 			if (preventOverlapPrefab != null)
 			{
-				bboxNew = BoundsWithChildren(preventOverlapPrefab);
+				bboxNew = BoundsWithChildren(preventOverlapPrefab, rotation);
 				bboxNew.Expand(new Vector3(-Utility.FloatEpsilon, -Utility.FloatEpsilon, float.MaxValue)); // NOTE the slight x/y contraction to avoid always collecting the floor when up against it
 			}
 
@@ -1137,7 +1140,7 @@ public class RoomController : MonoBehaviour
 		}
 	}
 
-	private Bounds BoundsWithChildren(GameObject obj)
+	private static Bounds BoundsWithChildren(GameObject obj, Quaternion? rotation = null)
 	{
 		Renderer[] renderers = obj.GetComponentsInChildren<Renderer>().Where(r => r is SpriteRenderer or SpriteMask or MeshRenderer).ToArray(); // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
 		Bounds SemiLocalBounds(Renderer r)
@@ -1156,6 +1159,27 @@ public class RoomController : MonoBehaviour
 		{
 			bboxNew.Encapsulate(new Bounds(tf.rect.center, tf.rect.size));
 		}
+
+		Quaternion rotationFinal = rotation != null ? rotation.Value : obj.transform.rotation;
+		if (rotationFinal == Quaternion.identity)
+		{
+			return bboxNew;
+		}
+
+		// handle rotation by reseting and expanding to rotated corners
+		// TODO: efficiency? don't assume rotation around center?
+		Vector3 centerOrig = bboxNew.center;
+		Vector3 extentsOrig = bboxNew.extents;
+		bboxNew.extents = Vector3.zero;
+		for (int i = -1; i < 2; i += 2)
+		{
+			for (int j = -1; j < 2; j += 2)
+			{
+				Vector2 corner = centerOrig + rotationFinal * Vector3.Scale(extentsOrig, new Vector3(i, j, 1.0f));
+				bboxNew.Encapsulate(corner);
+			}
+		}
+
 		return bboxNew;
 	}
 

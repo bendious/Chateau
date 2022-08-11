@@ -451,6 +451,7 @@ public class AvatarController : KinematicCharacter
 	}
 
 	// called by InputSystem / PlayerInput component
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnDash(InputValue input)
 	{
 		if (!controlEnabled)

@@ -91,7 +91,8 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 
 	private void Start()
 	{
-		transform.SetPositionAndRotation(m_room.InteriorPosition((Lock as LockController).m_keyHeightMax, gameObject), Quaternion.Euler(0.0f, 0.0f, UnityEngine.Random.Range(0.0f, 360.0f)));
+		Quaternion rotation = Quaternion.Euler(0.0f, 0.0f, UnityEngine.Random.Range(0.0f, 360.0f));
+		transform.SetPositionAndRotation(m_room.InteriorPosition((Lock as LockController).m_keyHeightMax, gameObject, rotation), rotation);
 	}
 
 
