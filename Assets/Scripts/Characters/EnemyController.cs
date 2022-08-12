@@ -7,11 +7,9 @@ using UnityEngine;
 /// A simple controller for enemies. Provides state updating, aiming, movement control toward a target object, etc.
 /// </summary>
 [DisallowMultipleComponent]
-public class EnemyController : KinematicCharacter
+public sealed class EnemyController : KinematicCharacter
 {
 	public AIState.Type[] m_allowedStates = new AIState.Type[] { AIState.Type.Pursue, AIState.Type.Flee, AIState.Type.RamSwoop };
-
-	public float m_contactDamage = 1.0f;
 
 	public bool m_passive;
 	public bool m_friendly;
@@ -46,7 +44,7 @@ public class EnemyController : KinematicCharacter
 	private float m_dropDecayVel;
 
 
-	private bool ShouldSkipUpdates => m_passive || ConsoleCommands.PassiveAI || HasForcedVelocity;
+	private bool ShouldSkipUpdates => m_passive || ConsoleCommands.PassiveAI || HasForcedVelocity; // TODO: decouple AI process pausing from forced velocity?
 
 
 	protected override void Awake()
@@ -68,32 +66,7 @@ public class EnemyController : KinematicCharacter
 		{
 			return;
 		}
-		if (m_passive)
-		{
-			StartCoroutine(SpawnHeldItemsWhenActive());
-		}
-		else
-		{
-			_ = SpawnHeldItemsWhenActive(); // NOTE the return value discard to indicate that we are deliberately not using StartCoroutine() and don't need to be warned
-		}
-	}
-
-	private void OnCollisionEnter2D(Collision2D collision)
-	{
-		var avatar = collision.collider.GetComponent<AvatarController>(); // NOTE that we use the collider object rather than collision.gameObject since w/ characters & arms, they are not always the same
-		if (avatar != null)
-		{
-			avatar.OnEnemyCollision(this);
-		}
-	}
-
-	private void OnCollisionStay2D(Collision2D collision)
-	{
-		var avatar = collision.collider.GetComponent<AvatarController>(); // NOTE that we use the collider object rather than collision.gameObject since w/ characters & arms, they are not always the same
-		if (avatar != null)
-		{
-			avatar.OnEnemyCollision(this);
-		}
+		StartCoroutine(SpawnHeldItemsWhenActive());
 	}
 
 	protected override void Update()
@@ -130,7 +103,7 @@ public class EnemyController : KinematicCharacter
 	{
 		base.FixedUpdate();
 
-		if (ShouldSkipUpdates)
+		if (m_passive) // NOTE that though arms should generally be updated even when passive, boss intros rely on that not being the case... // TODO: decouple?
 		{
 			return;
 		}

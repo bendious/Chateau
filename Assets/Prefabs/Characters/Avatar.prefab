@@ -434,6 +434,7 @@ MonoBehaviour:
     m_weight: 1
   m_damageBounceMagnitude: {x: 7, y: 7}
   m_armOffset: {x: 0, y: 0.15}
+  m_contactDamage: 0.1
   move: {x: 0, y: 0}
   jumpAudio: {fileID: 8300000, guid: 67975c08d56ceb147bad38572d805aa8, type: 3}
   m_focusIndicator: {fileID: 6654259643494522684}

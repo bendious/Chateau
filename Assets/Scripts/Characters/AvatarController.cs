@@ -14,7 +14,7 @@ using UnityEngine.VFX;
 /// This is the main class used to implement control of the avatar.
 /// </summary>
 [RequireComponent(typeof(Health))]
-public class AvatarController : KinematicCharacter
+public sealed class AvatarController : KinematicCharacter
 {
 	public enum JumpState
 	{
@@ -59,7 +59,6 @@ public class AvatarController : KinematicCharacter
 	private float m_lightDistanceOrig;
 
 	private JumpState jumpState = JumpState.Grounded;
-	private Health m_health;
 
 	private bool controlEnabled = true; // TODO: remove?
 
@@ -108,8 +107,6 @@ public class AvatarController : KinematicCharacter
 		m_focusIndicator.transform.SetParent(null);
 		m_focusPrompt.transform.SetParent(null);
 		m_aimObject.transform.SetParent(null);
-
-		m_health = GetComponent<Health>();
 
 		m_aimVfx = GetComponent<VisualEffect>();
 		m_spriteID = Shader.PropertyToID("Sprite");
@@ -722,28 +719,20 @@ public class AvatarController : KinematicCharacter
 		// NOTE that we purposely don't call base.DespawnSelf() since the avatar shouldn't despawn on death
 	}
 
-	// TODO: replace w/ more generic handling
-	public void OnEnemyCollision(EnemyController enemy)
+	protected override bool OnCharacterCollision(KinematicCharacter character)
 	{
-		// temporarily disable collision to prevent getting stuck
-		// TODO: disable w/ all enemies rather than just this one? ensure consistent re-enable time?
-		EnableCollision.TemporarilyDisableCollision(enemy.GetComponentsInChildren<Collider2D>(), GetComponentsInChildren<Collider2D>());
-
-		if (!enemy.CanDamage(gameObject) || enemy.m_contactDamage.FloatEqual(0.0f))
-		{
-			return;
-		}
-
-		enemy.GetComponent<Health>().Decrement(gameObject, GetComponentInChildren<ArmController>(true).m_swingInfoDefault.m_damage); // TODO: knock back w/o damage? parameterize/vary damage?
-		bool hurt = m_health.Decrement(enemy.gameObject, enemy.m_contactDamage);
+		bool hurt = base.OnCharacterCollision(character);
 		if (!hurt)
 		{
-			return;
+			return false;
 		}
 
 		controlEnabled = false; // re-enabled via EnablePlayerControl() animation trigger
 		Simulation.Schedule<EnableControl>(1.0f).m_avatar = this; // NOTE that this is only a timer-based fallback
+
+		return hurt;
 	}
+
 
 	public void Respawn(bool clearInventory, bool resetPosition)
 	{

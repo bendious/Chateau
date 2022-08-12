@@ -54,7 +54,7 @@ public class Boss : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (GameController.IsSceneLoad)
+		if (GameController.IsSceneLoad || GameController.Instance.m_gameOverUI.isActiveAndEnabled)
 		{
 			return;
 		}

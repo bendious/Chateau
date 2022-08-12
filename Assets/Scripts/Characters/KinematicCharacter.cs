@@ -52,6 +52,8 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	[SerializeField] private Vector2 m_armOffset;
 
+	[SerializeField] private float m_contactDamage = 1.0f;
+
 
 	/// <summary>
 	/// Used to indicate desired direction of travel.
@@ -82,6 +84,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	private SpriteRenderer m_spriteRenderer;
 	protected Animator m_animator;
 	protected AudioSource m_audioSource;
+	protected Health m_health;
 
 
 	public int HoldCountMax => GetComponentsInChildren<IHolder>().Where(holder => holder.Component != this).Sum(holder => holder.HoldCountMax);
@@ -106,12 +109,28 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	protected override void Awake()
 	{
 		base.Awake();
+
 		m_spriteRenderer = GetComponent<SpriteRenderer>();
 		m_animator = GetComponent<Animator>();
 		m_audioSource = GetComponent<AudioSource>();
+		m_health = GetComponent<Health>();
 
 		OnHealthDecrement.OnExecute += OnDamage;
 		OnHealthDeath.OnExecute += OnDeath;
+	}
+
+	private void OnCollisionEnter2D(Collision2D collision)
+	{
+		KinematicCharacter character = collision.collider.GetComponent<KinematicCharacter>(); // NOTE that we use the collider object rather than collision.gameObject since w/ characters & arms, they are not always the same
+		if (character != null)
+		{
+			OnCharacterCollision(character);
+		}
+	}
+
+	private void OnCollisionStay2D(Collision2D collision)
+	{
+		OnCollisionEnter2D(collision);
 	}
 
 	protected virtual void OnDestroy()
@@ -203,6 +222,21 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		m_animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / (maxSpeed == 0.0f ? 1.0f : maxSpeed));
 
 		targetVelocity = move * maxSpeed;
+	}
+
+	protected virtual bool OnCharacterCollision(KinematicCharacter character)
+	{
+		// temporarily disable collision to prevent getting stuck
+		// NOTE that this is BEFORE the early-out
+		// TODO: disable w/ all characters rather than just this one? ensure consistent re-enable time? don't double-disable collision due to both characters' OnCharacterCollision()?
+		EnableCollision.TemporarilyDisableCollision(GetComponentsInChildren<Collider2D>(), character.GetComponentsInChildren<Collider2D>());
+
+		if (m_contactDamage.FloatEqual(0.0f) || !CanDamage(character.gameObject))
+		{
+			return false;
+		}
+
+		return character.m_health.Decrement(gameObject, m_contactDamage);
 	}
 
 
