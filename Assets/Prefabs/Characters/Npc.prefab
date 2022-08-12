@@ -96,32 +96,20 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
-      propertyPath: m_invincible
-      value: 1
+      propertyPath: m_maxHP
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_gradientActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_friendly
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_heldPrefab
       value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
-      propertyPath: m_contactDamage
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
-      propertyPath: m_allowedStates.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
-      propertyPath: m_allowedStates.Array.data[0]
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
-      propertyPath: m_allowedStates.Array.data[1]
-      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_layerIgnoreOneWay.m_mask.m_Bits

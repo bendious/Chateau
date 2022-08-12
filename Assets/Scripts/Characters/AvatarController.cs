@@ -699,10 +699,23 @@ public class AvatarController : KinematicCharacter
 		}
 	}
 
+
 	public override bool CanDamage(GameObject target)
 	{
-		return base.CanDamage(target) && !GameController.Instance.m_avatars.Exists(avatar => avatar.gameObject == target);
+		if (!base.CanDamage(target) || GameController.Instance.m_avatars.Exists(avatar => avatar.gameObject == target))
+		{
+			return false;
+		}
+		EnemyController enemy = target.GetComponent<EnemyController>();
+		if (enemy != null && enemy.m_friendly)
+		{
+			return false;
+		}
+		return true;
 	}
+
+	public override float TargetPriority(KinematicCharacter source) => (!IsAlive || (source is EnemyController enemy && enemy.m_friendly)) ? 0.0f : base.TargetPriority(source);
+
 
 	protected override void DespawnSelf()
 	{

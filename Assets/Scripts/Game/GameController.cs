@@ -93,6 +93,8 @@ public class GameController : MonoBehaviour
 	public Transform[] RoomBackdropsAboveGround => m_roomBackdropsAboveGroundInternal.Value;
 	private readonly System.Lazy<Transform[]> m_roomBackdropsAboveGroundInternal = new(() => Instance.m_startRoom.BackdropsAboveGroundRecursive.ToArray(), false);
 
+	public IEnumerable<KinematicCharacter> AiTargets => m_avatars.Select(avatar => (KinematicCharacter)avatar).Concat(m_waveEnemies); // TODO: include non-wave enemies, too?
+
 	public bool Victory { get; private set; }
 
 

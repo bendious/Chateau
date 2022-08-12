@@ -363,7 +363,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			return;
 		}
 
-		m_trail.colorGradient = new() { colorKeys = new GradientColorKey[] { new(GameController.Instance.m_avatars.Contains(Cause) ? Color.white : Color.red, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new(m_vfxAlpha, 0.0f), new(0.0f, 1.0f) } }; // NOTE that we have to replace the whole gradient rather than just setting individual attributes due to the annoying way LineRenderer prevents those changes
+		bool isFriendly = GameController.Instance.m_avatars.Contains(Cause) || (Cause is EnemyController enemy && enemy.m_friendly);
+		m_trail.colorGradient = new() { colorKeys = new GradientColorKey[] { new(isFriendly ? Color.white : Color.red, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new(m_vfxAlpha, 0.0f), new(0.0f, 1.0f) } }; // NOTE that we have to replace the whole gradient rather than just setting individual attributes due to the annoying way LineRenderer prevents those changes
 	}
 
 	private void UpdateTrailWidth(bool wide)

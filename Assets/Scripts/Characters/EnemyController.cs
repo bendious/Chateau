@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 /// <summary>
-/// A simple controller for enemies. Provides movement control toward a target object.
+/// A simple controller for enemies. Provides state updating, aiming, movement control toward a target object, etc.
 /// </summary>
 [DisallowMultipleComponent]
 public class EnemyController : KinematicCharacter
@@ -14,6 +14,7 @@ public class EnemyController : KinematicCharacter
 	public float m_contactDamage = 1.0f;
 
 	public bool m_passive;
+	public bool m_friendly;
 
 	public Vector2 m_targetOffset = Vector2.zero;
 	public Transform m_target;
@@ -195,6 +196,27 @@ public class EnemyController : KinematicCharacter
 	}
 
 
+	public override bool CanDamage(GameObject target)
+	{
+		if (!base.CanDamage(target))
+		{
+			return false;
+		}
+		if (m_friendly && target.GetComponent<AvatarController>() != null)
+		{
+			return false;
+		}
+		EnemyController otherEnemy = target.GetComponent<EnemyController>();
+		if (otherEnemy != null && otherEnemy.m_friendly == m_friendly)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	public override float TargetPriority(KinematicCharacter source) => m_passive ? 0.0f : base.TargetPriority(source);
+
+
 	private void OnDamage(OnHealthDecrement evt)
 	{
 		if (evt.m_health.gameObject != gameObject)
@@ -228,23 +250,26 @@ public class EnemyController : KinematicCharacter
 	// TODO: un-expose?
 	public bool NavigateTowardTarget(Vector2 targetOffsetAbs)
 	{
-		if (m_contactDamage > 0.0f && m_targetSelectTimeNext <= Time.time && (m_target == null || m_target.GetComponent<AvatarController>() != null))
+		if (m_targetSelectTimeNext <= Time.time && (m_target == null || m_target.GetComponent<KinematicCharacter>() != null))
 		{
-			// choose appropriate avatar to target
+			// choose appropriate target
 			// TODO: use pathfind distances? allow re-targeting other types of targets?
 			float sqDistClosest = float.MaxValue;
-			foreach (AvatarController avatar in GameController.Instance.m_avatars)
+			float priorityMax = float.Epsilon;
+			foreach (KinematicCharacter character in GameController.Instance.AiTargets)
 			{
-				if (!avatar.IsAlive)
+				float priority = character.TargetPriority(this);
+				if (priority < priorityMax)
 				{
 					continue;
 				}
-				Transform avatarTf = avatar.transform;
-				float sqDist = Vector2.Distance(transform.position, avatarTf.position);
-				if (sqDist < sqDistClosest)
+				Transform charTf = character.transform;
+				float sqDist = Vector2.Distance(transform.position, charTf.position);
+				if (priority > priorityMax || sqDist < sqDistClosest)
 				{
 					sqDistClosest = sqDist;
-					m_target = avatarTf;
+					priorityMax = priority;
+					m_target = charTf;
 				}
 			}
 

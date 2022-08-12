@@ -147,7 +147,7 @@ public class RoomController : MonoBehaviour
 			{
 				return true;
 			}
-			if (m_blocker != null && (checkLevel == ObstructionCheck.Full || m_blocker.GetComponent<IUnlockable>() != null)) // NOTE that m_infoReverse.m_blocker should always be the same as m_blocker, so we only check one
+			if (m_blocker != null && m_blocker.GetComponents<Collider2D>().Any(collider => !collider.isTrigger && collider.isActiveAndEnabled) && (checkLevel == ObstructionCheck.Full || m_blocker.GetComponent<IUnlockable>() != null)) // NOTE that m_infoReverse.m_blocker should always be the same as m_blocker, so we only check one
 			{
 				return true;
 			}
@@ -1186,7 +1186,7 @@ public class RoomController : MonoBehaviour
 	private LayoutGenerator.Node GateNodeToChild(LayoutGenerator.Node[] childNodes, params LayoutGenerator.Node.Type[] gateTypes)
 	{
 		IEnumerable<LayoutGenerator.Node> ancestors = m_layoutNodes.Select(node => node.FirstCommonAncestor(childNodes)).Distinct();
-		return ancestors.FirstOrDefault(node => gateTypes.Contains(node.m_type) && childNodes.Any(childNode => node.HasDescendant(childNode)));
+		return ancestors.FirstOrDefault(node => gateTypes.Contains(node.m_type) && childNodes.Any(childNode => childNode.DirectParents.Contains(node))); // TODO: ensure gates are placed even if a room ends up between the gate and child rooms?
 	}
 
 	// TODO: inline?

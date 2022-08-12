@@ -43,7 +43,7 @@ public abstract class AIState
 				case Type.PursueErratic:
 					return distanceFromOffsetPos > ai.m_meleeRange && (numItems > 0 || ai.HoldCountMax <= 0) ? 1.0f : 0.0f;
 				case Type.Flee:
-					return GameController.Instance.Victory ? 100.0f : 0.0f;
+					return !ai.m_friendly && GameController.Instance.Victory ? 100.0f : 0.0f;
 				case Type.Melee:
 					return numItems > 0 && distanceFromTarget <= ai.m_meleeRange ? 1.0f : 0.0f;
 				case Type.Throw:
@@ -169,7 +169,11 @@ public sealed class AIPursueErratic : AIPursue
 
 public sealed class AIFlee : AIState
 {
+	public float m_fleeSeconds = 5.0f;
 	public Vector2 m_fleeOffset = 12.0f * Vector2.right;
+
+
+	private float m_secondsRemaining;
 
 
 	public AIFlee(EnemyController ai)
@@ -177,10 +181,17 @@ public sealed class AIFlee : AIState
 	{
 	}
 
+	public override void Enter()
+	{
+		base.Enter();
+		m_secondsRemaining = m_fleeSeconds; // NOTE that we don't set this in the constructor in case it needs to be edited post-instantiation
+	}
+
 	public override AIState Update()
 	{
 		m_ai.NavigateTowardTarget(m_fleeOffset);
-		return this;
+		m_secondsRemaining -= Time.deltaTime;
+		return m_secondsRemaining > 0.0f ? this : null;
 	}
 }
 
