@@ -182,7 +182,6 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		}
 
 		AddVelocity(m_swingDirection);
-		m_swingDirection = !m_swingDirection;
 
 		// play audio if not holding anything (any held item will play audio for itself)
 		if (GetComponentInChildren<IAttachable>() == null)
@@ -200,8 +199,10 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		m_radiusVelocityContinuing = DampedSpring(m_radiusVelocityContinuing, 0.0f, 1.0f, false, m_swingDecayStiffness, ref m_radiusVelocityContinuingVel, isFixedStep);
 
 		// update current rotation
-		m_aimDegreesArm = DampedSpring(m_aimDegreesArm, AimDegreesRaw(transform.parent.position, rootOffset, aimPositionArm, m_aimDegreesArm), m_swingInfoCur.m_aimSpringDampPct, true, m_aimStiffness, ref m_aimVelocityArm, isFixedStep);
+		float targetDegreesArm = AimDegreesRaw(transform.parent.position, rootOffset, aimPositionArm, m_aimDegreesArm);
+		m_aimDegreesArm = DampedSpring(m_aimDegreesArm, targetDegreesArm, m_swingInfoCur.m_aimSpringDampPct, true, m_aimStiffness, ref m_aimVelocityArm, isFixedStep);
 		m_aimRadius = DampedSpring(m_aimRadius, 0.0f, m_swingInfoCur.m_radiusSpringDampPct, false, m_radiusStiffness, ref m_aimRadiusVelocity, isFixedStep);
+		m_swingDirection = (targetDegreesArm - m_aimDegreesArm).Modulo(360.0f) < 180.0f; // should swing "up" if we are "below" the current target angle
 
 		// apply
 		transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesArm);
