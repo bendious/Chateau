@@ -185,7 +185,7 @@ public class AvatarController : KinematicCharacter
 		ArmController primaryArm = arms.Length == 0 ? null : arms.First().transform.childCount > 0 || (arms.Last().transform.childCount == 0 && !LeftFacing) ? arms.First() : arms.Last();
 		if (primaryArm != null)
 		{
-			primaryArm.UpdateAim(ArmOffset, aimPos, aimPos);
+			primaryArm.UpdateAim(ArmOffset, aimPos, aimPos, true);
 		}
 
 		// secondary hold
@@ -196,7 +196,7 @@ public class AvatarController : KinematicCharacter
 			{
 				continue;
 			}
-			arms[i].UpdateAim(ArmOffset, secondaryAimPos, aimPos);
+			arms[i].UpdateAim(ArmOffset, secondaryAimPos, aimPos, true);
 		}
 
 		// aim VFX

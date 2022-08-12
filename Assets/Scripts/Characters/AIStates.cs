@@ -94,6 +94,30 @@ public abstract class AIState
 
 	public virtual void Enter() {}
 	public abstract AIState Update();
+
+	public virtual void Retarget()
+	{
+		// TODO: use pathfind distances?
+		float sqDistClosest = float.MaxValue;
+		float priorityMax = float.Epsilon;
+		foreach (KinematicCharacter candidate in GameController.Instance.AiTargets)
+		{
+			float priority = candidate.TargetPriority(m_ai);
+			if (priority < priorityMax)
+			{
+				continue;
+			}
+			Transform charTf = candidate.transform;
+			float sqDist = Vector2.Distance(m_ai.transform.position, charTf.position);
+			if (priority > priorityMax || sqDist < sqDistClosest)
+			{
+				sqDistClosest = sqDist;
+				priorityMax = priority;
+				m_ai.m_target = candidate;
+			}
+		}
+	}
+
 	public virtual AIState OnDamage(GameObject source) => null;
 	public virtual void Exit() => m_ai.ClearPath(true);
 
@@ -394,7 +418,7 @@ public sealed class AIRamSwoop : AIState
 
 	public override void Enter()
 	{
-		m_startPosToTarget = (Vector2)m_ai.m_target.position - (Vector2)m_ai.transform.position;
+		m_startPosToTarget = (Vector2)m_ai.m_target.transform.position - (Vector2)m_ai.transform.position;
 
 		m_speedOrig = m_ai.maxSpeed;
 		m_ai.maxSpeed = m_speed;
@@ -453,16 +477,15 @@ public sealed class AIFindAmmo : AIState
 
 	public override void Enter()
 	{
-		m_ai.m_target = FindTarget();
+		Retarget();
 	}
 
 	public override AIState Update()
 	{
 		// validate target
-		// TODO: switch targets if a different one is now closer?
-		if (m_ai.m_target == null || (m_ai.m_target.parent != null && m_ai.m_target.parent != m_ai.transform))
+		if (m_ai.m_target == null || (m_ai.m_target.transform.parent != null && m_ai.m_target.transform.parent != m_ai.transform))
 		{
-			m_ai.m_target = FindTarget();
+			Retarget();
 			if (m_ai.m_target == null)
 			{
 				// no items anywhere? fallback on pursuit
@@ -490,19 +513,12 @@ public sealed class AIFindAmmo : AIState
 		return this;
 	}
 
-	public override void Exit()
-	{
-		base.Exit();
-		m_ai.m_target = null; // to prevent subsequent states aiming at / attacking items
-	}
-
-
-	private Transform FindTarget()
+	public override void Retarget()
 	{
 		// TODO: efficiency?
 		GameObject[] items = GameObject.FindGameObjectsWithTag("Item");
 
-		Transform closest = null;
+		Transform closestTf = null;
 		float closestDistSq = float.MaxValue;
 		foreach (GameObject obj in items)
 		{
@@ -526,12 +542,18 @@ public sealed class AIFindAmmo : AIState
 			}
 			if (distSq < closestDistSq)
 			{
-				closest = tf;
+				closestTf = tf;
 				closestDistSq = distSq;
 			}
 		}
 
-		return closest;
+		m_ai.m_target = closestTf == null ? null : closestTf.GetComponent<ItemController>();
+	}
+
+	public override void Exit()
+	{
+		base.Exit();
+		m_ai.m_target = null; // to prevent subsequent states aiming at / attacking items
 	}
 }
 
@@ -608,4 +630,6 @@ public sealed class AITeleport : AIState
 
 		return null;
 	}
+
+	public override void Retarget() => m_ai.m_target = null;
 }

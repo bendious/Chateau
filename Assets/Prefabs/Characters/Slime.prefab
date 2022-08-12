@@ -195,9 +195,10 @@ MonoBehaviour:
   m_allowedStates: 000000000200000003000000
   m_contactDamage: 1
   m_passive: 0
+  m_friendly: 0
   m_targetOffset: {x: 0, y: 0}
   m_target: {fileID: 0}
-  m_replanSecondsMax: 2
+  m_replanSecondsMax: 3
   m_meleeRange: 1
   m_dropDecayTime: 0.2
   m_attackSFX: []
@@ -321,10 +322,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_maxHP: 1
-  m_healthUIParent: {fileID: 0}
-  m_healthSprite: {fileID: 0}
-  m_healthMissingSprite: {fileID: 0}
-  m_UIPadding: 5
   m_damageAudio: {fileID: 8300000, guid: b7f741588644cd64bbee6387cb54a96d, type: 3}
   m_deathAudio: {fileID: 8300000, guid: b7f741588644cd64bbee6387cb54a96d, type: 3}
   m_invincibilityTime: 0

@@ -146,7 +146,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 			collider.enabled = false;
 		}
 
-		m_aimDegreesArm = AimDegreesRaw(transform.parent.position, Vector2.zero, attachableComp.transform.position); // TODO: lerp? use most recent rootOffset?
+		m_aimDegreesArm = AimDegreesRaw(transform.parent.position, Vector2.zero, attachableComp.transform.position, m_aimDegreesArm); // TODO: lerp? use most recent rootOffset?
 		m_aimVelocityArm = 0.0f;
 		m_aimDegreesItem = attachableComp.transform.rotation.eulerAngles.z - m_aimDegreesArm;
 		m_aimVelocityItem = 0.0f;
@@ -191,17 +191,17 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		}
 	}
 
-	public void UpdateAim(Vector2 rootOffset, Vector2 aimPositionArm, Vector2 aimPositionItem)
+	public void UpdateAim(Vector2 rootOffset, Vector2 aimPositionArm, Vector2 aimPositionItem, bool isFixedStep)
 	{
 		// update current speed
 		m_aimVelocityArm += m_aimVelocityContinuing;
 		m_aimRadiusVelocity += m_radiusVelocityContinuing;
-		m_aimVelocityContinuing = DampedSpring(m_aimVelocityContinuing, 0.0f, 1.0f, false, m_swingDecayStiffness, ref m_aimVelocityContinuingVel);
-		m_radiusVelocityContinuing = DampedSpring(m_radiusVelocityContinuing, 0.0f, 1.0f, false, m_swingDecayStiffness, ref m_radiusVelocityContinuingVel);
+		m_aimVelocityContinuing = DampedSpring(m_aimVelocityContinuing, 0.0f, 1.0f, false, m_swingDecayStiffness, ref m_aimVelocityContinuingVel, isFixedStep);
+		m_radiusVelocityContinuing = DampedSpring(m_radiusVelocityContinuing, 0.0f, 1.0f, false, m_swingDecayStiffness, ref m_radiusVelocityContinuingVel, isFixedStep);
 
 		// update current rotation
-		m_aimDegreesArm = DampedSpring(m_aimDegreesArm, AimDegreesRaw(transform.parent.position, rootOffset, aimPositionArm), m_swingInfoCur.m_aimSpringDampPct, true, m_aimStiffness, ref m_aimVelocityArm);
-		m_aimRadius = DampedSpring(m_aimRadius, 0.0f, m_swingInfoCur.m_radiusSpringDampPct, false, m_radiusStiffness, ref m_aimRadiusVelocity);
+		m_aimDegreesArm = DampedSpring(m_aimDegreesArm, AimDegreesRaw(transform.parent.position, rootOffset, aimPositionArm, m_aimDegreesArm), m_swingInfoCur.m_aimSpringDampPct, true, m_aimStiffness, ref m_aimVelocityArm, isFixedStep);
+		m_aimRadius = DampedSpring(m_aimRadius, 0.0f, m_swingInfoCur.m_radiusSpringDampPct, false, m_radiusStiffness, ref m_aimRadiusVelocity, isFixedStep);
 
 		// apply
 		transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesArm);
@@ -225,7 +225,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 			renderer.flipY = leftFacingCached;
 			if (renderer.gameObject != gameObject)
 			{
-				m_aimDegreesItem = DampedSpring(m_aimDegreesItem, IsSwinging ? 0.0f : AimDegreesRaw(renderer.transform.position, Vector2.zero, aimPositionItem) - m_aimDegreesArm + (LeftFacing ? -m_aimDegreesItemRestOffsetAbs : m_aimDegreesItemRestOffsetAbs), 1.0f, true, m_aimStiffness, ref m_aimVelocityItem); // NOTE that aiming for all items uses critical damping rather than m_swingInfoCur.m_aimSpringDampPct, to prevent overly-annoying aim jiggle // TODO: parameterize?
+				m_aimDegreesItem = DampedSpring(m_aimDegreesItem, IsSwinging ? 0.0f : AimDegreesRaw(renderer.transform.position, Vector2.zero, aimPositionItem, m_aimDegreesItem) - m_aimDegreesArm + (LeftFacing ? -m_aimDegreesItemRestOffsetAbs : m_aimDegreesItemRestOffsetAbs), 1.0f, true, m_aimStiffness, ref m_aimVelocityItem, isFixedStep); // NOTE that aiming for all items uses critical damping rather than m_swingInfoCur.m_aimSpringDampPct, to prevent overly-annoying aim jiggle // TODO: parameterize?
 				renderer.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesItem);
 			}
 		}
@@ -237,10 +237,10 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	}
 
 
-	private float AimDegreesRaw(Vector2 rootPos, Vector2 rootOffset, Vector2 aimPosition)
+	private float AimDegreesRaw(Vector2 rootPos, Vector2 rootOffset, Vector2 aimPosition, float degreesPrev)
 	{
 		Vector2 aimDiff = aimPosition - (rootPos + rootOffset + (Vector2)m_offset);
-		return Mathf.Rad2Deg * Mathf.Atan2(aimDiff.y, aimDiff.x);
+		return aimDiff.x.FloatEqual(0.0f) && aimDiff.y.FloatEqual(0.0f) ? degreesPrev : Mathf.Rad2Deg * Mathf.Atan2(aimDiff.y, aimDiff.x);
 	}
 
 	private void AddVelocity(bool forward)
@@ -251,7 +251,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		m_radiusVelocityContinuing += m_swingInfoCur.m_linearNewtons / m_massTotal;
 	}
 
-	private float DampedSpring(float current, float target, float dampPct, bool isAngle, float stiffness, ref float velocityCurrent)
+	private float DampedSpring(float current, float target, float dampPct, bool isAngle, float stiffness, ref float velocityCurrent, bool isFixedStep)
 	{
 		// spring motion: F = kx - dv, where x = {vel/pos}_desired - {vel/pos}_current
 		// critically damped spring: d = 2*sqrt(km)
@@ -265,8 +265,9 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		float force = stiffness * diff - dampingFactor * velocityCurrent;
 
 		float accel = force / m_massTotal;
-		velocityCurrent += accel * Time.fixedDeltaTime;
+		float dt = isFixedStep ? Time.fixedDeltaTime : Time.deltaTime;
+		velocityCurrent += accel * dt;
 
-		return current + velocityCurrent * Time.fixedDeltaTime;
+		return current + velocityCurrent * dt;
 	}
 }

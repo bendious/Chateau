@@ -137,7 +137,7 @@ public class Boss : MonoBehaviour
 			Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, degrees) * Vector2.right;
 			for (int i = (int)degrees * arms.Length / 360; i < arms.Length; ++i)
 			{
-				arms[i].UpdateAim(GetComponent<KinematicCharacter>().ArmOffset, aimPos, aimPos);
+				arms[i].UpdateAim(GetComponent<KinematicCharacter>().ArmOffset, aimPos, aimPos, false);
 			}
 			degrees = Mathf.SmoothDamp(degrees, 360.0f, ref angleVel, smoothTimeSlow);
 			yield return null;

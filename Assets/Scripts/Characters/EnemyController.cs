@@ -17,8 +17,8 @@ public class EnemyController : KinematicCharacter
 	public bool m_friendly;
 
 	public Vector2 m_targetOffset = Vector2.zero;
-	public Transform m_target;
-	[SerializeField] private float m_replanSecondsMax = 2.0f;
+	public Component m_target;
+	[SerializeField] private float m_replanSecondsMax = 3.0f;
 
 	public float m_meleeRange = 1.0f;
 
@@ -34,6 +34,8 @@ public class EnemyController : KinematicCharacter
 	public float AimOffsetDegrees { private get; set; }
 	public float AimScalar { private get; set; } = 1.0f;
 
+
+	private int m_aimLastFrame; // OPTIMIZATION: only aim arms once per frame even if physics is stepping more
 
 	private float m_targetSelectTimeNext;
 	private AIState m_aiState;
@@ -134,7 +136,7 @@ public class EnemyController : KinematicCharacter
 		}
 
 		// aim items
-		if (HoldCountMax > 0)
+		if (HoldCountMax > 0 && m_aimLastFrame != Time.frameCount)
 		{
 			ArmController[] arms = GetComponentsInChildren<ArmController>();
 			if (arms.Length > 0)
@@ -143,7 +145,7 @@ public class EnemyController : KinematicCharacter
 				Vector2 targetPosSafe = AimPosition();
 				if (primaryArm != null)
 				{
-					primaryArm.UpdateAim(ArmOffset, targetPosSafe, targetPosSafe);
+					primaryArm.UpdateAim(ArmOffset, targetPosSafe, targetPosSafe, false);
 				}
 
 				int offsetScalar = primaryArm == null ? 0 : 1;
@@ -155,9 +157,10 @@ public class EnemyController : KinematicCharacter
 					}
 					Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, offsetScalar * System.Math.Min(60, 360 / arms.Length) * AimScalar) * (targetPosSafe - (Vector2)transform.position); // TODO: remove hardcoded max?
 					offsetScalar = offsetScalar <= 0 ? -offsetScalar + 1 : -offsetScalar; // this groups any arms w/ items around the primary arm in both directions
-					arm.UpdateAim(ArmOffset, aimPos, targetPosSafe);
+					arm.UpdateAim(ArmOffset, aimPos, targetPosSafe, false);
 				}
 			}
+			m_aimLastFrame = Time.frameCount;
 		}
 	}
 
@@ -250,29 +253,9 @@ public class EnemyController : KinematicCharacter
 	// TODO: un-expose?
 	public bool NavigateTowardTarget(Vector2 targetOffsetAbs)
 	{
-		if (m_targetSelectTimeNext <= Time.time && (m_target == null || m_target.GetComponent<KinematicCharacter>() != null))
+		if (m_targetSelectTimeNext <= Time.time && m_aiState != null)
 		{
-			// choose appropriate target
-			// TODO: use pathfind distances? allow re-targeting other types of targets?
-			float sqDistClosest = float.MaxValue;
-			float priorityMax = float.Epsilon;
-			foreach (KinematicCharacter character in GameController.Instance.AiTargets)
-			{
-				float priority = character.TargetPriority(this);
-				if (priority < priorityMax)
-				{
-					continue;
-				}
-				Transform charTf = character.transform;
-				float sqDist = Vector2.Distance(transform.position, charTf.position);
-				if (priority > priorityMax || sqDist < sqDistClosest)
-				{
-					sqDistClosest = sqDist;
-					priorityMax = priority;
-					m_target = charTf;
-				}
-			}
-
+			m_aiState.Retarget();
 			m_targetSelectTimeNext = Time.time + Random.Range(m_replanSecondsMax * 0.5f, m_replanSecondsMax); // TODO: parameterize "min" time even though it's not a hard minimum?
 		}
 		if (m_target == null || ShouldSkipUpdates)
@@ -283,9 +266,9 @@ public class EnemyController : KinematicCharacter
 
 		// pathfind
 		// TODO: efficiency?
-		if (m_pathfindTimeNext <= Time.time || (m_pathfindWaypoints != null && m_pathfindWaypoints.Count > 0 && !Vector2.Distance(m_target.position, m_pathfindWaypoints.Last()).FloatEqual(targetOffsetAbs.magnitude, m_meleeRange))) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases); avoid trying to go past moving targets?
+		if (m_pathfindTimeNext <= Time.time || (m_pathfindWaypoints != null && m_pathfindWaypoints.Count > 0 && !Vector2.Distance(m_target.transform.position, m_pathfindWaypoints.Last()).FloatEqual(targetOffsetAbs.magnitude, m_meleeRange))) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases); avoid trying to go past moving targets?
 		{
-			m_pathfindWaypoints = GameController.Instance.Pathfind(transform.position, m_target.position, targetOffsetAbs, m_collider.bounds.extents.y);
+			m_pathfindWaypoints = GameController.Instance.Pathfind(transform.position, m_target.transform.position, targetOffsetAbs, m_collider.bounds.extents.y);
 			if (m_pathfindWaypoints == null)
 			{
 				m_target = null; // TODO: better handle unreachable positions; idle? find closest reachable position?
@@ -370,7 +353,7 @@ public class EnemyController : KinematicCharacter
 #if DEBUG
 	public void DebugPathfindTest()
 	{
-		m_target = GameController.Instance.m_avatars.First().transform;
+		m_target = GameController.Instance.m_avatars.First();
 		if (m_aiState != null)
 		{
 			m_aiState.Exit();
@@ -410,7 +393,7 @@ public class EnemyController : KinematicCharacter
 		// TODO: option to stop tracking target during certain actions?
 
 		// base target position
-		Vector2 aimPos = m_target == null ? (Vector2)transform.position + (LeftFacing ? Vector2.left : Vector2.right) : m_target.position;
+		Vector2 aimPos = m_target == null ? (Vector2)transform.position + (LeftFacing ? Vector2.left : Vector2.right) : m_target.transform.position;
 
 		// aim directly if no arms/items
 		ArmController[] arms = GetComponentsInChildren<ArmController>();
@@ -440,9 +423,12 @@ public class EnemyController : KinematicCharacter
 			// given ax^2 + bx + c = 0, b = (-c - ax^2) / x = -c/x - ax
 			Vector2 posDiff = aimPos - (Vector2)aimItem.transform.position;
 			float timeDiffApprox = posDiff.magnitude / aimItem.m_throwSpeed;
-			float gravity = /*Physics2D.gravity.y*/-9.81f; // TODO: determine why Physics2D.gravity does not match the outcome
-			float launchSlopePerSec = posDiff.y / timeDiffApprox - gravity * timeDiffApprox;
-			aimPos.y = aimItem.transform.position.y + launchSlopePerSec * timeDiffApprox;
+			if (timeDiffApprox > 0.0f)
+			{
+				const float gravity = /*Physics2D.gravity.y*/-9.81f; // TODO: determine why Physics2D.gravity does not match the outcome
+				float launchSlopePerSec = posDiff.y / timeDiffApprox - gravity * timeDiffApprox;
+				aimPos.y = aimItem.transform.position.y + launchSlopePerSec * timeDiffApprox;
+			}
 		}
 
 		return aimPos;
