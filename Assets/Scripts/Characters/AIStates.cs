@@ -170,6 +170,13 @@ public sealed class AIPursueErratic : AIPursue
 {
 	public float m_turnPct = 0.1f;
 
+	public float m_postSecondsMin = 0.1f;
+	public float m_postSecondsMax = 1.0f;
+
+
+	private bool m_hasArrived = false;
+	private float m_postSecondsRemaining;
+
 
 	public AIPursueErratic(EnemyController ai)
 		: base(ai)
@@ -183,7 +190,26 @@ public sealed class AIPursueErratic : AIPursue
 		{
 			RandomizeTargetOffset();
 		}
-		return base.Update();
+
+		if (!m_hasArrived)
+		{
+			AIState baseRetVal = base.Update();
+			if (baseRetVal == null)
+			{
+				m_hasArrived = true;
+				m_postSecondsRemaining = Random.Range(m_postSecondsMin, m_postSecondsMax);
+				return this;
+			}
+			return baseRetVal;
+		}
+
+		m_ai.move = Vector2.zero;
+		if (m_postSecondsRemaining > 0.0f)
+		{
+			m_postSecondsRemaining -= Time.deltaTime;
+			return this;
+		}
+		return null;
 	}
 
 
