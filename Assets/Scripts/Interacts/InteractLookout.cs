@@ -23,7 +23,7 @@ public class InteractLookout : MonoBehaviour, IInteractable
 		}
 
 		GameController.Instance.AddCameraTargets(GameController.Instance.RoomBackdropsAboveGround);
-		Camera.main.cullingMask |= (LayerMask)GameController.Instance.m_layerExterior; // TODO: fade in
+		Camera.main.cullingMask |= GameController.Instance.m_layerExterior; // TODO: fade in
 		StartCoroutine(CleanupCoroutine(interactor));
 	}
 
@@ -32,7 +32,7 @@ public class InteractLookout : MonoBehaviour, IInteractable
 	{
 		yield return new WaitUntil(() => !m_active || Vector2.Distance(interactor.transform.position, transform.position) > m_distanceMax);
 
-		Camera.main.cullingMask &= ~(LayerMask)GameController.Instance.m_layerExterior; // TODO: fade out
+		Camera.main.cullingMask &= ~GameController.Instance.m_layerExterior; // TODO: fade out
 		GameController.Instance.RemoveCameraTargets(GameController.Instance.RoomBackdropsAboveGround);
 		m_active = false;
 	}

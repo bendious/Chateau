@@ -334,7 +334,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public void Throw()
 	{
 		// temporarily ignore collisions w/ platforms/furniture and thrower
-		gameObject.layer = Cause.m_layerIgnoreOneWay;
+		gameObject.layer = Cause.m_layerIgnoreOneWay.ToIndex();
 		EnableCollision.TemporarilyDisableCollision(Cause.GetComponentsInChildren<Collider2D>(), m_colliders, 0.1f);
 
 		Quaternion holderRotation = m_holder.Component.transform.rotation;
@@ -461,7 +461,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		if (isDetached)
 		{
 			// set layer back to default to re-enable default collisions
-			gameObject.layer = GameController.Instance.m_layerDefault;
+			gameObject.layer = GameController.Instance.m_layerDefault.ToIndex();
 		}
 
 		// done for fully-dynamic collisions

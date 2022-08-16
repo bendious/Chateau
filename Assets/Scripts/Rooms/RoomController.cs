@@ -689,9 +689,10 @@ public class RoomController : MonoBehaviour
 	{
 		// shared logic
 		float widthIncrementHalf = widthIncrement * 0.5f;
+		int layerMask = GameController.Instance.m_layerWalls | GameController.Instance.m_layerExterior;
 		void TrySpawningExteriorDecoration(WeightedObject<GameObject>[] prefabs, Vector3 position, float heightOverride, bool isBelow)
 		{
-			bool hasSpace = position.y > 0.0f && !Physics2D.OverlapAreaAll(position + new Vector3(-widthIncrementHalf + m_physicsCheckEpsilon, isBelow ? -m_physicsCheckEpsilon : m_physicsCheckEpsilon), position + new Vector3(widthIncrementHalf - m_physicsCheckEpsilon, isBelow ? -1.0f : 1.0f)).Any(collider => !collider.isTrigger); // TODO: efficiency? more nuanced height check?
+			bool hasSpace = position.y > 0.0f && !Physics2D.OverlapArea(position + new Vector3(-widthIncrementHalf + m_physicsCheckEpsilon, isBelow ? -m_physicsCheckEpsilon : m_physicsCheckEpsilon), position + new Vector3(widthIncrementHalf - m_physicsCheckEpsilon, isBelow ? -1.0f : 1.0f), layerMask); // TODO: more nuanced height check?
 			if (!hasSpace)
 			{
 				return;
@@ -714,7 +715,7 @@ public class RoomController : MonoBehaviour
 
 			// below
 			exteriorPos.y = Bounds.min.y;
-			RaycastHit2D raycast = Physics2D.Raycast(exteriorPos + Vector3.down * m_physicsCheckEpsilon, Vector2.down, transform.position.y);
+			RaycastHit2D raycast = Physics2D.Raycast(exteriorPos + Vector3.down * m_physicsCheckEpsilon, Vector2.down, transform.position.y, layerMask);
 			TrySpawningExteriorDecoration(m_exteriorPrefabsBelow, exteriorPos, raycast.distance == 0.0f ? transform.position.y : raycast.distance + m_physicsCheckEpsilon, true);
 		}
 	}
@@ -780,7 +781,7 @@ public class RoomController : MonoBehaviour
 				bool overlap = false;
 				foreach (Renderer renderer in GetComponentsInChildren<Renderer>().Where(r => r is SpriteRenderer or SpriteMask or MeshRenderer)) // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
 				{
-					if (renderer.gameObject == m_backdrop || renderer.gameObject.layer == GameController.Instance.m_layerExterior)
+					if (renderer.gameObject == m_backdrop || renderer.gameObject.layer == GameController.Instance.m_layerExterior.ToIndex())
 					{
 						continue;
 					}
@@ -1219,7 +1220,7 @@ public class RoomController : MonoBehaviour
 			childPivotPos = doorwayPos + replaceDirection * (doorwayToEdge + childDoorwayToEdge) - childDoorwayPosLocal;
 
 			// check for obstructions
-			isOpen = !Physics2D.OverlapBoxAll(childPivotPos + childPivotToCenter, childBounds.size - new Vector3(m_physicsCheckEpsilon, m_physicsCheckEpsilon), 0.0f).Any(collider => !collider.isTrigger); // NOTE the small size reduction to avoid always collecting ourself
+			isOpen = !Physics2D.OverlapBox(childPivotPos + childPivotToCenter, childBounds.size - new Vector3(m_physicsCheckEpsilon, m_physicsCheckEpsilon), 0.0f, GameController.Instance.m_layerWalls); // NOTE the small size reduction to avoid always collecting ourself
 			if (isOpen)
 			{
 				reverseIdx = idxCandidate;
@@ -1357,7 +1358,7 @@ public class RoomController : MonoBehaviour
 			doorway.GetComponent<Collider2D>().usedByEffector = open;
 
 			// set layer for kinematic movement
-			doorway.layer = open ? GameController.Instance.m_layerOneWay : GameController.Instance.m_layerDefault;
+			doorway.layer = (open ? GameController.Instance.m_layerOneWay : GameController.Instance.m_layerDefault).ToIndex();
 
 			// change color/shadows for user visibility
 			// TODO: match wall texture?

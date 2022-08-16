@@ -24,7 +24,7 @@ public class Secret : MonoBehaviour
 
 		// ignore if blocked by exterior
 		Camera camera = Camera.main;
-		if ((camera.cullingMask & (LayerMask)GameController.Instance.m_layerExterior) != 0)
+		if ((camera.cullingMask & GameController.Instance.m_layerExterior) != 0)
 		{
 			return;
 		}

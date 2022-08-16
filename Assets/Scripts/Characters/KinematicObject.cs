@@ -192,10 +192,10 @@ public abstract class KinematicObject : MonoBehaviour
 
 		// update our collision mask
 		bool shouldIgnoreOneWays = velocity.y >= 0.0f || (m_character != null && m_character.IsDropping); // TODO: don't require knowledge of KinematicCharacter
-		gameObject.layer = shouldIgnoreOneWays ? m_layerIgnoreOneWay : m_layerIdxOrig;
+		gameObject.layer = shouldIgnoreOneWays ? m_layerIgnoreOneWay.ToIndex() : m_layerIdxOrig;
 		contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
 
-		Lazy<bool> isNearGround = new(() => Physics2D.Raycast(m_collider.bounds.min, Vector2.down, m_nearGroundDistance).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground? cast whole collider for better detection?
+		Lazy<bool> isNearGround = new(() => Physics2D.Raycast(m_collider.bounds.min, Vector2.down, m_nearGroundDistance, GameController.Instance.m_layerWalls).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground? cast whole collider for better detection?
 		PerformMovement(move, false, ref isNearGround);
 
 		move = Vector2.up * deltaPosition.y;
@@ -229,7 +229,7 @@ public abstract class KinematicObject : MonoBehaviour
 		}
 
 		// if partway through a one-way platform, ignore it
-		if (processOneWayPlatforms && colliders.All(collider => collider.gameObject.layer == GameController.Instance.m_layerOneWay && m_collider.bounds.min.y + m_platformTopEpsilon < collider.bounds.max.y))
+		if (processOneWayPlatforms && colliders.All(collider => collider.gameObject.layer == GameController.Instance.m_layerOneWay.ToIndex() && m_collider.bounds.min.y + m_platformTopEpsilon < collider.bounds.max.y))
 		{
 			return true;
 		}
@@ -292,7 +292,7 @@ public abstract class KinematicObject : MonoBehaviour
 			if (ShouldIgnore(hit.rigidbody, new Collider2D[] { hit.collider }, false, body.mass, typeof(AnchoredJoint2D), true))
 			{
 				// push-through floor/walls prevention
-				if (hit.transform.parent == null && hit.rigidbody != null && hit.rigidbody.IsTouchingLayers((LayerMask)GameController.Instance.m_layerWalls))
+				if (hit.transform.parent == null && hit.rigidbody != null && hit.rigidbody.IsTouchingLayers(GameController.Instance.m_layerWalls))
 				{
 					Hazard hazard = hit.collider.GetComponent<Hazard>();
 					if (hazard == null || !hazard.enabled) // TODO: more general way of ensuring "important" collisions aren't ignored?
