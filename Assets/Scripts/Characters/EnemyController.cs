@@ -241,35 +241,61 @@ public sealed class EnemyController : KinematicCharacter
 		// TODO: efficiency?
 		if (m_pathfindTimeNext <= Time.time || (m_pathfindWaypoints != null && m_pathfindWaypoints.Count > 0 && !Vector2.Distance(m_target.transform.position, m_pathfindWaypoints.Last()).FloatEqual(targetOffsetAbs.magnitude, m_meleeRange))) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases); avoid trying to go past moving targets?
 		{
-			m_pathfindWaypoints = GameController.Instance.Pathfind(transform.position, m_target.transform.position, targetOffsetAbs, m_collider.bounds.extents.y);
+			m_pathfindWaypoints = GameController.Instance.Pathfind(transform.position, m_target.transform.position, targetOffsetAbs, m_collider.bounds.extents.y, !HasFlying && jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue); // TODO: limit to max jump height once pathfinding takes platforms into account?
 			if (m_pathfindWaypoints == null)
 			{
 				m_target = null; // TODO: better handle unreachable positions; idle? find closest reachable position?
+			}
+			else if (GameController.Instance.m_avatars.Any(avatar => avatar.gameObject == m_target.gameObject))
+			{
+				// if targeting and successfully pathfinding to an avatar, ensure we are now contained in GameController.m_enemiesActive[]
+				// TODO: efficiency?
+				GameController.Instance.EnemyAdd(this);
 			}
 			m_pathfindTimeNext = Time.time + Random.Range(m_replanSecondsMax * 0.5f, m_replanSecondsMax); // TODO: parameterize "min" time even though it's not a hard minimum?
 		}
 		if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0)
 		{
+			// NOTE that even if targeting an avatar and unable to pathfind to any avatars, we don't have to remove ourself from GameController.m_enemiesActive[] to prevent wave softlocks, since GameController.SpawnEnemyWaveCoroutine() takes care of that
 			move = Vector2.zero;
 			return false;
 		}
-		Vector2 nextWaypoint = m_pathfindWaypoints.First();
 
-		// determine current direction
-		Vector2 diff = nextWaypoint - (Vector2)transform.position;
 		Collider2D targetCollider = m_target.GetComponent<Collider2D>(); // TODO: efficiency?
 		Vector2 halfExtentsCombined = (m_collider.bounds.extents + targetCollider.bounds.extents) * 0.5f;
-		if (Mathf.Abs(diff.x) < halfExtentsCombined.x)
-		{
-			diff.x = 0.0f;
-		}
-		if (Mathf.Abs(diff.y) < halfExtentsCombined.y)
-		{
-			diff.y = 0.0f;
-		}
-		Vector2 dir = diff.normalized;
 
-		// left/right
+		// process & check for arrival at current waypoint(s)
+		Vector2 nextWaypoint;
+		Vector2 diff;
+		bool atWaypoint;
+		do
+		{
+			// get relative position
+			nextWaypoint = m_pathfindWaypoints.First();
+			diff = nextWaypoint - (Vector2)transform.position;
+
+			// prevent jittering
+			if (Mathf.Abs(diff.x) < halfExtentsCombined.x)
+			{
+				diff.x = 0.0f;
+			}
+			if (Mathf.Abs(diff.y) < halfExtentsCombined.y)
+			{
+				diff.y = 0.0f;
+			}
+
+			// check arrival
+			const float arrivalEpsilon = 0.1f; // TODO: derive/calculate?
+			atWaypoint = diff.magnitude <= ((Vector2)m_collider.bounds.extents).magnitude + m_collider.offset.magnitude + arrivalEpsilon;
+			if (atWaypoint)
+			{
+				m_pathfindWaypoints.RemoveAt(0);
+			}
+		}
+		while (atWaypoint && m_pathfindWaypoints.Count > 0);
+
+		// determine current direction
+		Vector2 dir = diff.normalized;
 		move.x = HasFlying ? dir.x : System.Math.Sign(dir.x); // NOTE that Mathf's version of Sign() treats zero as positive...
 
 		if (HasFlying)
@@ -290,11 +316,6 @@ public sealed class EnemyController : KinematicCharacter
 			move.y = IsGrounded && nextBounds.max.y < selfBounds.min.y ? -1.0f : Mathf.SmoothDamp(move.y, 0.0f, ref m_dropDecayVel, m_dropDecayTime * 2.0f); // NOTE the IsGrounded check and damped decay (x2 since IsDropping's threshold is -0.5) to cause stopping at each ladder rung when descending
 		}
 
-		const float arrivalEpsilon = 0.1f; // TODO: derive/calculate?
-		if (diff.magnitude <= ((Vector2)m_collider.bounds.extents).magnitude + m_collider.offset.magnitude + arrivalEpsilon)
-		{
-			m_pathfindWaypoints.RemoveAt(0);
-		}
 		return m_pathfindWaypoints.Count == 0;
 	}
 

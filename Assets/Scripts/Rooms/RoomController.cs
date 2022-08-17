@@ -358,7 +358,7 @@ public class RoomController : MonoBehaviour
 				RoomController lowerRoom = direction.y.FloatEqual(0.0f) ? deeperRoom : (direction.y > 0.0f ? this : sibling);
 
 				// determine traversability before adding cutback
-				AStarPath path = lowerRoom.RoomPath(lowerRoom.transform.position, (lowerRoom == this ? sibling : this).transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly, -1.0f);
+				AStarPath path = lowerRoom.RoomPath(lowerRoom.transform.position, (lowerRoom == this ? sibling : this).transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly, -1.0f, float.MaxValue); // TODO: use avatar max jump height once RoomPath() takes platforms into account?
 
 				// maybe add one-way lock
 				bool cutbackIsLocked = !noLadder && path == null;
@@ -583,7 +583,7 @@ public class RoomController : MonoBehaviour
 					break;
 
 				case LayoutGenerator.Node.Type.Enemy:
-					// TODO: include in GameController.m_{waveEnemies/enemySpawnCounts}[] once room is opened
+					// NOTE that this enemy won't be included in GameController.m_{waveEnemies/enemySpawnCounts}[] until room is opened and pathfinding succeeds
 					GameObject enemyPrefab = GameController.Instance.m_enemyPrefabs.RandomWeighted(GameController.Instance.m_enemyPrefabs.Select(pair => 1.0f / pair.m_weight)).m_object; // NOTE that m_enemyPrefabs[] uses "weight" as enemy toughness rather than chance to spawn
 					Instantiate(enemyPrefab, InteriorPosition(0.0f) + (Vector3)enemyPrefab.OriginToCenterY(), Quaternion.identity);
 					break;
@@ -871,9 +871,9 @@ public class RoomController : MonoBehaviour
 		return m_spawnPoints[Random.Range(0, m_spawnPoints.Length)].transform.position;
 	}
 
-	public List<Vector2> PositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag, ObstructionCheck obstructionChecking, float characterExtentY)
+	public List<Vector2> PositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag, ObstructionCheck obstructionChecking, float characterExtentY, float upwardMax)
 	{
-		AStarPath roomPath = RoomPath(startPosition, endPositionPreoffset, obstructionChecking, characterExtentY);
+		AStarPath roomPath = RoomPath(startPosition, endPositionPreoffset, obstructionChecking, characterExtentY, upwardMax);
 		if (roomPath == null)
 		{
 			return null;
@@ -1401,7 +1401,7 @@ public class RoomController : MonoBehaviour
 		public int CompareTo(AStarPath other) => m_distanceTotalEst.CompareTo(other.m_distanceTotalEst);
 	}
 
-	private AStarPath RoomPath(Vector2 startPos, Vector2 endPos, ObstructionCheck obstructionChecking, float characterExtentY)
+	private AStarPath RoomPath(Vector2 startPos, Vector2 endPos, ObstructionCheck obstructionChecking, float characterExtentY, float upwardMax)
 	{
 		Debug.Assert(Bounds.Contains(startPos));
 
@@ -1443,6 +1443,11 @@ public class RoomController : MonoBehaviour
 				}
 				Vector2 posNew = roomNext == endRoom ? endPos : connectionPoints.Last();
 				float distanceCurNew = pathItr.m_distanceCur + posPrev.ManhattanDistance(posNew); // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
+
+				if (connectionPoints[0].y - posPrev.y > upwardMax || connectionPoints[1].y - connectionPoints[0].y > upwardMax) // NOTE that we don't check posNew.y against connectionPoints[1].y, since it will either be the same as connectionPoints.Last() or endPos, and we ignore endPos since targets can generally move around w/i the end room // TODO: genericize number of connection points? parameterize whether to ignore endPos?
+				{
+					continue;
+				}
 
 				// NOTE the copy to prevent editing other branches' paths
 				// TODO: efficiency?

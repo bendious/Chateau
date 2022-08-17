@@ -93,7 +93,7 @@ public class GameController : MonoBehaviour
 	public Transform[] RoomBackdropsAboveGround => m_roomBackdropsAboveGroundInternal.Value;
 	private readonly System.Lazy<Transform[]> m_roomBackdropsAboveGroundInternal = new(() => Instance.m_startRoom.BackdropsAboveGroundRecursive.ToArray(), false);
 
-	public IEnumerable<KinematicCharacter> AiTargets => m_avatars.Select(avatar => (KinematicCharacter)avatar).Concat(m_waveEnemies); // TODO: include non-wave enemies, too? efficiency?
+	public IEnumerable<KinematicCharacter> AiTargets => m_avatars.Select(avatar => (KinematicCharacter)avatar).Concat(m_enemiesActive); // TODO: efficiency?
 
 	public bool Victory { get; private set; }
 
@@ -119,7 +119,7 @@ public class GameController : MonoBehaviour
 	private float m_nextWaveTime = 0.0f;
 	private bool m_waveSpawningInProgress = false;
 
-	private readonly List<EnemyController> m_waveEnemies = new();
+	private readonly List<EnemyController> m_enemiesActive = new();
 	private static int[] m_enemySpawnCounts;
 
 	private static readonly BitArray m_secretsFoundBitmask = new(sizeof(int) * 8); // TODO: avoid limiting to a single int?
@@ -238,10 +238,7 @@ public class GameController : MonoBehaviour
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
 	}
 
-	private void Update()
-	{
-		Simulation.Tick();
-	}
+	private void Update() => Simulation.Tick();
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Called via SendMessage() from PlayerInputManager component")]
 	private void OnPlayerJoined(PlayerInput player)
@@ -301,10 +298,7 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	private void OnApplicationQuit()
-	{
-		IsSceneLoad = true;
-	}
+	private void OnApplicationQuit() => IsSceneLoad = true;
 
 	private void OnPlayerLeft(PlayerInput player)
 	{
@@ -332,15 +326,12 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	public RoomController RoomFromPosition(Vector2 position)
-	{
-		return m_startRoom.FromPosition(position);
-	}
+	public RoomController RoomFromPosition(Vector2 position) => m_startRoom.FromPosition(position);
 
-	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos, Vector2 offsetMag, float characterExtentY)
+	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos, Vector2 offsetMag, float characterExtentY, float upwardMax)
 	{
 		RoomController startRoom = RoomFromPosition(startPos);
-		return startRoom == null ? null : startRoom.PositionPath(startPos, targetPos, offsetMag, RoomController.ObstructionCheck.Full, characterExtentY);
+		return startRoom == null ? null : startRoom.PositionPath(startPos, targetPos, offsetMag, RoomController.ObstructionCheck.Full, characterExtentY, upwardMax);
 	}
 
 	public void TogglePause()
@@ -357,25 +348,24 @@ public class GameController : MonoBehaviour
 
 	public void EnemyAdd(EnemyController enemy)
 	{
-		m_waveEnemies.Add(enemy);
+		if (m_enemiesActive.Contains(enemy))
+		{
+			return;
+		}
+		m_enemiesActive.Add(enemy);
+		// TODO: increment m_enemySpawnCounts[] if appropriate
 	}
 
-	public bool WaveEnemiesRemain()
-	{
-		return m_waveSpawningInProgress || m_waveEnemies.Count > 0;
-	}
+	public bool ActiveEnemiesRemain() => m_waveSpawningInProgress || m_enemiesActive.Count > 0;
 
-	public bool EnemyTypeHasSpawned(int typeIndex)
-	{
-		return m_enemySpawnCounts[typeIndex] > 0;
-	}
+	public bool EnemyTypeHasSpawned(int typeIndex) => m_enemySpawnCounts[typeIndex] > 0;
 
 	public void RemoveUnreachableEnemies()
 	{
 		// TODO: don't assume we're locked into individual rooms?
 		RoomController[] reachableRooms = m_avatars.Where(avatar => avatar.IsAlive).Select(avatar => RoomFromPosition(avatar.transform.position)).ToArray();
 
-		foreach (EnemyController enemy in m_waveEnemies)
+		foreach (EnemyController enemy in m_enemiesActive)
 		{
 			if (reachableRooms.Contains(RoomFromPosition(enemy.transform.position)))
 			{
@@ -422,10 +412,7 @@ public class GameController : MonoBehaviour
 		LoadScene(SceneManager.GetActiveScene().name, !noInventoryClear, noInventoryClear);
 	}
 
-	public void LoadScene(string name)
-	{
-		LoadScene(name, true, false);
-	}
+	public void LoadScene(string name) => LoadScene(name, true, false);
 
 	public void LoadScene(string name, bool save, bool noInventoryClear)
 	{
@@ -449,7 +436,7 @@ public class GameController : MonoBehaviour
 		IsSceneLoad = true;
 
 		// prevent stale GameController asserts while reloading
-		foreach (EnemyController enemy in m_waveEnemies)
+		foreach (EnemyController enemy in m_enemiesActive)
 		{
 			enemy.gameObject.SetActive(false);
 		}
@@ -514,7 +501,7 @@ public class GameController : MonoBehaviour
 
 	public void DebugKillAllEnemies()
 	{
-		foreach (EnemyController enemy in m_waveEnemies)
+		foreach (EnemyController enemy in m_enemiesActive)
 		{
 			enemy.GetComponent<Health>().Die();
 		}
@@ -767,6 +754,7 @@ public class GameController : MonoBehaviour
 			{
 				room.SealRoom(true);
 			}
+			m_enemiesActive.Clear(); // NOTE that any that remain able to reach an avatar will re-add themselves via EnemyAdd(), and due to m_waveSpawningInProgress, ActiveEnemiesRemain() won't hiccup in the meantime
 		}
 
 		m_waveWeight += Random.Range(m_waveEscalationMin, m_waveEscalationMax); // TODO: exponential/logistic escalation?
@@ -792,7 +780,7 @@ public class GameController : MonoBehaviour
 		m_waveSpawningInProgress = false;
 
 		// unseal rooms if the last enemy was killed immediately
-		if (m_waveSealing && m_waveEnemies.Count == 0 && !m_bossRoomSealed)
+		if (m_waveSealing && m_enemiesActive.Count == 0 && !m_bossRoomSealed)
 		{
 			foreach (RoomController room in sealedRooms)
 			{
@@ -804,7 +792,7 @@ public class GameController : MonoBehaviour
 	private void SpawnEnemy(GameObject enemyPrefab)
 	{
 		Vector3 spawnPos = RoomFromPosition(m_avatars[Random.Range(0, m_avatars.Count())].transform.position).SpawnPointRandom();
-		m_waveEnemies.Add(Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>());
+		EnemyAdd(Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>());
 	}
 
 	private void OnObjectDespawn(ObjectDespawn evt)
@@ -815,9 +803,9 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
-		m_waveEnemies.Remove(enemy);
+		m_enemiesActive.Remove(enemy);
 
-		if (m_waveSealing && m_waveEnemies.Count == 0 && !m_waveSpawningInProgress && !m_bossRoomSealed)
+		if (m_waveSealing && !ActiveEnemiesRemain() && !m_bossRoomSealed)
 		{
 			// TODO: slight time delay?
 			foreach (RoomController room in m_avatars.Select(avatar => RoomFromPosition(avatar.transform.position)))
@@ -839,7 +827,7 @@ public class GameController : MonoBehaviour
 
 			float secondsRemaining = m_nextWaveTime - Time.time;
 			m_timerUI.text = System.TimeSpan.FromSeconds(secondsRemaining).ToString("m':'ss");
-			m_timerUI.color = WaveEnemiesRemain() ? Color.red : Color.green;
+			m_timerUI.color = ActiveEnemiesRemain() ? Color.red : Color.green;
 
 			if (secondsRemaining >= 1.0f && secondsRemaining <= m_waveWeight + 1.0f)
 			{
