@@ -145,7 +145,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	public void Interact(KinematicCharacter interactor, bool reverse) => interactor.ChildAttach(this);
 
-	// this (although public) should only be called by IHolderController.ItemAttachInternal() // TODO?
+	// this (although public) should only be called by IHolder.ChildAttachInternal() // TODO?
 	public void AttachInternal(IHolder holder)
 	{
 		IAttachable.AttachInternalShared(this, holder, m_body);

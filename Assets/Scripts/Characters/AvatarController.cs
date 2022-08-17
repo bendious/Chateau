@@ -47,6 +47,8 @@ public sealed class AvatarController : KinematicCharacter
 
 	[SerializeField] private float m_coyoteTime = 0.15f;
 
+	[SerializeField] private float m_throwIgnoreSeconds = 0.15f;
+
 	[SerializeField] private float m_respawnSeconds = 30.0f;
 
 
@@ -70,6 +72,9 @@ public sealed class AvatarController : KinematicCharacter
 
 	private VisualEffect m_aimVfx;
 	private bool m_aiming;
+
+	private float m_throwIgnoreTime;
+	private GameObject m_throwObj;
 
 	private Vector2 m_moveDesired;
 	private Vector2 m_moveVel;
@@ -229,9 +234,9 @@ public sealed class AvatarController : KinematicCharacter
 		Vector2 focusTop = Vector2.zero;
 		foreach (Collider2D candidate in focusCandidates)
 		{
-			if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, false, 0.0f, null, false, true))
+			if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, false, 0.0f, null, false, true) || (candidate.gameObject == m_throwObj && m_throwIgnoreTime >= Time.time))
 			{
-				continue; // ignore ourself / attached/ignored objects
+				continue; // ignore ourself / attached/ignored/just-thrown objects
 			}
 
 			// prioritize interactable objects
@@ -425,6 +430,9 @@ public sealed class AvatarController : KinematicCharacter
 		{
 			StopAiming();
 			primaryItem.Throw();
+
+			m_throwIgnoreTime = Time.time + m_throwIgnoreSeconds;
+			m_throwObj = primaryItem.gameObject;
 		}
 	}
 
