@@ -52,7 +52,9 @@ public class LockController : MonoBehaviour, IUnlockable
 
 
 	private readonly List<Tuple<IKey, GameObject>> m_keys = new();
-	private bool m_hasSpawnedKeys = false;
+#if DEBUG
+	private bool m_debugHasSpawnedKeys = false;
+#endif
 	private KeyInfo m_keyInfo;
 	private CombinationSet m_combinationSet;
 	private bool m_hasTrigger;
@@ -66,15 +68,17 @@ public class LockController : MonoBehaviour, IUnlockable
 
 	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms)
 	{
-		Debug.Assert(!m_hasSpawnedKeys); // NOTE that we can't just check m_keys due to the possibility of both spawned and within-prefab keys
-		m_hasSpawnedKeys = true;
+#if DEBUG
+		Debug.Assert(!m_debugHasSpawnedKeys); // NOTE that we can't just check m_keys due to the possibility of both spawned and within-prefab keys
+		m_debugHasSpawnedKeys = true;
+#endif
 
 		// determine key type
 		int keyRoomCount = keyRooms == null ? 0 : keyRooms.Length;
 		RoomController[] keyOrLockRooms = keyRoomCount > 0 ? keyRooms : new RoomController[] { lockRoom };
 		if (m_keyPrefabs.Length > 0)
 		{
-			m_keyInfo = RoomController.RandomWeightedByKeyCount(m_keyPrefabs.CombineWeighted(GameController.Instance.m_keyPrefabs, info => info.m_object.m_prefabs.FirstOrDefault(prefab => GameController.Instance.m_keyPrefabs.Any(key => key.m_object == prefab.m_object))?.m_object, pair => pair.m_object), info => info.m_keyCountMax - keyRoomCount < 0 ? int.MaxValue : info.m_keyCountMax - keyRoomCount);
+			m_keyInfo = RoomController.RandomWeightedByKeyCount(m_keyPrefabs.CombineWeighted(GameController.Instance.m_keyPrefabs, info => info.m_object.m_prefabs.Select(info => info.m_object).FirstOrDefault(prefab => GameController.Instance.m_keyPrefabs.Any(key => key.m_object == prefab)), pair => pair.m_object), info => info.m_keyCountMax - keyRoomCount);
 		}
 
 		if (keyRooms == null || m_keyInfo.m_keyCountMax <= 0)

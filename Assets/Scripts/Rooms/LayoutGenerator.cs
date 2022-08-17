@@ -98,7 +98,7 @@ public class LayoutGenerator
 		public int Depth { get
 		{
 			List<Node> parents = DirectParents;
-			return parents == null ? 0 : parents.Max(node => node.Depth) + 1;
+			return parents == null ? 0 : parents.Max(node => node.Depth) + (parents.Any(node => node.m_type == Type.Lock || m_type == Type.LockOrdered) ? 1 : 0);
 		} }
 
 		public IEnumerable<Node> WithDescendants => m_children == null ? new Node[] { this } : m_children.SelectMany(node => node.WithDescendants).Concat(new Node[] { this });

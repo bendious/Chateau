@@ -47,8 +47,9 @@ public class GateController : MonoBehaviour, IUnlockable
 		LockInfo lockInfo = RoomController.RandomWeightedByKeyCount(m_lockPrefabs.CombineWeighted(GameController.Instance.m_lockPrefabs, info => info.m_object.m_prefab, pair => pair.m_object), info =>
 		{
 			System.Collections.Generic.IEnumerable<WeightedObject<LockController.KeyInfo>> keys = info.m_prefab.GetComponent<LockController>().m_keyPrefabs;
-			keys = keys?.CombineWeighted(GameController.Instance.m_keyPrefabs, info => info.m_object.m_prefabs?.FirstOrDefault(prefab => GameController.Instance.m_keyPrefabs.Any(key => key.m_object == prefab.m_object)).m_object, pair => pair.m_object);
-			return keys == null || keys.Count() == 0 ? keyRoomsCount : keys.Min(key => key.m_object.m_keyCountMax - keyRoomsCount < 0 ? int.MaxValue : key.m_object.m_keyCountMax - keyRoomsCount);
+			keys = keys?.CombineWeighted(GameController.Instance.m_keyPrefabs, info => info.m_object.m_prefabs?.Select(info => info.m_object).FirstOrDefault(prefab => GameController.Instance.m_keyPrefabs.Any(key => key.m_object == prefab)), pair => pair.m_object);
+			keys = keys?.Where(key => key.m_object.m_keyCountMax >= keyRoomsCount);
+			return keys == null || keys.Count() == 0 ? -keyRoomsCount : keys.Min(key => key.m_object.m_keyCountMax - keyRoomsCount);
 		});
 
 		float yOffset = lockInfo.m_prefab.OriginToCenterY(true).y;
