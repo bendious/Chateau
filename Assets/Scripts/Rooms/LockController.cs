@@ -340,7 +340,7 @@ public class LockController : MonoBehaviour, IUnlockable
 	private void OnTriggerExit2D(Collider2D collider)
 	{
 		// NOTE that keys w/ delays require direct trigger contact
-		if (IsValidNextKey(collider.gameObject)) // TODO: cache?
+		if (m_unlockInProgressCount > 0 && IsValidNextKey(collider.gameObject)) // TODO: cache currently in-progress key objects?
 		{
 			--m_unlockInProgressCount;
 		}

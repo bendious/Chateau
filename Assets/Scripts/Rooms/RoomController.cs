@@ -371,7 +371,7 @@ public class RoomController : MonoBehaviour
 				{
 					// add one-way lock
 					int dummyLockIdx = -1;
-					noLadder |= shallowRoom.SpawnGate(shallowRoom != this ? doorwayInfo : reverseInfo, cutbackIsLocked ? LayoutGenerator.Node.Type.Lock : LayoutGenerator.Node.Type.GateBreakable, Vector2.zero, doorwayInfo.m_excludeSelf.Value ? 0 : 1, shallowRoom != this ? reverseInfo : doorwayInfo, ref dummyLockIdx, true); // NOTE the "reversed" DoorwayInfos to place the gate in deepRoom but as a child of shallowRoom, for better shadowing // NOTE the exclusion of directional gates since some of them aren't physical blockages
+					noLadder |= shallowRoom.SpawnGate(shallowRoom != this ? doorwayInfo : reverseInfo, cutbackIsLocked ? LayoutGenerator.Node.Type.Lock : LayoutGenerator.Node.Type.GateBreakable, shallowRoom != this ? doorwayInfo.DirectionOutward() : reverseInfo.DirectionOutward(), doorwayInfo.m_excludeSelf.Value ? 0 : 1, shallowRoom != this ? reverseInfo : doorwayInfo, ref dummyLockIdx, true); // NOTE the "reversed" DoorwayInfos to place the gate in deepRoom but as a child of shallowRoom, for better shadowing
 				}
 				if (pathLowToHigh != null && pathShallowToDeep != null) // NOTE that the two paths might be equivalent or going in opposite directions, so if either is null we know there's no loop, but if neither are, we still have to do more checks
 				{
@@ -1283,6 +1283,7 @@ public class RoomController : MonoBehaviour
 	private bool SpawnGate(DoorwayInfo doorwayInfo, LayoutGenerator.Node.Type type, Vector2 replaceDirection, int preferredKeyCount, DoorwayInfo reverseInfo, ref int orderedLockIdx, bool isCutback)
 	{
 		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo) || m_doorwayInfos.Contains(reverseInfo));
+		Debug.Assert(doorwayInfo.DirectionOutward() == replaceDirection); // NOTE that we could probably de-parameterize replaceDirection, but that would just end up running DirectionOutward() unnecessarily in Release
 
 		// determine gate type(s)
 		bool isLock = type == LayoutGenerator.Node.Type.Lock;
@@ -1292,10 +1293,10 @@ public class RoomController : MonoBehaviour
 
 		// filter allowed gates
 		// TODO: disallow cutbacks w/ generic keys that already exist?
-		WeightedObject<GameObject>[] directionalGates = isOrderedOrSecret ? null : m_doorDirectionalPrefabs.FirstOrDefault(pair => pair.m_direction == replaceDirection).m_prefabs;
+		WeightedObject<GameObject>[] directionalGates = m_doorDirectionalPrefabs.FirstOrDefault(pair => pair.m_direction == replaceDirection).m_prefabs; // NOTE that even if we don't use this list to choose, we still check it for ladder suppression
 		WeightedObject<GameObject>[] nondirectionalGates = isOrderedOrSecret ? null : isCutback ? m_cutbackPrefabs : m_gatePrefabs;
 		IEnumerable<WeightedObject<GameObject>> gatesFinal = isOrdered ? null : isSecret ? m_doorSecretPrefabs : directionalGates != null ? directionalGates.Concat(nondirectionalGates) : nondirectionalGates;
-		gatesFinal = isOrdered ? null : gatesFinal.Where(weightedObj => isLock ? weightedObj.m_object.GetComponentInChildren<IUnlockable>() != null : weightedObj.m_object.GetComponentInChildren<IUnlockable>() == null).CombineWeighted(GameController.Instance.m_gatePrefabs);
+		gatesFinal = isOrdered ? null : gatesFinal.Where(weightedObj => isLock ? weightedObj.m_object.GetComponentInChildren<IUnlockable>() != null : weightedObj.m_object.GetComponentInChildren<IUnlockable>() == null).CombineWeighted(isCutback ? GameController.Instance.m_cutbackPrefabs : GameController.Instance.m_gatePrefabs);
 
 		// pick & create gate
 		GameObject blockerPrefab = isOrdered ? m_lockOrderedPrefabs[System.Math.Min(orderedLockIdx++, m_lockOrderedPrefabs.Length - 1)] : RandomWeightedByKeyCount(gatesFinal, prefab =>
@@ -1323,7 +1324,6 @@ public class RoomController : MonoBehaviour
 
 		// resize/recolor gate to fit doorway
 		SpriteRenderer[] renderers = doorwayInfo.m_blocker.GetComponentsInChildren<SpriteRenderer>();
-		Vector2 doorwayDirection = doorwayInfo.DirectionOutward(); // NOTE that this isn't necessarily the same as replaceDirection, which can be zero
 		Vector2 size = doorwayInfo.Size();
 		int i = 0;
 		foreach (SpriteRenderer renderer in renderers)
@@ -1338,14 +1338,14 @@ public class RoomController : MonoBehaviour
 			// TODO: don't assume that multi-part gates are synonymous w/ one-way breakable gates?
 			if (i > 0)
 			{
-				renderer.transform.localPosition = doorwayDirection * size * i;
+				renderer.transform.localPosition = replaceDirection * size * i;
 			}
 			if (renderers.Length > 1)
 			{
 				Health health = renderer.GetComponent<Health>();
 				if (health != null)
 				{
-					health.m_invincibilityDirection = doorwayDirection;
+					health.m_invincibilityDirection = replaceDirection;
 				}
 			}
 
