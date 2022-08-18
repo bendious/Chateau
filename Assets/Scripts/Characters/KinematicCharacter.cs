@@ -41,6 +41,16 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	[SerializeField] private Vector2 m_dashSecondsXY = new(0.2f, 0.2f);
 
 	/// <summary>
+	/// Whether dash confers invulnerability
+	/// </summary>
+	[SerializeField] private bool m_dashInvincibility;
+
+	/// <summary>
+	/// Alternate to m_contactDamage used while dashing
+	/// </summary>
+	[SerializeField] private float m_dashDamage = 0.0f;
+
+	/// <summary>
 	/// Dash SFX audio clips
 	/// </summary>
 	[SerializeField] private WeightedObject<AudioClip>[] m_dashSFX;
@@ -52,6 +62,9 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	[SerializeField] private Vector2 m_armOffset;
 
+	/// <summary>
+	/// Amount of damage caused to other characters that collide with this one
+	/// </summary>
 	[SerializeField] private float m_contactDamage = 1.0f;
 
 
@@ -103,6 +116,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	private bool m_wasGrounded;
 
+	private bool m_isDashing = false;
 	private bool m_dashAvailable = true;
 
 
@@ -196,9 +210,17 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 			m_animator.SetBool("dash", true);
 			m_audioSource.PlayOneShot(m_dashSFX.RandomWeighted());
 			m_dashAvailable = false;
+			if (m_dashInvincibility)
+			{
+				m_health.m_invincible = true;
+				Simulation.Schedule<EnableDamage>(1.0f).m_health = m_health; // NOTE that this is just a fallback // TODO: more exact timing?
+			}
+			m_isDashing = true;
 		}
-		else if (!HasForcedVelocity) // TODO: take into account other sources of forced velocity?
+		else if (m_isDashing && !HasForcedVelocity) // TODO: take into account other sources of forced velocity?
 		{
+			m_isDashing = false;
+			m_health.m_invincible = false; // TODO: take into account other sources of invincibility?
 			m_animator.SetBool("dash", false);
 		}
 
@@ -231,12 +253,13 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		// TODO: disable w/ all characters rather than just this one? ensure consistent re-enable time? don't double-disable collision due to both characters' OnCharacterCollision()?
 		EnableCollision.TemporarilyDisableCollision(GetComponentsInChildren<Collider2D>(), character.GetComponentsInChildren<Collider2D>());
 
-		if (m_contactDamage.FloatEqual(0.0f) || !CanDamage(character.gameObject))
+		float damage = m_isDashing ? m_dashDamage : m_contactDamage;
+		if (damage.FloatEqual(0.0f) || !CanDamage(character.gameObject))
 		{
 			return false;
 		}
 
-		return character.m_health.Decrement(gameObject, m_contactDamage);
+		return character.m_health.Decrement(gameObject, damage);
 	}
 
 

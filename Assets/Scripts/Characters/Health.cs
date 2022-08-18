@@ -92,8 +92,8 @@ public class Health : MonoBehaviour
 		evt.m_damageSource = source;
 
 		// death/despawn
-		bool isDead = m_currentHP.FloatEqual(0.0f);
-		if (isDead && (!ConsoleCommands.NeverDie || GameController.Instance.m_avatars.All(avatar => avatar.gameObject != gameObject)))
+		bool isDead = m_currentHP.FloatEqual(0.0f) && (!ConsoleCommands.NeverDie || GameController.Instance.m_avatars.All(avatar => avatar.gameObject != gameObject));
+		if (isDead)
 		{
 			OnHealthDeath deathEvt = Simulation.Schedule<OnHealthDeath>();
 			deathEvt.m_health = this;

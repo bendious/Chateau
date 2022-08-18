@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 using UnityEngine.VFX;
 
 
@@ -365,7 +366,7 @@ public class RoomController : MonoBehaviour
 
 				// maybe add one-way lock
 				bool cutbackIsLocked = shallowRoom == lowRoom ? !noLadder : pathLowToHigh == null || pathShallowToDeep == null;
-				Debug.Assert(noLadder || cutbackIsLocked || m_layoutNodes.First().AreaParents.Zip(sibling.m_layoutNodes.First().AreaParents, System.Tuple.Create).All(pair => pair.Item1 == pair.Item2), "Open cutback between separate areas?");
+				Debug.Assert(noLadder || cutbackIsLocked || SceneManager.GetActiveScene().buildIndex == 0 || m_layoutNodes.First().AreaParents.Zip(sibling.m_layoutNodes.First().AreaParents, System.Tuple.Create).All(pair => pair.Item1 == pair.Item2), "Open cutback between separate areas?"); // TODO: don't assume 0th scene is open-concept?
 				if (cutbackIsLocked || Random.value <= m_cutbackBreakablePct)
 				{
 					// add one-way lock
@@ -574,7 +575,7 @@ public class RoomController : MonoBehaviour
 					break;
 
 				case LayoutGenerator.Node.Type.Npc:
-					int sceneIdx = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+					int sceneIdx = SceneManager.GetActiveScene().buildIndex;
 					if (sceneIdx == 0 ? npcDepthLocal > GameController.ZonesFinishedCount : npcDepthLocal + GameController.ZonesFinishedCount >= sceneIdx) // TODO: don't assume that the first scene is where NPCs congregate?
 					{
 						break;

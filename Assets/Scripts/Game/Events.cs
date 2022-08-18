@@ -49,6 +49,8 @@ public class EnableDamage : Event<EnableDamage>
 {
 	public Health m_health;
 
+	public override bool Precondition() => base.Precondition() && m_health != null;
+
 	public override void Execute() => m_health.m_invincible = false;
 }
 
