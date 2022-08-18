@@ -1734,21 +1734,20 @@ MonoBehaviour:
   m_npcPrefabs:
   - m_object: {fileID: 3111020654554313216, guid: 286335db291a89e4a861600f39917758, type: 3}
     m_weight: 1
-  m_doorPrefabs:
+  m_gatePrefabs:
   - m_object: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
     m_weight: 1
   - m_object: {fileID: 3346888056824497695, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
     m_weight: 1
   - m_object: {fileID: 1365230811573513431, guid: fe495bb420265d946a84ada74b132a5a, type: 3}
     m_weight: 1
+  - m_object: {fileID: 3900856540646818196, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+    m_weight: 1
   m_doorDirectionalPrefabs:
   - m_direction: {x: 0, y: 1}
     m_prefabs:
     - m_object: {fileID: 6676558204597996972, guid: a07871bf36908524ea4aba70a9bb16f1, type: 3}
       m_weight: 1
-  m_doorBreakablePrefabs:
-  - m_object: {fileID: 3900856540646818196, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
-    m_weight: 1
   m_doorSecretPrefabs:
   - m_object: {fileID: 2530109060553961877, guid: b214be9997254b949af66fe5a19fae4f, type: 3}
     m_weight: 1
@@ -1758,6 +1757,8 @@ MonoBehaviour:
   - m_object: {fileID: 3346888056824497695, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
     m_weight: 1
   - m_object: {fileID: 1365230811573513431, guid: fe495bb420265d946a84ada74b132a5a, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 3900856540646818196, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
     m_weight: 1
   - m_object: {fileID: 7962405609981993185, guid: 45247f91abc13ae44a2fcc5669b184d1, type: 3}
     m_weight: 5

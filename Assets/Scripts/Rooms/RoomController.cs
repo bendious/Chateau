@@ -18,12 +18,12 @@ public class RoomController : MonoBehaviour
 
 	[SerializeField] private WeightedObject<GameObject>[] m_npcPrefabs;
 
-	[SerializeField] private WeightedObject<GameObject>[] m_doorPrefabs; // TODO: combine doors/breakable arrays
+	[SerializeField] private WeightedObject<GameObject>[] m_gatePrefabs;
 	[SerializeField] private DirectionalDoors[] m_doorDirectionalPrefabs;
-	[SerializeField] private WeightedObject<GameObject>[] m_doorBreakablePrefabs;
 	[SerializeField] private WeightedObject<GameObject>[] m_doorSecretPrefabs;
 	[SerializeField] private WeightedObject<GameObject>[] m_cutbackPrefabs;
 	[SerializeField] private GameObject[] m_lockOrderedPrefabs;
+
 	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsAbove;
 	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsBelow;
 
@@ -1283,13 +1283,21 @@ public class RoomController : MonoBehaviour
 	{
 		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo) || m_doorwayInfos.Contains(reverseInfo));
 
-		// pick & create gate
-		Assert.IsNull(doorwayInfo.m_blocker);
-		bool isLock = type == LayoutGenerator.Node.Type.Lock || type == LayoutGenerator.Node.Type.LockOrdered;
+		// determine gate type(s)
+		bool isLock = type == LayoutGenerator.Node.Type.Lock;
+		bool isOrdered = type == LayoutGenerator.Node.Type.LockOrdered;
 		bool isSecret = type == LayoutGenerator.Node.Type.Secret;
-		WeightedObject<GameObject>[] directionalBlockerPrefabs = isLock ? m_doorDirectionalPrefabs.FirstOrDefault(pair => pair.m_direction == replaceDirection).m_prefabs : null; // TODO: don't assume that non-locks will never be directional?
-		WeightedObject<GameObject>[] nondirectionalPrefabs = isCutback ? m_cutbackPrefabs : m_doorPrefabs;
-		GameObject blockerPrefab = type == LayoutGenerator.Node.Type.LockOrdered ? m_lockOrderedPrefabs[System.Math.Min(orderedLockIdx++, m_lockOrderedPrefabs.Length - 1)] : RandomWeightedByKeyCount((isLock ? (directionalBlockerPrefabs != null ? directionalBlockerPrefabs.Concat(nondirectionalPrefabs) : nondirectionalPrefabs) : isSecret ? m_doorSecretPrefabs : m_doorBreakablePrefabs).CombineWeighted(GameController.Instance.m_gatePrefabs), prefab =>
+		bool isOrderedOrSecret = isOrdered || isSecret;
+
+		// filter allowed gates
+		// TODO: disallow cutbacks w/ generic keys that already exist?
+		WeightedObject<GameObject>[] directionalGates = isOrderedOrSecret ? null : m_doorDirectionalPrefabs.FirstOrDefault(pair => pair.m_direction == replaceDirection).m_prefabs;
+		WeightedObject<GameObject>[] nondirectionalGates = isOrderedOrSecret ? null : isCutback ? m_cutbackPrefabs : m_gatePrefabs;
+		IEnumerable<WeightedObject<GameObject>> gatesFinal = isOrdered ? null : isSecret ? m_doorSecretPrefabs : directionalGates != null ? directionalGates.Concat(nondirectionalGates) : nondirectionalGates;
+		gatesFinal = isOrdered ? null : gatesFinal.Where(weightedObj => isLock ? weightedObj.m_object.GetComponentInChildren<IUnlockable>() != null : weightedObj.m_object.GetComponentInChildren<IUnlockable>() == null).CombineWeighted(GameController.Instance.m_gatePrefabs);
+
+		// pick & create gate
+		GameObject blockerPrefab = isOrdered ? m_lockOrderedPrefabs[System.Math.Min(orderedLockIdx++, m_lockOrderedPrefabs.Length - 1)] : RandomWeightedByKeyCount(gatesFinal, prefab =>
 		{
 			LockController lockComp = prefab.GetComponent<LockController>();
 			IEnumerable<WeightedObject<LockController.KeyInfo>> keys = lockComp == null ? null : lockComp.m_keyPrefabs;
@@ -1297,10 +1305,11 @@ public class RoomController : MonoBehaviour
 			keys = keys?.Where(key => key.m_object.m_keyCountMax >= preferredKeyCount);
 			return keys == null || keys.Count() <= 0 ? -preferredKeyCount : keys.Min(key => key.m_object.m_keyCountMax - preferredKeyCount);
 		});
+		Debug.Assert(doorwayInfo.m_blocker == null);
 		doorwayInfo.m_blocker = Instantiate(blockerPrefab, doorwayInfo.m_object.transform.position, Quaternion.identity, transform);
 
 		// set references
-		IUnlockable unlockable = doorwayInfo.m_blocker.GetComponent<IUnlockable>();
+		IUnlockable unlockable = doorwayInfo.m_blocker.GetComponentInChildren<IUnlockable>();
 		if (unlockable != null)
 		{
 			unlockable.Parent = gameObject;
@@ -1358,7 +1367,8 @@ public class RoomController : MonoBehaviour
 			++i;
 		}
 
-		return directionalBlockerPrefabs != null && directionalBlockerPrefabs.Any(pair => blockerPrefab == pair.m_object); // TODO: don't assume directional gates will never want default ladders?
+		// determine whether to disallow ladders
+		return directionalGates != null && directionalGates.Any(pair => blockerPrefab == pair.m_object); // TODO: don't assume directional gates will never want default ladders?
 	}
 
 	private void SpawnKeys(DoorwayInfo doorwayInfo, System.Action<IUnlockable, RoomController, RoomController[]> spawnAction)

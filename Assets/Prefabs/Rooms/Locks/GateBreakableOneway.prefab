@@ -61,10 +61,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6181378878242035166, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
       propertyPath: m_InstanceId
-      value: -250132
+      value: -137538
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 9106383757056443986, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+    - target: {fileID: 9106383757056443986, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_lockPrefabs.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
 --- !u!1001 &6386814470719447413
 PrefabInstance:
@@ -127,7 +130,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5591364044071031381, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
       propertyPath: m_InstanceId
-      value: -250142
+      value: -137548
       objectReference: {fileID: 0}
     - target: {fileID: 8957401706804872961, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
       propertyPath: m_SpriteTilingProperty.drawMode
