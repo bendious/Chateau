@@ -1,0 +1,150 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &3378001599932465801
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 9009515520361602900}
+    m_Modifications:
+    - target: {fileID: 3346888056824497695, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_Name
+      value: GateLocked
+      objectReference: {fileID: 0}
+    - target: {fileID: 4466048978132007338, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4466048978132007338, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4466048978132007338, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4466048978132007338, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4466048978132007338, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4466048978132007338, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4466048978132007338, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4466048978132007338, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4466048978132007338, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4466048978132007338, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4466048978132007338, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6181378878242035166, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6181378878242035166, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+      propertyPath: m_InstanceId
+      value: -250132
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 9106383757056443986, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+  m_SourcePrefab: {fileID: 100100000, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+--- !u!1001 &6386814470719447413
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2714192065025752609, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2714192065025752609, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2714192065025752609, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2714192065025752609, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2714192065025752609, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2714192065025752609, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2714192065025752609, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2714192065025752609, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2714192065025752609, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2714192065025752609, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2714192065025752609, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3900856540646818196, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_Name
+      value: GateBreakableOneway
+      objectReference: {fileID: 0}
+    - target: {fileID: 5591364044071031381, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5591364044071031381, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_InstanceId
+      value: -250142
+      objectReference: {fileID: 0}
+    - target: {fileID: 8957401706804872961, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_SpriteTilingProperty.drawMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8957401706804872961, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 1.28
+      objectReference: {fileID: 0}
+    - target: {fileID: 8957401706804872961, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 1.28
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+--- !u!4 &9009515520361602900 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2714192065025752609, guid: a2731d0c9161d8b4cad5b84c1d7cc111, type: 3}
+  m_PrefabInstance: {fileID: 6386814470719447413}
+  m_PrefabAsset: {fileID: 0}

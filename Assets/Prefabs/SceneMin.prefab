@@ -1464,6 +1464,8 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 6676558204597996972, guid: a07871bf36908524ea4aba70a9bb16f1, type: 3}
     m_weight: 1
+  - m_object: {fileID: 7962405609981993185, guid: 45247f91abc13ae44a2fcc5669b184d1, type: 3}
+    m_weight: 1
   m_lockPrefabs:
   - m_object: {fileID: 5718300461762894371, guid: e360d6e48b098a443847f39c71734a9b, type: 3}
     m_weight: 1

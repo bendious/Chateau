@@ -19,6 +19,7 @@ public class Health : MonoBehaviour
 	public const float m_invincibilityTimeDefault = 1.0f;
 	public float m_invincibilityTime = m_invincibilityTimeDefault; // TODO: vary by animation played?
 	public bool m_invincible;
+	public Vector2 m_invincibilityDirection;
 
 
 	[SerializeField] private bool m_gradientActive = false;
@@ -64,6 +65,12 @@ public class Health : MonoBehaviour
 		// check whether object should be immune to damage from source object
 		KinematicCharacter sourceCharacter = source == null ? null : source.GetComponent<KinematicCharacter>();
 		if (sourceCharacter != null && !sourceCharacter.CanDamage(gameObject))
+		{
+			return false;
+		}
+
+		// check directional invincibility
+		if (Vector2.Dot(m_invincibilityDirection, source.transform.position - transform.position) > 0.0f) // TODO: don't assume the source is in the same direction as the weapon?
 		{
 			return false;
 		}
