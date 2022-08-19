@@ -332,7 +332,7 @@ public class GameController : MonoBehaviour
 	public List<Vector2> Pathfind(Vector2 startPos, Vector2 targetPos, Vector2 offsetMag, float characterExtentY, float upwardMax)
 	{
 		RoomController startRoom = RoomFromPosition(startPos);
-		return startRoom == null ? null : startRoom.PositionPath(startPos, targetPos, offsetMag, RoomController.ObstructionCheck.Full, characterExtentY, upwardMax);
+		return startRoom == null ? null : startRoom.PositionPath(startPos, targetPos, offsetMag, RoomController.ObstructionCheck.Full, characterExtentY, upwardMax, -1.0f);
 	}
 
 	public void TogglePause()

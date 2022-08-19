@@ -361,8 +361,8 @@ public class RoomController : MonoBehaviour
 
 				// determine traversability before adding cutback
 				// TODO: use avatar max jump height once RoomPath() takes platforms into account?
-				AStarPath pathLowToHigh = lowRoom.RoomPath(lowRoom.transform.position, (lowRoom == this ? sibling : this).transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly, -1.0f, float.MaxValue);
-				AStarPath pathShallowToDeep = shallowRoom == lowRoom ? pathLowToHigh : shallowRoom.RoomPath(shallowRoom.transform.position, deepRoom.transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly, -1.0f, float.MaxValue);
+				AStarPath pathLowToHigh = lowRoom.RoomPath(lowRoom.transform.position, (lowRoom == this ? sibling : this).transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly, -1.0f, float.MaxValue, -1.0f);
+				AStarPath pathShallowToDeep = shallowRoom == lowRoom ? pathLowToHigh : shallowRoom.RoomPath(shallowRoom.transform.position, deepRoom.transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly, -1.0f, float.MaxValue, -1.0f);
 
 				// maybe add one-way lock
 				bool cutbackIsLocked = shallowRoom == lowRoom && siblingDepthComparison != 0 ? !noLadder : pathLowToHigh == null || pathShallowToDeep == null;
@@ -422,7 +422,7 @@ public class RoomController : MonoBehaviour
 				reverseInfo.m_infoReverse = doorwayInfo;
 
 				// open doorways
-				// NOTE that this has to be AFTER checking ChildRoomPath() above
+				// NOTE that this has to be AFTER checking RoomPath() above
 				OpenDoorway(doorwayInfo, true);
 				sibling.OpenDoorway(reverseInfo, true);
 			}
@@ -875,29 +875,32 @@ public class RoomController : MonoBehaviour
 		return m_spawnPoints[Random.Range(0, m_spawnPoints.Length)].transform.position;
 	}
 
-	public List<Vector2> PositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag, ObstructionCheck obstructionChecking, float characterExtentY, float upwardMax)
+	public List<Vector2> PositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag, ObstructionCheck obstructionChecking, float characterExtentY, float upwardMax, float incrementDegrees)
 	{
-		AStarPath roomPath = RoomPath(startPosition, endPositionPreoffset, obstructionChecking, characterExtentY, upwardMax);
+		AStarPath roomPath = RoomPath(startPosition, endPositionPreoffset, obstructionChecking, characterExtentY, upwardMax, incrementDegrees);
 		if (roomPath == null)
 		{
+			// TODO: find path to closest reachable point instead?
 			return null;
 		}
 		List<Vector2> waypointPath = roomPath.m_pathPositions;
 
+		if (waypointPath.Count <= 1)
+		{
+			waypointPath.Add(endPositionPreoffset);
+		}
+
 		// offset end point
 		// TODO: allow offset to cross room edges?
-		float semifinalX = waypointPath.Count > 0 ? waypointPath.Last().x : startPosition.x;
+		float semifinalX = waypointPath[^2].x;
 		Vector2 endPos = endPositionPreoffset + (semifinalX >= endPositionPreoffset.x ? offsetMag : new Vector2(-offsetMag.x, offsetMag.y));
 		Bounds endRoomBounds = roomPath.m_pathRooms.Last().Bounds;
 		endRoomBounds.Expand(new Vector3(-1.0f, -1.0f)); // TODO: dynamically determine wall thickness?
-		Vector2 endPosConstrained = endRoomBounds.Contains(new(endPos.x, endPos.y, endRoomBounds.center.z)) ? endPos : endRoomBounds.ClosestPoint(endPos); // TODO: flip offset if closest interior point is significantly different from endPos?
-		if (waypointPath.Count <= 1)
+		waypointPath[^1] = endRoomBounds.Contains(new(endPos.x, endPos.y, endRoomBounds.center.z)) ? endPos : endRoomBounds.ClosestPoint(endPos); // TODO: flip offset if closest interior point is significantly different from endPos?
+
+		if (incrementDegrees > 0.0f)
 		{
-			waypointPath.Add(endPosConstrained);
-		}
-		else
-		{
-			waypointPath[^1] = endPosConstrained;
+			RestrictAngleTo(waypointPath, waypointPath.Count - 1, incrementDegrees * Mathf.Deg2Rad);
 		}
 
 		return waypointPath;
@@ -1457,8 +1460,7 @@ public class RoomController : MonoBehaviour
 		public int CompareTo(AStarPath other) => m_distanceTotalEst.CompareTo(other.m_distanceTotalEst);
 	}
 
-	// TODO: param to restrict paths to 0/45/90-degree angles?
-	private AStarPath RoomPath(Vector2 startPos, Vector2 endPos, ObstructionCheck obstructionChecking, float characterExtentY, float upwardMax)
+	private AStarPath RoomPath(Vector2 startPos, Vector2 endPos, ObstructionCheck obstructionChecking, float characterExtentY, float upwardMax, float incrementDegrees)
 	{
 		Debug.Assert(Bounds.Contains(startPos));
 
@@ -1488,21 +1490,46 @@ public class RoomController : MonoBehaviour
 				// NOTE that we don't immediately break if roomNext is endRoom, since there can be multiple valid paths and we're only guaranteed to have the shortest length when popping from paths[]
 
 				Vector2 posPrev = pathItr.m_pathPositions.Last();
-				Vector2[] connectionPoints = new Vector2[] { info.m_object.transform.position * 2 - info.m_infoReverse.m_object.transform.position, info.m_infoReverse.m_object.transform.position * 2 - info.m_object.transform.position }; // NOTE that we don't use Connection() since we want this particular doorway and have already done obstruction checking // NOTE that we push each point into the room a little to prevent paths running inside walls // TODO: use bbox edge furthest from other object?
+				List<Vector2> connectionPoints = new() { posPrev, info.m_object.transform.position * 2 - info.m_infoReverse.m_object.transform.position, info.m_infoReverse.m_object.transform.position * 2 - info.m_object.transform.position }; // NOTE that we don't use Connection() since we want this particular doorway and have already done obstruction checking // NOTE that we push each point into the room a little to prevent paths running inside walls // TODO: use bbox edge furthest from other object?
+
+				// edit y-coordinate at doorways to match character midpoint
+				// TODO: param for flying characters / wires to use the top of the doorway if it's closer
 				if (characterExtentY >= 0.0f)
 				{
-					// edit y-coordinate at doorways to match character midpoint
 					float doorwayDirY = info.DirectionOutward().y;
 					float yAdjustment = doorwayDirY == 0.0f ? roomCur.transform.position.y + characterExtentY : characterExtentY * doorwayDirY; // TODO: don't assume all horizontal doors are at floor height?
-					for (int i = 0; i < connectionPoints.Length; ++i)
+					for (int i = 1; i < connectionPoints.Count; ++i) // NOTE that we skip over posPrev
 					{
-						connectionPoints[i].y = doorwayDirY == 0.0f ? yAdjustment : connectionPoints[i].y + yAdjustment * (i == 0 ? -1 : 1);
+						connectionPoints[i] = new(connectionPoints[i].x, doorwayDirY == 0.0f ? yAdjustment : connectionPoints[i].y + yAdjustment * (i == 0 ? -1 : 1));
 					}
 				}
+
+				// add the end point segment to be restricted if this is the last room
+				if (roomNext == endRoom)
+				{
+					connectionPoints.Add(endPos);
+				}
+
+				// restrict segment angles
+				if (incrementDegrees > 0.0f)
+				{
+					float incrementRadians = Mathf.Deg2Rad * incrementDegrees;
+					for (int i = 1; i < connectionPoints.Count; ++i)
+					{
+						i += RestrictAngleTo(connectionPoints, i, incrementRadians);
+					}
+				}
+
+				// measure to the end point if this is the last room; otherwise, to the last connection point
 				Vector2 posNew = roomNext == endRoom ? endPos : connectionPoints.Last();
 				float distanceCurNew = pathItr.m_distanceCur + posPrev.ManhattanDistance(posNew); // NOTE the use of Manhattan distance since diagonal traversal isn't currently used
 
-				if (connectionPoints[0].y - posPrev.y > upwardMax || connectionPoints[1].y - connectionPoints[0].y > upwardMax) // NOTE that we don't check posNew.y against connectionPoints[1].y, since it will either be the same as connectionPoints.Last() or endPos, and we ignore endPos since targets can generally move around w/i the end room // TODO: genericize number of connection points? parameterize whether to ignore endPos?
+				bool tooHigh = false;
+				for (int i = 1; !tooHigh && i < connectionPoints.Count - 1; ++i) // NOTE that we don't check posNew.y against connectionPoints.Last().y, since posNew will either be the same as connectionPoints.Last() or endPos, and we ignore endPos since targets can generally move around w/i the end room // TODO: parameterize whether to ignore endPos?
+				{
+					tooHigh |= connectionPoints[i].y - connectionPoints[i - 1].y > upwardMax;
+				}
+				if (tooHigh)
 				{
 					continue;
 				}
@@ -1512,18 +1539,44 @@ public class RoomController : MonoBehaviour
 				List<RoomController> roomPathNew = new(pathItr.m_pathRooms);
 				roomPathNew.Add(roomNext);
 				List<Vector2> posPathNew = new(pathItr.m_pathPositions);
+				connectionPoints.RemoveAt(0); // since this is redundant w/ posPathNew.Last()
 				posPathNew.AddRange(connectionPoints);
-				if (roomNext == endRoom)
-				{
-					posPathNew.Add(posNew);
-				}
 
 				// TODO: weight distances based on jumps/traversal required?
 				paths.Push(new AStarPath() { m_pathRooms = roomPathNew, m_pathPositions = posPathNew, m_distanceCur = distanceCurNew, m_distanceTotalEst = distanceCurNew + posNew.ManhattanDistance(endPos) });
 			}
 		}
 
-		return pathItr; // TODO: find closest reachable point if pathItr is null?
+		return pathItr; // TODO: find path to closest reachable point if pathItr is null?
+	}
+
+	private static int RestrictAngleTo(List<Vector2> connectionPoints, int idx, float incrementRadians)
+	{
+		// measure unedited segment against desired increment
+		Vector2 start = connectionPoints[idx - 1];
+		Vector2 diff = connectionPoints[idx] - start;
+		float diffRadians = Mathf.Atan2(diff.y, diff.x);
+		float numIncrements = diffRadians / incrementRadians;
+		float incrementsFract = numIncrements.Modulo(1.0f);
+		if (incrementsFract.FloatEqual(0.0f))
+		{
+			return 0;
+		}
+
+		// determine angles/side of relevant triangle
+		float lowerInc = Mathf.Floor(numIncrements) * incrementRadians;
+		float radiansAboveInc = diffRadians - lowerInc;
+		float radiansBelowInc = lowerInc + incrementRadians - diffRadians;
+		Debug.Assert(radiansAboveInc > 0.0f && radiansBelowInc > 0.0f && radiansAboveInc + radiansBelowInc < Mathf.PI);
+		float angleC = Mathf.PI - radiansAboveInc - radiansBelowInc;
+
+		// by Law of Sines: a / sin(A) == b / sin(B) --> diff.magnitude / sin(angleC) == dist / sin(numIncrements % 1.0f > 0.5f ? radiansAboveInc : radiansBelowInc)
+		float dist = diff.magnitude / Mathf.Sin(angleC) * Mathf.Sin(incrementsFract > 0.5f ? radiansAboveInc : radiansBelowInc);
+		float closestIncRadians = Mathf.Round(numIncrements) * incrementRadians;
+		Vector2 intermediate = start + dist * new Vector2(Mathf.Cos(closestIncRadians), Mathf.Sin(closestIncRadians));
+
+		connectionPoints.Insert(idx, intermediate);
+		return 1;
 	}
 
 	private Vector2[] Connection(RoomController to, ObstructionCheck obstructionChecking, Vector2 priorityPos)
