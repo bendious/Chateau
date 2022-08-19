@@ -42,6 +42,8 @@ public class LockController : MonoBehaviour, IUnlockable
 	public WeightedObject<AudioClip>[] m_failureSFX;
 	public WeightedObject<AudioClip>[] m_unlockSFX;
 
+	[SerializeField] private float m_activeColorPct = 2.0f;
+
 
 	[SerializeField]
 	private bool m_destroyOnUnlock = true;
@@ -405,7 +407,7 @@ public class LockController : MonoBehaviour, IUnlockable
 
 				foreach (Tuple<IKey, GameObject> entry in m_keys)
 				{
-					entry.Item1.IsInPlace = false;
+					entry.Item1.Cancel();
 				}
 				UpdateSprite();
 
@@ -474,6 +476,12 @@ public class LockController : MonoBehaviour, IUnlockable
 				{
 					lightFlicker.enabled = !lightFlicker.enabled;
 				}
+
+				LineRenderer line = GetComponent<LineRenderer>();
+				if (line != null)
+				{
+					line.colorGradient = new Gradient() { colorKeys = new GradientColorKey[] { new GradientColorKey(GetComponent<SpriteRenderer>().color * m_activeColorPct, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f) } };
+				}
 			}
 
 			Parent = null;
@@ -486,6 +494,7 @@ public class LockController : MonoBehaviour, IUnlockable
 				{
 					continue;
 				}
+				keyEntry.Item1.IsInPlace = true;
 				keyEntry.Item1.Deactivate();
 			}
 			m_keys.Clear();

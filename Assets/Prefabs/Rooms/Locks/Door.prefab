@@ -137,6 +137,7 @@ MonoBehaviour:
       m_orderPrefabs: []
       m_keyCountMax: 1
       m_combinationDigits: 0
+      m_genericKeys: 0
     m_weight: 1
   - m_object:
       m_doorSprites:
@@ -150,6 +151,7 @@ MonoBehaviour:
       m_orderPrefabs: []
       m_keyCountMax: 3
       m_combinationDigits: 0
+      m_genericKeys: 0
     m_weight: 1
   - m_object:
       m_doorSprites:
@@ -163,6 +165,7 @@ MonoBehaviour:
       m_orderPrefabs: []
       m_keyCountMax: 3
       m_combinationDigits: 0
+      m_genericKeys: 0
     m_weight: 1
   - m_object:
       m_doorSprites:
@@ -177,6 +180,7 @@ MonoBehaviour:
       m_orderPrefabs: []
       m_keyCountMax: 4
       m_combinationDigits: 0
+      m_genericKeys: 0
     m_weight: 1
   - m_object:
       m_doorSprites:
@@ -193,15 +197,19 @@ MonoBehaviour:
         m_weight: 1
       m_keyCountMax: 4
       m_combinationDigits: 0
+      m_genericKeys: 0
     m_weight: 1
   m_combinationSets: []
   m_keyHeightMax: 7.5
+  m_keyDelaySeconds: 0
+  m_vfxDisableDelaySeconds: 2
   m_failureSFX:
   - m_object: {fileID: 8300000, guid: 1b1c8da1c1a0c1e4e89bbe40b78329f3, type: 3}
     m_weight: 1
   m_unlockSFX:
   - m_object: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
     m_weight: 1
+  m_activeColorPct: 2
   m_destroyOnUnlock: 1
 --- !u!114 &2462278832316299634
 MonoBehaviour:

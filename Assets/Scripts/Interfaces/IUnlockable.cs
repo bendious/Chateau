@@ -3,6 +3,8 @@ using UnityEngine;
 
 public interface IUnlockable
 {
+	public Component Component => this as Component;
+
 	public GameObject Parent { get; set; }
 	public bool IsLocked { get; }
 

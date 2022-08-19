@@ -17,6 +17,7 @@ public interface IKey
 	public void SetCombination(LockController.CombinationSet set, int[] combination, int optionIndex, int indexCorrect, int startIndex, int endIndex, bool useSprites);
 
 	public void Use();
+	public void Cancel() => IsInPlace = false;
 
 	public void Deactivate();
 

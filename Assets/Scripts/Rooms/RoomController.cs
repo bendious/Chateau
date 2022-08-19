@@ -365,7 +365,7 @@ public class RoomController : MonoBehaviour
 				AStarPath pathShallowToDeep = shallowRoom == lowRoom ? pathLowToHigh : shallowRoom.RoomPath(shallowRoom.transform.position, deepRoom.transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly, -1.0f, float.MaxValue);
 
 				// maybe add one-way lock
-				bool cutbackIsLocked = shallowRoom == lowRoom ? !noLadder : pathLowToHigh == null || pathShallowToDeep == null;
+				bool cutbackIsLocked = shallowRoom == lowRoom && siblingDepthComparison != 0 ? !noLadder : pathLowToHigh == null || pathShallowToDeep == null;
 				Debug.Assert(noLadder || cutbackIsLocked || SceneManager.GetActiveScene().buildIndex == 0 || m_layoutNodes.First().AreaParents.Zip(sibling.m_layoutNodes.First().AreaParents, System.Tuple.Create).All(pair => pair.Item1 == pair.Item2), "Open cutback between separate areas?"); // TODO: don't assume 0th scene is open-concept?
 				if (cutbackIsLocked || Random.value <= m_cutbackBreakablePct)
 				{
@@ -382,7 +382,7 @@ public class RoomController : MonoBehaviour
 					{
 						++pathIdx;
 						posIdx += 2;
-						return room.m_doorwayInfos.First(info => info.ConnectedRoom == pathLowToHigh.m_pathRooms[pathIdx] && pathLowToHigh.m_pathPositions[posIdx] == (Vector2)info.m_object.transform.position); // TODO: simpler way of ensuring the correct doorway for room pairs w/ multiple connections?
+						return room.m_doorwayInfos.First(info => info.ConnectedRoom == pathLowToHigh.m_pathRooms[pathIdx] && (pathLowToHigh.m_pathPositions[posIdx] - (Vector2)info.m_object.transform.position).sqrMagnitude < 1.0f/*?*/); // TODO: simpler way of ensuring the correct doorway for room pairs w/ multiple connections?
 					}).ToArray();
 					bool canTraverseForward = !noLadder && pathDoorwaysForward.All(info => !info.m_infoReverse.m_onewayBlocked); // NOTE the forced reversed path direction when the cutback is one-way to avoid one-ways in opposite directions
 					bool canTraverseBackward = pathDoorwaysForward.All(info => !info.m_onewayBlocked);
@@ -890,7 +890,15 @@ public class RoomController : MonoBehaviour
 		Vector2 endPos = endPositionPreoffset + (semifinalX >= endPositionPreoffset.x ? offsetMag : new Vector2(-offsetMag.x, offsetMag.y));
 		Bounds endRoomBounds = roomPath.m_pathRooms.Last().Bounds;
 		endRoomBounds.Expand(new Vector3(-1.0f, -1.0f)); // TODO: dynamically determine wall thickness?
-		waypointPath[^1] = endRoomBounds.Contains(new(endPos.x, endPos.y, endRoomBounds.center.z)) ? endPos : endRoomBounds.ClosestPoint(endPos); // TODO: flip offset if closest interior point is significantly different from endPos?
+		Vector2 endPosConstrained = endRoomBounds.Contains(new(endPos.x, endPos.y, endRoomBounds.center.z)) ? endPos : endRoomBounds.ClosestPoint(endPos); // TODO: flip offset if closest interior point is significantly different from endPos?
+		if (waypointPath.Count <= 1)
+		{
+			waypointPath.Add(endPosConstrained);
+		}
+		else
+		{
+			waypointPath[^1] = endPosConstrained;
+		}
 
 		return waypointPath;
 	}
@@ -1449,6 +1457,7 @@ public class RoomController : MonoBehaviour
 		public int CompareTo(AStarPath other) => m_distanceTotalEst.CompareTo(other.m_distanceTotalEst);
 	}
 
+	// TODO: param to restrict paths to 0/45/90-degree angles?
 	private AStarPath RoomPath(Vector2 startPos, Vector2 endPos, ObstructionCheck obstructionChecking, float characterExtentY, float upwardMax)
 	{
 		Debug.Assert(Bounds.Contains(startPos));
@@ -1479,14 +1488,15 @@ public class RoomController : MonoBehaviour
 				// NOTE that we don't immediately break if roomNext is endRoom, since there can be multiple valid paths and we're only guaranteed to have the shortest length when popping from paths[]
 
 				Vector2 posPrev = pathItr.m_pathPositions.Last();
-				Vector2[] connectionPoints = new Vector2[] { info.m_object.transform.position, info.m_infoReverse.m_object.transform.position }; // NOTE that we don't use Connection() since we want this particular doorway and have already done obstruction checking
-				if (characterExtentY >= 0.0f && info.DirectionOutward().y == 0.0f)
+				Vector2[] connectionPoints = new Vector2[] { info.m_object.transform.position * 2 - info.m_infoReverse.m_object.transform.position, info.m_infoReverse.m_object.transform.position * 2 - info.m_object.transform.position }; // NOTE that we don't use Connection() since we want this particular doorway and have already done obstruction checking // NOTE that we push each point into the room a little to prevent paths running inside walls // TODO: use bbox edge furthest from other object?
+				if (characterExtentY >= 0.0f)
 				{
-					// edit y-coordinate of horizontal doorways to match character midpoint
-					float yAdjusted = roomCur.transform.position.y + characterExtentY; // TODO: don't assume all horizontal doors are at floor height?
+					// edit y-coordinate at doorways to match character midpoint
+					float doorwayDirY = info.DirectionOutward().y;
+					float yAdjustment = doorwayDirY == 0.0f ? roomCur.transform.position.y + characterExtentY : characterExtentY * doorwayDirY; // TODO: don't assume all horizontal doors are at floor height?
 					for (int i = 0; i < connectionPoints.Length; ++i)
 					{
-						connectionPoints[i].y = yAdjusted;
+						connectionPoints[i].y = doorwayDirY == 0.0f ? yAdjustment : connectionPoints[i].y + yAdjustment * (i == 0 ? -1 : 1);
 					}
 				}
 				Vector2 posNew = roomNext == endRoom ? endPos : connectionPoints.Last();
