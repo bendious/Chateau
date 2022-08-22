@@ -361,8 +361,22 @@ public class RoomController : MonoBehaviour
 
 				// determine traversability before adding cutback
 				// TODO: use avatar max jump height once RoomPath() takes platforms into account?
-				AStarPath pathLowToHigh = lowRoom.RoomPath(lowRoom.transform.position, (lowRoom == this ? sibling : this).transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly, -1.0f, float.MaxValue, -1.0f);
-				AStarPath pathShallowToDeep = shallowRoom == lowRoom ? pathLowToHigh : shallowRoom.RoomPath(shallowRoom.transform.position, deepRoom.transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly, -1.0f, float.MaxValue, -1.0f);
+				AStarPath pathLowToHigh = lowRoom.RoomPath(lowRoom.transform.position, (lowRoom == this ? sibling : this).transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly);
+				AStarPath pathShallowToDeep = shallowRoom == lowRoom ? pathLowToHigh : shallowRoom.RoomPath(shallowRoom.transform.position, deepRoom.transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly);
+
+				// connect doorways
+				if (deepRoom == this)
+				{
+					doorwayInfo.SiblingShallowerRoom = sibling;
+					reverseInfo.SiblingDeeperRoom = this;
+				}
+				else
+				{
+					doorwayInfo.SiblingDeeperRoom = sibling;
+					reverseInfo.SiblingShallowerRoom = this;
+				}
+				doorwayInfo.m_infoReverse = reverseInfo;
+				reverseInfo.m_infoReverse = doorwayInfo;
 
 				// maybe add one-way lock
 				bool cutbackIsLocked = shallowRoom == lowRoom && siblingDepthComparison != 0 ? !noLadder : pathLowToHigh == null || pathShallowToDeep == null;
@@ -371,7 +385,7 @@ public class RoomController : MonoBehaviour
 				{
 					// add one-way lock
 					int dummyLockIdx = -1;
-					noLadder |= shallowRoom.SpawnGate(shallowRoom != this ? doorwayInfo : reverseInfo, cutbackIsLocked ? LayoutGenerator.Node.Type.Lock : LayoutGenerator.Node.Type.GateBreakable, shallowRoom != this ? doorwayInfo.DirectionOutward() : reverseInfo.DirectionOutward(), doorwayInfo.m_excludeSelf.Value ? 0 : 1, shallowRoom != this ? reverseInfo : doorwayInfo, ref dummyLockIdx, true); // NOTE the "reversed" DoorwayInfos to place the gate in deepRoom but as a child of shallowRoom, for better shadowing
+					noLadder |= shallowRoom.SpawnGate(shallowRoom != this ? doorwayInfo : reverseInfo, cutbackIsLocked ? LayoutGenerator.Node.Type.Lock : LayoutGenerator.Node.Type.GateBreakable, doorwayInfo.m_excludeSelf.Value ? 0 : 1, ref dummyLockIdx, true); // NOTE the "reversed" DoorwayInfos to place the gate in deepRoom but as a child of shallowRoom, for better shadowing
 				}
 				if (pathLowToHigh != null && pathShallowToDeep != null) // NOTE that the two paths might be equivalent or going in opposite directions, so if either is null we know there's no loop, but if neither are, we still have to do more checks
 				{
@@ -406,20 +420,6 @@ public class RoomController : MonoBehaviour
 				{
 					(direction.y > 0.0f ? doorwayInfo : reverseInfo).m_onewayBlocked = true;
 				}
-
-				// connect doorways
-				if (deepRoom == this)
-				{
-					doorwayInfo.SiblingShallowerRoom = sibling;
-					reverseInfo.SiblingDeeperRoom = this;
-				}
-				else
-				{
-					doorwayInfo.SiblingDeeperRoom = sibling;
-					reverseInfo.SiblingShallowerRoom = this;
-				}
-				doorwayInfo.m_infoReverse = reverseInfo;
-				reverseInfo.m_infoReverse = doorwayInfo;
 
 				// open doorways
 				// NOTE that this has to be AFTER checking RoomPath() above
@@ -605,7 +605,7 @@ public class RoomController : MonoBehaviour
 			FurnitureController furniture = Instantiate(RoomType.m_furniturePrefabs.RandomWeighted(), transform).GetComponent<FurnitureController>(); // NOTE that we have to spawn before placement due to potential size randomization
 			Vector2 extentsEffective = extentsInterior * (1.0f - fillPct);
 			float width = furniture.RandomizeSize(extentsEffective);
-			furniture.transform.position = InteriorPosition(0.0f, furniture.gameObject, null, () => width = furniture.RandomizeSize(extentsEffective), () =>
+			furniture.transform.position = InteriorPosition(0.0f, furniture.gameObject, resizeAction: () => width = furniture.RandomizeSize(extentsEffective), failureAction: () =>
 			{
 				Simulation.Schedule<ObjectDespawn>().m_object = furniture.gameObject;
 				furniture = null;
@@ -679,7 +679,7 @@ public class RoomController : MonoBehaviour
 			}
 			GameObject decoPrefab = decoInfo.m_prefab;
 			Quaternion rotation = decoInfo.m_rotationDegreesMax == 0.0f ? Quaternion.identity : Quaternion.Euler(0.0f, 0.0f, Random.Range(-decoInfo.m_rotationDegreesMax, decoInfo.m_rotationDegreesMax));
-			Vector3 spawnPos = InteriorPosition(height, height, decoPrefab, rotation, null, () => decoPrefab = null);
+			Vector3 spawnPos = InteriorPosition(height, height, decoPrefab, rotation, failureAction: () => decoPrefab = null);
 			if (decoPrefab == null)
 			{
 				continue; // must not have found a valid placement position
@@ -702,7 +702,7 @@ public class RoomController : MonoBehaviour
 		// shared logic
 		float widthIncrementHalf = widthIncrement * 0.5f;
 		int layerMask = GameController.Instance.m_layerWalls | GameController.Instance.m_layerExterior;
-		void TrySpawningExteriorDecoration(WeightedObject<GameObject>[] prefabs, Vector3 position, float heightOverride, bool isBelow)
+		void trySpawningExteriorDecoration(WeightedObject<GameObject>[] prefabs, Vector3 position, float heightOverride, bool isBelow)
 		{
 			bool hasSpace = position.y > 0.0f && !Physics2D.OverlapArea(position + new Vector3(-widthIncrementHalf + m_physicsCheckEpsilon, isBelow ? -m_physicsCheckEpsilon : m_physicsCheckEpsilon), position + new Vector3(widthIncrementHalf - m_physicsCheckEpsilon, isBelow ? -1.0f : 1.0f), layerMask); // TODO: more nuanced height check?
 			if (!hasSpace)
@@ -723,12 +723,12 @@ public class RoomController : MonoBehaviour
 		{
 			// above
 			Vector3 exteriorPos = new(Bounds.min.x + widthIncrementHalf + widthIncrement * i, Bounds.max.y, Bounds.center.z);
-			TrySpawningExteriorDecoration(m_exteriorPrefabsAbove, exteriorPos, -1.0f, false);
+			trySpawningExteriorDecoration(m_exteriorPrefabsAbove, exteriorPos, -1.0f, false);
 
 			// below
 			exteriorPos.y = Bounds.min.y;
 			RaycastHit2D raycast = Physics2D.Raycast(exteriorPos + Vector3.down * m_physicsCheckEpsilon, Vector2.down, transform.position.y, layerMask);
-			TrySpawningExteriorDecoration(m_exteriorPrefabsBelow, exteriorPos, raycast.distance == 0.0f ? transform.position.y : raycast.distance + m_physicsCheckEpsilon, true);
+			trySpawningExteriorDecoration(m_exteriorPrefabsBelow, exteriorPos, raycast.distance == 0.0f ? transform.position.y : raycast.distance + m_physicsCheckEpsilon, true);
 		}
 	}
 
@@ -875,9 +875,9 @@ public class RoomController : MonoBehaviour
 		return m_spawnPoints[Random.Range(0, m_spawnPoints.Length)].transform.position;
 	}
 
-	public List<Vector2> PositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, Vector2 offsetMag, ObstructionCheck obstructionChecking, float characterExtentY, float upwardMax, float incrementDegrees)
+	public List<Vector2> PositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, ObstructionCheck obstructionChecking = ObstructionCheck.None, float extentY = 0.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, float incrementDegrees = -1.0f)
 	{
-		AStarPath roomPath = RoomPath(startPosition, endPositionPreoffset, obstructionChecking, characterExtentY, upwardMax, incrementDegrees);
+		AStarPath roomPath = RoomPath(startPosition, endPositionPreoffset, obstructionChecking, extentY, upwardMax, incrementDegrees);
 		if (roomPath == null)
 		{
 			// TODO: find path to closest reachable point instead?
@@ -1270,7 +1270,7 @@ public class RoomController : MonoBehaviour
 		LayoutGenerator.Node blockerNode = GateNodeToChild(childNodes, LayoutGenerator.Node.Type.Lock, LayoutGenerator.Node.Type.LockOrdered, LayoutGenerator.Node.Type.GateBreakable, LayoutGenerator.Node.Type.Secret);
 		if (blockerNode != null)
 		{
-			doorwayInfo.m_onewayBlocked |= SpawnGate(doorwayInfo, blockerNode.m_type, replaceDirection, blockerNode.DirectParents.Count(node => node.m_type == LayoutGenerator.Node.Type.Key && (!doorwayInfo.m_excludeSelf.Value || node.m_room != this)), reverseDoorwayInfo, ref orderedLockIdx, false);
+			doorwayInfo.m_onewayBlocked |= SpawnGate(doorwayInfo, blockerNode.m_type, blockerNode.DirectParents.Count(node => node.m_type == LayoutGenerator.Node.Type.Key && (!doorwayInfo.m_excludeSelf.Value || node.m_room != this)), ref orderedLockIdx, false);
 		}
 
 		childRoom.SetNodes(childNodes);
@@ -1291,10 +1291,11 @@ public class RoomController : MonoBehaviour
 		return BoundsWithChildren(doorInteract.gameObject).extents.x / extentsInteriorX;
 	}
 
-	private bool SpawnGate(DoorwayInfo doorwayInfo, LayoutGenerator.Node.Type type, Vector2 replaceDirection, int preferredKeyCount, DoorwayInfo reverseInfo, ref int orderedLockIdx, bool isCutback)
+	private bool SpawnGate(DoorwayInfo doorwayInfo, LayoutGenerator.Node.Type type, int preferredKeyCount, ref int orderedLockIdx, bool isCutback)
 	{
+		DoorwayInfo reverseInfo = doorwayInfo.m_infoReverse;
 		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo) || m_doorwayInfos.Contains(reverseInfo));
-		Debug.Assert(doorwayInfo.DirectionOutward() == replaceDirection); // NOTE that we could probably de-parameterize replaceDirection, but that would just end up running DirectionOutward() unnecessarily in Release
+		Vector2 replaceDirection = doorwayInfo.DirectionOutward();
 
 		// determine gate type(s)
 		bool isLock = type == LayoutGenerator.Node.Type.Lock;
@@ -1460,7 +1461,7 @@ public class RoomController : MonoBehaviour
 		public int CompareTo(AStarPath other) => m_distanceTotalEst.CompareTo(other.m_distanceTotalEst);
 	}
 
-	private AStarPath RoomPath(Vector2 startPos, Vector2 endPos, ObstructionCheck obstructionChecking, float characterExtentY, float upwardMax, float incrementDegrees)
+	private AStarPath RoomPath(Vector2 startPos, Vector2 endPos, ObstructionCheck obstructionChecking, float extentY = -1.0f, float upwardMax = float.MaxValue, float incrementDegrees = -1.0f)
 	{
 		Debug.Assert(Bounds.Contains(startPos));
 
@@ -1494,10 +1495,10 @@ public class RoomController : MonoBehaviour
 
 				// edit y-coordinate at doorways to match character midpoint
 				// TODO: param for flying characters / wires to use the top of the doorway if it's closer
-				if (characterExtentY >= 0.0f)
+				if (extentY >= 0.0f)
 				{
 					float doorwayDirY = info.DirectionOutward().y;
-					float yAdjustment = doorwayDirY == 0.0f ? roomCur.transform.position.y + characterExtentY : characterExtentY * doorwayDirY; // TODO: don't assume all horizontal doors are at floor height?
+					float yAdjustment = doorwayDirY == 0.0f ? roomCur.transform.position.y + extentY : extentY * doorwayDirY; // TODO: don't assume all horizontal doors are at floor height?
 					for (int i = 1; i < connectionPoints.Count; ++i) // NOTE that we skip over posPrev
 					{
 						connectionPoints[i] = new(connectionPoints[i].x, doorwayDirY == 0.0f ? yAdjustment : connectionPoints[i].y + yAdjustment * (i == 0 ? -1 : 1));

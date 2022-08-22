@@ -67,7 +67,7 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 		}
 
 		// play dialogue
-		GameController.Instance.m_dialogueController.Play(m_dialogueSprite, GetComponent<SpriteRenderer>().color, dialogueCur.m_lines, interactor.GetComponent<AvatarController>(), m_expressionsCombined, dialogueCur.m_loop);
+		GameController.Instance.m_dialogueController.Play(dialogueCur.m_lines, interactor.GetComponent<AvatarController>(), m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_expressionsCombined, dialogueCur.m_loop);
 
 		// update weight
 		// TODO: save across instantiations/sessions?

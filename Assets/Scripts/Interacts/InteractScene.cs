@@ -31,14 +31,14 @@ public class InteractScene : MonoBehaviour, IInteractable
 	{
 		if (m_isSaveDeletion)
 		{
-			GameController.Instance.m_dialogueController.Play(null, Color.white, new DialogueController.Line[] { new DialogueController.Line { m_text = "Leaving so soon? I was hoping you'd stay more like... forever." }, new DialogueController.Line { m_text = "You wouldn't want to lose all your progress, would you?", m_replies = new DialogueController.Line.Reply[] { new DialogueController.Line.Reply { m_text = "No." }, new DialogueController.Line.Reply { m_text = "I guess not." }, new DialogueController.Line.Reply { m_text = "I don't care. I want to start over.", m_userdataObj = this, m_eventName = "ActivateInteract" }, new DialogueController.Line.Reply { m_text = "Fine. I'll stay." } } } }, interactor.GetComponent<AvatarController>(), null); // TODO: un-hardcode?
+			GameController.Instance.m_dialogueController.Play(new DialogueController.Line[] { new DialogueController.Line { m_text = "Leaving so soon? I was hoping you'd stay more like... forever." }, new DialogueController.Line { m_text = "You wouldn't want to lose all your progress, would you?", m_replies = new DialogueController.Line.Reply[] { new DialogueController.Line.Reply { m_text = "No." }, new DialogueController.Line.Reply { m_text = "I guess not." }, new DialogueController.Line.Reply { m_text = "I don't care. I want to start over.", m_userdataObj = this, m_eventName = "ActivateInteract" }, new DialogueController.Line.Reply { m_text = "Fine. I'll stay." } } } }, interactor.GetComponent<AvatarController>()); // TODO: un-hardcode?
 			return;
 		}
 
 		if (Depth > GameController.ZonesFinishedCount + 1)
 		{
 			// TODO: indicate w/ visual/audio rather than dialogue?
-			GameController.Instance.m_dialogueController.Play(null, Color.white, new DialogueController.Line[] { new DialogueController.Line { m_text = "Locked." } }, interactor.GetComponent<AvatarController>(), null);
+			GameController.Instance.m_dialogueController.Play(new DialogueController.Line[] { new DialogueController.Line { m_text = "Locked." } }, interactor.GetComponent<AvatarController>());
 		}
 		else
 		{

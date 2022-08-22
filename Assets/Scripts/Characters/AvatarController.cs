@@ -234,7 +234,7 @@ public sealed class AvatarController : KinematicCharacter
 		Vector2 focusTop = Vector2.zero;
 		foreach (Collider2D candidate in focusCandidates)
 		{
-			if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, false, 0.0f, null, false, true) || (candidate.gameObject == m_throwObj && m_throwIgnoreTime >= Time.time))
+			if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new Collider2D[] { candidate }, ignorePhysicsSystem: true) || (candidate.gameObject == m_throwObj && m_throwIgnoreTime >= Time.time))
 			{
 				continue; // ignore ourself / attached/ignored/just-thrown objects
 			}

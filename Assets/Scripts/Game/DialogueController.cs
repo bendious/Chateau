@@ -57,7 +57,7 @@ public class DialogueController : MonoBehaviour
 	private bool m_forceNewLine = false;
 
 
-	public void Play(Sprite sprite, Color spriteColor, IEnumerable<Line> lines, AvatarController avatar, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions, bool loop = false, Action postDialogue = null)
+	public void Play(IEnumerable<Line> lines, AvatarController avatar = null, Sprite sprite = null, Color spriteColor = default, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions = null, bool loop = false, Action postDialogue = null)
 	{
 		m_image.enabled = sprite != null;
 		m_image.sprite = sprite;

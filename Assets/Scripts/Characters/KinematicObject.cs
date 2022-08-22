@@ -148,7 +148,7 @@ public abstract class KinematicObject : MonoBehaviour
 		Vector2 totalOverlap = Vector2.zero;
 		foreach (ContactPoint2D contact in contacts)
 		{
-			if (ShouldIgnore(contact.rigidbody, new Collider2D[] { contact.collider }, false, body.mass, typeof(AnchoredJoint2D), true))
+			if (ShouldIgnore(contact.rigidbody, new Collider2D[] { contact.collider }, body.mass, typeof(AnchoredJoint2D), true))
 			{
 				continue;
 			}
@@ -203,7 +203,7 @@ public abstract class KinematicObject : MonoBehaviour
 		PerformMovement(move, true, ref isNearGround);
 	}
 
-	public bool ShouldIgnore(Rigidbody2D body, Collider2D[] colliders, bool ignoreStatics, float dynamicsMassThreshold, Type ignoreChildrenExcept, bool processOneWayPlatforms = false, bool ignorePhysicsSystem = false)
+	public bool ShouldIgnore(Rigidbody2D body, Collider2D[] colliders, float dynamicsMassThreshold = 0.0f, Type ignoreChildrenExcept = null, bool processOneWayPlatforms = false, bool ignoreStatics = false, bool ignorePhysicsSystem = false)
 	{
 		Assert.IsTrue(colliders != null && colliders.Length > 0);
 		GameObject otherObj = colliders.First().gameObject; // NOTE that we don't use the rigid body's object since that can be separate from the collider object (e.g. characters and arms) // TODO: ensure all colliders are from the same object & body?
@@ -289,7 +289,7 @@ public abstract class KinematicObject : MonoBehaviour
 		for (int i = 0; i < count; i++)
 		{
 			RaycastHit2D hit = hitBuffer[i];
-			if (ShouldIgnore(hit.rigidbody, new Collider2D[] { hit.collider }, false, body.mass, typeof(AnchoredJoint2D), true))
+			if (ShouldIgnore(hit.rigidbody, new Collider2D[] { hit.collider }, body.mass, typeof(AnchoredJoint2D), true))
 			{
 				// push-through floor/walls prevention
 				if (hit.transform.parent == null && hit.rigidbody != null && hit.rigidbody.IsTouchingLayers(GameController.Instance.m_layerWalls))

@@ -396,7 +396,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			return;
 		}
 
-		if ((kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders, false, 0.0f, null)) || collider.transform.root == transform.root)
+		if ((kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders)) || collider.transform.root == transform.root)
 		{
 			return;
 		}
