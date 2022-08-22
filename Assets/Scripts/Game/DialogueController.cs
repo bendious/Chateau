@@ -44,7 +44,7 @@ public class DialogueController : MonoBehaviour
 	public bool IsPlaying => gameObject.activeSelf;
 
 
-	private static Regex m_tagMatcher = new(@"<(.+)>.*</\1>");
+	private static readonly Regex m_tagMatcher = new(@"<(.+)>.*</\1>");
 
 	private Queue<Line> m_queue;
 	private int m_revealedCharCount;

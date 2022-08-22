@@ -19,9 +19,9 @@ public class InteractScene : MonoBehaviour, IInteractable
 	private bool m_activated = false;
 
 
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "UNT0001:Empty Unity message", Justification = "required to force enable/disable checkbox in Inspector")]
 	private void Start()
 	{
-		// NOTE empty override to force enable/disable checkbox in Inspector...
 	}
 
 
