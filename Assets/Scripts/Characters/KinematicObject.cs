@@ -148,7 +148,7 @@ public abstract class KinematicObject : MonoBehaviour
 		Vector2 totalOverlap = Vector2.zero;
 		foreach (ContactPoint2D contact in contacts)
 		{
-			if (ShouldIgnore(contact.rigidbody, new Collider2D[] { contact.collider }, body.mass, typeof(AnchoredJoint2D), true))
+			if (ShouldIgnore(contact.rigidbody, new[] { contact.collider }, body.mass, typeof(AnchoredJoint2D), true))
 			{
 				continue;
 			}
@@ -289,7 +289,7 @@ public abstract class KinematicObject : MonoBehaviour
 		for (int i = 0; i < count; i++)
 		{
 			RaycastHit2D hit = hitBuffer[i];
-			if (ShouldIgnore(hit.rigidbody, new Collider2D[] { hit.collider }, body.mass, typeof(AnchoredJoint2D), true))
+			if (ShouldIgnore(hit.rigidbody, new[] { hit.collider }, body.mass, typeof(AnchoredJoint2D), true))
 			{
 				// push-through floor/walls prevention
 				if (hit.transform.parent == null && hit.rigidbody != null && hit.rigidbody.IsTouchingLayers(GameController.Instance.m_layerWalls))
@@ -297,7 +297,7 @@ public abstract class KinematicObject : MonoBehaviour
 					Hazard hazard = hit.collider.GetComponent<Hazard>();
 					if (hazard == null || !hazard.enabled) // TODO: more general way of ensuring "important" collisions aren't ignored?
 					{
-						EnableCollision.TemporarilyDisableCollision(new Collider2D[] { m_collider }, new Collider2D[] { hit.collider }, m_wallPushDisableSeconds);
+						EnableCollision.TemporarilyDisableCollision(new[] { m_collider }, new[] { hit.collider }, m_wallPushDisableSeconds);
 					}
 				}
 

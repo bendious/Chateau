@@ -77,7 +77,7 @@ public class LockController : MonoBehaviour, IUnlockable
 
 		// determine key type
 		int keyRoomCount = keyRooms == null ? 0 : keyRooms.Length;
-		RoomController[] keyOrLockRooms = keyRoomCount > 0 ? keyRooms : new RoomController[] { lockRoom };
+		RoomController[] keyOrLockRooms = keyRoomCount > 0 ? keyRooms : new[] { lockRoom };
 		if (m_keyPrefabs.Length > 0)
 		{
 			m_keyInfo = RoomController.RandomWeightedByKeyCount(m_keyPrefabs.CombineWeighted(GameController.Instance.m_keyPrefabs, info => info.m_object.m_prefabs.Select(info => info.m_object).FirstOrDefault(prefab => GameController.Instance.m_keyPrefabs.Any(key => key.m_object == prefab)), pair => pair.m_object), info => info.m_keyCountMax - keyRoomCount);
@@ -326,7 +326,7 @@ public class LockController : MonoBehaviour, IUnlockable
 			return;
 		}
 
-		foreach (Transform tf in m_keyDelaySeconds > 0.0f ? new Transform[] { collider.transform } : collider.GetComponentsInChildren<Transform>(true)) // NOTE that keys w/ delays require direct trigger contact
+		foreach (Transform tf in m_keyDelaySeconds > 0.0f ? new[] { collider.transform } : collider.GetComponentsInChildren<Transform>(true)) // NOTE that keys w/ delays require direct trigger contact
 		{
 			if (IsValidNextKey(tf.gameObject))
 			{
@@ -480,7 +480,7 @@ public class LockController : MonoBehaviour, IUnlockable
 				LineRenderer line = GetComponent<LineRenderer>();
 				if (line != null)
 				{
-					line.colorGradient = new Gradient() { colorKeys = new GradientColorKey[] { new GradientColorKey(GetComponent<SpriteRenderer>().color * m_activeColorPct, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f) } };
+					line.colorGradient = new() { colorKeys = new GradientColorKey[] { new(GetComponent<SpriteRenderer>().color * m_activeColorPct, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new(1.0f, 0.0f) } };
 				}
 			}
 

@@ -206,7 +206,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 		// apply
 		transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesArm);
-		Vector3 localPos = (Vector3)rootOffset + (LeftFacing ? new Vector3(m_offset.x, m_offset.y, -m_offset.z) : m_offset) + transform.localRotation * Vector3.right * m_aimRadius;
+		Vector3 localPos = (Vector3)rootOffset + (LeftFacing ? new(m_offset.x, m_offset.y, -m_offset.z) : m_offset) + transform.localRotation * Vector3.right * m_aimRadius;
 		transform.localPosition = localPos;
 
 		// update held items

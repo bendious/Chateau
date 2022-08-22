@@ -19,7 +19,7 @@ public class SavableFactory : ScriptableObject
 		return Instantiate(index, position, rotation).Component.gameObject;
 	}
 
-	public ISavable Instantiate(int index, Vector3 position = new Vector3(), Quaternion rotation = new Quaternion())
+	public ISavable Instantiate(int index, Vector3 position = default, Quaternion rotation = default)
 	{
 		ISavable instance = Object.Instantiate(m_savables[index].m_prefab, position, rotation).GetComponent<ISavable>();
 		instance.Type = index;

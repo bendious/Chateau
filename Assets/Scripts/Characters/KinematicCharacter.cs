@@ -206,7 +206,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		if (m_dash && m_dashAvailable && !HasForcedVelocity)
 		{
 			float moveDirX = (IsWallClinging ? m_wallNormal : move).x;
-			Bounce(moveDirX < -Utility.FloatEpsilon || (moveDirX.FloatEqual(0.0f) && LeftFacing) ? new Vector2(-m_dashVelocity.x, m_dashVelocity.y) : m_dashVelocity, m_dashSecondsXY.x, m_dashSecondsXY.y);
+			Bounce(moveDirX < -Utility.FloatEpsilon || (moveDirX.FloatEqual(0.0f) && LeftFacing) ? new(-m_dashVelocity.x, m_dashVelocity.y) : m_dashVelocity, m_dashSecondsXY.x, m_dashSecondsXY.y);
 			m_animator.SetBool("dash", true);
 			m_audioSource.PlayOneShot(m_dashSFX.RandomWeighted());
 			m_dashAvailable = false;

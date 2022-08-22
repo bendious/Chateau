@@ -41,7 +41,7 @@ public class HiddenDestructible : MonoBehaviour
 		{
 			if (isLocked)
 			{
-				RoomController[] keyRooms = new RoomController[] { room }; // TODO: spread out keys more?
+				RoomController[] keyRooms = new[] { room }; // TODO: spread out keys more?
 				hiddenLock.SpawnKeysStatic(room, keyRooms);
 				hiddenLock.SpawnKeysDynamic(room, keyRooms);
 			}

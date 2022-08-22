@@ -62,7 +62,7 @@ public class MusicManager : MonoBehaviour
 	private IEnumerator MusicSelectCoroutine()
 	{
 		CalculateNextPlayTime();
-		WaitUntil waitCondition = new WaitUntil(() => m_nextPlayTime <= Time.time);
+		WaitUntil waitCondition = new(() => m_nextPlayTime <= Time.time);
 
 		while (true)
 		{

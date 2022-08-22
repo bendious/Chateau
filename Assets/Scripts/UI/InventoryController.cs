@@ -228,7 +228,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 		IHolder holder = holders[holderIdx];
 		Transform holderTf = holder.Component.transform;
 		Transform itemTf = holderTf.childCount > itemIdx ? holderTf.GetChild(itemIdx) : null;
-		return new SlotItemInfo { m_item = itemTf == null ? null : itemTf.GetComponent<ItemController>(), m_holder = holder, m_holderIndex = itemIdx };
+		return new() { m_item = itemTf == null ? null : itemTf.GetComponent<ItemController>(), m_holder = holder, m_holderIndex = itemIdx };
 	}
 
 	private IEnumerator LerpToRest()
@@ -260,7 +260,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 	{
 		transform.root.GetComponent<PlayerInput>().SwitchCurrentActionMap(actionMapName);
 		Image image = GetComponent<Image>();
-		image.color = new Color(image.color.r, image.color.g, image.color.b, alpha);
+		image.color = new(image.color.r, image.color.g, image.color.b, alpha);
 		m_tooltip.gameObject.SetActive(tooltip);
 	}
 }

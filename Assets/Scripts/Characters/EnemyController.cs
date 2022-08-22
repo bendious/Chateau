@@ -9,7 +9,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class EnemyController : KinematicCharacter
 {
-	[SerializeField] private AIState.Type[] m_allowedStates = new AIState.Type[] { AIState.Type.Pursue, AIState.Type.Flee, AIState.Type.RamSwoop };
+	[SerializeField] private AIState.Type[] m_allowedStates = new[] { AIState.Type.Pursue, AIState.Type.Flee, AIState.Type.RamSwoop };
 
 	public bool m_passive;
 	public bool m_friendly;
@@ -156,7 +156,7 @@ public sealed class EnemyController : KinematicCharacter
 			{
 				UnityEditor.Handles.DrawLine(transform.position, m_pathfindWaypoints.First());
 				int i = 0;
-				int[] lineIndicies = m_pathfindWaypoints.SelectMany(vec2 => new int[] { i, ++i }).ToArray()[0..^2]; // i.e. [0, 1, 1, 2, 2, 3, ..., WaypointCount - 2, WaypointCount - 1]
+				int[] lineIndicies = m_pathfindWaypoints.SelectMany(vec2 => new[] { i, ++i }).ToArray()[0 .. ^2]; // i.e. [0, 1, 1, 2, 2, 3, ..., WaypointCount - 2, WaypointCount - 1]
 				UnityEditor.Handles.DrawLines(m_pathfindWaypoints.Select(vec2 => (Vector3)vec2).ToArray(), lineIndicies);
 			}
 

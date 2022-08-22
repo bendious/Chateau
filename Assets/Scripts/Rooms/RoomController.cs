@@ -68,12 +68,12 @@ public class RoomController : MonoBehaviour
 
 	public Vector2 ParentDoorwayPosition => Connection(m_doorwayInfos.Select(info => info.ParentRoom).First(parentRoom => parentRoom != null), ObstructionCheck.None, Vector2.zero)[1];
 
-	public IEnumerable<RoomController> WithDescendants => new RoomController[] { this }.Concat(m_doorwayInfos.Where(info => info.ChildRoom != null).SelectMany(info => info.ChildRoom.WithDescendants)); // TODO: efficiency?
+	public IEnumerable<RoomController> WithDescendants => new[] { this }.Concat(m_doorwayInfos.Where(info => info.ChildRoom != null).SelectMany(info => info.ChildRoom.WithDescendants)); // TODO: efficiency?
 
 	public IEnumerable<Transform> BackdropsAboveGroundRecursive
 	{ get {
 		IEnumerable<Transform> childBackdrops = m_doorwayInfos.Where(info => info.ChildRoom != null).SelectMany(info => info.ChildRoom.BackdropsAboveGroundRecursive);
-		return (Bounds.max.y > 0.0f) ? childBackdrops.Concat(new Transform[] { m_backdrop.transform }) : childBackdrops;
+		return (Bounds.max.y > 0.0f) ? childBackdrops.Concat(new[] { m_backdrop.transform }) : childBackdrops;
 	} }
 
 	public RoomType RoomType { get; private set; }
@@ -127,7 +127,7 @@ public class RoomController : MonoBehaviour
 			// TODO: don't assume convex room shapes?
 			Vector2 roomToDoorway = (Vector2)m_object.transform.position - (Vector2)m_object.transform.parent.transform.position;
 			Vector3 doorwaySize = Size();
-			return doorwaySize.x > doorwaySize.y ? new Vector2(0.0f, Mathf.Sign(roomToDoorway.y)) : new Vector2(Mathf.Sign(roomToDoorway.x), 0.0f);
+			return doorwaySize.x > doorwaySize.y ? new(0.0f, Mathf.Sign(roomToDoorway.y)) : new(Mathf.Sign(roomToDoorway.x), 0.0f);
 		}
 
 		internal bool IsObstructed(ObstructionCheck checkLevel, bool ignoreOnewayBlockages = false)
@@ -274,7 +274,7 @@ public class RoomController : MonoBehaviour
 			if (info.m_onewayBlocked)
 			{
 				// draw simple arrow pointing inward to indicate allowed direction
-				UnityEditor.Handles.DrawLines(new Vector3[] { info.m_object.transform.position + new Vector3(0.5f, 0.5f), info.m_object.transform.position, info.m_object.transform.position, 2.0f * info.m_infoReverse.m_object.transform.position - info.m_object.transform.position });
+				UnityEditor.Handles.DrawLines(new[] { info.m_object.transform.position + new Vector3(0.5f, 0.5f), info.m_object.transform.position, info.m_object.transform.position, 2.0f * info.m_infoReverse.m_object.transform.position - info.m_object.transform.position });
 			}
 		}
 	}
@@ -471,7 +471,7 @@ public class RoomController : MonoBehaviour
 		{
 			areaParent = areaParents.First();
 		}
-		m_wallInfo = areaParent.m_wallInfo ?? (RoomType.m_walls != null && RoomType.m_walls.Length > 0 ? RoomType.m_walls.RandomWeighted() : new RoomType.SpriteInfo());
+		m_wallInfo = areaParent.m_wallInfo ?? (RoomType.m_walls != null && RoomType.m_walls.Length > 0 ? RoomType.m_walls.RandomWeighted() : new());
 		m_wallColor = isAreaInit ? Utility.ColorRandom(m_wallInfo.m_colorMin, m_wallInfo.m_colorMax, m_wallInfo.m_proportionalColor) : areaParent.m_wallColor;
 		if (m_wallInfo.m_sprite != null)
 		{
@@ -623,7 +623,7 @@ public class RoomController : MonoBehaviour
 			{
 				if (isLocked)
 				{
-					furnitureLock.SpawnKeysStatic(this, new RoomController[] { this });
+					furnitureLock.SpawnKeysStatic(this, new[] { this });
 				}
 				else
 				{
@@ -642,7 +642,7 @@ public class RoomController : MonoBehaviour
 
 			if (furniture.Item2 != null)
 			{
-				furniture.Item2.SpawnKeysDynamic(this, new RoomController[] { this }); // TODO: spaced-out keys?
+				furniture.Item2.SpawnKeysDynamic(this, new[] { this }); // TODO: spaced-out keys?
 			}
 		}
 
@@ -893,7 +893,7 @@ public class RoomController : MonoBehaviour
 		// offset end point
 		// TODO: allow offset to cross room edges?
 		float semifinalX = waypointPath[^2].x;
-		Vector2 endPos = endPositionPreoffset + (semifinalX >= endPositionPreoffset.x ? offsetMag : new Vector2(-offsetMag.x, offsetMag.y));
+		Vector2 endPos = endPositionPreoffset + (semifinalX >= endPositionPreoffset.x ? offsetMag : new(-offsetMag.x, offsetMag.y));
 		Bounds endRoomBounds = roomPath.m_pathRooms.Last().Bounds;
 		endRoomBounds.Expand(new Vector3(-1.0f, -1.0f)); // TODO: dynamically determine wall thickness?
 		waypointPath[^1] = endRoomBounds.Contains(new(endPos.x, endPos.y, endRoomBounds.center.z)) ? endPos : endRoomBounds.ClosestPoint(endPos); // TODO: flip offset if closest interior point is significantly different from endPos?
@@ -1007,10 +1007,10 @@ public class RoomController : MonoBehaviour
 				// resize
 				// NOTE that we have to adjust bottom-up ladders to ensure the top rung is within reach of any combination lock above it
 				SpriteRenderer renderer = ladder.GetComponent<SpriteRenderer>();
-				renderer.size = new Vector2(renderer.size.x, rungHeightTotal);
+				renderer.size = new(renderer.size.x, rungHeightTotal);
 				BoxCollider2D collider = ladder.GetComponent<BoxCollider2D>();
-				collider.size = new Vector2(collider.size.x, rungHeightTotal);
-				collider.offset = new Vector2(collider.offset.x, rungHeightTotal * 0.5f);
+				collider.size = new(collider.size.x, rungHeightTotal);
+				collider.offset = new(collider.offset.x, rungHeightTotal * 0.5f);
 			}
 
 			// iterate
@@ -1040,7 +1040,7 @@ public class RoomController : MonoBehaviour
 				GameObject doorway = doorwayInfo.m_object;
 				Vector2 doorwaySize = doorwayInfo.Size();
 				VisualEffect vfx = Instantiate(m_doorSealVFX, doorway.transform.position + new Vector3(0.0f, -0.5f * doorwaySize.y), Quaternion.identity).GetComponent<VisualEffect>();
-				vfx.SetVector3("StartAreaSize", new Vector3(doorwaySize.x, 0.0f));
+				vfx.SetVector3("StartAreaSize", new(doorwaySize.x, 0.0f));
 
 				doorway.GetComponent<AudioSource>().Play();
 				// TODO: animation?
@@ -1139,7 +1139,7 @@ public class RoomController : MonoBehaviour
 				}
 
 				// create room
-				RoomController newRoom = SpawnChildRoom(GameController.Instance.m_roomPrefabs.RandomWeighted(), newNodes.SelectMany(node => node.WithDescendants).ToArray(), new Vector2[] { Vector2.left, Vector2.right, Vector2.down }, ref dummyIdx); // TODO: allow upward generation as long as it doesn't break through the ground?
+				RoomController newRoom = SpawnChildRoom(GameController.Instance.m_roomPrefabs.RandomWeighted(), newNodes.SelectMany(node => node.WithDescendants).ToArray(), new[] { Vector2.left, Vector2.right, Vector2.down }, ref dummyIdx); // TODO: allow upward generation as long as it doesn't break through the ground?
 				if (newRoom != null)
 				{
 					newRoom.FinalizeRecursive(ref dummyIdx, ref dummyIdx);
@@ -1204,7 +1204,7 @@ public class RoomController : MonoBehaviour
 		{
 			for (int j = -1; j < 2; j += 2)
 			{
-				Vector2 corner = centerOrig + rotationFinal * Vector3.Scale(extentsOrig, new Vector3(i, j, 1.0f));
+				Vector2 corner = centerOrig + rotationFinal * Vector3.Scale(extentsOrig, new(i, j, 1.0f));
 				bboxNew.Encapsulate(corner);
 			}
 		}
@@ -1401,7 +1401,7 @@ public class RoomController : MonoBehaviour
 
 		// spawn keys
 		LayoutGenerator.Node lockNode = doorwayInfo.ChildRoom == null ? null : GateNodeToChild(doorwayInfo.ChildRoom.m_layoutNodes, LayoutGenerator.Node.Type.Lock);
-		RoomController[] keyRooms = doorwayInfo.ChildRoom == null ? new RoomController[] { this } : lockNode?.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray();
+		RoomController[] keyRooms = doorwayInfo.ChildRoom == null ? new[] { this } : lockNode?.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray();
 		spawnAction(unlockable, this, keyRooms == null || keyRooms.Length <= 0 ? null : doorwayInfo.m_excludeSelf.Value ? keyRooms.Where(room => room != this).ToArray() : keyRooms);
 	}
 
@@ -1544,7 +1544,7 @@ public class RoomController : MonoBehaviour
 				posPathNew.AddRange(connectionPoints);
 
 				// TODO: weight distances based on jumps/traversal required?
-				paths.Push(new AStarPath() { m_pathRooms = roomPathNew, m_pathPositions = posPathNew, m_distanceCur = distanceCurNew, m_distanceTotalEst = distanceCurNew + posNew.ManhattanDistance(endPos) });
+				paths.Push(new() { m_pathRooms = roomPathNew, m_pathPositions = posPathNew, m_distanceCur = distanceCurNew, m_distanceTotalEst = distanceCurNew + posNew.ManhattanDistance(endPos) });
 			}
 		}
 

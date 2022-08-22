@@ -16,6 +16,6 @@ public class Wire : MonoBehaviour
 
 		line.positionCount = path.Count;
 		line.SetPositions(path.Select(pos2D => (Vector3)pos2D).ToArray());
-		line.colorGradient = new Gradient() { colorKeys = new GradientColorKey[] { new GradientColorKey(GetComponent<SpriteRenderer>().color * m_unactiveColorPct, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f) } };
+		line.colorGradient = new() { colorKeys = new GradientColorKey[] { new(GetComponent<SpriteRenderer>().color * m_unactiveColorPct, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new(1.0f, 0.0f) } };
 	}
 }

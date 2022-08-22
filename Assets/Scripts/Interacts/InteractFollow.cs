@@ -168,7 +168,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 		System.Collections.Generic.List<Vector2> sites = new();
 		for (int i = 0; i < count; i++)
 		{
-			sites.Add(new Vector2(UnityEngine.Random.Range(0.0f, 1.0f), UnityEngine.Random.Range(0.0f, 1.0f)));
+			sites.Add(new(UnityEngine.Random.Range(0.0f, 1.0f), UnityEngine.Random.Range(0.0f, 1.0f)));
 		}
 
 		// TODO: spread points via Voronoi relax?
@@ -246,7 +246,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 			Vector2 offsetTexels = new Vector2(minX + maxX, minY + maxY) * 0.5f;
 			Vector2 offsetUV = offsetTexels / sizeTexels - pivotUV;
 			Vector2 offsetWS = offsetUV * sizeTexels / pixelsPerUnit;
-			sprites[i] = Tuple.Create(Sprite.Create(texture, new Rect(0, 0, sizeTexels.x, sizeTexels.y), pivotUV, pixelsPerUnit), new Bounds(offsetWS, new Vector2(maxX - minX, maxY - minY) / pixelsPerUnit));
+			sprites[i] = Tuple.Create(Sprite.Create(texture, new(0, 0, sizeTexels.x, sizeTexels.y), pivotUV, pixelsPerUnit), new Bounds(offsetWS, new Vector2(maxX - minX, maxY - minY) / pixelsPerUnit));
 			sprites[i].Item1.name = "Voronoi sprite";
 		}
 		return sprites;

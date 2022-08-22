@@ -69,6 +69,6 @@ public class ButtonController : MonoBehaviour, IInteractable, IKey
 	private void UpdateWireColor(bool active)
 	{
 		LineRenderer line = GetComponent<LineRenderer>();
-		line.colorGradient = new Gradient() { colorKeys = new GradientColorKey[] { new GradientColorKey(m_renderer.color * (active ? m_activeColorPct : m_unactiveColorPct), 0.0f) }, alphaKeys = new GradientAlphaKey[] { new GradientAlphaKey(1.0f, 0.0f) } };
+		line.colorGradient = new() { colorKeys = new GradientColorKey[] { new(m_renderer.color * (active ? m_activeColorPct : m_unactiveColorPct), 0.0f) }, alphaKeys = new GradientAlphaKey[] { new(1.0f, 0.0f) } };
 	}
 }

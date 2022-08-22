@@ -116,7 +116,7 @@ public static class Utility
 
 	public static Color ColorRandom(Color min, Color max, bool proportional, float epsilon = 0.2f)
 	{
-		float[] pcts = proportional ? Enumerable.Repeat(UnityEngine.Random.value, 4).ToArray() : new float[] { UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value };
+		float[] pcts = proportional ? Enumerable.Repeat(UnityEngine.Random.value, 4).ToArray() : new[] { UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value };
 		Color color = new(Mathf.Lerp(min.r, max.r, pcts[0]), Mathf.Lerp(min.g, max.g, pcts[1]), Mathf.Lerp(min.b, max.b, pcts[2]), Mathf.Lerp(min.a, max.a, pcts[3]));
 		if (ColorsSimilar(color, RoomController.m_oneWayPlatformColor, epsilon) || ColorsSimilar(color, Color.black, epsilon))
 		{
@@ -186,7 +186,7 @@ public static class Utility
 			float colliderExtentY = collider is CapsuleCollider2D capsule ? capsule.size.y * 0.5f : collider is CircleCollider2D circle ? circle.radius : collider is BoxCollider2D box ? box.size.y * 0.5f + box.edgeRadius : 0.0f; // NOTE that we can't use Collider2D.bounds on an uninstantiated prefab // TODO: less hardcoding?
 			return collider.transform.position.y - obj.transform.position.y + collider.offset.y - colliderExtentY;
 		});
-		return new Vector2(0.0f, -yMin);
+		return new(0.0f, -yMin);
 	}
 
 	public static int ToIndex(this LayerMask mask)

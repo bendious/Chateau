@@ -32,7 +32,7 @@ public class LineConnector : MonoBehaviour
 		Quaternion rotChar = m_character == null ? Quaternion.identity : m_character.transform.rotation;
 		Vector3 shoulderPosLocal = transform.parent.position + (rotChar * (m_character != null ? m_character.ArmOffset : Vector2.zero) + (m_arm == null ? Vector3.zero : (Vector3)(Vector2)m_arm.m_offset)) - transform.position; // NOTE the removal of Z from m_arm.m_offset
 		Color color = m_parentRenderer.color;
-		System.Lazy<Gradient> newGradient = new(() => new Gradient() { colorKeys = new GradientColorKey[] { new GradientColorKey(color, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new GradientAlphaKey(color.a, 0.0f) } }, false); // TODO: support non-constant gradients?
+		System.Lazy<Gradient> newGradient = new(() => new() { colorKeys = new GradientColorKey[] { new(color, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new(color.a, 0.0f) } }, false); // TODO: support non-constant gradients?
 
 		int i = 0;
 		foreach (LineRenderer line in m_lines)

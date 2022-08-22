@@ -40,7 +40,7 @@ public interface ISavable
 		saveFile.Read(out Vector3 offsetFromRoom);
 		savableComp.transform.position = room.BoundsInterior.ClosestPoint(room.transform.position + offsetFromRoom);
 
-		savableComp.GetComponent<SpriteRenderer>().color = new Color(saveFile.ReadSingle(), saveFile.ReadSingle(), saveFile.ReadSingle(), saveFile.ReadSingle());
+		savableComp.GetComponent<SpriteRenderer>().color = new(saveFile.ReadSingle(), saveFile.ReadSingle(), saveFile.ReadSingle(), saveFile.ReadSingle());
 
 		savable.LoadInternal(saveFile);
 

@@ -138,7 +138,7 @@ public class GameController : MonoBehaviour
 		// TODO: use Animator on persistent object?
 		Image loadImage = m_loadingScreen.GetComponentsInChildren<Image>().Last()/*TODO*/;
 		float alpha = Mathf.Abs((Time.realtimeSinceStartup % 1.0f) - 0.5f) * 2.0f;
-		loadImage.color = new Color(loadImage.color.r, loadImage.color.g, loadImage.color.b, alpha);
+		loadImage.color = new(loadImage.color.r, loadImage.color.g, loadImage.color.b, alpha);
 	}
 
 	private void Start()
@@ -147,7 +147,7 @@ public class GameController : MonoBehaviour
 
 		m_waveWeight = m_waveStartWeight;
 
-		LayoutGenerator generator = new(new LayoutGenerator.Node(m_type));
+		LayoutGenerator generator = new(new(m_type));
 		generator.Generate();
 
 		// use generator to spawn rooms/locks/keys/items/etc.
@@ -225,7 +225,7 @@ public class GameController : MonoBehaviour
 				return;
 			}
 
-			m_dialogueController.Play(new DialogueController.Line[] { new DialogueController.Line { m_text = "Ah, welcome home." }, new DialogueController.Line { m_text = "You've been out for quite a while, haven't you?" }, new DialogueController.Line { m_text = "You're not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", m_replies = new DialogueController.Line.Reply[] { new DialogueController.Line.Reply { m_text = "Who are you, ya creep?" }, new DialogueController.Line.Reply { m_text = "Who are you?" }, new DialogueController.Line.Reply { m_text = "Who are you, sir?" } } }, new DialogueController.Line { m_text = "An old friend." }, new DialogueController.Line { m_text = "I'm not surprised you don't remember me. Is there anything you do remember, after all?" }, new DialogueController.Line { m_text = "But don't worry about me; you have more pressing concerns at the moment, I believe." } });
+			m_dialogueController.Play(new DialogueController.Line[] { new() { m_text = "Ah, welcome home." }, new() { m_text = "You've been out for quite a while, haven't you?" }, new() { m_text = "You're not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", m_replies = new DialogueController.Line.Reply[] { new() { m_text = "Who are you, ya creep?" }, new() { m_text = "Who are you?" }, new() { m_text = "Who are you, sir?" } } }, new() { m_text = "An old friend." }, new() { m_text = "I'm not surprised you don't remember me. Is there anything you do remember, after all?" }, new() { m_text = "But don't worry about me; you have more pressing concerns at the moment, I believe." } });
 		}
 
 		m_loadingScreen.SetActive(false);
@@ -279,9 +279,9 @@ public class GameController : MonoBehaviour
 				{
 					if (tf.anchorMin.x == 0.0f && tf.anchorMax.x == 0.0f)
 					{
-						tf.anchorMin = new Vector2(1.0f, tf.anchorMin.y);
-						tf.anchorMax = new Vector2(1.0f, tf.anchorMax.y);
-						tf.pivot = new Vector2(1.0f, tf.pivot.y);
+						tf.anchorMin = new(1.0f, tf.anchorMin.y);
+						tf.anchorMax = new(1.0f, tf.anchorMax.y);
+						tf.pivot = new(1.0f, tf.pivot.y);
 						tf.anchoredPosition *= new Vector2(-1.0f, 1.0f);
 					}
 				}
@@ -295,7 +295,7 @@ public class GameController : MonoBehaviour
 
 		if (m_startRoom != null)
 		{
-			EnterAtDoor(new AvatarController[] { m_avatars.Last() });
+			EnterAtDoor(new[] { m_avatars.Last() });
 		}
 	}
 
@@ -516,7 +516,7 @@ public class GameController : MonoBehaviour
 #else
 	private
 #endif
-		void NpcsRandomize() => m_npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => new NpcDialogue[] { a, b }).Select(dialogue => new NpcInfo { m_color = Utility.ColorRandom(Color.black, Color.white, false), m_dialogues = dialogue }).ToArray(); // TODO: ensure good colors w/o repeats?
+		void NpcsRandomize() => m_npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => new[] { a, b }).Select(dialogue => new NpcInfo { m_color = Utility.ColorRandom(Color.black, Color.white, false), m_dialogues = dialogue }).ToArray(); // TODO: ensure good colors w/o repeats?
 
 
 	private int AddRoomsForNodes(LayoutGenerator.Node[] nodes, int roomCount, ref int orderedLockIdx)
@@ -583,7 +583,7 @@ public class GameController : MonoBehaviour
 				// try spawning prefabs in random order
 				RoomController childRoom = null;
 				WeightedObject<GameObject>[] prefabsOrdered = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? m_bossRoomPrefabs : m_roomPrefabs;
-				Vector2[] allowedDirections = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical) ? new Vector2[] { Vector2.down, Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomDown) ? new Vector2[] { Vector2.down } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomUp) ? new Vector2[] { Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) ? new Vector2[] { Vector2.left, Vector2.right } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret) ? new Vector2[] { Vector2.left, Vector2.right, Vector2.down } : null;
+				Vector2[] allowedDirections = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical) ? new[] { Vector2.down, Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomDown) ? new[] { Vector2.down } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomUp) ? new[] { Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) ? new[] { Vector2.left, Vector2.right } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret) ? new[] { Vector2.left, Vector2.right, Vector2.down } : null;
 				foreach (GameObject roomPrefab in prefabsOrdered.RandomWeightedOrder())
 				{
 					childRoom = spawnRoom.SpawnChildRoom(roomPrefab, nodesList.ToArray(), allowedDirections, ref orderedLockIdx); // TODO: bias RootCoupling child nodes toward existing leaf rooms?
@@ -707,7 +707,7 @@ public class GameController : MonoBehaviour
 
 			ZonesFinishedCount = System.Math.Max(ZonesFinishedCount, saveFile.ReadInt32()); // NOTE the max() to somewhat handle debug loading directly into non-saved scenes, incrementing ZonesFinishedCount, and then loading a saved scene
 
-			m_secretsFoundBitmask.Or(new BitArray(new int[] { saveFile.ReadInt32() })); // NOTE the OR to handle debug loading directly into non-saved scenes, editing m_secretsFoundBitmask, and then loading a saved scene
+			m_secretsFoundBitmask.Or(new(new[] { saveFile.ReadInt32() })); // NOTE the OR to handle debug loading directly into non-saved scenes, editing m_secretsFoundBitmask, and then loading a saved scene
 
 			saveFile.ReadArray(() => ISavable.Load(saveFile));
 		}
