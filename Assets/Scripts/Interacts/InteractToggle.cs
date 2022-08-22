@@ -9,7 +9,7 @@ public class InteractToggle : MonoBehaviour, IInteractable, IKey
 
 
 	public IUnlockable Lock { get; set; }
-	public bool IsInPlace { get => m_idxCurrent == m_idxCorrect; set => IsInPlace = IsInPlace/*TODO?*/; }
+	public bool IsInPlace { get => m_idxCurrent == m_idxCorrect; set { } }
 
 	private TMP_Text m_text;
 	private SpriteRenderer m_renderer;

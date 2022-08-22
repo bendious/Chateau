@@ -79,9 +79,9 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	protected int m_aimDir;
 
 	/// <summary>
-	/// Set to true to initiate a jump.
+	/// Set to initiate a jump. 1.0 -> full jump takeoff speed, 0.5 -> half speed, etc.
 	/// </summary>
-	protected bool m_jump;
+	protected float m_jump;
 
 	/// <summary>
 	/// Set to true to decelerate the current jump using m_jumpDeceleration.
@@ -156,11 +156,11 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	protected override void ComputeVelocity()
 	{
-		if (m_jump && maxSpeed > 0.0f)
+		if (m_jump > 0.0f && maxSpeed > 0.0f)
 		{
 			if (IsGrounded)
 			{
-				velocity.y = jumpTakeOffSpeed; // NOTE that we purposely ignore any existing velocity so that ground-based jumps are always full strength
+				velocity.y = m_jump * jumpTakeOffSpeed; // NOTE that we purposely ignore any existing velocity so that ground-based jumps are always at the intended strength
 			}
 			else
 			{
@@ -187,7 +187,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 				}
 				if (canWallJump)
 				{
-					Bounce(Quaternion.Euler(0.0f, 0.0f, m_wallNormal.x < 0.0f ? -m_wallJumpDegrees : m_wallJumpDegrees) * m_wallNormal * jumpTakeOffSpeed);
+					Bounce(Quaternion.Euler(0.0f, 0.0f, m_wallNormal.x < 0.0f ? -m_wallJumpDegrees : m_wallJumpDegrees) * m_wallNormal * m_jump * jumpTakeOffSpeed);
 				}
 			}
 		}
@@ -224,7 +224,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 			m_animator.SetBool("dash", false);
 		}
 
-		m_jump = false;
+		m_jump = 0.0f;
 		m_stopJump = false;
 		m_dash = false;
 

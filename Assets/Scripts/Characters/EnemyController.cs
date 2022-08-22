@@ -9,7 +9,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class EnemyController : KinematicCharacter
 {
-	public AIState.Type[] m_allowedStates = new AIState.Type[] { AIState.Type.Pursue, AIState.Type.Flee, AIState.Type.RamSwoop };
+	[SerializeField] private AIState.Type[] m_allowedStates = new AIState.Type[] { AIState.Type.Pursue, AIState.Type.Flee, AIState.Type.RamSwoop };
 
 	public bool m_passive;
 	public bool m_friendly;
@@ -20,9 +20,14 @@ public sealed class EnemyController : KinematicCharacter
 
 	public float m_meleeRange = 1.0f;
 
-	public float m_dropDecayTime = 0.2f;
+	[SerializeField] private float m_jumpMaxSpeedOverride = -1.0f;
+	[SerializeField] private bool m_airControl = true;
+	[SerializeField] private bool m_jumpAlways;
+	[SerializeField] private float m_jumpPct = 0.05f;
 
-	public AudioClip[] m_attackSFX; // TODO: remove in favor of animation triggers w/ AudioCollection?
+	[SerializeField] private float m_dropDecayTime = 0.2f;
+
+	[SerializeField] private AudioClip[] m_attackSFX; // TODO: remove in favor of animation triggers w/ AudioCollection?
 	public WeightedObject<GameObject>[] m_teleportVFX;
 
 
@@ -296,7 +301,21 @@ public sealed class EnemyController : KinematicCharacter
 
 		// determine current direction
 		Vector2 dir = diff.normalized;
-		move.x = HasFlying ? dir.x : System.Math.Sign(dir.x); // NOTE that Mathf's version of Sign() treats zero as positive...
+		if ((IsGrounded || m_airControl) && maxSpeed != 0.0f)
+		{
+			if (HasFlying)
+			{
+				move.x = dir.x;
+			}
+			else
+			{
+				move.x = System.Math.Sign(dir.x); // NOTE that Mathf's version of Sign() treats zero as positive...
+				if (m_jumpMaxSpeedOverride >= 0.0f && !IsGrounded)
+				{
+					move.x *= m_jumpMaxSpeedOverride / maxSpeed; // TODO: support overriding maxSpeed of zero?
+				}
+			}
+		}
 
 		if (HasFlying)
 		{
@@ -309,9 +328,23 @@ public sealed class EnemyController : KinematicCharacter
 			// TODO: only jump when directly below, but w/o getting stuck?
 			Bounds nextBounds = targetCollider == null || m_pathfindWaypoints.Count > 1 ? new(nextWaypoint, Vector3.zero) : targetCollider.bounds;
 			Bounds selfBounds = m_collider.bounds;
-			if (IsGrounded && nextBounds.min.y > selfBounds.max.y && Random.value > 0.95f/*?*/)
+			if (IsGrounded && (m_jumpAlways || nextBounds.min.y > selfBounds.max.y) && Random.value <= m_jumpPct)
 			{
-				m_jump = true;
+				m_jump = 1.0f;
+				if (!m_airControl)
+				{
+					move.x *= m_jumpMaxSpeedOverride / maxSpeed;
+
+					// determine how hard to jump
+					float gravityEffective = -9.81f * gravityModifier; // TODO: determine why Physics2D.gravity is inaccurate; don't assume vertical gravity?
+					float determinant = jumpTakeOffSpeed * jumpTakeOffSpeed - 4.0f * gravityEffective * -diff.y; // TODO: better determination of how far up/down we'll land if too far to make it to the waypoint?
+					if (determinant < 0.0f)
+					{
+						determinant = jumpTakeOffSpeed * jumpTakeOffSpeed;
+					}
+					float jumpMaxDist = (-jumpTakeOffSpeed - Mathf.Sqrt(determinant)) / (2.0f * gravityEffective) * m_jumpMaxSpeedOverride;
+					m_jump *= Mathf.Min(1.0f, diff.magnitude / jumpMaxDist); // TODO: separate x/y logic for improved upward movement?
+				}
 			}
 			move.y = IsGrounded && nextBounds.max.y < selfBounds.min.y ? -1.0f : Mathf.SmoothDamp(move.y, 0.0f, ref m_dropDecayVel, m_dropDecayTime * 2.0f); // NOTE the IsGrounded check and damped decay (x2 since IsDropping's threshold is -0.5) to cause stopping at each ladder rung when descending
 		}

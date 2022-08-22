@@ -30,7 +30,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 	public bool IsInPlace
 	{
 		get => m_followCharacter == null && (transform.position - m_correctPosition).magnitude < m_maxSnapDistance && transform.rotation.eulerAngles.z.FloatEqualDegrees(m_correctRotationDegrees, m_maxSnapDegrees);
-		set => IsInPlace = IsInPlace; // TODO?
+		set { }
 	}
 
 

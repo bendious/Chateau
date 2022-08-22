@@ -936,7 +936,7 @@ public sealed class AvatarController : KinematicCharacter
 
 	private void UpdateJumpState()
 	{
-		m_jump = false;
+		m_jump = 0.0f;
 		switch (jumpState)
 		{
 			case JumpState.Grounded:
@@ -949,7 +949,7 @@ public sealed class AvatarController : KinematicCharacter
 			case JumpState.PrepareToJump:
 				m_leftGroundTime = -1.0f;
 				jumpState = JumpState.Jumping;
-				m_jump = true;
+				m_jump = 1.0f; // TODO: support partial-strength jumps when bound to float-based input?
 				break;
 			case JumpState.Jumping:
 				if (!IsGrounded)

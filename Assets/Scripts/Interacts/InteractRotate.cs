@@ -13,7 +13,7 @@ public class InteractRotate : MonoBehaviour, IInteractable, IKey
 	public bool IsInPlace
 	{
 		get => m_rotator.transform.rotation.eulerAngles.z.FloatEqualDegrees(RotationCorrectDegrees, m_degreesIncrement * 0.5f);
-		set => IsInPlace = IsInPlace; // TODO?
+		set { }
 	}
 
 
