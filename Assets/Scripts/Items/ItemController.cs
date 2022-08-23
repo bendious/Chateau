@@ -377,6 +377,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	{
 		if (!gameObject.activeSelf) // e.g. we're a bomb that has just gone off
 		{
+			DebugEvent(collider, contacts, contactCount, ConsoleCommands.ItemDebugLevels.Deactivated);
 			return;
 		}
 
@@ -393,11 +394,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 				gameObject.layer = supportingContact.collider.gameObject.layer;
 				m_body.Sleep(); // NOTE that changing the object's layer wakes it, so we have to manually Sleep() here
 			}
+			DebugEvent(collider, contacts, contactCount, ConsoleCommands.ItemDebugLevels.Supported);
 			return;
 		}
 
 		if ((kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders)) || collider.transform.root == transform.root)
 		{
+			DebugEvent(collider, contacts, contactCount, ConsoleCommands.ItemDebugLevels.Ignored);
 			return;
 		}
 
@@ -408,6 +411,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		{
 			if (rigidbody == null || rigidbody.bodyType != RigidbodyType2D.Dynamic)
 			{
+				DebugEvent(collider, contacts, contactCount, ConsoleCommands.ItemDebugLevels.Static);
 				return;
 			}
 		}
@@ -421,6 +425,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>(true).Length < character.HoldCountMax)
 			{
 				character.ChildAttach(this);
+				DebugEvent(collider, contacts, contactCount, ConsoleCommands.ItemDebugLevels.Attach);
 				return;
 			}
 		}
@@ -456,6 +461,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 					otherItem.Detach(true);
 				}
 			}
+			DebugEvent(collider, contacts, contactCount, ConsoleCommands.ItemDebugLevels.Damage);
+		}
+		else
+		{
+			DebugEvent(collider, contacts, contactCount, ConsoleCommands.ItemDebugLevels.TooSlow);
 		}
 
 		if (isDetached)
@@ -517,4 +527,59 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		}
 		m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.Find(m_colliders.First().sharedMaterial).RandomMovementAudio()); // TODO: don't assume first collider is main material?
 	}
+
+
+#if UNITY_EDITOR
+	private readonly List<System.Tuple<Vector2, ConsoleCommands.ItemDebugLevels, float>> m_debugEvents = new();
+
+	private void DebugEvent(Collider2D collider, List<ContactPoint2D> contacts, int contactCount, ConsoleCommands.ItemDebugLevels type)
+	{
+		Vector2 pos = contactCount > 0 ? contacts.First().point : (transform.position + collider.transform.position) * 0.5f;
+		const float lifetimeSeconds = 5.0f; // TODO: parameterize?
+		m_debugEvents.Add(System.Tuple.Create(pos, type, Time.time + lifetimeSeconds));
+	}
+
+	private void OnDrawGizmos()
+	{
+		// draw
+		if (ConsoleCommands.ItemDebugLevel != (int)ConsoleCommands.ItemDebugLevels.None)
+		{
+			foreach (System.Tuple<Vector2, ConsoleCommands.ItemDebugLevels, float> evt in m_debugEvents)
+			{
+				if ((int)evt.Item2 < ConsoleCommands.ItemDebugLevel) // TODO: draw Scene panel w/ individual checkboxes?
+				{
+					continue;
+				}
+				Color color = Color.black;
+				switch (evt.Item2)
+				{
+					case ConsoleCommands.ItemDebugLevels.Deactivated: color = Color.gray; break;
+					case ConsoleCommands.ItemDebugLevels.Supported: color = Color.yellow; break;
+					case ConsoleCommands.ItemDebugLevels.Ignored: color = Color.white; break;
+					case ConsoleCommands.ItemDebugLevels.Static: color = Color.blue; break;
+					case ConsoleCommands.ItemDebugLevels.Attach: color = Color.cyan; break;
+					case ConsoleCommands.ItemDebugLevels.TooSlow: color = Color.green; break;
+					case ConsoleCommands.ItemDebugLevels.Damage: color = Color.red; break;
+					default: Debug.LogWarning("Unhandled ItemDebugLevel"); break;
+				}
+
+				const float radius = 0.025f; // TODO: parameterize?
+				using (new UnityEditor.Handles.DrawingScope(color))
+				{
+					UnityEditor.Handles.DrawWireArc(evt.Item1, Vector3.forward, Vector3.right, 360.0f, radius);
+				}
+			}
+		}
+
+		// clean
+		while (m_debugEvents.Count > 0 && m_debugEvents.First().Item3 < Time.time)
+		{
+			m_debugEvents.RemoveAt(0);
+		}
+	}
+
+#else
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "required depending on compile configuration")]
+	void DebugEvent(params object[] ignored) {}
+#endif
 }

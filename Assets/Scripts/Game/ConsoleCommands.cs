@@ -24,6 +24,19 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 	}
 	public static int AIDebugLevel { get; private set; }
 
+	public enum ItemDebugLevels
+	{
+		None,
+		Deactivated,
+		Supported,
+		Ignored,
+		Static,
+		Attach,
+		TooSlow,
+		Damage,
+	}
+	public static int ItemDebugLevel { get; private set; }
+
 	public static bool ExplosionDebug { get; private set; }
 
 	public enum LayoutDebugLevels
@@ -57,6 +70,7 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 		m_controls.Console.NeverDie.performed += ctx => ExecuteIfConsoleOpen(() => NeverDie = !NeverDie);
 		m_controls.Console.PassiveAI.performed += ctx => ExecuteIfConsoleOpen(() => PassiveAI = !PassiveAI);
 		m_controls.Console.AIDebugLevel.performed += ctx => ExecuteIfConsoleOpen(() => AIDebugLevel = (AIDebugLevel + 1) % Utility.EnumNumTypes<AIDebugLevels>());
+		m_controls.Console.ItemDebugLevel.performed += ctx => ExecuteIfConsoleOpen(() => ItemDebugLevel = (ItemDebugLevel - 1).Modulo(Utility.EnumNumTypes<ItemDebugLevels>()));
 		m_controls.Console.ExplosionDebug.performed += ctx => ExecuteIfConsoleOpen(() => ExplosionDebug = !ExplosionDebug);
 		m_controls.Console.LayoutDebugLevel.performed += ctx => ExecuteIfConsoleOpen(() => LayoutDebugLevel = (LayoutDebugLevels)(((int)LayoutDebugLevel + 1) % Utility.EnumNumTypes<LayoutDebugLevels>()));
 		m_controls.Console.LayoutOutputSeed.performed += ctx => ExecuteIfConsoleOpen(() => Debug.Log(GameController.Seed));

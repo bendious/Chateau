@@ -69,6 +69,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "ItemDebugLevel",
+                    "type": "Button",
+                    "id": "3209188c-5488-46f7-9cd2-cbe2411e892d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "ExplosionDebug",
                     "type": "Button",
                     "id": "39d672eb-38a4-4286-826f-d7171840f2b6",
@@ -232,7 +241,7 @@
                 {
                     "name": "",
                     "id": "95e6556c-5b82-4575-a148-bf4d26d6b960",
-                    "path": "<Keyboard>/a",
+                    "path": "<Keyboard>/p",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -243,7 +252,7 @@
                 {
                     "name": "",
                     "id": "3c151e34-11ff-4ac9-a864-8c47ba9b19cb",
-                    "path": "<Keyboard>/d",
+                    "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -485,7 +494,7 @@
                 {
                     "name": "",
                     "id": "2d6259cf-7fe3-40c4-9713-825998ef30a0",
-                    "path": "<Keyboard>/p",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -507,7 +516,7 @@
                 {
                     "name": "",
                     "id": "37978d95-9624-4d8b-8406-e7e21fcb8475",
-                    "path": "<Keyboard>/i",
+                    "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -523,6 +532,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "MusicTest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e86fef78-ba1b-4f0e-99b4-c43e387adb60",
+                    "path": "<Keyboard>/i",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ItemDebugLevel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

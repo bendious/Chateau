@@ -91,6 +91,15 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""ItemDebugLevel"",
+                    ""type"": ""Button"",
+                    ""id"": ""3209188c-5488-46f7-9cd2-cbe2411e892d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""ExplosionDebug"",
                     ""type"": ""Button"",
                     ""id"": ""39d672eb-38a4-4286-826f-d7171840f2b6"",
@@ -254,7 +263,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""95e6556c-5b82-4575-a148-bf4d26d6b960"",
-                    ""path"": ""<Keyboard>/a"",
+                    ""path"": ""<Keyboard>/p"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -265,7 +274,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""3c151e34-11ff-4ac9-a864-8c47ba9b19cb"",
-                    ""path"": ""<Keyboard>/d"",
+                    ""path"": ""<Keyboard>/a"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -507,7 +516,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""2d6259cf-7fe3-40c4-9713-825998ef30a0"",
-                    ""path"": ""<Keyboard>/p"",
+                    ""path"": ""<Keyboard>/e"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -529,7 +538,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""37978d95-9624-4d8b-8406-e7e21fcb8475"",
-                    ""path"": ""<Keyboard>/i"",
+                    ""path"": ""<Keyboard>/d"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -547,6 +556,17 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""action"": ""MusicTest"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e86fef78-ba1b-4f0e-99b4-c43e387adb60"",
+                    ""path"": ""<Keyboard>/i"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ItemDebugLevel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -562,6 +582,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         m_Console_NeverDie = m_Console.FindAction("NeverDie", throwIfNotFound: true);
         m_Console_PassiveAI = m_Console.FindAction("PassiveAI", throwIfNotFound: true);
         m_Console_AIDebugLevel = m_Console.FindAction("AIDebugLevel", throwIfNotFound: true);
+        m_Console_ItemDebugLevel = m_Console.FindAction("ItemDebugLevel", throwIfNotFound: true);
         m_Console_ExplosionDebug = m_Console.FindAction("ExplosionDebug", throwIfNotFound: true);
         m_Console_LayoutDebugLevel = m_Console.FindAction("LayoutDebugLevel", throwIfNotFound: true);
         m_Console_LayoutOutputSeed = m_Console.FindAction("LayoutOutputSeed", throwIfNotFound: true);
@@ -642,6 +663,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Console_NeverDie;
     private readonly InputAction m_Console_PassiveAI;
     private readonly InputAction m_Console_AIDebugLevel;
+    private readonly InputAction m_Console_ItemDebugLevel;
     private readonly InputAction m_Console_ExplosionDebug;
     private readonly InputAction m_Console_LayoutDebugLevel;
     private readonly InputAction m_Console_LayoutOutputSeed;
@@ -667,6 +689,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         public InputAction @NeverDie => m_Wrapper.m_Console_NeverDie;
         public InputAction @PassiveAI => m_Wrapper.m_Console_PassiveAI;
         public InputAction @AIDebugLevel => m_Wrapper.m_Console_AIDebugLevel;
+        public InputAction @ItemDebugLevel => m_Wrapper.m_Console_ItemDebugLevel;
         public InputAction @ExplosionDebug => m_Wrapper.m_Console_ExplosionDebug;
         public InputAction @LayoutDebugLevel => m_Wrapper.m_Console_LayoutDebugLevel;
         public InputAction @LayoutOutputSeed => m_Wrapper.m_Console_LayoutOutputSeed;
@@ -711,6 +734,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @AIDebugLevel.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnAIDebugLevel;
                 @AIDebugLevel.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnAIDebugLevel;
                 @AIDebugLevel.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnAIDebugLevel;
+                @ItemDebugLevel.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnItemDebugLevel;
+                @ItemDebugLevel.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnItemDebugLevel;
+                @ItemDebugLevel.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnItemDebugLevel;
                 @ExplosionDebug.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnExplosionDebug;
                 @ExplosionDebug.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnExplosionDebug;
                 @ExplosionDebug.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnExplosionDebug;
@@ -778,6 +804,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @AIDebugLevel.started += instance.OnAIDebugLevel;
                 @AIDebugLevel.performed += instance.OnAIDebugLevel;
                 @AIDebugLevel.canceled += instance.OnAIDebugLevel;
+                @ItemDebugLevel.started += instance.OnItemDebugLevel;
+                @ItemDebugLevel.performed += instance.OnItemDebugLevel;
+                @ItemDebugLevel.canceled += instance.OnItemDebugLevel;
                 @ExplosionDebug.started += instance.OnExplosionDebug;
                 @ExplosionDebug.performed += instance.OnExplosionDebug;
                 @ExplosionDebug.canceled += instance.OnExplosionDebug;
@@ -833,6 +862,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         void OnNeverDie(InputAction.CallbackContext context);
         void OnPassiveAI(InputAction.CallbackContext context);
         void OnAIDebugLevel(InputAction.CallbackContext context);
+        void OnItemDebugLevel(InputAction.CallbackContext context);
         void OnExplosionDebug(InputAction.CallbackContext context);
         void OnLayoutDebugLevel(InputAction.CallbackContext context);
         void OnLayoutOutputSeed(InputAction.CallbackContext context);
