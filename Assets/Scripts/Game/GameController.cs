@@ -748,6 +748,7 @@ public class GameController : MonoBehaviour
 	{
 		m_waveSpawningInProgress = true;
 
+		// seal room(s) if scene demands it
 		RoomController[] sealedRooms = m_waveSealing ? m_avatars.Select(avatar => RoomFromPosition(avatar.transform.position)).ToArray() : null;
 		if (m_waveSealing)
 		{
@@ -760,13 +761,22 @@ public class GameController : MonoBehaviour
 
 		m_waveWeight += Random.Range(m_waveEscalationMin, m_waveEscalationMax); // TODO: exponential/logistic escalation?
 
-		WeightedObject<GameObject>[] options = m_enemyPrefabs;
+		// determine enemy types allowed for this wave
+		WeightedObject<GameObject>[] optionsInitial = m_enemyPrefabs.Where(weightedObj => weightedObj.m_weight <= m_waveWeight).ToArray();
+		float restrictPct = 1.0f - Mathf.Pow(Random.value, 2.0f); // NOTE that we bias the distribution toward more rather than less restriction
+		WeightedObject<GameObject>[] options = optionsInitial.Where(weightedObj => Random.value > restrictPct).ToArray();
+		if (options.Length <= 0)
+		{
+			options = new[] { optionsInitial[Random.Range(0, optionsInitial.Length)] };
+		}
+
+		// sequentially spawn enemies
 		for (float weightRemaining = m_waveWeight; weightRemaining > 0.0f; )
 		{
 			options = options.Where(weightedObj => weightedObj.m_weight <= weightRemaining).ToArray(); // NOTE that since weightRemaining never increases, it is safe to assume that all previously excluded options are still excluded
 			if (options.Length <= 0)
 			{
-				break; // this shouldn't happen as long as the weights are integers and at least one is 1, but we handle it just in case
+				break;
 			}
 			int idx = Random.Range(0, options.Length);
 			WeightedObject<GameObject> weightedEnemyPrefab = options[idx]; // TODO: if no items in room, spawn enemy w/ included item
