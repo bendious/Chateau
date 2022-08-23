@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: f2b11ca4ad45b5646b475d00defb172c
+guid: b9d770d984b48b749a4cd0f8ae35afd3
 labels:
 - Character
 TextureImporter:
@@ -106,7 +106,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: FrogIdle_0
+      name: FrogJump_0
       rect:
         serializedVersion: 2
         x: 0
@@ -120,8 +120,50 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b19561467359a5e418f923885d529045
-      internalID: -1730366496
+      spriteID: 3be857e7fff784d4bb8dfc99221c869b
+      internalID: -1989398283
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FrogJump_1
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 0
+        width: 128
+        height: 128
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eee135aa3b159264e8d21f62b3bf6ac8
+      internalID: -1503586536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FrogJump_2
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 0
+        width: 128
+        height: 128
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4f08376f4ca64fa45a71b1a69b34438f
+      internalID: 1764582136
       vertices: []
       indices: 
       edges: []
@@ -137,7 +179,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      FrogIdle_0: -1730366496
+      FrogJump_2: 1764582136
+      FrogJump_0: -1989398283
+      FrogJump_1: -1503586536
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
