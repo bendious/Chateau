@@ -156,5 +156,11 @@ MonoBehaviour:
       m_heightMin: 0
       m_heightMax: 9999
     m_weight: 1
+  - m_object:
+      m_prefab: {fileID: 7996044923808691761, guid: ee64a8ad3fd655c4abc85d7034f08246, type: 3}
+      m_rotationDegreesMax: 30
+      m_heightMin: 0
+      m_heightMax: 9999
+    m_weight: 1
   m_decorationsMin: 0
   m_decorationsMax: 0
