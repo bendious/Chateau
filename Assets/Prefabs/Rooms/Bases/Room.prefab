@@ -138,7 +138,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 182650
+  m_InstanceId: 75432
 --- !u!1 &409852463158594107
 GameObject:
   m_ObjectHideFlags: 0
@@ -216,7 +216,7 @@ SpriteRenderer:
   m_SortingLayerID: -2061917687
   m_SortingLayer: -1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 2543d0aa90cbd468da437e70810cba4d, type: 3}
+  m_Sprite: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
   m_Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -244,7 +244,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.28, y: 1.28}
+    oldSize: {x: 1, y: 1}
     newSize: {x: 3, y: 0.5}
     adaptiveTilingThreshold: 0.5
     drawMode: 2
@@ -298,7 +298,7 @@ MonoBehaviour:
   - {x: 1.5, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 182632
+  m_InstanceId: 75414
 --- !u!82 &8857695118105291083
 AudioSource:
   m_ObjectHideFlags: 0
@@ -542,7 +542,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 182636
+  m_InstanceId: 75418
 --- !u!1 &2929849760781198063
 GameObject:
   m_ObjectHideFlags: 0
@@ -681,7 +681,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 182630
+  m_InstanceId: 75412
 --- !u!1 &3865645025881897782
 GameObject:
   m_ObjectHideFlags: 0
@@ -821,7 +821,7 @@ MonoBehaviour:
   - {x: 1.5, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 182594
+  m_InstanceId: 75376
 --- !u!82 &547285319970575305
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1066,7 +1066,7 @@ MonoBehaviour:
   - {x: 0.25, y: -1.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 182704
+  m_InstanceId: 75484
 --- !u!82 &940655668141046595
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1310,7 +1310,7 @@ MonoBehaviour:
   - {x: 0.25, y: -2.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 182690
+  m_InstanceId: 75470
 --- !u!1 &5667102131450121450
 GameObject:
   m_ObjectHideFlags: 0
@@ -1533,7 +1533,7 @@ MonoBehaviour:
   - {x: 3, y: -0.25, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 182628
+  m_InstanceId: 75410
 --- !u!1 &6422840777706418414
 GameObject:
   m_ObjectHideFlags: 0
@@ -1672,7 +1672,7 @@ MonoBehaviour:
   - {x: 0.25, y: -2.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 182722
+  m_InstanceId: 75502
 --- !u!1 &7422594126546487761
 GameObject:
   m_ObjectHideFlags: 0
@@ -1781,6 +1781,7 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 4342981593774351095, guid: 4d7c8adc5e9da274f820730d570f6fdc, type: 3}
     m_weight: 1
+  m_floorPlatformSprite: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
   m_doorSealVFX: {fileID: 5619937708861602581, guid: d64f2849f48fc6644bde5562c716f1c1, type: 3}
   m_spawnPointPrefabs:
   - m_object: {fileID: 7287174281192745631, guid: 196ada7618954f24ab2fd50f97411481, type: 3}
@@ -2043,7 +2044,7 @@ MonoBehaviour:
   - {x: 0.25, y: -1.5, z: 0}
   m_ShapePathHash: 0
   m_Mesh: {fileID: 0}
-  m_InstanceId: 182610
+  m_InstanceId: 75392
 --- !u!82 &2028311330320755528
 AudioSource:
   m_ObjectHideFlags: 0

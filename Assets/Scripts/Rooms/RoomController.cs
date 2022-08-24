@@ -28,6 +28,7 @@ public class RoomController : MonoBehaviour
 	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsAbove;
 	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsBelow;
 
+	[SerializeField] private Sprite m_floorPlatformSprite;
 	[SerializeField] private GameObject m_doorSealVFX;
 
 	[SerializeField] private WeightedObject<GameObject>[] m_spawnPointPrefabs;
@@ -1431,7 +1432,7 @@ public class RoomController : MonoBehaviour
 			// TODO: match wall texture?
 			SpriteRenderer renderer = doorway.GetComponent<SpriteRenderer>();
 			renderer.color = open ? m_oneWayPlatformColor : m_wallColor;
-			renderer.sprite = open ? GameController.Instance.m_roomPrefabs.First().m_object.GetComponent<RoomController>().m_backdrop.GetComponent<SpriteRenderer>().sprite : m_wallInfo.m_sprite; // TODO: more robust way of getting default texture?
+			renderer.sprite = open ? m_floorPlatformSprite : m_wallInfo.m_sprite;
 			doorway.GetComponent<ShadowCaster2D>().enabled = !open;
 		}
 
