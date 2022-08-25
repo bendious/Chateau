@@ -14,13 +14,13 @@ def TextureNormalize(image, layerOrChannel):
 			pixelI = layerOrChannel.get_pixel(x, y)
 			
 			# convert from [0,255] to [0.0,1.0] and get magnitude
-			pixelF = (pixelI[0] / 255.0, pixelI[1] / 255.0, pixelI[2] / 255.0, pixelI[3] / 255.0)
-			pixelFNeg = (pixelF[0] * 2.0 - 1.0, pixelF[1] * 2.0 - 1.0, pixelF[2] * 2.0 - 1.0, pixelF[3] * 2.0 - 1.0)
+			pixelF = (pixelI[0] / 255.0, pixelI[1] / 255.0, pixelI[2] / 255.0)
+			pixelFNeg = (pixelF[0] * 2.0 - 1.0, pixelF[1] * 2.0 - 1.0, pixelF[2] * 2.0 - 1.0)
 			pixelMag = math.sqrt(pixelFNeg[0]**2 + pixelFNeg[1]**2 + pixelFNeg[2]**2)
 			
 			# normalize and return to [0,255]
-			pixelNormFNeg = (pixelFNeg[0] / pixelMag, pixelFNeg[1] / pixelMag, pixelFNeg[2] / pixelMag, pixelFNeg[3])
-			pixelNormF = (pixelNormFNeg[0] * 0.5 + 0.5, pixelNormFNeg[1] * 0.5 + 0.5, pixelNormFNeg[2] * 0.5 + 0.5, pixelNormFNeg[3] * 0.5 + 0.5)
+			pixelNormFNeg = (pixelFNeg[0] / pixelMag, pixelFNeg[1] / pixelMag, pixelFNeg[2] / pixelMag)
+			pixelNormF = (pixelNormFNeg[0] * 0.5 + 0.5, pixelNormFNeg[1] * 0.5 + 0.5, pixelNormFNeg[2] * 0.5 + 0.5)
 			pixelNormI = (int(pixelNormF[0] * 255.0), int(pixelNormF[1] * 255.0), int(pixelNormF[2] * 255.0), pixelI[3])
 			
 			layer.set_pixel(x, y, pixelNormI)
