@@ -57,7 +57,7 @@ public class RoomController : MonoBehaviour
 	};
 
 
-	public GameObject[] DoorwaysUpwardUnblocked => m_doorwayInfos.Where(info => !info.m_onewayBlocked && info.IsOpen() && info.DirectionOutward() == Vector2.up).Select(info => info.m_object).ToArray();
+	public IEnumerable<System.Tuple<GameObject, RoomController>> DoorwaysUpwardUnblocked => m_doorwayInfos.Where(info => !info.m_onewayBlocked && info.IsOpen() && info.DirectionOutward() == Vector2.up).Select(info => System.Tuple.Create(info.m_object, info.ConnectedRoom));
 
 	public /*readonly*/ Bounds Bounds { get; private set; }
 
@@ -532,26 +532,23 @@ public class RoomController : MonoBehaviour
 			}
 		}
 
-		// spawn ladders
-		if (m_ladderRungPrefabs != null && m_ladderRungPrefabs.Length > 0)
+		// spawn ladders and mark non-laddered upward doorways as one-way
+		foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
 		{
-			foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
+			if (doorwayInfo.m_onewayBlocked || doorwayInfo.ConnectedRoom == null || doorwayInfo.DirectionOutward().y <= 0.0f)
 			{
-				if (doorwayInfo.m_onewayBlocked || doorwayInfo.ConnectedRoom == null || doorwayInfo.DirectionOutward().y <= 0.0f)
-				{
-					continue;
-				}
+				continue;
+			}
 
-				GameObject ladder = SpawnLadder(doorwayInfo.m_object);
+			GameObject ladder = SpawnLadder(doorwayInfo.m_object);
 
-				if (ladder != null)
-				{
-					fillPct += BoundsWithChildren(ladder).extents.x / extentsInterior.x;
-				}
-				else
-				{
-					doorwayInfo.m_onewayBlocked = true;
-				}
+			if (ladder != null)
+			{
+				fillPct += BoundsWithChildren(ladder).extents.x / extentsInterior.x;
+			}
+			else
+			{
+				doorwayInfo.m_onewayBlocked = true;
 			}
 		}
 
@@ -989,8 +986,13 @@ public class RoomController : MonoBehaviour
 	{
 		Assert.IsTrue(m_doorwayInfos.Any(info => info.m_object == doorway || info.m_blocker == doorway));
 
+		GameObject ladderRungPrefab = prefabForced != null || m_ladderRungPrefabs.Length <= 0 ? prefabForced : m_ladderRungPrefabs.RandomWeighted();
+		if (ladderRungPrefab == null)
+		{
+			return null;
+		}
+
 		// determine rung count/height
-		GameObject ladderRungPrefab = prefabForced != null ? prefabForced : m_ladderRungPrefabs.RandomWeighted();
 		DistanceJoint2D firstJoint = ladderRungPrefab.GetComponent<DistanceJoint2D>(); // TODO: genericize?
 		bool hanging = firstJoint != null;
 		float yTop = doorway.transform.position.y - (hanging ? 0.0f : 1.5f); // TODO: base top distance on character height
@@ -1131,7 +1133,7 @@ public class RoomController : MonoBehaviour
 		DoorwayInfo doorwayInfo = m_doorwayInfos.FirstOrDefault(info => info.m_blocker == evt.m_object);
 		if (doorwayInfo != null)
 		{
-			doorwayInfo.m_onewayBlocked = false;
+			doorwayInfo.m_onewayBlocked = false; // TODO: check upward doorways for ladders...
 			if (doorwayInfo.IsOpen(true))
 			{
 				LinkRecursive();

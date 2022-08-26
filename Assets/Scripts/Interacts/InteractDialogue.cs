@@ -31,7 +31,7 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 	}
 
 
-	public bool CanInteract(KinematicCharacter interactor) => !GameController.Instance.m_dialogueController.IsPlaying;
+	public bool CanInteract(KinematicCharacter interactor) => !GameController.Instance.m_dialogueController.IsPlaying && !GameController.Instance.ActiveEnemiesRemain();
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
