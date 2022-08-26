@@ -1,4 +1,3 @@
-using System.Linq;
 using UnityEngine;
 
 
@@ -38,13 +37,13 @@ public class GateController : MonoBehaviour, IUnlockable
 		m_child.Unlock(key);
 	}
 
-	public void SpawnKeysStatic(RoomController lockRoom, RoomController[] keyRooms)
+	public void SpawnKeysStatic(RoomController lockRoom, RoomController[] keyRooms, float difficultyPct)
 	{
 		Debug.Assert(m_child == null);
 
 		// determine lock type
 		int keyRoomsCount = keyRooms == null ? 0 : keyRooms.Length;
-		LockInfo lockInfo = RoomController.RandomWeightedByKeyCount(m_lockPrefabs.CombineWeighted(GameController.Instance.m_lockPrefabs, info => info.m_object.m_prefab, pair => pair.m_object), (info, preferredKeyCount) => RoomController.ObjectToKeyStats(info.m_prefab, preferredKeyCount), keyRoomsCount);
+		LockInfo lockInfo = RoomController.RandomWeightedByKeyCount(m_lockPrefabs.CombineWeighted(GameController.Instance.m_lockPrefabs, info => info.m_object.m_prefab, pair => pair.m_object), (info, preferredKeyCount) => RoomController.ObjectToKeyStats(info.m_prefab, preferredKeyCount), keyRoomsCount, difficultyPct);
 
 		float yOffset = lockInfo.m_prefab.OriginToCenterY(true).y;
 		Vector3 spawnPos = lockRoom.InteriorPosition(lockInfo.m_heightMin + yOffset, lockInfo.m_heightMax + yOffset, lockInfo.m_prefab); // TODO: prioritize placing near self if multiple gates in this room?
@@ -55,10 +54,10 @@ public class GateController : MonoBehaviour, IUnlockable
 
 		m_child = Instantiate(lockInfo.m_prefab, spawnPos, Quaternion.identity, transform.parent).GetComponent<IUnlockable>();
 		m_child.Parent = gameObject;
-		m_child.SpawnKeysStatic(lockRoom, keyRooms);
+		m_child.SpawnKeysStatic(lockRoom, keyRooms, difficultyPct);
 	}
 
-	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms) => m_child?.SpawnKeysDynamic(lockRoom, keyRooms);
+	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms, float difficultyPct) => m_child?.SpawnKeysDynamic(lockRoom, keyRooms, difficultyPct);
 
 	public bool IsValidNextKey(GameObject obj)
 	{

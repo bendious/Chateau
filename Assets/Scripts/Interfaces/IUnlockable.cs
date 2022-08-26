@@ -9,8 +9,8 @@ public interface IUnlockable
 	public bool IsLocked { get; }
 
 
-	public void SpawnKeysStatic(RoomController lockRoom, RoomController[] keyRooms);
-	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms);
+	public void SpawnKeysStatic(RoomController lockRoom, RoomController[] keyRooms, float difficultyPct);
+	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms, float difficultyPct);
 
 	public bool IsValidNextKey(GameObject obj);
 

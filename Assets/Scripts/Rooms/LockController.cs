@@ -66,11 +66,11 @@ public class LockController : MonoBehaviour, IUnlockable
 	private int m_unlockInProgressCount;
 
 
-	public void SpawnKeysStatic(RoomController lockRoom, RoomController[] keyRooms)
+	public void SpawnKeysStatic(RoomController lockRoom, RoomController[] keyRooms, float difficultyPct)
 	{
 	}
 
-	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms)
+	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms, float difficultyPct)
 	{
 #if DEBUG
 		Debug.Assert(!m_debugHasSpawnedKeys); // NOTE that we can't just check m_keys due to the possibility of both spawned and within-prefab keys
@@ -82,7 +82,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		RoomController[] keyOrLockRooms = keyRoomCount > 0 ? keyRooms : new[] { lockRoom };
 		if (m_keyPrefabs.Length > 0)
 		{
-			m_keyInfo = RoomController.RandomWeightedByKeyCount(m_keyPrefabs.CombineWeighted(GameController.Instance.m_keyPrefabs, info => info.m_object.m_prefabs.Select(info => info.m_object.m_object).FirstOrDefault(prefab => GameController.Instance.m_keyPrefabs.Any(key => key.m_object == prefab)), pair => pair.m_object), ToKeyStats, keyRoomCount);
+			m_keyInfo = RoomController.RandomWeightedByKeyCount(m_keyPrefabs.CombineWeighted(GameController.Instance.m_keyPrefabs, info => info.m_object.m_prefabs.Select(info => info.m_object.m_object).FirstOrDefault(prefab => GameController.Instance.m_keyPrefabs.Any(key => key.m_object == prefab)), pair => pair.m_object), ToKeyStats, keyRoomCount, difficultyPct);
 		}
 
 		if (keyRooms == null || m_keyInfo.m_keyCountMax <= 0)
@@ -90,11 +90,18 @@ public class LockController : MonoBehaviour, IUnlockable
 			return; // NOTE that this is valid in the Entryway, where locks are spawned w/o keys
 		}
 
+		// calculate difficulty
+		float difficultyDesired = Mathf.Lerp(GameController.Instance.m_difficultyMin, GameController.Instance.m_difficultyMax, difficultyPct);
+		int keyCount = Math.Min(keyOrLockRooms.Length, m_keyInfo.m_keyCountMax);
+		float difficultyAvgPerItem = difficultyDesired / keyCount;
+		const float scalarPerDiff = 0.5f; // TODO: parameterize?
+		float[] weightsEdited = m_keyInfo.m_prefabs.Select(info => info.m_weight / (1.0f + scalarPerDiff * Mathf.Abs(info.m_object.m_weight - difficultyAvgPerItem))).ToArray();
+
 		// spawn key(s)
-		// TODO: convert any empty key rooms into bonus item rooms? attempt to match desired difficulty?
-		for (int i = 0; i < keyOrLockRooms.Length && i < m_keyInfo.m_keyCountMax; ++i)
+		// TODO: convert any empty key rooms into bonus item rooms?
+		for (int i = 0; i < keyCount; ++i)
 		{
-			GameObject keyPrefab = m_keyInfo.m_prefabs.RandomWeighted().m_object;
+			GameObject keyPrefab = m_keyInfo.m_prefabs.RandomWeighted(weightsEdited).m_object.m_object;
 			GameObject keyObj = keyOrLockRooms[i].SpawnKey(keyPrefab, m_keyHeightMax, false);
 			foreach (IKey key in keyObj.GetComponentsInChildren<IKey>())
 			{
@@ -119,7 +126,7 @@ public class LockController : MonoBehaviour, IUnlockable
 			bool useSprites = false;
 			int optionsCount = m_combinationSet.m_options.First().m_strings.Length; // TODO: don't assume all options have the same m_strings.Length?
 			int optionIdx = -1;
-			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / keyOrLockRooms.Length;
+			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / keyCount;
 			int comboIdx = 0;
 			int keyIdx = -1;
 			GameObject keyObjPrev = null;
@@ -150,13 +157,13 @@ public class LockController : MonoBehaviour, IUnlockable
 		}
 
 		// spawn order guide if applicable
-		// TODO: attempt to match desired difficulty
+		float[] orderWeightsEdited = m_keyInfo.m_orderPrefabs.Select(info => info.m_weight / (1.0f + scalarPerDiff * Mathf.Abs(info.m_object.m_weight - difficultyAvgPerItem))).ToArray();
 		GameObject orderObj = null;
 		if (m_keys.Count > 1 && m_keyInfo.m_orderPrefabs != null && m_keyInfo.m_orderPrefabs.Length > 0)
 		{
 			int spawnRoomIdx = UnityEngine.Random.Range(0, keyOrLockRooms.Length + 1);
 			RoomController spawnRoom = spawnRoomIdx >= keyOrLockRooms.Length ? lockRoom : keyOrLockRooms[spawnRoomIdx];
-			GameObject orderPrefab = m_keyInfo.m_orderPrefabs.RandomWeighted().m_object;
+			GameObject orderPrefab = m_keyInfo.m_orderPrefabs.RandomWeighted(orderWeightsEdited).m_object.m_object;
 			Vector3 spawnPos = spawnRoom.InteriorPosition(m_keyHeightMax, orderPrefab);
 			orderObj = Instantiate(orderPrefab, spawnPos, Quaternion.identity, spawnRoom.transform);
 		}

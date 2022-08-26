@@ -193,15 +193,18 @@ public class RoomController : MonoBehaviour
 	private const float m_physicsCheckEpsilon = 0.1f; // NOTE that Utility.FloatEpsilon is too small to prevent false positives from rooms adjacent to the checked area
 
 
-	public static T RandomWeightedByKeyCount<T>(IEnumerable<WeightedObject<T>> candidates, System.Func<T, int, System.Tuple<Vector2Int, Vector2>> candidateToStats, int preferredKeyCount, float scalarPerDiff = 0.5f)
+	public static T RandomWeightedByKeyCount<T>(IEnumerable<WeightedObject<T>> candidates, System.Func<T, int, System.Tuple<Vector2Int, Vector2>> candidateToStats, int preferredKeyCount, float difficultyPct, float scalarPerDiff = 0.5f)
 	{
+		float difficultyDesired = Mathf.Lerp(GameController.Instance.m_difficultyMin, GameController.Instance.m_difficultyMax, difficultyPct);
+
 		// NOTE the copy to avoid altering existing weights
 		WeightedObject<T>[] candidatesProcessed = candidates.Where(candidate => candidate.m_object != null).Select(candidate =>
 		{
 			System.Tuple<Vector2Int, Vector2> keyDifficultyRanges = candidateToStats(candidate.m_object, preferredKeyCount);
 			Debug.Assert(keyDifficultyRanges.Item1.x <= keyDifficultyRanges.Item1.y && keyDifficultyRanges.Item2.x <= keyDifficultyRanges.Item2.y);
 			int keyDiff = keyDifficultyRanges.Item1.x <= preferredKeyCount && preferredKeyCount <= keyDifficultyRanges.Item1.y ? 0 : preferredKeyCount < keyDifficultyRanges.Item1.x ? keyDifficultyRanges.Item1.x - preferredKeyCount : keyDifficultyRanges.Item1.y - preferredKeyCount;
-			float weight = keyDiff < 0 || keyDifficultyRanges.Item2.y < GameController.Instance.m_difficultyMin || keyDifficultyRanges.Item2.x > GameController.Instance.m_difficultyMax ? 0.0f : candidate.m_weight / (1 + keyDiff * scalarPerDiff); // TODO: edit weight based on desired difficulty
+			float difficultyDiff = keyDifficultyRanges.Item2.x <= difficultyDesired && difficultyDesired <= keyDifficultyRanges.Item2.y ? 0.0f : difficultyDesired < keyDifficultyRanges.Item2.x ? keyDifficultyRanges.Item2.x - difficultyDesired : keyDifficultyRanges.Item2.y - difficultyDesired;
+			float weight = keyDiff < 0 || keyDifficultyRanges.Item2.y < GameController.Instance.m_difficultyMin || keyDifficultyRanges.Item2.x > GameController.Instance.m_difficultyMax ? 0.0f : candidate.m_weight / (1 + (keyDiff + Mathf.Abs(difficultyDiff)) * scalarPerDiff);
 			return new WeightedObject<T> { m_object = candidate.m_object, m_weight = weight };
 		}).ToArray();
 		return candidatesProcessed.Length <= 0 ? default : candidatesProcessed.RandomWeighted();
@@ -407,7 +410,7 @@ public class RoomController : MonoBehaviour
 				{
 					// add one-way lock
 					int dummyLockIdx = -1;
-					noLadder |= shallowRoom.SpawnGate(shallowRoom != this ? doorwayInfo : reverseInfo, cutbackIsLocked ? LayoutGenerator.Node.Type.Lock : LayoutGenerator.Node.Type.GateBreakable, doorwayInfo.m_excludeSelf.Value ? 0 : 1, ref dummyLockIdx, true); // NOTE the "reversed" DoorwayInfos to place the gate in deepRoom but as a child of shallowRoom, for better shadowing
+					noLadder |= shallowRoom.SpawnGate(shallowRoom != this ? doorwayInfo : reverseInfo, cutbackIsLocked ? LayoutGenerator.Node.Type.Lock : LayoutGenerator.Node.Type.GateBreakable, doorwayInfo.m_excludeSelf.Value ? 0 : 1, 0.0f, ref dummyLockIdx, true); // NOTE the "reversed" DoorwayInfos to place the gate in deepRoom but as a child of shallowRoom, for better shadowing
 				}
 				if (pathLowToHigh != null && pathShallowToDeep != null) // NOTE that the two paths might be equivalent or going in opposite directions, so if either is null we know there's no loop, but if neither are, we still have to do more checks
 				{
@@ -556,7 +559,7 @@ public class RoomController : MonoBehaviour
 		// NOTE that this is done before flexible node architecture since some locks (e.g. ladders) have required positioning
 		foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
 		{
-			SpawnKeys(doorwayInfo, (unlockable, lockRoom, keyRooms) => unlockable.SpawnKeysStatic(lockRoom, keyRooms)); // NOTE that this has to be before furniture to ensure space w/o overlap
+			SpawnKeys(doorwayInfo, (unlockable, lockRoom, keyRooms, difficultyPct) => unlockable.SpawnKeysStatic(lockRoom, keyRooms, difficultyPct)); // NOTE that this has to be before furniture to ensure space w/o overlap
 		}
 
 		// spawn flexible node architecture
@@ -646,7 +649,7 @@ public class RoomController : MonoBehaviour
 			{
 				if (isLocked)
 				{
-					furnitureLock.SpawnKeysStatic(this, new[] { this });
+					furnitureLock.SpawnKeysStatic(this, new[] { this }, 0.0f);
 				}
 				else
 				{
@@ -665,14 +668,14 @@ public class RoomController : MonoBehaviour
 
 			if (furniture.Item2 != null)
 			{
-				furniture.Item2.SpawnKeysDynamic(this, new[] { this }); // TODO: spaced-out keys?
+				furniture.Item2.SpawnKeysDynamic(this, new[] { this }, 0.0f); // TODO: spaced-out keys?
 			}
 		}
 
 		// spawn keys
 		foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
 		{
-			SpawnKeys(doorwayInfo, (unlockable, lockRoom, keyRooms) => unlockable.SpawnKeysDynamic(lockRoom, keyRooms)); // NOTE that this has to be after furniture for item key placement
+			SpawnKeys(doorwayInfo, (unlockable, lockRoom, keyRooms, difficultyPct) => unlockable.SpawnKeysDynamic(lockRoom, keyRooms, difficultyPct)); // NOTE that this has to be after furniture for item key placement
 		}
 
 		// spawn enemy spawn points
@@ -1293,7 +1296,7 @@ public class RoomController : MonoBehaviour
 		LayoutGenerator.Node blockerNode = GateNodeToChild(childNodes, LayoutGenerator.Node.Type.Lock, LayoutGenerator.Node.Type.LockOrdered, LayoutGenerator.Node.Type.GateBreakable, LayoutGenerator.Node.Type.Secret);
 		if (blockerNode != null)
 		{
-			doorwayInfo.m_onewayBlocked |= SpawnGate(doorwayInfo, blockerNode.m_type, blockerNode.DirectParents.Count(node => node.m_type == LayoutGenerator.Node.Type.Key && (!doorwayInfo.m_excludeSelf.Value || node.m_room != this)), ref orderedLockIdx, false);
+			doorwayInfo.m_onewayBlocked |= SpawnGate(doorwayInfo, blockerNode.m_type, blockerNode.DirectParents.Count(node => node.m_type == LayoutGenerator.Node.Type.Key && (!doorwayInfo.m_excludeSelf.Value || node.m_room != this)), blockerNode.DepthPercent, ref orderedLockIdx, false);
 		}
 
 		childRoom.SetNodes(childNodes);
@@ -1314,7 +1317,7 @@ public class RoomController : MonoBehaviour
 		return BoundsWithChildren(doorInteract.gameObject).extents.x / extentsInteriorX;
 	}
 
-	private bool SpawnGate(DoorwayInfo doorwayInfo, LayoutGenerator.Node.Type type, int preferredKeyCount, ref int orderedLockIdx, bool isCutback)
+	private bool SpawnGate(DoorwayInfo doorwayInfo, LayoutGenerator.Node.Type type, int preferredKeyCount, float depthPct, ref int orderedLockIdx, bool isCutback)
 	{
 		DoorwayInfo reverseInfo = doorwayInfo.m_infoReverse;
 		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo) || m_doorwayInfos.Contains(reverseInfo));
@@ -1334,7 +1337,7 @@ public class RoomController : MonoBehaviour
 		gatesFinal = isOrdered ? null : gatesFinal.Where(weightedObj => isLock ? weightedObj.m_object.GetComponentInChildren<IUnlockable>() != null : weightedObj.m_object.GetComponentInChildren<IUnlockable>() == null).CombineWeighted(isCutback ? GameController.Instance.m_cutbackPrefabs : GameController.Instance.m_gatePrefabs);
 
 		// pick & create gate
-		GameObject blockerPrefab = isOrdered ? m_lockOrderedPrefabs[System.Math.Min(orderedLockIdx++, m_lockOrderedPrefabs.Length - 1)] : RandomWeightedByKeyCount(gatesFinal, ObjectToKeyStats, preferredKeyCount);
+		GameObject blockerPrefab = isOrdered ? m_lockOrderedPrefabs[System.Math.Min(orderedLockIdx++, m_lockOrderedPrefabs.Length - 1)] : RandomWeightedByKeyCount(gatesFinal, ObjectToKeyStats, preferredKeyCount, depthPct);
 		Debug.Assert(doorwayInfo.m_blocker == null);
 		doorwayInfo.m_blocker = Instantiate(blockerPrefab, doorwayInfo.m_object.transform.position, Quaternion.identity, transform);
 
@@ -1400,7 +1403,7 @@ public class RoomController : MonoBehaviour
 		return directionalGates != null && directionalGates.Any(pair => blockerPrefab == pair.m_object); // TODO: don't assume directional gates will never want default ladders?
 	}
 
-	private void SpawnKeys(DoorwayInfo doorwayInfo, System.Action<IUnlockable, RoomController, RoomController[]> spawnAction)
+	private void SpawnKeys(DoorwayInfo doorwayInfo, System.Action<IUnlockable, RoomController, RoomController[], float> spawnAction)
 	{
 		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo));
 
@@ -1416,9 +1419,10 @@ public class RoomController : MonoBehaviour
 		}
 
 		// spawn keys
-		LayoutGenerator.Node lockNode = doorwayInfo.ChildRoom == null ? null : GateNodeToChild(doorwayInfo.ChildRoom.m_layoutNodes, LayoutGenerator.Node.Type.Lock);
+		LayoutGenerator.Node lockNode = doorwayInfo.ChildRoom == null ? null : GateNodeToChild(doorwayInfo.ChildRoom.m_layoutNodes, LayoutGenerator.Node.Type.Lock); // NOTE that we ignore LockOrdered nodes since Entryway locks don't spawn their own keys
 		RoomController[] keyRooms = doorwayInfo.ChildRoom == null ? new[] { this } : lockNode?.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray();
-		spawnAction(unlockable, this, keyRooms == null || keyRooms.Length <= 0 ? null : doorwayInfo.m_excludeSelf.Value ? keyRooms.Where(room => room != this).ToArray() : keyRooms);
+		float depthPct = lockNode == null ? 0.0f : lockNode.DepthPercent;
+		spawnAction(unlockable, this, keyRooms == null || keyRooms.Length <= 0 ? null : doorwayInfo.m_excludeSelf.Value ? keyRooms.Where(room => room != this).ToArray() : keyRooms, depthPct);
 	}
 
 	private void OpenDoorway(DoorwayInfo doorwayInfo, bool open)

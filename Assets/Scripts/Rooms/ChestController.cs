@@ -90,11 +90,11 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 	}
 
 
-	public void SpawnKeysStatic(RoomController lockRoom, RoomController[] keyRooms)
+	public void SpawnKeysStatic(RoomController lockRoom, RoomController[] keyRooms, float difficultyPct)
 	{
 	}
 
-	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms)
+	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms, float difficultyPct)
 	{
 		m_keyObj = keyRooms[Random.Range(0, keyRooms.Length)].SpawnKey(m_keyPrefabs.RandomWeighted(), 0.0f, true);
 		GetComponent<SpriteRenderer>().color = m_keyObj.GetComponent<SpriteRenderer>().color;
