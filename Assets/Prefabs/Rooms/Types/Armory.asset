@@ -95,7 +95,9 @@ MonoBehaviour:
   m_itemsMax: 8
   m_decorations:
   - m_object:
-      m_prefab: {fileID: 8498127701983908984, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
+      m_prefabs:
+      - m_object: {fileID: 8498127701983908984, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
+        m_weight: 1
       m_rotationDegreesMax: 15
       m_heightMin: 0.5
       m_heightMax: 2

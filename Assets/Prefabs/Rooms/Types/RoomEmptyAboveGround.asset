@@ -60,46 +60,36 @@ MonoBehaviour:
   m_itemsMax: 0
   m_decorations:
   - m_object:
-      m_prefab: {fileID: 7287174281192745631, guid: 9bc35a99190ef604596b1767a2105127, type: 3}
+      m_prefabs:
+      - m_object: {fileID: 7287174281192745631, guid: 9bc35a99190ef604596b1767a2105127, type: 3}
+        m_weight: 1
+      - m_object: {fileID: 4455208160840642412, guid: c75a8854e93c46d498223c1355ed6aff, type: 3}
+        m_weight: 1
+      - m_object: {fileID: 3664408676440730972, guid: 814d5eb94b0bd5f4aa35860ab5243846, type: 3}
+        m_weight: 1
+      - m_object: {fileID: 7339950952648636222, guid: 3d50984da1f702b4e979b73b20c3dff1, type: 3}
+        m_weight: 1
       m_rotationDegreesMax: 0
       m_heightMin: 0.5
       m_heightMax: 2
     m_weight: 1
   - m_object:
-      m_prefab: {fileID: 4455208160840642412, guid: c75a8854e93c46d498223c1355ed6aff, type: 3}
-      m_rotationDegreesMax: 0
+      m_prefabs:
+      - m_object: {fileID: 8498127701983908984, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
+        m_weight: 1
+      m_rotationDegreesMax: 15
       m_heightMin: 0.5
       m_heightMax: 2
     m_weight: 1
   - m_object:
-      m_prefab: {fileID: 3664408676440730972, guid: 814d5eb94b0bd5f4aa35860ab5243846, type: 3}
-      m_rotationDegreesMax: 0
-      m_heightMin: 0.5
-      m_heightMax: 2
-    m_weight: 1
-  - m_object:
-      m_prefab: {fileID: 7339950952648636222, guid: 3d50984da1f702b4e979b73b20c3dff1, type: 3}
-      m_rotationDegreesMax: 0
-      m_heightMin: 0.5
-      m_heightMax: 2
-    m_weight: 1
-  - m_object:
-      m_prefab: {fileID: 8498127701983908984, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
-      m_rotationDegreesMax: 0
-      m_heightMin: 0.5
-      m_heightMax: 2
-    m_weight: 4
-  - m_object:
-      m_prefab: {fileID: 7985615140188058259, guid: cfbaadf79fc588048828fdf3288a20e1, type: 3}
+      m_prefabs:
+      - m_object: {fileID: 5917400000691457811, guid: 2a16bb5b049dad841a615cda0532986c, type: 3}
+        m_weight: 2
+      - m_object: {fileID: 7985615140188058259, guid: cfbaadf79fc588048828fdf3288a20e1, type: 3}
+        m_weight: 1
       m_rotationDegreesMax: 0
       m_heightMin: 0.25
       m_heightMax: 1
-    m_weight: 4
-  - m_object:
-      m_prefab: {fileID: 5917400000691457811, guid: 2a16bb5b049dad841a615cda0532986c, type: 3}
-      m_rotationDegreesMax: 0
-      m_heightMin: 0.25
-      m_heightMax: 1
-    m_weight: 4
+    m_weight: 1
   m_decorationsMin: 0
   m_decorationsMax: 2

@@ -582,7 +582,7 @@ public class RoomController : MonoBehaviour
 				case LayoutGenerator.Node.Type.TutorialDash:
 				case LayoutGenerator.Node.Type.TutorialDashDamage:
 					RoomType.DecorationInfo info = RoomType.m_decorations[node.m_type - LayoutGenerator.Node.Type.TutorialPlatforms].m_object;
-					GameObject prefab = info.m_prefab;
+					GameObject prefab = info.m_prefabs.RandomWeighted();
 					Quaternion rotation = info.m_rotationDegreesMax == 0.0f ? Quaternion.identity : Quaternion.Euler(0.0f, 0.0f, Random.Range(-info.m_rotationDegreesMax, info.m_rotationDegreesMax));
 					Instantiate(prefab, InteriorPosition(info.m_heightMin, info.m_heightMax, prefab, rotation), rotation, transform);
 					if (node.m_type == LayoutGenerator.Node.Type.TutorialInteract && (GameController.Instance.m_avatars == null || !GameController.Instance.m_avatars.Any(avatar => avatar.GetComponentInChildren<ItemController>(true) != null)))
@@ -700,7 +700,7 @@ public class RoomController : MonoBehaviour
 				height = Random.Range(decoInfo.m_heightMin, Mathf.Min(roomHeight, decoInfo.m_heightMax));
 				decorationTypeHeights[decoIdx] = height;
 			}
-			GameObject decoPrefab = decoInfo.m_prefab;
+			GameObject decoPrefab = decoInfo.m_prefabs.RandomWeighted();
 			Quaternion rotation = decoInfo.m_rotationDegreesMax == 0.0f ? Quaternion.identity : Quaternion.Euler(0.0f, 0.0f, Random.Range(-decoInfo.m_rotationDegreesMax, decoInfo.m_rotationDegreesMax));
 			Vector3 spawnPos = InteriorPosition(height, height, decoPrefab, rotation, failureAction: () => decoPrefab = null);
 			if (decoPrefab == null)

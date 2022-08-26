@@ -28,7 +28,7 @@ public class RoomType : ScriptableObject
 
 	[System.Serializable] public sealed class DecorationInfo // TODO: merge w/ SpriteInfo?
 	{
-		public GameObject m_prefab;
+		public WeightedObject<GameObject>[] m_prefabs;
 		public float m_rotationDegreesMax = 0.0f;
 		public float m_heightMin = 0.5f;
 		public float m_heightMax = 2.0f;
