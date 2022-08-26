@@ -63,7 +63,7 @@ public class Boss : MonoBehaviour
 
 		// spawn ladder(s) if necessary
 		RoomController roomComp = m_room.GetComponent<RoomController>();
-		foreach (System.Tuple<GameObject, RoomController> doorway in roomComp.DoorwaysUpwardUnblocked)
+		foreach (System.Tuple<GameObject, RoomController> doorway in roomComp.DoorwaysUpwardOpen)
 		{
 			// pathfind to skip unnecessary ladders
 			System.Collections.Generic.List<Vector2> path = GameController.Instance.Pathfind(m_room.transform.position, doorway.Item2.transform.position); // NOTE that this has to be AFTER BossRoom.EndFight() unseals the room

@@ -57,7 +57,7 @@ public class RoomController : MonoBehaviour
 	};
 
 
-	public IEnumerable<System.Tuple<GameObject, RoomController>> DoorwaysUpwardUnblocked => m_doorwayInfos.Where(info => !info.m_onewayBlocked && info.IsOpen() && info.DirectionOutward() == Vector2.up).Select(info => System.Tuple.Create(info.m_object, info.ConnectedRoom));
+	public IEnumerable<System.Tuple<GameObject, RoomController>> DoorwaysUpwardOpen => m_doorwayInfos.Where(info => info.IsOpen() && info.DirectionOutward() == Vector2.up).Select(info => System.Tuple.Create(info.m_object, info.ConnectedRoom));
 
 	public /*readonly*/ Bounds Bounds { get; private set; }
 
@@ -1134,7 +1134,7 @@ public class RoomController : MonoBehaviour
 		if (doorwayInfo != null)
 		{
 			doorwayInfo.m_onewayBlocked = false; // TODO: check upward doorways for ladders...
-			if (doorwayInfo.IsOpen(true))
+			if (doorwayInfo.IsOpen(true) && doorwayInfo.m_infoReverse.IsOpen(true))
 			{
 				LinkRecursive();
 			}
