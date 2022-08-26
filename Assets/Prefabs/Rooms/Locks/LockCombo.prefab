@@ -54,14 +54,19 @@ MonoBehaviour:
   - m_object:
       m_doorSprites: []
       m_prefabs:
-      - m_object: {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
+      - m_object:
+          m_object: {fileID: 442497793913705351, guid: eb3378f127438504091356faa60c76cb, type: 3}
+          m_weight: 2
         m_weight: 1
-      - m_object: {fileID: 706043663315506005, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
+      - m_object:
+          m_object: {fileID: 706043663315506005, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
+          m_weight: 1
         m_weight: 1
       m_orderPrefabs: []
       m_keyCountMax: 4
       m_combinationDigits: 4
       m_genericKeys: 0
+      m_difficulty: 0
     m_weight: 1
   m_combinationSets:
   - m_object:
@@ -258,6 +263,7 @@ MonoBehaviour:
         m_sprite: {fileID: 119297155, guid: 43029e8d26abfa9499bb193ed32440c2, type: 3}
       m_spriteUsagePct: 0.5
     m_weight: 1
+  m_difficulty: 0
   m_keyHeightMax: 7.5
   m_keyDelaySeconds: 0
   m_vfxDisableDelaySeconds: 2
@@ -265,6 +271,7 @@ MonoBehaviour:
   m_unlockSFX:
   - m_object: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
     m_weight: 1
+  m_activeColorPct: 2
   m_destroyOnUnlock: 0
 --- !u!82 &6798587328417340159
 AudioSource:

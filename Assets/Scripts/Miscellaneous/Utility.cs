@@ -48,6 +48,8 @@ public static class Utility
 		return Enum.GetValues(typeof(T)).Length;
 	}
 
+	public static Vector2 MinMax<TIn>(this IEnumerable<TIn> v, Func<TIn, float> selector) => v == null || v.Count() <= 0 ? default : new(v.Min(selector), v.Max(selector)); // TODO: efficiency? better default?
+
 	public static IEnumerable<WeightedObject<T>> CombineWeighted<T>(this IEnumerable<WeightedObject<T>> a, IEnumerable<WeightedObject<T>> b) => CombineWeighted(a, b, WeightedObjectToObject, WeightedObjectToObject);
 
 	public static IEnumerable<WeightedObject<T1>> CombineWeighted<T1, T2, TKey>(this IEnumerable<WeightedObject<T1>> a, IEnumerable<WeightedObject<T2>> b, Func<WeightedObject<T1>, TKey> aToKey, Func<WeightedObject<T2>, TKey> bToKey) => a.Join(b, aToKey, bToKey, (pair1, pair2) => new WeightedObject<T1> { m_object = pair1.m_object, m_weight = pair1.m_weight * pair2.m_weight });

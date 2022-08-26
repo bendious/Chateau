@@ -1575,6 +1575,8 @@ MonoBehaviour:
   m_allowCutbacks: 1
   m_waveSealing: 0
   m_zoneScalar: 1
+  m_difficultyMin: 0
+  m_difficultyMax: 0
   m_loadingScreen: {fileID: 7202315660601374811}
   m_timerUI: {fileID: 9004531423071069859}
   m_pauseUI: {fileID: 8953914197898318485}

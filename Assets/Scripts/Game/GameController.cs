@@ -49,6 +49,9 @@ public class GameController : MonoBehaviour
 	[SerializeField] private bool m_waveSealing = false;
 	public float m_zoneScalar = 1.0f;
 
+	public float m_difficultyMin = 0.0f;
+	public float m_difficultyMax = 0.0f;
+
 	[SerializeField] private GameObject m_loadingScreen;
 	public TMPro.TMP_Text m_timerUI;
 	public Canvas m_pauseUI;

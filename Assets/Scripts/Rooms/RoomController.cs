@@ -193,15 +193,36 @@ public class RoomController : MonoBehaviour
 	private const float m_physicsCheckEpsilon = 0.1f; // NOTE that Utility.FloatEpsilon is too small to prevent false positives from rooms adjacent to the checked area
 
 
-	public static T RandomWeightedByKeyCount<T>(IEnumerable<WeightedObject<T>> candidates, System.Func<T, int> candidateToKeyDiff, float scalarPerDiff = 0.5f)
+	public static T RandomWeightedByKeyCount<T>(IEnumerable<WeightedObject<T>> candidates, System.Func<T, int, System.Tuple<Vector2Int, Vector2>> candidateToStats, int preferredKeyCount, float scalarPerDiff = 0.5f)
 	{
 		// NOTE the copy to avoid altering existing weights
 		WeightedObject<T>[] candidatesProcessed = candidates.Where(candidate => candidate.m_object != null).Select(candidate =>
 		{
-			int keyCountDiff = candidateToKeyDiff(candidate.m_object);
-			return new WeightedObject<T> { m_object = candidate.m_object, m_weight = keyCountDiff < 0 ? 0.0f : candidate.m_weight / (1 + keyCountDiff * scalarPerDiff) };
+			System.Tuple<Vector2Int, Vector2> keyDifficultyRanges = candidateToStats(candidate.m_object, preferredKeyCount);
+			Debug.Assert(keyDifficultyRanges.Item1.x <= keyDifficultyRanges.Item1.y && keyDifficultyRanges.Item2.x <= keyDifficultyRanges.Item2.y);
+			int keyDiff = keyDifficultyRanges.Item1.x <= preferredKeyCount && preferredKeyCount <= keyDifficultyRanges.Item1.y ? 0 : preferredKeyCount < keyDifficultyRanges.Item1.x ? keyDifficultyRanges.Item1.x - preferredKeyCount : keyDifficultyRanges.Item1.y - preferredKeyCount;
+			float weight = keyDiff < 0 || keyDifficultyRanges.Item2.y < GameController.Instance.m_difficultyMin || keyDifficultyRanges.Item2.x > GameController.Instance.m_difficultyMax ? 0.0f : candidate.m_weight / (1 + keyDiff * scalarPerDiff); // TODO: edit weight based on desired difficulty
+			return new WeightedObject<T> { m_object = candidate.m_object, m_weight = weight };
 		}).ToArray();
 		return candidatesProcessed.Length <= 0 ? default : candidatesProcessed.RandomWeighted();
+	}
+
+	public static System.Tuple<Vector2Int, Vector2> ObjectToKeyStats(GameObject prefab, int preferredKeyCount)
+	{
+		LockController[] locks = prefab.GetComponents<LockController>();
+		if (locks.Length <= 0)
+		{
+			GateController gate = prefab.GetComponent<GateController>();
+			if (gate != null)
+			{
+				locks = gate.m_lockPrefabs.Select(info => info.m_object.m_prefab.GetComponent<LockController>()).ToArray();
+			}
+		}
+		return locks.Length <= 0 ? System.Tuple.Create(Vector2Int.zero, Vector2.zero) : locks.Aggregate(System.Tuple.Create(new Vector2Int(int.MaxValue, 0), new Vector2(float.MaxValue, 0.0f)), (sum, nextLock) =>
+		{
+			System.Tuple<Vector2Int, Vector2> nextStats = nextLock.ToKeyStats(preferredKeyCount);
+			return System.Tuple.Create(new Vector2Int(System.Math.Min(sum.Item1.x, nextStats.Item1.x), System.Math.Max(sum.Item1.y, nextStats.Item1.y)), new Vector2(Mathf.Min(sum.Item2.x, nextStats.Item2.x), Mathf.Max(sum.Item2.y, nextStats.Item2.y)));
+		});
 	}
 
 
@@ -1313,14 +1334,7 @@ public class RoomController : MonoBehaviour
 		gatesFinal = isOrdered ? null : gatesFinal.Where(weightedObj => isLock ? weightedObj.m_object.GetComponentInChildren<IUnlockable>() != null : weightedObj.m_object.GetComponentInChildren<IUnlockable>() == null).CombineWeighted(isCutback ? GameController.Instance.m_cutbackPrefabs : GameController.Instance.m_gatePrefabs);
 
 		// pick & create gate
-		GameObject blockerPrefab = isOrdered ? m_lockOrderedPrefabs[System.Math.Min(orderedLockIdx++, m_lockOrderedPrefabs.Length - 1)] : RandomWeightedByKeyCount(gatesFinal, prefab =>
-		{
-			LockController lockComp = prefab.GetComponent<LockController>();
-			IEnumerable<WeightedObject<LockController.KeyInfo>> keys = lockComp == null ? null : lockComp.m_keyPrefabs;
-			keys = keys?.CombineWeighted(GameController.Instance.m_keyPrefabs, info => info.m_object.m_prefabs.Select(info => info.m_object).FirstOrDefault(prefab => GameController.Instance.m_keyPrefabs.Any(key => key.m_object == prefab)), pair => pair.m_object);
-			keys = keys?.Where(key => key.m_object.m_keyCountMax >= preferredKeyCount);
-			return keys == null || keys.Count() <= 0 ? -preferredKeyCount : keys.Min(key => key.m_object.m_keyCountMax - preferredKeyCount);
-		});
+		GameObject blockerPrefab = isOrdered ? m_lockOrderedPrefabs[System.Math.Min(orderedLockIdx++, m_lockOrderedPrefabs.Length - 1)] : RandomWeightedByKeyCount(gatesFinal, ObjectToKeyStats, preferredKeyCount);
 		Debug.Assert(doorwayInfo.m_blocker == null);
 		doorwayInfo.m_blocker = Instantiate(blockerPrefab, doorwayInfo.m_object.transform.position, Quaternion.identity, transform);
 

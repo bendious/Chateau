@@ -11,15 +11,16 @@ using UnityEngine.VFX;
 [DisallowMultipleComponent, RequireComponent(typeof(AudioSource))]
 public class LockController : MonoBehaviour, IUnlockable
 {
-	[Serializable]
-	public struct KeyInfo
+	[Serializable] public struct KeyInfo
 	{
 		public Sprite[] m_doorSprites;
-		public WeightedObject<GameObject>[] m_prefabs;
-		public WeightedObject<GameObject>[] m_orderPrefabs;
-		public int m_keyCountMax;
+		public WeightedObject<WeightedObject<GameObject>>[] m_prefabs; // NOTE that the inner weights are used as per-instance difficulty values // TODO: named struct for clarity?
+		public WeightedObject<WeightedObject<GameObject>>[] m_orderPrefabs;
+		public int m_keyCountMax; // TODO: specify min as well as max?
 		public int m_combinationDigits;
 		[SerializeField] internal bool m_genericKeys;
+
+		internal Vector2 DifficultyRange(int keyRoomCount, Vector2 combinationDifficultyRange) => new Vector2(Mathf.Min(keyRoomCount, m_keyCountMax), Mathf.Min(keyRoomCount, m_keyCountMax)) * m_prefabs.MinMax(prefab => prefab.m_object.m_weight) + m_orderPrefabs.MinMax(prefab => prefab.m_object.m_weight) + (m_combinationDigits <= 0 ? Vector2.zero : combinationDifficultyRange);
 	}
 	[Serializable] public class CombinationSet
 	{
@@ -30,11 +31,13 @@ public class LockController : MonoBehaviour, IUnlockable
 			public Sprite m_sprite;
 		}
 		public Option[] m_options;
+		public float m_difficulty;
 		public float m_spriteUsagePct = 0.0f;
 	}
 	public WeightedObject<KeyInfo>[] m_keyPrefabs;
 	public WeightedObject<CombinationSet>[] m_combinationSets;
 
+	public float m_difficulty;
 	public float m_keyHeightMax = 7.5f;
 	[SerializeField] private float m_keyDelaySeconds = 0.0f;
 	[SerializeField] private float m_vfxDisableDelaySeconds = 2.0f;
@@ -45,8 +48,7 @@ public class LockController : MonoBehaviour, IUnlockable
 	[SerializeField] private float m_activeColorPct = 2.0f;
 
 
-	[SerializeField]
-	private bool m_destroyOnUnlock = true;
+	[SerializeField] private bool m_destroyOnUnlock = true;
 
 
 	public GameObject Parent { get; set; }
@@ -80,7 +82,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		RoomController[] keyOrLockRooms = keyRoomCount > 0 ? keyRooms : new[] { lockRoom };
 		if (m_keyPrefabs.Length > 0)
 		{
-			m_keyInfo = RoomController.RandomWeightedByKeyCount(m_keyPrefabs.CombineWeighted(GameController.Instance.m_keyPrefabs, info => info.m_object.m_prefabs.Select(info => info.m_object).FirstOrDefault(prefab => GameController.Instance.m_keyPrefabs.Any(key => key.m_object == prefab)), pair => pair.m_object), info => info.m_keyCountMax - keyRoomCount);
+			m_keyInfo = RoomController.RandomWeightedByKeyCount(m_keyPrefabs.CombineWeighted(GameController.Instance.m_keyPrefabs, info => info.m_object.m_prefabs.Select(info => info.m_object.m_object).FirstOrDefault(prefab => GameController.Instance.m_keyPrefabs.Any(key => key.m_object == prefab)), pair => pair.m_object), ToKeyStats, keyRoomCount);
 		}
 
 		if (keyRooms == null || m_keyInfo.m_keyCountMax <= 0)
@@ -89,10 +91,10 @@ public class LockController : MonoBehaviour, IUnlockable
 		}
 
 		// spawn key(s)
-		// TODO: convert any empty key rooms into bonus item rooms?
+		// TODO: convert any empty key rooms into bonus item rooms? attempt to match desired difficulty?
 		for (int i = 0; i < keyOrLockRooms.Length && i < m_keyInfo.m_keyCountMax; ++i)
 		{
-			GameObject keyPrefab = m_keyInfo.m_prefabs.RandomWeighted();
+			GameObject keyPrefab = m_keyInfo.m_prefabs.RandomWeighted().m_object;
 			GameObject keyObj = keyOrLockRooms[i].SpawnKey(keyPrefab, m_keyHeightMax, false);
 			foreach (IKey key in keyObj.GetComponentsInChildren<IKey>())
 			{
@@ -148,12 +150,13 @@ public class LockController : MonoBehaviour, IUnlockable
 		}
 
 		// spawn order guide if applicable
+		// TODO: attempt to match desired difficulty
 		GameObject orderObj = null;
 		if (m_keys.Count > 1 && m_keyInfo.m_orderPrefabs != null && m_keyInfo.m_orderPrefabs.Length > 0)
 		{
 			int spawnRoomIdx = UnityEngine.Random.Range(0, keyOrLockRooms.Length + 1);
 			RoomController spawnRoom = spawnRoomIdx >= keyOrLockRooms.Length ? lockRoom : keyOrLockRooms[spawnRoomIdx];
-			GameObject orderPrefab = m_keyInfo.m_orderPrefabs.RandomWeighted();
+			GameObject orderPrefab = m_keyInfo.m_orderPrefabs.RandomWeighted().m_object;
 			Vector3 spawnPos = spawnRoom.InteriorPosition(m_keyHeightMax, orderPrefab);
 			orderObj = Instantiate(orderPrefab, spawnPos, Quaternion.identity, spawnRoom.transform);
 		}
@@ -262,13 +265,13 @@ public class LockController : MonoBehaviour, IUnlockable
 		{
 			// ordered
 			matchingKeyIdx = m_keys.FindIndex(key => !key.Item1.IsInPlace);
-			retVal = matchingKeyIdx >= 0 && (CheckKey(m_keys[matchingKeyIdx].Item1) || (m_keyInfo.m_genericKeys && m_keyInfo.m_prefabs.Length > matchingKeyIdx && CheckKey(m_keyInfo.m_prefabs[matchingKeyIdx].m_object.GetComponent<IKey>())));
+			retVal = matchingKeyIdx >= 0 && (CheckKey(m_keys[matchingKeyIdx].Item1) || (m_keyInfo.m_genericKeys && m_keyInfo.m_prefabs.Length > matchingKeyIdx && CheckKey(m_keyInfo.m_prefabs[matchingKeyIdx].m_object.m_object.GetComponent<IKey>())));
 		}
 		else
 		{
 			// unordered
 			matchingKeyIdx = m_keys.FindIndex(key => CheckKey(key.Item1));
-			retVal = matchingKeyIdx >= 0 || (m_keyInfo.m_genericKeys && m_keyInfo.m_prefabs.Any(keyPrefab => CheckKey(keyPrefab.m_object.GetComponent<IKey>())));
+			retVal = matchingKeyIdx >= 0 || (m_keyInfo.m_genericKeys && m_keyInfo.m_prefabs.Any(keyPrefab => CheckKey(keyPrefab.m_object.m_object.GetComponent<IKey>())));
 		}
 
 		// swap out generic keys if necessary
@@ -283,6 +286,14 @@ public class LockController : MonoBehaviour, IUnlockable
 
 		return retVal;
 	}
+
+	public Tuple<Vector2Int, Vector2> ToKeyStats(int keyRoomCount) => m_keyPrefabs.Length <= 0 ? Tuple.Create(Vector2Int.zero, Vector2.zero) : m_keyPrefabs.Aggregate(Tuple.Create(new Vector2Int(int.MaxValue, 0), new Vector2(float.MaxValue, 0.0f)), (total, nextInfo) =>
+	{
+		Tuple<Vector2Int, Vector2> nextStats = ToKeyStats(nextInfo.m_object, keyRoomCount);
+		return Tuple.Create(new Vector2Int(Math.Min(total.Item1.x, nextStats.Item1.x), Math.Max(total.Item1.y, nextStats.Item1.y)), new Vector2(Mathf.Min(total.Item2.x, nextStats.Item2.x), Mathf.Max(total.Item2.y, nextStats.Item2.y)));
+	});
+
+	private Tuple<Vector2Int, Vector2> ToKeyStats(KeyInfo info, int keyRoomCount) => Tuple.Create(new Vector2Int(info.m_keyCountMax, info.m_keyCountMax), new Vector2(m_difficulty, m_difficulty) + info.DifficultyRange(keyRoomCount, m_combinationSets.MinMax(set => set.m_object.m_difficulty)));
 
 	public bool CheckInput()
 	{

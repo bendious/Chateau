@@ -44,13 +44,7 @@ public class GateController : MonoBehaviour, IUnlockable
 
 		// determine lock type
 		int keyRoomsCount = keyRooms == null ? 0 : keyRooms.Length;
-		LockInfo lockInfo = RoomController.RandomWeightedByKeyCount(m_lockPrefabs.CombineWeighted(GameController.Instance.m_lockPrefabs, info => info.m_object.m_prefab, pair => pair.m_object), info =>
-		{
-			System.Collections.Generic.IEnumerable<WeightedObject<LockController.KeyInfo>> keys = info.m_prefab.GetComponent<LockController>().m_keyPrefabs;
-			keys = keys?.CombineWeighted(GameController.Instance.m_keyPrefabs, info => info.m_object.m_prefabs?.Select(info => info.m_object).FirstOrDefault(prefab => GameController.Instance.m_keyPrefabs.Any(key => key.m_object == prefab)), pair => pair.m_object);
-			keys = keys?.Where(key => key.m_object.m_keyCountMax >= keyRoomsCount);
-			return keys == null || keys.Count() == 0 ? -keyRoomsCount : keys.Min(key => key.m_object.m_keyCountMax - keyRoomsCount);
-		});
+		LockInfo lockInfo = RoomController.RandomWeightedByKeyCount(m_lockPrefabs.CombineWeighted(GameController.Instance.m_lockPrefabs, info => info.m_object.m_prefab, pair => pair.m_object), (info, preferredKeyCount) => RoomController.ObjectToKeyStats(info.m_prefab, preferredKeyCount), keyRoomsCount);
 
 		float yOffset = lockInfo.m_prefab.OriginToCenterY(true).y;
 		Vector3 spawnPos = lockRoom.InteriorPosition(lockInfo.m_heightMin + yOffset, lockInfo.m_heightMax + yOffset, lockInfo.m_prefab); // TODO: prioritize placing near self if multiple gates in this room?

@@ -81,7 +81,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6978962022123711710, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
       propertyPath: panLevelCustomCurve.m_Curve.Array.data[0].value
-      value: 0.75
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
       propertyPath: m_destroyOnUnlock
@@ -96,105 +96,17 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[1].m_object.m_keyCountMax
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[2].m_object.m_keyCountMax
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
       propertyPath: m_keyPrefabs.Array.data[0].m_object.m_doorSprites.Array.size
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[1].m_object.m_doorSprites.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[2].m_object.m_doorSprites.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[2].m_object.m_orderPrefabs.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[3].m_object.m_orderPrefabs.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[1].m_object.m_doorSprites.Array.data[0]
-      value: 
-      objectReference: {fileID: 21300000, guid: e92600391a1c26547a5b088a9a6c64e1, type: 3}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[1].m_object.m_doorSprites.Array.data[1]
-      value: 
-      objectReference: {fileID: 21300000, guid: 93d41e843289f4342b9b269f46f33758, type: 3}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[1].m_object.m_doorSprites.Array.data[2]
-      value: 
-      objectReference: {fileID: 21300000, guid: 373b3922ca1015244a30da6e88f8dd9f, type: 3}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[1].m_object.m_doorSprites.Array.data[3]
-      value: 
-      objectReference: {fileID: 21300000, guid: deda7c2d06dad5344beed693f7733cd8, type: 3}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[1].m_object.m_doorSprites.Array.data[4]
-      value: 
-      objectReference: {fileID: 21300000, guid: 466e3ec9ae0984d4a9ed80fa5368f025, type: 3}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[2].m_object.m_doorSprites.Array.data[0]
-      value: 
-      objectReference: {fileID: 21300000, guid: e92600391a1c26547a5b088a9a6c64e1, type: 3}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[2].m_object.m_doorSprites.Array.data[1]
-      value: 
-      objectReference: {fileID: 21300000, guid: 93d41e843289f4342b9b269f46f33758, type: 3}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[2].m_object.m_doorSprites.Array.data[2]
-      value: 
-      objectReference: {fileID: 21300000, guid: 373b3922ca1015244a30da6e88f8dd9f, type: 3}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[2].m_object.m_doorSprites.Array.data[3]
-      value: 
-      objectReference: {fileID: 21300000, guid: deda7c2d06dad5344beed693f7733cd8, type: 3}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[2].m_object.m_doorSprites.Array.data[4]
-      value: 
-      objectReference: {fileID: 21300000, guid: 466e3ec9ae0984d4a9ed80fa5368f025, type: 3}
     - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
       propertyPath: m_keyPrefabs.Array.data[0].m_object.m_prefabs.Array.data[0].m_object
       value: 
       objectReference: {fileID: 7680583005214381087, guid: a7c46a786f6b16841b2341cb70a08253, type: 3}
     - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[1].m_object.m_prefabs.Array.data[0].m_object
+      propertyPath: m_keyPrefabs.Array.data[0].m_object.m_prefabs.Array.data[0].m_object.m_object
       value: 
-      objectReference: {fileID: 3916154150493127968, guid: de4eda1bf76463147931e4988117aeb6, type: 3}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[2].m_object.m_prefabs.Array.data[0].m_object
-      value: 
-      objectReference: {fileID: 5021475883566326867, guid: bff239aa65d864f4688a85f9f1775bc4, type: 3}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[3].m_object.m_prefabs.Array.data[0].m_object
-      value: 
-      objectReference: {fileID: 5021475883566326867, guid: bff239aa65d864f4688a85f9f1775bc4, type: 3}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[2].m_object.m_orderPrefabs.Array.data[0].m_object
-      value: 
-      objectReference: {fileID: 7429547683255228525, guid: 06166aad9f7de8f4cbd269614805d143, type: 3}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[2].m_object.m_orderPrefabs.Array.data[0].m_weight
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[3].m_object.m_orderPrefabs.Array.data[0].m_object
-      value: 
-      objectReference: {fileID: 7429547683255228525, guid: 06166aad9f7de8f4cbd269614805d143, type: 3}
-    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_keyPrefabs.Array.data[3].m_object.m_orderPrefabs.Array.data[0].m_weight
-      value: 1
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 7680583005214381087, guid: a7c46a786f6b16841b2341cb70a08253, type: 3}
     - target: {fileID: 8437240503871108722, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
       propertyPath: m_Sprite
       value: 

@@ -49,6 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_keyPrefabs: []
   m_combinationSets: []
+  m_difficulty: 4
   m_keyHeightMax: 7.5
   m_keyDelaySeconds: 0
   m_vfxDisableDelaySeconds: 2
@@ -56,6 +57,7 @@ MonoBehaviour:
   m_unlockSFX:
   - m_object: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
     m_weight: 1
+  m_activeColorPct: 2
   m_destroyOnUnlock: 0
 --- !u!82 &8398971887988190280
 AudioSource:
