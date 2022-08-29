@@ -110,7 +110,7 @@ public class RoomController : MonoBehaviour
 
 		internal GameObject m_blocker;
 
-		internal enum BlockageType { NONE, DESTRUCTIBLE, NO_LADDER };
+		internal enum BlockageType { None, Destructible, NoLadder };
 		internal BlockageType m_onewayBlockageType;
 
 		internal /*readonly*/ DoorwayInfo m_infoReverse;
@@ -140,11 +140,11 @@ public class RoomController : MonoBehaviour
 			{
 				return false;
 			}
-			if (checkLevel == ObstructionCheck.Directional && room.m_layoutNodes.Any(fromNode => fromNode.m_children != null && fromNode.m_children.Count > 0 && fromNode.m_children.All(toNode => ConnectedRoom.m_layoutNodes.Contains(toNode))))
+			if (checkLevel == ObstructionCheck.Directional && ((m_connectionType == ConnectionType.SiblingShallower && m_onewayBlockageType != BlockageType.NoLadder) || room.m_layoutNodes.Any(fromNode => fromNode.m_children != null && fromNode.m_children.Count > 0 && fromNode.m_children.All(toNode => ConnectedRoom.m_layoutNodes.Contains(toNode)))))
 			{
 				return false;
 			}
-			if (!ignoreOnewayBlockages && m_onewayBlockageType != BlockageType.NONE) // TODO: check reverse one-way sometimes?
+			if (!ignoreOnewayBlockages && m_onewayBlockageType != BlockageType.None) // TODO: check reverse one-way sometimes?
 			{
 				return true;
 			}
@@ -152,7 +152,7 @@ public class RoomController : MonoBehaviour
 			{
 				return true;
 			}
-			if (m_blocker != null && m_blocker.GetComponents<Collider2D>().Any(collider => !collider.isTrigger && collider.isActiveAndEnabled) && (checkLevel == ObstructionCheck.Full || m_blocker.GetComponent<IUnlockable>() != null)) // NOTE that m_infoReverse.m_blocker should always be the same as m_blocker, so we only check one // TODO: param to ignore one-way destructibles in the correct direction?
+			if (m_blocker != null && m_blocker.GetComponents<Collider2D>().Any(collider => !collider.isTrigger && collider.isActiveAndEnabled) && (checkLevel == ObstructionCheck.Full || m_blocker.GetComponent<IUnlockable>() != null)) // NOTE that m_infoReverse.m_blocker should always be the same as m_blocker, so we only check one; also, we don't need to worry about one-way destructibles here since we've already checked them in the ObstructionCheck.Directional branch above
 			{
 				return true;
 			}
@@ -297,10 +297,10 @@ public class RoomController : MonoBehaviour
 
 		foreach (DoorwayInfo info in m_doorwayInfos)
 		{
-			if (info.m_onewayBlockageType != DoorwayInfo.BlockageType.NONE)
+			if (info.m_onewayBlockageType != DoorwayInfo.BlockageType.None)
 			{
 				// draw simple arrow pointing inward to indicate allowed direction
-				using (new UnityEditor.Handles.DrawingScope(info.m_onewayBlockageType == DoorwayInfo.BlockageType.DESTRUCTIBLE ? Color.gray : Color.white))
+				using (new UnityEditor.Handles.DrawingScope(info.m_onewayBlockageType == DoorwayInfo.BlockageType.Destructible ? Color.gray : Color.white))
 				{
 					UnityEditor.Handles.DrawLines(new[] { info.m_object.transform.position + new Vector3(0.5f, 0.5f), info.m_object.transform.position, info.m_object.transform.position, 2.0f * info.m_infoReverse.m_object.transform.position - info.m_object.transform.position });
 				}
@@ -427,8 +427,8 @@ public class RoomController : MonoBehaviour
 						posIdx += 2;
 						return room.m_doorwayInfos.First(info => info.ConnectedRoom == pathLowToHigh.m_pathRooms[pathIdx] && (pathLowToHigh.m_pathPositions[posIdx] - (Vector2)info.m_object.transform.position).sqrMagnitude < 1.0f/*?*/); // TODO: simpler way of ensuring the correct doorway for room pairs w/ multiple connections?
 					}).ToArray();
-					bool canTraverseForward = !noLadder && pathDoorwaysForward.All(info => info.m_infoReverse.m_onewayBlockageType == DoorwayInfo.BlockageType.NONE); // NOTE the forced reversed path direction when the cutback is one-way to avoid one-ways in opposite directions
-					bool canTraverseBackward = pathDoorwaysForward.All(info => info.m_onewayBlockageType == DoorwayInfo.BlockageType.NONE);
+					bool canTraverseForward = !noLadder && pathDoorwaysForward.All(info => info.m_infoReverse.m_onewayBlockageType == DoorwayInfo.BlockageType.None); // NOTE the forced reversed path direction when the cutback is one-way to avoid one-ways in opposite directions
+					bool canTraverseBackward = pathDoorwaysForward.All(info => info.m_onewayBlockageType == DoorwayInfo.BlockageType.None);
 
 					if (canTraverseForward || canTraverseBackward)
 					{
@@ -440,14 +440,14 @@ public class RoomController : MonoBehaviour
 							DoorwayInfo info = traversalDir < 0 ? infoForward.m_infoReverse : infoForward;
 							if (info.DirectionOutward() == Vector2.up) // TODO: non-vertical one-way blockages?
 							{
-								info.m_onewayBlockageType = DoorwayInfo.BlockageType.NO_LADDER; // NOTE that it's okay if we overwrite an existing value of DESTRUCTIBLE; NO_LADDER should take priority since there should never be a situation where a ladder is dynamically spawned in a doorway that also has a one-way destructible
+								info.m_onewayBlockageType = DoorwayInfo.BlockageType.NoLadder; // NOTE that it's okay if we overwrite an existing value of Destructible; NoLadder should take priority since there should never be a situation where a ladder is dynamically spawned in a doorway that also has a one-way destructible
 							}
 						}
 					}
 				}
 				if (noLadder)
 				{
-					(direction.y > 0.0f ? doorwayInfo : reverseInfo).m_onewayBlockageType = DoorwayInfo.BlockageType.NO_LADDER; // NOTE that it's okay if we overwrite an existing value of DESTRUCTIBLE; NO_LADDER should take priority since there should never be a situation where a ladder is dynamically spawned in a doorway that also has a one-way destructible
+					(direction.y > 0.0f ? doorwayInfo : reverseInfo).m_onewayBlockageType = DoorwayInfo.BlockageType.NoLadder; // NOTE that it's okay if we overwrite an existing value of Destructible; NoLadder should take priority since there should never be a situation where a ladder is dynamically spawned in a doorway that also has a one-way destructible
 				}
 
 				// open doorways
@@ -539,7 +539,7 @@ public class RoomController : MonoBehaviour
 		// spawn ladders and mark non-laddered upward doorways as one-way
 		foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
 		{
-			if (doorwayInfo.m_onewayBlockageType != DoorwayInfo.BlockageType.NONE || doorwayInfo.ConnectedRoom == null || doorwayInfo.DirectionOutward().y <= 0.0f)
+			if (doorwayInfo.m_onewayBlockageType != DoorwayInfo.BlockageType.None || doorwayInfo.ConnectedRoom == null || doorwayInfo.DirectionOutward().y <= 0.0f)
 			{
 				continue;
 			}
@@ -552,7 +552,7 @@ public class RoomController : MonoBehaviour
 			}
 			else
 			{
-				doorwayInfo.m_onewayBlockageType = DoorwayInfo.BlockageType.NO_LADDER; // NOTE that it's okay if we overwrite an existing value of DESTRUCTIBLE; NO_LADDER should take priority since there should never be a situation where a ladder is dynamically spawned in a doorway that also has a one-way destructible
+				doorwayInfo.m_onewayBlockageType = DoorwayInfo.BlockageType.NoLadder; // NOTE that it's okay if we overwrite an existing value of Destructible; NoLadder should take priority since there should never be a situation where a ladder is dynamically spawned in a doorway that also has a one-way destructible
 			}
 		}
 
@@ -903,7 +903,7 @@ public class RoomController : MonoBehaviour
 		return m_spawnPoints[Random.Range(0, m_spawnPoints.Length)].transform.position;
 	}
 
-	public List<Vector2> PositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, ObstructionCheck obstructionChecking = ObstructionCheck.None, float extentY = 0.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, float incrementDegrees = -1.0f)
+	public List<Vector2> PositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, ObstructionCheck obstructionChecking = ObstructionCheck.None, float extentY = -1.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, float incrementDegrees = -1.0f)
 	{
 		AStarPath roomPath = RoomPath(startPosition, endPositionPreoffset, obstructionChecking, extentY, upwardMax, incrementDegrees);
 		if (roomPath == null)
@@ -1052,8 +1052,8 @@ public class RoomController : MonoBehaviour
 		}
 
 		DoorwayInfo doorwayInfo = m_doorwayInfos.First(info => info.m_object == doorway || info.m_blocker == doorway);
-		Debug.Assert(doorwayInfo.m_onewayBlockageType != DoorwayInfo.BlockageType.DESTRUCTIBLE);
-		doorwayInfo.m_onewayBlockageType = DoorwayInfo.BlockageType.NONE;
+		Debug.Assert(doorwayInfo.m_onewayBlockageType != DoorwayInfo.BlockageType.Destructible);
+		doorwayInfo.m_onewayBlockageType = DoorwayInfo.BlockageType.None;
 		return firstRung;
 	}
 
@@ -1140,9 +1140,9 @@ public class RoomController : MonoBehaviour
 		DoorwayInfo doorwayInfo = m_doorwayInfos.FirstOrDefault(info => info.m_blocker == evt.m_object);
 		if (doorwayInfo != null)
 		{
-			if (doorwayInfo.m_onewayBlockageType == DoorwayInfo.BlockageType.DESTRUCTIBLE)
+			if (doorwayInfo.m_onewayBlockageType == DoorwayInfo.BlockageType.Destructible)
 			{
-				doorwayInfo.m_onewayBlockageType = DoorwayInfo.BlockageType.NONE;
+				doorwayInfo.m_onewayBlockageType = DoorwayInfo.BlockageType.None;
 			}
 			if (doorwayInfo.IsOpen(true) && doorwayInfo.m_infoReverse.IsOpen(true))
 			{
@@ -1311,7 +1311,7 @@ public class RoomController : MonoBehaviour
 			bool noLadder = SpawnGate(doorwayInfo, blockerNode.m_type, blockerNode.m_type != LayoutGenerator.Node.Type.Lock ? 0 : blockerNode.DirectParents.Count(node => node.m_type == LayoutGenerator.Node.Type.Key && (!doorwayInfo.m_excludeSelf.Value || node.m_room != this)), blockerNode.DepthPercent, ref orderedLockIdx, false);
 			if (noLadder)
 			{
-				doorwayInfo.m_onewayBlockageType = DoorwayInfo.BlockageType.NO_LADDER; // NOTE that it's okay if we overwrite an existing value of DESTRUCTIBLE; NO_LADDER should take priority since there should never be a situation where a ladder is dynamically spawned in a doorway that also has a one-way destructible
+				doorwayInfo.m_onewayBlockageType = DoorwayInfo.BlockageType.NoLadder; // NOTE that it's okay if we overwrite an existing value of Destructible; NoLadder should take priority since there should never be a situation where a ladder is dynamically spawned in a doorway that also has a one-way destructible
 			}
 		}
 
@@ -1366,7 +1366,7 @@ public class RoomController : MonoBehaviour
 		reverseInfo.m_blocker = doorwayInfo.m_blocker;
 		if (isCutback && isLock)
 		{
-			reverseInfo.m_onewayBlockageType = DoorwayInfo.BlockageType.DESTRUCTIBLE;
+			reverseInfo.m_onewayBlockageType = DoorwayInfo.BlockageType.Destructible;
 		}
 
 		// resize/recolor gate to fit doorway
