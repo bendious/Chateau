@@ -104,7 +104,7 @@ public class LayoutGenerator
 
 		private int DepthMax => m_children == null || m_children.Count <= 0 ? Depth : m_children.Max(node => node.DepthMax); // TODO: efficiency?
 
-		public float DepthPercent => (float)Depth / DepthMax; // TODO: efficiency?
+		public float DepthPercent => (float)Depth / Math.Max(1, DepthMax); // TODO: efficiency?
 
 		public IEnumerable<Node> WithDescendants => m_children == null ? new[] { this } : m_children.SelectMany(node => node.WithDescendants).Concat(new[] { this });
 

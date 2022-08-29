@@ -67,6 +67,7 @@ public static class Utility
 		int valueCount = values.Count();
 		Debug.Assert(valueCount == weights.Count());
 		float weightSum = weights.Sum();
+		Debug.Assert(weightSum > 0.0f);
 		float weightRandom = UnityEngine.Random.Range(0.0f, weightSum);
 
 		int idxItr = 0;
