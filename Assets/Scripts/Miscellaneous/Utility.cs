@@ -43,10 +43,9 @@ public static class Utility
 
 	public static float Fract(this float x) => x - (float)Math.Truncate(x);
 
-	public static int EnumNumTypes<T>()
-	{
-		return Enum.GetValues(typeof(T)).Length;
-	}
+	public static int EnumNumTypes<T>() => Enum.GetValues(typeof(T)).Length;
+
+	public static bool BitIsSet<T>(this T x, T bitValue) => ((int)(object)x & (int)(object)bitValue) != 0;
 
 	public static Vector2 MinMax<TIn>(this IEnumerable<TIn> v, Func<TIn, float> selector) => v == null || v.Count() <= 0 ? default : new(v.Min(selector), v.Max(selector)); // TODO: efficiency? better default?
 
