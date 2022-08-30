@@ -42,6 +42,7 @@ public class RoomController : MonoBehaviour
 	[SerializeField] private float m_ladderRungSkewMax = 0.2f;
 
 	[SerializeField] private float m_cutbackBreakablePct = 0.5f;
+	[SerializeField] private float m_noLadderNoPlatformPct = 0.5f;
 	[SerializeField] private float m_furnitureLockPct = 0.5f;
 
 
@@ -52,7 +53,6 @@ public class RoomController : MonoBehaviour
 	{
 		None,
 		Directional,
-		LocksOnly,
 		Full
 	};
 
@@ -122,6 +122,13 @@ public class RoomController : MonoBehaviour
 		private ConnectionType m_connectionType;
 
 
+		internal void FlipSiblingDirection()
+		{
+			Debug.Assert((m_connectionType == ConnectionType.SiblingShallower && m_infoReverse.m_connectionType == ConnectionType.SiblingDeeper) || (m_connectionType == ConnectionType.SiblingDeeper && m_infoReverse.m_connectionType == ConnectionType.SiblingShallower));
+			m_connectionType = m_connectionType == ConnectionType.SiblingShallower ? ConnectionType.SiblingDeeper : ConnectionType.SiblingShallower;
+			m_infoReverse.m_connectionType = m_infoReverse.m_connectionType == ConnectionType.SiblingShallower ? ConnectionType.SiblingDeeper : ConnectionType.SiblingShallower;
+		}
+
 		internal Vector2 Size() => m_object.GetComponent<BoxCollider2D>().size * m_object.transform.localScale; // NOTE that we can't use Collider2D.bounds since this can be called before physics has run
 
 		internal Vector2 DirectionOutward()
@@ -140,7 +147,7 @@ public class RoomController : MonoBehaviour
 			{
 				return false;
 			}
-			if (checkLevel == ObstructionCheck.Directional && ((m_connectionType == ConnectionType.SiblingShallower && m_onewayBlockageType != BlockageType.NoLadder) || room.m_layoutNodes.Any(fromNode => fromNode.m_children != null && fromNode.m_children.Count > 0 && fromNode.m_children.All(toNode => ConnectedRoom.m_layoutNodes.Contains(toNode)))))
+			if (checkLevel == ObstructionCheck.Directional && ((m_connectionType == ConnectionType.SiblingShallower && m_onewayBlockageType != BlockageType.NoLadder) || room.m_layoutNodes.Any(fromNode => fromNode.m_children != null && fromNode.m_children.Count > 0 && fromNode.m_children.All(toNode => ConnectedRoom.m_layoutNodes.Contains(toNode))))) // TODO: take areas into account and the fact that earlier area exits are guaranteed to be traversable once later areas are accessed
 			{
 				return false;
 			}
@@ -390,8 +397,9 @@ public class RoomController : MonoBehaviour
 
 				// determine traversability before adding cutback
 				// TODO: use avatar max jump height once RoomPath() takes platforms into account?
-				AStarPath pathLowToHigh = lowRoom.RoomPath(lowRoom.transform.position, (lowRoom == this ? sibling : this).transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly);
-				AStarPath pathShallowToDeep = shallowRoom == lowRoom ? pathLowToHigh : shallowRoom.RoomPath(shallowRoom.transform.position, deepRoom.transform.position, noLadder ? ObstructionCheck.Directional : ObstructionCheck.LocksOnly);
+				AStarPath pathShallowToDeep = shallowRoom.RoomPath(shallowRoom.transform.position, deepRoom.transform.position, ObstructionCheck.Directional);
+				AStarPath pathDeepToShallow = deepRoom.RoomPath(deepRoom.transform.position, shallowRoom.transform.position, ObstructionCheck.Directional);
+				bool cutbackIsLocked = doorwayInfo.m_onewayBlockageType == DoorwayInfo.BlockageType.Destructible || (shallowRoom == lowRoom && siblingDepthComparison != 0 ? !noLadder : pathShallowToDeep == null);
 
 				// connect doorways
 				if (deepRoom == this)
@@ -407,8 +415,48 @@ public class RoomController : MonoBehaviour
 				doorwayInfo.m_infoReverse = reverseInfo;
 				reverseInfo.m_infoReverse = doorwayInfo;
 
+				// check for one-way loop traversal
+				bool canTraverseForward = pathShallowToDeep != null && (!noLadder || deepRoom != lowRoom);
+				bool canTraverseBackward = pathDeepToShallow != null && !cutbackIsLocked && (!noLadder || shallowRoom != lowRoom);
+				if (canTraverseForward || canTraverseBackward)
+				{
+					int pathIdx = 0;
+					int posIdx = -1;
+					AStarPath path = !canTraverseForward || (canTraverseBackward && Random.value < 0.5f) ? pathDeepToShallow : pathShallowToDeep; // TODO: make both paths one-way if they don't intersect?
+					DoorwayInfo[] pathDoorways = path.m_pathRooms.GetRange(0, path.m_pathRooms.Count - 1).Select(room =>
+					{
+						++pathIdx;
+						posIdx += 2; // TODO: don't assume two points per room?
+						return room.m_doorwayInfos.First(info => info.ConnectedRoom == path.m_pathRooms[pathIdx] && (path.m_pathPositions[posIdx] - (Vector2)info.m_object.transform.position).sqrMagnitude < 1.0f/*?*/); // TODO: simpler way of ensuring the correct doorway for room pairs w/ multiple connections?
+					}).ToArray();
+
+					// try creating one-ways
+					foreach (DoorwayInfo infoForward in pathDoorways)
+					{
+						DoorwayInfo infoReverse = infoForward.m_infoReverse; // NOTE that the blocks are in the direction in which the path is NOT going
+						if (infoReverse.DirectionOutward() == Vector2.up)
+						{
+							infoReverse.m_onewayBlockageType = DoorwayInfo.BlockageType.NoLadder; // NOTE that it's okay if we overwrite an existing value of Destructible; NoLadder should take priority since there should never be a situation where a ladder is dynamically spawned in a doorway that also has a one-way destructible
+						}
+						else if (infoReverse.m_blocker == null)
+						{
+							// block w/ a destructible if the siblings are or can be oriented in the desired direction
+							// TODO: allow orienting destructible one-ways in either deep-->shallow or shallow-->deep orientations?
+							if (infoReverse.SiblingShallowerRoom != null && infoReverse.SiblingShallowerRoom.m_layoutNodes.Max(node => node.Depth) == infoReverse.m_object.transform.parent.GetComponent<RoomController>().m_layoutNodes.Max(node => node.Depth))
+							{
+								infoReverse.FlipSiblingDirection();
+							}
+							if (infoReverse.SiblingDeeperRoom != null)
+							{
+								infoReverse.m_onewayBlockageType = DoorwayInfo.BlockageType.Destructible;
+							}
+						}
+					}
+
+					// TODO: restrict the main cutback doorway when possible?
+				}
+
 				// maybe add one-way lock
-				bool cutbackIsLocked = shallowRoom == lowRoom && siblingDepthComparison != 0 ? !noLadder : pathLowToHigh == null || pathShallowToDeep == null;
 				Debug.Assert(noLadder || cutbackIsLocked || SceneManager.GetActiveScene().buildIndex == 0 || m_layoutNodes.First().AreaParents.Zip(sibling.m_layoutNodes.First().AreaParents, System.Tuple.Create).All(pair => pair.Item1 == pair.Item2), "Open cutback between separate areas?"); // TODO: don't assume 0th scene is open-concept?
 				if (cutbackIsLocked || Random.value <= m_cutbackBreakablePct)
 				{
@@ -416,38 +464,20 @@ public class RoomController : MonoBehaviour
 					int dummyLockIdx = -1;
 					noLadder |= shallowRoom.SpawnGate(shallowRoom != this ? doorwayInfo : reverseInfo, cutbackIsLocked ? LayoutGenerator.Node.Type.Lock : LayoutGenerator.Node.Type.GateBreakable, !cutbackIsLocked || doorwayInfo.m_excludeSelf.Value ? 0 : 1, cutbackIsLocked ? 0.0f : float.MinValue, ref dummyLockIdx, true); // NOTE the "reversed" DoorwayInfos to place the gate in deepRoom but as a child of shallowRoom, for better shadowing
 				}
-				if (pathLowToHigh != null && pathShallowToDeep != null) // NOTE that the two paths might be equivalent or going in opposite directions, so if either is null we know there's no loop, but if neither are, we still have to do more checks
-				{
-					// check for one-way loop traversal
-					int pathIdx = 0;
-					int posIdx = -1;
-					DoorwayInfo[] pathDoorwaysForward = pathLowToHigh.m_pathRooms.GetRange(0, pathLowToHigh.m_pathRooms.Count - 1).Select(room =>
-					{
-						++pathIdx;
-						posIdx += 2;
-						return room.m_doorwayInfos.First(info => info.ConnectedRoom == pathLowToHigh.m_pathRooms[pathIdx] && (pathLowToHigh.m_pathPositions[posIdx] - (Vector2)info.m_object.transform.position).sqrMagnitude < 1.0f/*?*/); // TODO: simpler way of ensuring the correct doorway for room pairs w/ multiple connections?
-					}).ToArray();
-					bool canTraverseForward = !noLadder && pathDoorwaysForward.All(info => info.m_infoReverse.m_onewayBlockageType == DoorwayInfo.BlockageType.None); // NOTE the forced reversed path direction when the cutback is one-way to avoid one-ways in opposite directions
-					bool canTraverseBackward = pathDoorwaysForward.All(info => info.m_onewayBlockageType == DoorwayInfo.BlockageType.None);
 
-					if (canTraverseForward || canTraverseBackward)
-					{
-						// try creating one-ways
-						int traversalDir = !canTraverseForward || (canTraverseBackward && Random.value < 0.5f) ? -1 : 1;
-						for (int doorwayIdx = traversalDir > 0 ? 0 : pathDoorwaysForward.Length - 1; traversalDir < 0 ? doorwayIdx > 0 : doorwayIdx < pathDoorwaysForward.Length - 1; doorwayIdx += traversalDir)
-						{
-							DoorwayInfo infoForward = pathDoorwaysForward[doorwayIdx];
-							DoorwayInfo info = traversalDir < 0 ? infoForward.m_infoReverse : infoForward;
-							if (info.DirectionOutward() == Vector2.up) // TODO: non-vertical one-way blockages?
-							{
-								info.m_onewayBlockageType = DoorwayInfo.BlockageType.NoLadder; // NOTE that it's okay if we overwrite an existing value of Destructible; NoLadder should take priority since there should never be a situation where a ladder is dynamically spawned in a doorway that also has a one-way destructible
-							}
-						}
-					}
-				}
 				if (noLadder)
 				{
 					(direction.y > 0.0f ? doorwayInfo : reverseInfo).m_onewayBlockageType = DoorwayInfo.BlockageType.NoLadder; // NOTE that it's okay if we overwrite an existing value of Destructible; NoLadder should take priority since there should never be a situation where a ladder is dynamically spawned in a doorway that also has a one-way destructible
+					if (doorwayInfo.m_blocker == null && Random.value < m_noLadderNoPlatformPct)
+					{
+						// non-platform hole
+						// TODO: AI pathfinding jump marker(s); prevent floating furniture?
+						GameObject platformDoorway = direction.y > 0.0f ? reverseInfo.m_object : doorwayInfo.m_object;
+						DestroyImmediate(platformDoorway.GetComponent<PlatformEffector2D>()); // NOTE that we can't just disable the effector since SealRoom() would end up turning it back on, and we have to do destruction immediately since the wall color logic below checks it this frame...
+						platformDoorway.GetComponent<Collider2D>().usedByEffector = false;
+						platformDoorway.layer = GameController.Instance.m_layerWalls.ToIndex();
+						platformDoorway.SetActive(false);
+					}
 				}
 
 				// open doorways
@@ -517,11 +547,18 @@ public class RoomController : MonoBehaviour
 			}
 			foreach (DoorwayInfo info in m_doorwayInfos)
 			{
+				if (info.m_object.GetComponent<PlatformEffector2D>() == null)
+				{
+					SpriteRenderer renderer = info.m_object.GetComponent<SpriteRenderer>();
+					renderer.sprite = m_wallInfo.m_sprite;
+					renderer.color = m_wallColor; // TODO: slight variation?
+				}
 				GameObject obj = info.m_blocker;
 				if (obj == null || obj.transform.parent != transform || obj.GetComponent<IUnlockable>() != null || obj.GetComponent<ColorRandomizer>() != null)
 				{
 					continue;
 				}
+				// NOTE that we leave the sprite alone since this is for secret gates
 				obj.GetComponent<SpriteRenderer>().color = m_wallColor; // TODO: slight variation?
 			}
 		}
@@ -536,10 +573,31 @@ public class RoomController : MonoBehaviour
 			}
 		}
 
+		// spawn any one-way locks/destructibles that aren't already done
+		// TODO: unify w/ spawn logic during cutback creation?
+		foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
+		{
+			if (doorwayInfo.m_onewayBlockageType == DoorwayInfo.BlockageType.Destructible)
+			{
+				if (doorwayInfo.m_blocker != null)
+				{
+					continue;
+				}
+
+				RoomController shallowRoom = doorwayInfo.SiblingShallowerRoom != null ? doorwayInfo.SiblingShallowerRoom : this;
+				int dummyLockIdx = -1;
+				bool noLadder = shallowRoom.SpawnGate(shallowRoom != this ? doorwayInfo : doorwayInfo.m_infoReverse, LayoutGenerator.Node.Type.Lock, doorwayInfo.m_excludeSelf.Value ? 0 : 1, 0.0f, ref dummyLockIdx, true); // NOTE the "reversed" DoorwayInfos to place the gate in deepRoom but as a child of shallowRoom, for better shadowing
+				if (noLadder)
+				{
+					doorwayInfo.m_onewayBlockageType = DoorwayInfo.BlockageType.NoLadder; // NOTE that it's okay if we overwrite an existing value of Destructible; NoLadder should take priority since there should never be a situation where a ladder is dynamically spawned in a doorway that also has a one-way destructible
+				}
+			}
+		}
+
 		// spawn ladders and mark non-laddered upward doorways as one-way
 		foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
 		{
-			if (doorwayInfo.m_onewayBlockageType != DoorwayInfo.BlockageType.None || doorwayInfo.ConnectedRoom == null || doorwayInfo.DirectionOutward().y <= 0.0f)
+			if (doorwayInfo.m_onewayBlockageType == DoorwayInfo.BlockageType.NoLadder || doorwayInfo.ConnectedRoom == null || doorwayInfo.DirectionOutward().y <= 0.0f)
 			{
 				continue;
 			}
@@ -1363,6 +1421,7 @@ public class RoomController : MonoBehaviour
 		{
 			unlockable.Parent = gameObject;
 		}
+		Debug.Assert(reverseInfo.m_blocker == null);
 		reverseInfo.m_blocker = doorwayInfo.m_blocker;
 		if (isCutback && isLock)
 		{
