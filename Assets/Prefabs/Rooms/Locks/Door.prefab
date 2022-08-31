@@ -140,7 +140,6 @@ MonoBehaviour:
       m_keyCountMax: 1
       m_combinationDigits: 0
       m_genericKeys: 0
-      m_difficulty: 0
     m_weight: 1
   - m_object:
       m_doorSprites:
@@ -157,7 +156,6 @@ MonoBehaviour:
       m_keyCountMax: 3
       m_combinationDigits: 0
       m_genericKeys: 0
-      m_difficulty: 0
     m_weight: 1
   - m_object:
       m_doorSprites:
@@ -174,7 +172,6 @@ MonoBehaviour:
       m_keyCountMax: 3
       m_combinationDigits: 0
       m_genericKeys: 0
-      m_difficulty: 0
     m_weight: 1
   - m_object:
       m_doorSprites:
@@ -192,7 +189,6 @@ MonoBehaviour:
       m_keyCountMax: 4
       m_combinationDigits: 0
       m_genericKeys: 0
-      m_difficulty: 0
     m_weight: 1
   - m_object:
       m_doorSprites:
@@ -214,7 +210,6 @@ MonoBehaviour:
       m_keyCountMax: 4
       m_combinationDigits: 0
       m_genericKeys: 0
-      m_difficulty: 0
     m_weight: 1
   m_combinationSets: []
   m_difficulty: 0

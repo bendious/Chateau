@@ -99,10 +99,7 @@ public static class Utility
 	}
 
 	// NOTE that Mathf.Approximately() uses float.Epsilon, which is uselessly strict
-	public static bool FloatEqual(this float a, float b, float epsilon = FloatEpsilon)
-	{
-		return Mathf.Abs(a - b) < epsilon;
-	}
+	public static bool FloatEqual(this float a, float b, float epsilon = FloatEpsilon) => Mathf.Abs(a - b) < epsilon;
 
 	public static bool FloatEqualDegrees(this float a, float b, float epsilon)
 	{

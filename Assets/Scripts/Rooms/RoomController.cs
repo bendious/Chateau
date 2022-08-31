@@ -399,8 +399,8 @@ public class RoomController : MonoBehaviour
 				// determine traversability before adding cutback
 				// TODO: use avatar max jump height once RoomPath() takes platforms into account?
 				const PathFlags flags = PathFlags.ObstructionCheck | PathFlags.Directional;
-				AStarPath pathShallowToDeep = shallowRoom.RoomPath(shallowRoom.transform.position, deepRoom.transform.position, flags);
-				AStarPath pathDeepToShallow = deepRoom.RoomPath(deepRoom.transform.position, shallowRoom.transform.position, flags);
+				AStarPath pathShallowToDeep = shallowRoom.RoomPath(shallowRoom.m_backdrop, deepRoom.m_backdrop, flags);
+				AStarPath pathDeepToShallow = deepRoom.RoomPath(deepRoom.m_backdrop, shallowRoom.m_backdrop, flags);
 				bool cutbackIsLocked = doorwayInfo.m_onewayBlockageType == DoorwayInfo.BlockageType.Destructible || (shallowRoom == lowRoom && siblingDepthComparison != 0 ? !noLadder : pathShallowToDeep == null);
 
 				// connect doorways
@@ -608,7 +608,7 @@ public class RoomController : MonoBehaviour
 
 			if (ladder != null)
 			{
-				fillPct += BoundsWithChildren(ladder).extents.x / extentsInterior.x;
+				fillPct += ChildBounds(ladder).extents.x / extentsInterior.x;
 			}
 			else
 			{
@@ -855,7 +855,7 @@ public class RoomController : MonoBehaviour
 			Bounds bboxNew = new();
 			if (preventOverlapPrefab != null)
 			{
-				bboxNew = BoundsWithChildren(preventOverlapPrefab, rotation);
+				bboxNew = ChildBounds(preventOverlapPrefab, rotation: rotation);
 				bboxNew.Expand(new Vector3(-Utility.FloatEpsilon, -Utility.FloatEpsilon, float.MaxValue)); // NOTE the slight x/y contraction to avoid always collecting the floor when up against it
 			}
 
@@ -963,28 +963,28 @@ public class RoomController : MonoBehaviour
 		return m_spawnPoints[Random.Range(0, m_spawnPoints.Length)].transform.position;
 	}
 
-	public List<Vector2> PositionPath(Vector2 startPosition, Vector2 endPositionPreoffset, PathFlags flags = PathFlags.None, float extentY = -1.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, float incrementDegrees = -1.0f)
+	public List<Vector2> PositionPath(GameObject start, GameObject end, PathFlags flags = PathFlags.None, float extentY = -1.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, float incrementDegrees = -1.0f)
 	{
-		AStarPath roomPath = RoomPath(startPosition, endPositionPreoffset, flags, extentY, upwardMax, incrementDegrees);
+		AStarPath roomPath = RoomPath(start, end, flags, extentY, upwardMax, incrementDegrees);
 		if (roomPath == null)
 		{
 			// TODO: find path to closest reachable point instead?
 			return null;
 		}
 		List<Vector2> waypointPath = roomPath.m_pathPositions;
-
-		if (waypointPath.Count <= 1)
-		{
-			waypointPath.Add(endPositionPreoffset);
-		}
+		Debug.Assert(waypointPath.Count >= 2);
 
 		// offset end point
 		// TODO: allow offset to cross room edges?
-		float semifinalX = waypointPath[^2].x;
-		Vector2 endPos = endPositionPreoffset + (semifinalX >= endPositionPreoffset.x ? offsetMag : new(-offsetMag.x, offsetMag.y));
-		Bounds endRoomBounds = roomPath.m_pathRooms.Last().Bounds;
-		endRoomBounds.Expand(new Vector3(-1.0f, -1.0f)); // TODO: dynamically determine wall thickness?
-		waypointPath[^1] = endRoomBounds.Contains(new(endPos.x, endPos.y, endRoomBounds.center.z)) ? endPos : endRoomBounds.ClosestPoint(endPos); // TODO: flip offset if closest interior point is significantly different from endPos?
+		if (offsetMag != Vector2.zero)
+		{
+			Vector2 endPosPreoffset = waypointPath.Last();
+			float semifinalX = waypointPath[^2].x;
+			Vector2 endPos = endPosPreoffset + (semifinalX >= endPosPreoffset.x ? offsetMag : new(-offsetMag.x, offsetMag.y));
+			Bounds endRoomBounds = roomPath.m_pathRooms.Last().Bounds;
+			endRoomBounds.Expand(new Vector3(-1.0f, -1.0f)); // TODO: dynamically determine wall thickness?
+			waypointPath[^1] = endRoomBounds.Contains(new(endPos.x, endPos.y, endRoomBounds.center.z)) ? endPos : endRoomBounds.ClosestPoint(endPos); // TODO: flip offset if closest interior point is significantly different from endPos?
+		}
 
 		if (incrementDegrees > 0.0f)
 		{
@@ -1267,9 +1267,9 @@ public class RoomController : MonoBehaviour
 		}
 	}
 
-	private static Bounds BoundsWithChildren(GameObject obj, Quaternion? rotation = null)
+	private static Bounds ChildBounds(GameObject obj, bool recursive = true, Quaternion? rotation = null)
 	{
-		Renderer[] renderers = obj.GetComponentsInChildren<Renderer>().Where(r => r is SpriteRenderer or SpriteMask or MeshRenderer).ToArray(); // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
+		Renderer[] renderers = (recursive ? obj.GetComponentsInChildren<Renderer>() : obj.GetComponents<Renderer>()).Where(r => r is SpriteRenderer or SpriteMask or MeshRenderer).ToArray(); // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
 		Bounds SemiLocalBounds(Renderer r)
 		{
 			Bounds b = r.localBounds; // TODO: handle object rotation?
@@ -1281,7 +1281,7 @@ public class RoomController : MonoBehaviour
 		{
 			bboxNew.Encapsulate(SemiLocalBounds(renderer));
 		}
-		RectTransform[] tfs = obj.GetComponentsInChildren<RectTransform>();
+		RectTransform[] tfs = recursive ? obj.GetComponentsInChildren<RectTransform>() : obj.GetComponents<RectTransform>();
 		foreach (RectTransform tf in tfs)
 		{
 			bboxNew.Encapsulate(new Bounds(tf.rect.center, tf.rect.size));
@@ -1392,7 +1392,7 @@ public class RoomController : MonoBehaviour
 		{
 			doorInteract.Depth = doorwayDepth;
 		}
-		return BoundsWithChildren(doorInteract.gameObject).extents.x / extentsInteriorX;
+		return ChildBounds(doorInteract.gameObject).extents.x / extentsInteriorX;
 	}
 
 	private bool SpawnGate(DoorwayInfo doorwayInfo, LayoutGenerator.Node.Type type, int preferredKeyCount, float depthPct, ref int orderedLockIdx, bool isCutback)
@@ -1560,9 +1560,18 @@ public class RoomController : MonoBehaviour
 		public int CompareTo(AStarPath other) => m_distanceTotalEst.CompareTo(other.m_distanceTotalEst);
 	}
 
-	private AStarPath RoomPath(Vector2 startPos, Vector2 endPos, PathFlags flags, float extentY = -1.0f, float upwardMax = float.MaxValue, float incrementDegrees = -1.0f)
+	private AStarPath RoomPath(GameObject start, GameObject end, PathFlags flags, float extentY = -1.0f, float upwardMax = float.MaxValue, float incrementDegrees = -1.0f)
 	{
-		Debug.Assert(Bounds.Contains(startPos));
+		Debug.Assert(Bounds.Contains(start.transform.position)); // TODO: explicitly handle startPos being slightly outside this room due to objects overlapping multiple rooms?
+
+		// determine start/end points
+		// TODO: base end position on penultimate position?
+		Bounds startBbox = ChildBounds(start, false);
+		startBbox.Expand(new Vector3(-m_physicsCheckEpsilon, -m_physicsCheckEpsilon));
+		Vector2 startPos = startBbox.ClosestPoint(end.transform.position);
+		Bounds endBbox = ChildBounds(end, false);
+		endBbox.Expand(new Vector3(-m_physicsCheckEpsilon, -m_physicsCheckEpsilon));
+		Vector2 endPos = endBbox.ClosestPoint(start.transform.position);
 
 		List<RoomController> visitedRooms = new();
 		HeapQueue<AStarPath> paths = new();
@@ -1593,8 +1602,8 @@ public class RoomController : MonoBehaviour
 				Vector2 posPrev = pathItr.m_pathPositions.Last();
 				Vector2 posNext = endPos; // TODO: determine actual next point somehow?
 				bool ignoreGravity = flags.BitIsSet(PathFlags.IgnoreGravity);
-				Bounds bbox1 = BoundsWithChildren(info.m_object);
-				Bounds bbox2 = BoundsWithChildren(info.m_infoReverse.m_object);
+				Bounds bbox1 = ChildBounds(info.m_object);
+				Bounds bbox2 = ChildBounds(info.m_infoReverse.m_object);
 				float doorwayDirY = info.DirectionOutward().y;
 				bool isHorizontalDoorway = doorwayDirY == 0.0f;
 
@@ -1657,6 +1666,12 @@ public class RoomController : MonoBehaviour
 				// TODO: weight distances based on jumps/traversal required?
 				paths.Push(new() { m_pathRooms = roomPathNew, m_pathPositions = posPathNew, m_distanceCur = distanceCurNew, m_distanceTotalEst = distanceCurNew + posNew.ManhattanDistance(endPos) });
 			}
+		}
+
+		// ensure a complete path even if start/end are within the same room
+		if (pathItr != null && pathItr.m_pathPositions.Count <= 1)
+		{
+			pathItr.m_pathPositions.Add(endPos);
 		}
 
 		return pathItr; // TODO: find path to closest reachable point if pathItr is null?

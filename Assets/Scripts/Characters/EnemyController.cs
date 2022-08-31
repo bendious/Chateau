@@ -246,7 +246,7 @@ public sealed class EnemyController : KinematicCharacter
 		// TODO: efficiency?
 		if (m_pathfindTimeNext <= Time.time || (m_pathfindWaypoints != null && m_pathfindWaypoints.Count > 0 && !Vector2.Distance(m_target.transform.position, m_pathfindWaypoints.Last()).FloatEqual(targetOffsetAbs.magnitude, m_meleeRange))) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases); avoid trying to go past moving targets?
 		{
-			m_pathfindWaypoints = GameController.Instance.Pathfind(transform.position, m_target.transform.position, m_collider.bounds.extents.y, !HasFlying && jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue, targetOffsetAbs, RoomController.PathFlags.ObstructionCheck | (HasFlying ? RoomController.PathFlags.IgnoreGravity : RoomController.PathFlags.None)); // TODO: limit to max jump height once pathfinding takes platforms into account?
+			m_pathfindWaypoints = GameController.Instance.Pathfind(gameObject, m_target.gameObject, m_collider.bounds.extents.y, !HasFlying && jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue, targetOffsetAbs, RoomController.PathFlags.ObstructionCheck | (HasFlying ? RoomController.PathFlags.IgnoreGravity : RoomController.PathFlags.None)); // TODO: limit to max jump height once pathfinding takes platforms into account?
 			if (m_pathfindWaypoints == null)
 			{
 				m_target = null; // TODO: better handle unreachable positions; idle? find closest reachable position?
