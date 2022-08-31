@@ -155,6 +155,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_specialRoomCount
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_roomTypes.Array.size
       value: 2
       objectReference: {fileID: 0}
@@ -210,6 +214,22 @@ PrefabInstance:
       propertyPath: m_doorInteractPrefabs.Array.data[3]
       value: 
       objectReference: {fileID: 253480046431362865, guid: 8a825b8c0c06b0645845758aaaf352be, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_zoneFinishedIndicators.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_zoneFinishedIndicators.Array.data[0]
+      value: 
+      objectReference: {fileID: 7287174281192745631, guid: 01ab5b0747ac4084f92f52d293283139, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_zoneFinishedIndicators.Array.data[1]
+      value: 
+      objectReference: {fileID: 6025558865574200631, guid: 03c90068a6c7c714db32d6a935eab486, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_zoneFinishedIndicators.Array.data[2]
+      value: 
+      objectReference: {fileID: 8759656438644630908, guid: 00cf494f795f0394c8564d479d236482, type: 3}
     - target: {fileID: 8494391376400586852, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -120

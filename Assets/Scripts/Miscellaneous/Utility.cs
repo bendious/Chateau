@@ -45,7 +45,11 @@ public static class Utility
 
 	public static int EnumNumTypes<T>() => Enum.GetValues(typeof(T)).Length;
 
-	public static bool BitIsSet<T>(this T x, T bitValue) => ((int)(object)x & (int)(object)bitValue) != 0;
+	public static bool BitsSet<T>(this T x, T bits)
+	{
+		int bitsInt = (int)(object)bits;
+		return ((int)(object)x & bitsInt) == bitsInt;
+	}
 
 	public static Vector2 MinMax<TIn>(this IEnumerable<TIn> v, Func<TIn, float> selector) => v == null || v.Count() <= 0 ? default : new(v.Min(selector), v.Max(selector)); // TODO: efficiency? better default?
 

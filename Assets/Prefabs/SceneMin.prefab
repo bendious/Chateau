@@ -1571,6 +1571,8 @@ MonoBehaviour:
   m_doorInteractPrefabs:
   - {fileID: 5746196675388104066, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
   - {fileID: 9122007181668863787, guid: 18a928b181bfee64b887827ee31f4661, type: 3}
+  m_zoneFinishedIndicators: []
+  m_specialRoomCount: 0
   m_allowHiddenDestructibles: 1
   m_allowCutbacks: 1
   m_waveSealing: 0

@@ -36,7 +36,7 @@ public interface ISavable
 		ISavable savable = GameController.Instance.m_savableFactory.Instantiate(saveFile.ReadInt32());
 		Component savableComp = savable.Component;
 
-		RoomController room = GameController.Instance.LootRoom;
+		RoomController room = GameController.Instance.SpecialRooms[0];
 		saveFile.Read(out Vector3 offsetFromRoom);
 		savableComp.transform.position = room.BoundsInterior.ClosestPoint(room.transform.position + offsetFromRoom);
 

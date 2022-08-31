@@ -43,7 +43,9 @@ public class GameController : MonoBehaviour
 	[SerializeField] private WeightedObject<NpcDialogue>[] m_npcRoles;
 	[SerializeField] private WeightedObject<NpcDialogue>[] m_npcAttitudes;
 	public GameObject[] m_doorInteractPrefabs;
+	[SerializeField] GameObject[] m_zoneFinishedIndicators;
 
+	[SerializeField] private int m_specialRoomCount;
 	public bool m_allowHiddenDestructibles = true;
 	public bool m_allowCutbacks = true;
 	[SerializeField] private bool m_waveSealing = false;
@@ -92,7 +94,7 @@ public class GameController : MonoBehaviour
 	public static void SetSecretFound(int index) => m_secretsFoundBitmask.Set(index, true);
 
 
-	public RoomController LootRoom { get; private set; }
+	public RoomController[] SpecialRooms { get; private set; }
 
 	public Transform[] RoomBackdropsAboveGround => m_roomBackdropsAboveGroundInternal.Value;
 	private readonly System.Lazy<Transform[]> m_roomBackdropsAboveGroundInternal = new(() => Instance.m_startRoom.BackdropsAboveGroundRecursive.ToArray(), false);
@@ -560,8 +562,8 @@ public class GameController : MonoBehaviour
 				m_startRoom = Instantiate(m_entryRoomPrefabs.RandomWeighted(), transform).GetComponent<RoomController>();
 				m_startRoom.SetNodes(nodesList.ToArray());
 				++roomCount;
-				Debug.Assert(LootRoom == null);
-				LootRoom = m_startRoom;
+				Debug.Assert(SpecialRooms == null);
+				SpecialRooms = Enumerable.Repeat(m_startRoom, m_specialRoomCount).ToArray();
 			}
 			else
 			{
@@ -593,9 +595,15 @@ public class GameController : MonoBehaviour
 					if (childRoom != null)
 					{
 						++roomCount;
-						if (Random.value <= 1.0f / roomCount) // NOTE the 1/n chance to give each room an equal probability of final selection regardless of order
+						if (m_specialRoomCount > 0)
 						{
-							LootRoom = childRoom;
+							for (int i = 0; i < SpecialRooms.Length; ++i)
+							{
+								if (Random.value <= 1.0f / roomCount) // NOTE the 1/n chance to give each room an equal probability of final selection regardless of order
+								{
+									SpecialRooms[i] = childRoom;
+								}
+							}
 						}
 						break;
 					}
@@ -718,6 +726,22 @@ public class GameController : MonoBehaviour
 		{
 			Debug.LogError("Invalid save file: " + e.Message);
 			// NOTE that we still return true since the save exists, even though it's apparently corrupted
+		}
+
+		// spawn progress indicator(s)
+		RoomController room = SpecialRooms[1];
+		int indicatorIdx = 0;
+		foreach (GameObject indicatorPrefab in m_zoneFinishedIndicators)
+		{
+			Transform indicatorTf = Instantiate(indicatorPrefab, room.InteriorPosition(0.0f, indicatorPrefab), Quaternion.identity, room.transform).transform;
+			if (indicatorIdx >= ZonesFinishedCount)
+			{
+				for (int j = 0; j < indicatorTf.childCount; ++j)
+				{
+					indicatorTf.GetChild(j).gameObject.SetActive(false);
+				}
+			}
+			++indicatorIdx;
 		}
 
 		return true;

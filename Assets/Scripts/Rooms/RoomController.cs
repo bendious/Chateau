@@ -55,6 +55,7 @@ public class RoomController : MonoBehaviour
 		ObstructionCheck = 1,
 		Directional = 3, // NOTE that Directional includes ObstructionCheck since it doesn't make sense separately
 		IgnoreGravity = 4,
+		NearestEndPoints = 8,
 	};
 
 
@@ -144,15 +145,15 @@ public class RoomController : MonoBehaviour
 		{
 			RoomController room = m_object.transform.parent.GetComponent<RoomController>(); // TODO: cache reference?
 			Debug.Assert(room != null && room.m_doorwayInfos.Contains(this));
-			if (!flags.BitIsSet(PathFlags.ObstructionCheck))
+			if (!flags.BitsSet(PathFlags.ObstructionCheck))
 			{
 				return false;
 			}
-			if (flags.BitIsSet(PathFlags.Directional) && ((m_connectionType == ConnectionType.SiblingShallower && m_onewayBlockageType != BlockageType.NoLadder) || room.m_layoutNodes.Any(fromNode => fromNode.m_children != null && fromNode.m_children.Count > 0 && fromNode.m_children.All(toNode => ConnectedRoom.m_layoutNodes.Contains(toNode))))) // TODO: take areas into account and the fact that earlier area exits are guaranteed to be traversable once later areas are accessed
+			if (flags.BitsSet(PathFlags.Directional) && ((m_connectionType == ConnectionType.SiblingShallower && m_onewayBlockageType != BlockageType.NoLadder) || room.m_layoutNodes.Any(fromNode => fromNode.m_children != null && fromNode.m_children.Count > 0 && fromNode.m_children.All(toNode => ConnectedRoom.m_layoutNodes.Contains(toNode))))) //TODO: take areas into account and the fact that earlier area exits are guaranteed to be traversable once later areas are accessed
 			{
 				return false;
 			}
-			if (!ignoreOnewayBlockages && (flags.BitIsSet(PathFlags.IgnoreGravity) ? m_onewayBlockageType == BlockageType.Destructible : m_onewayBlockageType != BlockageType.None)) // TODO: check reverse one-way sometimes?
+			if (!ignoreOnewayBlockages && (flags.BitsSet(PathFlags.IgnoreGravity) ? m_onewayBlockageType == BlockageType.Destructible : m_onewayBlockageType != BlockageType.None)) // TODO: check reverse one-way sometimes?
 			{
 				return true;
 			}
@@ -160,7 +161,7 @@ public class RoomController : MonoBehaviour
 			{
 				return true;
 			}
-			if (m_blocker != null && m_blocker.GetComponents<Collider2D>().Any(collider => !collider.isTrigger && collider.isActiveAndEnabled) && (!flags.BitIsSet(PathFlags.Directional) || m_blocker.GetComponent<IUnlockable>() != null)) // NOTE that m_infoReverse.m_blocker should always be the same as m_blocker, so we only check one; also, we don't need to worry about one-way destructibles here since we've already checked them in the PathFlags.Directional branch above
+			if (m_blocker != null && m_blocker.GetComponents<Collider2D>().Any(collider => !collider.isTrigger && collider.isActiveAndEnabled) && (!flags.BitsSet(PathFlags.Directional) || m_blocker.GetComponent<IUnlockable>() != null)) // NOTE that m_infoReverse.m_blocker should always be the same as m_blocker, so we only check one; also, we don't need to worry about one-way destructibles here since we've already checked them in the PathFlags.Directional branch above
 			{
 				return true;
 			}
@@ -399,8 +400,8 @@ public class RoomController : MonoBehaviour
 				// determine traversability before adding cutback
 				// TODO: use avatar max jump height once RoomPath() takes platforms into account?
 				const PathFlags flags = PathFlags.ObstructionCheck | PathFlags.Directional;
-				AStarPath pathShallowToDeep = shallowRoom.RoomPath(shallowRoom.m_backdrop, deepRoom.m_backdrop, flags);
-				AStarPath pathDeepToShallow = deepRoom.RoomPath(deepRoom.m_backdrop, shallowRoom.m_backdrop, flags);
+				AStarPath pathShallowToDeep = shallowRoom.RoomPath(shallowRoom.gameObject, deepRoom.gameObject, flags);
+				AStarPath pathDeepToShallow = deepRoom.RoomPath(deepRoom.gameObject, shallowRoom.gameObject, flags);
 				bool cutbackIsLocked = doorwayInfo.m_onewayBlockageType == DoorwayInfo.BlockageType.Destructible || (shallowRoom == lowRoom && siblingDepthComparison != 0 ? !noLadder : pathShallowToDeep == null);
 
 				// connect doorways
@@ -1269,7 +1270,7 @@ public class RoomController : MonoBehaviour
 
 	private static Bounds ChildBounds(GameObject obj, bool recursive = true, Quaternion? rotation = null)
 	{
-		Renderer[] renderers = (recursive ? obj.GetComponentsInChildren<Renderer>() : obj.GetComponents<Renderer>()).Where(r => r is SpriteRenderer or SpriteMask or MeshRenderer).ToArray(); // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
+		Renderer[] renderers = (recursive ? obj.GetComponentsInChildren<Renderer>() : new Renderer[] { obj.GetComponentInChildren<Renderer>() }).Where(r => r is SpriteRenderer or SpriteMask or MeshRenderer).ToArray(); // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
 		Bounds SemiLocalBounds(Renderer r)
 		{
 			Bounds b = r.localBounds; // TODO: handle object rotation?
@@ -1334,7 +1335,7 @@ public class RoomController : MonoBehaviour
 
 		// determine child position
 		RoomController otherRoom = roomPrefab.GetComponent<RoomController>();
-		Bounds childBounds = otherRoom.m_backdrop.GetComponent<SpriteRenderer>().bounds; // NOTE that we can't use m_bounds since uninstantiated prefabs don't have Awake() called on them
+		Bounds childBounds = otherRoom.m_backdrop.GetComponent<SpriteRenderer>().bounds; // NOTE that we can't use Bounds since uninstantiated prefabs don't have Awake() called on them
 		Vector2 doorwayPos = doorway.transform.position;
 		int reverseIdx = -1;
 		float doorwayToEdge = Mathf.Min(Bounds.max.x - doorwayPos.x, Bounds.max.y - doorwayPos.y, doorwayPos.x - Bounds.min.x, doorwayPos.y - Bounds.min.y); // TODO: don't assume convex rooms?
@@ -1566,12 +1567,13 @@ public class RoomController : MonoBehaviour
 
 		// determine start/end points
 		// TODO: base end position on penultimate position?
+		bool nearestPoints = flags.BitsSet(PathFlags.NearestEndPoints);
 		Bounds startBbox = ChildBounds(start, false);
 		startBbox.Expand(new Vector3(-m_physicsCheckEpsilon, -m_physicsCheckEpsilon));
-		Vector2 startPos = startBbox.ClosestPoint(end.transform.position);
+		Vector2 startPos = nearestPoints ? startBbox.ClosestPoint(end.transform.position) : startBbox.center;
 		Bounds endBbox = ChildBounds(end, false);
 		endBbox.Expand(new Vector3(-m_physicsCheckEpsilon, -m_physicsCheckEpsilon));
-		Vector2 endPos = endBbox.ClosestPoint(start.transform.position);
+		Vector2 endPos = nearestPoints ? endBbox.ClosestPoint(start.transform.position) : endBbox.center;
 
 		List<RoomController> visitedRooms = new();
 		HeapQueue<AStarPath> paths = new();
@@ -1601,7 +1603,7 @@ public class RoomController : MonoBehaviour
 				// get doorway info
 				Vector2 posPrev = pathItr.m_pathPositions.Last();
 				Vector2 posNext = endPos; // TODO: determine actual next point somehow?
-				bool ignoreGravity = flags.BitIsSet(PathFlags.IgnoreGravity);
+				bool ignoreGravity = flags.BitsSet(PathFlags.IgnoreGravity);
 				Bounds bbox1 = ChildBounds(info.m_object);
 				Bounds bbox2 = ChildBounds(info.m_infoReverse.m_object);
 				float doorwayDirY = info.DirectionOutward().y;
