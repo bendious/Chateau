@@ -55,6 +55,6 @@ public class MaterialSystem : ScriptableObject
 			}
 		}
 
-		return partialMatches.Count > 0 ? partialMatches[Random.Range(0, partialMatches.Count)] : backupInfo; // TODO: partial match priority?
+		return partialMatches.Count > 0 ? partialMatches.Random() : backupInfo; // TODO: partial match priority?
 	}
 }

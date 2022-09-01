@@ -11,7 +11,7 @@ public class MaterialInfo
 
 	public AudioClip RandomMovementAudio()
 	{
-		return m_movementAudio[Random.Range(0, m_movementAudio.Length)];
+		return m_movementAudio.Random();
 	}
 }
 
@@ -29,6 +29,6 @@ public class MaterialPairInfo
 
 	public AudioClip RandomCollisionAudio()
 	{
-		return m_collisionAudio[Random.Range(0, m_collisionAudio.Length)];
+		return m_collisionAudio.Random();
 	}
 }

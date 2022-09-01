@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -367,7 +367,7 @@ public sealed class EnemyController : KinematicCharacter
 
 		if (m_attackSFX.Length > 0)
 		{
-			m_audioSource.PlayOneShot(m_attackSFX[Random.Range(0, m_attackSFX.Length)]);
+			m_audioSource.PlayOneShot(m_attackSFX.Random());
 		}
 	}
 

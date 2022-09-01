@@ -877,7 +877,7 @@ public class GameController : MonoBehaviour
 		WeightedObject<GameObject>[] options = optionsInitial.Where(weightedObj => Random.value > restrictPct).ToArray();
 		if (options.Length <= 0)
 		{
-			options = new[] { optionsInitial[Random.Range(0, optionsInitial.Length)] };
+			options = new[] { optionsInitial.Random() };
 		}
 
 		// sequentially spawn enemies
@@ -912,7 +912,7 @@ public class GameController : MonoBehaviour
 
 	private void SpawnEnemy(GameObject enemyPrefab)
 	{
-		Vector3 spawnPos = RoomFromPosition(m_avatars[Random.Range(0, m_avatars.Count())].transform.position).SpawnPointRandom();
+		Vector3 spawnPos = RoomFromPosition(m_avatars.Random().transform.position).SpawnPointRandom();
 		EnemyAdd(Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>());
 	}
 

@@ -106,7 +106,7 @@ public sealed class LightFlicker : LightFlickerSynced
 			// advance children
 			if (m_children != null)
 			{
-				LightFlickerSynced randomizedSpriteChild = togglingOn ? m_children[Random.Range(0, m_children.Count)] : null;
+				LightFlickerSynced randomizedSpriteChild = togglingOn ? m_children.Random() : null;
 				foreach (LightFlickerSynced child in m_children)
 				{
 					child.UpdateIntensity(isFlickeringNew, m_phase, child == randomizedSpriteChild);

@@ -217,7 +217,7 @@ public class RoomController : MonoBehaviour
 			float weight = keyDiff < 0 || keyDifficultyRanges.Item2.x > GameController.Instance.m_difficultyMax ? 0.0f : candidate.m_weight / (1 + (keyDiff + Mathf.Abs(difficultyDiff)) * scalarPerDiff); // NOTE that we hard-prevent too-difficult puzzles but only discourage too-easy puzzles
 			return new WeightedObject<T> { m_object = candidate.m_object, m_weight = weight };
 		}).ToArray();
-		return candidatesProcessed.Length <= 0 ? default : candidatesProcessed.All(pair => pair.m_weight <= 0.0f) ? candidatesProcessed[Random.Range(0, candidatesProcessed.Length)].m_object : candidatesProcessed.RandomWeighted(); // NOTE that we handle all candidates being "excluded", since that really just means "suboptimal"
+		return candidatesProcessed.Length <= 0 ? default : candidatesProcessed.All(pair => pair.m_weight <= 0.0f) ? candidatesProcessed.Random().m_object : candidatesProcessed.RandomWeighted(); // NOTE that we handle all candidates being "excluded", since that really just means "suboptimal"
 	}
 
 	public static System.Tuple<Vector2Int, Vector2> ObjectToKeyStats(GameObject prefab, int preferredKeyCount)
@@ -950,7 +950,7 @@ public class RoomController : MonoBehaviour
 			}
 			else
 			{
-				FurnitureController chosenFurniture = validFurniture.ElementAt(Random.Range(0, validFurniture.Count())); // TODO: prioritize based on furniture type / existing items?
+				FurnitureController chosenFurniture = validFurniture.Random(); // TODO: prioritize based on furniture type / existing items?
 				return chosenFurniture.SpawnKey(prefab);
 			}
 
@@ -959,10 +959,7 @@ public class RoomController : MonoBehaviour
 		return prefab.GetComponent<ISavable>() == null ? Instantiate(prefab, spawnPos, Quaternion.identity) : GameController.Instance.m_savableFactory.Instantiate(prefab, spawnPos, Quaternion.identity);
 	}
 
-	public Vector3 SpawnPointRandom()
-	{
-		return m_spawnPoints[Random.Range(0, m_spawnPoints.Length)].transform.position;
-	}
+	public Vector3 SpawnPointRandom() => m_spawnPoints.Random().transform.position;
 
 	public List<Vector2> PositionPath(GameObject start, GameObject end, PathFlags flags = PathFlags.None, float extentY = -1.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, float incrementDegrees = -1.0f)
 	{
