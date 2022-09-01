@@ -1433,7 +1433,6 @@ MonoBehaviour:
   m_virtualCamera: {fileID: 5811658771368823199}
   m_cameraTargetGroup: {fileID: 5409020713053798366}
   m_dialogueController: {fileID: 8780978965584514848}
-  m_avatarPrefab: {fileID: 6654259642884158821, guid: 4d20d571ba0aebe47a66bc88f4f1c0a9, type: 3}
   m_entryRoomPrefabs:
   - m_object: {fileID: 3064922269630218972, guid: 875cea8ea28ce664db617d8b73fe2adb, type: 3}
     m_weight: 1
@@ -1572,6 +1571,7 @@ MonoBehaviour:
   - {fileID: 5746196675388104066, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
   - {fileID: 9122007181668863787, guid: 18a928b181bfee64b887827ee31f4661, type: 3}
   m_zoneFinishedIndicators: []
+  m_upgradeIndicators: []
   m_specialRoomCount: 0
   m_allowHiddenDestructibles: 1
   m_allowCutbacks: 1

@@ -475,8 +475,7 @@ public class LockController : MonoBehaviour, IUnlockable
 				{
 					if (vfx.enabled)
 					{
-						vfx.Stop();
-						StartCoroutine(DisableDelayed(m_vfxDisableDelaySeconds, vfx)); // disable after short delay to prevent existing particles remaining while off-screen and becoming visible once not culled
+						StartCoroutine(vfx.SoftStop(delayMax: m_vfxDisableDelaySeconds, wholeObject: false)); // disable after short delay to prevent existing particles remaining while off-screen and becoming visible once not culled
 					}
 					else
 					{
@@ -487,7 +486,7 @@ public class LockController : MonoBehaviour, IUnlockable
 				Light2D light = GetComponent<Light2D>();
 				if (light != null)
 				{
-					light.enabled = !light.enabled;
+					light.enabled = !light.enabled; // TODO: disable as part of vfx.SoftStop() by splitting lights and VFX onto their own object
 				}
 				LightFlicker lightFlicker = GetComponent<LightFlicker>();
 				if (lightFlicker != null)
@@ -559,11 +558,5 @@ public class LockController : MonoBehaviour, IUnlockable
 		IKey key = tf.GetComponent<IKey>();
 		key.Use();
 		Unlock(key);
-	}
-
-	private IEnumerator DisableDelayed(float delay, Behaviour component)
-	{
-		yield return new WaitForSeconds(delay);
-		component.enabled = false;
 	}
 }

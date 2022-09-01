@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.VFX;
 
 
 [Serializable]
@@ -207,6 +208,30 @@ public static class Utility
 			return source;
 		}
 		return source.Remove(index, oldValue.Length).Insert(index, newValue);
+	}
+
+	public static System.Collections.IEnumerator SoftStop(this VisualEffect vfx, Func<bool> shouldCancelFunc = null, float delayMax = 2.0f, bool wholeObject = true)
+	{
+		vfx.Stop();
+
+		// TODO: fade out lights while waiting?
+		float waitTimeMax = Time.time + delayMax; // NOTE that if offscreen, the particles will stop simulating and never die until visible again, in which case we want to disable the object and not worry about killing particles
+
+		yield return new WaitUntil(() => vfx.aliveParticleCount <= 0 || Time.time > waitTimeMax || (shouldCancelFunc != null && shouldCancelFunc()));
+
+		if (shouldCancelFunc != null && shouldCancelFunc())
+		{
+			yield break;
+		}
+
+		if (wholeObject)
+		{
+			vfx.gameObject.SetActive(false);
+		}
+		else
+		{
+			vfx.enabled = false;
+		}
 	}
 
 	public static void NonpublicSetterWorkaround(this object component, string fieldName, object value)
