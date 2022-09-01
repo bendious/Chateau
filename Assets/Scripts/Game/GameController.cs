@@ -512,7 +512,7 @@ public class GameController : MonoBehaviour
 
 	public System.Tuple<List<Color>, List<Gradient>> HealthUpgrade(bool active)
 	{
-		System.Tuple<List<Color>, List<Gradient>> colors = UpgradeIndicator(active ? UpgradeActiveCount : UpgradeActiveCount - 1, active); // NOTE that this has to be BEFORE updating m_healthUpgradeCount
+		System.Tuple<List<Color>, List<Gradient>> colors = IndicateUpgrade(active ? UpgradeActiveCount : UpgradeActiveCount - 1, active); // NOTE that this has to be BEFORE updating m_healthUpgradeCount
 		m_healthUpgradeCount += active ? 1 : -1;
 		Debug.Assert(m_healthUpgradeCount >= 0);
 
@@ -526,7 +526,7 @@ public class GameController : MonoBehaviour
 		return colors;
 	}
 
-	private System.Tuple<List<Color>, List<Gradient>> UpgradeIndicator(int index, bool active)
+	private System.Tuple<List<Color>, List<Gradient>> IndicateUpgrade(int index, bool upgradeActive)
 	{
 		GameObject indicatorObj = m_progressIndicators[index];
 		System.Tuple<List<Color>, List<Gradient>> colors = System.Tuple.Create(new List<Color>(), new List<Gradient>());
@@ -542,9 +542,9 @@ public class GameController : MonoBehaviour
 			}
 			colors.Item2.Add(vfx.GetGradient(m_vfxGradientNameDefault));
 
-			if (active)
+			if (upgradeActive)
 			{
-				StartCoroutine(vfx.SoftStop());
+				StartCoroutine(vfx.SoftStop(() => UpgradeActiveCount <= index)); // TODO: better cancel check?
 			}
 			else
 			{
@@ -821,7 +821,7 @@ public class GameController : MonoBehaviour
 			GameObject indicator = Instantiate(indicatorPrefab, room.InteriorPosition(0.0f, indicatorPrefab), Quaternion.identity, room.transform);
 			if (indicatorIdx < m_healthUpgradeCount) // TODO: map upgrade points to specific indicators
 			{
-				System.Tuple<List<Color>, List<Gradient>> colors = UpgradeIndicator(indicatorIdx, true);
+				System.Tuple<List<Color>, List<Gradient>> colors = IndicateUpgrade(indicatorIdx, true);
 				indicator.GetComponent<InteractUpgrade>().ToggleActivation(colors, true);
 			}
 			++indicatorIdx;

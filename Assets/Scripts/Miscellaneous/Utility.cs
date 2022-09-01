@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.VFX;
 
 
@@ -214,10 +215,54 @@ public static class Utility
 	{
 		vfx.Stop();
 
-		// TODO: fade out lights while waiting?
-		float waitTimeMax = Time.time + delayMax; // NOTE that if offscreen, the particles will stop simulating and never die until visible again, in which case we want to disable the object and not worry about killing particles
+		// gather lights to fade out
+		// TODO: fade out other effects, too?
+		Tuple<LightFlickerSynced, Light2D, float>[] lights = vfx.GetComponentsInChildren<Light2D>().Select(light => Tuple.Create(light.GetComponent<LightFlickerSynced>(), light, light.intensity)).ToArray(); // TODO: ensure none of the intensities are temporary due to effects other than flickering?
 
-		yield return new WaitUntil(() => vfx.aliveParticleCount <= 0 || Time.time > waitTimeMax || (shouldCancelFunc != null && shouldCancelFunc()));
+		// determine wait params
+		float waitTimeMax = Time.time + delayMax; // NOTE that if offscreen, the particles will stop simulating and never die until visible again, in which case we want to disable the object and not worry about killing particles
+		bool waitFunc() => vfx.aliveParticleCount <= 0 || Time.time > waitTimeMax || (shouldCancelFunc != null && shouldCancelFunc());
+
+		// wait
+		if (lights.Length <= 0)
+		{
+			yield return new WaitUntil(waitFunc);
+		}
+		else
+		{
+			do
+			{
+				yield return null; // NOTE that due to how GameController.IndicateUpgrade()/HealthUpgrade() are ordered, we have to be sure to wait before checking waitFunc() in order to let UpgradeActiveCount be incremented/decremented first
+
+				// fade lights while waiting
+				float scalar = (waitTimeMax - Time.time) / delayMax; // TODO: don't rely on delayMax being about how long the particles take to stop?
+				foreach (Tuple<LightFlickerSynced, Light2D, float> light in lights)
+				{
+					if (light.Item1 != null)
+					{
+						light.Item1.IntensityScalar = scalar;
+					}
+					else
+					{
+						light.Item2.intensity = light.Item3 * scalar;
+					}
+				}
+			}
+			while (!waitFunc());
+		}
+
+		// reset light intensities for when re-enabled
+		foreach (Tuple<LightFlickerSynced, Light2D, float> light in lights)
+		{
+			if (light.Item1 != null)
+			{
+				light.Item1.IntensityScalar = 1.0f;
+			}
+			else
+			{
+				light.Item2.intensity = light.Item3;
+			}
+		}
 
 		if (shouldCancelFunc != null && shouldCancelFunc())
 		{

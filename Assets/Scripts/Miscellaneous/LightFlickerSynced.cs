@@ -15,6 +15,9 @@ public class LightFlickerSynced : MonoBehaviour
 	[SerializeField] private bool m_randomSfxStartPosition = false;
 
 
+	public float IntensityScalar { private get; set; } = 1.0f;
+
+
 	protected bool Synced { private get; set; } = true;
 	protected bool IsFlickering { get; private set; }
 
@@ -100,7 +103,7 @@ public class LightFlickerSynced : MonoBehaviour
 		}
 
 		// set intensity
-		float intensityT = m_intensityCurve.Evaluate(phase);
+		float intensityT = m_intensityCurve.Evaluate(phase) * IntensityScalar;
 		foreach (ComponentInfo<Light2D, float> info in m_lights)
 		{
 			info.m_component.intensity = Mathf.Lerp(0.0f, info.m_max, intensityT);
