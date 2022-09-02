@@ -437,7 +437,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			{
 				PhysicsMaterial2D material1 = collider.sharedMaterial != null || rigidbody == null ? collider.sharedMaterial : rigidbody.sharedMaterial;
 				PhysicsMaterial2D material2 = otherCollider.sharedMaterial != null || otherRigidbody == null ? otherCollider.sharedMaterial : otherRigidbody.sharedMaterial;
-				m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.PairBestMatch(material1, material2).RandomCollisionAudio());
+				m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.PairBestMatch(material1, material2).m_collisionAudio.Random());
 			}
 
 			// if from a valid source, apply damage/detachment
@@ -525,7 +525,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		{
 			return;
 		}
-		m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.Find(m_colliders.First().sharedMaterial).RandomMovementAudio()); // TODO: don't assume first collider is main material?
+		m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.Find(m_colliders.First().sharedMaterial).m_movementAudio.Random()); // TODO: don't assume first collider is main material?
 	}
 
 

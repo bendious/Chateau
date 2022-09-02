@@ -7,12 +7,6 @@ public class MaterialInfo
 	public PhysicsMaterial2D m_material;
 
 	public AudioClip[] m_movementAudio;
-
-
-	public AudioClip RandomMovementAudio()
-	{
-		return m_movementAudio.Random();
-	}
 }
 
 
@@ -25,10 +19,4 @@ public class MaterialPairInfo
 	public AudioClip[] m_collisionAudio;
 
 	// TODO: collision VFX
-
-
-	public AudioClip RandomCollisionAudio()
-	{
-		return m_collisionAudio.Random();
-	}
 }
