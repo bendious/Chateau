@@ -14,6 +14,15 @@ public sealed class WeightedObject<T>
 	public float m_weight = 1.0f;
 }
 
+public sealed class PriorityDistanceComparer : IComparer<Tuple<float, float>>
+{
+	public int Compare(Tuple<float, float> x, Tuple<float, float> y)
+	{
+		int c = y.Item1.CompareTo(x.Item1); // NOTE the x/y reversal since HIGHER priorities should be sorted earlier in the output
+		return c != 0 ? c : x.Item2.CompareTo(y.Item2);
+	}
+}
+
 // used to return values from SendMessage() calls
 public sealed class SendMessageValue<OutT>
 {
@@ -54,6 +63,10 @@ public static class Utility
 	}
 
 	public static Vector2 MinMax<TIn>(this IEnumerable<TIn> v, Func<TIn, float> selector) => v == null || v.Count() <= 0 ? default : new(v.Min(selector), v.Max(selector)); // TODO: efficiency? better default?
+
+	public static T1 SelectMin<T1, T2>(this IEnumerable<T1> options, Func<T1, T2> valueFunc, IComparer<T2> comparer = null) => options.OrderBy(valueFunc, comparer).First();
+
+	public static Tuple<T1, T2> SelectMinWithValue<T1, T2>(this IEnumerable<T1> options, Func<T1, T2> valueFunc, IComparer<T2> comparer = null) => options.Select(option => Tuple.Create(option, valueFunc(option))).OrderBy(pair => pair.Item2, comparer).First();
 
 	public static IEnumerable<WeightedObject<T>> CombineWeighted<T>(this IEnumerable<WeightedObject<T>> a, IEnumerable<WeightedObject<T>> b) => CombineWeighted(a, b, WeightedObjectToObject, WeightedObjectToObject);
 

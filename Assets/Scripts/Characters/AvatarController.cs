@@ -155,7 +155,10 @@ public sealed class AvatarController : KinematicCharacter
 	{
 		base.FixedUpdate();
 
-		GameController.Instance.m_virtualCamera.GetComponentInChildren<CinemachineConfiner2D>().m_BoundingShape2D = m_looking ? null : GameController.Instance.RoomFromPosition(transform.position).GetComponentInChildren<PolygonCollider2D>(); // TODO: efficiency? better co-op handling?
+		// constrain camera
+		// TODO: efficiency? better co-op handling
+		RoomController room = m_looking ? null : GameController.Instance.RoomFromPosition(transform.position);
+		GameController.Instance.m_virtualCamera.GetComponentInChildren<CinemachineConfiner2D>().m_BoundingShape2D = room == null ? null : room.GetComponentInChildren<PolygonCollider2D>();
 
 		Vector2 aimPosConstrained = m_aimObject.transform.position; // TODO: improve start/respawn aim position
 		Vector2 aimPos = aimPosConstrained;
@@ -229,14 +232,11 @@ public sealed class AvatarController : KinematicCharacter
 		// determine current focus object
 		// TODO: more nuanced prioritization?
 		Vector2 priorityPos = FocusPriorityPos;
-		float distSqFocus = float.MaxValue;
-		float focusPriority = -1.0f;
-		Vector2 focusTop = Vector2.zero;
-		foreach (Collider2D candidate in focusCandidates)
+		Tuple<Collider2D, Tuple<float, float>> focus = focusCandidates.Length <= 0 ? Tuple.Create<Collider2D, Tuple<float, float>>(null, Tuple.Create(-1.0f, float.MaxValue)) : focusCandidates.SelectMinWithValue(candidate =>
 		{
 			if (ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new[] { candidate }, ignorePhysicsSystem: true) || (candidate.gameObject == m_throwObj && m_throwIgnoreTime >= Time.time))
 			{
-				continue; // ignore ourself / attached/ignored/just-thrown objects
+				return Tuple.Create(-1.0f, float.MaxValue); // ignore ourself / attached/ignored/just-thrown objects
 			}
 
 			// prioritize interactable objects
@@ -246,17 +246,12 @@ public sealed class AvatarController : KinematicCharacter
 			// prioritize by mouse position
 			float distSqCur = (priorityPos - (Vector2)candidate.transform.position).sqrMagnitude;
 
-			if (candidatePriority > focusPriority || (candidatePriority >= focusPriority && distSqCur < distSqFocus))
-			{
-				focusPriority = candidatePriority;
-				distSqFocus = distSqCur;
-				m_focusObj = candidate.gameObject;
-				focusTop = new(candidate.bounds.center.x, candidate.bounds.max.y);
-			}
-		}
+			return Tuple.Create(candidatePriority, distSqCur);
+		}, new PriorityDistanceComparer());
+		m_focusObj = focus.Item1 == null || focus.Item2.Item1 < 0.0f || focus.Item2.Item2 == float.MaxValue ? null : focus.Item1.gameObject;
 
 		// place focus indicator if appropriate
-		bool focusCanInteract = focusPriority > 0.0f;
+		bool focusCanInteract = focus.Item2.Item1 > 0.0f;
 		if (focusCanInteract)
 		{
 			m_focusIndicator.transform.SetPositionAndRotation(m_focusObj.transform.position, m_focusObj.transform.rotation);
@@ -295,7 +290,7 @@ public sealed class AvatarController : KinematicCharacter
 
 			m_focusIndicator.transform.localScale = m_focusObj.transform.localScale; // NOTE that w/o this, swapping between renderer draw modes was doing weird things to the indicator's scale...
 
-			m_focusPrompt.transform.position = new Vector3(focusTop.x, focusTop.y, m_focusIndicator.transform.position.z) + m_focusPromptOffset;
+			m_focusPrompt.transform.position = new Vector3(focus.Item1.bounds.center.x, focus.Item1.bounds.max.y, m_focusIndicator.transform.position.z) + m_focusPromptOffset;
 			m_focusPrompt.SetSprite(m_focusObj.GetComponent<IInteractable>().CanInteractReverse(this) ? 1 : 0);
 		}
 		m_focusIndicator.SetActive(focusCanInteract);

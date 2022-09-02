@@ -112,24 +112,18 @@ public abstract class AIState
 	public virtual void Retarget()
 	{
 		// TODO: use pathfind distances?
-		float sqDistClosest = float.MaxValue;
-		float priorityMax = float.Epsilon;
-		foreach (KinematicCharacter candidate in GameController.Instance.AiTargets)
+		KinematicCharacter[] candidates = GameController.Instance.AiTargets.ToArray();
+		if (candidates.Length <= 0)
+		{
+			return;
+		}
+		m_ai.m_target = candidates.SelectMin(candidate =>
 		{
 			float priority = candidate.TargetPriority(m_ai);
-			if (priority < priorityMax)
-			{
-				continue;
-			}
 			Transform charTf = candidate.transform;
 			float sqDist = Vector2.Distance(m_ai.transform.position, charTf.position);
-			if (priority > priorityMax || sqDist < sqDistClosest)
-			{
-				sqDistClosest = sqDist;
-				priorityMax = priority;
-				m_ai.m_target = candidate;
-			}
-		}
+			return System.Tuple.Create(priority, sqDist);
+		}, new PriorityDistanceComparer());
 	}
 
 	public virtual AIState OnDamage(GameObject source) => null;
@@ -604,14 +598,12 @@ public sealed class AIFindAmmo : AIState
 		// TODO: efficiency?
 		GameObject[] items = GameObject.FindGameObjectsWithTag("Item");
 
-		Transform closestTf = null;
-		float closestDistSq = float.MaxValue;
-		foreach (GameObject obj in items)
+		System.Tuple<GameObject, float> closestTarget = items.Length <= 0 ? System.Tuple.Create<GameObject, float>(null, float.MaxValue) : items.SelectMinWithValue(obj =>
 		{
 			Transform tf = obj.transform;
 			if (tf.parent != null)
 			{
-				continue; // ignore held items
+				return float.MaxValue; // ignore held items
 			}
 
 			// prioritize by pathfind distance
@@ -619,21 +611,17 @@ public sealed class AIFindAmmo : AIState
 			System.Collections.Generic.List<Vector2> path = GameController.Instance.Pathfind(m_ai.gameObject, tf.gameObject, m_ai.GetComponent<Collider2D>().bounds.extents.y, !m_ai.HasFlying && m_ai.jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue); // TODO: limit to max jump height once pathfinding takes platforms into account?
 			if (path == null)
 			{
-				continue; // ignore unreachable items
+				return float.MaxValue; // ignore unreachable items
 			}
 			float distSq = 0.0f;
 			for (int i = 0; i < path.Count - 1; ++i)
 			{
 				distSq += (path[i + 1] - path[i]).sqrMagnitude;
 			}
-			if (distSq < closestDistSq)
-			{
-				closestTf = tf;
-				closestDistSq = distSq;
-			}
-		}
+			return distSq;
+		});
 
-		m_ai.m_target = closestTf == null ? null : closestTf.GetComponent<ItemController>();
+		m_ai.m_target = closestTarget.Item1 == null || closestTarget.Item2 == float.MaxValue ? null : closestTarget.Item1.GetComponent<ItemController>();
 	}
 
 	public override void Exit()

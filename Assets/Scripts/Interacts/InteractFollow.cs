@@ -183,20 +183,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 			for (int y = 0; y < sizeTexels.y; ++y)
 			{
 				Vector2 texelUV = new Vector2(x, y) * uvPerTexel;
-				float distSqMin = float.MaxValue;
-				int nearestIdx = -1;
-				int idx = 0;
-				foreach (Vector2 site in sites)
-				{
-					float distSq = (site - texelUV).sqrMagnitude;
-					if (distSq < distSqMin)
-					{
-						distSqMin = distSq;
-						nearestIdx = idx;
-					}
-					++idx;
-				}
-				perTexelIndices[x, y] = nearestIdx;
+				perTexelIndices[x, y] = sites.IndexOf(sites.SelectMin(site => (site - texelUV).sqrMagnitude)); // TODO: efficiency?
 			}
 		}
 
