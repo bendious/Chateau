@@ -16,7 +16,7 @@ public sealed class EnemyController : KinematicCharacter
 
 	public Vector2 m_targetOffset = Vector2.zero;
 	public Component m_target;
-	[SerializeField] private float m_replanSecondsMax = 3.0f;
+	public float m_replanSecondsMax = 3.0f;
 
 	public float m_meleeRange = 1.0f;
 
@@ -37,10 +37,12 @@ public sealed class EnemyController : KinematicCharacter
 	public float AimOffsetDegrees { private get; set; }
 	public float AimScalar { private get; set; } = 1.0f;
 
+	public bool OnlyPursueAvatar { get; set; }
+
 
 	private int m_aimLastFrame; // OPTIMIZATION: only aim arms once per frame even if physics is stepping more
 
-	private float m_targetSelectTimeNext;
+	public float m_targetSelectTimeNext;
 	private AIState m_aiState;
 
 	private float m_pathfindTimeNext;
@@ -84,7 +86,14 @@ public sealed class EnemyController : KinematicCharacter
 		{
 			if (m_aiState == null)
 			{
-				m_aiState = AIState.FromTypePrioritized(m_allowedStates, this);
+				if (OnlyPursueAvatar)
+				{
+					m_aiState = new AIPursue(this);
+				}
+				else
+				{
+					m_aiState = AIState.FromTypePrioritized(m_allowedStates, this);
+				}
 				m_aiState.Enter();
 			}
 
@@ -97,6 +106,10 @@ public sealed class EnemyController : KinematicCharacter
 				if (m_aiState != null)
 				{
 					m_aiState.Enter();
+				}
+				else
+				{
+					move = Vector2.zero;
 				}
 			}
 		}
@@ -231,11 +244,6 @@ public sealed class EnemyController : KinematicCharacter
 	// TODO: un-expose?
 	public bool NavigateTowardTarget(Vector2 targetOffsetAbs)
 	{
-		if (m_targetSelectTimeNext <= Time.time && m_aiState != null)
-		{
-			m_aiState.Retarget();
-			m_targetSelectTimeNext = Time.time + Random.Range(m_replanSecondsMax * 0.5f, m_replanSecondsMax); // TODO: parameterize "min" time even though it's not a hard minimum?
-		}
 		if (m_target == null || ShouldSkipUpdates)
 		{
 			move = Vector2.zero;
@@ -251,7 +259,7 @@ public sealed class EnemyController : KinematicCharacter
 			{
 				m_target = null; // TODO: better handle unreachable positions; idle? find closest reachable position?
 			}
-			else if (GameController.Instance.m_avatars.Any(avatar => avatar.gameObject == m_target.gameObject))
+			else if (!m_friendly && GameController.Instance.m_avatars.Any(avatar => avatar.gameObject == m_target.gameObject))
 			{
 				// if targeting and successfully pathfinding to an avatar, ensure we are now contained in GameController.m_enemiesActive[]
 				// TODO: efficiency?

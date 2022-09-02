@@ -93,7 +93,21 @@ public abstract class AIState
 	}
 
 	public virtual void Enter() {}
-	public abstract AIState Update();
+
+	public virtual AIState Update()
+	{
+		if (m_ai.m_targetSelectTimeNext <= Time.time)
+		{
+			Retarget();
+			if (m_ai.m_target == null)
+			{
+				return null;
+			}
+			m_ai.m_targetSelectTimeNext = Time.time + Random.Range(m_ai.m_replanSecondsMax * 0.5f, m_ai.m_replanSecondsMax); // TODO: parameterize "min" time even though it's not a hard minimum?
+		}
+
+		return this;
+	}
 
 	public virtual void Retarget()
 	{
@@ -146,6 +160,12 @@ public class AIPursue : AIState
 
 	public override AIState Update()
 	{
+		AIState baseVal = base.Update();
+		if (baseVal != this)
+		{
+			return baseVal;
+		}
+
 		bool hasArrived = m_ai.NavigateTowardTarget(m_targetOffset);
 
 		// check for target death
@@ -163,6 +183,16 @@ public class AIPursue : AIState
 		}
 
 		return this;
+	}
+
+	public override void Retarget()
+	{
+		if (m_ai.OnlyPursueAvatar)
+		{
+			m_ai.m_target = GameController.Instance.m_avatars.Count <= 0 ? null : GameController.Instance.m_avatars.Random(); // TODO: choose nearest to prevent thrashing in co-op?
+			return;
+		}
+		base.Retarget();
 	}
 }
 
@@ -239,6 +269,12 @@ public sealed class AIFlee : AIState
 
 	public override AIState Update()
 	{
+		AIState baseVal = base.Update();
+		if (baseVal != this)
+		{
+			return baseVal;
+		}
+
 		m_ai.NavigateTowardTarget(m_fleeOffset);
 		m_secondsRemaining -= Time.deltaTime;
 		return m_secondsRemaining > 0.0f ? this : null;
@@ -274,6 +310,12 @@ public sealed class AIMelee : AIState
 
 	public override AIState Update()
 	{
+		AIState baseVal = base.Update();
+		if (baseVal != this)
+		{
+			return baseVal;
+		}
+
 		m_ai.NavigateTowardTarget(Vector2.zero);
 
 		if (Time.time >= m_swingTime + m_swingTimeSeconds)
@@ -317,6 +359,12 @@ public class AIThrow : AIState
 
 	public override AIState Update()
 	{
+		AIState baseVal = base.Update();
+		if (baseVal != this)
+		{
+			return baseVal;
+		}
+
 		m_ai.move = Vector2.zero;
 
 		// pre-throw
@@ -458,6 +506,12 @@ public sealed class AIRamSwoop : AIState
 
 	public override AIState Update()
 	{
+		AIState baseVal = base.Update();
+		if (baseVal != this)
+		{
+			return baseVal;
+		}
+
 		// given m_startPosToTarget == (a,b),
 		// we want position equation: (x,y) = (a - a*cos(theta), b*sin(theta))
 		// so, the velocity equation is the derivative: (x',y') = (a*sin(theta), b*cos(theta))
@@ -508,6 +562,12 @@ public sealed class AIFindAmmo : AIState
 
 	public override AIState Update()
 	{
+		AIState baseVal = base.Update();
+		if (baseVal != this)
+		{
+			return baseVal;
+		}
+
 		// validate target
 		if (m_ai.m_target == null || (m_ai.m_target.transform.parent != null && m_ai.m_target.transform.parent != m_ai.transform))
 		{
@@ -615,6 +675,12 @@ public sealed class AITeleport : AIState
 
 	public override AIState Update()
 	{
+		AIState baseVal = base.Update();
+		if (baseVal != this)
+		{
+			return baseVal;
+		}
+
 		m_ai.move = Vector2.zero;
 
 		// TODO: animation
