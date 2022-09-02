@@ -30,6 +30,8 @@ public sealed class EnemyController : KinematicCharacter
 	[SerializeField] private AudioClip[] m_attackSFX; // TODO: remove in favor of animation triggers w/ AudioCollection?
 	public WeightedObject<GameObject>[] m_teleportVFX;
 
+	[SerializeField] private GameObject m_attentionFlagPrefab;
+
 
 	[SerializeField] private GameObject m_heldPrefab;
 
@@ -37,18 +39,20 @@ public sealed class EnemyController : KinematicCharacter
 	public float AimOffsetDegrees { private get; set; }
 	public float AimScalar { private get; set; } = 1.0f;
 
-	public bool OnlyPursueAvatar { get; set; }
+	public bool OnlyPursueAvatar { get; private set; }
 
 
 	private int m_aimLastFrame; // OPTIMIZATION: only aim arms once per frame even if physics is stepping more
 
-	public float m_targetSelectTimeNext;
+	[HideInInspector] public float m_targetSelectTimeNext;
 	private AIState m_aiState;
 
 	private float m_pathfindTimeNext;
 	private List<Vector2> m_pathfindWaypoints;
 
 	private float m_dropDecayVel;
+
+	private GameObject m_attentionFlag;
 
 
 	private bool ShouldSkipUpdates => m_passive || ConsoleCommands.PassiveAI || HasForcedVelocity; // TODO: decouple AI process pausing from forced velocity?
@@ -238,6 +242,30 @@ public sealed class EnemyController : KinematicCharacter
 			return;
 		}
 		enabled = false;
+	}
+
+
+	public void SetOnlyPursueAvatar(bool active)
+	{
+		OnlyPursueAvatar = active;
+
+		// manage attention flag
+		if (active && m_attentionFlag == null)
+		{
+			m_attentionFlag = Instantiate(m_attentionFlagPrefab, transform);
+		}
+		else if (!active && m_attentionFlag != null)
+		{
+			Simulation.Schedule<ObjectDespawn>().m_object = m_attentionFlag;
+			m_attentionFlag = null;
+		}
+
+		// replan
+		if (m_aiState != null)
+		{
+			m_aiState.Exit();
+			m_aiState = null;
+		}
 	}
 
 

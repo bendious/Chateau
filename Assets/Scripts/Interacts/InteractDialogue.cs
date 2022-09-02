@@ -36,7 +36,7 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 
 		if (m_ai != null && m_ai.m_friendly && UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex == 0 && HasSingleUseAvailable) // TODO: remove 0th scene hardcoding?
 		{
-			m_ai.OnlyPursueAvatar = true;
+			m_ai.SetOnlyPursueAvatar(true);
 		}
 	}
 
@@ -65,7 +65,7 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 		// deactivate single-minded pursuit if appropriate
 		if (m_ai != null && m_ai.m_friendly && m_ai.OnlyPursueAvatar && !HasSingleUseAvailable)
 		{
-			m_ai.OnlyPursueAvatar = false;
+			m_ai.SetOnlyPursueAvatar(false);
 		}
 	}
 

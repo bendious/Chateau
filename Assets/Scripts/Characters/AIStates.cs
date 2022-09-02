@@ -117,13 +117,17 @@ public abstract class AIState
 		{
 			return;
 		}
-		m_ai.m_target = candidates.SelectMin(candidate =>
+		System.Tuple<KinematicCharacter, System.Tuple<float, float>> targetBest = candidates.SelectMinWithValue(candidate =>
 		{
 			float priority = candidate.TargetPriority(m_ai);
 			Transform charTf = candidate.transform;
 			float sqDist = Vector2.Distance(m_ai.transform.position, charTf.position);
 			return System.Tuple.Create(priority, sqDist);
 		}, new PriorityDistanceComparer());
+		if (targetBest.Item2.Item1 > 0.0f)
+		{
+			m_ai.m_target = targetBest.Item1;
+		}
 	}
 
 	public virtual AIState OnDamage(GameObject source) => null;

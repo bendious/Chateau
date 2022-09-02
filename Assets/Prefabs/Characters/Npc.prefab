@@ -112,6 +112,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_attentionFlagPrefab
+      value: 
+      objectReference: {fileID: 4978694880772644943, guid: a6bf0683def10fa4c83110fa83730421, type: 3}
+    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_layerIgnoreOneWay.m_mask.m_Bits
       value: 256
       objectReference: {fileID: 0}
