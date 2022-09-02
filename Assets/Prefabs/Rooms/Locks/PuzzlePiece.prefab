@@ -32,34 +32,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8555504412054492373, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8555504412054492373, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8555504412054492373, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8555504412054492373, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8555504412054492373, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8555504412054492373, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8555504412054492373, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8555504412054492373, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
@@ -118,5 +90,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9922e54d2293baa4c8629845dc485c1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_spriteAlternates: []
+  m_snapPrecursors: []
   m_maxSnapDistance: 0.5
   m_maxSnapDegrees: 45
+  m_splitCountMax: 0
