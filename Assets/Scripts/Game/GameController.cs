@@ -252,7 +252,17 @@ public class GameController : MonoBehaviour
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
 	}
 
-	private void Update() => Simulation.Tick();
+	private void Update()
+	{
+		// constrain camera
+		// TODO: efficiency?
+		AvatarController liveAvatar = m_avatars.FirstOrDefault(avatar => avatar.IsAlive);
+		RoomController constraintRoom = liveAvatar == null ? null : RoomFromPosition(liveAvatar.transform.position);
+		bool unconstrained = constraintRoom == null || m_avatars.Any(avatar => avatar.IsAlive && (avatar.IsLooking || RoomFromPosition(avatar.transform.position) != constraintRoom));
+		m_virtualCamera.GetComponentInChildren<CinemachineConfiner2D>().m_BoundingShape2D = unconstrained ? null : constraintRoom.GetComponentInChildren<PolygonCollider2D>();
+
+		Simulation.Tick();
+	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Called via SendMessage() from PlayerInputManager component")]
 	private void OnPlayerJoined(PlayerInput player)

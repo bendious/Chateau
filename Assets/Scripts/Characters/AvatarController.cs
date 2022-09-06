@@ -68,7 +68,7 @@ public sealed class AvatarController : KinematicCharacter
 
 	private GameObject m_focusObj;
 
-	private bool m_looking;
+	public bool IsLooking { get; private set; }
 
 	private VisualEffect m_aimVfx;
 	private bool m_aiming;
@@ -154,11 +154,6 @@ public sealed class AvatarController : KinematicCharacter
 	protected override void FixedUpdate()
 	{
 		base.FixedUpdate();
-
-		// constrain camera
-		// TODO: efficiency? better co-op handling
-		RoomController room = m_looking ? null : GameController.Instance.RoomFromPosition(transform.position);
-		GameController.Instance.m_virtualCamera.GetComponentInChildren<CinemachineConfiner2D>().m_BoundingShape2D = room == null ? null : room.GetComponentInChildren<PolygonCollider2D>();
 
 		Vector2 aimPosConstrained = m_aimObject.transform.position; // TODO: improve start/respawn aim position
 		Vector2 aimPos = aimPosConstrained;
@@ -360,8 +355,8 @@ public sealed class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnLookToggle(InputValue input)
 	{
-		m_looking = input.isPressed;
-		if (m_looking)
+		IsLooking = input.isPressed;
+		if (IsLooking)
 		{
 			GameController.Instance.AddCameraTargets(m_aimObject.transform);
 		}
