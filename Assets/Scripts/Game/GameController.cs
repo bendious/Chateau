@@ -130,7 +130,7 @@ public class GameController : MonoBehaviour
 	private float m_nextWaveTime = 0.0f;
 	private bool m_waveSpawningInProgress = false;
 
-	private readonly List<EnemyController> m_enemiesActive = new();
+	private readonly List<AIController> m_enemiesActive = new();
 	private static int[] m_enemySpawnCounts;
 
 	private static readonly BitArray m_secretsFoundBitmask = new(sizeof(int) * 8); // TODO: avoid limiting to a single int?
@@ -367,7 +367,7 @@ public class GameController : MonoBehaviour
 		// NOTE that if the avatar is ever visible while paused, we should disable its script here to avoid continuing to update facing
 	}
 
-	public void EnemyAdd(EnemyController enemy)
+	public void EnemyAdd(AIController enemy)
 	{
 		if (m_enemiesActive.Contains(enemy))
 		{
@@ -386,7 +386,7 @@ public class GameController : MonoBehaviour
 		// TODO: don't assume we're locked into individual rooms?
 		RoomController[] reachableRooms = m_avatars.Where(avatar => avatar.IsAlive).Select(avatar => RoomFromPosition(avatar.transform.position)).ToArray();
 
-		foreach (EnemyController enemy in m_enemiesActive)
+		foreach (AIController enemy in m_enemiesActive)
 		{
 			if (reachableRooms.Contains(RoomFromPosition(enemy.transform.position)))
 			{
@@ -457,7 +457,7 @@ public class GameController : MonoBehaviour
 		IsSceneLoad = true;
 
 		// prevent stale GameController asserts while reloading
-		foreach (EnemyController enemy in m_enemiesActive)
+		foreach (AIController enemy in m_enemiesActive)
 		{
 			enemy.gameObject.SetActive(false);
 		}
@@ -570,7 +570,7 @@ public class GameController : MonoBehaviour
 
 	public void DebugKillAllEnemies()
 	{
-		foreach (EnemyController enemy in m_enemiesActive)
+		foreach (AIController enemy in m_enemiesActive)
 		{
 			enemy.GetComponent<Health>().Die();
 		}
@@ -913,18 +913,18 @@ public class GameController : MonoBehaviour
 	private void SpawnEnemy(GameObject enemyPrefab)
 	{
 		Vector3 spawnPos = RoomFromPosition(m_avatars.Random().transform.position).SpawnPointRandom();
-		EnemyAdd(Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<EnemyController>());
+		EnemyAdd(Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<AIController>());
 	}
 
 	private void OnObjectDespawn(ObjectDespawn evt)
 	{
-		EnemyController enemy = evt.m_object.GetComponent<EnemyController>();
-		if (enemy == null)
+		AIController ai = evt.m_object.GetComponent<AIController>();
+		if (ai == null)
 		{
 			return;
 		}
 
-		m_enemiesActive.Remove(enemy);
+		m_enemiesActive.Remove(ai);
 
 		if (m_waveSealing && !ActiveEnemiesRemain() && !m_bossRoomSealed)
 		{

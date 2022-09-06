@@ -4,10 +4,10 @@ using UnityEngine;
 
 
 /// <summary>
-/// A simple controller for enemies. Provides state updating, aiming, movement control toward a target object, etc.
+/// A simple controller for enemies/NPCs. Provides state updating, aiming, movement control toward a target object, etc.
 /// </summary>
 [DisallowMultipleComponent]
-public sealed class EnemyController : KinematicCharacter
+public sealed class AIController : KinematicCharacter
 {
 	[SerializeField] private AIState.Type[] m_allowedStates = new[] { AIState.Type.Pursue, AIState.Type.Flee, AIState.Type.RamSwoop };
 
@@ -204,7 +204,7 @@ public sealed class EnemyController : KinematicCharacter
 		{
 			return false;
 		}
-		EnemyController otherEnemy = target.GetComponent<EnemyController>();
+		AIController otherEnemy = target.GetComponent<AIController>();
 		if (otherEnemy != null && otherEnemy.m_friendly == m_friendly)
 		{
 			return false;

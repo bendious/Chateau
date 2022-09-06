@@ -4,7 +4,7 @@ using UnityEngine;
 public class DisableAnimatorControl : StateMachineBehaviour
 {
 	private AvatarController m_avatar;
-	private EnemyController m_enemy;
+	private AIController m_ai;
 
 	private bool m_wasPassive;
 
@@ -17,11 +17,11 @@ public class DisableAnimatorControl : StateMachineBehaviour
 		{
 			m_avatar.DeactivateAllControl();
 		}
-		m_enemy = animator.GetComponent<EnemyController>();
-		if (m_enemy != null)
+		m_ai = animator.GetComponent<AIController>();
+		if (m_ai != null)
 		{
-			m_wasPassive = m_enemy.m_passive;
-			m_enemy.m_passive = true;
+			m_wasPassive = m_ai.m_passive;
+			m_ai.m_passive = true;
 		}
 	}
 
@@ -32,9 +32,9 @@ public class DisableAnimatorControl : StateMachineBehaviour
 		{
 			m_avatar.EnablePlayerControl();
 		}
-		if (m_enemy != null)
+		if (m_ai != null)
 		{
-			m_enemy.m_passive = m_wasPassive;
+			m_ai.m_passive = m_wasPassive;
 		}
 	}
 }

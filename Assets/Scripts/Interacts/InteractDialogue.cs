@@ -18,7 +18,7 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 
 	private bool m_isVice;
 
-	private EnemyController m_ai;
+	private AIController m_ai;
 
 	private WeightedObject<NpcDialogue.DialogueInfo>[] m_dialogueCombined;
 	private WeightedObject<NpcDialogue.ExpressionInfo>[] m_expressionsCombined;
@@ -28,7 +28,7 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 	{
 		m_isVice = Random.value > 0.5f; // TODO: choose exactly one NPC
 
-		m_ai = GetComponent<EnemyController>();
+		m_ai = GetComponent<AIController>();
 
 		// set NPC appearance
 		// TODO: move elsewhere?

@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 /// <summary>
-/// KinematicCharacter integrates physics and animation. It is generally used for simple enemy animation.
+/// KinematicCharacter integrates physics and animation, generally for simple characters.
 /// </summary>
 [RequireComponent(typeof(SpriteRenderer), typeof(Animator), typeof(Collider2D)), RequireComponent(typeof(AudioSource))]
 public abstract class KinematicCharacter : KinematicObject, IHolder

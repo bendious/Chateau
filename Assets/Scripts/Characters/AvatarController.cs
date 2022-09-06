@@ -706,15 +706,15 @@ public sealed class AvatarController : KinematicCharacter
 		{
 			return false;
 		}
-		EnemyController enemy = target.GetComponent<EnemyController>();
-		if (enemy != null && enemy.m_friendly)
+		AIController ai = target.GetComponent<AIController>();
+		if (ai != null && ai.m_friendly)
 		{
 			return false;
 		}
 		return true;
 	}
 
-	public override float TargetPriority(KinematicCharacter source) => (!IsAlive || (source is EnemyController enemy && enemy.m_friendly)) ? 0.0f : base.TargetPriority(source);
+	public override float TargetPriority(KinematicCharacter source) => (!IsAlive || (source is AIController ai && ai.m_friendly)) ? 0.0f : base.TargetPriority(source);
 
 
 	protected override void DespawnSelf()

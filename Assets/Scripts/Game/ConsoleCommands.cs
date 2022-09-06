@@ -93,9 +93,9 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 		m_controls.Console.SpawnEnemy.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.DebugSpawnEnemy(Mathf.RoundToInt(m_controls.Console.SpawnEnemy.ReadValue<float>()) % 10));
 		m_controls.Console.EnemiesPathfindTest.performed += ctx => ExecuteIfConsoleOpen(() =>
 		{
-			foreach (EnemyController enemy in FindObjectsOfType<EnemyController>())
+			foreach (AIController ai in FindObjectsOfType<AIController>())
 			{
-				enemy.DebugPathfindTest();
+				ai.DebugPathfindTest();
 			}
 		});
 		m_controls.Console.ControlsVisualization.performed += ctx => ExecuteIfConsoleOpen(() =>

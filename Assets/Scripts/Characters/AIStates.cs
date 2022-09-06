@@ -21,12 +21,12 @@ public abstract class AIState
 	};
 
 
-	protected readonly EnemyController m_ai;
+	protected readonly AIController m_ai;
 
 
-	public AIState(EnemyController ai) => m_ai = ai;
+	public AIState(AIController ai) => m_ai = ai;
 
-	public static AIState FromTypePrioritized(Type[] allowedTypes, EnemyController ai)
+	public static AIState FromTypePrioritized(Type[] allowedTypes, AIController ai)
 	{
 		float distanceFromTarget = ai.m_target == null ? float.MaxValue : Vector2.Distance(ai.transform.position, ai.m_target.transform.position);
 		Vector2 targetOffset = ai.m_target == null ? Vector2.zero : ai.m_target.transform.position.x < ai.transform.position.x ? ai.m_targetOffset : new(-ai.m_targetOffset.x, ai.m_targetOffset.y);
@@ -150,10 +150,10 @@ public class AIPursue : AIState
 	protected Vector2 m_targetOffset;
 
 
-	public AIPursue(EnemyController ai)
+	public AIPursue(AIController ai)
 		: base(ai)
 	{
-		m_targetOffset = Random.value > 0.9f ? 0.75f/*?*/ * m_ai.m_meleeRange * Vector2.right : m_ai.m_targetOffset; // NOTE that even enemies w/ range go in for melee sometimes // TODO: EnemyController.disallowMelee flag?
+		m_targetOffset = Random.value > 0.9f ? 0.75f/*?*/ * m_ai.m_meleeRange * Vector2.right : m_ai.m_targetOffset; // NOTE that even enemies w/ range go in for melee sometimes // TODO: AIController.disallowMelee flag?
 	}
 
 	public override AIState Update()
@@ -206,7 +206,7 @@ public sealed class AIPursueErratic : AIPursue
 	private float m_postSecondsRemaining;
 
 
-	public AIPursueErratic(EnemyController ai)
+	public AIPursueErratic(AIController ai)
 		: base(ai)
 	{
 		RandomizeTargetOffset();
@@ -254,7 +254,7 @@ public sealed class AIFlee : AIState
 	private float m_secondsRemaining;
 
 
-	public AIFlee(EnemyController ai)
+	public AIFlee(AIController ai)
 		: base(ai)
 	{
 	}
@@ -293,7 +293,7 @@ public sealed class AIMelee : AIState
 	private ItemController m_item;
 
 
-	public AIMelee(EnemyController ai)
+	public AIMelee(AIController ai)
 		: base(ai)
 	{
 	}
@@ -344,7 +344,7 @@ public class AIThrow : AIState
 	protected bool m_hasThrown = false;
 
 
-	public AIThrow(EnemyController ai)
+	public AIThrow(AIController ai)
 		: base(ai)
 	{
 	}
@@ -404,7 +404,7 @@ public class AIThrowAll : AIThrow
 	protected bool m_hasThrownAll = false;
 
 
-	public AIThrowAll(EnemyController ai)
+	public AIThrowAll(AIController ai)
 		: base(ai)
 	{
 		m_spinScalar = 360.0f / m_waitSeconds; // TODO: move to Update() if m_waitSeconds ever needs to be set externally
@@ -445,7 +445,7 @@ public sealed class AIThrowAllNarrow : AIThrowAll
 	private readonly float m_narrowingScalar;
 
 
-	public AIThrowAllNarrow(EnemyController ai)
+	public AIThrowAllNarrow(AIController ai)
 		: base(ai)
 	{
 		m_narrowingScalar = 1.0f / m_waitSeconds; // TODO: move to Update() if m_waitSeconds ever needs to be set externally
@@ -483,7 +483,7 @@ public sealed class AIRamSwoop : AIState
 	private float m_angleRadians = 0.0f;
 
 
-	public AIRamSwoop(EnemyController ai)
+	public AIRamSwoop(AIController ai)
 		: base(ai)
 	{
 	}
@@ -548,7 +548,7 @@ public sealed class AIFindAmmo : AIState
 	public float m_multiFindPct = 0.5f; // TODO: determine based on relative distances to other items versus m_ai.m_target?
 
 
-	public AIFindAmmo(EnemyController ai)
+	public AIFindAmmo(AIController ai)
 		: base(ai)
 	{
 	}
@@ -656,7 +656,7 @@ public sealed class AITeleport : AIState
 	private static float m_lastFinishTime;
 
 
-	public AITeleport(EnemyController ai) : base(ai)
+	public AITeleport(AIController ai) : base(ai)
 	{
 		m_preDelayTime = Time.time + m_delaySeconds;
 		m_midDelayTime = Time.time + m_delaySeconds * 2.0f;

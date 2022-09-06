@@ -36,7 +36,13 @@ public class DespawnEffect : MonoBehaviour
 
 	private void ProcessCollision(Collider2D collider)
 	{
-		if (!m_enemyAutoTrigger || collider.GetComponent<EnemyController>() == null || GetComponent<ItemController>().Cause == null)
+		if (!m_enemyAutoTrigger || GetComponent<ItemController>().Cause == null)
+		{
+			return;
+		}
+
+		AIController ai = collider.GetComponent<AIController>();
+		if (ai == null || ai.m_friendly)
 		{
 			return;
 		}
