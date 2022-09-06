@@ -124,7 +124,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	{
 		List<ContactPoint2D> contacts = new();
 		int contactCount = collision.GetContacts(contacts);
-		ProcessCollision(collision.collider, collision.rigidbody, collision.relativeVelocity, collision.otherCollider, collision.otherRigidbody, contacts, contactCount);
+		ProcessCollision(collision.collider, collision.rigidbody, collision.relativeVelocity, collision.otherCollider, collision.otherRigidbody, contacts);
 	}
 
 	private void OnCollisionStay2D(Collision2D collision)
@@ -134,7 +134,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	private void OnTriggerEnter2D(Collider2D collider)
 	{
-		ProcessCollision(collider, collider.attachedRigidbody, m_body.velocity, m_colliders.OrderBy(c => Vector2.Distance(c.bounds.center, collider.bounds.center)).First(), m_body, null, 0); // TODO: better guess at which m_colliders[] entry is involved?
+		ProcessCollision(collider, collider.attachedRigidbody, m_body.velocity, m_colliders.OrderBy(c => Vector2.Distance(c.bounds.center, collider.bounds.center)).First(), m_body, null); // TODO: better guess at which m_colliders[] entry is involved?
 	}
 
 	private void OnTriggerStay2D(Collider2D collider)
@@ -373,11 +373,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		m_trail.widthCurve = AnimationCurve.EaseInOut(0.0f, compareFunc(m_trailSizes.x, m_trailSizes.y), 1.0f, 0.0f);
 	}
 
-	private void ProcessCollision(Collider2D collider, Rigidbody2D rigidbody, Vector2 relativeVelocity, Collider2D otherCollider, Rigidbody2D otherRigidbody, List<ContactPoint2D> contacts, int contactCount) // NOTE the separate contactCount since Collision2D.GetContacts() can have null end entries
+	private void ProcessCollision(Collider2D collider, Rigidbody2D rigidbody, Vector2 relativeVelocity, Collider2D otherCollider, Rigidbody2D otherRigidbody, List<ContactPoint2D> contacts)
 	{
 		if (!gameObject.activeSelf) // e.g. we're a bomb that has just gone off
 		{
-			DebugEvent(collider, contacts, contactCount, ConsoleCommands.ItemDebugLevels.Deactivated);
+			DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Deactivated);
 			return;
 		}
 
@@ -394,13 +394,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 				gameObject.layer = supportingContact.collider.gameObject.layer;
 				m_body.Sleep(); // NOTE that changing the object's layer wakes it, so we have to manually Sleep() here
 			}
-			DebugEvent(collider, contacts, contactCount, ConsoleCommands.ItemDebugLevels.Supported);
+			DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Supported);
 			return;
 		}
 
 		if ((kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders)) || collider.transform.root == transform.root)
 		{
-			DebugEvent(collider, contacts, contactCount, ConsoleCommands.ItemDebugLevels.Ignored);
+			DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Ignored);
 			return;
 		}
 
@@ -411,7 +411,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		{
 			if (rigidbody == null || rigidbody.bodyType != RigidbodyType2D.Dynamic)
 			{
-				DebugEvent(collider, contacts, contactCount, ConsoleCommands.ItemDebugLevels.Static);
+				DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Static);
 				return;
 			}
 		}
@@ -425,7 +425,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>(true).Length < character.HoldCountMax)
 			{
 				character.ChildAttach(this);
-				DebugEvent(collider, contacts, contactCount, ConsoleCommands.ItemDebugLevels.Attach);
+				DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Attach);
 				return;
 			}
 		}
@@ -461,35 +461,17 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 					otherItem.Detach(true);
 				}
 			}
-			DebugEvent(collider, contacts, contactCount, ConsoleCommands.ItemDebugLevels.Damage);
+			DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Damage);
 		}
 		else
 		{
-			DebugEvent(collider, contacts, contactCount, ConsoleCommands.ItemDebugLevels.TooSlow);
+			DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.TooSlow);
 		}
 
 		if (isDetached)
 		{
 			// set layer back to default to re-enable default collisions
 			gameObject.layer = GameController.Instance.m_layerDefault.ToIndex();
-		}
-
-		// done for fully-dynamic collisions
-		if (kinematicObj == null)
-		{
-			return;
-		}
-
-		// add upward force to emulate kicking
-		if (isDetached && !canDamage && character != null && (Cause == null || GameController.Instance.m_avatars.Contains(character)))
-		{
-			SetCause(character);
-			EnableVFXAndDamage(); // mostly to prevent m_cause from remaining set and allowing damage if run into fast enough
-		}
-		for (int i = 0; i < contactCount; ++i) // NOTE that we can't use foreach() since GetContacts() can have null end entries
-		{
-			ContactPoint2D pos = contacts[i];
-			m_body.AddForceAtPosition(Vector2.up * collisionSpeed, pos.point);
 		}
 	}
 
@@ -532,9 +514,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 #if UNITY_EDITOR
 	private readonly List<System.Tuple<Vector2, ConsoleCommands.ItemDebugLevels, float>> m_debugEvents = new();
 
-	private void DebugEvent(Collider2D collider, List<ContactPoint2D> contacts, int contactCount, ConsoleCommands.ItemDebugLevels type)
+	private void DebugEvent(Collider2D collider, List<ContactPoint2D> contacts, ConsoleCommands.ItemDebugLevels type)
 	{
-		Vector2 pos = contactCount > 0 ? contacts.First().point : (transform.position + collider.transform.position) * 0.5f;
+		Vector2 pos = contacts != null && contacts.Count > 0 ? contacts.First().point : (transform.position + collider.transform.position) * 0.5f;
 		const float lifetimeSeconds = 5.0f; // TODO: parameterize?
 		m_debugEvents.Add(System.Tuple.Create(pos, type, Time.time + lifetimeSeconds));
 	}

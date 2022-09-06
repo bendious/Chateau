@@ -6,7 +6,7 @@ public class HiddenDestructible : MonoBehaviour
 {
 	[SerializeField] private GameObject m_hiddenPrefab;
 
-	[SerializeField] private float m_hiddenPct = 0.5f;
+	[SerializeField] private float m_hiddenPct = 0.25f;
 	[SerializeField] private float m_lockedPct = 0.5f;
 	[SerializeField] private float m_unlockedRarePct = 0.5f;
 

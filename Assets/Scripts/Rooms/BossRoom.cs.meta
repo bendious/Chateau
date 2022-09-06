@@ -5,6 +5,7 @@ MonoImporter:
   serializedVersion: 2
   defaultReferences:
   - m_audioOutro: {fileID: 8300000, guid: 7392dd28435646f4c8c9bbf84154c707, type: 3}
+  - m_music: {fileID: 8300000, guid: 9acfb6f89edbdd949b513fe6314f7a84, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

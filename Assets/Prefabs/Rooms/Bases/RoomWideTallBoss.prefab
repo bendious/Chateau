@@ -349,6 +349,11 @@ MonoBehaviour:
   m_bossPrefabs:
   - m_object: {fileID: 25075436683410029, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
     m_weight: 1
+  m_platformPrefabs:
+  - m_object: {fileID: 1415810480137027448, guid: de9c7b93abd50404993d2695ab43b748, type: 3}
+    m_weight: 1
+  m_platformsMin: 0
+  m_platformsMax: 4
   m_spawnedLadderPrefabs:
   - m_object: {fileID: 6981071687859246632, guid: 17e8567260500674f88fe723983904c9, type: 3}
     m_weight: 1

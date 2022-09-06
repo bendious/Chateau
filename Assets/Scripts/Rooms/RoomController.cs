@@ -838,14 +838,18 @@ public class RoomController : MonoBehaviour
 		}
 	}
 
-	public Vector3 InteriorPosition(float heightMax, GameObject preventOverlapPrefab = null, Quaternion? rotation = null, System.Action resizeAction = null, System.Action failureAction = null)
+	public Vector3 InteriorPosition(float heightMax, GameObject preventOverlapPrefab = null, Quaternion? rotation = null, float edgeBuffer = 0.0f, System.Action resizeAction = null, System.Action failureAction = null)
 	{
-		return InteriorPosition(0.0f, heightMax, preventOverlapPrefab, rotation, resizeAction, failureAction);
+		return InteriorPosition(0.0f, heightMax, preventOverlapPrefab, rotation, edgeBuffer, resizeAction, failureAction);
 	}
 
-	public Vector3 InteriorPosition(float heightMin, float heightMax, GameObject preventOverlapPrefab = null, Quaternion? rotation = null, System.Action resizeAction = null, System.Action failureAction = null)
+	public Vector3 InteriorPosition(float heightMin, float heightMax, GameObject preventOverlapPrefab = null, Quaternion? rotation = null, float edgeBuffer = 0.0f, System.Action resizeAction = null, System.Action failureAction = null)
 	{
 		Bounds boundsInterior = BoundsInterior;
+		if (edgeBuffer != 0.0f)
+		{
+			boundsInterior.Expand(new Vector3(-edgeBuffer, -edgeBuffer));
+		}
 
 		Vector3 pos;
 		const int attemptsMax = 100;

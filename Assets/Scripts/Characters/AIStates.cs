@@ -415,14 +415,19 @@ public class AIThrow : AIState
 
 public class AIThrowAll : AIThrow
 {
-	private readonly float m_spinScalar;
+	public float m_waitSecondsOverride = 1.0f;
+
 
 	protected bool m_hasThrownAll = false;
+
+
+	private readonly float m_spinScalar;
 
 
 	public AIThrowAll(AIController ai)
 		: base(ai)
 	{
+		m_waitSeconds = m_waitSecondsOverride;
 		m_spinScalar = 360.0f / m_waitSeconds; // TODO: move to Update() if m_waitSeconds ever needs to be set externally
 	}
 

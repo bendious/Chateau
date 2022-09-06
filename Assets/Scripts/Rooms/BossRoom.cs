@@ -6,7 +6,11 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class BossRoom : MonoBehaviour
 {
-	public WeightedObject<GameObject>[] m_bossPrefabs;
+	[SerializeField] private WeightedObject<GameObject>[] m_bossPrefabs;
+
+	[SerializeField] private WeightedObject<GameObject>[] m_platformPrefabs;
+	[SerializeField] private int m_platformsMin = 0;
+	[SerializeField] private int m_platformsMax = 4;
 
 	public WeightedObject<GameObject>[] m_spawnedLadderPrefabs;
 
@@ -22,7 +26,8 @@ public class BossRoom : MonoBehaviour
 	private void Start()
 	{
 		// determine farthest valid position from entrance
-		Vector3 parentPos = GetComponent<RoomController>().ParentDoorwayPosition;
+		RoomController room = GetComponent<RoomController>();
+		Vector3 parentPos = room.ParentDoorwayPosition;
 		GameObject bossPrefab = m_bossPrefabs.RandomWeighted();
 		Vector3 spawnPos = transform.position + (Vector3)bossPrefab.OriginToCenterY();
 		Bounds triggerBounds = GetComponent<Collider2D>().bounds;
@@ -31,6 +36,13 @@ public class BossRoom : MonoBehaviour
 		// spawn boss
 		m_boss = Instantiate(bossPrefab, spawnPos, Quaternion.identity).GetComponent<Boss>();
 		m_boss.m_room = this;
+
+		// spawn platforms
+		for (int i = 0, n = Random.Range(m_platformsMin, m_platformsMax + 1); i < n; ++i)
+		{
+			GameObject platform = m_platformPrefabs.RandomWeighted();
+			Instantiate(platform, room.InteriorPosition(float.MaxValue, platform, edgeBuffer: 1.0f), Quaternion.identity, room.transform); // TODO: more deliberate layout / ensure jumpability?
+		}
 
 		// add event handlers
 #if DEBUG
