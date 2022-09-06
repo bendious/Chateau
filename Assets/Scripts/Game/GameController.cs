@@ -383,16 +383,38 @@ public class GameController : MonoBehaviour
 
 	public void RemoveUnreachableEnemies()
 	{
-		// TODO: don't assume we're locked into individual rooms?
-		RoomController[] reachableRooms = m_avatars.Where(avatar => avatar.IsAlive).Select(avatar => RoomFromPosition(avatar.transform.position)).ToArray();
+		if (!m_waveSealing)
+		{
+			return;
+		}
+
+		// TODO: don't assume sealing works on an individual room basis?
+		HashSet<RoomController> reachableRooms = new(m_avatars.Where(avatar => avatar.IsAlive).Select(avatar => RoomFromPosition(avatar.transform.position)));
+		List<AIController> unreachableEnemies = new();
+		HashSet<RoomController> roomsToUnseal = new();
 
 		foreach (AIController enemy in m_enemiesActive)
 		{
-			if (reachableRooms.Contains(RoomFromPosition(enemy.transform.position)))
+			RoomController room = RoomFromPosition(enemy.transform.position);
+			if (reachableRooms.Contains(room))
 			{
 				continue;
 			}
-			Simulation.Schedule<ObjectDespawn>().m_object = enemy.gameObject;
+
+			unreachableEnemies.Add(enemy);
+			roomsToUnseal.Add(room);
+		}
+		m_enemiesActive.RemoveAll(enemy => unreachableEnemies.Contains(enemy));
+
+		if (m_enemiesActive.Count <= 0)
+		{
+			roomsToUnseal.UnionWith(reachableRooms);
+		}
+
+		// TODO: slight time delay?
+		foreach (RoomController room in roomsToUnseal)
+		{
+			room.SealRoom(false);
 		}
 	}
 
@@ -416,6 +438,10 @@ public class GameController : MonoBehaviour
 	{
 		if (ConsoleCommands.RegenerateDisabled)
 		{
+			foreach (RoomController room in m_startRoom.WithDescendants)
+			{
+				room.SealRoom(false);
+			}
 			if (m_pauseUI.isActiveAndEnabled)
 			{
 				TogglePause();
@@ -455,12 +481,6 @@ public class GameController : MonoBehaviour
 		ActivateMenu(m_gameOverUI, false);
 
 		IsSceneLoad = true;
-
-		// prevent stale GameController asserts while reloading
-		foreach (AIController enemy in m_enemiesActive)
-		{
-			enemy.gameObject.SetActive(false);
-		}
 
 		foreach (AvatarController avatar in m_avatars)
 		{

@@ -326,10 +326,7 @@ public sealed class AvatarController : KinematicCharacter
 
 
 	// called by InputSystem / PlayerInput component
-	public void OnMove(InputValue input)
-	{
-		m_moveDesired = input.Get<Vector2>();
-	}
+	public void OnMove(InputValue input) => m_moveDesired = input.Get<Vector2>();
 
 	// called by InputSystem / PlayerInput component
 	public void OnLook(InputValue input)
@@ -374,7 +371,6 @@ public sealed class AvatarController : KinematicCharacter
 		}
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnSwing(InputValue input)
 	{
 		if (!controlEnabled)
@@ -461,7 +457,6 @@ public sealed class AvatarController : KinematicCharacter
 		m_dash = true;
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnUse(InputValue input)
 	{
 		if (!controlEnabled)
@@ -570,7 +565,6 @@ public sealed class AvatarController : KinematicCharacter
 		}
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnSubmit(InputValue input)
 	{
 		if (input.isPressed && m_overlayCanvas.gameObject.activeSelf)

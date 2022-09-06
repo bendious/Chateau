@@ -111,7 +111,6 @@ public abstract class AIState
 
 	public virtual void Retarget()
 	{
-		// TODO: use pathfind distances?
 		KinematicCharacter[] candidates = GameController.Instance.AiTargets.ToArray();
 		if (candidates.Length <= 0)
 		{
@@ -120,8 +119,7 @@ public abstract class AIState
 		System.Tuple<KinematicCharacter, System.Tuple<float, float>> targetBest = candidates.SelectMinWithValue(candidate =>
 		{
 			float priority = candidate.TargetPriority(m_ai);
-			Transform charTf = candidate.transform;
-			float sqDist = Vector2.Distance(m_ai.transform.position, charTf.position);
+			float sqDist = PathfindSqDistanceTo(candidate.gameObject);
 			return System.Tuple.Create(priority, sqDist);
 		}, new PriorityDistanceComparer());
 		if (targetBest.Item2.Item1 > 0.0f)
@@ -142,6 +140,24 @@ public abstract class AIState
 		}
 	}
 #endif
+
+
+	protected float PathfindSqDistanceTo(GameObject obj)
+	{
+		// TODO: efficiency? also prioritize based on damage? de-prioritize based on vertical distance / passing through m_ai.m_target?
+		System.Collections.Generic.List<Vector2> path = GameController.Instance.Pathfind(m_ai.gameObject, obj, m_ai.GetComponent<Collider2D>().bounds.extents.y, !m_ai.HasFlying && m_ai.jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue); // TODO: limit to max jump height once pathfinding takes platforms into account?
+		if (path == null)
+		{
+			return float.MaxValue; // ignore unreachable items
+		}
+
+		float distSq = 0.0f;
+		for (int i = 0; i < path.Count - 1; ++i)
+		{
+			distSq += (path[i + 1] - path[i]).sqrMagnitude;
+		}
+		return distSq;
+	}
 }
 
 
@@ -602,27 +618,14 @@ public sealed class AIFindAmmo : AIState
 		// TODO: efficiency?
 		GameObject[] items = GameObject.FindGameObjectsWithTag("Item");
 
+		// prioritize by pathfind distance
 		System.Tuple<GameObject, float> closestTarget = items.Length <= 0 ? System.Tuple.Create<GameObject, float>(null, float.MaxValue) : items.SelectMinWithValue(obj =>
 		{
-			Transform tf = obj.transform;
-			if (tf.parent != null)
+			if (obj.transform.parent != null)
 			{
 				return float.MaxValue; // ignore held items
 			}
-
-			// prioritize by pathfind distance
-			// TODO: efficiency? also prioritize based on item damage? de-prioritize based on vertical distance / passing through m_ai.m_target? use RandomWeighted() to allow retries to bypass unreachable "closest" options?
-			System.Collections.Generic.List<Vector2> path = GameController.Instance.Pathfind(m_ai.gameObject, tf.gameObject, m_ai.GetComponent<Collider2D>().bounds.extents.y, !m_ai.HasFlying && m_ai.jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue); // TODO: limit to max jump height once pathfinding takes platforms into account?
-			if (path == null)
-			{
-				return float.MaxValue; // ignore unreachable items
-			}
-			float distSq = 0.0f;
-			for (int i = 0; i < path.Count - 1; ++i)
-			{
-				distSq += (path[i + 1] - path[i]).sqrMagnitude;
-			}
-			return distSq;
+			return PathfindSqDistanceTo(obj);
 		});
 
 		m_ai.m_target = closestTarget.Item1 == null || closestTarget.Item2 == float.MaxValue ? null : closestTarget.Item1.GetComponent<ItemController>();

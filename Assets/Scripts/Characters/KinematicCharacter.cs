@@ -111,7 +111,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	public bool IsPickingUp { get; protected set; }
 
-	public bool IsDropping => move.y < -0.5f;
+	public bool IsDropping => move.y < -0.5f && maxSpeed > 0.0f;
 
 
 	private bool m_wasGrounded;
