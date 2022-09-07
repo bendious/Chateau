@@ -832,8 +832,7 @@ public class GameController : MonoBehaviour
 
 		// health
 		Health health = avatar.GetComponent<Health>();
-		health.m_maxHP = avatarOrig.GetComponent<Health>().m_maxHP + m_healthUpgradeCount;
-		health.Respawn(); // to fill and update UI
+		health.SetMax(avatarOrig.GetComponent<Health>().GetMax() + m_healthUpgradeCount);
 
 		// lighting
 		// TODO: affect non-avatar lights?

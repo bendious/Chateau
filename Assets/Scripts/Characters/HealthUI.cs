@@ -15,6 +15,15 @@ public sealed class HealthUI : Health
 
 
 	/// <summary>
+	/// Set the maximum HP of the entity, then update UI.
+	/// </summary>
+	public override void SetMax(float hp)
+	{
+		base.SetMax(hp);
+		SyncUI();
+	}
+
+	/// <summary>
 	/// Increment the HP of the entity, then update UI.
 	/// </summary>
 	public override bool Increment(int amount = 1)
@@ -54,9 +63,8 @@ public sealed class HealthUI : Health
 	}
 
 
-	protected override void Start()
+	private void Start()
 	{
-		base.Start();
 		SyncUI();
 	}
 
@@ -68,7 +76,8 @@ public sealed class HealthUI : Health
 		Debug.Assert(uiHealthCount >= 0);
 
 		// remove excess
-		for (; uiHealthCount > m_maxHP; --uiHealthCount)
+		float maxHP = GetMax();
+		for (; uiHealthCount > maxHP; --uiHealthCount)
 		{
 			Simulation.Schedule<ObjectDespawn>().m_object = m_healthUIParent.transform.GetChild(uiHealthCount).gameObject;
 		}
@@ -80,7 +89,7 @@ public sealed class HealthUI : Health
 		float xInc = (templateWidth + m_UIPadding) * (rectTf.anchorMin.x.FloatEqual(1.0f) ? -1.0f : 1.0f);
 		float xItr = xInc * uiHealthCount;
 		Debug.Assert(!templateObj.activeSelf);
-		for (; uiHealthCount < m_maxHP; ++uiHealthCount, xItr += xInc)
+		for (; uiHealthCount < maxHP; ++uiHealthCount, xItr += xInc)
 		{
 			GameObject uiNew = Instantiate(templateObj, m_healthUIParent.transform);
 			uiNew.GetComponent<RectTransform>().anchoredPosition += new Vector2(xItr, 0.0f);
@@ -88,7 +97,7 @@ public sealed class HealthUI : Health
 		}
 
 		// set sprites
-		for (int i = 0; i < m_maxHP; ++i)
+		for (int i = 0; i < maxHP; ++i)
 		{
 			Image image = m_healthUIParent.transform.GetChild(i + 1).GetComponent<Image>(); // NOTE +1 due to template object
 			bool notEmpty = i < m_currentHP;

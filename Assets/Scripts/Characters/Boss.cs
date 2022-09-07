@@ -19,7 +19,8 @@ public class Boss : MonoBehaviour
 	private void Awake()
 	{
 		m_startPos = transform.position;
-		GetComponent<Health>().m_maxHP *= GameController.Instance.m_zoneScalar;
+		Health health = GetComponent<Health>();
+		health.SetMax(health.GetMax() * GameController.Instance.m_zoneScalar);
 	}
 
 	private void OnWillRenderObject()

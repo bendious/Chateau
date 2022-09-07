@@ -11,7 +11,7 @@ public class Health : MonoBehaviour
 	/// <summary>
 	/// The maximum hit points for the entity.
 	/// </summary>
-	public float m_maxHP = 1.0f;
+	[SerializeField] private float m_maxHP = 1.0f;
 
 	public AudioClip m_damageAudio;
 	public AudioClip m_deathAudio;
@@ -48,6 +48,32 @@ public class Health : MonoBehaviour
 
 
 	/// <summary>
+	/// Get the maximum HP of the entity.
+	/// </summary>
+	public float GetMax() => m_maxHP;
+
+	/// <summary>
+	/// Set the maximum HP of the entity, updating current HP as well.
+	/// </summary>
+	public virtual void SetMax(float hp)
+	{
+		float diff = m_maxHP - m_currentHP;
+		m_maxHP = hp;
+
+		if (m_currentHP <= 0.0f)
+		{
+			return; // "He's already dead!"
+		}
+
+		// update current health
+		m_currentHP = m_maxHP - diff;
+		if (m_currentHP <= 0.0f)
+		{
+			Decrement(null, 0.0f); // TODO: split out death function?
+		}
+	}
+
+	/// <summary>
 	/// Increment the HP of the entity.
 	/// </summary>
 	public virtual bool Increment(int amount = 1) => IncrementInternal(amount);
@@ -70,7 +96,7 @@ public class Health : MonoBehaviour
 		}
 
 		// check directional invincibility
-		if (Vector2.Dot(m_invincibilityDirection, source.transform.position - transform.position) > 0.0f) // TODO: don't assume the source is in the same direction as the weapon?
+		if (source != null && Vector2.Dot(m_invincibilityDirection, source.transform.position - transform.position) > 0.0f) // TODO: don't assume the source is in the same direction as the weapon?
 		{
 			return false;
 		}
@@ -159,7 +185,7 @@ public class Health : MonoBehaviour
 	}
 
 
-	protected virtual void Start()
+	private void Awake()
 	{
 		m_animator = GetComponent<Animator>();
 		m_character = GetComponent<KinematicCharacter>();
