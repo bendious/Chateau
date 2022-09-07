@@ -31,6 +31,11 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	public float m_jumpDeceleration = 0.5f;
 
 	/// <summary>
+	/// A multiplier applied to damage attributed to this character
+	/// </summary>
+	public float m_damageScalar = 1.0f;
+
+	/// <summary>
 	/// Max dash velocity
 	/// </summary>
 	[SerializeField] private Vector2 m_dashVelocity = new(25.0f, 0.0f);

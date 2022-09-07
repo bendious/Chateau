@@ -13,7 +13,8 @@ public class InteractUpgrade : MonoBehaviour, IInteractable
 	{
 		None,
 		Health,
-		Lighting
+		Lighting,
+		Damage,
 	}
 
 
@@ -54,6 +55,7 @@ public class InteractUpgrade : MonoBehaviour, IInteractable
 			// NOTE that we purposely don't handle Type.None since CanInteract() should stop us from ever getting here
 			case Type.Health: GameController.Instance.HealthUpgrade(!m_active, m_index); break;
 			case Type.Lighting: GameController.Instance.LightingUpgrade(!m_active, m_index); break;
+			case Type.Damage: GameController.Instance.DamageUpgrade(!m_active, m_index); break;
 			default: Debug.LogError("Unhandled InteractUpgrade.Type"); break;
 		}
 

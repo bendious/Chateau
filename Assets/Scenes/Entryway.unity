@@ -192,7 +192,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_upgradeIndicators.Array.size
-      value: 6
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_doorInteractPrefabs.Array.size
@@ -222,6 +222,18 @@ PrefabInstance:
       propertyPath: m_upgradeIndicators.Array.data[5]
       value: 
       objectReference: {fileID: 4512245387546677720, guid: 5f73b96da87207149a86526758697b18, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_upgradeIndicators.Array.data[6]
+      value: 
+      objectReference: {fileID: 1148680186476742398, guid: f507c347f46663f4ba585071eef0b2a6, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_upgradeIndicators.Array.data[7]
+      value: 
+      objectReference: {fileID: 1148680186476742398, guid: f507c347f46663f4ba585071eef0b2a6, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_upgradeIndicators.Array.data[8]
+      value: 
+      objectReference: {fileID: 1148680186476742398, guid: f507c347f46663f4ba585071eef0b2a6, type: 3}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_roomTypes.Array.data[0].m_object
       value: 

@@ -103,7 +103,8 @@ public class Health : MonoBehaviour
 
 		// damage
 		HealCancel();
-		IncrementInternal(-1.0f * amount);
+		float amountFinal = -(sourceCharacter == null ? amount : sourceCharacter.m_damageScalar * amount);
+		IncrementInternal(amountFinal);
 		AudioSource audioSource = GetComponent<AudioSource>();
 		if (m_damageAudio != null)
 		{

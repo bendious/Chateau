@@ -134,6 +134,7 @@ public class GameController : MonoBehaviour
 	private static readonly BitArray m_upgradesActiveBitmask = new(sizeof(int) * 8); // TODO: avoid limiting to a single int?
 	private static int m_healthUpgradeCount;
 	private static int m_lightingUpgradeCount;
+	private static int m_damageUpgradeCount;
 
 
 	private void Awake()
@@ -532,8 +533,8 @@ public class GameController : MonoBehaviour
 	}
 
 	public void HealthUpgrade(bool active, int index) => UpgradeInternal(ref m_healthUpgradeCount, active, index);
-
 	public void LightingUpgrade(bool active, int index) => UpgradeInternal(ref m_lightingUpgradeCount, active, index);
+	public void DamageUpgrade(bool active, int index) => UpgradeInternal(ref m_damageUpgradeCount, active, index);
 
 
 #if DEBUG
@@ -720,6 +721,7 @@ public class GameController : MonoBehaviour
 		saveFile.Write(upgradesActiveArray.First());
 		saveFile.Write(m_healthUpgradeCount);
 		saveFile.Write(m_lightingUpgradeCount);
+		saveFile.Write(m_damageUpgradeCount);
 
 		GameObject[] savableObjs = m_savableTags.SelectMany(tag => GameObject.FindGameObjectsWithTag(tag)).Where(obj => obj.scene == SceneManager.GetActiveScene()).ToArray();
 		saveFile.Write(savableObjs, obj => ISavable.Save(saveFile, obj.GetComponent<ISavable>()));
@@ -772,6 +774,7 @@ public class GameController : MonoBehaviour
 			m_upgradesActiveBitmask.Or(new(new[] { saveFile.ReadInt32() })); // NOTE the OR to handle debug loading directly into non-saved scenes, editing m_upgradesActiveBitmask, and then loading a saved scene // TODO: necessary?
 			saveFile.Read(out m_healthUpgradeCount);
 			saveFile.Read(out m_lightingUpgradeCount);
+			saveFile.Read(out m_damageUpgradeCount);
 
 			saveFile.ReadArray(() => ISavable.Load(saveFile));
 		}
@@ -828,18 +831,21 @@ public class GameController : MonoBehaviour
 
 	private void ApplyUpgrades(AvatarController avatar)
 	{
-		GameObject avatarOrig = GetComponent<PlayerInputManager>().playerPrefab;
+		GameObject avatarObjOrig = GetComponent<PlayerInputManager>().playerPrefab;
 
 		// health
 		Health health = avatar.GetComponent<Health>();
-		health.SetMax(avatarOrig.GetComponent<Health>().GetMax() + m_healthUpgradeCount);
+		health.SetMax(avatarObjOrig.GetComponent<Health>().GetMax() + m_healthUpgradeCount);
 
 		// lighting
 		// TODO: affect non-avatar lights?
 		Light2D light = avatar.GetComponent<Light2D>();
-		Light2D lightOrig = avatarOrig.GetComponent<Light2D>();
+		Light2D lightOrig = avatarObjOrig.GetComponent<Light2D>();
 		light.pointLightOuterRadius = (m_lightingUpgradeCount + 1) * lightOrig.pointLightOuterRadius;
 		light.NonpublicSetterWorkaround("m_NormalMapDistance", lightOrig.normalMapDistance + m_lightingUpgradeCount);
+
+		// damage
+		avatar.m_damageScalar = avatarObjOrig.GetComponent<KinematicCharacter>().m_damageScalar + m_damageUpgradeCount;
 	}
 
 	private IEnumerator SpawnWavesCoroutine()
