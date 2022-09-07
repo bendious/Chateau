@@ -161,6 +161,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_sceneDestination: Entryway
   m_isSaveDeletion: 0
+  m_refusalTexts:
+  - It won't open.
+  - It's stuck.
+  - Not done here yet...
 --- !u!82 &4788182134669333101
 AudioSource:
   m_ObjectHideFlags: 0

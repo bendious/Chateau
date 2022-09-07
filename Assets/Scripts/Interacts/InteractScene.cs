@@ -10,6 +10,8 @@ public class InteractScene : MonoBehaviour, IInteractable
 
 	[SerializeField] private bool m_isSaveDeletion;
 
+	[SerializeField] private string[] m_refusalTexts = { "It won't open.", "It's stuck.", "Not done here yet..." };
+
 
 	public int Depth { private get; set; }
 
@@ -35,10 +37,10 @@ public class InteractScene : MonoBehaviour, IInteractable
 			return;
 		}
 
-		if (Depth > GameController.ZonesFinishedCount + 1)
+		if (!GameController.Instance.Victory)
 		{
 			// TODO: indicate w/ visual/audio rather than dialogue?
-			GameController.Instance.m_dialogueController.Play(new DialogueController.Line[] { new() { m_text = "Locked." } }, interactor.GetComponent<AvatarController>());
+			GameController.Instance.m_dialogueController.Play(new DialogueController.Line[] { new() { m_text = m_refusalTexts.Random() } }, interactor.GetComponent<AvatarController>());
 		}
 		else
 		{
