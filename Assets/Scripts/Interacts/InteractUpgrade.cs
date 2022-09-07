@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -5,14 +6,28 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.VFX;
 
 
-[DisallowMultipleComponent, RequireComponent(typeof(Collider2D), typeof(SpriteRenderer))]
+[DisallowMultipleComponent]
 public class InteractUpgrade : MonoBehaviour, IInteractable
 {
+	private enum Type
+	{
+		None,
+		Health,
+		Lighting
+	}
+
+
+	public int m_index = -1;
+
+	public InteractUpgrade[] m_sources;
+
+	[SerializeField] private Type m_type;
+
 	[SerializeField] private float m_activationTimeMin = 0.5f;
 
 	[SerializeField] private WeightedObject<AudioClip>[] m_sfxActivate;
 
-	[SerializeField] private string m_vfxGradientName = GameController.m_vfxGradientNameDefault;
+	[SerializeField] private string m_vfxGradientName = "LifetimeColor";
 
 
 	private AudioSource m_audio;
@@ -29,22 +44,34 @@ public class InteractUpgrade : MonoBehaviour, IInteractable
 	}
 
 
-	public bool CanInteract(KinematicCharacter interactor) => enabled && m_activationTime + m_activationTimeMin < Time.time && (m_active || GameController.Instance.UpgradeAvailable);
+	public bool CanInteract(KinematicCharacter interactor) => enabled && m_index >= 0 && m_type != Type.None && m_activationTime + m_activationTimeMin < Time.time && (m_active || m_sources.Any(source => source.m_active));
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
 		// enable/disable upgrade
-		// TODO: parameterize upgrade type
-		System.Tuple<List<Color>, List<Gradient>> colors = GameController.Instance.HealthUpgrade(!m_active);
+		switch (m_type)
+		{
+			// NOTE that we purposely don't handle Type.None since CanInteract() should stop us from ever getting here
+			case Type.Health: GameController.Instance.HealthUpgrade(!m_active, m_index); break;
+			case Type.Lighting: GameController.Instance.LightingUpgrade(!m_active, m_index); break;
+			default: Debug.LogError("Unhandled InteractUpgrade.Type"); break;
+		}
 
-		ToggleActivation(colors);
+		ToggleActivation();
 	}
 
 
-	public void ToggleActivation(System.Tuple<List<Color>, List<Gradient>> colors, bool silent = false)
+	public void ToggleActivation(bool silent = false)
 	{
 		m_active = !m_active;
 		m_activationTime = Time.time;
+
+		InteractUpgrade colorSource = m_sources.Length <= 0 ? this : m_sources.First(source => source.m_active == m_active);
+		if (colorSource != this)
+		{
+			colorSource.ToggleActivation(silent);
+		}
+		Tuple<List<Color>, List<Gradient>> colors = m_active ? colorSource.FindColors() : null;
 
 		for (int i = 0; i < transform.childCount; ++i)
 		{
@@ -75,12 +102,29 @@ public class InteractUpgrade : MonoBehaviour, IInteractable
 				}
 			}
 		}
-		Debug.Assert(!m_active || (colors.Item1.Count == 0 && colors.Item2.Count == 0));
+		Debug.Assert(colors == null || (colors.Item1.Count == 0 && colors.Item2.Count == 0));
 
 		// SFX
 		if (m_active && !silent && m_sfxActivate.Length > 0)
 		{
 			m_audio.PlayOneShot(m_sfxActivate.RandomWeighted());
 		}
+	}
+
+	private Tuple<List<Color>, List<Gradient>> FindColors()
+	{
+		Tuple<List<Color>, List<Gradient>> colors = Tuple.Create(new List<Color>(), new List<Gradient>());
+
+		foreach (VisualEffect vfx in GetComponentsInChildren<VisualEffect>(true))
+		{
+			Light2D light = vfx.GetComponent<Light2D>();
+			if (light != null)
+			{
+				colors.Item1.Add(light.color);
+			}
+			colors.Item2.Add(vfx.GetGradient(m_vfxGradientName));
+		}
+
+		return colors;
 	}
 }

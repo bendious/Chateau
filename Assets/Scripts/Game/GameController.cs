@@ -11,7 +11,6 @@ using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityEngine.VFX;
 
 
 [DisallowMultipleComponent]
@@ -96,9 +95,6 @@ public class GameController : MonoBehaviour
 	public static void SetSecretFound(int index) => m_secretsFoundBitmask.Set(index, true);
 
 
-	public const string m_vfxGradientNameDefault = "LifetimeColor";
-
-
 	public RoomController[] SpecialRooms { get; private set; }
 
 	public Transform[] RoomBackdropsAboveGround => m_roomBackdropsAboveGroundInternal.Value;
@@ -135,8 +131,9 @@ public class GameController : MonoBehaviour
 
 	private static readonly BitArray m_secretsFoundBitmask = new(sizeof(int) * 8); // TODO: avoid limiting to a single int?
 
-	private GameObject[] m_progressIndicators;
+	private static readonly BitArray m_upgradesActiveBitmask = new(sizeof(int) * 8); // TODO: avoid limiting to a single int?
 	private static int m_healthUpgradeCount;
+	private static int m_lightingUpgradeCount;
 
 
 	private void Awake()
@@ -289,10 +286,7 @@ public class GameController : MonoBehaviour
 
 		// apply upgrades
 		AvatarController avatarNew = player.GetComponent<AvatarController>();
-		if (m_healthUpgradeCount > 0)
-		{
-			avatarNew.GetComponent<Health>().m_maxHP = GetComponent<PlayerInputManager>().playerPrefab.GetComponent<Health>().m_maxHP + m_healthUpgradeCount;
-		}
+		ApplyUpgrades(avatarNew);
 
 		m_avatars.Add(avatarNew);
 		// TODO: move closer to existing avatar(s)?
@@ -537,53 +531,9 @@ public class GameController : MonoBehaviour
 		Application.Quit();
 	}
 
-	public bool UpgradeAvailable => ZonesFinishedCount > UpgradeActiveCount;
-	private int UpgradeActiveCount => m_healthUpgradeCount;
+	public void HealthUpgrade(bool active, int index) => UpgradeInternal(ref m_healthUpgradeCount, active, index);
 
-	public System.Tuple<List<Color>, List<Gradient>> HealthUpgrade(bool active)
-	{
-		System.Tuple<List<Color>, List<Gradient>> colors = IndicateUpgrade(active ? UpgradeActiveCount : UpgradeActiveCount - 1, active); // NOTE that this has to be BEFORE updating m_healthUpgradeCount
-		m_healthUpgradeCount += active ? 1 : -1;
-		Debug.Assert(m_healthUpgradeCount >= 0);
-
-		foreach (AvatarController avatar in m_avatars)
-		{
-			Health health = avatar.GetComponent<Health>();
-			health.m_maxHP = GetComponent<PlayerInputManager>().playerPrefab.GetComponent<Health>().m_maxHP + m_healthUpgradeCount;
-			health.Respawn(); // to fill and update UI
-		}
-
-		return colors;
-	}
-
-	private System.Tuple<List<Color>, List<Gradient>> IndicateUpgrade(int index, bool upgradeActive)
-	{
-		GameObject indicatorObj = m_progressIndicators[index];
-		System.Tuple<List<Color>, List<Gradient>> colors = System.Tuple.Create(new List<Color>(), new List<Gradient>());
-
-		foreach (VisualEffect vfx in indicatorObj.GetComponentsInChildren<VisualEffect>(true))
-		{
-			vfx.gameObject.SetActive(true);
-
-			Light2D light = vfx.GetComponent<Light2D>();
-			if (light != null)
-			{
-				colors.Item1.Add(light.color);
-			}
-			colors.Item2.Add(vfx.GetGradient(m_vfxGradientNameDefault));
-
-			if (upgradeActive)
-			{
-				StartCoroutine(vfx.SoftStop(() => UpgradeActiveCount <= index)); // TODO: better cancel check?
-			}
-			else
-			{
-				vfx.Play();
-			}
-		}
-
-		return colors;
-	}
+	public void LightingUpgrade(bool active, int index) => UpgradeInternal(ref m_lightingUpgradeCount, active, index);
 
 
 #if DEBUG
@@ -765,7 +715,11 @@ public class GameController : MonoBehaviour
 		m_secretsFoundBitmask.CopyTo(secretsFoundArray, 0);
 		saveFile.Write(secretsFoundArray.First());
 
+		int[] upgradesActiveArray = new int[1]; // TODO: avoid limiting to a single int?
+		m_upgradesActiveBitmask.CopyTo(upgradesActiveArray, 0);
+		saveFile.Write(upgradesActiveArray.First());
 		saveFile.Write(m_healthUpgradeCount);
+		saveFile.Write(m_lightingUpgradeCount);
 
 		GameObject[] savableObjs = m_savableTags.SelectMany(tag => GameObject.FindGameObjectsWithTag(tag)).Where(obj => obj.scene == SceneManager.GetActiveScene()).ToArray();
 		saveFile.Write(savableObjs, obj => ISavable.Save(saveFile, obj.GetComponent<ISavable>()));
@@ -815,7 +769,9 @@ public class GameController : MonoBehaviour
 
 			m_secretsFoundBitmask.Or(new(new[] { saveFile.ReadInt32() })); // NOTE the OR to handle debug loading directly into non-saved scenes, editing m_secretsFoundBitmask, and then loading a saved scene
 
+			m_upgradesActiveBitmask.Or(new(new[] { saveFile.ReadInt32() })); // NOTE the OR to handle debug loading directly into non-saved scenes, editing m_upgradesActiveBitmask, and then loading a saved scene // TODO: necessary?
 			saveFile.Read(out m_healthUpgradeCount);
+			saveFile.Read(out m_lightingUpgradeCount);
 
 			saveFile.ReadArray(() => ISavable.Load(saveFile));
 		}
@@ -826,38 +782,65 @@ public class GameController : MonoBehaviour
 		}
 
 		// spawn progress indicator(s)
-		List<GameObject> progressIndicatorsTemp = new();
+		List<InteractUpgrade> progressIndicatorsTemp = new();
 		RoomController room = SpecialRooms[1];
 		int indicatorIdx = 0;
 		foreach (GameObject indicatorPrefab in m_zoneFinishedIndicators)
 		{
-			Transform indicatorTf = Instantiate(indicatorPrefab, room.InteriorPosition(0.0f, indicatorPrefab), Quaternion.identity, room.transform).transform;
-			if (indicatorIdx >= ZonesFinishedCount)
+			InteractUpgrade indicator = Instantiate(indicatorPrefab, room.InteriorPosition(0.0f, indicatorPrefab), Quaternion.identity, room.transform).GetComponent<InteractUpgrade>();
+			if (indicatorIdx < ZonesFinishedCount)
 			{
-				for (int j = 0; j < indicatorTf.childCount; ++j)
-				{
-					indicatorTf.GetChild(j).gameObject.SetActive(false);
-				}
+				indicator.ToggleActivation(true);
 			}
-			progressIndicatorsTemp.Add(indicatorTf.gameObject);
+			progressIndicatorsTemp.Add(indicator);
 			++indicatorIdx;
 		}
-		m_progressIndicators = progressIndicatorsTemp.ToArray();
+		InteractUpgrade[] progressIndicators = progressIndicatorsTemp.ToArray();
 
 		// spawn upgrade indicator(s)
 		indicatorIdx = 0;
 		foreach (GameObject indicatorPrefab in m_upgradeIndicators)
 		{
-			GameObject indicator = Instantiate(indicatorPrefab, room.InteriorPosition(0.0f, indicatorPrefab), Quaternion.identity, room.transform);
-			if (indicatorIdx < m_healthUpgradeCount) // TODO: map upgrade points to specific indicators
+			InteractUpgrade interact = Instantiate(indicatorPrefab, room.InteriorPosition(0.0f, indicatorPrefab), Quaternion.identity, room.transform).GetComponent<InteractUpgrade>();
+			interact.m_index = indicatorIdx;
+			interact.m_sources = progressIndicators;
+			if (m_upgradesActiveBitmask.Get(indicatorIdx))
 			{
-				System.Tuple<List<Color>, List<Gradient>> colors = IndicateUpgrade(indicatorIdx, true);
-				indicator.GetComponent<InteractUpgrade>().ToggleActivation(colors, true);
+				interact.ToggleActivation(true);
 			}
 			++indicatorIdx;
 		}
 
 		return true;
+	}
+
+	private void UpgradeInternal(ref int upgradeCount, bool active, int index)
+	{
+		upgradeCount += active ? 1 : -1;
+		Debug.Assert(upgradeCount >= 0);
+		m_upgradesActiveBitmask.Set(index, active);
+
+		foreach (AvatarController avatar in m_avatars)
+		{
+			ApplyUpgrades(avatar);
+		}
+	}
+
+	private void ApplyUpgrades(AvatarController avatar)
+	{
+		GameObject avatarOrig = GetComponent<PlayerInputManager>().playerPrefab;
+
+		// health
+		Health health = avatar.GetComponent<Health>();
+		health.m_maxHP = avatarOrig.GetComponent<Health>().m_maxHP + m_healthUpgradeCount;
+		health.Respawn(); // to fill and update UI
+
+		// lighting
+		// TODO: affect non-avatar lights?
+		Light2D light = avatar.GetComponent<Light2D>();
+		Light2D lightOrig = avatarOrig.GetComponent<Light2D>();
+		light.pointLightOuterRadius = (m_lightingUpgradeCount + 1) * lightOrig.pointLightOuterRadius;
+		light.NonpublicSetterWorkaround("m_NormalMapDistance", lightOrig.normalMapDistance + m_lightingUpgradeCount);
 	}
 
 	private IEnumerator SpawnWavesCoroutine()

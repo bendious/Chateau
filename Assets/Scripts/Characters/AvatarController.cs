@@ -57,9 +57,6 @@ public sealed class AvatarController : KinematicCharacter
 	public bool IsAlive => ConsoleCommands.NeverDie || m_health.IsAlive;
 
 
-	private float m_lightRadiusOrig;
-	private float m_lightDistanceOrig;
-
 	private JumpState jumpState = JumpState.Grounded;
 
 	private bool controlEnabled = true; // TODO: remove?
@@ -129,11 +126,6 @@ public sealed class AvatarController : KinematicCharacter
 		OnHealthDecrement.OnExecute += OnDamage;
 		OnHealthDeath.OnExecute += OnDeath;
 		ObjectDespawn.OnExecute += OnObjectDespawn;
-
-		Light2D light = GetComponent<Light2D>();
-		m_lightRadiusOrig = light.pointLightOuterRadius;
-		m_lightDistanceOrig = light.normalMapDistance;
-		ScaleLight();
 	}
 
 	protected override void Update()
@@ -766,8 +758,6 @@ public sealed class AvatarController : KinematicCharacter
 
 		m_animator.SetBool("dead", false);
 		m_animator.SetTrigger("respawn");
-
-		ScaleLight(); // TODO: separate OnSceneLoaded()?
 	}
 
 	public bool ToggleOverlay(SpriteRenderer sourceRenderer, string text)
@@ -902,14 +892,6 @@ public sealed class AvatarController : KinematicCharacter
 		StopAiming();
 		attachable.Detach(false); // to swap in new items and so that we can refresh inventory immediately even though deletion hasn't happened yet
 		InventorySync();
-	}
-
-	private void ScaleLight()
-	{
-		Light2D light = GetComponent<Light2D>();
-		float scalar = GameController.Instance.m_zoneScalar;
-		light.pointLightOuterRadius = scalar * m_lightRadiusOrig;
-		light.NonpublicSetterWorkaround("m_NormalMapDistance", scalar * m_lightDistanceOrig);
 	}
 
 	private void StopAiming()
