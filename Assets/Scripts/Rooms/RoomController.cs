@@ -876,12 +876,12 @@ public class RoomController : MonoBehaviour
 
 			// get points until no overlap
 			// TODO: more deliberate iteration? avoid tendency to line up in a row?
-			Vector3 centerOrig = bboxNew.center; // NOTE that we can't assume the bbox is centered
+			Vector3 offsetToCenter = bboxNew.center - preventOverlapPrefab.transform.position; // NOTE that we can't assume the bbox is centered
 			float xSizeEffective = boundsInterior.size.x - bboxNew.size.x;
 			int moveCount = attemptsMax;
 			do
 			{
-				bboxNew.center = centerOrig + pos;
+				bboxNew.center = pos + offsetToCenter;
 
 				bool overlap = false;
 				foreach (Renderer renderer in GetComponentsInChildren<Renderer>().Where(r => r is SpriteRenderer or SpriteMask or MeshRenderer)) // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...

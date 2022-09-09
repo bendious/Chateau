@@ -562,7 +562,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_prefab: {fileID: 4398339694799148722, guid: 6cf9d7eefe017c7458a97f68b968e321, type: 3}
-  m_enemyAutoTrigger: 0
+  m_enemyAutoTrigger: 1
 --- !u!82 &4178940318906148873
 AudioSource:
   m_ObjectHideFlags: 0
