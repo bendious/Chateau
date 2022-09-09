@@ -9,9 +9,9 @@ using UnityEngine.VFX;
 [DisallowMultipleComponent]
 public class InteractUpgrade : MonoBehaviour, IInteractable
 {
-	private enum Type
+	public enum Type
 	{
-		None,
+		None = -1,
 		Health,
 		Lighting,
 		Damage,
@@ -49,16 +49,7 @@ public class InteractUpgrade : MonoBehaviour, IInteractable
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
-		// enable/disable upgrade
-		switch (m_type)
-		{
-			// NOTE that we purposely don't handle Type.None since CanInteract() should stop us from ever getting here
-			case Type.Health: GameController.Instance.HealthUpgrade(!m_active, m_index); break;
-			case Type.Lighting: GameController.Instance.LightingUpgrade(!m_active, m_index); break;
-			case Type.Damage: GameController.Instance.DamageUpgrade(!m_active, m_index); break;
-			default: Debug.LogError("Unhandled InteractUpgrade.Type"); break;
-		}
-
+		GameController.Instance.UpgradeActivate(m_type, !m_active, m_index); // NOTE the ! since m_active hasn't been toggled yet
 		ToggleActivation();
 	}
 

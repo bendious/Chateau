@@ -132,9 +132,7 @@ public class GameController : MonoBehaviour
 	private static readonly BitArray m_secretsFoundBitmask = new(sizeof(int) * 8); // TODO: avoid limiting to a single int?
 
 	private static readonly BitArray m_upgradesActiveBitmask = new(sizeof(int) * 8); // TODO: avoid limiting to a single int?
-	private static int m_healthUpgradeCount;
-	private static int m_lightingUpgradeCount;
-	private static int m_damageUpgradeCount;
+	private static /*readonly*/ int[] m_upgradeCounts = new int[Utility.EnumNumTypes<InteractUpgrade.Type>() - 1]; // NOTE the -1 since InteractUpgrade.Type.None is excluded
 
 
 	private void Awake()
@@ -532,9 +530,19 @@ public class GameController : MonoBehaviour
 		Application.Quit();
 	}
 
-	public void HealthUpgrade(bool active, int index) => UpgradeInternal(ref m_healthUpgradeCount, active, index);
-	public void LightingUpgrade(bool active, int index) => UpgradeInternal(ref m_lightingUpgradeCount, active, index);
-	public void DamageUpgrade(bool active, int index) => UpgradeInternal(ref m_damageUpgradeCount, active, index);
+	public void UpgradeActivate(InteractUpgrade.Type type, bool active, int index)
+	{
+		ref int upgradeCount = ref m_upgradeCounts[(int)type];
+		upgradeCount += active ? 1 : -1;
+		Debug.Assert(upgradeCount >= 0);
+
+		m_upgradesActiveBitmask.Set(index, active);
+
+		foreach (AvatarController avatar in m_avatars)
+		{
+			ApplyUpgrades(avatar);
+		}
+	}
 
 
 #if DEBUG
@@ -719,9 +727,7 @@ public class GameController : MonoBehaviour
 		int[] upgradesActiveArray = new int[1]; // TODO: avoid limiting to a single int?
 		m_upgradesActiveBitmask.CopyTo(upgradesActiveArray, 0);
 		saveFile.Write(upgradesActiveArray.First());
-		saveFile.Write(m_healthUpgradeCount);
-		saveFile.Write(m_lightingUpgradeCount);
-		saveFile.Write(m_damageUpgradeCount);
+		saveFile.Write(m_upgradeCounts, saveFile.Write);
 
 		GameObject[] savableObjs = m_savableTags.SelectMany(tag => GameObject.FindGameObjectsWithTag(tag)).Where(obj => obj.scene == SceneManager.GetActiveScene()).ToArray();
 		saveFile.Write(savableObjs, obj => ISavable.Save(saveFile, obj.GetComponent<ISavable>()));
@@ -772,9 +778,7 @@ public class GameController : MonoBehaviour
 			m_secretsFoundBitmask.Or(new(new[] { saveFile.ReadInt32() })); // NOTE the OR to handle debug loading directly into non-saved scenes, editing m_secretsFoundBitmask, and then loading a saved scene
 
 			m_upgradesActiveBitmask.Or(new(new[] { saveFile.ReadInt32() })); // NOTE the OR to handle debug loading directly into non-saved scenes, editing m_upgradesActiveBitmask, and then loading a saved scene // TODO: necessary?
-			saveFile.Read(out m_healthUpgradeCount);
-			saveFile.Read(out m_lightingUpgradeCount);
-			saveFile.Read(out m_damageUpgradeCount);
+			saveFile.Read(out m_upgradeCounts, saveFile.ReadInt32);
 
 			saveFile.ReadArray(() => ISavable.Load(saveFile));
 		}
@@ -817,35 +821,24 @@ public class GameController : MonoBehaviour
 		return true;
 	}
 
-	private void UpgradeInternal(ref int upgradeCount, bool active, int index)
-	{
-		upgradeCount += active ? 1 : -1;
-		Debug.Assert(upgradeCount >= 0);
-		m_upgradesActiveBitmask.Set(index, active);
-
-		foreach (AvatarController avatar in m_avatars)
-		{
-			ApplyUpgrades(avatar);
-		}
-	}
-
 	private void ApplyUpgrades(AvatarController avatar)
 	{
 		GameObject avatarObjOrig = GetComponent<PlayerInputManager>().playerPrefab;
 
 		// health
 		Health health = avatar.GetComponent<Health>();
-		health.SetMax(avatarObjOrig.GetComponent<Health>().GetMax() + m_healthUpgradeCount);
+		health.SetMax(avatarObjOrig.GetComponent<Health>().GetMax() + m_upgradeCounts[(int)InteractUpgrade.Type.Health]);
 
 		// lighting
 		// TODO: affect non-avatar lights?
 		Light2D light = avatar.GetComponent<Light2D>();
 		Light2D lightOrig = avatarObjOrig.GetComponent<Light2D>();
-		light.pointLightOuterRadius = (m_lightingUpgradeCount + 1) * lightOrig.pointLightOuterRadius;
-		light.NonpublicSetterWorkaround("m_NormalMapDistance", lightOrig.normalMapDistance + m_lightingUpgradeCount);
+		int lightingUpgradeCount = m_upgradeCounts[(int)InteractUpgrade.Type.Lighting];
+		light.pointLightOuterRadius = (lightingUpgradeCount + 1) * lightOrig.pointLightOuterRadius;
+		light.NonpublicSetterWorkaround("m_NormalMapDistance", lightOrig.normalMapDistance + lightingUpgradeCount);
 
 		// damage
-		avatar.m_damageScalar = avatarObjOrig.GetComponent<KinematicCharacter>().m_damageScalar + m_damageUpgradeCount;
+		avatar.m_damageScalar = avatarObjOrig.GetComponent<KinematicCharacter>().m_damageScalar + m_upgradeCounts[(int)InteractUpgrade.Type.Damage];
 	}
 
 	private IEnumerator SpawnWavesCoroutine()
