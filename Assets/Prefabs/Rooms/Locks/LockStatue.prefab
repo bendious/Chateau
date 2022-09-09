@@ -100,6 +100,7 @@ GameObject:
   - component: {fileID: 4110958158039138327}
   - component: {fileID: 455341011490355929}
   - component: {fileID: 7215240816097275082}
+  - component: {fileID: 4410815925965286655}
   m_Layer: 0
   m_Name: HandR
   m_TagString: Untagged
@@ -406,6 +407,21 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &4410815925965286655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1429021414608366857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
+  m_colorMax: {r: 1, g: 1, b: 1, a: 1}
+  m_proportional: 0
 --- !u!1 &3402330263991083544
 GameObject:
   m_ObjectHideFlags: 0
@@ -506,6 +522,7 @@ GameObject:
   - component: {fileID: 2726467524306413329}
   - component: {fileID: 3135548703493150051}
   - component: {fileID: 752356043461692589}
+  - component: {fileID: 1543898164468825461}
   m_Layer: 0
   m_Name: HandR
   m_TagString: Untagged
@@ -812,6 +829,21 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1543898164468825461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5484244720352284811}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
+  m_colorMax: {r: 1, g: 1, b: 1, a: 1}
+  m_proportional: 0
 --- !u!1 &5713708662116359284
 GameObject:
   m_ObjectHideFlags: 0
@@ -879,7 +911,6 @@ MonoBehaviour:
       m_keyCountMax: 4
       m_combinationDigits: 4
       m_genericKeys: 0
-      m_difficulty: 0
     m_weight: 1
   m_combinationSets:
   - m_object:
@@ -1032,6 +1063,7 @@ GameObject:
   - component: {fileID: 8853515409881327371}
   - component: {fileID: 4277615422618073652}
   - component: {fileID: 2849601845541898306}
+  - component: {fileID: 5910624584927635292}
   m_Layer: 0
   m_Name: HandL
   m_TagString: Untagged
@@ -1338,6 +1370,21 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &5910624584927635292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6256117976150905625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
+  m_colorMax: {r: 1, g: 1, b: 1, a: 1}
+  m_proportional: 0
 --- !u!1 &8951763560780246740
 GameObject:
   m_ObjectHideFlags: 0
@@ -1352,6 +1399,7 @@ GameObject:
   - component: {fileID: 6495729996172092456}
   - component: {fileID: 5600225521331820921}
   - component: {fileID: 3250554843265386257}
+  - component: {fileID: 8116846528208382502}
   m_Layer: 0
   m_Name: HandL
   m_TagString: Untagged
@@ -1658,3 +1706,18 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &8116846528208382502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8951763560780246740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
+  m_colorMax: {r: 1, g: 1, b: 1, a: 1}
+  m_proportional: 0

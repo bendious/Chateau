@@ -265,6 +265,7 @@ GameObject:
   - component: {fileID: 8058821675540659890}
   - component: {fileID: 4460436008581291726}
   - component: {fileID: 47754329457599174}
+  - component: {fileID: 4828881810659085442}
   m_Layer: 0
   m_Name: Control2
   m_TagString: Untagged
@@ -458,6 +459,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 802277718861969557}
   m_degreesIncrement: 30
+--- !u!114 &4828881810659085442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3920294348555959305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
+  m_colorMax: {r: 1, g: 1, b: 1, a: 1}
+  m_proportional: 0
 --- !u!1 &4046093784851667990
 GameObject:
   m_ObjectHideFlags: 0
@@ -555,6 +571,7 @@ GameObject:
   - component: {fileID: 3148249912657659576}
   - component: {fileID: 3745938712003535627}
   - component: {fileID: 5360347064228995123}
+  - component: {fileID: 4981379792618694364}
   m_Layer: 0
   m_Name: Control3
   m_TagString: Untagged
@@ -748,6 +765,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 412100480960186003}
   m_degreesIncrement: 30
+--- !u!114 &4981379792618694364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5410949210057508129}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
+  m_colorMax: {r: 1, g: 1, b: 1, a: 1}
+  m_proportional: 0
 --- !u!1 &5713708662116359284
 GameObject:
   m_ObjectHideFlags: 0
@@ -815,7 +847,6 @@ MonoBehaviour:
       m_keyCountMax: 4
       m_combinationDigits: 4
       m_genericKeys: 0
-      m_difficulty: 0
     m_weight: 1
   m_combinationSets:
   - m_object:
@@ -880,6 +911,7 @@ MonoBehaviour:
         - 'Eleven '
         - 'XI '
         m_sprite: {fileID: 0}
+      m_difficulty: 0
       m_spriteUsagePct: 0
     m_weight: 1
   m_difficulty: 0
@@ -1140,6 +1172,7 @@ GameObject:
   - component: {fileID: 4909949365558589761}
   - component: {fileID: 2959736363126513594}
   - component: {fileID: 2426183006508102098}
+  - component: {fileID: 557071302027740913}
   m_Layer: 0
   m_Name: Control1
   m_TagString: Untagged
@@ -1333,6 +1366,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 3402330263991083544}
   m_degreesIncrement: 30
+--- !u!114 &557071302027740913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7053590757722037057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
+  m_colorMax: {r: 1, g: 1, b: 1, a: 1}
+  m_proportional: 0
 --- !u!1 &9149086455611192263
 GameObject:
   m_ObjectHideFlags: 0
@@ -1346,6 +1394,7 @@ GameObject:
   - component: {fileID: 6613716142437744403}
   - component: {fileID: 4440300743230067095}
   - component: {fileID: 1074590828574485571}
+  - component: {fileID: 4041550452963584293}
   m_Layer: 0
   m_Name: Control4
   m_TagString: Untagged
@@ -1539,3 +1588,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 4046093784851667990}
   m_degreesIncrement: 30
+--- !u!114 &4041550452963584293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9149086455611192263}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
+  m_colorMax: {r: 1, g: 1, b: 1, a: 1}
+  m_proportional: 0

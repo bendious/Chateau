@@ -128,7 +128,7 @@ public class LockController : MonoBehaviour, IUnlockable
 			int optionIdx = -1;
 			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / keyCount;
 			int comboIdx = 0;
-			int keyIdx = -1;
+			int keyIdx = -2; // -2 since the incrementing is done before the first SetCombination() call and since the first key object is generally the non-deactivated lock // TODO: robustness?
 			GameObject keyObjPrev = null;
 			foreach (Tuple<IKey, GameObject> key in m_keys)
 			{
@@ -137,6 +137,7 @@ public class LockController : MonoBehaviour, IUnlockable
 				{
 					useSprites = m_combinationSet.m_spriteUsagePct > 0.0f && UnityEngine.Random.value <= m_combinationSet.m_spriteUsagePct; // NOTE the prevention of rare unexpected results when usage percent is 0 or 1
 					optionIdx = UnityEngine.Random.Range(0, optionsCount);
+					comboIdx = 0;
 					keyIdx = (keyIdx + 1) % combination.Length;
 				}
 				float startIdxF = (keyIdx * digitsPerKey) % combination.Length;
@@ -157,82 +158,44 @@ public class LockController : MonoBehaviour, IUnlockable
 		}
 
 		// spawn order guide if applicable
-		float[] orderWeightsEdited = m_keyInfo.m_orderPrefabs.Select(info => info.m_weight / (1.0f + scalarPerDiff * Mathf.Abs(info.m_object.m_weight - difficultyAvgPerItem))).ToArray();
 		GameObject orderObj = null;
 		if (m_keys.Count > 1 && m_keyInfo.m_orderPrefabs != null && m_keyInfo.m_orderPrefabs.Length > 0)
 		{
 			int spawnRoomIdx = UnityEngine.Random.Range(0, keyOrLockRooms.Length + 1);
 			RoomController spawnRoom = spawnRoomIdx >= keyOrLockRooms.Length ? lockRoom : keyOrLockRooms[spawnRoomIdx];
+			float[] orderWeightsEdited = m_keyInfo.m_orderPrefabs.Select(info => info.m_weight / (1.0f + scalarPerDiff * Mathf.Abs(info.m_object.m_weight - difficultyAvgPerItem))).ToArray();
 			GameObject orderPrefab = m_keyInfo.m_orderPrefabs.RandomWeighted(orderWeightsEdited).m_object.m_object;
 			Vector3 spawnPos = spawnRoom.InteriorPosition(m_keyHeightMax, orderPrefab);
 			orderObj = Instantiate(orderPrefab, spawnPos, Quaternion.identity, spawnRoom.transform);
+
+			// disable extra order objects
+			SpriteRenderer[] orderRenderers = orderObj.GetComponentsInChildren<SpriteRenderer>();
+			for (int i = m_keys.Count; i < orderRenderers.Length; ++i) // TODO: don't assume all of m_keys[] should be counted?
+			{
+				orderRenderers[i].gameObject.SetActive(false);
+			}
 		}
 
 		// allow duplicates in ordered keys
 		// TODO: re-implement after upgrading IKey.IsInPlace? allow duplicates before some originals?
 
 		// match key color(s)
-		// TODO: base on ColorRandomizer?
-		SpriteRenderer[] childKeyRenderers = (orderObj != null ? orderObj : gameObject).GetComponentsInChildren<IKey>().Select(key => key.Component.GetComponent<SpriteRenderer>()).Where(r => r != null).ToArray();
-		IEnumerable<SpriteRenderer> spawnedKeyRenderers = m_keys.Select(key => key.Item1.Component.GetComponent<SpriteRenderer>()).Where(r => r != null && !childKeyRenderers.Any(nonspawned => nonspawned.gameObject == r.gameObject)).ToArray();
-		if (childKeyRenderers.Length == 0)
+		SpriteRenderer[] childKeyRenderers = (orderObj != null ? orderObj : gameObject).GetComponentsInChildren<ColorRandomizer>().Select(randomizer => randomizer.GetComponentInChildren<SpriteRenderer>()).ToArray();
+		SpriteRenderer[] spawnedKeyRenderers = m_keys.Select(key => key.Item1.Component.GetComponent<SpriteRenderer>()).Where(r => r != null && !childKeyRenderers.Contains(r)).ToArray();
+		int colorCount = Math.Min(childKeyRenderers.Length, spawnedKeyRenderers.Count());
+		if (colorCount > 0)
 		{
-			// single-color self and keys
-			Color color = spawnedKeyRenderers.First().color;
-			GetComponent<SpriteRenderer>().color = color;
-			foreach (SpriteRenderer r in spawnedKeyRenderers)
+			IEnumerable<SpriteRenderer> renderers = childKeyRenderers.Concat(spawnedKeyRenderers);
+			Color[] colors = renderers.Where(r => r.GetComponentInParent<ColorRandomizer>() != null).Select(r => r.color).ToArray(); // TODO: ensure separate colors are visually distinct?
+			int keyColorIdx = 0;
+			foreach (SpriteRenderer renderer in renderers)
 			{
-				r.color = color;
-			}
-		}
-		else if (spawnedKeyRenderers.Count() > 0)
-		{
-			// multi-color children according to keys
-			if (spawnedKeyRenderers.First().GetComponentInChildren<TMP_Text>() != null) // TODO: better determination of whether puzzles need to auto-disable extra child keys?
-			{
-				int i = 0;
-				foreach (SpriteRenderer childR in childKeyRenderers)
+				Color color = colors[keyColorIdx % colorCount];
+				foreach (SpriteRenderer child in renderer.GetComponentsInChildren<SpriteRenderer>())
 				{
-					childR.color = spawnedKeyRenderers.ElementAt(i * spawnedKeyRenderers.Count() / childKeyRenderers.Length).color;
-					++i;
+					child.color = color;
 				}
-			}
-			else
-			{
-				// color match children one-to-one
-				int i = 0;
-				for (; i < childKeyRenderers.Length && i < spawnedKeyRenderers.Count(); ++i)
-				{
-					SpriteRenderer spawnedR = spawnedKeyRenderers.ElementAt(i);
-
-					// ensure colors are visually distinct
-					foreach (SpriteRenderer spawnedR2 in spawnedKeyRenderers)
-					{
-						if (spawnedR == spawnedR2)
-						{
-							break;
-						}
-						if (!spawnedR.color.ColorsSimilar(spawnedR2.color))
-						{
-							continue;
-						}
-						spawnedR.color = spawnedR.color.ColorFlipComponent(UnityEngine.Random.Range(0, 3), Color.black, Color.white); // TODO: use ColorRandomizer range? ensure flipping component doesn't result in conflict w/ any previous color?
-					}
-
-					childKeyRenderers[i].color = spawnedR.color;
-				}
-
-				// match extra spawned colors
-				for (; i < spawnedKeyRenderers.Count(); ++i)
-				{
-					spawnedKeyRenderers.ElementAt(i).color = childKeyRenderers[i % childKeyRenderers.Length].color;
-				}
-
-				// auto-disable extra children
-				for (; i < childKeyRenderers.Length; ++i)
-				{
-					childKeyRenderers[i].gameObject.SetActive(false);
-				}
+				++keyColorIdx; // TODO: take multi-color composite keys into account?
 			}
 		}
 

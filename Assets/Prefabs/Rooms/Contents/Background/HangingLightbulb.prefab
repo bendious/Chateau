@@ -322,7 +322,15 @@ MonoBehaviour:
     m_PostInfinity: 0
     m_RotationOrder: 4
   m_sprites: []
-  m_flickerSfx: []
+  m_flickerSfx:
+  - m_object: {fileID: 8300000, guid: 26ecdb4afea26944cba84ddea33e67be, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: edbeee130f34e8949971f352bece4b19, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 822d74e25a0bab74a80c1c3aa7d3bcc4, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 4cbfa539f60bc0d4daec200437fa1464, type: 3}
+    m_weight: 1
   m_flickerSfxDelayMax: 0
   m_randomSfxStartPosition: 0
   m_fullCurveFlicker: 0
