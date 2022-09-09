@@ -91,9 +91,8 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	// TODO: combine w/ ItemController version?
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
 		Rigidbody2D body = m_colliders.First().attachedRigidbody;
-		if (kinematicObj != null && kinematicObj.ShouldIgnore(body, m_colliders))
+		if (collision.collider.ShouldIgnore(body, m_colliders))
 		{
 			return;
 		}
@@ -104,6 +103,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		}
 
 		// check speed
+		KinematicObject kinematicObj = collision.gameObject.GetComponent<KinematicObject>();
 		float collisionSpeed = (kinematicObj == null ? collision.relativeVelocity.magnitude : (body.velocity - kinematicObj.velocity).magnitude) + Speed;
 		if (collisionSpeed > m_swingInfoCur.m_damageThresholdSpeed && !m_swingInfoCur.m_damage.FloatEqual(0.0f))
 		{

@@ -40,6 +40,9 @@ public static class Utility
 	public const float FloatEpsilon = 0.01f;
 
 
+	private const float m_platformTopEpsilon = 0.1f;
+
+
 	public static int Modulo(this int x, int m)
 	{
 		int r = x % m;
@@ -221,6 +224,71 @@ public static class Utility
 			return source;
 		}
 		return source.Remove(index, oldValue.Length).Insert(index, newValue);
+	}
+
+	public static bool ShouldIgnore(this Collider2D self, Rigidbody2D body, Collider2D[] colliders, float dynamicsMassThreshold = 0.0f, Type ignoreChildrenExcept = null, bool processOneWayPlatforms = false, bool ignoreStatics = false, bool ignorePhysicsSystem = false)
+	{
+		Assert.IsTrue(colliders != null && colliders.Length > 0);
+		GameObject otherObj = colliders.First(collider => collider != null).gameObject; // NOTE that we don't use the rigid body's object since that can be separate from the collider object (e.g. characters and arms) // TODO: ensure all colliders are from the same object & body?
+		if (otherObj == self.gameObject)
+		{
+			return true; // ignore our own object
+		}
+		if (ignoreStatics && (body == null || body.bodyType == RigidbodyType2D.Static))
+		{
+			return true;
+		}
+		if (body != null && body.bodyType == RigidbodyType2D.Dynamic && body.mass < dynamicsMassThreshold)
+		{
+			return true;
+		}
+		if (ignoreChildrenExcept != null && body != null && (body.transform.parent != null || body.gameObject != otherObj) && body.GetComponent(ignoreChildrenExcept) == null)
+		{
+			return true; // ignore non-root bodies (e.g. arms)
+		}
+		if (otherObj.GetComponentsInParent<Transform>().Any(transformItr => transformItr == self.transform))
+		{
+			return true; // ignore child objects
+		}
+
+		// if partway through a one-way platform, ignore it
+		if (processOneWayPlatforms && colliders.All(collider => collider == null || (collider.gameObject.layer == GameController.Instance.m_layerOneWay.ToIndex() && self.bounds.min.y + m_platformTopEpsilon < collider.bounds.max.y)))
+		{
+			return true;
+		}
+
+		if (ignorePhysicsSystem)
+		{
+			return false;
+		}
+
+		// ignore objects flagged to ignore each other and their children
+		// TODO: efficiency?
+		foreach (Collider2D collider in colliders)
+		{
+			if (Physics2D.GetIgnoreCollision(self, collider))
+			{
+				return true;
+			}
+			if (self.transform.parent != null)
+			{
+				Collider2D parentCollider = self.transform.parent.GetComponent<Collider2D>();
+				if (parentCollider != null && Physics2D.GetIgnoreCollision(parentCollider, collider))
+				{
+					return true;
+				}
+			}
+		}
+		if (otherObj.transform.parent != null)
+		{
+			Collider2D parentCollider = otherObj.transform.parent.GetComponent<Collider2D>();
+			if (parentCollider != null && Physics2D.GetIgnoreCollision(self, parentCollider))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public static System.Collections.IEnumerator SoftStop(this VisualEffect vfx, Func<bool> shouldCancelFunc = null, float delayMax = 2.0f, bool wholeObject = true)

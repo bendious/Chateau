@@ -20,6 +20,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		m_damageThresholdSpeed = 4.0f,
 		m_damage = 1.0f
 	};
+	[SerializeField] private float m_damageSelf = 0.1f;
 	public float m_restDegreesOffset = 0.0f;
 	public float m_throwSpeed = 20.0f;
 	public float m_vfxAlpha = 0.5f;
@@ -77,7 +78,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		m_body = GetComponent<Rigidbody2D>();
 		m_trail = GetComponentInChildren<TrailRenderer>();
 		m_audioSource = GetComponent<AudioSource>();
-		m_colliders = GetComponents<Collider2D>();
+		m_colliders = new Collider2D[m_body.attachedColliderCount];
+		m_body.GetAttachedColliders(m_colliders);
 		m_renderer = GetComponent<SpriteRenderer>();
 		m_health = GetComponent<Health>();
 		m_hazard = GetComponent<Hazard>();
@@ -123,7 +125,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
 		List<ContactPoint2D> contacts = new();
-		int contactCount = collision.GetContacts(contacts);
+		collision.GetContacts(contacts);
 		ProcessCollision(collision.collider, collision.rigidbody, collision.relativeVelocity, collision.otherCollider, collision.otherRigidbody, contacts);
 	}
 
@@ -134,7 +136,12 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	private void OnTriggerEnter2D(Collider2D collider)
 	{
-		ProcessCollision(collider, collider.attachedRigidbody, m_body.velocity, m_colliders.OrderBy(c => Vector2.Distance(c.bounds.center, collider.bounds.center)).First(), m_body, null); // TODO: better guess at which m_colliders[] entry is involved?
+		Collider2D colliderLocal = m_colliders.Where(collider => collider != null).OrderBy(c => Vector2.Distance(c.bounds.center, collider.bounds.center)).FirstOrDefault(); // TODO: better guess at which m_colliders[] entry is involved?
+		if (colliderLocal == null || colliderLocal.isTrigger)
+		{
+			return;
+		}
+		ProcessCollision(collider, collider.attachedRigidbody, m_body.velocity, colliderLocal, m_body, null);
 	}
 
 	private void OnTriggerStay2D(Collider2D collider)
@@ -348,8 +355,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		PlayMovementAudio();
 	}
 
-
-	private void SetCause(KinematicCharacter cause)
+	public void SetCause(KinematicCharacter cause)
 	{
 		if (Cause == cause)
 		{
@@ -357,6 +363,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		}
 
 		Cause = cause;
+
+		if (m_holder == null && Cause != null)
+		{
+			EnableVFXAndDamage();
+		}
 
 		if (Cause == null || m_trail == null)
 		{
@@ -366,6 +377,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		bool isFriendly = GameController.Instance.m_avatars.Contains(Cause) || (Cause is AIController ai && ai.m_friendly);
 		m_trail.colorGradient = new() { colorKeys = new GradientColorKey[] { new(isFriendly ? Color.white : Color.red, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new(m_vfxAlpha, 0.0f), new(0.0f, 1.0f) } }; // NOTE that we have to replace the whole gradient rather than just setting individual attributes due to the annoying way LineRenderer prevents those changes
 	}
+
 
 	private void UpdateTrailWidth(bool wide)
 	{
@@ -398,7 +410,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			return;
 		}
 
-		if ((kinematicObj != null && kinematicObj.ShouldIgnore(m_body, m_colliders)) || collider.transform.root == transform.root)
+		if (otherCollider.ShouldIgnore(m_body, new[] { collider }, processOneWayPlatforms: true))
 		{
 			DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Ignored);
 			return;
@@ -406,7 +418,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 		// ignore non-destructible static objects when held
 		bool isDetached = m_holder == null;
-		Health otherHealth = mainObj.GetComponent<Health>();
+		Health otherHealth = collider.GetComponentInParent<Health>(); // TODO: ensure this doesn't catch unwanted ancestors?
 		if (!isDetached && otherHealth == null)
 		{
 			if (rigidbody == null || rigidbody.bodyType != RigidbodyType2D.Dynamic)
@@ -414,6 +426,14 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 				DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Static);
 				return;
 			}
+		}
+
+		// maybe play audio
+		if (m_audioSource.enabled && collisionSpeed > m_swingInfo.m_damageThresholdSpeed * 0.5f) // TODO: parameterize speed threshold?
+		{
+			PhysicsMaterial2D material1 = collider.sharedMaterial != null || rigidbody == null ? collider.sharedMaterial : rigidbody.sharedMaterial;
+			PhysicsMaterial2D material2 = otherCollider.sharedMaterial != null || otherRigidbody == null ? otherCollider.sharedMaterial : otherRigidbody.sharedMaterial;
+			m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.PairBestMatch(material1, material2).m_collisionAudio.Random());
 		}
 
 		// maybe attach to character
@@ -433,13 +453,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		// check speed
 		if (collisionSpeed > m_swingInfo.m_damageThresholdSpeed)
 		{
-			if (m_audioSource.enabled)
-			{
-				PhysicsMaterial2D material1 = collider.sharedMaterial != null || rigidbody == null ? collider.sharedMaterial : rigidbody.sharedMaterial;
-				PhysicsMaterial2D material2 = otherCollider.sharedMaterial != null || otherRigidbody == null ? otherCollider.sharedMaterial : otherRigidbody.sharedMaterial;
-				m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.PairBestMatch(material1, material2).m_collisionAudio.Random());
-			}
-
 			// if from a valid source, apply damage/detachment
 			if (canDamage)
 			{
@@ -449,7 +462,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 				}
 				if (m_health != null && !collider.isTrigger)
 				{
-					m_health.Decrement(gameObject);
+					m_health.Decrement(gameObject, m_damageSelf);
 				}
 				if (m_detachOnDamage && !collider.isTrigger)
 				{
@@ -460,8 +473,12 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 				{
 					otherItem.Detach(true);
 				}
+				DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Damage);
 			}
-			DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Damage);
+			else
+			{
+				DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.CantDamage);
+			}
 		}
 		else
 		{
@@ -478,7 +495,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	private void EnableVFXAndDamage()
 	{
 		m_trail.emitting = true;
-		StartCoroutine(UpdateVFXAndCause());
+		StartCoroutine(UpdateVFXAndCause()); // TODO: prevent multiple instances at once?
 	}
 
 	private IEnumerator UpdateVFXAndCause()
@@ -507,7 +524,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		{
 			return;
 		}
-		m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.Find(m_colliders.First().sharedMaterial).m_movementAudio.Random()); // TODO: don't assume first collider is main material?
+		m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.Find(m_colliders.First(c => c != null).sharedMaterial).m_movementAudio.Random()); // TODO: don't assume first collider is main material?
 	}
 
 
@@ -541,6 +558,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 					case ConsoleCommands.ItemDebugLevels.Static: color = Color.blue; break;
 					case ConsoleCommands.ItemDebugLevels.Attach: color = Color.cyan; break;
 					case ConsoleCommands.ItemDebugLevels.TooSlow: color = Color.green; break;
+					case ConsoleCommands.ItemDebugLevels.CantDamage: color = Color.magenta; break;
 					case ConsoleCommands.ItemDebugLevels.Damage: color = Color.red; break;
 					default: Debug.LogWarning("Unhandled ItemDebugLevel"); break;
 				}

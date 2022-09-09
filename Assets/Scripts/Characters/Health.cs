@@ -101,6 +101,13 @@ public class Health : MonoBehaviour
 			return false;
 		}
 
+		// set item cause if appropriate, to enable chain reactions
+		ItemController item = GetComponentInParent<ItemController>(); // TODO: ensure this doesn't catch unwanted ancestors?
+		if (item != null && item.Cause == null)
+		{
+			item.SetCause(sourceCharacter);
+		}
+
 		// damage
 		HealCancel();
 		float amountFinal = -(sourceCharacter == null ? amount : sourceCharacter.m_damageScalar * amount);
@@ -214,8 +221,14 @@ public class Health : MonoBehaviour
 
 	private System.Collections.IEnumerator InvincibilityBlink(float secondsMax)
 	{
-		float timeMax = Time.time + secondsMax;
 		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+		if (renderer == null)
+		{
+			// TODO: support other types of renderer?
+			yield break;
+		}
+
+		float timeMax = Time.time + secondsMax;
 		float colorT = 0.0f;
 		float tPerSec = 1.0f / m_blinkSeconds;
 		Color colorOrig = renderer.color;

@@ -16,9 +16,12 @@ public class Explosion : MonoBehaviour
     private void Start()
     {
 		// SFX
-		AudioSource audio = GetComponent<AudioSource>();
-		audio.clip = m_sfx.RandomWeighted();
-		audio.Play();
+		if (m_sfx.Length > 0)
+		{
+			AudioSource audio = GetComponent<AudioSource>();
+			audio.clip = m_sfx.RandomWeighted();
+			audio.Play();
+		}
 
 		if (m_radius >= 0.0f)
 		{

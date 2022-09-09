@@ -33,6 +33,7 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 		Static,
 		Attach,
 		TooSlow,
+		CantDamage,
 		Damage,
 	}
 	public static int ItemDebugLevel { get; private set; }

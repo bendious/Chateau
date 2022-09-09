@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+using System.Linq;
+using UnityEngine;
 using static Simulation;
 
 
@@ -18,9 +19,9 @@ public class EnableCollision : Event<EnableCollision>
 	public static void TemporarilyDisableCollision(Collider2D[] aList, Collider2D[] bList, float durationSeconds = Health.m_invincibilityTimeDefault)
 	{
 		// TODO: efficiency?
-		foreach (Collider2D a in aList)
+		foreach (Collider2D a in aList.Where(c => c != null))
 		{
-			foreach (Collider2D b in bList)
+			foreach (Collider2D b in bList.Where(c => c != null))
 			{
 				Physics2D.IgnoreCollision(a, b);
 

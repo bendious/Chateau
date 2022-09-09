@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using UnityEngine;
 
@@ -5,8 +6,13 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class LineConnector : MonoBehaviour
 {
-	public Vector3 m_lineOffset;
-	public float m_lengthMin = 0.1f;
+	[SerializeField] private Vector3 m_lineOffset;
+	[SerializeField] private float m_lengthMin = 0.1f;
+	[SerializeField] private float m_lengthMax = 0.0f;
+
+	[SerializeField] Collider2D[] m_colliders;
+
+	[SerializeField] private float m_collisionForceMax = 10.0f;
 
 
 	private LineRenderer[] m_lines;
@@ -15,38 +21,79 @@ public class LineConnector : MonoBehaviour
 	private AnchoredJoint2D[] m_joints;
 
 	private KinematicCharacter m_character;
+	private Transform m_parentTfOrig; // stored since transform.parent can be changed due to item attachment/detachment, after which we still want to use the original parent
 	private SpriteRenderer m_parentRenderer;
 
+	private float m_lengthMinSq;
+	private float m_lengthMaxSq;
+	private float m_collisionForceMaxSq;
 
-	private void Start()
+
+	private void Awake()
 	{
 		m_lines = GetComponentsInChildren<LineRenderer>();
 		m_arm = GetComponent<ArmController>();
 		m_joints = GetComponents<AnchoredJoint2D>();
-		m_character = transform.parent.GetComponent<KinematicCharacter>();
+		m_parentTfOrig = transform.parent;
+		m_character = m_parentTfOrig.GetComponent<KinematicCharacter>();
 		m_parentRenderer = (m_character != null ? (Component)m_character : this).GetComponent<SpriteRenderer>();
+
+		m_collisionForceMaxSq = m_collisionForceMax * m_collisionForceMax;
+	}
+
+	private void Start()
+	{
+		// set null connections to attach to ceiling
+		foreach (AnchoredJoint2D joint in m_joints)
+		{
+			if (joint is DistanceJoint2D distanceJoint && distanceJoint.distance < Utility.FloatEpsilon)
+			{
+				joint.connectedAnchor = new(transform.position.x, GameController.Instance.RoomFromPosition(transform.position).BoundsInterior.max.y);
+				distanceJoint.distance = Vector2.Distance((Vector2)transform.position + joint.anchor, joint.connectedAnchor); // NOTE that connectedAnchor is effectively in worldspace since there is no connected body // TODO: don't assume connection to the world?
+				m_lengthMax += distanceJoint.distance; // TODO: better aggregation?
+			}
+			else if (joint is SpringJoint2D springJoint && springJoint.distance < Utility.FloatEpsilon)
+			{
+				joint.connectedAnchor = new(transform.position.x, GameController.Instance.RoomFromPosition(transform.position).BoundsInterior.max.y);
+				springJoint.distance = Vector2.Distance((Vector2)transform.position + joint.anchor, joint.connectedAnchor); // NOTE that connectedAnchor is effectively in worldspace since there is no connected body // TODO: don't assume connection to the world?
+				m_lengthMax += springJoint.distance; // TODO: better aggregation?
+			}
+		}
+
+		m_lengthMinSq = m_lengthMin * m_lengthMin;
+		m_lengthMaxSq = m_lengthMax * m_lengthMax;
 	}
 
 	private void LateUpdate()
 	{
 		Quaternion rotChar = m_character == null ? Quaternion.identity : m_character.transform.rotation;
-		Vector3 shoulderPosLocal = transform.parent.position + (rotChar * (m_character != null ? m_character.ArmOffset : Vector2.zero) + (m_arm == null ? Vector3.zero : (Vector3)(Vector2)m_arm.m_offset)) - transform.position; // NOTE the removal of Z from m_arm.m_offset
+		Vector3 shoulderPosLocal = m_parentTfOrig.position + (rotChar * (m_character != null ? m_character.ArmOffset : Vector2.zero) + (m_arm == null ? Vector3.zero : (Vector3)(Vector2)m_arm.m_offset)) - transform.position; // NOTE the removal of Z from m_arm.m_offset
 		Color color = m_parentRenderer.color;
-		System.Lazy<Gradient> newGradient = new(() => new() { colorKeys = new GradientColorKey[] { new(color, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new(color.a, 0.0f) } }, false); // TODO: support non-constant gradients?
+		Lazy<Gradient> newGradient = new(() => new() { colorKeys = new GradientColorKey[] { new(color, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new(color.a, 0.0f) } }, false); // TODO: support non-constant gradients?
 
 		int i = 0;
 		foreach (LineRenderer line in m_lines)
 		{
+			// get joint status
+			bool jointExisted = m_joints.Length > i;
+			AnchoredJoint2D joint = jointExisted ? m_joints[i] : null;
+			if (jointExisted && joint == null)
+			{
+				// skip over broken joints
+				++i;
+				continue;
+			}
+
 			// calculate start/end
 			// TODO: simplify?
 			Vector3 offsetOriented = m_arm != null && m_arm.LeftFacing ? -m_lineOffset : m_lineOffset;
 			Quaternion rotInvLine = Quaternion.Inverse(line.transform.rotation);
-			AnchoredJoint2D joint = m_joints.Length > i ? m_joints[i] : null;
 			Vector3 startPosLocal = offsetOriented + (joint == null ? Vector3.zero : (Vector3)joint.anchor);
 			Vector3 endPosLocal = rotInvLine * (joint == null ? shoulderPosLocal : (joint.connectedBody == null ? (Vector3)joint.connectedAnchor : joint.connectedBody.transform.position + joint.connectedBody.transform.rotation * joint.connectedAnchor) - transform.position) + offsetOriented;
 
 			// update renderer
-			line.enabled = ((Vector2)endPosLocal - (Vector2)startPosLocal).sqrMagnitude >= m_lengthMin * m_lengthMin;
+			float lengthSq = ((Vector2)endPosLocal - (Vector2)startPosLocal).sqrMagnitude;
+			line.enabled = lengthSq >= m_lengthMinSq && (m_lengthMaxSq <= 0.0f || lengthSq <= m_lengthMaxSq);
 			if (line.enabled)
 			{
 				line.SetPosition(0, startPosLocal);
@@ -57,7 +104,78 @@ public class LineConnector : MonoBehaviour
 				}
 			}
 
+			// update collider
+			if (joint != null && i < m_colliders.Length)
+			{
+				Collider2D collider = m_colliders[i];
+				if (collider == null || !collider.enabled || (m_lengthMaxSq > 0.0f && lengthSq > m_lengthMaxSq))
+				{
+					Destroy(joint);
+					RemoveJoint(joint);
+					line.enabled = false;
+				}
+				else
+				{
+					Vector3 centerLocal = (startPosLocal + endPosLocal) * 0.5f;
+					collider.transform.localPosition = centerLocal;
+					Vector2 anchorToCenterLocal = (Vector2)centerLocal - joint.anchor;
+					collider.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, Mathf.Rad2Deg * Mathf.Atan2(anchorToCenterLocal.y, anchorToCenterLocal.x));
+					(collider as BoxCollider2D).size = new(anchorToCenterLocal.magnitude * 2.0f, Mathf.Min(0.05f, line.startWidth)); // TODO: don't assume BoxCollider2D? more dynamic minimum?
+				}
+			}
+
 			++i;
+		}
+	}
+
+	private void OnTriggerEnter2D(Collider2D collider)
+	{
+		if (collider.isTrigger || collider.attachedRigidbody == null) // TODO: handle hitting static objects?
+		{
+			return;
+		}
+		Rigidbody2D body = GetComponent<Rigidbody2D>();
+		if (body == null)
+		{
+			return;
+		}
+
+		// add small force, as if this were an non-trigger collider thin enough to slip past after getting grazed
+		KinematicCharacter character = collider.attachedRigidbody.GetComponent<KinematicCharacter>();
+		Vector2 velocity = character != null ? character.velocity : collider.attachedRigidbody.velocity;
+		Vector2 velocityClamped = velocity.sqrMagnitude > m_collisionForceMaxSq ? velocity.normalized * m_collisionForceMax : velocity;
+		body.AddForceAtPosition(velocityClamped * UnityEngine.Random.value, body.ClosestPoint(collider.transform.position));
+	}
+
+	private void OnJointBreak2D(Joint2D joint)
+	{
+		AnchoredJoint2D jointAnchored = joint as AnchoredJoint2D;
+		Debug.Assert(jointAnchored != null);
+		int jointIdx = Array.IndexOf(m_joints, jointAnchored);
+		Debug.Assert(jointIdx >= 0 && jointIdx < m_joints.Length);
+
+		RemoveJoint(joint);
+
+		if (jointIdx < m_colliders.Length)
+		{
+			m_colliders[jointIdx].enabled = false;
+		}
+	}
+
+
+	private void RemoveJoint(Joint2D joint)
+	{
+		// TODO: SFX? split into two lines?
+
+		joint.GetComponent<UnityEngine.Rendering.Universal.Light2D>().enabled = false; // TODO: move elsewhere?
+
+		if (m_joints.All(existingJoint => existingJoint == joint || existingJoint == null))
+		{
+			if (transform.parent == m_parentTfOrig)
+			{
+				transform.SetParent(null);
+			}
+			enabled = false;
 		}
 	}
 }

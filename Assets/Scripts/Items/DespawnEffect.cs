@@ -29,7 +29,13 @@ public class DespawnEffect : MonoBehaviour
 		Explosion explosion = Instantiate(m_prefab, transform.position, transform.rotation).GetComponent<Explosion>();
 		if (explosion != null)
 		{
-			explosion.m_source = GetComponent<ItemController>().Cause;
+			// assign cause
+			// TODO: track last damage source regardless of ItemController
+			ItemController item = GetComponent<ItemController>();
+			if (item != null)
+			{
+				explosion.m_source = item.Cause;
+			}
 		}
 	}
 

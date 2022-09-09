@@ -76,7 +76,6 @@ public abstract class KinematicObject : MonoBehaviour
 	private Vector2 m_velocityForcedSmoothTimes = Vector2.one;
 
 	private int m_layerIdxOrig;
-	private const float m_platformTopEpsilon = 0.1f;
 	private const float m_wallPushDisableSeconds = 0.25f;
 
 	private const float m_nearGroundDistance = 1.0f;
@@ -148,7 +147,7 @@ public abstract class KinematicObject : MonoBehaviour
 		Vector2 totalOverlap = Vector2.zero;
 		foreach (ContactPoint2D contact in contacts)
 		{
-			if (ShouldIgnore(contact.rigidbody, new[] { contact.collider }, body.mass, typeof(AnchoredJoint2D), true))
+			if (m_collider.ShouldIgnore(contact.rigidbody, new[] { contact.collider }, body.mass, typeof(AnchoredJoint2D), true))
 			{
 				continue;
 			}
@@ -203,71 +202,6 @@ public abstract class KinematicObject : MonoBehaviour
 		PerformMovement(move, true, ref isNearGround);
 	}
 
-	public bool ShouldIgnore(Rigidbody2D body, Collider2D[] colliders, float dynamicsMassThreshold = 0.0f, Type ignoreChildrenExcept = null, bool processOneWayPlatforms = false, bool ignoreStatics = false, bool ignorePhysicsSystem = false)
-	{
-		Assert.IsTrue(colliders != null && colliders.Length > 0);
-		GameObject otherObj = colliders.First().gameObject; // NOTE that we don't use the rigid body's object since that can be separate from the collider object (e.g. characters and arms) // TODO: ensure all colliders are from the same object & body?
-		if (otherObj == gameObject)
-		{
-			return true; // ignore our own object
-		}
-		if (ignoreStatics && (body == null || body.bodyType == RigidbodyType2D.Static))
-		{
-			return true;
-		}
-		if (body != null && body.bodyType == RigidbodyType2D.Dynamic && body.mass < dynamicsMassThreshold)
-		{
-			return true;
-		}
-		if (ignoreChildrenExcept != null && body != null && (body.transform.parent != null || body.gameObject != otherObj) && body.GetComponent(ignoreChildrenExcept) == null)
-		{
-			return true; // ignore non-root bodies (e.g. arms)
-		}
-		if (otherObj.GetComponentsInParent<Transform>().Any(transformItr => transformItr == transform))
-		{
-			return true; // ignore child objects
-		}
-
-		// if partway through a one-way platform, ignore it
-		if (processOneWayPlatforms && colliders.All(collider => collider.gameObject.layer == GameController.Instance.m_layerOneWay.ToIndex() && m_collider.bounds.min.y + m_platformTopEpsilon < collider.bounds.max.y))
-		{
-			return true;
-		}
-
-		if (ignorePhysicsSystem)
-		{
-			return false;
-		}
-
-		// ignore objects flagged to ignore each other and their children
-		// TODO: efficiency?
-		foreach (Collider2D collider in colliders)
-		{
-			if (Physics2D.GetIgnoreCollision(m_collider, collider))
-			{
-				return true;
-			}
-			if (transform.parent != null)
-			{
-				Collider2D parentCollider = transform.parent.GetComponent<Collider2D>();
-				if (parentCollider != null && Physics2D.GetIgnoreCollision(parentCollider, collider))
-				{
-					return true;
-				}
-			}
-		}
-		if (otherObj.transform.parent != null)
-		{
-			Collider2D parentCollider = otherObj.transform.parent.GetComponent<Collider2D>();
-			if (parentCollider != null && Physics2D.GetIgnoreCollision(m_collider, parentCollider))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	protected virtual void DespawnSelf()
 	{
 		Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
@@ -289,7 +223,7 @@ public abstract class KinematicObject : MonoBehaviour
 		for (int i = 0; i < count; i++)
 		{
 			RaycastHit2D hit = hitBuffer[i];
-			if (ShouldIgnore(hit.rigidbody, new[] { hit.collider }, body.mass, typeof(AnchoredJoint2D), true))
+			if (m_collider.ShouldIgnore(hit.rigidbody, new[] { hit.collider }, body.mass, typeof(AnchoredJoint2D), true))
 			{
 				// push-through floor/walls prevention
 				if (hit.transform.parent == null && hit.rigidbody != null && hit.rigidbody.IsTouchingLayers(GameController.Instance.m_layerWalls))
