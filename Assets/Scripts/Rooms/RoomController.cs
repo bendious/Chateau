@@ -245,14 +245,6 @@ public class RoomController : MonoBehaviour
 		ObjectDespawn.OnExecute += OnObjectDespawn;
 	}
 
-	private void Start()
-	{
-		if (transform.parent != null)
-		{
-			LinkRecursive();
-		}
-	}
-
 	private void OnDestroy()
 	{
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
@@ -1119,6 +1111,8 @@ public class RoomController : MonoBehaviour
 		return firstRung;
 	}
 
+	public void LinkRecursive() => LinkRecursiveInternal(new());
+
 	public void SealRoom(bool seal)
 	{
 		for (int i = 0; i < m_doorwayInfos.Length; ++i)
@@ -1213,8 +1207,11 @@ public class RoomController : MonoBehaviour
 		}
 	}
 
-	private void LinkRecursive()
+	private void LinkRecursiveInternal(List<RoomController> visitedRooms)
 	{
+		Debug.Assert(!visitedRooms.Contains(this));
+		visitedRooms.Add(this);
+
 		// group this room's shadow casters under the top-level GameController caster
 		GameController.Instance.GetComponent<CompositeShadowCaster2D>().enabled = true; // NOTE that the top-level caster has to start disabled due to an assert from CompositeShadowCaster2D when empty of child casters
 		GetComponent<CompositeShadowCaster2D>().enabled = false;
@@ -1260,11 +1257,15 @@ public class RoomController : MonoBehaviour
 		// recurse into visible children
 		foreach (DoorwayInfo info in m_doorwayInfos)
 		{
-			RoomController childRoom = info.ChildRoom;
-			static bool allowsLight(DoorwayInfo info) => info.m_blocker == null || info.m_blocker.GetComponent<ShadowCaster2D>() == null;
-			if (childRoom != null && allowsLight(info) && allowsLight(info.m_infoReverse))
+			RoomController connectedRoom = info.ConnectedRoom;
+			if (connectedRoom == null || visitedRooms.Contains(connectedRoom))
 			{
-				childRoom.LinkRecursive();
+				continue;
+			}
+
+			if (info.m_blocker == null || info.m_blocker.GetComponent<ShadowCaster2D>() == null) // NOTE that m_infoReverse.m_blocker should always be the same as m_blocker, so we only check one
+			{
+				connectedRoom.LinkRecursiveInternal(visitedRooms);
 			}
 		}
 	}

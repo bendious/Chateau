@@ -231,6 +231,7 @@ public class GameController : MonoBehaviour
 			const string tutorialSceneName = "Tutorial"; // TODO: un-hardcode?
 			if (SceneManager.GetActiveScene().name != tutorialSceneName)
 			{
+				IsSceneLoad = true; // to preempt LoadScene() setting SceneIndexPrev, which we don't want in this case
 				LoadScene(tutorialSceneName, false, false);
 				return;
 			}
@@ -614,7 +615,7 @@ public class GameController : MonoBehaviour
 			if (nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Entrance))
 			{
 				Assert.IsNull(m_startRoom);
-				m_startRoom = Instantiate(m_entryRoomPrefabs.RandomWeighted(), transform).GetComponent<RoomController>();
+				m_startRoom = Instantiate(m_entryRoomPrefabs.RandomWeighted()).GetComponent<RoomController>();
 				m_startRoom.SetNodes(nodesList.ToArray());
 				++roomCount;
 				Debug.Assert(SpecialRooms == null);
@@ -699,6 +700,9 @@ public class GameController : MonoBehaviour
 			avatar.Teleport(door.transform.position + (Vector3)avatar.gameObject.OriginToCenterY());
 			avatar.m_aimObject.transform.position = avatar.transform.position;
 		}
+
+		// update shadow casting
+		door.GetComponentInParent<RoomController>().LinkRecursive();
 
 		// animate door
 		door.GetComponent<Animator>().SetTrigger("activate");
