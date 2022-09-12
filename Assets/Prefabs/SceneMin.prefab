@@ -1276,8 +1276,6 @@ MonoBehaviour:
   - m_object: {fileID: 892429466469811999, guid: 1187c6293fee67d4da01f8200f643835, type: 3}
     m_weight: 2
   - m_object: {fileID: 7966795884487773214, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
-    m_weight: 2
-  - m_object: {fileID: 6588378246716713556, guid: c247edf037d4fb347984cdee36601f9b, type: 3}
     m_weight: 5
   - m_object: {fileID: 2645866617808041851, guid: 0112a6934fe93af4cac38fb37ef6b61c, type: 3}
     m_weight: 5
@@ -1285,6 +1283,8 @@ MonoBehaviour:
     m_weight: 5
   - m_object: {fileID: 1151434447125698967, guid: a76b6335cfa95454897fe0488d403446, type: 3}
     m_weight: 7
+  - m_object: {fileID: 6588378246716713556, guid: c247edf037d4fb347984cdee36601f9b, type: 3}
+    m_weight: 8
   - m_object: {fileID: 8176166786061933274, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
     m_weight: 10
   m_npcRoles:
@@ -1568,8 +1568,8 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 8300000, guid: cddb5b9affcb44e49ad2ca1fd5e11398, type: 3}
     m_weight: 1
-  m_delayMin: 30
-  m_delayMax: 120
+  m_delayMin: 60
+  m_delayMax: 240
 --- !u!1 &1363946684423264017
 GameObject:
   m_ObjectHideFlags: 0

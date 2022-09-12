@@ -416,20 +416,18 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			return;
 		}
 
-		// ignore non-destructible static objects when held
+		// ignore non-destructible trigger/static objects when held
 		bool isDetached = m_holder == null;
 		Health otherHealth = collider.GetComponentInParent<Health>(); // TODO: ensure this doesn't catch unwanted ancestors?
-		if (!isDetached && otherHealth == null)
+		if (!isDetached && otherHealth == null && (collider.isTrigger || rigidbody == null || rigidbody.bodyType != RigidbodyType2D.Dynamic))
 		{
-			if (rigidbody == null || rigidbody.bodyType != RigidbodyType2D.Dynamic)
-			{
-				DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Static);
-				return;
-			}
+			DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Static);
+			return;
 		}
 
 		// maybe play audio
-		if (m_audioSource.enabled && collisionSpeed > m_swingInfo.m_damageThresholdSpeed * 0.5f) // TODO: parameterize speed threshold?
+		float sfxThresholdSpeed = isDetached ? m_swingInfo.m_damageThresholdSpeed * 0.5f : m_swingInfo.m_damageThresholdSpeed; // TODO: parameterize?
+		if (m_audioSource.enabled && collisionSpeed > sfxThresholdSpeed)
 		{
 			PhysicsMaterial2D material1 = collider.sharedMaterial != null || rigidbody == null ? collider.sharedMaterial : rigidbody.sharedMaterial;
 			PhysicsMaterial2D material2 = otherCollider.sharedMaterial != null || otherRigidbody == null ? otherCollider.sharedMaterial : otherRigidbody.sharedMaterial;

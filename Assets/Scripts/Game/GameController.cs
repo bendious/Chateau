@@ -615,7 +615,7 @@ public class GameController : MonoBehaviour
 				m_startRoom.SetNodes(nodesList.ToArray());
 				++roomCount;
 				Debug.Assert(SpecialRooms == null);
-				SpecialRooms = Enumerable.Repeat(m_startRoom, m_specialRoomCount).ToArray();
+				SpecialRooms = new RoomController[m_specialRoomCount];
 			}
 			else
 			{
@@ -649,11 +649,22 @@ public class GameController : MonoBehaviour
 						++roomCount;
 						if (m_specialRoomCount > 0)
 						{
-							for (int i = 0; i < SpecialRooms.Length; ++i)
+							if (SpecialRooms.Any(room => room == null))
 							{
-								if (Random.value <= 1.0f / roomCount) // NOTE the 1/n chance to give each room an equal probability of final selection regardless of order
+								// fill random empty slot
+								IEnumerable<int> emptyIndices = Enumerable.Range(0, SpecialRooms.Length).Where(i => SpecialRooms[i] == null);
+								SpecialRooms[emptyIndices.Random()] = childRoom;
+							}
+							else
+							{
+								// give each slot an even chance to be swapped
+								for (int i = 0; i < SpecialRooms.Length; ++i)
 								{
-									SpecialRooms[i] = childRoom;
+									if (Random.value <= 1.0f / roomCount) // NOTE the 1/n chance to give each room an equal probability of final selection regardless of order
+									{
+										SpecialRooms[i] = childRoom;
+										break; // to prevent SpecialRooms[] overlaps // TODO: parameterize? verify that this doesn't tilt the odds based on location w/i SpecialRooms[]?
+									}
 								}
 							}
 						}

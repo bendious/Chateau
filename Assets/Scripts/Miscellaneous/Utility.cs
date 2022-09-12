@@ -246,9 +246,9 @@ public static class Utility
 		{
 			return true; // ignore non-root bodies (e.g. arms)
 		}
-		if (otherObj.GetComponentsInParent<Transform>().Any(transformItr => transformItr == self.transform))
+		if (otherObj.GetComponentsInParent<Transform>().Intersect(self.GetComponentsInParent<Transform>()).Count() > 0) // TODO: too broad? efficiency?
 		{
-			return true; // ignore child objects
+			return true; // ignore child/sibling objects
 		}
 
 		// if partway through a one-way platform, ignore it

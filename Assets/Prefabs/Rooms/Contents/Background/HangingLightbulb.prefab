@@ -700,7 +700,7 @@ MonoBehaviour:
   - {fileID: 757425089799779749}
   m_sourceTextOptions: []
   m_drawPrefab: {fileID: 0}
-  m_savableType: -1
+  m_savableType: -2
   m_isReferenceKey: 0
 --- !u!96 &910605270498680557
 TrailRenderer:

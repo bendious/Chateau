@@ -6,8 +6,8 @@ public class MusicManager : MonoBehaviour
 {
 	[SerializeField] private WeightedObject<AudioClip>[] m_music; // TODO: order/weight by "intensity"?
 
-	[SerializeField] private float m_delayMin = 30.0f;
-	[SerializeField] private float m_delayMax = 120.0f;
+	[SerializeField] private float m_delayMin = 60.0f;
+	[SerializeField] private float m_delayMax = 240.0f;
 
 
 	private AudioSource m_source;
