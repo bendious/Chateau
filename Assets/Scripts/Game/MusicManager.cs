@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 
@@ -74,7 +75,9 @@ public class MusicManager : MonoBehaviour
 			}
 			else
 			{
-				Play(m_music.RandomWeighted());
+				float desiredWeight = GameController.Instance.ActiveEnemiesWeight();
+				AudioClip clip = m_music.RandomWeighted(m_music.Select(weightedClip => 1.0f / (1.0f + Mathf.Abs(desiredWeight - weightedClip.m_weight)))).m_object;
+				Play(clip);
 			}
 		}
 	}

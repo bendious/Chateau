@@ -77,28 +77,32 @@ public static class Utility
 
 	public static T Random<T>(this IEnumerable<T> options) => options.ElementAt(UnityEngine.Random.Range(0, options.Count()));
 
-	public static T RandomWeighted<T>(this IEnumerable<WeightedObject<T>> pairs) => RandomWeighted(pairs.Select(WeightedObjectToObject), pairs.Select(pair => pair.m_weight));
+	public static T RandomWeighted<T>(this IEnumerable<WeightedObject<T>> pairs) => pairs.ElementAt(pairs.RandomWeightedIndex()).m_object;
 
-	public static T RandomWeighted<T>(this IEnumerable<T> values, IEnumerable<float> weights)
+	public static T RandomWeighted<T>(this IEnumerable<T> values, IEnumerable<float> weights) => values.ElementAt(values.RandomWeightedIndex(weights));
+
+	public static int RandomWeightedIndex<T>(this IEnumerable<WeightedObject<T>> pairs) => RandomWeightedIndex(pairs.Select(WeightedObjectToObject), pairs.Select(pair => pair.m_weight));
+
+	public static int RandomWeightedIndex<T>(this IEnumerable<T> values, IEnumerable<float> weights)
 	{
-		Assert.IsFalse(weights.Any(f => f < 0.0f));
+		float[] weightsArray = weights.ToArray(); // to avoid evaluating weights multiple times if given LINQ expressions
+		Assert.IsFalse(weightsArray.Any(f => f < 0.0f));
 
-		// NOTE the array slice to handle values[] w/ shorter length than weights[] by ignoring the excess weights; the opposite situation works out equivalently w/o explicit handling since weightRandom will never result in looping beyond the number of weights given
 		int valueCount = values.Count();
-		Debug.Assert(valueCount == weights.Count());
-		float weightSum = weights.Sum();
+		Debug.Assert(valueCount == weightsArray.Length); // NOTE that we could use an array slice to handle values[] w/ shorter length than weights[] by ignoring the excess weights (the opposite situation works out equivalently w/o explicit handling since weightRandom will never result in looping beyond the number of weights given), but as of yet that hasn't been necessary
+		float weightSum = weightsArray.Sum();
 		Debug.Assert(weightSum > 0.0f);
 		float weightRandom = UnityEngine.Random.Range(0.0f, weightSum);
 
 		int idxItr = 0;
-		while (weightRandom > weights.ElementAt(idxItr))
+		while (weightRandom > weightsArray[idxItr])
 		{
-			weightRandom -= weights.ElementAt(idxItr);
+			weightRandom -= weightsArray[idxItr];
 			++idxItr;
 		}
 
 		Assert.IsTrue(weightRandom >= 0.0f && idxItr < valueCount);
-		return values.ElementAt(idxItr);
+		return idxItr;
 	}
 
 	public static IEnumerable<T> RandomWeightedOrder<T>(this IEnumerable<WeightedObject<T>> pairs)

@@ -39,7 +39,7 @@ public class GameController : MonoBehaviour
 	public WeightedObject<GameObject>[] m_cutbackPrefabs;
 	public WeightedObject<RoomType>[] m_roomTypes;
 	public WeightedObject<RoomType>[] m_roomTypesSecret;
-	public WeightedObject<GameObject>[] m_enemyPrefabs;
+	public WeightedObject<AIController>[] m_enemyPrefabs;
 	[SerializeField] private WeightedObject<NpcDialogue>[] m_npcRoles;
 	[SerializeField] private WeightedObject<NpcDialogue>[] m_npcAttitudes;
 	public GameObject[] m_doorInteractPrefabs;
@@ -67,13 +67,13 @@ public class GameController : MonoBehaviour
 	[SerializeField] private WeightedObject<AudioClip>[] m_timerWarnSFX;
 	public AudioClip m_victoryAudio;
 
-	public float m_waveSecondsMin = 45.0f;
-	public float m_waveSecondsMax = 90.0f;
+	[SerializeField] private float m_waveSecondsMin = 45.0f;
+	[SerializeField] private float m_waveSecondsMax = 90.0f;
 	public float m_waveStartWeight = 1.0f;
-	public float m_waveEscalationMin = 0.0f;
-	public float m_waveEscalationMax = 4.0f;
-	public float m_waveEnemyDelayMin = 0.5f;
-	public float m_waveEnemyDelayMax = 2.0f;
+	[SerializeField] private float m_waveEscalationMin = 0.0f;
+	[SerializeField] private float m_waveEscalationMax = 4.0f;
+	[SerializeField] private float m_waveEnemyDelayMin = 0.5f;
+	[SerializeField] private float m_waveEnemyDelayMax = 2.0f;
 
 
 	[HideInInspector] public bool m_bossRoomSealed = false;
@@ -123,6 +123,7 @@ public class GameController : MonoBehaviour
 	private static NpcInfo[] m_npcs;
 
 	private float m_waveWeight;
+	private float m_waveWeightRemaining;
 	private float m_nextWaveTime = 0.0f;
 	private bool m_waveSpawningInProgress = false;
 
@@ -380,6 +381,8 @@ public class GameController : MonoBehaviour
 		// TODO: increment m_enemySpawnCounts[] if appropriate
 	}
 
+	public float ActiveEnemiesWeight() => m_waveWeightRemaining + m_enemiesActive.Aggregate(0.0f, (sum, enemy) => sum + enemy.m_difficulty);
+
 	public bool ActiveEnemiesRemain() => m_waveSpawningInProgress || m_enemiesActive.Count > 0;
 
 	public bool EnemyTypeHasSpawned(int typeIndex) => m_enemySpawnCounts[typeIndex] > 0;
@@ -553,7 +556,7 @@ public class GameController : MonoBehaviour
 			return; // NOTE that we don't complain since this is triggered from user input
 		}
 
-		SpawnEnemy(m_enemyPrefabs[typeIndex].m_object);
+		SpawnEnemy(m_enemyPrefabs[typeIndex].m_object.gameObject);
 		++m_enemySpawnCounts[typeIndex];
 	}
 
@@ -894,28 +897,28 @@ public class GameController : MonoBehaviour
 		m_waveWeight += Random.Range(m_waveEscalationMin, m_waveEscalationMax); // TODO: exponential/logistic escalation?
 
 		// determine enemy types allowed for this wave
-		WeightedObject<GameObject>[] optionsInitial = m_enemyPrefabs.Where(weightedObj => weightedObj.m_weight <= m_waveWeight).ToArray();
+		WeightedObject<AIController>[] optionsInitial = m_enemyPrefabs.Where(weightedObj => weightedObj.m_object.m_difficulty <= m_waveWeight).ToArray();
 		float restrictPct = 1.0f - Mathf.Pow(Random.value, 2.0f); // NOTE that we bias the distribution toward more rather than less restriction
-		WeightedObject<GameObject>[] options = optionsInitial.Where(weightedObj => Random.value > restrictPct).ToArray();
+		WeightedObject<AIController>[] options = optionsInitial.Where(weightedObj => Random.value > restrictPct).ToArray();
 		if (options.Length <= 0)
 		{
 			options = new[] { optionsInitial.Random() };
 		}
 
 		// sequentially spawn enemies
-		for (float weightRemaining = m_waveWeight; weightRemaining > 0.0f; )
+		for (m_waveWeightRemaining = m_waveWeight; m_waveWeightRemaining > 0.0f; )
 		{
-			options = options.Where(weightedObj => weightedObj.m_weight <= weightRemaining).ToArray(); // NOTE that since weightRemaining never increases, it is safe to assume that all previously excluded options are still excluded
+			options = options.Where(weightedObj => weightedObj.m_object.m_difficulty <= m_waveWeightRemaining).ToArray(); // NOTE that since m_waveWeightRemaining never increases, it is safe to assume that all previously excluded options are still excluded
 			if (options.Length <= 0)
 			{
 				break;
 			}
-			int idx = Random.Range(0, options.Length);
-			WeightedObject<GameObject> weightedEnemyPrefab = options[idx]; // TODO: if no items in room, spawn enemy w/ included item
-			SpawnEnemy(weightedEnemyPrefab.m_object);
+			int idx = options.RandomWeightedIndex();
+			AIController enemyPrefab = options[idx].m_object; // TODO: if no items in room, spawn enemy w/ included item
+			SpawnEnemy(enemyPrefab.gameObject);
 			++m_enemySpawnCounts[idx];
 
-			weightRemaining -= weightedEnemyPrefab.m_weight;
+			m_waveWeightRemaining -= enemyPrefab.m_difficulty;
 
 			yield return new WaitForSeconds(Random.Range(m_waveEnemyDelayMin, m_waveEnemyDelayMax));
 		}

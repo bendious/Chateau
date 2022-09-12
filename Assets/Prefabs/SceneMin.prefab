@@ -1271,22 +1271,22 @@ MonoBehaviour:
   - m_object: {fileID: 11400000, guid: 30ab735d166f6cd45a32827777dd635d, type: 2}
     m_weight: 1
   m_enemyPrefabs:
-  - m_object: {fileID: 1661912868639658944, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+  - m_object: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
     m_weight: 1
-  - m_object: {fileID: 892429466469811999, guid: 1187c6293fee67d4da01f8200f643835, type: 3}
+  - m_object: {fileID: 4591554789177784179, guid: 1187c6293fee67d4da01f8200f643835, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 6725369280228572274, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 1685173867853252375, guid: 0112a6934fe93af4cac38fb37ef6b61c, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 7860237375500733911, guid: a59b0c7f16c0a4b43838a3bf904c9952, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 4332540462406199803, guid: a76b6335cfa95454897fe0488d403446, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 7544776239863355960, guid: c247edf037d4fb347984cdee36601f9b, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
     m_weight: 2
-  - m_object: {fileID: 7966795884487773214, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
-    m_weight: 5
-  - m_object: {fileID: 2645866617808041851, guid: 0112a6934fe93af4cac38fb37ef6b61c, type: 3}
-    m_weight: 5
-  - m_object: {fileID: 6831922291925941691, guid: a59b0c7f16c0a4b43838a3bf904c9952, type: 3}
-    m_weight: 5
-  - m_object: {fileID: 1151434447125698967, guid: a76b6335cfa95454897fe0488d403446, type: 3}
-    m_weight: 7
-  - m_object: {fileID: 6588378246716713556, guid: c247edf037d4fb347984cdee36601f9b, type: 3}
-    m_weight: 8
-  - m_object: {fileID: 8176166786061933274, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
-    m_weight: 10
   m_npcRoles:
   - m_object: {fileID: 11400000, guid: 8620c986938d35e489ba749b30b261f5, type: 2}
     m_weight: 1e+27
@@ -1555,19 +1555,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_music:
   - m_object: {fileID: 8300000, guid: 170c942b371e1064a9e0c092081caba4, type: 3}
-    m_weight: 1
+    m_weight: 0
   - m_object: {fileID: 8300000, guid: b962351ea5856c74abd52d3463d03b20, type: 3}
-    m_weight: 1
+    m_weight: 5
   - m_object: {fileID: 8300000, guid: 4a3bf59a4223c4544bfac5904e037e21, type: 3}
-    m_weight: 1
+    m_weight: 10
   - m_object: {fileID: 8300000, guid: 4ea896355fec1b34daf24caec397fd36, type: 3}
-    m_weight: 1
+    m_weight: 15
   - m_object: {fileID: 8300000, guid: 53e4126a8a47a1e43a584006db1a7786, type: 3}
-    m_weight: 1
+    m_weight: 20
   - m_object: {fileID: 8300000, guid: 49ba588079fa3c84bafa890d317e15fd, type: 3}
-    m_weight: 1
+    m_weight: 25
   - m_object: {fileID: 8300000, guid: cddb5b9affcb44e49ad2ca1fd5e11398, type: 3}
-    m_weight: 1
+    m_weight: 30
   m_delayMin: 60
   m_delayMax: 240
 --- !u!1 &1363946684423264017

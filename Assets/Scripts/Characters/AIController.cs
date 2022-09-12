@@ -14,6 +14,8 @@ public sealed class AIController : KinematicCharacter
 	public bool m_passive;
 	public bool m_friendly;
 
+	public float m_difficulty = 1.0f;
+
 	public Vector2 m_targetOffset = Vector2.zero;
 	public Component m_target;
 	public float m_replanSecondsMax = 3.0f;

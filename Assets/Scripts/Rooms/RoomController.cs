@@ -513,7 +513,7 @@ public class RoomController : MonoBehaviour
 			}
 			weightsScaled.Add(weightScaled);
 			return true;
-		}).Select(weightedObj => weightedObj.m_object).RandomWeighted(weightsScaled);
+		}).Select(weightedObj => weightedObj.m_object).ToArray().RandomWeighted(weightsScaled); // NOTE the ToArray() call to avoid an order-of-operations issue in RandomWeighted() since weightsScaled[] isn't filled out until the values are evaluated
 
 		// backdrop
 		if (RoomType.m_backdrops != null && RoomType.m_backdrops.Length > 0)
@@ -677,8 +677,8 @@ public class RoomController : MonoBehaviour
 
 				case LayoutGenerator.Node.Type.Enemy:
 					// NOTE that this enemy won't be included in GameController.m_{waveEnemies/enemySpawnCounts}[] until room is opened and pathfinding succeeds
-					GameObject enemyPrefab = GameController.Instance.m_enemyPrefabs.RandomWeighted(GameController.Instance.m_enemyPrefabs.Select(pair => 1.0f / pair.m_weight)).m_object; // NOTE that m_enemyPrefabs[] uses "weight" as enemy toughness rather than chance to spawn
-					Instantiate(enemyPrefab, InteriorPosition(0.0f) + (Vector3)enemyPrefab.OriginToCenterY(), Quaternion.identity);
+					AIController enemyPrefab = GameController.Instance.m_enemyPrefabs.Where(enemyObj => enemyObj.m_object.m_difficulty <= GameController.Instance.m_waveStartWeight).RandomWeighted();
+					Instantiate(enemyPrefab, InteriorPosition(0.0f) + (Vector3)enemyPrefab.gameObject.OriginToCenterY(), Quaternion.identity);
 					break;
 
 				default:
