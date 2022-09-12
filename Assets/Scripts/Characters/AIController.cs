@@ -19,6 +19,7 @@ public sealed class AIController : KinematicCharacter
 	public float m_replanSecondsMax = 3.0f;
 
 	public float m_meleeRange = 1.0f;
+	[SerializeField] float m_alertDistanceMax = 10.0f;
 
 	[SerializeField] private float m_jumpMaxSpeedOverride = -1.0f;
 	[SerializeField] private bool m_airControl = true;
@@ -282,15 +283,16 @@ public sealed class AIController : KinematicCharacter
 		// TODO: efficiency?
 		if (m_pathfindTimeNext <= Time.time || (m_pathfindWaypoints != null && m_pathfindWaypoints.Count > 0 && !Vector2.Distance(m_target.transform.position, m_pathfindWaypoints.Last()).FloatEqual(targetOffsetAbs.magnitude, m_meleeRange))) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases); avoid trying to go past moving targets?
 		{
-			m_pathfindWaypoints = GameController.Instance.Pathfind(gameObject, m_target.gameObject, m_collider.bounds.extents.y, !HasFlying && jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue, targetOffsetAbs, RoomController.PathFlags.ObstructionCheck | (HasFlying ? RoomController.PathFlags.IgnoreGravity : RoomController.PathFlags.None)); // TODO: limit to max jump height once pathfinding takes platforms into account?
+			System.Tuple<List<Vector2>, float> path = GameController.Instance.Pathfind(gameObject, m_target.gameObject, m_collider.bounds.extents.y, !HasFlying && jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue, targetOffsetAbs, RoomController.PathFlags.ObstructionCheck | (HasFlying ? RoomController.PathFlags.IgnoreGravity : RoomController.PathFlags.None)); // TODO: limit to max jump height once pathfinding takes platforms into account? prevent pathing beyond a threshold distance?
+			m_pathfindWaypoints = path?.Item1;
 			if (m_pathfindWaypoints == null)
 			{
 				m_target = null; // TODO: better handle unreachable positions; idle? find closest reachable position?
 			}
-			else if (!m_friendly && GameController.Instance.m_avatars.Any(avatar => avatar.gameObject == m_target.gameObject))
+			else if (!m_friendly && path.Item2 < m_alertDistanceMax && GameController.Instance.m_avatars.Any(avatar => avatar.gameObject == m_target.gameObject))
 			{
-				// if targeting and successfully pathfinding to an avatar, ensure we are now contained in GameController.m_enemiesActive[]
-				// TODO: efficiency?
+				// if targeting and successfully pathfinding to a close-enough avatar, ensure we are now contained in GameController.m_enemiesActive[]
+				// TODO: efficiency? remove if later unable to pathfind again?
 				GameController.Instance.EnemyAdd(this);
 			}
 			m_pathfindTimeNext = Time.time + Random.Range(m_replanSecondsMax * 0.5f, m_replanSecondsMax); // TODO: parameterize "min" time even though it's not a hard minimum?

@@ -352,7 +352,7 @@ public class GameController : MonoBehaviour
 
 	public RoomController RoomFromPosition(Vector2 position) => m_startRoom.FromPosition(position);
 
-	public List<Vector2> Pathfind(GameObject start, GameObject target, float extentY = -1.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, RoomController.PathFlags flags = RoomController.PathFlags.ObstructionCheck)
+	public System.Tuple<List<Vector2>, float> Pathfind(GameObject start, GameObject target, float extentY = -1.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, RoomController.PathFlags flags = RoomController.PathFlags.ObstructionCheck)
 	{
 		RoomController startRoom = RoomFromPosition(start.transform.position); // TODO: use closest bbox point?
 		return startRoom == null ? null : startRoom.PositionPath(start, target, flags, extentY, upwardMax, offsetMag);

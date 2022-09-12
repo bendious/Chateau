@@ -12,7 +12,8 @@ public class Wire : MonoBehaviour
 	{
 		IKey key = GetComponent<IKey>();
 		LineRenderer line = GetComponent<LineRenderer>();
-		System.Collections.Generic.List<Vector2> path = GameController.Instance.RoomFromPosition(transform.position).PositionPath(gameObject, key != null ? key.Lock.Component.gameObject : GetComponent<IUnlockable>().Parent, RoomController.PathFlags.IgnoreGravity | RoomController.PathFlags.NearestEndPoints, Mathf.Max(line.startWidth, line.endWidth), incrementDegrees: m_incrementDegrees);
+		const RoomController.PathFlags pathFlags = RoomController.PathFlags.IgnoreGravity | RoomController.PathFlags.NearestEndPoints;
+		System.Collections.Generic.List<Vector2> path = GameController.Instance.RoomFromPosition(transform.position).PositionPath(gameObject, key != null ? key.Lock.Component.gameObject : GetComponent<IUnlockable>().Parent, pathFlags, Mathf.Max(line.startWidth, line.endWidth), incrementDegrees: m_incrementDegrees).Item1;
 
 		line.positionCount = path.Count;
 		line.SetPositions(path.Select(pos2D => (Vector3)pos2D).ToArray());

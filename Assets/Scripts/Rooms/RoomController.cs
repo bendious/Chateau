@@ -965,7 +965,7 @@ public class RoomController : MonoBehaviour
 
 	public Vector3 SpawnPointRandom() => m_spawnPoints.Random().transform.position;
 
-	public List<Vector2> PositionPath(GameObject start, GameObject end, PathFlags flags = PathFlags.None, float extentY = -1.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, float incrementDegrees = -1.0f)
+	public System.Tuple<List<Vector2>, float> PositionPath(GameObject start, GameObject end, PathFlags flags = PathFlags.None, float extentY = -1.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, float incrementDegrees = -1.0f)
 	{
 		AStarPath roomPath = RoomPath(start, end, flags, extentY, upwardMax, incrementDegrees);
 		if (roomPath == null)
@@ -993,7 +993,7 @@ public class RoomController : MonoBehaviour
 			RestrictAngleTo(waypointPath, waypointPath.Count - 1, incrementDegrees * Mathf.Deg2Rad);
 		}
 
-		return waypointPath;
+		return System.Tuple.Create(waypointPath, roomPath.m_distanceTotalEst);
 	}
 
 	public RoomController SpawnChildRoom(GameObject roomPrefab, LayoutGenerator.Node[] layoutNodes, Vector2[] allowedDirections, ref int orderedLockIdx)

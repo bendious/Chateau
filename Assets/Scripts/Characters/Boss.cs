@@ -67,8 +67,9 @@ public class Boss : MonoBehaviour
 		foreach (System.Tuple<GameObject, RoomController> doorway in roomComp.DoorwaysUpwardOpen)
 		{
 			// pathfind to skip unnecessary ladders
-			System.Collections.Generic.List<Vector2> path = GameController.Instance.Pathfind(m_room.gameObject, doorway.Item2.gameObject, flags: RoomController.PathFlags.ObstructionCheck | RoomController.PathFlags.Directional); // NOTE that this has to be AFTER BossRoom.EndFight() unseals the room
-			if (path != null)
+			// NOTE that this has to be AFTER BossRoom.EndFight() unseals the room
+			const RoomController.PathFlags pathFlags = RoomController.PathFlags.ObstructionCheck | RoomController.PathFlags.Directional;
+			if (GameController.Instance.Pathfind(m_room.gameObject, doorway.Item2.gameObject, flags: pathFlags) != null)
 			{
 				continue;
 			}
