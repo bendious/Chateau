@@ -13,6 +13,10 @@ public class LineConnector : MonoBehaviour
 	[SerializeField] Collider2D[] m_colliders;
 
 	[SerializeField] private float m_collisionForceMax = 10.0f;
+	[SerializeField] private float m_stretchThreshold = 0.25f;
+
+	[SerializeField] private WeightedObject<AudioClip>[] m_sfxStretch;
+	[SerializeField] private WeightedObject<AudioClip>[] m_sfxSnap;
 
 
 	private LineRenderer[] m_lines;
@@ -24,9 +28,13 @@ public class LineConnector : MonoBehaviour
 	private Transform m_parentTfOrig; // stored since transform.parent can be changed due to item attachment/detachment, after which we still want to use the original parent
 	private SpriteRenderer m_parentRenderer;
 
+	private AudioSource m_audio;
+
 	private float m_lengthMinSq;
 	private float m_lengthMaxSq;
 	private float m_collisionForceMaxSq;
+
+	private float m_stretchLenPrev;
 
 
 	private void Awake()
@@ -37,6 +45,7 @@ public class LineConnector : MonoBehaviour
 		m_parentTfOrig = transform.parent;
 		m_character = m_parentTfOrig.GetComponent<KinematicCharacter>();
 		m_parentRenderer = (m_character != null ? (Component)m_character : this).GetComponent<SpriteRenderer>();
+		m_audio = GetComponent<AudioSource>();
 
 		m_collisionForceMaxSq = m_collisionForceMax * m_collisionForceMax;
 	}
@@ -113,6 +122,13 @@ public class LineConnector : MonoBehaviour
 					Destroy(joint);
 					RemoveJoint(joint);
 					line.enabled = false;
+
+					// snap SFX
+					if (m_sfxSnap.Length > 0)
+					{
+						m_audio.clip = m_sfxSnap.RandomWeighted();
+						m_audio.Play();
+					}
 				}
 				else
 				{
@@ -121,6 +137,32 @@ public class LineConnector : MonoBehaviour
 					Vector2 anchorToCenterLocal = (Vector2)centerLocal - joint.anchor;
 					collider.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, Mathf.Rad2Deg * Mathf.Atan2(anchorToCenterLocal.y, anchorToCenterLocal.x));
 					(collider as BoxCollider2D).size = new(anchorToCenterLocal.magnitude * 2.0f, Mathf.Min(0.05f, line.startWidth)); // TODO: don't assume BoxCollider2D? more dynamic minimum?
+
+					// stretch SFX
+					if (m_sfxStretch.Length > 0)
+					{
+						float stretchLen = Mathf.Sqrt(lengthSq);
+						if (!stretchLen.FloatEqual(m_stretchLenPrev, m_stretchThreshold))
+						{
+							if (stretchLen > m_stretchLenPrev)
+							{
+								if (!m_audio.isPlaying)
+								{
+									float jointLen = joint is DistanceJoint2D distanceJoint ? distanceJoint.distance : ((SpringJoint2D)joint).distance; // TODO: support other joint types?
+									if (stretchLen > jointLen + m_stretchThreshold)
+									{
+										m_audio.clip = m_sfxStretch.RandomWeighted();
+										m_audio.Play();
+									}
+								}
+							}
+							else
+							{
+								m_audio.Stop();
+							}
+							m_stretchLenPrev = stretchLen;
+						}
+					}
 				}
 			}
 

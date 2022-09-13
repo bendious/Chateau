@@ -459,6 +459,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 802277718861969557}
   m_degreesIncrement: 30
+  m_sfx:
+  - m_object: {fileID: 8300000, guid: c985c1dd681a1a1498808833eb61f88b, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 5f173814fc3e60e408683cf0d3bdd2b5, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: ba490a0b1bfd2ed4ba37286a4b3e2d38, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: d35120cd2bf4dfd43ba7f469318aad53, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: fb3aa4b1d0d24ad4780a6fdaa3a50399, type: 3}
+    m_weight: 1
 --- !u!114 &4828881810659085442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -765,6 +776,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 412100480960186003}
   m_degreesIncrement: 30
+  m_sfx:
+  - m_object: {fileID: 8300000, guid: c985c1dd681a1a1498808833eb61f88b, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 5f173814fc3e60e408683cf0d3bdd2b5, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: ba490a0b1bfd2ed4ba37286a4b3e2d38, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: d35120cd2bf4dfd43ba7f469318aad53, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: fb3aa4b1d0d24ad4780a6fdaa3a50399, type: 3}
+    m_weight: 1
 --- !u!114 &4981379792618694364
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1366,6 +1388,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 3402330263991083544}
   m_degreesIncrement: 30
+  m_sfx:
+  - m_object: {fileID: 8300000, guid: c985c1dd681a1a1498808833eb61f88b, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 5f173814fc3e60e408683cf0d3bdd2b5, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: ba490a0b1bfd2ed4ba37286a4b3e2d38, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: d35120cd2bf4dfd43ba7f469318aad53, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: fb3aa4b1d0d24ad4780a6fdaa3a50399, type: 3}
+    m_weight: 1
 --- !u!114 &557071302027740913
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1588,6 +1621,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 4046093784851667990}
   m_degreesIncrement: 30
+  m_sfx:
+  - m_object: {fileID: 8300000, guid: c985c1dd681a1a1498808833eb61f88b, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 5f173814fc3e60e408683cf0d3bdd2b5, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: ba490a0b1bfd2ed4ba37286a4b3e2d38, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: d35120cd2bf4dfd43ba7f469318aad53, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: fb3aa4b1d0d24ad4780a6fdaa3a50399, type: 3}
+    m_weight: 1
 --- !u!114 &4041550452963584293
 MonoBehaviour:
   m_ObjectHideFlags: 0

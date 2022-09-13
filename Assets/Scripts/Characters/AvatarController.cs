@@ -209,6 +209,8 @@ public sealed class AvatarController : KinematicCharacter
 	{
 		if (!controlEnabled)
 		{
+			m_focusIndicator.SetActive(false);
+			m_focusPrompt.gameObject.SetActive(false);
 			return;
 		}
 

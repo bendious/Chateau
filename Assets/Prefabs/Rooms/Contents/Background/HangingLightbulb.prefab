@@ -461,6 +461,17 @@ MonoBehaviour:
   m_colliders:
   - {fileID: 757425089799779749}
   m_collisionForceMax: 10
+  m_stretchThreshold: 0.25
+  m_sfxStretch:
+  - m_object: {fileID: 8300000, guid: eb021c48906db25469d856f3b8743649, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: fc3008ad5543016469089b84e56882c7, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: d0b46dcafac976e47b25ff32b4f0f682, type: 3}
+    m_weight: 1
+  m_sfxSnap:
+  - m_object: {fileID: 8300000, guid: 53ad87a1af3241c4b88b3efaf0bb588e, type: 3}
+    m_weight: 1
 --- !u!50 &5959516256248953318
 Rigidbody2D:
   serializedVersion: 4
