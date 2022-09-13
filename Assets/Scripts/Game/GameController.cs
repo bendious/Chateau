@@ -45,6 +45,7 @@ public class GameController : MonoBehaviour
 	public GameObject[] m_doorInteractPrefabs;
 	[SerializeField] private GameObject[] m_zoneFinishedIndicators;
 	[SerializeField] private GameObject[] m_upgradeIndicators;
+	[SerializeField] private GameObject[] m_directionSigns;
 
 	[SerializeField] private int m_specialRoomCount;
 	public bool m_allowHiddenDestructibles = true;
@@ -210,6 +211,7 @@ public class GameController : MonoBehaviour
 			m_enemySpawnCounts = new int[m_enemyPrefabs.Length]; // TODO: don't assume the same number/arrangement of enemies in each scene
 		}
 
+		// fill rooms
 		int doorwayDepth = 0;
 		int npcDepth = 0;
 		m_startRoom.FinalizeRecursive(ref doorwayDepth, ref npcDepth);
@@ -218,6 +220,54 @@ public class GameController : MonoBehaviour
 		foreach (RoomController room in roomsHighToLow)
 		{
 			room.FinalizeTopDown(roomWidthMin);
+		}
+
+		// spawn progress indicator(s)
+		if (SpecialRooms.Length > 1)
+		{
+			List<InteractUpgrade> progressIndicatorsTemp = new();
+			RoomController room = SpecialRooms[1];
+			int indicatorIdx = 0;
+			foreach (GameObject indicatorPrefab in m_zoneFinishedIndicators)
+			{
+				InteractUpgrade indicator = Instantiate(indicatorPrefab, room.InteriorPosition(0.0f, indicatorPrefab), Quaternion.identity, room.transform).GetComponent<InteractUpgrade>();
+				if (indicatorIdx < ZonesFinishedCount)
+				{
+					indicator.ToggleActivation(true);
+				}
+				progressIndicatorsTemp.Add(indicator);
+				++indicatorIdx;
+			}
+			InteractUpgrade[] progressIndicators = progressIndicatorsTemp.ToArray();
+
+			// spawn upgrade indicator(s)
+			indicatorIdx = 0;
+			foreach (GameObject indicatorPrefab in m_upgradeIndicators)
+			{
+				InteractUpgrade interact = Instantiate(indicatorPrefab, room.InteriorPosition(0.0f, indicatorPrefab), Quaternion.identity, room.transform).GetComponent<InteractUpgrade>();
+				interact.m_index = indicatorIdx;
+				interact.m_sources = progressIndicators;
+				if (m_upgradesActiveBitmask.Get(indicatorIdx))
+				{
+					interact.ToggleActivation(true);
+				}
+				++indicatorIdx;
+			}
+		}
+
+		// spawn directional signs
+		int signIdx = 0;
+		foreach (GameObject signPrefab in m_directionSigns)
+		{
+			Vector3 signPos = m_startRoom.InteriorPosition(0.0f, signPrefab);
+			GameObject sign = Instantiate(signPrefab, signPos, Quaternion.identity, m_startRoom.transform);
+
+			// aim
+			RoomController targetRoom = signIdx < SpecialRooms.Length ? SpecialRooms[signIdx] : FindObjectsOfType<InteractScene>().First(interact => interact.DestinationIndex == signIdx - SpecialRooms.Length + 1).transform.parent.GetComponent<RoomController>(); // TODO: less hardcoding?
+			Vector3 signDiff = targetRoom.transform.position - signPos;
+			sign.transform.GetChild(0).transform.rotation = Quaternion.Euler(0.0f, 0.0f, Mathf.Rad2Deg * Mathf.Atan2(signDiff.y, signDiff.x)); // TODO: un-hardcode child index?
+
+			++signIdx;
 		}
 
 		if (m_avatars.Count > 0)
@@ -804,36 +854,6 @@ public class GameController : MonoBehaviour
 		{
 			Debug.LogError("Invalid save file: " + e.Message);
 			// NOTE that we still return true since the save exists, even though it's apparently corrupted
-		}
-
-		// spawn progress indicator(s)
-		List<InteractUpgrade> progressIndicatorsTemp = new();
-		RoomController room = SpecialRooms[1];
-		int indicatorIdx = 0;
-		foreach (GameObject indicatorPrefab in m_zoneFinishedIndicators)
-		{
-			InteractUpgrade indicator = Instantiate(indicatorPrefab, room.InteriorPosition(0.0f, indicatorPrefab), Quaternion.identity, room.transform).GetComponent<InteractUpgrade>();
-			if (indicatorIdx < ZonesFinishedCount)
-			{
-				indicator.ToggleActivation(true);
-			}
-			progressIndicatorsTemp.Add(indicator);
-			++indicatorIdx;
-		}
-		InteractUpgrade[] progressIndicators = progressIndicatorsTemp.ToArray();
-
-		// spawn upgrade indicator(s)
-		indicatorIdx = 0;
-		foreach (GameObject indicatorPrefab in m_upgradeIndicators)
-		{
-			InteractUpgrade interact = Instantiate(indicatorPrefab, room.InteriorPosition(0.0f, indicatorPrefab), Quaternion.identity, room.transform).GetComponent<InteractUpgrade>();
-			interact.m_index = indicatorIdx;
-			interact.m_sources = progressIndicators;
-			if (m_upgradesActiveBitmask.Get(indicatorIdx))
-			{
-				interact.ToggleActivation(true);
-			}
-			++indicatorIdx;
 		}
 
 		return true;

@@ -1312,6 +1312,7 @@ MonoBehaviour:
   - {fileID: 9122007181668863787, guid: 18a928b181bfee64b887827ee31f4661, type: 3}
   m_zoneFinishedIndicators: []
   m_upgradeIndicators: []
+  m_directionSigns: []
   m_specialRoomCount: 0
   m_allowHiddenDestructibles: 1
   m_allowCutbacks: 1
