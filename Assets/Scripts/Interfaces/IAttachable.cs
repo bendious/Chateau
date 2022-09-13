@@ -62,7 +62,7 @@ public interface IAttachable
 	{
 		Transform tf = Component.transform;
 		Transform parentTf = tf.parent;
-		SpriteRenderer renderer = tf.GetComponent<SpriteRenderer>();
+		SpriteRenderer renderer = tf.GetComponentInChildren<SpriteRenderer>();
 		SpriteRenderer parentRenderer = parentTf.GetComponent<SpriteRenderer>();
 		WaitUntil waitCondition = new(() => parentTf == null || tf.parent != parentTf || parentRenderer.color.a != renderer.color.a);
 

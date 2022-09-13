@@ -44,27 +44,24 @@ public class LineConnector : MonoBehaviour
 		m_joints = GetComponents<AnchoredJoint2D>();
 		m_parentTfOrig = transform.parent;
 		m_character = m_parentTfOrig.GetComponent<KinematicCharacter>();
-		m_parentRenderer = (m_character != null ? (Component)m_character : this).GetComponent<SpriteRenderer>();
+		m_parentRenderer = (m_character != null ? (Component)m_character : this).GetComponentInChildren<SpriteRenderer>();
 		m_audio = GetComponent<AudioSource>();
 
 		m_collisionForceMaxSq = m_collisionForceMax * m_collisionForceMax;
-	}
 
-	private void Start()
-	{
 		// set null connections to attach to ceiling
 		foreach (AnchoredJoint2D joint in m_joints)
 		{
 			if (joint is DistanceJoint2D distanceJoint && distanceJoint.distance < Utility.FloatEpsilon)
 			{
 				joint.connectedAnchor = new(transform.position.x, GameController.Instance.RoomFromPosition(transform.position).BoundsInterior.max.y);
-				distanceJoint.distance = Vector2.Distance((Vector2)transform.position + joint.anchor, joint.connectedAnchor); // NOTE that connectedAnchor is effectively in worldspace since there is no connected body // TODO: don't assume connection to the world?
+				distanceJoint.distance = Vector2.Distance((Vector2)transform.position + (Vector2)(transform.rotation * joint.anchor), joint.connectedAnchor); // NOTE that connectedAnchor is effectively in worldspace since there is no connected body // TODO: don't assume connection to the world?
 				m_lengthMax += distanceJoint.distance; // TODO: better aggregation?
 			}
 			else if (joint is SpringJoint2D springJoint && springJoint.distance < Utility.FloatEpsilon)
 			{
 				joint.connectedAnchor = new(transform.position.x, GameController.Instance.RoomFromPosition(transform.position).BoundsInterior.max.y);
-				springJoint.distance = Vector2.Distance((Vector2)transform.position + joint.anchor, joint.connectedAnchor); // NOTE that connectedAnchor is effectively in worldspace since there is no connected body // TODO: don't assume connection to the world?
+				springJoint.distance = Vector2.Distance((Vector2)transform.position + (Vector2)(transform.rotation * joint.anchor), joint.connectedAnchor); // NOTE that connectedAnchor is effectively in worldspace since there is no connected body // TODO: don't assume connection to the world?
 				m_lengthMax += springJoint.distance; // TODO: better aggregation?
 			}
 		}
@@ -209,7 +206,7 @@ public class LineConnector : MonoBehaviour
 	{
 		// TODO: SFX? split into two lines?
 
-		joint.GetComponent<UnityEngine.Rendering.Universal.Light2D>().enabled = false; // TODO: move elsewhere?
+		joint.GetComponentInChildren<UnityEngine.Rendering.Universal.Light2D>().enabled = false; // TODO: move elsewhere?
 
 		if (m_joints.All(existingJoint => existingJoint == joint || existingJoint == null))
 		{

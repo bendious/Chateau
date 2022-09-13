@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.VFX;
 
 
-[DisallowMultipleComponent, RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), RequireComponent(typeof(SpriteRenderer)/*, typeof(TrailRenderer)*/)] // NOTE that we assume a TrailRenderer is present, but it can be on a child object
+[DisallowMultipleComponent, RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), /*RequireComponent(typeof(SpriteRenderer), typeof(TrailRenderer))*/] // NOTE that we assume {Trail/Sprite}Renderer are present, but can be on child object(s)
 public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, IKey, ISavable
 {
 	[TextArea]
@@ -80,7 +80,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		m_audioSource = GetComponent<AudioSource>();
 		m_colliders = new Collider2D[m_body.attachedColliderCount];
 		m_body.GetAttachedColliders(m_colliders);
-		m_renderer = GetComponent<SpriteRenderer>();
+		m_renderer = GetComponentInChildren<SpriteRenderer>();
 		m_health = GetComponent<Health>();
 		m_hazard = GetComponent<Hazard>();
 

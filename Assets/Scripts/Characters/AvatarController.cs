@@ -395,7 +395,7 @@ public sealed class AvatarController : KinematicCharacter
 		{
 			// enable/initialize aim VFX
 			m_aimVfx.enabled = true;
-			Sprite itemSprite = primaryItem.GetComponent<SpriteRenderer>().sprite;
+			Sprite itemSprite = primaryItem.GetComponentInChildren<SpriteRenderer>().sprite;
 			m_aimVfx.SetTexture(m_spriteID, itemSprite.texture);
 			Vector3 itemSize = primaryItem.GetComponents<Collider2D>().Where(collider => !primaryItem.m_nondamageColliders.Contains(collider)).Select(collider => collider.bounds).Aggregate((bbox1, bbox2) =>
 			{
@@ -823,7 +823,7 @@ public sealed class AvatarController : KinematicCharacter
 			bool nonEmptySlot = itemCur.Item1 != null;
 			if (nonEmptySlot)
 			{
-				SpriteRenderer srcComp = itemCur.Item1.GetComponent<SpriteRenderer>();
+				SpriteRenderer srcComp = itemCur.Item1.GetComponentInChildren<SpriteRenderer>();
 				uiImage.sprite = srcComp.sprite;
 				uiImage.color = srcComp.color;
 			}

@@ -209,21 +209,10 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		Vector3 localPos = (Vector3)rootOffset + (LeftFacing ? new(m_offset.x, m_offset.y, -m_offset.z) : m_offset) + transform.localRotation * Vector3.right * m_aimRadius;
 		transform.localPosition = localPos;
 
-		// update held items
+		// maybe flip sprite
 		bool leftFacingCached = LeftFacing;
-		foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>())
+		void maybeFlipSprite(SpriteRenderer renderer)
 		{
-			if (renderer.gameObject != gameObject)
-			{
-				m_aimDegreesItem = DampedSpring(m_aimDegreesItem, IsSwinging ? 0.0f : AimDegreesRaw(renderer.transform.position, Vector2.zero, aimPositionItem, m_aimDegreesItem) - m_aimDegreesArm + (LeftFacing ? -m_aimDegreesItemRestOffsetAbs : m_aimDegreesItemRestOffsetAbs), 1.0f, true, m_aimStiffness, ref m_aimVelocityItem, isFixedStep); // NOTE that aiming for all items uses critical damping rather than m_swingInfoCur.m_aimSpringDampPct, to prevent overly-annoying aim jiggle // TODO: parameterize?
-				renderer.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesItem);
-			}
-
-			if (renderer.GetComponent<Joint2D>() != null)
-			{
-				continue; // still-connected joint objects (e.g. lightbulbs) may rely on the sprite being un-flipped
-			}
-
 			// if we're flipping the sprite, the colliders may also need to be flipped
 			// TODO: don't assume vertical symmetry w/i each collider?
 			if (renderer.flipY != leftFacingCached)
@@ -235,6 +224,22 @@ public sealed class ArmController : MonoBehaviour, IHolder
 			}
 
 			renderer.flipY = leftFacingCached;
+		}
+		maybeFlipSprite(m_renderer);
+
+		// update held items
+		bool hasJoint = GetComponentInChildren<Joint2D>() != null;
+		for (int i = 0; i < transform.childCount; ++i)
+		{
+			Transform childTf = transform.GetChild(i);
+			m_aimDegreesItem = DampedSpring(m_aimDegreesItem, IsSwinging ? 0.0f : AimDegreesRaw(childTf.position, Vector2.zero, aimPositionItem, m_aimDegreesItem) - m_aimDegreesArm + (LeftFacing ? -m_aimDegreesItemRestOffsetAbs : m_aimDegreesItemRestOffsetAbs), 1.0f, true, m_aimStiffness, ref m_aimVelocityItem, isFixedStep); // NOTE that aiming for all items uses critical damping rather than m_swingInfoCur.m_aimSpringDampPct, to prevent overly-annoying aim jiggle // TODO: parameterize?
+			childTf.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesItem);
+
+			if (hasJoint)
+			{
+				continue; // still-connected joint objects (e.g. lightbulbs) may rely on the sprite being un-flipped
+			}
+			maybeFlipSprite(childTf.GetComponentInChildren<SpriteRenderer>());
 		}
 	}
 

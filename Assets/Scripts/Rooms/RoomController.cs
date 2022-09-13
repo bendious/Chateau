@@ -952,7 +952,7 @@ public class RoomController : MonoBehaviour
 
 			spawnPos += (Vector3)prefab.OriginToCenterY();
 		}
-		return prefab.GetComponent<ISavable>() == null ? Instantiate(prefab, spawnPos, Quaternion.identity) : GameController.Instance.m_savableFactory.Instantiate(prefab, spawnPos, Quaternion.identity);
+		return prefab.GetComponent<ISavable>() == null ? Instantiate(prefab, spawnPos, Quaternion.identity, isItem ? null : transform) : GameController.Instance.m_savableFactory.Instantiate(prefab, spawnPos, Quaternion.identity);
 	}
 
 	public Vector3 SpawnPointRandom() => m_spawnPoints.Random().transform.position;

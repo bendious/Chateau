@@ -95,7 +95,7 @@ MonoBehaviour:
       m_prefabs:
       - m_object: {fileID: 2822861490100594337, guid: 9967047840e20ff49ab80acfc67aac4d, type: 3}
         m_weight: 1
-      m_rotationDegreesMax: 180
+      m_rotationDegreesMax: 90
       m_heightMin: 3
       m_heightMax: 4
     m_weight: 1
