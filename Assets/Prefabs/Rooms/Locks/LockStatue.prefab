@@ -909,7 +909,8 @@ MonoBehaviour:
         m_weight: 1
       m_orderPrefabs: []
       m_keyCountMax: 4
-      m_combinationDigits: 4
+      m_combinationDigitsMin: 4
+      m_combinationDigitsMax: 4
       m_genericKeys: 0
     m_weight: 1
   m_combinationSets:

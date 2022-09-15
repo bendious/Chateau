@@ -63,7 +63,8 @@ MonoBehaviour:
         m_weight: 1
       m_orderPrefabs: []
       m_keyCountMax: 4
-      m_combinationDigits: 4
+      m_combinationDigitsMin: 2
+      m_combinationDigitsMax: 4
       m_genericKeys: 0
     m_weight: 1
   m_combinationSets:
@@ -119,7 +120,7 @@ MonoBehaviour:
         - 'Nine '
         - 'IX '
         m_sprite: {fileID: 0}
-      m_difficulty: 0
+      m_difficulty: 0.75
       m_spriteUsagePct: 0
     m_weight: 1
   - m_object:
@@ -228,7 +229,7 @@ MonoBehaviour:
         - Z
         - z
         m_sprite: {fileID: 0}
-      m_difficulty: 0
+      m_difficulty: 1
       m_spriteUsagePct: 0
     m_weight: 1
   - m_object:
@@ -249,7 +250,7 @@ MonoBehaviour:
         - "\u2193"
         - 'Down '
         m_sprite: {fileID: 119297155, guid: 43029e8d26abfa9499bb193ed32440c2, type: 3}
-      m_difficulty: 0
+      m_difficulty: 0.5
       m_spriteUsagePct: 0.5
     m_weight: 1
   - m_object:
@@ -262,7 +263,7 @@ MonoBehaviour:
         - "\u2193"
         - 'Down '
         m_sprite: {fileID: 119297155, guid: 43029e8d26abfa9499bb193ed32440c2, type: 3}
-      m_difficulty: 0
+      m_difficulty: 0.25
       m_spriteUsagePct: 0.5
     m_weight: 1
   m_difficulty: 0

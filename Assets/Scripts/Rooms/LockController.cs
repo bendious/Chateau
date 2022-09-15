@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.VFX;
@@ -17,10 +16,11 @@ public class LockController : MonoBehaviour, IUnlockable
 		public WeightedObject<WeightedObject<GameObject>>[] m_prefabs; // NOTE that the inner weights are used as per-instance difficulty values // TODO: named struct for clarity?
 		public WeightedObject<WeightedObject<GameObject>>[] m_orderPrefabs;
 		public int m_keyCountMax; // TODO: specify min as well as max?
-		public int m_combinationDigits;
+		public int m_combinationDigitsMin;
+		public int m_combinationDigitsMax;
 		[SerializeField] internal bool m_genericKeys;
 
-		internal Vector2 DifficultyRange(int keyRoomCount, Vector2 combinationDifficultyRange) => new Vector2(Mathf.Min(keyRoomCount, m_keyCountMax), Mathf.Min(keyRoomCount, m_keyCountMax)) * m_prefabs.MinMax(prefab => prefab.m_object.m_weight) + m_orderPrefabs.MinMax(prefab => prefab.m_object.m_weight) + (m_combinationDigits <= 0 ? Vector2.zero : combinationDifficultyRange);
+		internal Vector2 DifficultyRange(int keyRoomCount, Vector2 combinationDifficultyRange) => Mathf.Min(keyRoomCount, m_keyCountMax) * (m_prefabs.MinMax(prefab => prefab.m_object.m_weight) + m_orderPrefabs.MinMax(prefab => prefab.m_object.m_weight) + (m_combinationDigitsMax <= 0 ? Vector2.zero : combinationDifficultyRange));
 	}
 	[Serializable] public class CombinationSet
 	{
@@ -112,21 +112,33 @@ public class LockController : MonoBehaviour, IUnlockable
 
 		// setup key(s)
 		// TODO: move into Start() to ensure late-added keys (e.g. puzzle pieces) are present?
-		if (m_keyInfo.m_combinationDigits > 0)
+		if (m_keyInfo.m_combinationDigitsMax > 0)
 		{
 			// assign combination
+			// TODO: aim for desired difficulty
 			m_combinationSet = m_combinationSets.RandomWeighted();
-			int[] combination = new int[m_keyInfo.m_combinationDigits];
-			for (int digitIdx = 0; digitIdx < m_keyInfo.m_combinationDigits; ++digitIdx)
+			int combinationLen = UnityEngine.Random.Range(Mathf.Max(keyCount, m_keyInfo.m_combinationDigitsMin), m_keyInfo.m_combinationDigitsMax + 1); // NOTE that the combination length can't be less but can be more than the number of keys since multiple digits can be indicated by a single key
+			int[] combination = new int[combinationLen];
+			for (int digitIdx = 0; digitIdx < combinationLen; ++digitIdx)
 			{
 				combination[digitIdx] = UnityEngine.Random.Range(0, m_combinationSet.m_options.Length); // TODO: recognize & act upon "special" combinations (0333, 0666, real words, etc.)?
+			}
+
+			// disable excess combination keys
+			int keyCountLocal = m_keys.Count(key => key.Item2.GetComponentsInParent<Transform>().Contains(transform)); // TODO: efficiency?
+			if (combinationLen < keyCountLocal)
+			{
+				for (int i = combinationLen; i < m_keyInfo.m_combinationDigitsMax; ++i)
+				{
+					m_keys[i].Item1.Component.gameObject.SetActive(false);
+				}
 			}
 
 			// distribute combination among keys/children
 			bool useSprites = false;
 			int optionsCount = m_combinationSet.m_options.First().m_strings.Length; // TODO: don't assume all options have the same m_strings.Length?
 			int optionIdx = -1;
-			float digitsPerKey = (float)m_keyInfo.m_combinationDigits / keyCount;
+			float digitsPerKey = (float)combinationLen / keyCount;
 			int comboIdx = 0;
 			int keyIdx = -2; // -2 since the incrementing is done before the first SetCombination() call and since the first key object is generally the non-deactivated lock // TODO: robustness?
 			GameObject keyObjPrev = null;
@@ -144,9 +156,16 @@ public class LockController : MonoBehaviour, IUnlockable
 				int startIdx = Mathf.RoundToInt(startIdxF);
 				int endIdx = Mathf.RoundToInt(startIdxF + digitsPerKey);
 
+				if (keyIdx < 0 && !key.Item1.Component.isActiveAndEnabled) // TODO: better check for excess combination keys?
+				{
+					key.Item1.SetCombination(m_combinationSet, combination, optionIdx, combination[comboIdx], startIdx, endIdx, useSprites);
+					// NOTE that we purposely don't iterate comboIdx since this key must be in excess of the combination length
+					continue;
+				}
+
 				// pass to key component
 				key.Item1.SetCombination(m_combinationSet, combination, optionIdx, combination[comboIdx], startIdx, endIdx, useSprites);
-				if (!key.Item1.Component.enabled && (comboIdx < startIdx || comboIdx >= endIdx))
+				if (!key.Item1.Component.isActiveAndEnabled && (comboIdx < startIdx || comboIdx >= endIdx))
 				{
 					key.Item1.Component.gameObject.SetActive(false);
 				}

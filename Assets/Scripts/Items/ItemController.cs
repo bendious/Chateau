@@ -220,6 +220,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		{
 			aggregateText = aggregateText.ReplaceFirst("#", element.Trim());
 		}
+		// TODO: handle truncating excess combination placeholders
 		GetComponentInChildren<TMP_Text>().text = aggregateText;
 	}
 

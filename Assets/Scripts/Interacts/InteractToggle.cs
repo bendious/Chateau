@@ -55,7 +55,7 @@ public class InteractToggle : MonoBehaviour, IInteractable, IKey
 		m_toggleSet = set;
 		m_optionIndex = useSprites ? -1 : optionIndex;
 		m_idxCorrect = indexCorrect;
-		m_idxCurrent = enabled ? Random.Range(0, m_toggleSet.m_options.Length) : m_idxCorrect;
+		m_idxCurrent = isActiveAndEnabled ? Random.Range(0, m_toggleSet.m_options.Length) : m_idxCorrect;
 
 		UpdateVisuals();
 	}

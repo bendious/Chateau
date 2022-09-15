@@ -867,7 +867,8 @@ MonoBehaviour:
         m_weight: 1
       m_orderPrefabs: []
       m_keyCountMax: 4
-      m_combinationDigits: 4
+      m_combinationDigitsMin: 2
+      m_combinationDigitsMax: 4
       m_genericKeys: 0
     m_weight: 1
   m_combinationSets:
@@ -933,7 +934,7 @@ MonoBehaviour:
         - 'Eleven '
         - 'XI '
         m_sprite: {fileID: 0}
-      m_difficulty: 0
+      m_difficulty: 1
       m_spriteUsagePct: 0
     m_weight: 1
   m_difficulty: 0
