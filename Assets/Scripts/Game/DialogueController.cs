@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 
-[DisallowMultipleComponent]
+[DisallowMultipleComponent, RequireComponent(typeof(AudioSource))]
 public class DialogueController : MonoBehaviour
 {
 	[SerializeField] private UnityEngine.UI.Image m_image;
@@ -46,6 +46,8 @@ public class DialogueController : MonoBehaviour
 
 	private static readonly Regex m_tagMatcher = new(@"<(.+)>.*</\1>");
 
+	private AudioSource m_audio;
+
 	private Queue<Line> m_queue;
 	private int m_revealedCharCount;
 	private float m_lastRevealTime;
@@ -57,7 +59,13 @@ public class DialogueController : MonoBehaviour
 	private bool m_forceNewLine = false;
 
 
-	public void Play(IEnumerable<Line> lines, AvatarController avatar = null, Sprite sprite = null, Color spriteColor = default, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions = null, bool loop = false, Action postDialogue = null)
+	private void Awake()
+	{
+		m_audio = GetComponent<AudioSource>();
+	}
+
+
+	public void Play(IEnumerable<Line> lines, AvatarController avatar = null, Sprite sprite = null, Color spriteColor = default, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions = null, AudioClip sfx = null, bool loop = false, Action postDialogue = null)
 	{
 		m_image.enabled = sprite != null;
 		m_image.sprite = sprite;
@@ -71,7 +79,7 @@ public class DialogueController : MonoBehaviour
 		m_loop = loop;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
-		StartCoroutine(AdvanceDialogue(lines, expressions, postDialogue));
+		StartCoroutine(AdvanceDialogue(lines, expressions, sfx, postDialogue));
 	}
 
 	public void OnReplySelected(GameObject replyObject)
@@ -213,11 +221,12 @@ public class DialogueController : MonoBehaviour
 	public void ActivateInteract(Line.Reply reply) => ((InteractScene)reply.m_userdataObj).StartAnimation(m_avatar);
 
 
-	private System.Collections.IEnumerator AdvanceDialogue(IEnumerable<Line> linesOrig, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions, Action postDialogue)
+	private System.Collections.IEnumerator AdvanceDialogue(IEnumerable<Line> linesOrig, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions, AudioClip sfx, Action postDialogue)
 	{
 		m_text.text = null;
 		m_queue = new(linesOrig);
 		NpcDialogue.ExpressionInfo[] expressionsOrdered = expressions?.RandomWeightedOrder().ToArray(); // NOTE the conversion to an array to prevent IEnumerable re-calculating w/ each access // TODO: re-order after each line?
+		m_audio.clip = sfx;
 
 		// avatar setup
 		if (m_avatar == null)
@@ -230,6 +239,7 @@ public class DialogueController : MonoBehaviour
 		}
 		m_avatar.Controls.SwitchCurrentActionMap("UI"); // TODO: un-hardcode?
 		InputAction submitKey = m_avatar.Controls.actions["Submit"];
+		bool submitReleasedSinceNewline = true;
 
 		WaitUntil replyWait = new(() => !m_replyTemplate.transform.parent.gameObject.activeInHierarchy);
 		int tagCharCount = 0;
@@ -275,11 +285,13 @@ public class DialogueController : MonoBehaviour
 				m_revealedCharCount = 0;
 				m_lastRevealTime = Time.time;
 				m_forceNewLine = false;
+				submitReleasedSinceNewline = false;
 				stillRevealing = true;
 			}
+			submitReleasedSinceNewline = submitReleasedSinceNewline || !submitKey.IsPressed();
 
 			// maybe reveal next letter(s)
-			float revealDurationCur = stillRevealing && submitKey.IsPressed() ? m_revealSecondsFast : m_revealSeconds;
+			float revealDurationCur = stillRevealing && submitReleasedSinceNewline && submitKey.IsPressed() ? m_revealSecondsFast : m_revealSeconds;
 			float nextRevealTime = m_lastRevealTime + revealDurationCur;
 			if (stillRevealing && nextRevealTime <= Time.time)
 			{
@@ -314,6 +326,13 @@ public class DialogueController : MonoBehaviour
 
 				// update UI
 				m_text.text = textCur == null ? null : textCur[0 .. (m_revealedCharCount + tagCharCount)] + endTags.Aggregate("", (a, b) => a + b);
+
+				// SFX
+				int indexCur = m_revealedCharCount + tagCharCount - 1;
+				if (m_audio.clip != null && !char.IsWhiteSpace(textCur, indexCur) && !char.IsPunctuation(textCur, indexCur))
+				{
+					m_audio.PlayOneShot(m_audio.clip);
+				}
 
 				if (m_queue.Count > 0 && m_revealedCharCount + tagCharCount >= textCurLen)
 				{

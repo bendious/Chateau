@@ -7,6 +7,8 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 {
 	[SerializeField] private Sprite m_dialogueSprite;
 
+	[SerializeField] private WeightedObject<AudioClip>[] m_sfx;
+
 	[SerializeField] private float m_weightUseScalar = 0.25f;
 
 
@@ -20,6 +22,8 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 
 	private AIController m_ai;
 
+	private AudioClip m_sfxChosen;
+
 	private WeightedObject<NpcDialogue.DialogueInfo>[] m_dialogueCombined;
 	private WeightedObject<NpcDialogue.ExpressionInfo>[] m_expressionsCombined;
 
@@ -29,6 +33,8 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 		m_isVice = Random.value > 0.5f; // TODO: choose exactly one NPC
 
 		m_ai = GetComponent<AIController>();
+
+		m_sfxChosen = m_sfx.RandomWeighted(); // TODO: save/load?
 
 		// set NPC appearance
 		// TODO: move elsewhere?
@@ -55,7 +61,7 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 		}
 
 		// play dialogue
-		GameController.Instance.m_dialogueController.Play(dialogueCur.m_lines, interactor.GetComponent<AvatarController>(), m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_expressionsCombined, dialogueCur.m_loop);
+		GameController.Instance.m_dialogueController.Play(dialogueCur.m_lines, interactor.GetComponent<AvatarController>(), m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_expressionsCombined, m_sfxChosen, dialogueCur.m_loop);
 
 		// update weight
 		// TODO: save across instantiations/sessions?
