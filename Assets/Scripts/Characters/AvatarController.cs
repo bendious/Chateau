@@ -834,10 +834,12 @@ public sealed class AvatarController : KinematicCharacter
 			}
 			uiImage.color *= new Color(1.0f, 1.0f, 1.0f, 0.5f); // TODO: un-hardcode?
 			TMP_Text text = nonEmptySlot ? itemCur.Item1.GetComponentInChildren<TMP_Text>() : null;
-			TMP_Text[] uiTexts = UIObj.GetComponentsInChildren<TMP_Text>(true);
-			uiTexts.First().text = text == null ? null : text.text;
-			uiTexts.Last().text = nonEmptySlot ? itemCur.Item1.GetComponent<ItemController>().m_tooltip : null;
-			UIObj.GetComponent<InventoryController>().m_draggable = nonEmptySlot;
+
+			// TODO: move into InventoryController? update meters if active
+			InventoryController inventoryController = UIObj.GetComponent<InventoryController>();
+			inventoryController.m_itemText.text = text == null ? null : text.text;
+			inventoryController.m_tooltipPerItem.text = nonEmptySlot ? itemCur.Item1.GetComponent<ItemController>().m_tooltip : null;
+			inventoryController.m_draggable = nonEmptySlot;
 		}
 		for (int j = m_inventoryUI.transform.childCount - 1; j > itemInfos.Length; --j)
 		{

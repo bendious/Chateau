@@ -12,11 +12,17 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-	public float m_smoothTime = 0.05f;
-	public float m_smoothEpsilon = Utility.FloatEpsilon;
-	public GraphicRaycaster m_raycaster;
-	public TMP_Text m_tooltip;
+	[SerializeField] private float m_smoothTime = 0.05f;
+	[SerializeField] private float m_smoothEpsilon = Utility.FloatEpsilon;
+	[SerializeField] private GraphicRaycaster m_raycaster;
+	public TMP_Text m_itemText;
+	[SerializeField] private TMP_Text m_tooltip;
+	public TMP_Text m_tooltipPerItem;
 	public bool m_draggable = false;
+
+	[SerializeField] private Image m_damageMeter;
+	[SerializeField] private Image m_weightMeter;
+	[SerializeField] private Image m_speedMeter;
 
 
 	private Vector2 m_restPosition;
@@ -136,7 +142,17 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 
 	public void Activate(bool tooltip)
 	{
-		ChangeActivation("UI", 1.0f, tooltip);
+		ItemController item = ItemFromIndex(transform.root, transform.GetSiblingIndex()).m_item; // TODO: don't assume avatars will never have a parent?
+		if (item != null)
+		{
+			const float maxMeterPct = 2.0f; // TODO: parameterize/derive?
+			const float referenceSpeed = 20.0f; // TODO: parameterize/derive?
+			m_damageMeter.fillAmount = item.m_swingInfo.m_damage / maxMeterPct;
+			m_weightMeter.fillAmount = item.GetComponent<Rigidbody2D>().mass / maxMeterPct;
+			m_speedMeter.fillAmount = item.m_throwSpeed / referenceSpeed / maxMeterPct;
+		}
+
+		ChangeActivation("UI", 1.0f, tooltip && item != null);
 	}
 
 	public void Deactivate()
@@ -208,7 +224,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 	}
 
 
-	private SlotItemInfo ItemFromIndex(Component character, int index)
+	private static SlotItemInfo ItemFromIndex(Component character, int index)
 	{
 		// split index into holder/item indices
 		IHolder[] holders = character.GetComponentsInChildren<IHolder>().Where(holder => holder.Component.gameObject != character.gameObject).ToArray();
