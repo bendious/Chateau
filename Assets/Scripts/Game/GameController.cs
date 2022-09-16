@@ -43,8 +43,8 @@ public class GameController : MonoBehaviour
 	[SerializeField] private WeightedObject<NpcDialogue>[] m_npcRoles;
 	[SerializeField] private WeightedObject<NpcDialogue>[] m_npcAttitudes;
 	public GameObject[] m_doorInteractPrefabs;
-	[SerializeField] private GameObject[] m_zoneFinishedIndicators;
-	[SerializeField] private GameObject[] m_upgradeIndicators;
+	public GameObject[] m_zoneFinishedIndicators;
+	public GameObject[] m_upgradeIndicators;
 	[SerializeField] private GameObject[] m_directionSigns;
 
 	[SerializeField] private int m_specialRoomCount;
@@ -133,7 +133,7 @@ public class GameController : MonoBehaviour
 
 	private static readonly BitArray m_secretsFoundBitmask = new(sizeof(int) * 8); // TODO: avoid limiting to a single int?
 
-	private static readonly BitArray m_upgradesActiveBitmask = new(sizeof(int) * 8); // TODO: avoid limiting to a single int?
+	private static /*readonly*/ BitArray m_upgradesActiveBitmask = new(sizeof(int) * 8); // TODO: avoid limiting to a single int?
 	private static /*readonly*/ int[] m_upgradeCounts = new int[Utility.EnumNumTypes<InteractUpgrade.Type>() - 1]; // NOTE the -1 since InteractUpgrade.Type.None is excluded
 
 
@@ -272,6 +272,16 @@ public class GameController : MonoBehaviour
 
 		if (m_avatars.Count > 0)
 		{
+			// reapply upgrades to clear temporary intra-run boosts
+			// NOTE that this is necessary since OnPlayerJoined() gets called before Start()/Load() for pre-existing avatars
+			if (saveExists)
+			{
+				foreach (AvatarController avatar in m_avatars)
+				{
+					ApplyUpgrades(avatar);
+				}
+			}
+
 			EnterAtDoor(m_avatars);
 		}
 
@@ -590,7 +600,10 @@ public class GameController : MonoBehaviour
 		upgradeCount += active ? 1 : -1;
 		Debug.Assert(upgradeCount >= 0);
 
-		m_upgradesActiveBitmask.Set(index, active);
+		if (index >= 0)
+		{
+			m_upgradesActiveBitmask.Set(index, active);
+		}
 
 		foreach (AvatarController avatar in m_avatars)
 		{
@@ -823,7 +836,17 @@ public class GameController : MonoBehaviour
 				{
 					NpcDialogue dialogueTmp = (saveFile.ReadInt32() == 0 ? m_npcAttitudes : m_npcRoles)[saveFile.ReadInt32()].m_object;
 					int idxItr = 0;
-					saveFile.ReadArray(() => dialogueTmp.m_dialogue[idxItr++].m_weight += saveFile.ReadSingle()); // NOTE the += to preserve weights edited outside saved levels when re-entering a saved level
+					saveFile.ReadArray(() =>
+					{
+						// NOTE the logic to preserve weights edited outside saved levels when re-entering a saved level, treating zero as un-edited and assuming non-zero weights drop lower over time // TODO: genericize?
+						float savedWeight = saveFile.ReadSingle();
+						ref float liveWeight = ref dialogueTmp.m_dialogue[idxItr++].m_weight;
+						if (liveWeight == 0.0f || (savedWeight < liveWeight && savedWeight != 0.0f))
+						{
+							liveWeight = savedWeight;
+						}
+						return liveWeight;
+					});
 					return dialogueTmp;
 				});
 				return new NpcInfo { m_color = saveFile.ReadColor(), m_dialogues = dialogue };
@@ -845,7 +868,8 @@ public class GameController : MonoBehaviour
 
 			m_secretsFoundBitmask.Or(new(new[] { saveFile.ReadInt32() })); // NOTE the OR to handle debug loading directly into non-saved scenes, editing m_secretsFoundBitmask, and then loading a saved scene
 
-			m_upgradesActiveBitmask.Or(new(new[] { saveFile.ReadInt32() })); // NOTE the OR to handle debug loading directly into non-saved scenes, editing m_upgradesActiveBitmask, and then loading a saved scene // TODO: necessary?
+			// NOTE that we purposely overwrite any changes from non-saved scenes since intra-run upgrades are temporary
+			m_upgradesActiveBitmask = new(new[] { saveFile.ReadInt32() });
 			saveFile.Read(out m_upgradeCounts, saveFile.ReadInt32);
 
 			saveFile.ReadArray(() => ISavable.Load(saveFile));

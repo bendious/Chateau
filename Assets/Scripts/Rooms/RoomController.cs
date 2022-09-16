@@ -673,6 +673,21 @@ public class RoomController : MonoBehaviour
 					Instantiate(enemyPrefab, InteriorPosition(0.0f) + (Vector3)enemyPrefab.gameObject.OriginToCenterY(), Quaternion.identity);
 					break;
 
+				case LayoutGenerator.Node.Type.Upgrade:
+					GameObject prefabInitial = GameController.Instance.m_zoneFinishedIndicators.Random();
+					InteractUpgrade[] upgradeInitial = new[] { Instantiate(prefabInitial, InteriorPosition(0.0f, prefabInitial), Quaternion.identity, transform).GetComponent<InteractUpgrade>() };
+					upgradeInitial.First().ToggleActivation(true);
+
+					GameObject[] upgradesRandom = GameController.Instance.m_upgradeIndicators.OrderBy(obj => Random.value).ToArray();
+					const int numChoices = 2; // TODO: vary?
+					for (int i = 0; i < numChoices; ++i)
+					{
+						GameObject prefabI = upgradesRandom.ElementAt(i);
+						InteractUpgrade upgradeI = Instantiate(prefabI, InteriorPosition(0.0f, prefabI), Quaternion.identity, transform).GetComponent<InteractUpgrade>();
+						upgradeI.m_sources = upgradeInitial;
+					}
+					break;
+
 				default:
 					break;
 			}

@@ -52,6 +52,7 @@ public class LayoutGenerator
 			GateBreakable,
 			Secret,
 			BonusItems,
+			Upgrade,
 			Boss,
 			TightCoupling,
 			AreaDivider,
@@ -388,6 +389,7 @@ public class LayoutGenerator
 		new(Node.Type.Sequence, new() { new(Node.Type.Room, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Enemy), new(Node.Type.Key) }) }) }),
 		new(Node.Type.PossibleBonus, null, 2.0f),
 		new(Node.Type.PossibleBonus, new() { new(Node.Type.Gate, new() { new(Node.Type.BonusItems) }) }),
+		new(Node.Type.PossibleBonus, new() { new(Node.Type.Gate, new() { new(Node.Type.Upgrade) }) }),
 
 		// gate types
 		new(Node.Type.Gate, new() { new(Node.Type.GateBreakable, new() { new(Node.Type.TightCoupling) }) }, 0.5f),

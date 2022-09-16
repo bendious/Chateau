@@ -45,7 +45,7 @@ public class InteractUpgrade : MonoBehaviour, IInteractable
 	}
 
 
-	public bool CanInteract(KinematicCharacter interactor) => enabled && m_index >= 0 && m_type != Type.None && m_activationTime + m_activationTimeMin < Time.time && (m_active || m_sources.Any(source => source.m_active));
+	public bool CanInteract(KinematicCharacter interactor) => enabled && m_type != Type.None && m_activationTime + m_activationTimeMin < Time.time && (m_active || m_sources.Any(source => source.m_active));
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{

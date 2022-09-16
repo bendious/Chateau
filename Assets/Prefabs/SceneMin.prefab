@@ -1416,8 +1416,12 @@ MonoBehaviour:
   m_doorInteractPrefabs:
   - {fileID: 5746196675388104066, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
   - {fileID: 9122007181668863787, guid: 18a928b181bfee64b887827ee31f4661, type: 3}
-  m_zoneFinishedIndicators: []
-  m_upgradeIndicators: []
+  m_zoneFinishedIndicators:
+  - {fileID: 7287174281192745631, guid: 01ab5b0747ac4084f92f52d293283139, type: 3}
+  m_upgradeIndicators:
+  - {fileID: 6547706689305522490, guid: 35075ca3327609f49a4010d8e6dca411, type: 3}
+  - {fileID: 4512245387546677720, guid: 5f73b96da87207149a86526758697b18, type: 3}
+  - {fileID: 1148680186476742398, guid: f507c347f46663f4ba585071eef0b2a6, type: 3}
   m_directionSigns: []
   m_specialRoomCount: 0
   m_allowHiddenDestructibles: 1
