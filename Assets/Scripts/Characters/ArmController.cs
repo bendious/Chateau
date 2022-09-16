@@ -92,7 +92,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
 		Rigidbody2D body = m_colliders.First().attachedRigidbody;
-		if (collision.collider.ShouldIgnore(body, m_colliders))
+		if (collision.collider.ShouldIgnore(body, m_colliders, oneWayTopEpsilon: float.MaxValue))
 		{
 			return;
 		}

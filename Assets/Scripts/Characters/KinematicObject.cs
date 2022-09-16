@@ -147,7 +147,7 @@ public abstract class KinematicObject : MonoBehaviour
 		Vector2 totalOverlap = Vector2.zero;
 		foreach (ContactPoint2D contact in contacts)
 		{
-			if (m_collider.ShouldIgnore(contact.rigidbody, new[] { contact.collider }, body.mass, typeof(AnchoredJoint2D), true))
+			if (m_collider.ShouldIgnore(contact.rigidbody, new[] { contact.collider }, body.mass, typeof(AnchoredJoint2D), 0.1f))
 			{
 				continue;
 			}
@@ -223,7 +223,7 @@ public abstract class KinematicObject : MonoBehaviour
 		for (int i = 0; i < count; i++)
 		{
 			RaycastHit2D hit = hitBuffer[i];
-			if (m_collider.ShouldIgnore(hit.rigidbody, new[] { hit.collider }, body.mass, typeof(AnchoredJoint2D), true))
+			if (m_collider.ShouldIgnore(hit.rigidbody, new[] { hit.collider }, body.mass, typeof(AnchoredJoint2D), 0.1f))
 			{
 				// push-through floor/walls prevention
 				if (hit.transform.parent == null && hit.rigidbody != null && hit.rigidbody.IsTouchingLayers(GameController.Instance.m_layerWalls))

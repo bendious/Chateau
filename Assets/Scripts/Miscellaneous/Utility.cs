@@ -40,9 +40,6 @@ public static class Utility
 	public const float FloatEpsilon = 0.01f;
 
 
-	private const float m_platformTopEpsilon = 0.1f;
-
-
 	public static int Modulo(this int x, int m)
 	{
 		int r = x % m;
@@ -230,7 +227,7 @@ public static class Utility
 		return source.Remove(index, oldValue.Length).Insert(index, newValue);
 	}
 
-	public static bool ShouldIgnore(this Collider2D self, Rigidbody2D body, Collider2D[] colliders, float dynamicsMassThreshold = 0.0f, Type ignoreChildrenExcept = null, bool processOneWayPlatforms = false, bool ignoreStatics = false, bool ignorePhysicsSystem = false)
+	public static bool ShouldIgnore(this Collider2D self, Rigidbody2D body, Collider2D[] colliders, float dynamicsMassThreshold = 0.0f, Type ignoreChildrenExcept = null, float oneWayTopEpsilon = -1.0f, bool ignoreStatics = false, bool ignorePhysicsSystem = false)
 	{
 		Assert.IsTrue(colliders != null && colliders.Length > 0);
 		GameObject otherObj = colliders.First(collider => collider != null).gameObject; // NOTE that we don't use the rigid body's object since that can be separate from the collider object (e.g. characters and arms) // TODO: ensure all colliders are from the same object & body?
@@ -256,8 +253,9 @@ public static class Utility
 		}
 
 		// if partway through a one-way platform, ignore it
-		if (processOneWayPlatforms && colliders.All(collider => collider == null || (collider.gameObject.layer == GameController.Instance.m_layerOneWay.ToIndex() && self.bounds.min.y + m_platformTopEpsilon < collider.bounds.max.y)))
+		if (oneWayTopEpsilon >= 0.0f && colliders.All(collider => collider == null || (collider.gameObject.layer == GameController.Instance.m_layerOneWay.ToIndex() && (oneWayTopEpsilon == float.MaxValue || (self.bounds.center != Vector3.zero && self.bounds.min.y + oneWayTopEpsilon < collider.bounds.max.y))))) // TODO: better way of skipping self.bounds check on first frame before validity?
 		{
+			EnableCollision.TemporarilyDisableCollision(new[] { self }, colliders, 0.25f); // NOTE that this is necessary to prevent "breaking" rope ladders due to constant collision // TODO: parameterize ignore time?
 			return true;
 		}
 

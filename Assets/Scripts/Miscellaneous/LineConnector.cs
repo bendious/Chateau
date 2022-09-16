@@ -119,6 +119,10 @@ public class LineConnector : MonoBehaviour
 					Destroy(joint);
 					RemoveJoint(joint);
 					line.enabled = false;
+					if (collider != null)
+					{
+						collider.enabled = false;
+					}
 
 					// snap SFX
 					if (m_sfxSnap.Length > 0)

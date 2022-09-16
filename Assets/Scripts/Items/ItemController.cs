@@ -396,10 +396,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 		// if still and supported, set our layer to whatever we're resting on and sleep
 		// TODO: better logic for determining when about to sleep? don't assume only one collision at a time?
+		bool isDetached = m_holder == null;
 		GameObject mainObj = rigidbody == null ? collider.gameObject : rigidbody.gameObject;
 		KinematicObject kinematicObj = mainObj.GetComponent<KinematicObject>();
 		float collisionSpeed = (relativeVelocity + (kinematicObj == null ? Vector2.zero : -kinematicObj.velocity)).magnitude + Speed;
-		if (collisionSpeed < Physics2D.linearSleepTolerance)
+		if (isDetached && collisionSpeed < Physics2D.linearSleepTolerance)
 		{
 			ContactPoint2D supportingContact = contacts == null ? default : contacts.FirstOrDefault(contact => contact.normal.y > 0.0f); // TODO: handle multiple supporting contacts? better support angle?
 			if (supportingContact.collider != null)
@@ -411,14 +412,14 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			return;
 		}
 
-		if (otherCollider.ShouldIgnore(m_body, new[] { collider }, processOneWayPlatforms: true))
+		Collider2D[] colliderArray = new[] { collider };
+		if (otherCollider.ShouldIgnore(m_body, colliderArray, oneWayTopEpsilon: isDetached ? 0.1f : float.MaxValue))
 		{
 			DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Ignored);
 			return;
 		}
 
 		// ignore non-destructible trigger/static objects when held
-		bool isDetached = m_holder == null;
 		Health otherHealth = collider.GetComponent<Health>();
 		if (otherHealth == null && mainObj != collider.gameObject)
 		{
