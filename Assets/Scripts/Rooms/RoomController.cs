@@ -120,6 +120,9 @@ public class RoomController : MonoBehaviour
 		internal System.Lazy<bool> m_excludeSelf = new(() => Random.value < 0.5f, false); // TODO: more deliberate determination?
 
 
+		internal RoomController Room => m_object.transform.parent.GetComponent<RoomController>(); // TODO: cache reference?
+
+
 		private enum ConnectionType { None, Parent, Child, SiblingShallower, SiblingDeeper };
 		private ConnectionType m_connectionType;
 
@@ -143,7 +146,7 @@ public class RoomController : MonoBehaviour
 
 		internal bool IsObstructed(PathFlags flags, bool ignoreOnewayBlockages = false)
 		{
-			RoomController room = m_object.transform.parent.GetComponent<RoomController>(); // TODO: cache reference?
+			RoomController room = Room;
 			Debug.Assert(room != null && room.m_doorwayInfos.Contains(this));
 			if (!flags.BitsSet(PathFlags.ObstructionCheck))
 			{
@@ -201,6 +204,9 @@ public class RoomController : MonoBehaviour
 
 
 	private const float m_physicsCheckEpsilon = 0.1f; // NOTE that Utility.FloatEpsilon is too small to prevent false positives from rooms adjacent to the checked area
+
+
+	private static readonly List<RoomController> m_runtimeRooms = new();
 
 
 	public static T RandomWeightedByKeyCount<T>(IEnumerable<WeightedObject<T>> candidates, System.Func<T, int, System.Tuple<Vector2Int, Vector2>> candidateToStats, int preferredKeyCount, float difficultyPct, float scalarPerDiff = 0.5f)
@@ -437,7 +443,7 @@ public class RoomController : MonoBehaviour
 						{
 							// block w/ a destructible if the siblings are or can be oriented in the desired direction
 							// TODO: allow orienting destructible one-ways in either deep-->shallow or shallow-->deep orientations?
-							if (infoReverse.SiblingShallowerRoom != null && infoReverse.SiblingShallowerRoom.m_layoutNodes.Max(node => node.Depth) == infoReverse.m_object.transform.parent.GetComponent<RoomController>().m_layoutNodes.Max(node => node.Depth))
+							if (infoReverse.SiblingShallowerRoom != null && infoReverse.SiblingShallowerRoom.m_layoutNodes.Max(node => node.Depth) == infoReverse.Room.m_layoutNodes.Max(node => node.Depth))
 							{
 								infoReverse.FlipSiblingDirection();
 							}
@@ -1233,8 +1239,8 @@ public class RoomController : MonoBehaviour
 		transform.SetParent(GameController.Instance.transform);
 
 		// runtime generation if requested
-		const int depthMax = 20; // TODO: parameterize? delete existing rooms rather than limiting?
-		if (!m_doorwayInfos.Any(info => info.ChildRoom != null) && m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomIndefinite && node.Depth < depthMax))
+		const int runtimeRoomsMax = 10; // TODO: calculate based on hardware capabilities?
+		if (m_doorwayInfos.All(info => info.ChildRoom == null) && m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomIndefinite))
 		{
 			int dummyIdx = -1;
 			List<LayoutGenerator.Node> newNodes = null;
@@ -1255,6 +1261,46 @@ public class RoomController : MonoBehaviour
 				if (newRoom != null)
 				{
 					newRoom.FinalizeRecursive(ref dummyIdx, ref dummyIdx);
+
+					// add/replace room
+					m_runtimeRooms.RemoveAll(room => room == null); // NOTE that this is so that we don't need to bother detecting scene load and clearing m_runtimeRooms[]
+					if (m_runtimeRooms.Count >= runtimeRoomsMax)
+					{
+						RoomController roomToDelete = m_runtimeRooms.SelectMax(room => GameController.Instance.m_avatars.Min(avatar => (avatar.transform.position - room.transform.position).sqrMagnitude));
+
+						foreach (DoorwayInfo doorway in roomToDelete.m_doorwayInfos)
+						{
+							if (doorway.m_infoReverse == null)
+							{
+								continue;
+							}
+							doorway.m_infoReverse.Room.OpenDoorway(doorway.m_infoReverse, false);
+							doorway.m_infoReverse.m_infoReverse = null;
+						}
+
+						// TODO: despawn any non-child objects in room?
+
+						foreach (LayoutGenerator.Node node in roomToDelete.m_layoutNodes)
+						{
+							foreach (LayoutGenerator.Node parentNode in node.DirectParentsInternal)
+							{
+								parentNode.m_children.Remove(node);
+							}
+							if (node.m_children != null)
+							{
+								foreach (LayoutGenerator.Node childNode in node.m_children)
+								{
+									childNode.DirectParentsInternal.Remove(node);
+								}
+							}
+						}
+
+						Simulation.Schedule<ObjectDespawn>().m_object = roomToDelete.gameObject;
+
+						m_runtimeRooms.Remove(roomToDelete);
+					}
+					m_runtimeRooms.Add(newRoom);
+
 					newNodes = null;
 				}
 			}

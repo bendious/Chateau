@@ -66,6 +66,8 @@ public static class Utility
 
 	public static T1 SelectMin<T1, T2>(this IEnumerable<T1> options, Func<T1, T2> valueFunc, IComparer<T2> comparer = null) => options.OrderBy(valueFunc, comparer).First();
 
+	public static T1 SelectMax<T1, T2>(this IEnumerable<T1> options, Func<T1, T2> valueFunc, IComparer<T2> comparer = null) => options.OrderBy(valueFunc, comparer).Last();
+
 	public static Tuple<T1, T2> SelectMinWithValue<T1, T2>(this IEnumerable<T1> options, Func<T1, T2> valueFunc, IComparer<T2> comparer = null) => options.Select(option => Tuple.Create(option, valueFunc(option))).OrderBy(pair => pair.Item2, comparer).First();
 
 	public static IEnumerable<WeightedObject<T>> CombineWeighted<T>(this IEnumerable<WeightedObject<T>> a, IEnumerable<WeightedObject<T>> b) => CombineWeighted(a, b, WeightedObjectToObject, WeightedObjectToObject);

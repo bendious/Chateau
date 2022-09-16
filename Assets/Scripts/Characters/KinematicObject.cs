@@ -282,7 +282,7 @@ public abstract class KinematicObject : MonoBehaviour
 		body.position += move.normalized * distance;
 
 		// detect out-of-bounds experiences
-		if (body.position.y < -1000.0f) // TODO: automatically determine suitable lower bound?
+		if (body.position.y < -1000.0f) // TODO: automatically determine suitable lower bound? remove / expand as necessary for runtime generation?
 		{
 			if (m_avatar != null)
 			{

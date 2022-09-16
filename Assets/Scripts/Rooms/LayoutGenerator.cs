@@ -79,7 +79,7 @@ public class LayoutGenerator
 
 		public Node TightCoupleParent { get
 		{
-			if (DirectParentsInternal == null)
+			if (DirectParentsInternal == null || DirectParentsInternal.Count <= 0)
 			{
 				return null;
 			}
@@ -96,12 +96,17 @@ public class LayoutGenerator
 			return fca.m_type == Type.TightCoupling || fca.m_type == Type.AreaDivider ? fca.TightCoupleParent : fca;
 		} }
 
-		public IEnumerable<Node> AreaParents => (DirectParentsInternal == null) ? new[] { this } : (m_type == Type.AreaDivider) ? m_children : DirectParentsInternal.First().AreaParents; // TODO: don't assume all branches will converge to the same area parent?
+		public IEnumerable<Node> AreaParents => (DirectParentsInternal == null || DirectParentsInternal.Count <= 0) ? new[] { this } : (m_type == Type.AreaDivider) ? m_children : DirectParentsInternal.First().AreaParents; // TODO: don't assume all branches will converge to the same area parent?
 
+		private int m_depthCached = -1; // TODO: mark stale when parents change?
 		public int Depth { get
 		{
-			List<Node> parents = DirectParents;
-			return parents == null ? 0 : parents.Max(node => node.Depth) + (parents.Any(node => node.m_type == Type.Lock || m_type == Type.LockOrdered) ? 1 : 0);
+			if (m_depthCached < 0)
+			{
+				List<Node> parents = DirectParents;
+				m_depthCached = parents == null ? 0 : parents.Max(node => node.Depth) + (parents.Any(node => node.m_type == Type.Lock || m_type == Type.LockOrdered) ? 1 : 0);
+			}
+			return m_depthCached;
 		} }
 
 		private int DepthMax => m_children == null || m_children.Count <= 0 ? Depth : m_children.Max(node => node.DepthMax); // TODO: efficiency?
