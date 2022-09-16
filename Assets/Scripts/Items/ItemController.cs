@@ -214,13 +214,25 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	public void SetCombination(LockController.CombinationSet set, int[] combination, int optionIndex, int indexCorrect, int startIndex, int endIndex, bool useSprites)
 	{
+		// convert combination to strings
 		IEnumerable<string> elements = IKey.CombinationToText(set, combination, optionIndex, startIndex, endIndex);
-		string aggregateText = m_sourceTextOptions.RandomWeighted().Aggregate((a, b) => a + "\n" + b);
+
+		// select/truncate flavor text as appropriate
+		IEnumerable<string> textLines = m_sourceTextOptions.RandomWeighted();
+		if (textLines.Count() > elements.Count())
+		{
+			int i = 0;
+			textLines = textLines.Where(line => i++ < elements.Count()); // TODO: don't assume one entry per replacement element?
+		}
+
+		// combine & replace
+		string aggregateText = textLines.Aggregate((a, b) => a + "\n" + b);
 		foreach (string element in elements)
 		{
 			aggregateText = aggregateText.ReplaceFirst("#", element.Trim());
 		}
-		// TODO: handle truncating excess combination placeholders
+
+		// set
 		GetComponentInChildren<TMP_Text>().text = aggregateText;
 	}
 

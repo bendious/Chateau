@@ -93,7 +93,8 @@ public class LockController : MonoBehaviour, IUnlockable
 		// calculate difficulty
 		float difficultyDesired = Mathf.Lerp(GameController.Instance.m_difficultyMin, GameController.Instance.m_difficultyMax, difficultyPct);
 		int keyCount = Math.Min(keyOrLockRooms.Length, m_keyInfo.m_keyCountMax);
-		float difficultyAvgPerItem = difficultyDesired / keyCount;
+		int combinationLen = m_keyInfo.m_combinationDigitsMax <= 0 ? 0 : Mathf.Max(keyCount, m_keyInfo.m_combinationDigitsMin, Mathf.Min(m_keyInfo.m_combinationDigitsMax, Mathf.RoundToInt(difficultyDesired - keyCount))); // NOTE that the combination length can't be less but can be more than the number of keys since multiple digits can be indicated by a single key // NOTE also that we choose a combination length such that per-item difficulty stays close to 1.0 // TODO: random variance?
+		float difficultyAvgPerItem = difficultyDesired / (keyCount + combinationLen); // TODO: don't assume keys and combinations will have the same average difficulty?
 		const float scalarPerDiff = 0.5f; // TODO: parameterize?
 		float[] weightsEdited = m_keyInfo.m_prefabs.Select(info => info.m_weight / (1.0f + scalarPerDiff * Mathf.Abs(info.m_object.m_weight - difficultyAvgPerItem))).ToArray();
 
@@ -112,12 +113,11 @@ public class LockController : MonoBehaviour, IUnlockable
 
 		// setup key(s)
 		// TODO: move into Start() to ensure late-added keys (e.g. puzzle pieces) are present?
-		if (m_keyInfo.m_combinationDigitsMax > 0)
+		if (combinationLen > 0)
 		{
 			// assign combination
-			// TODO: aim for desired difficulty
-			m_combinationSet = m_combinationSets.RandomWeighted();
-			int combinationLen = UnityEngine.Random.Range(Mathf.Max(keyCount, m_keyInfo.m_combinationDigitsMin), m_keyInfo.m_combinationDigitsMax + 1); // NOTE that the combination length can't be less but can be more than the number of keys since multiple digits can be indicated by a single key
+			float[] comboWeightsEdited = m_combinationSets.Select(set => set.m_weight / (1.0f + scalarPerDiff * Mathf.Abs(set.m_object.m_difficulty - difficultyAvgPerItem))).ToArray();
+			m_combinationSet = m_combinationSets.RandomWeighted(comboWeightsEdited).m_object;
 			int[] combination = new int[combinationLen];
 			for (int digitIdx = 0; digitIdx < combinationLen; ++digitIdx)
 			{
@@ -156,18 +156,17 @@ public class LockController : MonoBehaviour, IUnlockable
 				int startIdx = Mathf.RoundToInt(startIdxF);
 				int endIdx = Mathf.RoundToInt(startIdxF + digitsPerKey);
 
-				if (keyIdx < 0 && !key.Item1.Component.isActiveAndEnabled) // TODO: better check for excess combination keys?
-				{
-					key.Item1.SetCombination(m_combinationSet, combination, optionIdx, combination[comboIdx], startIdx, endIdx, useSprites);
-					// NOTE that we purposely don't iterate comboIdx since this key must be in excess of the combination length
-					continue;
-				}
-
 				// pass to key component
 				key.Item1.SetCombination(m_combinationSet, combination, optionIdx, combination[comboIdx], startIdx, endIdx, useSprites);
 				if (!key.Item1.Component.isActiveAndEnabled && (comboIdx < startIdx || comboIdx >= endIdx))
 				{
 					key.Item1.Component.gameObject.SetActive(false);
+				}
+
+				if (keyIdx < 0 && !key.Item1.Component.isActiveAndEnabled) // TODO: better check for excess combination keys?
+				{
+					// NOTE that we don't iterate comboIdx since this key must be in excess of the combination length
+					continue;
 				}
 
 				// iterate
