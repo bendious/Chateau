@@ -8,7 +8,8 @@ public class SavableFactory : ScriptableObject
 	[System.Serializable] public class SavableInfo
 	{
 		public GameObject m_prefab;
-		public int m_materialCost = 1;
+		public int m_materialsProduced = 1;
+		public int m_materialsConsumed = 2;
 	}
 	public SavableInfo[] m_savables;
 

@@ -115,4 +115,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_holdCountMax: 2
+  m_name: Backpack
   m_attachOffsetLocal: {x: 0, y: -0.1, z: 0.2}

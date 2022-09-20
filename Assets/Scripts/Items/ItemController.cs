@@ -178,6 +178,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		SetCause(holder.Component.transform.root.GetComponent<KinematicCharacter>());
 	}
 
+	public string Name => m_tooltip.Split('\n').First(); // TODO: decouple from m_tooltip?
+
 	// this is the detachment entry point
 	public void /*override*/ Detach(bool noAutoReplace)
 	{

@@ -6,6 +6,9 @@ public interface IAttachable
 {
 	public Component Component => this as Component;
 
+	public string Name { get; }
+
+
 	// NOTE that there is no Attach() since the entry point is IHolder.ChildAttach()
 	public void Detach(bool noAutoReplace);
 

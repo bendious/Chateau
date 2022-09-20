@@ -146,8 +146,7 @@ public class DialogueController : MonoBehaviour
 			{
 				continue; // un-typed "savable", such as a torch
 			}
-			ItemController item = attachable as ItemController; // TODO: IAttachable.name?
-			replyList.Add(new() { m_text = (item == null ? "Backpack"/*TODO*/ : item.m_tooltip.Split('\n').First()) + " - " + GameController.Instance.m_savableFactory.m_savables[savableType].m_materialCost, m_eventName = "MerchantDespawn", m_followUp = new[] { "{thanks.} {assurance} I won't forget this." } });
+			replyList.Add(new() { m_text = attachable.Name + " - " + GameController.Instance.m_savableFactory.m_savables[savableType].m_materialsProduced + " materials", m_eventName = "MerchantDespawn", m_followUp = new[] { "{thanks.} {assurance} I won't forget this." } });
 		}
 		replyList.Add(new() { m_text = "Not now.", m_followUp = new[] { "{denied.} Just don't forget to come back if you change your mind, {avatar}." }, m_breakAfterward = true }); // TODO: more variance?
 
@@ -164,7 +163,7 @@ public class DialogueController : MonoBehaviour
 		IAttachable attachable = attachables.ElementAt(m_replyIdx);
 		int savableType = ((ISavable)attachable).Type; // TODO: don't assume all attachables are also savables?
 		++GameController.MerchantAcquiredCounts[savableType];
-		GameController.MerchantMaterials += GameController.Instance.m_savableFactory.m_savables[savableType].m_materialCost;
+		GameController.MerchantMaterials += GameController.Instance.m_savableFactory.m_savables[savableType].m_materialsProduced;
 
 		// detach any children
 		Component attachableComp = attachable.Component;
@@ -197,8 +196,8 @@ public class DialogueController : MonoBehaviour
 				continue;
 			}
 			SavableFactory.SavableInfo savableInfo = GameController.Instance.m_savableFactory.m_savables[type];
-			bool enoughMaterials = GameController.MerchantMaterials >= savableInfo.m_materialCost;
-			replyList.Add(new() { m_text = savableInfo.m_prefab.name + " - " + savableInfo.m_materialCost, m_eventName = enoughMaterials ? "MerchantSpawn" : null, m_userdata = type, m_followUp = new[] { enoughMaterials ? "Here you go!" : "Hmm, I'll need more materials for that." } }); // TODO: use ItemController.m_tooltip?
+			bool enoughMaterials = GameController.MerchantMaterials >= savableInfo.m_materialsConsumed;
+			replyList.Add(new() { m_text = savableInfo.m_prefab.GetComponent<IAttachable>().Name + " - " + savableInfo.m_materialsConsumed + " materials", m_eventName = enoughMaterials ? "MerchantSpawn" : null, m_userdata = type, m_followUp = new[] { enoughMaterials ? "Here you go!" : "Hmm, I'll need more materials for that." } });
 		}
 
 		replyList.Add(new() { m_text = "Nothing, thanks.", m_followUp = new[] { "{denied.} {interjection} you know where to find me." }, m_breakAfterward = true });
@@ -210,7 +209,7 @@ public class DialogueController : MonoBehaviour
 	public void MerchantSpawn(Line.Reply reply)
 	{
 		int savableType = reply.m_userdata;
-		int cost = GameController.Instance.m_savableFactory.m_savables[savableType].m_materialCost;
+		int cost = GameController.Instance.m_savableFactory.m_savables[savableType].m_materialsConsumed;
 		Debug.Assert(GameController.MerchantMaterials >= cost);
 		ISavable savable = GameController.Instance.m_savableFactory.Instantiate(savableType, m_avatar.transform.position, Quaternion.identity);
 		m_avatar.ChildAttach(savable.Component.GetComponent<IAttachable>()); // TODO: don't assume all savables are also attachable?

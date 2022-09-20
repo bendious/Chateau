@@ -8,6 +8,9 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable, 
 	public int m_holdCountMax = 2;
 	public /*override*/ int HoldCountMax => m_holdCountMax;
 
+	public string Name => m_name;
+	[SerializeField] private string m_name;
+
 	public Vector3 m_attachOffsetLocal = Vector3.forward * 0.2f;
 	public /*override*/ Vector3 AttachOffsetLocal => m_attachOffsetLocal;
 	public /*override*/ Vector3 ChildAttachPointLocal => Vector3.zero;

@@ -32,6 +32,10 @@ PrefabInstance:
       value: 0.22
       objectReference: {fileID: 0}
     - target: {fileID: 2548474356318102515, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
+      propertyPath: m_name
+      value: Fanny Pack
+      objectReference: {fileID: 0}
+    - target: {fileID: 2548474356318102515, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
       propertyPath: m_holdCountMax
       value: 1
       objectReference: {fileID: 0}
