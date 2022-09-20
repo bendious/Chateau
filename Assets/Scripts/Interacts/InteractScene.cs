@@ -12,6 +12,8 @@ public class InteractScene : MonoBehaviour, IInteractable
 
 	[SerializeField] private string[] m_refusalTexts = { "It won't open.", "It's stuck.", "Not done here yet..." };
 
+	public WeightedObject<GameObject>[] m_entryVFX;
+
 
 	public int Depth { private get; set; }
 

@@ -165,6 +165,7 @@ MonoBehaviour:
   - It won't open.
   - It's stuck.
   - Not done here yet...
+  m_entryVFX: []
 --- !u!82 &4788182134669333101
 AudioSource:
   m_ObjectHideFlags: 0

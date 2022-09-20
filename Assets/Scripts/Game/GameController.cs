@@ -765,6 +765,10 @@ public class GameController : MonoBehaviour
 		{
 			avatar.Teleport(door.transform.position + (Vector3)avatar.gameObject.OriginToCenterY());
 			avatar.m_aimObject.transform.position = avatar.transform.position;
+			if (door.m_entryVFX.Length > 0)
+			{
+				Instantiate(door.m_entryVFX.RandomWeighted(), avatar.transform);
+			}
 		}
 
 		// update shadow casting
