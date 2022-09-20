@@ -18,6 +18,7 @@ public sealed class AIController : KinematicCharacter
 
 	public Vector2 m_targetOffset = Vector2.zero;
 	public Component m_target;
+	public float m_replanSecondsMin = 1.5f; // NOTE that this is just to discourage constant replanning and not a hard minimum; it can be preempted based on state change / etc.
 	public float m_replanSecondsMax = 3.0f;
 
 	public float m_meleeRange = 1.0f;
@@ -53,6 +54,8 @@ public sealed class AIController : KinematicCharacter
 	private float m_pathfindTimeNext;
 	private List<Vector2> m_pathfindWaypoints;
 
+	private Vector2 m_targetOffsetOrig;
+
 	private float m_dropDecayVel;
 
 	private GameObject m_attentionFlag;
@@ -75,6 +78,8 @@ public sealed class AIController : KinematicCharacter
 		// TODO: spawn animation / fade-in?
 		m_targetSelectTimeNext = Time.time + Random.Range(0.0f, m_replanSecondsMax);
 		m_pathfindTimeNext = Time.time + Random.Range(0.0f, m_replanSecondsMax);
+
+		m_targetOffsetOrig = m_targetOffset;
 
 		if (m_heldPrefab == null)
 		{
@@ -263,6 +268,8 @@ public sealed class AIController : KinematicCharacter
 			m_attentionFlag = null;
 		}
 
+		m_targetOffset = active ? Vector2.right : m_targetOffsetOrig;
+
 		// replan
 		if (m_aiState != null)
 		{
@@ -297,7 +304,7 @@ public sealed class AIController : KinematicCharacter
 				// TODO: efficiency? remove if later unable to pathfind again?
 				GameController.Instance.EnemyAdd(this);
 			}
-			m_pathfindTimeNext = Time.time + Random.Range(m_replanSecondsMax * 0.5f, m_replanSecondsMax); // TODO: parameterize "min" time even though it's not a hard minimum?
+			m_pathfindTimeNext = Time.time + Random.Range(m_replanSecondsMin, m_replanSecondsMax);
 		}
 		if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0)
 		{

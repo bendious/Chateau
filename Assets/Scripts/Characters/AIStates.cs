@@ -23,6 +23,8 @@ public abstract class AIState
 
 	protected readonly AIController m_ai;
 
+	protected float m_retargetTimePrev;
+
 
 	public AIState(AIController ai) => m_ai = ai;
 
@@ -96,14 +98,14 @@ public abstract class AIState
 
 	public virtual AIState Update()
 	{
-		if (m_ai.m_targetSelectTimeNext <= Time.time)
+		if (m_ai.m_targetSelectTimeNext <= Time.time && m_retargetTimePrev + m_ai.m_replanSecondsMin <= Time.time)
 		{
 			Retarget();
 			if (m_ai.m_target == null)
 			{
 				return null;
 			}
-			m_ai.m_targetSelectTimeNext = Time.time + Random.Range(m_ai.m_replanSecondsMax * 0.5f, m_ai.m_replanSecondsMax); // TODO: parameterize "min" time even though it's not a hard minimum?
+			m_ai.m_targetSelectTimeNext = Time.time + Random.Range(m_ai.m_replanSecondsMin, m_ai.m_replanSecondsMax);
 		}
 
 		return this;
@@ -111,6 +113,7 @@ public abstract class AIState
 
 	public virtual void Retarget()
 	{
+		m_retargetTimePrev = Time.time;
 		KinematicCharacter[] candidates = GameController.Instance.AiTargets.ToArray();
 		if (candidates.Length <= 0)
 		{
@@ -578,7 +581,7 @@ public sealed class AIFindAmmo : AIState
 		}
 
 		// validate target
-		if (m_ai.m_target == null || (m_ai.m_target.transform.parent != null && m_ai.m_target.transform.parent != m_ai.transform))
+		if ((m_ai.m_target == null || (m_ai.m_target.transform.parent != null && m_ai.m_target.transform.parent != m_ai.transform)) && m_retargetTimePrev + m_ai.m_replanSecondsMin <= Time.time)
 		{
 			Retarget();
 			if (m_ai.m_target == null)
@@ -624,6 +627,7 @@ public sealed class AIFindAmmo : AIState
 		});
 
 		m_ai.m_target = closestTarget.Item1 == null || closestTarget.Item2 == float.MaxValue ? null : closestTarget.Item1.GetComponent<ItemController>();
+		m_retargetTimePrev = Time.time;
 	}
 
 	public override void Exit()

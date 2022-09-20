@@ -584,8 +584,11 @@ public class GameController : MonoBehaviour
 				return;
 			}
 
-			m_avatars.First().DetachAll(); // to save even items being held
-			Save(); // TODO: prompt player?
+			if (SceneManager.GetActiveScene().buildIndex == 0) // to prevent save-quitting from Tutorial (see Save() exception for creating saves outside the Entryway) // TODO: replace Tutorial Quit button w/ Entryway button once Tutorial has been completed?
+			{
+				m_avatars.First().DetachAll(); // to save even items being held
+				Save(); // TODO: prompt player?
+			}
 		}
 
 #if UNITY_EDITOR

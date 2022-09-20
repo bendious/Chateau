@@ -5,7 +5,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 using UnityEngine.VFX;
 
@@ -122,6 +121,7 @@ public sealed class AvatarController : KinematicCharacter
 
 		Controls = GetComponent<PlayerInput>();
 		Controls.actions.FindActionMap("AlwaysOn").Enable();
+		Controls.actions.FindActionMap("Avatar").FindAction("LookToggle").canceled += OnLookToggleCancel; // NOTE that this wouldn't be necessary if the Hold and Press/Release interactions worked together to allow detecting hold stop as well as start // TODO: cleaner workaround / remove hardcoding?
 
 		OnHealthDecrement.OnExecute += OnDamage;
 		OnHealthDeath.OnExecute += OnDeath;
@@ -291,6 +291,8 @@ public sealed class AvatarController : KinematicCharacter
 		base.OnDestroy();
 
 		DetachAll();
+
+		Controls.actions.FindActionMap("Avatar").FindAction("LookToggle").canceled -= OnLookToggleCancel; // TODO: cleaner workaround / remove hardcoding?
 		OnHealthDecrement.OnExecute -= OnDamage;
 		OnHealthDeath.OnExecute -= OnDeath;
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
@@ -349,7 +351,7 @@ public sealed class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnLookToggle(InputValue input)
 	{
-		IsLooking = input.isPressed;
+		IsLooking = input != null && input.isPressed;
 		if (IsLooking)
 		{
 			GameController.Instance.AddCameraTargets(m_aimObject.transform);
@@ -358,6 +360,11 @@ public sealed class AvatarController : KinematicCharacter
 		{
 			GameController.Instance.RemoveCameraTargets(m_aimObject.transform);
 		}
+	}
+
+	public void OnLookToggleCancel(InputAction.CallbackContext context)
+	{
+		OnLookToggle(null);
 	}
 
 	public void OnSwing(InputValue input)

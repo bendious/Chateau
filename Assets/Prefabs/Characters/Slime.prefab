@@ -186,6 +186,7 @@ MonoBehaviour:
   jumpTakeOffSpeed: 10
   m_wallJumpDegrees: 45
   m_jumpDeceleration: 0.5
+  m_damageScalar: 1
   m_dashVelocity: {x: 15, y: 0}
   m_dashSecondsXY: {x: 0.2, y: 0.2}
   m_dashInvincibility: 0
@@ -198,10 +199,13 @@ MonoBehaviour:
   m_allowedStates: 000000000200000003000000
   m_passive: 0
   m_friendly: 0
+  m_difficulty: 1
   m_targetOffset: {x: 0, y: 0}
   m_target: {fileID: 0}
+  m_replanSecondsMin: 1.5
   m_replanSecondsMax: 3
   m_meleeRange: 1
+  m_alertDistanceMax: 10
   m_jumpMaxSpeedOverride: -1
   m_airControl: 1
   m_jumpAlways: 0
