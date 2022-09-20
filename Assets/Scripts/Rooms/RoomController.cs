@@ -671,6 +671,7 @@ public class RoomController : MonoBehaviour
 					InteractDialogue npc = Instantiate(npcPrefab, InteriorPosition(0.0f) + (Vector3)npcPrefab.OriginToCenterY(), Quaternion.identity).GetComponent<InteractDialogue>();
 					npc.Index = npcDepthLocal + sceneIdx;
 					++npcDepthLocal;
+					GameController.Instance.NpcAdd(npc.GetComponent<AIController>());
 					break;
 
 				case LayoutGenerator.Node.Type.Enemy:

@@ -301,7 +301,7 @@ public sealed class AIController : KinematicCharacter
 			else if (!m_friendly && path.Item2 < m_alertDistanceMax && GameController.Instance.m_avatars.Any(avatar => avatar.gameObject == m_target.gameObject))
 			{
 				// if targeting and successfully pathfinding to a close-enough avatar, ensure we are now contained in GameController.m_enemiesActive[]
-				// TODO: efficiency? remove if later unable to pathfind again?
+				// TODO: efficiency? remove if later unable to pathfind again? activate when targeting NPCs (while still preventing softlocks)?
 				GameController.Instance.EnemyAdd(this);
 			}
 			m_pathfindTimeNext = Time.time + Random.Range(m_replanSecondsMin, m_replanSecondsMax);

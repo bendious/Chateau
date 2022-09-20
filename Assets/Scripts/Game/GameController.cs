@@ -101,7 +101,7 @@ public class GameController : MonoBehaviour
 	public Transform[] RoomBackdropsAboveGround => m_roomBackdropsAboveGroundInternal.Value;
 	private readonly System.Lazy<Transform[]> m_roomBackdropsAboveGroundInternal = new(() => Instance.m_startRoom.BackdropsAboveGroundRecursive.ToArray(), false);
 
-	public IEnumerable<KinematicCharacter> AiTargets => m_avatars.Select(avatar => (KinematicCharacter)avatar).Concat(m_enemiesActive); // TODO: efficiency?
+	public IEnumerable<KinematicCharacter> AiTargets => m_avatars.Select(avatar => (KinematicCharacter)avatar).Concat(m_enemiesActive).Concat(m_npcsInstantiated); // TODO: efficiency?
 
 	public bool Victory { get; private set; }
 
@@ -130,6 +130,8 @@ public class GameController : MonoBehaviour
 
 	private readonly List<AIController> m_enemiesActive = new();
 	private static int[] m_enemySpawnCounts;
+
+	private readonly List<AIController> m_npcsInstantiated = new();
 
 	private static readonly BitArray m_secretsFoundBitmask = new(sizeof(int) * 8); // TODO: avoid limiting to a single int?
 
@@ -441,6 +443,8 @@ public class GameController : MonoBehaviour
 		m_enemiesActive.Add(enemy);
 		// TODO: increment m_enemySpawnCounts[] if appropriate
 	}
+
+	public void NpcAdd(AIController npc) => m_npcsInstantiated.Add(npc);
 
 	public float ActiveEnemiesWeight() => m_waveWeightRemaining + m_enemiesActive.Aggregate(0.0f, (sum, enemy) => sum + enemy.m_difficulty);
 
@@ -1005,6 +1009,7 @@ public class GameController : MonoBehaviour
 		}
 
 		m_enemiesActive.Remove(ai);
+		m_npcsInstantiated.Remove(ai);
 
 		if (m_waveSealing && !ActiveEnemiesRemain() && !m_bossRoomSealed)
 		{

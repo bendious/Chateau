@@ -122,7 +122,7 @@ public abstract class AIState
 		System.Tuple<KinematicCharacter, System.Tuple<float, float>> targetBest = candidates.SelectMinWithValue(candidate =>
 		{
 			float priority = candidate.TargetPriority(m_ai);
-			float dist = PathfindDistanceTo(candidate.gameObject);
+			float dist = priority <= 0.0f ? float.MaxValue : PathfindDistanceTo(candidate.gameObject); // OPTIMIZATION: skip pathfinding if totally excluded by priority
 			return System.Tuple.Create(priority, dist);
 		}, new PriorityDistanceComparer());
 		if (targetBest.Item2.Item1 > 0.0f)

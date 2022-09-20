@@ -350,10 +350,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	}
 
 
-	public virtual bool CanDamage(GameObject target)
-	{
-		return gameObject != target;
-	}
+	public virtual bool CanDamage(GameObject target) => gameObject != target;
 
 	public virtual float TargetPriority(KinematicCharacter source) => source.CanDamage(gameObject) ? 1.0f : 0.0f;
 
