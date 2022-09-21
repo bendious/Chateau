@@ -6,6 +6,7 @@ public abstract class AIState
 {
 	public enum Type
 	{
+		Fraternize,
 		Pursue,
 		PursueErratic,
 		Flee,
@@ -26,7 +27,16 @@ public abstract class AIState
 	protected float m_retargetTimePrev;
 
 
-	public AIState(AIController ai) => m_ai = ai;
+	private readonly bool m_targetFriendlies;
+	private readonly float m_ignoreDistancePct;
+
+
+	public AIState(AIController ai, bool targetFriendlies = false, float ignoreDistancePct = 0.0f)
+	{
+		m_ai = ai;
+		m_targetFriendlies = targetFriendlies;
+		m_ignoreDistancePct = ignoreDistancePct;
+	}
 
 	public static AIState FromTypePrioritized(Type[] allowedTypes, AIController ai)
 	{
@@ -41,9 +51,11 @@ public abstract class AIState
 			switch (type)
 			{
 				// TODO: more granular priorities?
+				case Type.Fraternize:
+					return float.Epsilon;
 				case Type.Pursue:
 				case Type.PursueErratic:
-					return distanceFromOffsetPos > ai.m_meleeRange && (numItems > 0 || ai.HoldCountMax <= 0) ? 1.0f : 0.0f;
+					return distanceFromOffsetPos > ai.m_meleeRange && (numItems > 0 || ai.HoldCountMax <= 0) ? (distanceFromOffsetPos != float.MaxValue ? 1.0f : float.Epsilon) : 0.0f;
 				case Type.Flee:
 					return !ai.m_friendly && GameController.Instance.Victory ? 100.0f : 0.0f;
 				case Type.Melee:
@@ -68,6 +80,8 @@ public abstract class AIState
 
 		switch (allowedTypes.RandomWeighted(priorities))
 		{
+			case Type.Fraternize:
+				return new AIFraternize(ai);
 			case Type.Pursue:
 				return new AIPursue(ai);
 			case Type.PursueErratic:
@@ -121,8 +135,8 @@ public abstract class AIState
 		}
 		System.Tuple<KinematicCharacter, System.Tuple<float, float>> targetBest = candidates.SelectMinWithValue(candidate =>
 		{
-			float priority = candidate.TargetPriority(m_ai);
-			float dist = priority <= 0.0f ? float.MaxValue : PathfindDistanceTo(candidate.gameObject); // OPTIMIZATION: skip pathfinding if totally excluded by priority
+			float priority = candidate.TargetPriority(m_ai, m_targetFriendlies);
+			float dist = priority <= 0.0f ? float.MaxValue : Random.value < m_ignoreDistancePct ? Random.Range(0.0f, float.MaxValue) : PathfindDistanceTo(candidate.gameObject); // OPTIMIZATION: skip pathfinding if totally excluded by priority
 			return System.Tuple.Create(priority, dist);
 		}, new PriorityDistanceComparer());
 		if (targetBest.Item2.Item1 > 0.0f)
@@ -150,6 +164,79 @@ public abstract class AIState
 		// TODO: efficiency? also prioritize based on damage? de-prioritize based on vertical distance / passing through m_ai.m_target?
 		System.Tuple<System.Collections.Generic.List<Vector2>, float> path = GameController.Instance.Pathfind(m_ai.gameObject, obj, m_ai.GetComponent<Collider2D>().bounds.extents.y, !m_ai.HasFlying && m_ai.jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue); // TODO: limit to max jump height once pathfinding takes platforms into account?
 		return path == null ? float.MaxValue : path.Item2;
+	}
+}
+
+
+public sealed class AIFraternize : AIState
+{
+	// since we ignore distance when retargeting, we have to prevent thrashing too often
+	public float m_retargetSecMin = 5.0f;
+	public float m_retargetSecMax = 20.0f;
+
+	public float m_postSecMin = 1.0f;
+	public float m_postSecMax = 2.0f;
+
+
+	private readonly float m_retargetOrigMin;
+	private readonly float m_retargetOrigMax;
+
+	private float m_postSecRemaining;
+
+
+	public AIFraternize(AIController ai)
+		: base(ai, true, 1.0f)
+	{
+		m_retargetOrigMin = m_ai.m_replanSecondsMin;
+		m_retargetOrigMax = m_ai.m_replanSecondsMax;
+	}
+
+	public override void Enter()
+	{
+		base.Enter();
+
+		m_postSecRemaining = Random.Range(m_postSecMin, m_postSecMax);
+
+		m_ai.m_replanSecondsMin = m_retargetSecMin;
+		m_ai.m_replanSecondsMax = m_retargetSecMax;
+	}
+
+	public override AIState Update()
+	{
+		AIState baseVal = base.Update();
+		if (baseVal != this)
+		{
+			return baseVal;
+		}
+
+		bool hasArrived = m_ai.NavigateTowardTarget(Vector2.right * m_ai.m_meleeRange);
+
+		// check for target loss
+		if (m_ai.m_target == null)
+		{
+			return null;
+		}
+
+		// check for arrival
+		if (hasArrived)
+		{
+			m_postSecRemaining -= Time.deltaTime;
+			if (m_postSecRemaining <= 0.0f)
+			{
+				return null;
+			}
+		}
+
+		return this;
+	}
+
+	public override void Exit()
+	{
+		base.Exit();
+
+		m_ai.m_replanSecondsMin = m_retargetOrigMin;
+		m_ai.m_replanSecondsMax = m_retargetOrigMax;
+		m_ai.m_target = null; // to prevent subsequent states aiming at / attacking friendlies
 	}
 }
 
@@ -202,6 +289,7 @@ public class AIPursue : AIState
 		base.Retarget();
 	}
 }
+
 
 public sealed class AIPursueErratic : AIPursue
 {

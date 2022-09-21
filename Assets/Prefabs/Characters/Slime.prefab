@@ -196,7 +196,7 @@ MonoBehaviour:
   m_armOffset: {x: 0, y: 0}
   m_contactDamage: 1
   move: {x: 0, y: 0}
-  m_allowedStates: 000000000200000003000000
+  m_allowedStates: 00000000010000000300000004000000
   m_passive: 0
   m_friendly: 0
   m_difficulty: 1

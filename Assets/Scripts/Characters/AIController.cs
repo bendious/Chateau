@@ -9,7 +9,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class AIController : KinematicCharacter
 {
-	[SerializeField] private AIState.Type[] m_allowedStates = new[] { AIState.Type.Pursue, AIState.Type.Flee, AIState.Type.RamSwoop };
+	[SerializeField] private AIState.Type[] m_allowedStates = new[] { AIState.Type.Fraternize, AIState.Type.Pursue, AIState.Type.Flee, AIState.Type.RamSwoop };
 
 	public bool m_passive;
 	public bool m_friendly;
@@ -212,15 +212,15 @@ public sealed class AIController : KinematicCharacter
 		{
 			return false;
 		}
-		AIController otherEnemy = target.GetComponent<AIController>();
-		if (otherEnemy != null && otherEnemy.m_friendly == m_friendly)
+		AIController otherAI = target.GetComponent<AIController>();
+		if (otherAI != null && otherAI.m_friendly == m_friendly)
 		{
 			return false;
 		}
 		return true;
 	}
 
-	public override float TargetPriority(KinematicCharacter source) => m_passive ? 0.0f : base.TargetPriority(source);
+	public override float TargetPriority(KinematicCharacter source, bool friendly) => m_passive ? 0.0f : base.TargetPriority(source, friendly);
 
 
 	private void OnDamage(OnHealthDecrement evt)

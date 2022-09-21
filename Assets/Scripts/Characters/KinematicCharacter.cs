@@ -352,7 +352,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	public virtual bool CanDamage(GameObject target) => gameObject != target;
 
-	public virtual float TargetPriority(KinematicCharacter source) => source.CanDamage(gameObject) ? 1.0f : 0.0f;
+	public virtual float TargetPriority(KinematicCharacter source, bool friendly) => source != this && source.CanDamage(gameObject) != friendly ? 1.0f : 0.0f;
 
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called from animation event")]

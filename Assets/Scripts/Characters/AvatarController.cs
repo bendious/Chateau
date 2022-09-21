@@ -704,7 +704,7 @@ public sealed class AvatarController : KinematicCharacter
 		return true;
 	}
 
-	public override float TargetPriority(KinematicCharacter source) => (!IsAlive || (source is AIController ai && ai.m_friendly)) ? 0.0f : base.TargetPriority(source);
+	public override float TargetPriority(KinematicCharacter source, bool friendly) => !IsAlive ? 0.0f : base.TargetPriority(source, friendly);
 
 
 	protected override void DespawnSelf()
