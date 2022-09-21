@@ -18,6 +18,8 @@ MonoBehaviour:
       m_userdata: 0
       m_lines:
       - m_text: Customization rules, {avatar}!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 0

@@ -18,15 +18,25 @@ MonoBehaviour:
       m_userdata: 1
       m_lines:
       - m_text: Oh, hey! You're back!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: And I hear you cleared out one of the wings!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: Nice going, {avatar}!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: Have you found a way into the next wing yet?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: The wiring by the door is dangerous, but there must be a way to deal
           with that.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 1
@@ -36,11 +46,17 @@ MonoBehaviour:
       m_userdata: 2
       m_lines:
       - m_text: Ah, you got another one? Most excellent!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: Keep up the good work, {avatar}!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: Only one more wing to go, if you can get up to it. The ladder broke
           a long time ago.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 1
@@ -50,10 +66,16 @@ MonoBehaviour:
       m_userdata: 3
       m_lines:
       - m_text: Wow, have you gone through the whole mansion?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: I don't think I've ever seen this place so clean and bright.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: I wish I could do more than just say thank you...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 1
@@ -63,10 +85,16 @@ MonoBehaviour:
       m_userdata: 0
       m_lines:
       - m_text: Stay away from danger!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: Don't expect to attack anything up close and walk away unharmed.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: Generally speaking, throwing things is much safer than swinging them.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 0
@@ -76,19 +104,33 @@ MonoBehaviour:
       m_userdata: 3
       m_lines:
       - m_text: Hey, {avatar}.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: '{request.}'
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: This place is being overrun.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: There are... <i>things</i> in here. They've settled into each of
           the building's wings, and honestly...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: I think you're the only one here who can really take them on.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: '{request.} {request.}'
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: This is technically your house, after all...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies:
         - m_text: No way.
           m_preconditionName: 
@@ -123,8 +165,12 @@ MonoBehaviour:
       m_userdata: 3
       m_lines:
       - m_text: Oh, and if you see the others around, tell 'em to meet up here.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: I don't know what they're thinking, wandering around like that...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 0
@@ -134,6 +180,8 @@ MonoBehaviour:
       m_userdata: 0
       m_lines:
       - m_text: Feeling lost, {avatar}?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies:
         - m_text: Yes.
           m_preconditionName: 
@@ -158,10 +206,16 @@ MonoBehaviour:
           m_breakAfterward: 0
       - m_text: This place is so big that I'd swear every time I walk through a door
           there's a wing I've never seen before.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: There's a certain order to it, though.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: I've noticed that related rooms share coloration, for example.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 0
@@ -172,10 +226,14 @@ MonoBehaviour:
       m_lines:
       - m_text: I suppose you don't know, having never really lived here, but this
           whole place is basically a cylinder.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: The central spire is visible from pretty much anywhere if you're
           looking for it, but the only way to reach it is to pass through all the
           other layers.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 0
@@ -185,9 +243,13 @@ MonoBehaviour:
       m_userdata: 0
       m_lines:
       - m_text: Be careful going deeper.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: All these pests came from outside originally, but they seem to revel
           in making their way as far inside as possible.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 0
@@ -197,8 +259,12 @@ MonoBehaviour:
       m_userdata: 0
       m_lines:
       - m_text: The center... It used to be empty, but I don't think it is anymore.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: I swear there are lights in the windows sometimes...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 0
@@ -208,8 +274,12 @@ MonoBehaviour:
       m_userdata: 0
       m_lines:
       - m_text: Feel free to leave whatever you want here.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: I'll make sure it stays until you come back for it.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 0
@@ -219,10 +289,16 @@ MonoBehaviour:
       m_userdata: 0
       m_lines:
       - m_text: The locked doors here?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: I don't actually know what's behind them.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: Their keys don't seem to still be around here.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 0
@@ -232,14 +308,24 @@ MonoBehaviour:
       m_userdata: 0
       m_lines:
       - m_text: Oh, you saw the writing on the entrance hallway walls?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: Yeah, I don't know who wrote all that.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: Someone crazy, I guess.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: Creepy gibberish...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: Don't think about it too much, that's my advice.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 0
@@ -249,11 +335,25 @@ MonoBehaviour:
       m_userdata: 1
       m_lines:
       - m_text: Been talking to Martha?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: She's a pain sometimes, honestly, but don't let that bug you too
           much.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: Get used to her talents and she'll be one of your biggest assets.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Hey, I'm right here, you know!
+        m_source: {fileID: 11400000, guid: a4d57240072259046ba25a999d984f47, type: 2}
+        m_sourceDistMax: 6
+        m_replies: []
+      - m_text: Yeah, I know.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 0
@@ -263,9 +363,13 @@ MonoBehaviour:
       m_userdata: 1
       m_lines:
       - m_text: Me? I'm not actually from around here, you know.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: I'm just your humble guide, hoping to make your trials here a little
           less arduous than mine were in my home.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 0

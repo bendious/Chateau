@@ -5,14 +5,14 @@ using UnityEngine;
 [DisallowMultipleComponent, RequireComponent(typeof(Collider2D))]
 public class InteractDialogue : MonoBehaviour, IInteractable
 {
-	[SerializeField] private Sprite m_dialogueSprite;
+	public Sprite m_dialogueSprite;
 
 	[SerializeField] private WeightedObject<AudioClip>[] m_sfx;
 
 	[SerializeField] private float m_weightUseScalar = 0.25f;
 
 
-	public int Index { private get; set; }
+	public int Index { get; set; }
 
 
 	private bool HasSingleUseAvailable => DialogueFiltered().Any(line => line.m_object.m_singleUse);

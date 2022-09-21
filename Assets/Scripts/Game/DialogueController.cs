@@ -37,6 +37,8 @@ public class DialogueController : MonoBehaviour
 		}
 
 		public string m_text;
+		[SerializeField] internal NpcDialogue m_source;
+		[SerializeField] internal float m_sourceDistMax = float.MaxValue;
 		public Reply[] m_replies;
 	}
 
@@ -67,10 +69,6 @@ public class DialogueController : MonoBehaviour
 
 	public void Play(IEnumerable<Line> lines, AvatarController avatar = null, Sprite sprite = null, Color spriteColor = default, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions = null, AudioClip sfx = null, bool loop = false, Action postDialogue = null)
 	{
-		m_image.enabled = sprite != null;
-		m_image.sprite = sprite;
-		m_image.color = spriteColor;
-
 		m_revealedCharCount = 0;
 		m_lastRevealTime = Time.time;
 		m_replyIdx = 0;
@@ -79,7 +77,7 @@ public class DialogueController : MonoBehaviour
 		m_loop = loop;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
-		StartCoroutine(AdvanceDialogue(lines, expressions, sfx, postDialogue));
+		StartCoroutine(AdvanceDialogue(lines, expressions, sfx, sprite, spriteColor, postDialogue));
 	}
 
 	public void OnReplySelected(GameObject replyObject)
@@ -220,7 +218,7 @@ public class DialogueController : MonoBehaviour
 	public void ActivateInteract(Line.Reply reply) => ((InteractScene)reply.m_userdataObj).StartAnimation(m_avatar);
 
 
-	private System.Collections.IEnumerator AdvanceDialogue(IEnumerable<Line> linesOrig, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions, AudioClip sfx, Action postDialogue)
+	private System.Collections.IEnumerator AdvanceDialogue(IEnumerable<Line> linesOrig, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions, AudioClip sfx, Sprite sprite, Color color, Action postDialogue)
 	{
 		m_text.text = null;
 		m_queue = new(linesOrig);
@@ -255,7 +253,7 @@ public class DialogueController : MonoBehaviour
 
 			// current state
 			// TODO: don't redo every time?
-			Line lineCur = NextLine(out string textCur, out int textCurLen, expressionsOrdered);
+			Line lineCur = NextLine(out string textCur, out int textCurLen, expressionsOrdered, sprite, color);
 
 			// maybe move to next line
 			bool stillRevealing = m_revealedCharCount + tagCharCount < textCurLen;
@@ -279,7 +277,7 @@ public class DialogueController : MonoBehaviour
 				else
 				{
 					m_queue.Dequeue();
-					lineCur = NextLine(out textCur, out textCurLen, expressionsOrdered);
+					lineCur = NextLine(out textCur, out textCurLen, expressionsOrdered, sprite, color);
 				}
 				m_revealedCharCount = 0;
 				m_lastRevealTime = Time.time;
@@ -399,7 +397,7 @@ public class DialogueController : MonoBehaviour
 		gameObject.SetActive(false);
 	}
 
-	private Line NextLine(out string text, out int textLen, IEnumerable<NpcDialogue.ExpressionInfo> expressionsOrdered)
+	private Line NextLine(out string text, out int textLen, IEnumerable<NpcDialogue.ExpressionInfo> expressionsOrdered, Sprite spriteDefault, Color colorDefault)
 	{
 		Line line = m_queue.Count > 0 ? m_queue.Peek() : null;
 		text = m_queueFollowUp != null ? m_queueFollowUp.Peek() : line?.m_text;
@@ -433,6 +431,30 @@ public class DialogueController : MonoBehaviour
 				text = new(textArray);
 			}
 		}
+
+		// update image if necessary
+		if (line?.m_source == null)
+		{
+			m_image.sprite = spriteDefault;
+			m_image.color = colorDefault;
+		}
+		else
+		{
+			InteractDialogue sourceInteract = FindObjectsOfType<InteractDialogue>().FirstOrDefault(interact => GameController.NpcDialogues(interact.Index).Contains(line.m_source) && Vector2.Distance(m_avatar.transform.position, interact.transform.position) <= line.m_sourceDistMax);
+			if (sourceInteract == null)
+			{
+				// if the source is not present, end the dialogue // TODO: parameterize?
+				text = null;
+				line = null;
+				m_queue.Clear();
+			}
+			else
+			{
+				m_image.sprite = sourceInteract.m_dialogueSprite;
+				m_image.color = sourceInteract.GetComponent<SpriteRenderer>().color;
+			}
+		}
+		m_image.enabled = m_image.sprite != null;
 
 		textLen = text != null ? text.Length : 0;
 

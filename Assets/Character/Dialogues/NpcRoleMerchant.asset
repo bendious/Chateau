@@ -18,8 +18,12 @@ MonoBehaviour:
       m_userdata: 0
       m_lines:
       - m_text: Hey!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: I remember you!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 1
@@ -29,17 +33,27 @@ MonoBehaviour:
       m_userdata: 0
       m_lines:
       - m_text: What, you want something?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: Well I need materials to work with first.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: You bring me enough junk you find lying around, and I'll rig up whatever
           you want.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: I can't salvage everything, so don't expect to swap things around
           without loss -
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: But if you want something specific that's not on hand, remember me
           first!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies: []
       m_loop: 0
       m_singleUse: 1
@@ -49,6 +63,8 @@ MonoBehaviour:
       m_userdata: 0
       m_lines:
       - m_text: Got anything memorable on ya?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies:
         - m_text: Yes
           m_preconditionName: 
@@ -71,6 +87,8 @@ MonoBehaviour:
       m_userdata: 0
       m_lines:
       - m_text: Need something I've memorized?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
         m_replies:
         - m_text: Yes
           m_preconditionName: 
