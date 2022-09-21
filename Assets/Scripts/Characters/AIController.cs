@@ -290,10 +290,12 @@ public sealed class AIController : KinematicCharacter
 
 		// pathfind
 		// TODO: efficiency?
+		bool isStartingPoint = false;
 		if (m_pathfindTimeNext <= Time.time || (m_pathfindWaypoints != null && m_pathfindWaypoints.Count > 0 && !Vector2.Distance(m_target.transform.position, m_pathfindWaypoints.Last()).FloatEqual(targetOffsetAbs.magnitude, m_meleeRange))) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases); avoid trying to go past moving targets?
 		{
 			System.Tuple<List<Vector2>, float> path = GameController.Instance.Pathfind(gameObject, m_target.gameObject, m_collider.bounds.extents.y, !HasFlying && jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue, targetOffsetAbs, RoomController.PathFlags.ObstructionCheck | (HasFlying ? RoomController.PathFlags.IgnoreGravity : RoomController.PathFlags.None)); // TODO: limit to max jump height once pathfinding takes platforms into account? prevent pathing beyond a threshold distance?
 			m_pathfindWaypoints = path?.Item1;
+			isStartingPoint = true;
 			if (m_pathfindWaypoints == null)
 			{
 				m_target = null; // TODO: better handle unreachable positions; idle? find closest reachable position?
@@ -314,7 +316,6 @@ public sealed class AIController : KinematicCharacter
 		}
 
 		Collider2D targetCollider = m_target.GetComponent<Collider2D>(); // TODO: efficiency?
-		Vector2 halfExtentsCombined = (m_collider.bounds.extents + targetCollider.bounds.extents) * 0.5f;
 
 		// process & check for arrival at current waypoint(s)
 		Vector2 nextWaypoint;
@@ -324,9 +325,10 @@ public sealed class AIController : KinematicCharacter
 		{
 			// get relative position
 			nextWaypoint = m_pathfindWaypoints.First();
-			diff = nextWaypoint - (Vector2)transform.position;
+			diff = nextWaypoint - (Vector2)m_collider.bounds.center;
 
 			// prevent jittering
+			Vector2 halfExtentsCombined = ((Vector2)m_collider.bounds.extents + (m_pathfindWaypoints.Count > 1 ? Vector2.zero : targetCollider.bounds.extents)) * 0.5f;
 			if (Mathf.Abs(diff.x) < halfExtentsCombined.x)
 			{
 				diff.x = 0.0f;
@@ -338,10 +340,11 @@ public sealed class AIController : KinematicCharacter
 
 			// check arrival
 			const float arrivalEpsilon = 0.1f; // TODO: derive/calculate?
-			atWaypoint = diff.magnitude <= ((Vector2)m_collider.bounds.extents).magnitude + m_collider.offset.magnitude + arrivalEpsilon;
+			atWaypoint = (isStartingPoint || IsGrounded || transform.position.y >= nextWaypoint.y) && diff.magnitude <= ((Vector2)m_collider.bounds.extents).magnitude + m_collider.offset.magnitude + arrivalEpsilon; // NOTE the stricter condition when in mid-air to prevent starting to move sideways too soon and falling back below the waypoint
 			if (atWaypoint)
 			{
 				m_pathfindWaypoints.RemoveAt(0);
+				isStartingPoint = false;
 			}
 		}
 		while (atWaypoint && m_pathfindWaypoints.Count > 0);

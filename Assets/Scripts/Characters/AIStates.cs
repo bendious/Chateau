@@ -171,8 +171,8 @@ public abstract class AIState
 public sealed class AIFraternize : AIState
 {
 	// since we ignore distance when retargeting, we have to prevent thrashing too often
-	public float m_retargetSecMin = 5.0f;
-	public float m_retargetSecMax = 20.0f;
+	public float m_retargetSecMin = 15.0f;
+	public float m_retargetSecMax = 30.0f;
 
 	public float m_postSecMin = 1.0f;
 	public float m_postSecMax = 2.0f;

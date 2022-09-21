@@ -311,7 +311,7 @@ MonoBehaviour:
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
-      - m_text: Yeah, I don't know who wrote all that.
+      - m_text: Wonder who wrote all that, huh?
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
@@ -319,7 +319,7 @@ MonoBehaviour:
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
-      - m_text: Creepy gibberish...
+      - m_text: Creepy gibberish, I'm sure you agree...
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
