@@ -223,7 +223,7 @@ public sealed class AvatarController : KinematicCharacter
 		Vector2 priorityPos = FocusPriorityPos;
 		Tuple<Collider2D, Tuple<float, float>> focus = focusCandidates.Length <= 0 ? Tuple.Create<Collider2D, Tuple<float, float>>(null, Tuple.Create(-1.0f, float.MaxValue)) : focusCandidates.SelectMinWithValue(candidate =>
 		{
-			if (m_collider.ShouldIgnore(candidate.GetComponent<Rigidbody2D>(), new[] { candidate }, ignorePhysicsSystem: true) || (candidate.gameObject == m_throwObj && m_throwIgnoreTime >= Time.time))
+			if (m_collider.ShouldIgnore(candidate.attachedRigidbody, new[] { candidate }, ignorePhysicsSystem: true) || (candidate.gameObject == m_throwObj && m_throwIgnoreTime >= Time.time))
 			{
 				return Tuple.Create(-1.0f, float.MaxValue); // ignore ourself / attached/ignored/just-thrown objects
 			}

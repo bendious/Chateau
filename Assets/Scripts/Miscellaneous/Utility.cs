@@ -257,7 +257,10 @@ public static class Utility
 		// if partway through a one-way platform, ignore it
 		if (oneWayTopEpsilon >= 0.0f && colliders.All(collider => collider == null || (collider.gameObject.layer == GameController.Instance.m_layerOneWay.ToIndex() && (oneWayTopEpsilon == float.MaxValue || (self.bounds.center != Vector3.zero && self.bounds.min.y + oneWayTopEpsilon < collider.bounds.max.y))))) // TODO: better way of skipping self.bounds check on first frame before validity?
 		{
-			EnableCollision.TemporarilyDisableCollision(new[] { self }, colliders, 0.25f); // NOTE that this is necessary to prevent "breaking" rope ladders due to constant collision // TODO: parameterize ignore time?
+			if (body != null && body.bodyType != RigidbodyType2D.Static)
+			{
+				EnableCollision.TemporarilyDisableCollision(new[] { self }, colliders, 0.25f); // NOTE that this is necessary to prevent "breaking" rope ladders due to constant collision // TODO: parameterize ignore time?
+			}
 			return true;
 		}
 

@@ -400,7 +400,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		m_trail.widthCurve = AnimationCurve.EaseInOut(0.0f, compareFunc(m_trailSizes.x, m_trailSizes.y), 1.0f, 0.0f);
 	}
 
-	private void ProcessCollision(Collider2D collider, Rigidbody2D rigidbody, Vector2 relativeVelocity, Collider2D otherCollider, Rigidbody2D otherRigidbody, List<ContactPoint2D> contacts)
+	private void ProcessCollision(Collider2D collider, Rigidbody2D rigidbody, Vector2 relativeVelocity, Collider2D colliderLocal, Rigidbody2D bodyLocal, List<ContactPoint2D> contacts)
 	{
 		if (!gameObject.activeSelf) // e.g. we're a bomb that has just gone off
 		{
@@ -420,14 +420,14 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			if (supportingContact.collider != null)
 			{
 				gameObject.layer = supportingContact.collider.gameObject.layer;
-				m_body.Sleep(); // NOTE that changing the object's layer wakes it, so we have to manually Sleep() here
+				bodyLocal.Sleep(); // NOTE that changing the object's layer wakes it, so we have to manually Sleep() here
 			}
 			DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Supported);
 			return;
 		}
 
 		Collider2D[] colliderArray = new[] { collider };
-		if (otherCollider.ShouldIgnore(m_body, colliderArray, oneWayTopEpsilon: isDetached ? 0.1f : float.MaxValue))
+		if (colliderLocal.ShouldIgnore(rigidbody, colliderArray, oneWayTopEpsilon: isDetached ? 0.1f : float.MaxValue))
 		{
 			DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Ignored);
 			return;
@@ -450,13 +450,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		if (m_audioSource.enabled && collisionSpeed > sfxThresholdSpeed)
 		{
 			PhysicsMaterial2D material1 = collider.sharedMaterial != null || rigidbody == null ? collider.sharedMaterial : rigidbody.sharedMaterial;
-			PhysicsMaterial2D material2 = otherCollider.sharedMaterial != null || otherRigidbody == null ? otherCollider.sharedMaterial : otherRigidbody.sharedMaterial;
+			PhysicsMaterial2D material2 = colliderLocal.sharedMaterial != null || bodyLocal == null ? colliderLocal.sharedMaterial : bodyLocal.sharedMaterial;
 			m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.PairBestMatch(material1, material2).m_collisionAudio.Random());
 		}
 
 		// maybe attach to character
 		// TODO: extend to BackpackController as well?
-		bool canDamage = Cause != null && Cause.CanDamage(mainObj) && !m_nondamageColliders.Contains(otherCollider);
+		bool canDamage = Cause != null && Cause.CanDamage(mainObj) && !m_nondamageColliders.Contains(colliderLocal);
 		KinematicCharacter character = kinematicObj as KinematicCharacter; // NOTE that this works since objects shouldn't ever have multiple different KinematicObject-derived components
 		if (isDetached && !canDamage) // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus or if it is a secondary (non-damaging) collider making collision
 		{

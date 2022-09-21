@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static Simulation;
@@ -16,7 +17,7 @@ public class EnableCollision : Event<EnableCollision>
 	public override void Execute() => Physics2D.IgnoreCollision(m_collider1, m_collider2, false);
 
 
-	public static void TemporarilyDisableCollision(Collider2D[] aList, Collider2D[] bList, float durationSeconds = Health.m_invincibilityTimeDefault)
+	public static void TemporarilyDisableCollision(IEnumerable<Collider2D> aList, IEnumerable<Collider2D> bList, float durationSeconds = Health.m_invincibilityTimeDefault)
 	{
 		// TODO: efficiency?
 		foreach (Collider2D a in aList.Where(c => c != null))
