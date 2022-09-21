@@ -711,7 +711,7 @@ public class RoomController : MonoBehaviour
 			furniture.transform.position = InteriorPosition(0.0f, furniture.gameObject, resizeAction: () => width = furniture.RandomizeSize(extentsEffective), failureAction: () =>
 			{
 				Simulation.Schedule<ObjectDespawn>().m_object = furniture.gameObject;
-				furniture = null;
+				furniture = null; // TODO: ensure this is safe even though we're in the middle of assigning to furniture.transform.position
 			});
 			if (furniture == null)
 			{
@@ -859,13 +859,22 @@ public class RoomController : MonoBehaviour
 
 	public Vector3 InteriorPosition(float heightMin, float heightMax, GameObject preventOverlapPrefab = null, Quaternion? rotation = null, float edgeBuffer = 0.0f, System.Action resizeAction = null, System.Action failureAction = null)
 	{
+		static float getOverlap(Bounds a, Bounds b)
+		{
+			Vector2 centerDiff = b.center - a.center;
+			Vector2 overlap2D = (Vector2)b.extents + (Vector2)a.extents - centerDiff.Abs();
+			return Mathf.Min(overlap2D.x, overlap2D.y);
+		}
+
 		Bounds boundsInterior = BoundsInterior;
 		if (edgeBuffer != 0.0f)
 		{
 			boundsInterior.Expand(new Vector3(-edgeBuffer, -edgeBuffer));
 		}
 
-		Vector3 pos;
+		Vector3 pos = Vector3.zero;
+		Vector3 posBackup = pos;
+		float backupOverlap = float.MaxValue;
 		const int attemptsMax = 100;
 		int failsafe = attemptsMax;
 		do // TODO: efficiency?
@@ -897,7 +906,7 @@ public class RoomController : MonoBehaviour
 			{
 				bboxNew.center = pos + offsetToCenter;
 
-				bool overlap = false;
+				float overlap = 0.0f;
 				foreach (Renderer renderer in GetComponentsInChildren<Renderer>().Where(r => r is SpriteRenderer or SpriteMask or MeshRenderer)) // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
 				{
 					if (renderer.gameObject == m_backdrop || renderer.gameObject.layer == GameController.Instance.m_layerExterior.ToIndex())
@@ -906,19 +915,27 @@ public class RoomController : MonoBehaviour
 					}
 					if (renderer.bounds.Intersects(bboxNew))
 					{
-						overlap = true;
-						break;
+						overlap = Mathf.Max(overlap, getOverlap(renderer.bounds, bboxNew));
 					}
 					RectTransform tf = renderer.GetComponent<RectTransform>();
-					if (tf != null && new Bounds((Vector3)tf.rect.center + tf.position, tf.rect.size).Intersects(bboxNew))
+					if (tf != null)
 					{
-						overlap = true;
-						break;
+						Bounds bboxRect = new((Vector3)tf.rect.center + tf.position, tf.rect.size);
+						if (bboxRect.Intersects(bboxNew))
+						{
+							overlap = Mathf.Max(overlap, getOverlap(bboxRect, bboxNew));
+						}
 					}
 				}
-				if (!overlap)
+				if (overlap <= 0.0f)
 				{
 					return pos;
+				}
+
+				if (overlap < backupOverlap)
+				{
+					posBackup = pos;
+					backupOverlap = overlap;
 				}
 
 				pos.x += xSizeEffective / attemptsMax;
@@ -940,10 +957,10 @@ public class RoomController : MonoBehaviour
 		}
 		else
 		{
-			Debug.LogWarning("Failed to prevent room position overlap: " + preventOverlapPrefab.name + " at " + pos);
+			Debug.LogWarning("Failed to prevent room position overlap: " + preventOverlapPrefab.name + " at " + posBackup);
 		}
 
-		return pos;
+		return posBackup;
 	}
 
 	public GameObject SpawnKey(GameObject prefab, float nonitemHeightMax, bool noLock)
@@ -1337,7 +1354,8 @@ public class RoomController : MonoBehaviour
 		Renderer[] renderers = (recursive ? obj.GetComponentsInChildren<Renderer>() : new Renderer[] { obj.GetComponentInChildren<Renderer>() }).Where(r => r is SpriteRenderer or SpriteMask or MeshRenderer).ToArray(); // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
 		Bounds SemiLocalBounds(Renderer r)
 		{
-			Bounds b = r.localBounds; // TODO: handle object rotation?
+			Bounds b = r.localBounds;
+			b.extents = Vector3.Scale(b.extents, r.transform.lossyScale);
 			b.center += r.transform.position - obj.transform.position;
 			return b;
 		}
