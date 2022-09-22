@@ -1,5 +1,8 @@
 fileFormatVersion: 2
 guid: ac4562b3ee3a1964681b6eb6480b6791
+labels:
+- Architecture
+- Weapon
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}

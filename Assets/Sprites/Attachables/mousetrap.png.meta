@@ -1,5 +1,7 @@
 fileFormatVersion: 2
 guid: 2fed41e51ef95684c8d8a08677d0cd76
+labels:
+- Weapon
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
