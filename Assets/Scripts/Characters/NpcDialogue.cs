@@ -12,6 +12,7 @@ public class NpcDialogue : ScriptableObject
 		public DialogueController.Line[] m_lines;
 		public bool m_loop;
 		public bool m_singleUse;
+		public bool m_appendToAll;
 	};
 	public WeightedObject<DialogueInfo>[] m_dialogue;
 

@@ -23,6 +23,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 0
   - m_object:
       m_preconditionName: 
@@ -114,6 +115,7 @@ MonoBehaviour:
           m_breakAfterward: 1
       m_loop: 1
       m_singleUse: 0
+      m_appendToAll: 1
     m_weight: 0
   m_expressions:
   - m_object:

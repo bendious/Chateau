@@ -40,6 +40,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 1
+      m_appendToAll: 0
     m_weight: 0
   - m_object:
       m_preconditionName: HasFinishedZone
@@ -60,6 +61,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 1
+      m_appendToAll: 0
     m_weight: 0
   - m_object:
       m_preconditionName: HasFinishedZone
@@ -79,6 +81,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 1
+      m_appendToAll: 0
     m_weight: 0
   - m_object:
       m_preconditionName: 
@@ -98,6 +101,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 0
   - m_object:
       m_preconditionName: HasNotFinishedZone
@@ -159,6 +163,7 @@ MonoBehaviour:
           m_breakAfterward: 0
       m_loop: 0
       m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 0
   - m_object:
       m_preconditionName: HasNotFinishedZone
@@ -174,6 +179,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 0
   - m_object:
       m_preconditionName: 
@@ -219,6 +225,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 0
   - m_object:
       m_preconditionName: 
@@ -237,6 +244,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 0
   - m_object:
       m_preconditionName: 
@@ -253,6 +261,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 0
   - m_object:
       m_preconditionName: 
@@ -268,6 +277,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 0
   - m_object:
       m_preconditionName: 
@@ -283,6 +293,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 0
   - m_object:
       m_preconditionName: 
@@ -302,6 +313,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 0
   - m_object:
       m_preconditionName: 
@@ -329,6 +341,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 0
   - m_object:
       m_preconditionName: HasFinishedZone
@@ -357,6 +370,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 1
   - m_object:
       m_preconditionName: HasFinishedZone
@@ -373,6 +387,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 1
   m_expressions:
   - m_object:

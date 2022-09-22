@@ -56,7 +56,7 @@ public class DialogueController : MonoBehaviour
 	private int m_replyIdx;
 	private Queue<string> m_queueFollowUp;
 	private AvatarController m_avatar;
-	private bool m_loop;
+	private int m_loopIdx = -1;
 
 	private bool m_forceNewLine = false;
 
@@ -67,14 +67,14 @@ public class DialogueController : MonoBehaviour
 	}
 
 
-	public void Play(IEnumerable<Line> lines, AvatarController avatar = null, Sprite sprite = null, Color spriteColor = default, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions = null, AudioClip sfx = null, bool loop = false, Action postDialogue = null)
+	public void Play(IEnumerable<Line> lines, AvatarController avatar = null, Sprite sprite = null, Color spriteColor = default, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions = null, AudioClip sfx = null, int loopIdx = -1, Action postDialogue = null)
 	{
 		m_revealedCharCount = 0;
 		m_lastRevealTime = Time.time;
 		m_replyIdx = 0;
 		m_queueFollowUp = null;
 		m_avatar = avatar;
-		m_loop = loop;
+		m_loopIdx = loopIdx;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
 		StartCoroutine(AdvanceDialogue(lines, expressions, sfx, sprite, spriteColor, postDialogue));
@@ -132,7 +132,7 @@ public class DialogueController : MonoBehaviour
 		if (attachables.Length <= 0)
 		{
 			m_queue.Enqueue(new() { m_text = "No you don't..." });
-			m_loop = false;
+			m_loopIdx = -1;
 			return;
 		}
 
@@ -386,9 +386,9 @@ public class DialogueController : MonoBehaviour
 
 			yield return null; // TODO: don't process every frame w/o losing responsiveness?
 
-			if (m_loop && m_queue.Count <= 0)
+			if (m_loopIdx >= 0 && m_queue.Count <= 0)
 			{
-				m_queue = new(linesOrig);
+				m_queue = new(linesOrig.Skip(m_loopIdx));
 			}
 		}
 

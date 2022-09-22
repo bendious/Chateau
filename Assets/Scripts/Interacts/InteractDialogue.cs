@@ -53,15 +53,16 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 	{
 		WeightedObject<NpcDialogue.DialogueInfo>[] dialogueAllowed = DialogueFiltered().ToArray();
 
-		// pick dialogue option
+		// pick dialogue option(s)
 		NpcDialogue.DialogueInfo dialogueCur = dialogueAllowed.FirstOrDefault(dialogue => dialogue.m_weight == 0.0f)?.m_object;
 		if (dialogueCur == null)
 		{
 			dialogueCur = dialogueAllowed.RandomWeighted();
 		}
+		NpcDialogue.DialogueInfo dialogueAppend = dialogueAllowed.FirstOrDefault(dialogueWeighted => dialogueWeighted.m_object.m_appendToAll && dialogueWeighted.m_object != dialogueCur)?.m_object; // TODO: support multiple append dialogues?
 
 		// play dialogue
-		GameController.Instance.m_dialogueController.Play(dialogueCur.m_lines, interactor.GetComponent<AvatarController>(), m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_expressionsCombined, m_sfxChosen, dialogueCur.m_loop);
+		GameController.Instance.m_dialogueController.Play(dialogueAppend != null ? dialogueCur.m_lines.Concat(dialogueAppend.m_lines) : dialogueCur.m_lines, interactor.GetComponent<AvatarController>(), m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_expressionsCombined, m_sfxChosen, dialogueCur.m_loop ? 0 : dialogueAppend != null && dialogueAppend.m_loop ? dialogueCur.m_lines.Length : -1);
 
 		// update weight
 		// TODO: save across instantiations/sessions?

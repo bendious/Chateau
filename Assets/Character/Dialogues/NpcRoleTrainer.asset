@@ -23,6 +23,7 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 0
   - m_object:
       m_preconditionName: 
@@ -39,6 +40,54 @@ MonoBehaviour:
         m_replies: []
       m_loop: 0
       m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: Listen, {avatar}.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: If it is truly your will to master the sword, you must first learn
+          its ways.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: And by that I mean just put some <i>oomph</i> into each swing!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: None of this flailing back and forth like you can get away with for
+          a knife!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: '{avatar}, {avatar}...'
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Those who will strike with the sword must know where it will go before
+          even beginning to swing.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: One who does not guide the blade will be guided by it instead.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 0
   m_expressions:
   - m_object:
