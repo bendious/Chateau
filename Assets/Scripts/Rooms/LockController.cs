@@ -41,6 +41,7 @@ public class LockController : MonoBehaviour, IUnlockable
 	public float m_keyHeightMax = 7.5f;
 	[SerializeField] private float m_keyDelaySeconds = 0.0f;
 	[SerializeField] private float m_vfxDisableDelaySeconds = 2.0f;
+	[SerializeField] private VisualEffect m_vfxKeyDelay;
 
 	public WeightedObject<AudioClip>[] m_failureSFX;
 	public WeightedObject<AudioClip>[] m_unlockSFX;
@@ -526,12 +527,23 @@ public class LockController : MonoBehaviour, IUnlockable
 		++m_unlockInProgressCount;
 		if (m_keyDelaySeconds > 0.0f)
 		{
+			if (m_vfxKeyDelay != null)
+			{
+				m_vfxKeyDelay.gameObject.SetActive(true);
+				m_vfxKeyDelay.enabled = true;
+				m_vfxKeyDelay.Play();
+			}
+
 			float unlockTime = Time.time + m_keyDelaySeconds;
 			yield return new WaitUntil(() => m_unlockInProgressCount == 0 || Time.time >= unlockTime);
 		}
 
 		if (m_unlockInProgressCount == 0)
 		{
+			if (m_vfxKeyDelay != null)
+			{
+				StartCoroutine(m_vfxKeyDelay.SoftStop(() => m_unlockInProgressCount > 0, m_vfxDisableDelaySeconds, false));
+			}
 			yield break;
 		}
 		m_unlockInProgressCount = 0;
