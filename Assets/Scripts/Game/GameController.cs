@@ -571,7 +571,7 @@ public class GameController : MonoBehaviour
 		}
 		m_timerUI.text = null;
 		m_nextWaveTime = -1.0f;
-		StopAllCoroutines();
+		StopAllCoroutines(); // TODO: continue spawning waves?
 
 		GetComponent<MusicManager>().Play(m_victoryAudio);
 
@@ -954,6 +954,8 @@ public class GameController : MonoBehaviour
 		}
 
 		m_waveWeight += Random.Range(m_waveEscalationMin, m_waveEscalationMax); // TODO: exponential/logistic escalation?
+
+		// TODO: poke m_musicManager?
 
 		// determine enemy types allowed for this wave
 		WeightedObject<AIController>[] optionsInitial = m_enemyPrefabs.Where(weightedObj => weightedObj.m_object.m_difficulty <= m_waveWeight).ToArray();

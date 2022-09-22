@@ -469,7 +469,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		}
 
 		// check speed
-		if (collisionSpeed > m_swingInfo.m_damageThresholdSpeed)
+		if (collisionSpeed > m_swingInfo.m_damageThresholdSpeed) // TODO: more generous condition for avatars?
 		{
 			// if from a valid source, apply damage/detachment
 			if (canDamage)

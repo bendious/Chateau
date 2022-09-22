@@ -103,6 +103,7 @@ public class LightFlickerSynced : MonoBehaviour
 		}
 
 		// set intensity
+		// TODO: support for varying color as well?
 		float intensityT = m_intensityCurve.Evaluate(phase) * IntensityScalar;
 		foreach (ComponentInfo<Light2D, float> info in m_lights)
 		{
