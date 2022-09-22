@@ -36,6 +36,8 @@ public sealed class AvatarController : KinematicCharacter
 
 	public Vector3 m_focusPromptOffset = new(0.0f, 0.3f, -0.15f);
 
+	[SerializeField] private LayerMaskHelper m_focusLayers;
+
 	[HideInInspector] public InteractFollow m_follower;
 
 	[SerializeField] private float m_lookScreenPercentMax = 0.75f;
@@ -216,7 +218,7 @@ public sealed class AvatarController : KinematicCharacter
 
 		// collect possible focus objects
 		m_focusObj = null;
-		Collider2D[] focusCandidates = Physics2D.OverlapCircleAll(FocusCollectPos, FocusRadius); // TODO: restrict to certain layers?
+		Collider2D[] focusCandidates = Physics2D.OverlapCircleAll(FocusCollectPos, FocusRadius, m_focusLayers);
 
 		// determine current focus object
 		// TODO: more nuanced prioritization?

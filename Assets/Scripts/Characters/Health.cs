@@ -21,6 +21,7 @@ public class Health : MonoBehaviour
 	public bool m_invincible;
 	public Vector2 m_invincibilityDirection;
 
+	public float m_minorDamageThreshold = 0.1f;
 
 	[SerializeField] private bool m_gradientActive = false;
 	[SerializeField] private Gradient m_gradient;
@@ -117,13 +118,15 @@ public class Health : MonoBehaviour
 		{
 			audioSource.PlayOneShot(m_damageAudio);
 		}
-		if (m_animator != null)
+		bool notMinor = amount >= m_minorDamageThreshold;
+		if (m_animator != null && notMinor)
 		{
 			m_animator.SetTrigger("hurt");
 		}
 		OnHealthDecrement evt = Simulation.Schedule<OnHealthDecrement>();
 		evt.m_health = this;
 		evt.m_damageSource = source;
+		evt.m_amountUnscaled = amount; // TODO: also give access to amountFinal?
 
 		// death/despawn
 		bool isDead = m_currentHP.FloatEqual(0.0f) && (!ConsoleCommands.NeverDie || GameController.Instance.m_avatars.All(avatar => avatar.gameObject != gameObject));
@@ -152,7 +155,7 @@ public class Health : MonoBehaviour
 		}
 
 		// invincibility period
-		if (!isDead && m_invincibilityTime > 0.0f)
+		if (!isDead && notMinor && m_invincibilityTime > 0.0f)
 		{
 			m_invincible = true;
 

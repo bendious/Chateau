@@ -88,11 +88,15 @@ MonoBehaviour:
     m_weight: 2
   - m_object: {fileID: 4221545259124064584, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
     m_weight: 2
+  - m_object: {fileID: 2669405598871929106, guid: ca1c40b66b5ed6149bdb17ca934cbef6, type: 3}
+    m_weight: 1
   m_itemRarePrefabs:
   - m_object: {fileID: 505130580196242298, guid: 71fa7082e8d89d145b74f631fa1055a0, type: 3}
     m_weight: 2
   - m_object: {fileID: 4221545259124064584, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
     m_weight: 2
+  - m_object: {fileID: 2669405598871929106, guid: ca1c40b66b5ed6149bdb17ca934cbef6, type: 3}
+    m_weight: 1
   m_itemsMin: 1
   m_itemsMax: 4
   m_decorations:

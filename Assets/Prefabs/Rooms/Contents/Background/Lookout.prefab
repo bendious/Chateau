@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2203889580460912940}
   - component: {fileID: 7235826878333865132}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -195,7 +195,7 @@ GameObject:
   - component: {fileID: 4705922480885512133}
   - component: {fileID: 56445184068183188}
   - component: {fileID: 5125841352658113908}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Lookout
   m_TagString: Untagged
   m_Icon: {fileID: 0}

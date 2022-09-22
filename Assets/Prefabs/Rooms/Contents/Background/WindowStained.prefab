@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4956439788302699170}
   - component: {fileID: 7335701563366512338}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Backlight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -192,7 +192,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7702257725049876252}
   - component: {fileID: 6813283830167254354}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Underlight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -304,7 +304,7 @@ GameObject:
   - component: {fileID: 6101858990342647368}
   - component: {fileID: 154935948270800787}
   - component: {fileID: 9107107145348828824}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: WindowStained
   m_TagString: Untagged
   m_Icon: {fileID: 0}

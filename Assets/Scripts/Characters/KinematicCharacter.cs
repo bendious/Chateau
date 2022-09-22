@@ -270,7 +270,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	private void OnDamage(OnHealthDecrement evt)
 	{
-		if (evt.m_health.gameObject != gameObject || evt.m_damageSource == null)
+		if (evt.m_health.gameObject != gameObject || evt.m_damageSource == null || evt.m_amountUnscaled < m_health.m_minorDamageThreshold)
 		{
 			return;
 		}

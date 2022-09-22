@@ -878,6 +878,10 @@ MonoBehaviour:
   m_inventoryUI: {fileID: 6654259643996970170}
   m_overlayCanvas: {fileID: 7696693925314575142}
   m_focusPromptOffset: {x: 0, y: 0, z: -0.15}
+  m_focusLayers:
+    m_mask:
+      serializedVersion: 2
+      m_Bits: 3039
   m_follower: {fileID: 0}
   m_lookScreenPercentMax: 0.75
   m_moveSpringDampTime: 0.15
@@ -1129,6 +1133,7 @@ MonoBehaviour:
   m_invincibilityTime: 2
   m_invincible: 0
   m_invincibilityDirection: {x: 0, y: 0}
+  m_minorDamageThreshold: 0.1
   m_gradientActive: 1
   m_gradient:
     serializedVersion: 2
