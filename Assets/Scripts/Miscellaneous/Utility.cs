@@ -64,9 +64,9 @@ public static class Utility
 
 	public static Vector2 MinMax<TIn>(this IEnumerable<TIn> v, Func<TIn, float> selector) => v == null || v.Count() <= 0 ? default : new(v.Min(selector), v.Max(selector)); // TODO: efficiency? better default?
 
-	public static T1 SelectMin<T1, T2>(this IEnumerable<T1> options, Func<T1, T2> valueFunc, IComparer<T2> comparer = null) => options.OrderBy(valueFunc, comparer).First();
+	public static T1 SelectMin<T1, T2>(this IEnumerable<T1> options, Func<T1, T2> valueFunc, IComparer<T2> comparer = null) => options.OrderBy(valueFunc, comparer).FirstOrDefault();
 
-	public static T1 SelectMax<T1, T2>(this IEnumerable<T1> options, Func<T1, T2> valueFunc, IComparer<T2> comparer = null) => options.OrderBy(valueFunc, comparer).Last();
+	public static T1 SelectMax<T1, T2>(this IEnumerable<T1> options, Func<T1, T2> valueFunc, IComparer<T2> comparer = null) => options.OrderBy(valueFunc, comparer).LastOrDefault();
 
 	public static Tuple<T1, T2> SelectMinWithValue<T1, T2>(this IEnumerable<T1> options, Func<T1, T2> valueFunc, IComparer<T2> comparer = null) => options.Select(option => Tuple.Create(option, valueFunc(option))).OrderBy(pair => pair.Item2, comparer).First();
 
@@ -130,6 +130,33 @@ public static class Utility
 		float aMod = a.Modulo(360.0f);
 		float bMod = b.Modulo(360.0f);
 		return aMod.FloatEqual(bMod, epsilon) || !aMod.FloatEqual(bMod, 360.0f - epsilon);
+	}
+
+	public static float ZRadians(Vector2 v) => Mathf.Atan2(v.y, v.x);
+
+	public static float ZDegrees(Vector2 v) => Mathf.Rad2Deg * ZRadians(v);
+
+	public static Quaternion ZRotation(Vector2 v) => Quaternion.Euler(0.0f, 0.0f, ZDegrees(v));
+
+	public static Bounds BoundsRotated(Bounds b, Quaternion q, bool local)
+	{
+		// handle rotation by reseting and expanding to rotated corners
+		// TODO: efficiency? allow rotation around arbitrary points?
+		Vector3 centerOrig = local ? b.center : q * b.center;
+		Vector3 extentsOrig = b.extents;
+
+		b.center = centerOrig;
+		b.extents = Vector3.zero;
+
+		for (int i = -1; i < 2; i += 2)
+		{
+			for (int j = -1; j < 2; j += 2)
+			{
+				b.Encapsulate(centerOrig + q * Vector3.Scale(extentsOrig, new(i, j, 1.0f)));
+			}
+		}
+
+		return b;
 	}
 
 	public static bool ColorsSimilar(this Color a, Color b, float epsilon = 0.2f)

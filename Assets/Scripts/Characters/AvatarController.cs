@@ -201,7 +201,7 @@ public sealed class AvatarController : KinematicCharacter
 			{
 				Vector3 forward = (aimPos - (Vector2)transform.position).normalized;
 				m_aimVfx.SetVector3(m_forwardID, forward);
-				m_aimVfx.SetFloat(m_forwardToUpID, primaryItem.transform.rotation.eulerAngles.z * Mathf.Deg2Rad + Mathf.PI * 0.5f - Mathf.Atan2(forward.y, forward.x));
+				m_aimVfx.SetFloat(m_forwardToUpID, primaryItem.transform.rotation.eulerAngles.z * Mathf.Deg2Rad + Mathf.PI * 0.5f - Utility.ZRadians(forward));
 				m_aimVfx.SetVector3(m_spawnOffsetID, primaryItem.TrailPosition - transform.position);
 			}
 		}

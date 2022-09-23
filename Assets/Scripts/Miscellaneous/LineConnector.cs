@@ -136,7 +136,7 @@ public class LineConnector : MonoBehaviour
 					Vector3 centerLocal = (startPosLocal + endPosLocal) * 0.5f;
 					collider.transform.localPosition = centerLocal;
 					Vector2 anchorToCenterLocal = (Vector2)centerLocal - joint.anchor;
-					collider.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, Mathf.Rad2Deg * Mathf.Atan2(anchorToCenterLocal.y, anchorToCenterLocal.x));
+					collider.transform.localRotation = Utility.ZRotation(anchorToCenterLocal);
 					(collider as BoxCollider2D).size = new(anchorToCenterLocal.magnitude * 2.0f, Mathf.Min(0.05f, line.startWidth)); // TODO: don't assume BoxCollider2D? more dynamic minimum?
 
 					// stretch SFX

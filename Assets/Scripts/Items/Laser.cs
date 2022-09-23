@@ -12,7 +12,7 @@ public class Laser : MonoBehaviour
 
 
 	private Light2D m_light;
-	private float m_rangeMax;
+	public float RangeMax { get; private set; }
 	private ItemController m_item;
 
 	private Collider2D m_target;
@@ -23,7 +23,7 @@ public class Laser : MonoBehaviour
 	{
 		m_endpointObj.transform.SetParent(null);
 		m_light = GetComponent<Light2D>();
-		m_rangeMax = m_light.pointLightOuterRadius;
+		RangeMax = m_light.pointLightOuterRadius;
 		m_item = GetComponentInParent<ItemController>();
 	}
 
@@ -48,7 +48,7 @@ public class Laser : MonoBehaviour
 		}
 
 		// raycast & accumulate time/damage
-		RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.rotation * Vector2.up, m_rangeMax, m_layers);
+		RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.rotation * Vector2.up, RangeMax, m_layers);
 		if (hit.collider != null && hit.collider == m_target)
 		{
 			m_secondsAccum += Time.deltaTime;
@@ -62,7 +62,7 @@ public class Laser : MonoBehaviour
 				}
 				if (health != null)
 				{
-					health.Decrement(m_item.Cause.gameObject, m_damagePerSecond * Time.deltaTime);
+					health.Decrement(m_item.Cause == null ? m_item.gameObject : m_item.Cause.gameObject, m_damagePerSecond * Time.deltaTime);
 				}
 			}
 		}
@@ -82,7 +82,7 @@ public class Laser : MonoBehaviour
 			m_endpointObj.SetActive(true);
 			m_endpointObj.transform.position = hit.point;
 		}
-		m_light.pointLightOuterRadius = hit.collider != null ? hit.distance : m_rangeMax;
+		m_light.pointLightOuterRadius = hit.collider != null ? hit.distance : RangeMax;
 	}
 
 	private void OnDestroy()

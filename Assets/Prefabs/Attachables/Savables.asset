@@ -76,3 +76,6 @@ MonoBehaviour:
   - m_prefab: {fileID: 2669405598871929106, guid: ca1c40b66b5ed6149bdb17ca934cbef6, type: 3}
     m_materialsProduced: 10
     m_materialsConsumed: 15
+  - m_prefab: {fileID: 8702566855440006765, guid: 04a605dc436c93a4ba6107e015b490fd, type: 3}
+    m_materialsProduced: 5
+    m_materialsConsumed: 7

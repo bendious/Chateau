@@ -246,7 +246,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 		{
 			offset = offset.normalized;
 		}
-		return Tuple.Create(m_followCharacter.transform.position + offset, Mathf.Atan2(offset.y, offset.x) * Mathf.Rad2Deg);
+		return Tuple.Create(m_followCharacter.transform.position + offset, Utility.ZDegrees(offset));
 	}
 
 	private System.Collections.IEnumerator Follow()

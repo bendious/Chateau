@@ -252,7 +252,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	private float AimDegreesRaw(Vector2 rootPos, Vector2 rootOffset, Vector2 aimPosition, float degreesPrev)
 	{
 		Vector2 aimDiff = aimPosition - (rootPos + rootOffset + (Vector2)m_offset);
-		return aimDiff.x.FloatEqual(0.0f) && aimDiff.y.FloatEqual(0.0f) ? degreesPrev : Mathf.Rad2Deg * Mathf.Atan2(aimDiff.y, aimDiff.x);
+		return aimDiff.x.FloatEqual(0.0f) && aimDiff.y.FloatEqual(0.0f) ? degreesPrev : Utility.ZDegrees(aimDiff);
 	}
 
 	private void AddVelocity(bool forward)

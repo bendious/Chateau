@@ -1377,22 +1377,7 @@ public class RoomController : MonoBehaviour
 		{
 			return bboxNew;
 		}
-
-		// handle rotation by reseting and expanding to rotated corners
-		// TODO: efficiency? don't assume rotation around center?
-		Vector3 centerOrig = bboxNew.center;
-		Vector3 extentsOrig = bboxNew.extents;
-		bboxNew.extents = Vector3.zero;
-		for (int i = -1; i < 2; i += 2)
-		{
-			for (int j = -1; j < 2; j += 2)
-			{
-				Vector2 corner = centerOrig + rotationFinal * Vector3.Scale(extentsOrig, new(i, j, 1.0f));
-				bboxNew.Encapsulate(corner);
-			}
-		}
-
-		return bboxNew;
+		return Utility.BoundsRotated(bboxNew, rotationFinal, true);
 	}
 
 	private LayoutGenerator.Node GateNodeToChild(LayoutGenerator.Node[] childNodes, params LayoutGenerator.Node.Type[] gateTypes)
@@ -1766,7 +1751,7 @@ public class RoomController : MonoBehaviour
 		// measure unedited segment against desired increment
 		Vector2 start = connectionPoints[idx - 1];
 		Vector2 diff = connectionPoints[idx] - start;
-		float diffRadians = Mathf.Atan2(diff.y, diff.x);
+		float diffRadians = Utility.ZRadians(diff);
 		float numIncrements = diffRadians / incrementRadians;
 		float incrementsFract = numIncrements.Modulo(1.0f);
 		if (incrementsFract.FloatEqual(0.0f))

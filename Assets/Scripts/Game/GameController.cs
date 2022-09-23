@@ -266,8 +266,7 @@ public class GameController : MonoBehaviour
 
 			// aim
 			RoomController targetRoom = signIdx < SpecialRooms.Length ? SpecialRooms[signIdx] : FindObjectsOfType<InteractScene>().First(interact => interact.DestinationIndex == signIdx - SpecialRooms.Length + 1).transform.parent.GetComponent<RoomController>(); // TODO: less hardcoding?
-			Vector3 signDiff = targetRoom.transform.position - signPos;
-			sign.transform.GetChild(0).transform.rotation = Quaternion.Euler(0.0f, 0.0f, Mathf.Rad2Deg * Mathf.Atan2(signDiff.y, signDiff.x)); // TODO: un-hardcode child index?
+			sign.transform.GetChild(0).transform.rotation = Utility.ZRotation(targetRoom.transform.position - signPos); // TODO: un-hardcode child index?
 
 			++signIdx;
 		}

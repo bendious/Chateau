@@ -169,10 +169,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 912260168214201151, guid: a5c7caeee92be8249ba14b290b6bb238, type: 3}
-      propertyPath: m_Name
-      value: Beam
-      objectReference: {fileID: 0}
     - target: {fileID: 2153801619283169748, guid: a5c7caeee92be8249ba14b290b6bb238, type: 3}
       propertyPath: m_Sprite
       value: 

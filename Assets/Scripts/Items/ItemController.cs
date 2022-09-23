@@ -26,6 +26,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public float m_vfxAlpha = 0.5f;
 	public int m_healAmount = 0;
 	[SerializeField] private float m_healSeconds = 3.0f;
+	[SerializeField] private UnityEngine.Rendering.Universal.Light2D m_toggleLight;
 
 	public bool m_detachOnDamage = false; // TODO: cumulative damage threshold?
 	[SerializeField] private bool m_keyDestroyAfterUse = true;
@@ -317,14 +318,18 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			}
 		}
 
-		if (isPressed && transform.childCount > 0)
+		if (isPressed && m_toggleLight != null)
 		{
-			GameObject childObj = transform.GetChild(0).gameObject;
-			if (childObj.GetComponent<UnityEngine.Rendering.Universal.Light2D>() != null) // TODO: support other types of use-activated child objects? check secondary children?
+			GameObject lightObj = m_toggleLight.gameObject;
+			if (lightObj != gameObject)
 			{
-				childObj.SetActive(!childObj.activeSelf);
-				return true;
+				lightObj.SetActive(!lightObj.activeSelf);
 			}
+			else
+			{
+				m_toggleLight.enabled = !m_toggleLight.enabled;
+			}
+			return true;
 		}
 
 		// TODO: limit "ink" to prevent too many objects?
