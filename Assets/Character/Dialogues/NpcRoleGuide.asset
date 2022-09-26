@@ -228,6 +228,96 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_preconditionName: HasNotFinishedZone
+      m_userdata: 1
+      m_lines:
+      - m_text: Have you seen the Flames out there, {avatar}?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: If you have I'm sure you know how much better they can make you feel,
+          though of course you'll always have to choose one good thing over another.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Long ago I helped Will and Alex maintain them here in the outer rooms.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: But after they started wandering off I couldn't keep them going by
+          myself.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: If you can find a way to get them going again, I'd be willing to
+          keep them up once more.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: But of course, the ones deeper in you'll have to keep re-lighting
+          yourself.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: My experience is that they'll go out every time you come back here.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: So I suppose if you want to build up the most strength possible for
+          some task, you'll have to run through every wing in one go.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: HasFinishedZone
+      m_userdata: 1
+      m_lines:
+      - m_text: Have you seen the Flames out there, {avatar}?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: If you have I'm sure you know how much better they can make you feel,
+          though of course you'll always have to choose one good thing over another.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Long ago I helped Will and Alex maintain them here in the outer rooms.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: But after they started wandering off I couldn't keep them going by
+          myself.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Now that you've found a way to get them going again, I'll keep them
+          up once more.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: But of course, the ones deeper in you'll have to keep re-lighting
+          yourself.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: My experience is that they'll go out every time you come back here.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: So I suppose if you want to build up the most strength possible for
+          some task, you'll have to run through every wing in one go.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
