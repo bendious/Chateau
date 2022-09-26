@@ -331,7 +331,7 @@ public sealed class AvatarController : KinematicCharacter
 		}
 
 		// determine input source
-		m_usingMouse = Controls.currentControlScheme == "Keyboard&Mouse";
+		m_usingMouse = Controls.currentControlScheme == GameController.Instance.m_mouseControlScheme;
 
 		if (m_usingMouse)
 		{

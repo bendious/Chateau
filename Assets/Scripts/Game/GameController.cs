@@ -65,6 +65,8 @@ public class GameController : MonoBehaviour
 	public SavableFactory m_savableFactory;
 	public LightFlicker m_lightFlickerMaster;
 
+	public string m_mouseControlScheme = "Keyboard&Mouse"; // TODO: derive?
+
 	[SerializeField] private WeightedObject<AudioClip>[] m_timerWarnSFX;
 	public AudioClip m_victoryAudio;
 
@@ -122,6 +124,8 @@ public class GameController : MonoBehaviour
 		public NpcDialogue[] m_dialogues;
 	}
 	private static NpcInfo[] m_npcs;
+
+	private bool m_usingMouse = false;
 
 	private float m_waveWeight;
 	private float m_waveWeightRemaining;
@@ -346,6 +350,12 @@ public class GameController : MonoBehaviour
 			Victory = true;
 		}
 
+		if (player.currentControlScheme == m_mouseControlScheme)
+		{
+			m_usingMouse = true;
+			Cursor.visible = true;
+		}
+
 		// apply upgrades
 		AvatarController avatarNew = player.GetComponent<AvatarController>();
 		ApplyUpgrades(avatarNew);
@@ -385,14 +395,28 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	private void OnApplicationQuit() => IsSceneLoad = true;
-
 	private void OnPlayerLeft(PlayerInput player)
 	{
+		if (player.currentControlScheme == m_mouseControlScheme)
+		{
+			m_usingMouse = false; // TODO: don't assume only one mouse?
+			Cursor.visible = false;
+		}
+
 		Simulation.Schedule<ObjectDespawn>().m_object = player.gameObject;
 		m_avatars.Remove(player.GetComponent<AvatarController>());
 		// TODO: clean up camera targeting?
 	}
+
+	private void OnApplicationFocus(bool focus)
+	{
+		if (focus)
+		{
+			Cursor.visible = m_usingMouse;
+		}
+	}
+
+	private void OnApplicationQuit() => IsSceneLoad = true;
 
 
 	public void AddCameraTargets(params Transform[] transforms)
