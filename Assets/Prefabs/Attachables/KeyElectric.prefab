@@ -8,6 +8,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1022365480725624697, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_Size.x
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1022365480725624697, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
       propertyPath: m_Size.y
       value: 0.35
       objectReference: {fileID: 0}
@@ -17,7 +21,15 @@ PrefabInstance:
       objectReference: {fileID: 6200000, guid: 448cd1b924f918643b17c77e4777d707, type: 2}
     - target: {fileID: 1022365480725624697, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
       propertyPath: m_Offset.x
-      value: 0.14
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1022365480725624697, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_EdgeRadius
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 1022365480725624697, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.x
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
       propertyPath: m_Name
@@ -25,7 +37,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4560024713572274854, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
       propertyPath: m_tooltip
-      value: "Capacitor\nAbsorbs electricity.\n "
+      value: "Capacitor\nAbsorbs electricity. Overcharging may result in rupture.\n "
       objectReference: {fileID: 0}
     - target: {fileID: 5371468685632549670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
       propertyPath: m_RootOrder

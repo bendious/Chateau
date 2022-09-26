@@ -9,6 +9,7 @@ def TextureNormalize(image, layerOrChannel):
 	# create new layer to copy to for safety
 	layer = gimp.Layer(image, "normalized", layerOrChannel.width, layerOrChannel.height, RGBA_IMAGE)
 	
+	# TODO: handle differences between layer/image positioning/size
 	for x in range(0, layer.width):
 		for y in range(0, layer.height):
 			pixelI = layerOrChannel.get_pixel(x, y)
