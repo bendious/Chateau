@@ -335,16 +335,19 @@ public class GameController : MonoBehaviour
 		{
 			if (m_avatars.Count == 0)
 			{
-				if (Random.value > 0.5f)
+				if (m_waveEscalationMax <= 0.0f || Random.value > 0.5f)
 				{
 					m_nextWaveTime = Random.Range(m_waveSecondsMin, m_waveSecondsMax);
 				}
 				StopAllCoroutines();
 				StartCoroutine(SpawnWavesCoroutine());
-				StartCoroutine(TimerCoroutine());
+				if (m_waveEscalationMax > 0.0f)
+				{
+					StartCoroutine(TimerCoroutine());
+				}
 			}
 		}
-		else
+		if (m_waveEscalationMax <= 0.0f)
 		{
 			m_timerUI.text = null;
 			Victory = true;
@@ -1025,7 +1028,8 @@ public class GameController : MonoBehaviour
 
 	private void SpawnEnemy(GameObject enemyPrefab)
 	{
-		Vector3 spawnPos = RoomFromPosition(m_avatars.Random().transform.position).SpawnPointRandom();
+		RoomController spawnRoom = m_waveSealing ? RoomFromPosition(m_avatars.Random().transform.position) : m_startRoom.WithDescendants.Random(); // TODO: efficiency? restrict to currently reachable rooms?
+		Vector3 spawnPos = spawnRoom.SpawnPointRandom();
 		EnemyAdd(Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<AIController>());
 	}
 

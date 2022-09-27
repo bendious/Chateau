@@ -24,8 +24,6 @@ public abstract class AIState
 
 	protected readonly AIController m_ai;
 
-	protected float m_retargetTimePrev;
-
 
 	private readonly bool m_targetFriendlies;
 	private readonly float m_ignoreDistancePct;
@@ -40,11 +38,16 @@ public abstract class AIState
 
 	public static AIState FromTypePrioritized(Type[] allowedTypes, AIController ai)
 	{
-		float distanceFromTarget = ai.m_target == null ? float.MaxValue : Vector2.Distance(ai.transform.position, ai.m_target.transform.position);
+		float distanceFromTarget = ai.m_target == null ? float.MaxValue : Vector2.Distance(ai.transform.position, ai.m_target.transform.position); // TODO: use closest bbox points?
 		Vector2 targetOffset = ai.m_target == null ? Vector2.zero : ai.m_target.transform.position.x < ai.transform.position.x ? ai.m_targetOffset : new(-ai.m_targetOffset.x, ai.m_targetOffset.y);
 		float distanceFromOffsetPos = ai.m_target == null ? float.MaxValue : Vector2.Distance(ai.transform.position, (Vector2)ai.m_target.transform.position + targetOffset);
 		int numItems = ai.GetComponentsInChildren<ItemController>().Length;
-		float itemHoldPct = (float)numItems / System.Math.Max(1, ai.HoldCountMax);
+		int holdCountMax = ai.HoldCountMax;
+		float itemHoldPct = (float)numItems / System.Math.Max(1, holdCountMax);
+
+		// TODO: efficiency?
+		bool enemyAccessible = GameController.Instance.AiTargets.Any(target => target.TargetPriority(ai, false) > 0.0f && PathfindDistanceTo(ai, target.gameObject) != float.MaxValue);
+		bool itemAccessible = allowedTypes.Contains(Type.FindAmmo) && GameObject.FindGameObjectsWithTag("Item").Any(itemObj => itemObj.transform.parent == null && PathfindDistanceTo(ai, itemObj) != float.MaxValue);
 
 		float[] priorities = allowedTypes.Select(type =>
 		{
@@ -52,14 +55,14 @@ public abstract class AIState
 			{
 				// TODO: more granular priorities?
 				case Type.Fraternize:
-					return float.Epsilon;
+					return enemyAccessible ? 0.0f : float.Epsilon;
 				case Type.Pursue:
 				case Type.PursueErratic:
-					return distanceFromOffsetPos > ai.m_meleeRange && (numItems > 0 || ai.HoldCountMax <= 0) ? (distanceFromOffsetPos != float.MaxValue ? 1.0f : float.Epsilon) : 0.0f;
+					return enemyAccessible && distanceFromOffsetPos > ai.m_meleeRange && (numItems > 0 || holdCountMax <= 0 || !itemAccessible) ? (distanceFromOffsetPos != float.MaxValue ? 1.0f : float.Epsilon) : 0.0f;
 				case Type.Flee:
 					return !ai.m_friendly && GameController.Instance.Victory ? 100.0f : 0.0f;
 				case Type.Melee:
-					return numItems > 0 && distanceFromTarget <= ai.m_meleeRange ? 1.0f : 0.0f;
+					return (numItems > 0 || !itemAccessible) && holdCountMax > 0 ? Mathf.InverseLerp(2.0f * ai.m_meleeRange, ai.m_meleeRange, distanceFromTarget) : 0.0f;
 				case Type.Throw:
 					return ai.m_target != null && distanceFromTarget > ai.m_meleeRange && numItems > 0 ? 1.0f : 0.0f;
 				case Type.ThrowAll:
@@ -69,7 +72,7 @@ public abstract class AIState
 				case Type.RamSwoop:
 					return distanceFromOffsetPos <= ai.m_meleeRange + ai.GetComponent<Collider2D>().bounds.extents.magnitude ? 1.0f : 0.0f; // TODO: better conditions?
 				case Type.FindAmmo:
-					return ai.HoldCountMax <= 0 ? 0.0f : 1.0f - itemHoldPct;
+					return !itemAccessible || holdCountMax <= 0 ? 0.0f : 1.0f - itemHoldPct;
 				case Type.Teleport:
 					return Mathf.Max(0.0f, AITeleport.CooldownPct * (1.0f - 1.0f / distanceFromOffsetPos));
 				default:
@@ -108,11 +111,16 @@ public abstract class AIState
 		}
 	}
 
-	public virtual void Enter() {}
+	public virtual void Enter()
+	{
+		// NOTE that we don't want all AI spawned at the same time to retarget/repath immediately, but we also don't want any to just stand around for too long, so we just use a small fixed randomization
+		m_ai.m_targetSelectTimeNext = Time.time + Random.Range(0.0f, 0.5f);
+		m_ai.m_pathfindTimeNext = m_ai.m_targetSelectTimeNext + Random.Range(0.0f, 0.5f);
+	}
 
 	public virtual AIState Update()
 	{
-		if (m_ai.m_targetSelectTimeNext <= Time.time && m_retargetTimePrev + m_ai.m_replanSecondsMin <= Time.time)
+		if (m_ai.m_targetSelectTimeNext <= Time.time)
 		{
 			Retarget();
 			if (m_ai.m_target == null)
@@ -127,7 +135,6 @@ public abstract class AIState
 
 	public virtual void Retarget()
 	{
-		m_retargetTimePrev = Time.time;
 		KinematicCharacter[] candidates = GameController.Instance.AiTargets.ToArray();
 		if (candidates.Length <= 0)
 		{
@@ -136,7 +143,7 @@ public abstract class AIState
 		System.Tuple<KinematicCharacter, System.Tuple<float, float>> targetBest = candidates.SelectMinWithValue(candidate =>
 		{
 			float priority = candidate.TargetPriority(m_ai, m_targetFriendlies);
-			float dist = priority <= 0.0f ? float.MaxValue : Random.value < m_ignoreDistancePct ? Random.Range(0.0f, float.MaxValue) : PathfindDistanceTo(candidate.gameObject); // OPTIMIZATION: skip pathfinding if totally excluded by priority
+			float dist = priority <= 0.0f ? float.MaxValue : Random.value < m_ignoreDistancePct ? Random.Range(0.0f, float.MaxValue) : PathfindDistanceTo(m_ai, candidate.gameObject); // OPTIMIZATION: skip pathfinding if totally excluded by priority
 			return System.Tuple.Create(priority, dist);
 		}, new PriorityDistanceComparer());
 		if (targetBest.Item2.Item1 > 0.0f)
@@ -159,10 +166,10 @@ public abstract class AIState
 #endif
 
 
-	protected float PathfindDistanceTo(GameObject obj)
+	protected static float PathfindDistanceTo(AIController ai, GameObject obj)
 	{
 		// TODO: efficiency? also prioritize based on damage? de-prioritize based on vertical distance / passing through m_ai.m_target?
-		System.Tuple<System.Collections.Generic.List<Vector2>, float> path = GameController.Instance.Pathfind(m_ai.gameObject, obj, m_ai.GetComponent<Collider2D>().bounds.extents.y, !m_ai.HasFlying && m_ai.jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue); // TODO: limit to max jump height once pathfinding takes platforms into account?
+		System.Tuple<System.Collections.Generic.List<Vector2>, float> path = GameController.Instance.Pathfind(ai.gameObject, obj, ai.GetComponent<Collider2D>().bounds.extents.y, !ai.HasFlying && ai.jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue); // TODO: limit to max jump height once pathfinding takes platforms into account?
 		return path == null ? float.MaxValue : path.Item2;
 	}
 }
@@ -177,11 +184,16 @@ public sealed class AIFraternize : AIState
 	public float m_postSecMin = 1.0f;
 	public float m_postSecMax = 2.0f;
 
+	public float m_enemyCheckSecMin = 1.0f;
+	public float m_enemyCheckSecMax = 2.0f;
+
 
 	private readonly float m_retargetOrigMin;
 	private readonly float m_retargetOrigMax;
 
 	private float m_postSecRemaining;
+
+	private float m_enemyCheckTime;
 
 
 	public AIFraternize(AIController ai)
@@ -189,6 +201,8 @@ public sealed class AIFraternize : AIState
 	{
 		m_retargetOrigMin = m_ai.m_replanSecondsMin;
 		m_retargetOrigMax = m_ai.m_replanSecondsMax;
+
+		ResetEnemyCheckTime();
 	}
 
 	public override void Enter()
@@ -211,12 +225,6 @@ public sealed class AIFraternize : AIState
 
 		bool hasArrived = m_ai.NavigateTowardTarget(Vector2.right * m_ai.m_meleeRange);
 
-		// check for target loss
-		if (m_ai.m_target == null)
-		{
-			return null;
-		}
-
 		// check for arrival
 		if (hasArrived)
 		{
@@ -225,6 +233,16 @@ public sealed class AIFraternize : AIState
 			{
 				return null;
 			}
+		}
+
+		// check for higher-priority goal becoming available/reachable
+		if (m_enemyCheckTime <= Time.time)
+		{
+			if (GameController.Instance.AiTargets.Any(target => target.TargetPriority(m_ai, false) > 0.0f && PathfindDistanceTo(m_ai, target.gameObject) != float.MaxValue))
+			{
+				return null;
+			}
+			ResetEnemyCheckTime();
 		}
 
 		return this;
@@ -238,6 +256,9 @@ public sealed class AIFraternize : AIState
 		m_ai.m_replanSecondsMax = m_retargetOrigMax;
 		m_ai.m_target = null; // to prevent subsequent states aiming at / attacking friendlies
 	}
+
+
+	private void ResetEnemyCheckTime() => m_enemyCheckTime = Time.time + Random.Range(m_enemyCheckSecMin, m_enemyCheckSecMax);
 }
 
 
@@ -249,7 +270,7 @@ public class AIPursue : AIState
 	public AIPursue(AIController ai)
 		: base(ai)
 	{
-		m_targetOffset = Random.value > 0.9f ? 0.75f/*?*/ * m_ai.m_meleeRange * Vector2.right : m_ai.m_targetOffset; // NOTE that even enemies w/ range go in for melee sometimes // TODO: AIController.disallowMelee flag?
+		m_targetOffset = (ai.HoldCountMax > 0 && ai.GetComponentInChildren<ItemController>() == null) || Random.value > 0.9f ? 0.75f/*?*/ * m_ai.m_meleeRange * Vector2.right : m_ai.m_targetOffset; // NOTE that even enemies w/ range go in for melee sometimes // TODO: AIController.disallowMelee flag?
 	}
 
 	public override AIState Update()
@@ -388,6 +409,7 @@ public sealed class AIMelee : AIState
 
 
 	private ItemController m_item;
+	private ArmController m_arm;
 
 
 	public AIMelee(AIController ai)
@@ -397,10 +419,14 @@ public sealed class AIMelee : AIState
 
 	public override void Enter()
 	{
+		base.Enter();
+
 		m_startTime = Time.time;
 
 		m_item = m_ai.GetComponentInChildren<ItemController>();
-		m_item.Swing(false);
+		m_arm = m_item != null ? null : m_ai.GetComponentInChildren<ArmController>();
+
+		Swing();
 	}
 
 	public override AIState Update()
@@ -415,7 +441,7 @@ public sealed class AIMelee : AIState
 
 		if (Time.time >= m_swingTime + m_swingTimeSeconds)
 		{
-			m_item.Swing(false);
+			Swing();
 			m_swingTime = Time.time;
 		}
 
@@ -425,6 +451,19 @@ public sealed class AIMelee : AIState
 		}
 
 		return this;
+	}
+
+
+	private void Swing()
+	{
+		if (m_item != null)
+		{
+			m_item.Swing(false);
+		}
+		else
+		{
+			m_arm.Swing(false);
+		}
 	}
 }
 
@@ -448,6 +487,8 @@ public class AIThrow : AIState
 
 	public override void Enter()
 	{
+		base.Enter();
+
 		PreSecondsRemaining = m_waitSeconds;
 		m_postSecondsRemaining = m_waitSeconds;
 	}
@@ -592,6 +633,8 @@ public sealed class AIRamSwoop : AIState
 
 	public override void Enter()
 	{
+		base.Enter();
+
 		m_startPosToTarget = (Vector2)m_ai.m_target.transform.position - (Vector2)m_ai.transform.position;
 
 		m_speedOrig = m_ai.maxSpeed;
@@ -657,6 +700,8 @@ public sealed class AIFindAmmo : AIState
 
 	public override void Enter()
 	{
+		base.Enter();
+
 		Retarget();
 	}
 
@@ -669,13 +714,12 @@ public sealed class AIFindAmmo : AIState
 		}
 
 		// validate target
-		if ((m_ai.m_target == null || (m_ai.m_target.transform.parent != null && m_ai.m_target.transform.parent != m_ai.transform)) && m_retargetTimePrev + m_ai.m_replanSecondsMin <= Time.time)
+		if (m_ai.m_target == null || (m_ai.m_target.transform.parent != null && m_ai.m_target.transform.parent != m_ai.transform))
 		{
 			Retarget();
 			if (m_ai.m_target == null)
 			{
-				// no items anywhere? fallback on pursuit
-				// TODO: prevent thrashing between AIPursue/AIFindAmmo when no ammo is reachable
+				// no reachable items? exit and fallback on some other state
 				return null;
 			}
 		}
@@ -711,11 +755,10 @@ public sealed class AIFindAmmo : AIState
 			{
 				return float.MaxValue; // ignore held items
 			}
-			return PathfindDistanceTo(obj);
+			return PathfindDistanceTo(m_ai, obj);
 		});
 
 		m_ai.m_target = closestTarget.Item1 == null || closestTarget.Item2 == float.MaxValue ? null : closestTarget.Item1.GetComponent<ItemController>();
-		m_retargetTimePrev = Time.time;
 	}
 
 	public override void Exit()

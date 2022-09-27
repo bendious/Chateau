@@ -51,7 +51,7 @@ public sealed class AIController : KinematicCharacter
 	[HideInInspector] public float m_targetSelectTimeNext;
 	private AIState m_aiState;
 
-	private float m_pathfindTimeNext;
+	[HideInInspector] public float m_pathfindTimeNext;
 	private List<Vector2> m_pathfindWaypoints;
 
 	private Vector2 m_targetOffsetOrig;
@@ -77,10 +77,6 @@ public sealed class AIController : KinematicCharacter
 		base.Start();
 
 		// TODO: spawn animation / fade-in?
-
-		// NOTE that we don't want all AI spawned at the same time to retarget/repath immediately, but we also don't want any to just stand around for too long, so we just use a small fixed randomization
-		m_targetSelectTimeNext = Time.time + Random.Range(0.0f, 0.5f);
-		m_pathfindTimeNext = m_targetSelectTimeNext + Random.Range(0.0f, 0.5f);
 
 		m_targetOffsetOrig = m_targetOffset;
 
