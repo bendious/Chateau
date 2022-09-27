@@ -98,12 +98,38 @@ MonoBehaviour:
             the darkness.
           m_eventName: 
           m_breakAfterward: 0
-        - m_text: '"The King"'
+        - m_text: '"The Flames"'
           m_preconditionName: SecretFound
           m_userdata: 0
           m_followUp:
+          - The Flames? You're referring to the Eternal Fires, yes?
+          - They are...
+          - Well, how can one even explain them?
+          - Perhaps only by their effects.
+          - They keep this place from freezing, first of all.
+          - And it's been said that they warm the soul in other ways, as well, depending
+            on the intention.
+          - That's what the display pillars around here are for.
+          - To request particular benefits.
+          - Of course, that's all just pious nonsense, as I'm sure you can see.
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: '"The King"'
+          m_preconditionName: SecretFound
+          m_userdata: 1
+          m_followUp:
           - '"The King", eh?'
           - Sounds familiar, but I must admit I can't recall where I've heard it.
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: '"The Six Flames"'
+          m_preconditionName: SecretFound
+          m_userdata: 2
+          m_followUp:
+          - '"The Six Flames"?'
+          - I know of the Flames, of course, but the reference to six of them is
+            unusual.
+          - How would so many even be lit at the same time?
           m_eventName: 
           m_breakAfterward: 0
         - m_text: Nothing.

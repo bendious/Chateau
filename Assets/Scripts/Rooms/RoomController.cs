@@ -782,7 +782,7 @@ public class RoomController : MonoBehaviour
 			}
 			GameObject decoPrefab = decoInfo.m_prefabs.RandomWeighted();
 			Quaternion rotation = decoInfo.m_rotationDegreesMax == 0.0f ? Quaternion.identity : Quaternion.Euler(0.0f, 0.0f, Random.Range(-decoInfo.m_rotationDegreesMax, decoInfo.m_rotationDegreesMax));
-			Vector3 spawnPos = InteriorPosition(height, height, decoPrefab, rotation, failureAction: () => decoPrefab = null);
+			Vector3 spawnPos = InteriorPosition(height, height, decoPrefab, rotation, failureAction: () => decoPrefab = null); // TODO: expand resizeAction to allow updating rotation?
 			if (decoPrefab == null)
 			{
 				continue; // must not have found a valid placement position

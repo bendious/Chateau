@@ -1437,6 +1437,7 @@ MonoBehaviour:
   m_materialSystem: {fileID: 11400000, guid: 17f41ccd08cb0cb40a164c155fdf365d, type: 2}
   m_savableFactory: {fileID: 11400000, guid: 9c40a24db50646340b727ada604cdf58, type: 2}
   m_lightFlickerMaster: {fileID: 3563149318527751985}
+  m_mouseControlScheme: Keyboard&Mouse
   m_timerWarnSFX:
   - m_object: {fileID: 8300000, guid: 441ca23bce59faf45a18db4b601db42f, type: 3}
     m_weight: 1

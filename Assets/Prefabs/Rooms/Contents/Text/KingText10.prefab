@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &5493600713587002150
+--- !u!1001 &5031425275625023491
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -9,11 +9,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2168555647145013368, guid: 84a1b35a8d7c94841971f4d50867d04b, type: 3}
       propertyPath: m_text
-      value: Trust the King
+      value: Seek the King
       objectReference: {fileID: 0}
     - target: {fileID: 6212193386076009725, guid: 84a1b35a8d7c94841971f4d50867d04b, type: 3}
       propertyPath: m_Name
-      value: KingText8
+      value: KingText10
       objectReference: {fileID: 0}
     - target: {fileID: 8897012510889216282, guid: 84a1b35a8d7c94841971f4d50867d04b, type: 3}
       propertyPath: m_RootOrder
@@ -21,7 +21,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8897012510889216282, guid: 84a1b35a8d7c94841971f4d50867d04b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 3.9
+      value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 8897012510889216282, guid: 84a1b35a8d7c94841971f4d50867d04b, type: 3}
       propertyPath: m_LocalPosition.x

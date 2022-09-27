@@ -664,7 +664,11 @@ public class GameController : MonoBehaviour
 
 	public void DebugResetWaves() => m_waveWeight = m_waveStartWeight;
 
-	public static void DebugToggleAllZones() => ZonesFinishedCount = ZonesFinishedCount == 3 ? 0 : 3; // TODO: remove hardcoding?
+	public static void DebugToggleAllUnlocks()
+	{
+		ZonesFinishedCount = ZonesFinishedCount == 3 ? 0 : 3; // TODO: remove hardcoding?
+		m_secretsFoundBitmask.SetAll(!m_secretsFoundBitmask.Get(0));
+	}
 
 	public
 #else
