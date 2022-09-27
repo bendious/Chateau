@@ -75,9 +75,12 @@ public sealed class AIController : KinematicCharacter
 	protected override void Start()
 	{
 		base.Start();
+
 		// TODO: spawn animation / fade-in?
-		m_targetSelectTimeNext = Time.time + Random.Range(0.0f, m_replanSecondsMax);
-		m_pathfindTimeNext = Time.time + Random.Range(0.0f, m_replanSecondsMax);
+
+		// NOTE that we don't want all AI spawned at the same time to retarget/repath immediately, but we also don't want any to just stand around for too long, so we just use a small fixed randomization
+		m_targetSelectTimeNext = Time.time + Random.Range(0.0f, 0.5f);
+		m_pathfindTimeNext = m_targetSelectTimeNext + Random.Range(0.0f, 0.5f);
 
 		m_targetOffsetOrig = m_targetOffset;
 
@@ -148,7 +151,7 @@ public sealed class AIController : KinematicCharacter
 				Vector2 targetPosSafe = AimPosition();
 				if (primaryArm != null)
 				{
-					primaryArm.UpdateAim(ArmOffset, targetPosSafe, targetPosSafe, false);
+					primaryArm.UpdateAim(ArmOffset, targetPosSafe, targetPosSafe);
 				}
 
 				int offsetScalar = primaryArm == null ? 0 : 1;
@@ -160,7 +163,7 @@ public sealed class AIController : KinematicCharacter
 					}
 					Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, offsetScalar * System.Math.Min(60, 360 / arms.Length) * AimScalar) * (targetPosSafe - (Vector2)transform.position); // TODO: remove hardcoded max?
 					offsetScalar = offsetScalar <= 0 ? -offsetScalar + 1 : -offsetScalar; // this groups any arms w/ items around the primary arm in both directions
-					arm.UpdateAim(ArmOffset, aimPos, targetPosSafe, false);
+					arm.UpdateAim(ArmOffset, aimPos, targetPosSafe);
 				}
 			}
 			m_aimLastFrame = Time.frameCount;
@@ -340,7 +343,8 @@ public sealed class AIController : KinematicCharacter
 
 			// check arrival
 			const float arrivalEpsilon = 0.1f; // TODO: derive/calculate?
-			atWaypoint = (isStartingPoint || IsGrounded || transform.position.y >= nextWaypoint.y) && diff.magnitude <= ((Vector2)m_collider.bounds.extents).magnitude + m_collider.offset.magnitude + arrivalEpsilon; // NOTE the stricter condition when in mid-air to prevent starting to move sideways too soon and falling back below the waypoint
+			bool isHighEnough = isStartingPoint || IsGrounded || HasFlying || transform.position.y >= nextWaypoint.y; // NOTE the stricter condition when in mid-air to prevent starting to move sideways too soon and falling back below the waypoint
+			atWaypoint = isHighEnough && diff.magnitude <= ((Vector2)m_collider.bounds.extents).magnitude + m_collider.offset.magnitude + arrivalEpsilon;
 			if (atWaypoint)
 			{
 				m_pathfindWaypoints.RemoveAt(0);

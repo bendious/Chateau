@@ -40,6 +40,8 @@ public class Health : MonoBehaviour
 
 	public bool HealInProgress { get; private set; }
 
+	public Color ColorCurrent => m_gradient.Evaluate(1.0f - m_currentHP / m_maxHP);
+
 
 	protected float m_currentHP;
 
@@ -212,7 +214,7 @@ public class Health : MonoBehaviour
 		// NOTE that color is adjusted here rather than in SyncUI() to avoid stomping boss start color
 		if (m_gradientActive)
 		{
-			Color color = m_gradient.Evaluate(1.0f - m_currentHP / m_maxHP);
+			Color color = ColorCurrent;
 			foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>().Where(renderer => renderer.GetComponent<IAttachable>() == null))
 			{
 				renderer.color = color;

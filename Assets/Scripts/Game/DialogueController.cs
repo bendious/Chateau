@@ -67,7 +67,7 @@ public class DialogueController : MonoBehaviour
 	}
 
 
-	public void Play(IEnumerable<Line> lines, AvatarController avatar = null, Sprite sprite = null, Color spriteColor = default, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions = null, AudioClip sfx = null, int loopIdx = -1, Action postDialogue = null)
+	public Coroutine Play(IEnumerable<Line> lines, AvatarController avatar = null, Sprite sprite = null, Color spriteColor = default, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions = null, AudioClip sfx = null, int loopIdx = -1)
 	{
 		m_revealedCharCount = 0;
 		m_lastRevealTime = Time.time;
@@ -77,7 +77,7 @@ public class DialogueController : MonoBehaviour
 		m_loopIdx = loopIdx;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
-		StartCoroutine(AdvanceDialogue(lines, expressions, sfx, sprite, spriteColor, postDialogue));
+		return StartCoroutine(AdvanceDialogue(lines, expressions, sfx, sprite, spriteColor));
 	}
 
 	public void OnReplySelected(GameObject replyObject)
@@ -88,7 +88,10 @@ public class DialogueController : MonoBehaviour
 		Line.Reply replyCur = repliesCur?[m_replyIdx];
 		if (!string.IsNullOrEmpty(replyCur?.m_eventName))
 		{
-			gameObject.SendMessage(replyCur.m_eventName, replyCur);
+			// TODO: efficiency? error if none of the objects finds a receiver?
+			gameObject.SendMessage(replyCur.m_eventName, replyCur, SendMessageOptions.DontRequireReceiver);
+			m_avatar.gameObject.SendMessage(replyCur.m_eventName, replyCur, SendMessageOptions.DontRequireReceiver);
+			GameController.Instance.gameObject.SendMessage(replyCur.m_eventName, replyCur, SendMessageOptions.DontRequireReceiver);
 		}
 
 		if (m_queueFollowUp == null && replyCur?.m_followUp != null && replyCur.m_followUp.Length > 0)
@@ -218,7 +221,7 @@ public class DialogueController : MonoBehaviour
 	public void ActivateInteract(Line.Reply reply) => ((InteractScene)reply.m_userdataObj).StartAnimation(m_avatar);
 
 
-	private System.Collections.IEnumerator AdvanceDialogue(IEnumerable<Line> linesOrig, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions, AudioClip sfx, Sprite sprite, Color color, Action postDialogue)
+	private System.Collections.IEnumerator AdvanceDialogue(IEnumerable<Line> linesOrig, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions, AudioClip sfx, Sprite sprite, Color color)
 	{
 		m_text.text = null;
 		m_queue = new(linesOrig);
@@ -392,7 +395,6 @@ public class DialogueController : MonoBehaviour
 			}
 		}
 
-		postDialogue?.Invoke();
 		m_avatar.Controls.SwitchCurrentActionMap("Avatar"); // TODO: un-hardcode? check for other UI?
 		gameObject.SetActive(false);
 	}

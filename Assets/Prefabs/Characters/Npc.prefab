@@ -208,8 +208,6 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 8300000, guid: 09dd4e6b941e8a5429e309acd298926a, type: 3}
     m_weight: 1
-  - m_object: {fileID: 8300000, guid: 1025e3899f74ad24196eb7ad747e0f63, type: 3}
-    m_weight: 1
   - m_object: {fileID: 8300000, guid: 7e352e486a0e7454c9eb5325e08280b5, type: 3}
     m_weight: 1
   - m_object: {fileID: 8300000, guid: aeab713dc658f6d4483dd563ab38af69, type: 3}

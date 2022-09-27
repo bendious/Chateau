@@ -190,18 +190,18 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		}
 	}
 
-	public void UpdateAim(Vector2 rootOffset, Vector2 aimPositionArm, Vector2 aimPositionItem, bool isFixedStep)
+	public void UpdateAim(Vector2 rootOffset, Vector2 aimPositionArm, Vector2 aimPositionItem)
 	{
 		// update current speed
 		m_aimVelocityArm += m_aimVelocityContinuing;
 		m_aimRadiusVelocity += m_radiusVelocityContinuing;
-		m_aimVelocityContinuing = DampedSpring(m_aimVelocityContinuing, 0.0f, 1.0f, false, m_swingDecayStiffness, ref m_aimVelocityContinuingVel, isFixedStep);
-		m_radiusVelocityContinuing = DampedSpring(m_radiusVelocityContinuing, 0.0f, 1.0f, false, m_swingDecayStiffness, ref m_radiusVelocityContinuingVel, isFixedStep);
+		m_aimVelocityContinuing = DampedSpring(m_aimVelocityContinuing, 0.0f, 1.0f, false, m_swingDecayStiffness, ref m_aimVelocityContinuingVel);
+		m_radiusVelocityContinuing = DampedSpring(m_radiusVelocityContinuing, 0.0f, 1.0f, false, m_swingDecayStiffness, ref m_radiusVelocityContinuingVel);
 
 		// update current rotation
 		float targetDegreesArm = AimDegreesRaw(transform.parent.position, rootOffset, aimPositionArm, m_aimDegreesArm);
-		m_aimDegreesArm = DampedSpring(m_aimDegreesArm, targetDegreesArm, m_swingInfoCur.m_aimSpringDampPct, true, m_aimStiffness, ref m_aimVelocityArm, isFixedStep);
-		m_aimRadius = DampedSpring(m_aimRadius, 0.0f, m_swingInfoCur.m_radiusSpringDampPct, false, m_radiusStiffness, ref m_aimRadiusVelocity, isFixedStep);
+		m_aimDegreesArm = DampedSpring(m_aimDegreesArm, targetDegreesArm, m_swingInfoCur.m_aimSpringDampPct, true, m_aimStiffness, ref m_aimVelocityArm);
+		m_aimRadius = DampedSpring(m_aimRadius, 0.0f, m_swingInfoCur.m_radiusSpringDampPct, false, m_radiusStiffness, ref m_aimRadiusVelocity);
 		m_swingDirection = (targetDegreesArm - m_aimDegreesArm).Modulo(360.0f) < 180.0f; // should swing "up" if we are "below" the current target angle
 
 		// apply
@@ -232,7 +232,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		for (int i = 0; i < transform.childCount; ++i)
 		{
 			Transform childTf = transform.GetChild(i);
-			m_aimDegreesItem = DampedSpring(m_aimDegreesItem, IsSwinging ? 0.0f : AimDegreesRaw(childTf.position, Vector2.zero, aimPositionItem, m_aimDegreesItem) - m_aimDegreesArm + (LeftFacing ? -m_aimDegreesItemRestOffsetAbs : m_aimDegreesItemRestOffsetAbs), 1.0f, true, m_aimStiffness, ref m_aimVelocityItem, isFixedStep); // NOTE that aiming for all items uses critical damping rather than m_swingInfoCur.m_aimSpringDampPct, to prevent overly-annoying aim jiggle // TODO: parameterize?
+			m_aimDegreesItem = DampedSpring(m_aimDegreesItem, IsSwinging ? 0.0f : AimDegreesRaw(childTf.position, Vector2.zero, aimPositionItem, m_aimDegreesItem) - m_aimDegreesArm + (LeftFacing ? -m_aimDegreesItemRestOffsetAbs : m_aimDegreesItemRestOffsetAbs), 1.0f, true, m_aimStiffness, ref m_aimVelocityItem); // NOTE that aiming for all items uses critical damping rather than m_swingInfoCur.m_aimSpringDampPct, to prevent overly-annoying aim jiggle // TODO: parameterize?
 			childTf.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesItem);
 
 			if (hasJoint)
@@ -263,7 +263,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		m_radiusVelocityContinuing += m_swingInfoCur.m_linearNewtons / m_massTotal;
 	}
 
-	private float DampedSpring(float current, float target, float dampPct, bool isAngle, float stiffness, ref float velocityCurrent, bool isFixedStep)
+	private float DampedSpring(float current, float target, float dampPct, bool isAngle, float stiffness, ref float velocityCurrent)
 	{
 		// spring motion: F = kx - dv, where x = {vel/pos}_desired - {vel/pos}_current
 		// critically damped spring: d = 2*sqrt(km)
@@ -277,7 +277,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		float force = stiffness * diff - dampingFactor * velocityCurrent;
 
 		float accel = force / m_massTotal;
-		float dt = isFixedStep ? Time.fixedDeltaTime : Time.deltaTime;
+		float dt = Time.fixedDeltaTime;
 		velocityCurrent += accel * dt;
 
 		return current + velocityCurrent * dt;

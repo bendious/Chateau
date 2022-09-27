@@ -9,18 +9,41 @@ public class Boss : MonoBehaviour
 {
 	public BossRoom m_room;
 
+	[SerializeField] private float m_smoothTimeSlow = 0.5f;
 
-	private Vector3 m_startPos;
+	[SerializeField] private Sprite m_dialogueSprite;
+
+	[SerializeField] private WeightedObject<AudioClip>[] m_dialogueSfx;
+
+
+#if DEBUG
+	private Vector3 m_debugStartPos;
+#endif
+	private AIController m_ai;
+	ArmController[] m_arms;
+	private Health m_health;
+	private Color m_colorFinal;
 
 	private bool m_started = false;
 	private bool m_activatedFully = false;
 
+	private float m_introAimDegrees = -1.0f;
+	private float m_introAimVel;
+
+
+	private bool IsArmReveal => m_introAimDegrees >= 0.0f && m_introAimDegrees < 359.0f;
+
 
 	private void Awake()
 	{
-		m_startPos = transform.position;
-		Health health = GetComponent<Health>();
-		health.SetMax(health.GetMax() * GameController.Instance.m_zoneScalar);
+#if DEBUG
+		m_debugStartPos = transform.position;
+#endif
+		m_ai = GetComponent<AIController>();
+		m_arms = GetComponentsInChildren<ArmController>();
+		m_health = GetComponent<Health>();
+		m_health.SetMax(m_health.GetMax() * GameController.Instance.m_zoneScalar);
+		m_colorFinal = m_health.ColorCurrent;
 	}
 
 	private void OnWillRenderObject()
@@ -51,6 +74,21 @@ public class Boss : MonoBehaviour
 			StopAllCoroutines();
 			m_started = false;
 		}
+	}
+
+	private void FixedUpdate()
+	{
+		if (!IsArmReveal)
+		{
+			return;
+		}
+
+		Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, m_introAimDegrees) * Vector2.right;
+		for (int i = (int)m_introAimDegrees * m_arms.Length / 360; i < m_arms.Length; ++i)
+		{
+			m_arms[i].UpdateAim(m_ai.ArmOffset, aimPos, aimPos);
+		}
+		m_introAimDegrees = Mathf.SmoothDamp(m_introAimDegrees, 360.0f, ref m_introAimVel, m_smoothTimeSlow);
 	}
 
 	private void OnDestroy()
@@ -87,19 +125,16 @@ public class Boss : MonoBehaviour
 		StopAllCoroutines();
 		m_started = false;
 		m_activatedFully = false;
-		AIController ai = GetComponent<AIController>();
-		ai.m_passive = true;
-		ai.gravityModifier = 1.0f;
-		ai.Teleport(m_startPos);
-		GetComponent<Health>().m_invincible = true;
+		m_ai.m_passive = true;
+		m_ai.gravityModifier = 1.0f;
+		m_ai.Teleport(m_debugStartPos);
+		m_health.m_invincible = true;
 	}
 #endif
 
 
 	private IEnumerator UpdateIntro()
 	{
-		const float smoothTimeSlow = 0.5f;
-
 		// pause
 		yield return new WaitForSeconds(2.0f);
 
@@ -112,51 +147,47 @@ public class Boss : MonoBehaviour
 		SpriteRenderer[] bossRenderers = GetComponentsInChildren<SpriteRenderer>().Where(renderer => renderer.GetComponent<ItemController>() == null).ToArray();
 		Light2D bossLight = GetComponent<Light2D>();
 		const float intensityTarget = 1.0f;
-		Vector4 colorSpeedCur = Vector4.zero;
+		Vector4[] colorSpeedCur = new Vector4[bossRenderers.Length + 1];
 		float lightSpeedCur = 0.0f;
-		while (!bossRenderers.First().color.ColorsSimilar(Color.red) || !bossLight.intensity.FloatEqual(intensityTarget)) // TODO: don't assume colors are always in sync?
+		while (!bossRenderers.First().color.ColorsSimilar(m_colorFinal) || !bossLight.intensity.FloatEqual(intensityTarget)) // TODO: don't assume colors are always in sync?
 		{
+			int colorSpeedIdx = 0;
 			foreach (SpriteRenderer bossRenderer in bossRenderers)
 			{
-				bossRenderer.color = bossRenderer.color.SmoothDamp(Color.red, ref colorSpeedCur, smoothTimeSlow);
+				bossRenderer.color = bossRenderer.color.SmoothDamp(m_colorFinal, ref colorSpeedCur[colorSpeedIdx++], m_smoothTimeSlow);
 			}
-			bossLight.intensity = Mathf.SmoothDamp(bossLight.intensity, intensityTarget, ref lightSpeedCur, smoothTimeSlow);
+			bossLight.intensity = Mathf.SmoothDamp(bossLight.intensity, intensityTarget, ref lightSpeedCur, m_smoothTimeSlow);
+			bossLight.color = bossLight.color.SmoothDamp(m_colorFinal, ref colorSpeedCur[colorSpeedIdx++], m_smoothTimeSlow);
 			yield return null;
 		}
 
 		// float into air
-		AIController ai = GetComponent<AIController>();
-		ai.gravityModifier = 0.0f;
+		m_ai.gravityModifier = 0.0f;
 		float yTarget = transform.position.y + 4.5f; // TODO: unhardcode?
 		float ySpeedCur = 0.0f;
 		while (!transform.position.y.FloatEqual(yTarget))
 		{
 			Vector3 pos = transform.position;
-			pos.y = Mathf.SmoothDamp(transform.position.y, yTarget, ref ySpeedCur, smoothTimeSlow);
+			pos.y = Mathf.SmoothDamp(transform.position.y, yTarget, ref ySpeedCur, m_smoothTimeSlow);
 			transform.position = pos;
 			yield return null;
 		}
 
 		// reveal arms
-		ArmController[] arms = GetComponentsInChildren<ArmController>();
-		float degrees = 0.0f;
-		float angleVel = 0.0f;
-		while (degrees < 359.0f)
-		{
-			Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, degrees) * Vector2.right;
-			for (int i = (int)degrees * arms.Length / 360; i < arms.Length; ++i)
-			{
-				arms[i].UpdateAim(GetComponent<KinematicCharacter>().ArmOffset, aimPos, aimPos, false);
-			}
-			degrees = Mathf.SmoothDamp(degrees, 360.0f, ref angleVel, smoothTimeSlow);
-			yield return null;
-		}
+		// (see also FixedUpdate())
+		m_introAimDegrees = 0.0f;
+		yield return new WaitWhile(() => IsArmReveal);
+
+		// dialogue
+		// see Synchronous Coroutines in https://www.alanzucconi.com/2017/02/15/nested-coroutines-in-unity/
+		// TODO: parameterize dialogue?
+		yield return GameController.Instance.m_dialogueController.Play(new DialogueController.Line[] { new() { m_text = "...", m_replies = new DialogueController.Line.Reply[] { new() { m_text = "I will destroy you." }, new() { m_text = "I will not resist.", m_eventName = "DeactivateAllControl" } } } }, GameController.Instance.m_avatars.First(), m_dialogueSprite, m_colorFinal, sfx: m_dialogueSfx.Length <= 0 ? null : m_dialogueSfx.RandomWeighted());
 
 		m_room.AmbianceToMusic();
 
 		// enable boss
-		GetComponent<Health>().m_invincible = false;
-		ai.m_passive = false;
-		GameController.Instance.EnemyAdd(ai);
+		m_health.m_invincible = false;
+		m_ai.m_passive = false;
+		GameController.Instance.EnemyAdd(m_ai);
 	}
 }
