@@ -28,7 +28,6 @@ public class DialogueController : MonoBehaviour
 			public string m_text;
 			public string m_preconditionName;
 			public int m_userdata;
-			public object m_userdataObj;
 			public string[] m_followUp;
 			public string m_eventName; // TODO: less error-prone type?
 			public bool m_breakAfterward;
@@ -37,7 +36,7 @@ public class DialogueController : MonoBehaviour
 		}
 
 		public string m_text;
-		[SerializeField] internal NpcDialogue m_source;
+		[SerializeField] internal Dialogue m_source;
 		[SerializeField] internal float m_sourceDistMax = float.MaxValue;
 		public Reply[] m_replies;
 	}
@@ -55,6 +54,7 @@ public class DialogueController : MonoBehaviour
 	private float m_lastRevealTime;
 	private int m_replyIdx;
 	private Queue<string> m_queueFollowUp;
+	private GameObject m_callbackObject;
 	private AvatarController m_avatar;
 	private int m_loopIdx = -1;
 
@@ -67,12 +67,13 @@ public class DialogueController : MonoBehaviour
 	}
 
 
-	public Coroutine Play(IEnumerable<Line> lines, AvatarController avatar = null, Sprite sprite = null, Color spriteColor = default, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions = null, AudioClip sfx = null, int loopIdx = -1)
+	public Coroutine Play(IEnumerable<Line> lines, GameObject callbackObject = null, AvatarController avatar = null, Sprite sprite = null, Color spriteColor = default, IEnumerable<WeightedObject<Dialogue.Expression>> expressions = null, AudioClip sfx = null, int loopIdx = -1)
 	{
 		m_revealedCharCount = 0;
 		m_lastRevealTime = Time.time;
 		m_replyIdx = 0;
 		m_queueFollowUp = null;
+		m_callbackObject = callbackObject;
 		m_avatar = avatar;
 		m_loopIdx = loopIdx;
 
@@ -90,6 +91,10 @@ public class DialogueController : MonoBehaviour
 		{
 			// TODO: efficiency? error if none of the objects finds a receiver?
 			gameObject.SendMessage(replyCur.m_eventName, replyCur, SendMessageOptions.DontRequireReceiver);
+			if (m_callbackObject != null)
+			{
+				m_callbackObject.SendMessage(replyCur.m_eventName, replyCur, SendMessageOptions.DontRequireReceiver);
+			}
 			m_avatar.gameObject.SendMessage(replyCur.m_eventName, replyCur, SendMessageOptions.DontRequireReceiver);
 			GameController.Instance.gameObject.SendMessage(replyCur.m_eventName, replyCur, SendMessageOptions.DontRequireReceiver);
 		}
@@ -116,6 +121,7 @@ public class DialogueController : MonoBehaviour
 		}
 	}
 
+	// TODO: move callbacks into GameController?
 	// called via AdvanceDialogue()/SendMessage(Line.Reply.m_preconditionName, Line.Reply)
 	public void EnemyTypeHasSpawned(Line.Reply reply)
 	{
@@ -217,15 +223,12 @@ public class DialogueController : MonoBehaviour
 		GameController.MerchantMaterials -= cost;
 	}
 
-	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)
-	public void ActivateInteract(Line.Reply reply) => ((InteractScene)reply.m_userdataObj).StartAnimation(m_avatar);
 
-
-	private System.Collections.IEnumerator AdvanceDialogue(IEnumerable<Line> linesOrig, IEnumerable<WeightedObject<NpcDialogue.ExpressionInfo>> expressions, AudioClip sfx, Sprite sprite, Color color)
+	private System.Collections.IEnumerator AdvanceDialogue(IEnumerable<Line> linesOrig, IEnumerable<WeightedObject<Dialogue.Expression>> expressions, AudioClip sfx, Sprite sprite, Color color)
 	{
 		m_text.text = null;
 		m_queue = new(linesOrig);
-		NpcDialogue.ExpressionInfo[] expressionsOrdered = expressions?.RandomWeightedOrder().ToArray(); // NOTE the conversion to an array to prevent IEnumerable re-calculating w/ each access // TODO: re-order after each line?
+		Dialogue.Expression[] expressionsOrdered = expressions?.RandomWeightedOrder().ToArray(); // NOTE the conversion to an array to prevent IEnumerable re-calculating w/ each access // TODO: re-order after each line?
 		m_audio.clip = sfx;
 
 		// avatar setup
@@ -399,7 +402,7 @@ public class DialogueController : MonoBehaviour
 		gameObject.SetActive(false);
 	}
 
-	private Line NextLine(out string text, out int textLen, IEnumerable<NpcDialogue.ExpressionInfo> expressionsOrdered, Sprite spriteDefault, Color colorDefault)
+	private Line NextLine(out string text, out int textLen, IEnumerable<Dialogue.Expression> expressionsOrdered, Sprite spriteDefault, Color colorDefault)
 	{
 		Line line = m_queue.Count > 0 ? m_queue.Peek() : null;
 		text = m_queueFollowUp != null ? m_queueFollowUp.Peek() : line?.m_text;
@@ -408,7 +411,7 @@ public class DialogueController : MonoBehaviour
 		{
 			if (expressionsOrdered != null)
 			{
-				foreach (NpcDialogue.ExpressionInfo expression in expressionsOrdered)
+				foreach (Dialogue.Expression expression in expressionsOrdered)
 				{
 					text = text.ReplaceFirst("{" + expression.m_key + "}", expression.m_replacement);
 				}

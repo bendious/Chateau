@@ -1434,6 +1434,7 @@ MonoBehaviour:
   m_timerUI: {fileID: 9004531423071069859}
   m_pauseUI: {fileID: 8953914197898318485}
   m_gameOverUI: {fileID: 8429885465154309406}
+  m_introDialogue: {fileID: 11400000, guid: 49cf0fd5821245c4e872afae77032026, type: 2}
   m_materialSystem: {fileID: 11400000, guid: 17f41ccd08cb0cb40a164c155fdf365d, type: 2}
   m_savableFactory: {fileID: 11400000, guid: 9c40a24db50646340b727ada604cdf58, type: 2}
   m_lightFlickerMaster: {fileID: 3563149318527751985}

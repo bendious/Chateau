@@ -3,9 +3,9 @@ using UnityEngine;
 
 
 [CreateAssetMenu]
-public class NpcDialogue : ScriptableObject
+public class Dialogue : ScriptableObject
 {
-	[Serializable] public class DialogueInfo
+	[Serializable] public class Info
 	{
 		public string m_preconditionName;
 		public int m_userdata;
@@ -14,12 +14,12 @@ public class NpcDialogue : ScriptableObject
 		public bool m_singleUse;
 		public bool m_appendToAll;
 	};
-	public WeightedObject<DialogueInfo>[] m_dialogue;
+	public WeightedObject<Info>[] m_dialogue;
 
-	[Serializable] public class ExpressionInfo
+	[Serializable] public class Expression
 	{
 		public string m_key;
 		public string m_replacement;
 	}
-	public WeightedObject<ExpressionInfo>[] m_expressions;
+	public WeightedObject<Expression>[] m_expressions;
 }

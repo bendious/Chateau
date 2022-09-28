@@ -12,6 +12,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1310310212184196407, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
+      propertyPath: m_dialogue
+      value: 
+      objectReference: {fileID: 11400000, guid: cf5cc5a160054e441be42a17fc44c9fd, type: 2}
+    - target: {fileID: 1310310212184196407, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
       propertyPath: m_isSaveDeletion
       value: 1
       objectReference: {fileID: 0}

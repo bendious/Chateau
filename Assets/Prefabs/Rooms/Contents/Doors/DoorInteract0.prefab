@@ -161,10 +161,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_sceneDestination: Entryway
   m_isSaveDeletion: 0
-  m_refusalTexts:
-  - It won't open.
-  - It's stuck.
-  - Not done here yet...
+  m_dialogue: {fileID: 11400000, guid: 363b51506f5956e4381fd04bd3bbb3ff, type: 2}
   m_entryVFX: []
 --- !u!82 &4788182134669333101
 AudioSource:

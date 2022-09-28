@@ -40,8 +40,8 @@ public class GameController : MonoBehaviour
 	public WeightedObject<RoomType>[] m_roomTypes;
 	public WeightedObject<RoomType>[] m_roomTypesSecret;
 	public WeightedObject<AIController>[] m_enemyPrefabs;
-	[SerializeField] private WeightedObject<NpcDialogue>[] m_npcRoles;
-	[SerializeField] private WeightedObject<NpcDialogue>[] m_npcAttitudes;
+	[SerializeField] private WeightedObject<Dialogue>[] m_npcRoles;
+	[SerializeField] private WeightedObject<Dialogue>[] m_npcAttitudes;
 	public GameObject[] m_doorInteractPrefabs;
 	public GameObject[] m_zoneFinishedIndicators;
 	public GameObject[] m_upgradeIndicators;
@@ -60,6 +60,8 @@ public class GameController : MonoBehaviour
 	public TMPro.TMP_Text m_timerUI;
 	public Canvas m_pauseUI;
 	public Canvas m_gameOverUI;
+
+	[SerializeField] private Dialogue m_introDialogue;
 
 	public MaterialSystem m_materialSystem;
 	public SavableFactory m_savableFactory;
@@ -86,7 +88,7 @@ public class GameController : MonoBehaviour
 
 	public static GameController Instance { get; private set; }
 
-	public static NpcDialogue[] NpcDialogues(int index) => m_npcs[index].m_dialogues;
+	public static Dialogue[] NpcDialogues(int index) => m_npcs[index].m_dialogues;
 	public static Color NpcColor(int index) => m_npcs[index].m_color;
 
 	public static int[] MerchantAcquiredCounts;
@@ -121,7 +123,7 @@ public class GameController : MonoBehaviour
 	private struct NpcInfo
 	{
 		public Color m_color;
-		public NpcDialogue[] m_dialogues;
+		public Dialogue[] m_dialogues;
 	}
 	private static NpcInfo[] m_npcs;
 
@@ -301,7 +303,7 @@ public class GameController : MonoBehaviour
 				return;
 			}
 
-			m_dialogueController.Play(new DialogueController.Line[] { new() { m_text = "Ah, welcome home." }, new() { m_text = "You've been out for quite a while, haven't you?" }, new() { m_text = "You're not going to claim grounds for outrage if a few... uninvited guests have shown up in the mean time, are you?", m_replies = new DialogueController.Line.Reply[] { new() { m_text = "Who are you, ya creep?" }, new() { m_text = "Who are you?" }, new() { m_text = "Who are you, sir?" } } }, new() { m_text = "An old friend." }, new() { m_text = "I'm not surprised you don't remember me. Is there anything you do remember, after all?" }, new() { m_text = "But don't worry about me; you have more pressing concerns at the moment, I believe." } });
+			m_dialogueController.Play(m_introDialogue.m_dialogue.RandomWeighted().m_lines, expressions: m_introDialogue.m_expressions); // TODO: take any preconditions into account?
 		}
 
 		m_loadingScreen.SetActive(false);
@@ -842,7 +844,7 @@ public class GameController : MonoBehaviour
 		{
 			saveFile.Write(npc.m_dialogues, dialogue =>
 			{
-				bool dialogueCheckFunc(WeightedObject<NpcDialogue> dialogueWeighted) => dialogue == dialogueWeighted.m_object;
+				bool dialogueCheckFunc(WeightedObject<Dialogue> dialogueWeighted) => dialogue == dialogueWeighted.m_object;
 				int attitudeIdx = System.Array.FindIndex(m_npcAttitudes, dialogueCheckFunc);
 				saveFile.Write(attitudeIdx >= 0 ? 0 : 1);
 				saveFile.Write(attitudeIdx >= 0 ? attitudeIdx : System.Array.FindIndex(m_npcRoles, dialogueCheckFunc));
@@ -889,9 +891,9 @@ public class GameController : MonoBehaviour
 
 			m_npcs = saveFile.ReadArray(() =>
 			{
-				NpcDialogue[] dialogue = saveFile.ReadArray(() =>
+				Dialogue[] dialogue = saveFile.ReadArray(() =>
 				{
-					NpcDialogue dialogueTmp = (saveFile.ReadInt32() == 0 ? m_npcAttitudes : m_npcRoles)[saveFile.ReadInt32()].m_object;
+					Dialogue dialogueTmp = (saveFile.ReadInt32() == 0 ? m_npcAttitudes : m_npcRoles)[saveFile.ReadInt32()].m_object;
 					int idxItr = 0;
 					saveFile.ReadArray(() =>
 					{

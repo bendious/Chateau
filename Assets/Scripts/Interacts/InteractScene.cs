@@ -10,7 +10,7 @@ public class InteractScene : MonoBehaviour, IInteractable
 
 	[SerializeField] private bool m_isSaveDeletion;
 
-	[SerializeField] private string[] m_refusalTexts = { "It won't open.", "It's stuck.", "Not done here yet..." };
+	[SerializeField] private Dialogue m_dialogue;
 
 	public WeightedObject<GameObject>[] m_entryVFX;
 
@@ -21,6 +21,8 @@ public class InteractScene : MonoBehaviour, IInteractable
 
 
 	private bool m_activated = false;
+
+	private KinematicCharacter m_interactorMostRecent;
 
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "UNT0001:Empty Unity message", Justification = "required to force enable/disable checkbox in Inspector")]
@@ -33,29 +35,24 @@ public class InteractScene : MonoBehaviour, IInteractable
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
-		if (m_isSaveDeletion)
+		m_interactorMostRecent = interactor;
+
+		if (m_isSaveDeletion || !GameController.Instance.Victory)
 		{
-			GameController.Instance.m_dialogueController.Play(new DialogueController.Line[] { new() { m_text = "Leaving so soon? I was hoping you'd stay more like... forever." }, new() { m_text = "You wouldn't want to lose all your progress, would you?", m_replies = new DialogueController.Line.Reply[] { new() { m_text = "No." }, new() { m_text = "I guess not." }, new() { m_text = "I don't care. I want to start over.", m_userdataObj = this, m_eventName = "ActivateInteract" }, new() { m_text = "Fine. I'll stay." } } } }, interactor.GetComponent<AvatarController>()); // TODO: un-hardcode?
+			// TODO: visual/audio indicator(s) rather than dialogue for non-Victory refusal?
+			GameController.Instance.m_dialogueController.Play(m_dialogue.m_dialogue.RandomWeighted().m_lines, gameObject, interactor.GetComponent<AvatarController>(), expressions: m_dialogue.m_expressions);
 			return;
 		}
 
-		if (!GameController.Instance.Victory)
-		{
-			// TODO: indicate w/ visual/audio rather than dialogue?
-			GameController.Instance.m_dialogueController.Play(new DialogueController.Line[] { new() { m_text = m_refusalTexts.Random() } }, interactor.GetComponent<AvatarController>());
-		}
-		else
-		{
-			StartAnimation(interactor);
-		}
+		StartAnimation();
 	}
 
-	public void StartAnimation(KinematicCharacter interactor)
+	public void StartAnimation()
 	{
 		// start animations and wait for trigger to call LoadScene()
 		m_activated = true;
-		interactor.transform.position = new(transform.position.x, interactor.transform.position.y, interactor.transform.position.z); // TODO: animate into position?
-		interactor.GetComponent<Animator>().SetTrigger("despawn");
+		m_interactorMostRecent.transform.position = new(transform.position.x, m_interactorMostRecent.transform.position.y, m_interactorMostRecent.transform.position.z); // TODO: animate into position?
+		m_interactorMostRecent.GetComponent<Animator>().SetTrigger("despawn");
 		GetComponent<Animator>().SetTrigger("activate");
 	}
 

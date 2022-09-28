@@ -11,6 +11,8 @@ public class Boss : MonoBehaviour
 
 	[SerializeField] private float m_smoothTimeSlow = 0.5f;
 
+	[SerializeField] private Dialogue m_dialogue;
+
 	[SerializeField] private Sprite m_dialogueSprite;
 
 	[SerializeField] private WeightedObject<AudioClip>[] m_dialogueSfx;
@@ -181,7 +183,7 @@ public class Boss : MonoBehaviour
 		// dialogue
 		// see Synchronous Coroutines in https://www.alanzucconi.com/2017/02/15/nested-coroutines-in-unity/
 		// TODO: parameterize dialogue?
-		yield return GameController.Instance.m_dialogueController.Play(new DialogueController.Line[] { new() { m_text = "...", m_replies = new DialogueController.Line.Reply[] { new() { m_text = "I will destroy you." }, new() { m_text = "I will not resist.", m_eventName = "DisablePlayerControlUntilHurt" } } } }, GameController.Instance.m_avatars.First(), m_dialogueSprite, m_colorFinal, sfx: m_dialogueSfx.Length <= 0 ? null : m_dialogueSfx.RandomWeighted());
+		yield return GameController.Instance.m_dialogueController.Play(m_dialogue.m_dialogue.RandomWeighted().m_lines, gameObject, GameController.Instance.m_avatars.First(), m_dialogueSprite, m_colorFinal, m_dialogue.m_expressions, m_dialogueSfx.Length <= 0 ? null : m_dialogueSfx.RandomWeighted()); // TODO: take any preconditions into account?
 
 		m_room.AmbianceToMusic();
 

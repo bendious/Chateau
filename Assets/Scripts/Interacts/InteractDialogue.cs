@@ -24,8 +24,8 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 
 	private AudioClip m_sfxChosen;
 
-	private WeightedObject<NpcDialogue.DialogueInfo>[] m_dialogueCombined;
-	private WeightedObject<NpcDialogue.ExpressionInfo>[] m_expressionsCombined;
+	private WeightedObject<Dialogue.Info>[] m_dialogueCombined;
+	private WeightedObject<Dialogue.Expression>[] m_expressionsCombined;
 
 
 	private void Start()
@@ -51,22 +51,22 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
-		WeightedObject<NpcDialogue.DialogueInfo>[] dialogueAllowed = DialogueFiltered().ToArray();
+		WeightedObject<Dialogue.Info>[] dialogueAllowed = DialogueFiltered().ToArray();
 
 		// pick dialogue option(s)
-		NpcDialogue.DialogueInfo dialogueCur = dialogueAllowed.FirstOrDefault(dialogue => dialogue.m_weight == 0.0f)?.m_object;
+		Dialogue.Info dialogueCur = dialogueAllowed.FirstOrDefault(dialogue => dialogue.m_weight == 0.0f)?.m_object;
 		if (dialogueCur == null)
 		{
 			dialogueCur = dialogueAllowed.RandomWeighted();
 		}
-		NpcDialogue.DialogueInfo dialogueAppend = dialogueAllowed.FirstOrDefault(dialogueWeighted => dialogueWeighted.m_object.m_appendToAll && dialogueWeighted.m_object != dialogueCur)?.m_object; // TODO: support multiple append dialogues?
+		Dialogue.Info dialogueAppend = dialogueAllowed.FirstOrDefault(dialogueWeighted => dialogueWeighted.m_object.m_appendToAll && dialogueWeighted.m_object != dialogueCur)?.m_object; // TODO: support multiple append dialogues?
 
 		// play dialogue
-		GameController.Instance.m_dialogueController.Play(dialogueAppend != null ? dialogueCur.m_lines.Concat(dialogueAppend.m_lines) : dialogueCur.m_lines, interactor.GetComponent<AvatarController>(), m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_expressionsCombined, m_sfxChosen, dialogueCur.m_loop ? 0 : dialogueAppend != null && dialogueAppend.m_loop ? dialogueCur.m_lines.Length : -1);
+		GameController.Instance.m_dialogueController.Play(dialogueAppend != null ? dialogueCur.m_lines.Concat(dialogueAppend.m_lines) : dialogueCur.m_lines, gameObject, interactor.GetComponent<AvatarController>(), m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_expressionsCombined, m_sfxChosen, dialogueCur.m_loop ? 0 : dialogueAppend != null && dialogueAppend.m_loop ? dialogueCur.m_lines.Length : -1);
 
 		// update weight
 		// TODO: save across instantiations/sessions?
-		WeightedObject<NpcDialogue.DialogueInfo> weightedDialogueCur = m_dialogueCombined.First(dialogue => dialogue.m_object == dialogueCur); // TODO: support duplicate dialogue options?
+		WeightedObject<Dialogue.Info> weightedDialogueCur = m_dialogueCombined.First(dialogue => dialogue.m_object == dialogueCur); // TODO: support duplicate dialogue options?
 		weightedDialogueCur.m_weight = weightedDialogueCur.m_object.m_singleUse ? -1.0f : weightedDialogueCur.m_weight == 0.0f ? 1.0f : weightedDialogueCur.m_weight * m_weightUseScalar;
 
 		// deactivate single-minded pursuit if appropriate
@@ -77,13 +77,13 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 	}
 
 	// called via Interact()/SendMessage(NpcDialogue.Info.m_preconditionName)
-	public void HasFinishedZone(SendMessageValue<NpcDialogue.DialogueInfo, bool> info)
+	public void HasFinishedZone(SendMessageValue<Dialogue.Info, bool> info)
 	{
 		info.m_out = GameController.ZonesFinishedCount >= info.m_in.m_userdata;
 	}
 
 	// called via Interact()/SendMessage(NpcDialogue.Info.m_preconditionName)
-	public void HasNotFinishedZone(SendMessageValue<NpcDialogue.DialogueInfo, bool> info)
+	public void HasNotFinishedZone(SendMessageValue<Dialogue.Info, bool> info)
 	{
 		info.m_out = GameController.ZonesFinishedCount < info.m_in.m_userdata;
 	}
@@ -98,12 +98,12 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 #endif
 
 
-	private System.Collections.Generic.IEnumerable<WeightedObject<NpcDialogue.DialogueInfo>> DialogueFiltered()
+	private System.Collections.Generic.IEnumerable<WeightedObject<Dialogue.Info>> DialogueFiltered()
 	{
 		// lazy initialize dialogue options
 		if (m_dialogueCombined == null)
 		{
-			NpcDialogue[] dialogue = GameController.NpcDialogues(Index);
+			Dialogue[] dialogue = GameController.NpcDialogues(Index);
 			m_dialogueCombined = dialogue.SelectMany(source => source.m_dialogue).ToArray(); // NOTE the lack of deep-copying here, allowing the source NpcDialogue weights to be edited below and subsequently saved by GameController.Save() // TODO: avoid relying on runtime edits to ScriptableObject?
 			m_expressionsCombined = dialogue.SelectMany(source => source.m_expressions).ToArray(); // NOTE the lack of deep-copying here since these shouldn't be edited anyway
 		}
@@ -120,7 +120,7 @@ public class InteractDialogue : MonoBehaviour, IInteractable
 			{
 				return true;
 			}
-			SendMessageValue<NpcDialogue.DialogueInfo, bool> inOutValues = new() { m_in = info.m_object };
+			SendMessageValue<Dialogue.Info, bool> inOutValues = new() { m_in = info.m_object };
 			SendMessage(info.m_object.m_preconditionName, inOutValues);
 			return inOutValues.m_out;
 		});
