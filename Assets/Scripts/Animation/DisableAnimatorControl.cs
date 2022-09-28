@@ -15,7 +15,7 @@ public class DisableAnimatorControl : StateMachineBehaviour
 		m_avatar = animator.GetComponent<AvatarController>();
 		if (m_avatar != null)
 		{
-			m_avatar.DeactivateAllControl();
+			m_avatar.DisablePlayerControl();
 		}
 		m_ai = animator.GetComponent<AIController>();
 		if (m_ai != null)

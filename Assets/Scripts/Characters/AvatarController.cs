@@ -26,12 +26,12 @@ public sealed class AvatarController : KinematicCharacter
 	}
 
 
-	public AudioClip jumpAudio;
+	[SerializeField] private AudioClip m_jumpAudio;
 
-	public GameObject m_focusIndicator;
-	public ButtonPrompt m_focusPrompt;
+	[SerializeField] private GameObject m_focusIndicator;
+	[SerializeField] private ButtonPrompt m_focusPrompt;
 	public GameObject m_aimObject;
-	public GameObject m_inventoryUI;
+	[SerializeField] private GameObject m_inventoryUI;
 	public Canvas m_overlayCanvas;
 
 	public Vector3 m_focusPromptOffset = new(0.0f, 0.3f, -0.15f);
@@ -58,9 +58,13 @@ public sealed class AvatarController : KinematicCharacter
 	public bool IsAlive => ConsoleCommands.NeverDie || m_health.IsAlive;
 
 
+	private bool ControlEnabled => m_controlEnabled && !m_controlDisabledUntilHurt;
+
+
 	private JumpState jumpState = JumpState.Grounded;
 
-	private bool controlEnabled = true; // TODO: remove?
+	private bool m_controlEnabled = true;
+	private bool m_controlDisabledUntilHurt = false;
 
 	private float m_leftGroundTime = -1.0f;
 
@@ -132,7 +136,7 @@ public sealed class AvatarController : KinematicCharacter
 
 	protected override void Update()
 	{
-		if (controlEnabled)
+		if (ControlEnabled)
 		{
 			// update velocity
 			move = move.SmoothDamp(m_moveDesired, ref m_moveVel, m_moveSpringDampTime);
@@ -152,7 +156,7 @@ public sealed class AvatarController : KinematicCharacter
 		Vector2 aimPosConstrained = m_aimObject.transform.position; // TODO: improve start/respawn aim position
 		Vector2 aimPos = aimPosConstrained;
 
-		if (controlEnabled)
+		if (ControlEnabled)
 		{
 			// determine aim position(s)
 			Vector2 aimPctsFromCenter = AnalogCurrentIsValid ? m_analogCurrent : m_analogRecent;
@@ -209,7 +213,7 @@ public sealed class AvatarController : KinematicCharacter
 
 	private void LateUpdate()
 	{
-		if (!controlEnabled)
+		if (!ControlEnabled)
 		{
 			m_focusIndicator.SetActive(false);
 			m_focusPrompt.gameObject.SetActive(false);
@@ -325,7 +329,7 @@ public sealed class AvatarController : KinematicCharacter
 	public void OnLook(InputValue input)
 	{
 		Vector2 value = input.Get<Vector2>();
-		if (!controlEnabled)
+		if (!ControlEnabled)
 		{
 			return;
 		}
@@ -371,7 +375,7 @@ public sealed class AvatarController : KinematicCharacter
 
 	public void OnSwing(InputValue input)
 	{
-		if (!controlEnabled)
+		if (!ControlEnabled)
 		{
 			return;
 		}
@@ -428,7 +432,7 @@ public sealed class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnJump(InputValue input)
 	{
-		if (!controlEnabled)
+		if (!ControlEnabled)
 		{
 			return;
 		}
@@ -448,7 +452,7 @@ public sealed class AvatarController : KinematicCharacter
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnDash(InputValue input)
 	{
-		if (!controlEnabled)
+		if (!ControlEnabled)
 		{
 			return;
 		}
@@ -457,7 +461,7 @@ public sealed class AvatarController : KinematicCharacter
 
 	public void OnUse(InputValue input)
 	{
-		if (!controlEnabled)
+		if (!ControlEnabled)
 		{
 			return;
 		}
@@ -479,7 +483,7 @@ public sealed class AvatarController : KinematicCharacter
 	public void OnInteract(InputValue input)
 	{
 		IsPickingUp = input.isPressed;
-		if (controlEnabled && IsPickingUp && m_focusObj != null)
+		if (ControlEnabled && IsPickingUp && m_focusObj != null)
 		{
 			IInteractable focusInteract = m_focusObj.GetComponent<IInteractable>();
 			if (focusInteract != null && focusInteract.CanInteract(this))
@@ -492,7 +496,7 @@ public sealed class AvatarController : KinematicCharacter
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnDrop(InputValue input)
 	{
-		if (!controlEnabled)
+		if (!ControlEnabled)
 		{
 			return;
 		}
@@ -517,7 +521,7 @@ public sealed class AvatarController : KinematicCharacter
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnInventory(InputValue input)
 	{
-		if (!controlEnabled)
+		if (!ControlEnabled)
 		{
 			return;
 		}
@@ -587,7 +591,7 @@ public sealed class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnScroll(InputValue input)
 	{
-		if (!controlEnabled)
+		if (!ControlEnabled)
 		{
 			return;
 		}
@@ -665,6 +669,8 @@ public sealed class AvatarController : KinematicCharacter
 		{
 			OnInventory(null);
 		}
+
+		m_controlDisabledUntilHurt = false;
 	}
 
 	private void OnDeath(OnHealthDeath evt)
@@ -674,7 +680,7 @@ public sealed class AvatarController : KinematicCharacter
 			return;
 		}
 
-		DeactivateAllControl();
+		DisablePlayerControl();
 		InventorySync(); // since KinematicCharacter.OnDeath() drops all attachables
 
 		if (GameController.Instance.m_avatars.All(avatar => !avatar.IsAlive))
@@ -722,7 +728,7 @@ public sealed class AvatarController : KinematicCharacter
 			return false;
 		}
 
-		controlEnabled = false; // re-enabled via EnablePlayerControl() animation trigger
+		DisablePlayerControl(); // re-enabled via EnablePlayerControl() animation trigger
 		Simulation.Schedule<EnableControl>(1.0f).m_avatar = this; // NOTE that this is only a timer-based fallback
 
 		return hurt;
@@ -733,7 +739,6 @@ public sealed class AvatarController : KinematicCharacter
 	{
 		m_collider.enabled = true;
 		body.simulated = true;
-		controlEnabled = true;
 
 		if (clearInventory)
 		{
@@ -746,6 +751,8 @@ public sealed class AvatarController : KinematicCharacter
 		}
 
 		m_health.Respawn();
+		EnablePlayerControl();
+		m_controlDisabledUntilHurt = false;
 
 		Vector3 spawnPos = gameObject.OriginToCenterY();
 		if (!resetPosition)
@@ -865,14 +872,15 @@ public sealed class AvatarController : KinematicCharacter
 			return;
 		}
 
-		DeactivateAllControl();
+		m_controlDisabledUntilHurt = false;
+		DisablePlayerControl();
 		m_animator.SetTrigger("victory");
 		GetComponent<Health>().m_invincible = true;
 	}
 
-	public void DeactivateAllControl()
+	public void DisablePlayerControl()
 	{
-		controlEnabled = false;
+		m_controlEnabled = false;
 		m_focusIndicator.SetActive(false);
 		m_focusPrompt.gameObject.SetActive(false);
 		StopAiming();
@@ -880,14 +888,17 @@ public sealed class AvatarController : KinematicCharacter
 		// TODO: event to allow other delayed actions to self-cancel?
 	}
 
-	// called from animation trigger as well as the EnableControl event
+	// called from animation trigger as well as the EnableControl event and Respawn()
+	// NOTE that it deliberately only works when alive and is also independent of m_controlDisabledUntilHurt, which needs to persist through animation triggers
 	public void EnablePlayerControl()
 	{
 		if (IsAlive)
 		{
-			controlEnabled = true;
+			m_controlEnabled = true;
 		}
 	}
+
+	public void DisablePlayerControlUntilHurt() => m_controlDisabledUntilHurt = true;
 
 
 	private void OnObjectDespawn(ObjectDespawn evt)
@@ -933,9 +944,9 @@ public sealed class AvatarController : KinematicCharacter
 			case JumpState.Jumping:
 				if (!IsGrounded)
 				{
-					if (m_audioSource && jumpAudio)
+					if (m_audioSource && m_jumpAudio)
 					{
-						m_audioSource.PlayOneShot(jumpAudio);
+						m_audioSource.PlayOneShot(m_jumpAudio);
 					}
 					jumpState = JumpState.InFlight;
 				}
