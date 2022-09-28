@@ -13,7 +13,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5219552273189721976, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 4.75
+      value: 4.3
       objectReference: {fileID: 0}
     - target: {fileID: 5221647274962502525, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
       propertyPath: m_Sprite
@@ -21,7 +21,7 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 18c6f6a85bd354e4195c26c8a875ee50, type: 3}
     - target: {fileID: 7287174281192745631, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
       propertyPath: m_Name
-      value: TutorialInventory
+      value: TutorialSwap
       objectReference: {fileID: 0}
     - target: {fileID: 8511431466954729088, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
       propertyPath: m_RootOrder

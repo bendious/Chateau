@@ -11,6 +11,10 @@ PrefabInstance:
       propertyPath: m_text
       value: <sprite index=9> to jump
       objectReference: {fileID: 0}
+    - target: {fileID: 5219552273189721976, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 2.6
+      objectReference: {fileID: 0}
     - target: {fileID: 5221647274962502525, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
       propertyPath: m_Sprite
       value: 

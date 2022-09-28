@@ -32,6 +32,7 @@ public class RoomType : ScriptableObject
 		public float m_rotationDegreesMax = 0.0f;
 		public float m_heightMin = 0.5f;
 		public float m_heightMax = 2.0f;
+		public bool m_sharedHeight = true;
 	}
 	public WeightedObject<DecorationInfo>[] m_decorations;
 	public int m_decorationsMin = 0;

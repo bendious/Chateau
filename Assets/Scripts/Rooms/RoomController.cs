@@ -774,7 +774,7 @@ public class RoomController : MonoBehaviour
 		{
 			RoomType.DecorationInfo decoInfo = RoomType.m_decorations.RandomWeighted();
 			int decoIdx = System.Array.FindIndex(RoomType.m_decorations, weightedInfo => weightedInfo.m_object == decoInfo); // TODO: efficiency?
-			float height = decorationTypeHeights[decoIdx];
+			float height = decoInfo.m_sharedHeight ? decorationTypeHeights[decoIdx] : float.MinValue;
 			if (height == float.MinValue)
 			{
 				height = Random.Range(decoInfo.m_heightMin, Mathf.Min(roomHeight, decoInfo.m_heightMax));
