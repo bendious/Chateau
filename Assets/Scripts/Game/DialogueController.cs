@@ -89,14 +89,7 @@ public class DialogueController : MonoBehaviour
 		Line.Reply replyCur = repliesCur?[m_replyIdx];
 		if (!string.IsNullOrEmpty(replyCur?.m_eventName))
 		{
-			// TODO: efficiency? error if none of the objects finds a receiver?
-			gameObject.SendMessage(replyCur.m_eventName, replyCur, SendMessageOptions.DontRequireReceiver);
-			if (m_callbackObject != null)
-			{
-				m_callbackObject.SendMessage(replyCur.m_eventName, replyCur, SendMessageOptions.DontRequireReceiver);
-			}
-			m_avatar.gameObject.SendMessage(replyCur.m_eventName, replyCur, SendMessageOptions.DontRequireReceiver);
-			GameController.Instance.gameObject.SendMessage(replyCur.m_eventName, replyCur, SendMessageOptions.DontRequireReceiver);
+			SendMessages(replyCur.m_eventName, replyCur);
 		}
 
 		if (m_queueFollowUp == null && replyCur?.m_followUp != null && replyCur.m_followUp.Length > 0)
@@ -121,19 +114,8 @@ public class DialogueController : MonoBehaviour
 		}
 	}
 
-	// TODO: move callbacks into GameController?
-	// called via AdvanceDialogue()/SendMessage(Line.Reply.m_preconditionName, Line.Reply)
-	public void EnemyTypeHasSpawned(Line.Reply reply)
-	{
-		reply.m_deactivated = !GameController.Instance.EnemyTypeHasSpawned(reply.m_userdata);
-	}
 
-	// called via AdvanceDialogue()/SendMessage(Line.Reply.m_preconditionName, Line.Reply)
-	public void SecretFound(Line.Reply reply)
-	{
-		reply.m_deactivated = !GameController.SecretFound(reply.m_userdata);
-	}
-
+	// TODO: decouple from DialogueController and move elsewhere?
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)")]
 	public void MerchantSell(Line.Reply reply)
 	{
@@ -355,7 +337,7 @@ public class DialogueController : MonoBehaviour
 							Line.Reply replyCur = lineCur.m_replies[i];
 							if (!string.IsNullOrEmpty(replyCur.m_preconditionName))
 							{
-								gameObject.SendMessage(replyCur.m_preconditionName, replyCur);
+								SendMessages(replyCur.m_preconditionName, replyCur);
 							}
 							if (replyCur.m_deactivated)
 							{
@@ -464,5 +446,17 @@ public class DialogueController : MonoBehaviour
 		textLen = text != null ? text.Length : 0;
 
 		return line;
+	}
+
+	private void SendMessages(string functionName, object value)
+	{
+		// TODO: efficiency? error if none of the objects finds a receiver?
+		gameObject.SendMessage(functionName, value, SendMessageOptions.DontRequireReceiver);
+		if (m_callbackObject != null)
+		{
+			m_callbackObject.SendMessage(functionName, value, SendMessageOptions.DontRequireReceiver);
+		}
+		m_avatar.gameObject.SendMessage(functionName, value, SendMessageOptions.DontRequireReceiver);
+		GameController.Instance.gameObject.SendMessage(functionName, value, SendMessageOptions.DontRequireReceiver);
 	}
 }

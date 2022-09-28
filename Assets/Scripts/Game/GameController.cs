@@ -647,6 +647,11 @@ public class GameController : MonoBehaviour
 	}
 
 
+	// callbacks for DialogueController.SendMessages()/SendMessage(Line.Reply.m_preconditionName, Line.Reply)
+	public void EnemyTypeHasSpawned(DialogueController.Line.Reply reply) => reply.m_deactivated = !EnemyTypeHasSpawned(reply.m_userdata);
+	public void SecretFound(DialogueController.Line.Reply reply) => reply.m_deactivated = !SecretFound(reply.m_userdata);
+
+
 #if DEBUG
 	public void DebugSpawnEnemy(int typeIndex)
 	{
