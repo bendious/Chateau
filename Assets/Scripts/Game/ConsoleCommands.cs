@@ -117,7 +117,7 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 				m_controlsVisualizationIdx = -1;
 			}
 		});
-		m_controls.Console.UnlockAll.performed += ctx =>
+		m_controls.Console.UnlockAll.performed += ctx => ExecuteIfConsoleOpen(() =>
 		{
 			if (m_controls.Console.Shift.IsPressed())
 			{
@@ -130,15 +130,15 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 					lockObj.Unlock(null);
 				}
 			}
-		};
-		m_controls.Console.InteractDialogueRandomize.performed += ctx =>
+		});
+		m_controls.Console.InteractDialogueRandomize.performed += ctx => ExecuteIfConsoleOpen(() =>
 		{
 			GameController.Instance.NpcsRandomize();
 			foreach (InteractDialogue interact in FindObjectsOfType<InteractDialogue>())
 			{
 				interact.DebugReset();
 			}
-		};
+		});
 		m_controls.Console.MusicTest.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.GetComponent<MusicManager>().DebugTest());
 	}
 
