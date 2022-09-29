@@ -186,7 +186,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "InteractDialogueRandomize",
+                    "name": "InteractNpcRandomize",
                     "type": "Button",
                     "id": "61e8649c-69e2-44ef-b600-0d5cffad428f",
                     "expectedControlType": "Button",
@@ -520,7 +520,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "InteractDialogueRandomize",
+                    "action": "InteractNpcRandomize",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

@@ -139,3 +139,12 @@ MonoBehaviour:
       m_key: merchantSellPost.
       m_replacement: '{thanks.} {assurance} I won''t forget this.'
     m_weight: 1
+  - m_object:
+      m_key: merchantSellCancel.
+      m_replacement: Nevermind.
+    m_weight: 1
+  - m_object:
+      m_key: merchantSellCanceled.
+      m_replacement: '{denied.} Just don''t forget to come back if you change your
+        mind, {avatar}.'
+    m_weight: 1

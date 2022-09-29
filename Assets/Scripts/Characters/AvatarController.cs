@@ -328,7 +328,6 @@ public sealed class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnLook(InputValue input)
 	{
-		Vector2 value = input.Get<Vector2>();
 		if (!ControlEnabled)
 		{
 			return;
@@ -337,6 +336,7 @@ public sealed class AvatarController : KinematicCharacter
 		// determine input source
 		m_usingMouse = Controls.currentControlScheme == GameController.Instance.m_mouseControlScheme;
 
+		Vector2 value = input.Get<Vector2>();
 		if (m_usingMouse)
 		{
 			if (value.sqrMagnitude > 0.0f)
@@ -357,7 +357,7 @@ public sealed class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnLookToggle(InputValue input)
 	{
-		IsLooking = input != null && input.isPressed;
+		IsLooking = ControlEnabled && input != null && input.isPressed;
 		if (IsLooking)
 		{
 			GameController.Instance.AddCameraTargets(m_aimObject.transform);
@@ -398,6 +398,11 @@ public sealed class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnThrow(InputValue input)
 	{
+		if (!ControlEnabled)
+		{
+			return;
+		}
+
 		ItemController primaryItem = GetComponentInChildren<ItemController>();
 		if (primaryItem == null)
 		{
@@ -541,6 +546,7 @@ public sealed class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnNavigate(InputValue input)
 	{
+		// NOTE that we don't check ControlEnabled for UI-only actions
 		if (m_inventoryIdx < 0)
 		{
 			return;
@@ -569,6 +575,7 @@ public sealed class AvatarController : KinematicCharacter
 
 	public void OnSubmit(InputValue input)
 	{
+		// NOTE that we don't check ControlEnabled for UI-only actions
 		if (input.isPressed && m_overlayCanvas.gameObject.activeSelf)
 		{
 			ToggleOverlay(null, null);
@@ -582,6 +589,7 @@ public sealed class AvatarController : KinematicCharacter
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnCancel(InputValue input)
 	{
+		// NOTE that we don't check ControlEnabled for UI-only actions
 		if (m_overlayCanvas.gameObject.activeSelf)
 		{
 			ToggleOverlay(null, null);
@@ -591,6 +599,7 @@ public sealed class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnScroll(InputValue input)
 	{
+		// NOTE that we don't check ControlEnabled for UI-only actions
 		if (!ControlEnabled)
 		{
 			return;
@@ -648,10 +657,8 @@ public sealed class AvatarController : KinematicCharacter
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
-	public void OnPause(InputValue input)
-	{
-		GameController.Instance.TogglePause();
-	}
+	public void OnPause(InputValue input) => GameController.Instance.TogglePause(); // NOTE that we don't check ControlEnabled for UI-only actions
+
 
 	private void OnDamage(OnHealthDecrement evt)
 	{

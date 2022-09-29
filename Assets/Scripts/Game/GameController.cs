@@ -1053,7 +1053,11 @@ public class GameController : MonoBehaviour
 	{
 		RoomController spawnRoom = m_waveSealing ? RoomFromPosition(m_avatars.Random().transform.position) : m_startRoom.WithDescendants.Random(); // TODO: efficiency? restrict to currently reachable rooms?
 		Vector3 spawnPos = spawnRoom.SpawnPointRandom();
-		EnemyAdd(Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<AIController>());
+		GameObject enemyObj = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+		if (m_waveSealing) // NOTE that for non-sealed zones we don't invoke EnemyAdd() directly anymore, since we aren't guaranteed to be within reach of the avatar(s) - instead it will occur through AIController.NavigateTowardTarget(); however, we still need instantly active enemies in sealed zones to avoid immediately un-sealing during single-enemy waves
+		{
+			EnemyAdd(enemyObj.GetComponent<AIController>());
+		}
 	}
 
 	private void OnObjectDespawn(ObjectDespawn evt)

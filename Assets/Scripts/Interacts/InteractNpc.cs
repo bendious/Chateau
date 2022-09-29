@@ -2,9 +2,8 @@ using System.Linq;
 using UnityEngine;
 
 
-// TODO: rename now that InteractChute also handles dialogue?
 [DisallowMultipleComponent, RequireComponent(typeof(Collider2D))]
-public class InteractDialogue : MonoBehaviour, IInteractable
+public class InteractNpc : MonoBehaviour, IInteractable
 {
 	public Sprite m_dialogueSprite;
 

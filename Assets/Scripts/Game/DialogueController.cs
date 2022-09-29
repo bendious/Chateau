@@ -20,6 +20,9 @@ public class DialogueController : MonoBehaviour
 
 	[SerializeField] private float m_indicatorSpacing = 7.5f;
 
+	[SerializeField] private string[] m_merchantFollowUpSell = new[] { "{merchantSellPost.}" };
+	[SerializeField] private string[] m_merchantFollowUpCancel = new[] { "{merchantSellCanceled.}" };
+
 
 	[Serializable] public class Line
 	{
@@ -135,9 +138,9 @@ public class DialogueController : MonoBehaviour
 			{
 				continue; // un-typed "savable", such as a torch
 			}
-			replyList.Add(new() { m_text = attachable.Name + " - " + GameController.Instance.m_savableFactory.m_savables[savableType].m_materialsProduced + " materials", m_eventName = "MerchantDespawn", m_followUp = new[] { "{merchantSellPost.}" } });
+			replyList.Add(new() { m_text = attachable.Name + " - " + GameController.Instance.m_savableFactory.m_savables[savableType].m_materialsProduced + " materials", m_eventName = "MerchantDespawn", m_followUp = m_merchantFollowUpSell }); // TODO: parameterize whether to show material costs?
 		}
-		replyList.Add(new() { m_text = "Not now.", m_followUp = new[] { "{denied.} Just don't forget to come back if you change your mind, {avatar}." }, m_breakAfterward = true }); // TODO: more variance?
+		replyList.Add(new() { m_text = "{merchantSellCancel.}", m_followUp = m_merchantFollowUpCancel, m_breakAfterward = true });
 
 		Line line = new() { m_text = "{merchantSellPre.}", m_replies = replyList.ToArray() };
 		Debug.Assert(m_queue.Count == 1, "Out-of-order selling dialogue?");
@@ -177,6 +180,7 @@ public class DialogueController : MonoBehaviour
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)")]
 	public void MerchantBuy(Line.Reply reply)
 	{
+		// TODO: move hardcoded text into data?
 		List<Line.Reply> replyList = new();
 		for (int type = 0, n = GameController.MerchantAcquiredCounts.Length; type < n; ++type)
 		{
@@ -346,7 +350,7 @@ public class DialogueController : MonoBehaviour
 
 							GameObject newObj = Instantiate(m_replyTemplate, m_replyTemplate.transform.parent);
 							newText = newObj.GetComponentInChildren<TMP_Text>();
-							newText.text = replyCur.m_text;
+							newText.text = ReplaceExpressions(replyCur.m_text, expressionsOrdered);
 							RectTransform newTf = newObj.GetComponent<RectTransform>();
 							if (yMargin == -1.0f)
 							{
@@ -391,23 +395,7 @@ public class DialogueController : MonoBehaviour
 
 		if (!string.IsNullOrEmpty(text))
 		{
-			if (expressionsOrdered != null)
-			{
-				bool foundReplacement = false; // NOTE that this isn't strictly necessary, but safeguards against infinite looping
-				do
-				{
-					foreach (Dialogue.Expression expression in expressionsOrdered)
-					{
-						string keyBracketed = "{" + expression.m_key + "}";
-						if (text.Contains(keyBracketed)) // TODO: reduce redundant searching?
-						{
-							foundReplacement = true;
-							text = text.ReplaceFirst(keyBracketed, expression.m_replacement);
-						}
-					}
-				}
-				while (foundReplacement && text.Contains('{')); // NOTE that we have to allow looping over expressionsOrdered[] multiple times since expression replacements can contain keys from earlier in the list
-			}
+			text = ReplaceExpressions(text, expressionsOrdered);
 
 			if (!string.IsNullOrEmpty(text)) // NOTE that we handle empty replacements even though we generally don't want to end up w/ an empty string
 			{
@@ -437,7 +425,7 @@ public class DialogueController : MonoBehaviour
 		}
 		else
 		{
-			InteractDialogue sourceInteract = FindObjectsOfType<InteractDialogue>().FirstOrDefault(interact => GameController.NpcDialogues(interact.Index).Contains(line.m_source) && Vector2.Distance(m_avatar.transform.position, interact.transform.position) <= line.m_sourceDistMax);
+			InteractNpc sourceInteract = FindObjectsOfType<InteractNpc>().FirstOrDefault(interact => GameController.NpcDialogues(interact.Index).Contains(line.m_source) && Vector2.Distance(m_avatar.transform.position, interact.transform.position) <= line.m_sourceDistMax);
 			if (sourceInteract == null)
 			{
 				// if the source is not present, end the dialogue // TODO: parameterize?
@@ -456,6 +444,31 @@ public class DialogueController : MonoBehaviour
 		textLen = text != null ? text.Length : 0;
 
 		return line;
+	}
+
+	private static string ReplaceExpressions(string text, IEnumerable<Dialogue.Expression> expressionsOrdered)
+	{
+		if (expressionsOrdered == null)
+		{
+			return text;
+		}
+
+		bool foundReplacement = false; // NOTE that this isn't strictly necessary, but safeguards against infinite looping
+		do
+		{
+			foreach (Dialogue.Expression expression in expressionsOrdered)
+			{
+				string keyBracketed = "{" + expression.m_key + "}";
+				if (text.Contains(keyBracketed)) // TODO: reduce redundant searching?
+				{
+					foundReplacement = true;
+					text = text.ReplaceFirst(keyBracketed, expression.m_replacement);
+				}
+			}
+		}
+		while (foundReplacement && text.Contains('{')); // NOTE that we have to allow looping over expressionsOrdered[] multiple times since expression replacements can contain keys from earlier in the list
+
+		return text;
 	}
 
 	private void SendMessages(string functionName, object value)

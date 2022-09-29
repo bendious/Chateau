@@ -54,3 +54,11 @@ MonoBehaviour:
       m_key: merchantSellPost.
       m_replacement: it slid down the chute and vanished.
     m_weight: 1
+  - m_object:
+      m_key: merchantSellCancel.
+      m_replacement: Not now.
+    m_weight: 1
+  - m_object:
+      m_key: merchantSellCanceled.
+      m_replacement: 
+    m_weight: 1

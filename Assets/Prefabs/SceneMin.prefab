@@ -690,6 +690,10 @@ MonoBehaviour:
   m_revealSeconds: 0.1
   m_revealSecondsFast: 0.005
   m_indicatorSpacing: 7.5
+  m_merchantFollowUpSell:
+  - '{merchantSellPost.}'
+  m_merchantFollowUpCancel:
+  - '{merchantSellCanceled.}'
 --- !u!82 &1846788300213587339
 AudioSource:
   m_ObjectHideFlags: 0

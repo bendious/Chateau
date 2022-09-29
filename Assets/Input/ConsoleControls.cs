@@ -208,7 +208,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""InteractDialogueRandomize"",
+                    ""name"": ""InteractNpcRandomize"",
                     ""type"": ""Button"",
                     ""id"": ""61e8649c-69e2-44ef-b600-0d5cffad428f"",
                     ""expectedControlType"": ""Button"",
@@ -542,7 +542,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""InteractDialogueRandomize"",
+                    ""action"": ""InteractNpcRandomize"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -595,7 +595,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         m_Console_EnemiesPathfindTest = m_Console.FindAction("EnemiesPathfindTest", throwIfNotFound: true);
         m_Console_ControlsVisualization = m_Console.FindAction("ControlsVisualization", throwIfNotFound: true);
         m_Console_UnlockAll = m_Console.FindAction("UnlockAll", throwIfNotFound: true);
-        m_Console_InteractDialogueRandomize = m_Console.FindAction("InteractDialogueRandomize", throwIfNotFound: true);
+        m_Console_InteractNpcRandomize = m_Console.FindAction("InteractNpcRandomize", throwIfNotFound: true);
         m_Console_MusicTest = m_Console.FindAction("MusicTest", throwIfNotFound: true);
     }
 
@@ -676,7 +676,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Console_EnemiesPathfindTest;
     private readonly InputAction m_Console_ControlsVisualization;
     private readonly InputAction m_Console_UnlockAll;
-    private readonly InputAction m_Console_InteractDialogueRandomize;
+    private readonly InputAction m_Console_InteractNpcRandomize;
     private readonly InputAction m_Console_MusicTest;
     public struct ConsoleActions
     {
@@ -702,7 +702,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         public InputAction @EnemiesPathfindTest => m_Wrapper.m_Console_EnemiesPathfindTest;
         public InputAction @ControlsVisualization => m_Wrapper.m_Console_ControlsVisualization;
         public InputAction @UnlockAll => m_Wrapper.m_Console_UnlockAll;
-        public InputAction @InteractDialogueRandomize => m_Wrapper.m_Console_InteractDialogueRandomize;
+        public InputAction @InteractNpcRandomize => m_Wrapper.m_Console_InteractNpcRandomize;
         public InputAction @MusicTest => m_Wrapper.m_Console_MusicTest;
         public InputActionMap Get() { return m_Wrapper.m_Console; }
         public void Enable() { Get().Enable(); }
@@ -773,9 +773,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @UnlockAll.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnUnlockAll;
                 @UnlockAll.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnUnlockAll;
                 @UnlockAll.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnUnlockAll;
-                @InteractDialogueRandomize.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnInteractDialogueRandomize;
-                @InteractDialogueRandomize.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnInteractDialogueRandomize;
-                @InteractDialogueRandomize.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnInteractDialogueRandomize;
+                @InteractNpcRandomize.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnInteractNpcRandomize;
+                @InteractNpcRandomize.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnInteractNpcRandomize;
+                @InteractNpcRandomize.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnInteractNpcRandomize;
                 @MusicTest.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnMusicTest;
                 @MusicTest.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnMusicTest;
                 @MusicTest.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnMusicTest;
@@ -843,9 +843,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @UnlockAll.started += instance.OnUnlockAll;
                 @UnlockAll.performed += instance.OnUnlockAll;
                 @UnlockAll.canceled += instance.OnUnlockAll;
-                @InteractDialogueRandomize.started += instance.OnInteractDialogueRandomize;
-                @InteractDialogueRandomize.performed += instance.OnInteractDialogueRandomize;
-                @InteractDialogueRandomize.canceled += instance.OnInteractDialogueRandomize;
+                @InteractNpcRandomize.started += instance.OnInteractNpcRandomize;
+                @InteractNpcRandomize.performed += instance.OnInteractNpcRandomize;
+                @InteractNpcRandomize.canceled += instance.OnInteractNpcRandomize;
                 @MusicTest.started += instance.OnMusicTest;
                 @MusicTest.performed += instance.OnMusicTest;
                 @MusicTest.canceled += instance.OnMusicTest;
@@ -875,7 +875,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         void OnEnemiesPathfindTest(InputAction.CallbackContext context);
         void OnControlsVisualization(InputAction.CallbackContext context);
         void OnUnlockAll(InputAction.CallbackContext context);
-        void OnInteractDialogueRandomize(InputAction.CallbackContext context);
+        void OnInteractNpcRandomize(InputAction.CallbackContext context);
         void OnMusicTest(InputAction.CallbackContext context);
     }
 }

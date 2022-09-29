@@ -131,10 +131,10 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 				}
 			}
 		});
-		m_controls.Console.InteractDialogueRandomize.performed += ctx => ExecuteIfConsoleOpen(() =>
+		m_controls.Console.InteractNpcRandomize.performed += ctx => ExecuteIfConsoleOpen(() =>
 		{
 			GameController.Instance.NpcsRandomize();
-			foreach (InteractDialogue interact in FindObjectsOfType<InteractDialogue>())
+			foreach (InteractNpc interact in FindObjectsOfType<InteractNpc>())
 			{
 				interact.DebugReset();
 			}
