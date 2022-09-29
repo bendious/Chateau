@@ -122,7 +122,7 @@ public class DialogueController : MonoBehaviour
 		IAttachable[] attachables = m_avatar.GetComponentsInChildren<IAttachable>(true);
 		if (attachables.Length <= 0)
 		{
-			m_queue.Enqueue(new() { m_text = "No you don't..." });
+			m_queue.Enqueue(new() { m_text = "{merchantSellEmpty.}" });
 			m_loopIdx = -1;
 			return;
 		}
@@ -135,11 +135,11 @@ public class DialogueController : MonoBehaviour
 			{
 				continue; // un-typed "savable", such as a torch
 			}
-			replyList.Add(new() { m_text = attachable.Name + " - " + GameController.Instance.m_savableFactory.m_savables[savableType].m_materialsProduced + " materials", m_eventName = "MerchantDespawn", m_followUp = new[] { "{thanks.} {assurance} I won't forget this." } });
+			replyList.Add(new() { m_text = attachable.Name + " - " + GameController.Instance.m_savableFactory.m_savables[savableType].m_materialsProduced + " materials", m_eventName = "MerchantDespawn", m_followUp = new[] { "{merchantSellPost.}" } });
 		}
 		replyList.Add(new() { m_text = "Not now.", m_followUp = new[] { "{denied.} Just don't forget to come back if you change your mind, {avatar}." }, m_breakAfterward = true }); // TODO: more variance?
 
-		Line line = new() { m_text = "Mind if I take one off your hands?", m_replies = replyList.ToArray() };
+		Line line = new() { m_text = "{merchantSellPre.}", m_replies = replyList.ToArray() };
 		Debug.Assert(m_queue.Count == 1, "Out-of-order selling dialogue?");
 		m_queue.Enqueue(line);
 	}
@@ -393,10 +393,20 @@ public class DialogueController : MonoBehaviour
 		{
 			if (expressionsOrdered != null)
 			{
-				foreach (Dialogue.Expression expression in expressionsOrdered)
+				bool foundReplacement = false; // NOTE that this isn't strictly necessary, but safeguards against infinite looping
+				do
 				{
-					text = text.ReplaceFirst("{" + expression.m_key + "}", expression.m_replacement);
+					foreach (Dialogue.Expression expression in expressionsOrdered)
+					{
+						string keyBracketed = "{" + expression.m_key + "}";
+						if (text.Contains(keyBracketed)) // TODO: reduce redundant searching?
+						{
+							foundReplacement = true;
+							text = text.ReplaceFirst(keyBracketed, expression.m_replacement);
+						}
+					}
 				}
+				while (foundReplacement && text.Contains('{')); // NOTE that we have to allow looping over expressionsOrdered[] multiple times since expression replacements can contain keys from earlier in the list
 			}
 
 			if (!string.IsNullOrEmpty(text)) // NOTE that we handle empty replacements even though we generally don't want to end up w/ an empty string

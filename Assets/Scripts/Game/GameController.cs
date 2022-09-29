@@ -916,14 +916,14 @@ public class GameController : MonoBehaviour
 				return new NpcInfo { m_color = saveFile.ReadColor(), m_dialogues = dialogue };
 			});
 
-			// NOTE the somewhat awkward handling for entering a loaded scene after having incremented merchant numbers // TODO: prevent merchant services before returning to Entryway?
+			// NOTE the somewhat awkward/not-fully-correct handling for entering a loaded scene after having incremented merchant numbers
 			int i = 0;
 			MerchantAcquiredCounts = MerchantAcquiredCounts == null ? saveFile.ReadArray(saveFile.ReadInt32) : saveFile.ReadArray(() =>
 			{
 				MerchantAcquiredCounts[i] = System.Math.Max(MerchantAcquiredCounts[i], saveFile.ReadInt32());
 				return MerchantAcquiredCounts[i++];
 			});
-			MerchantMaterials = System.Math.Max(MerchantMaterials, saveFile.ReadInt32());
+			MerchantMaterials = System.Math.Max(MerchantMaterials, saveFile.ReadInt32()); // NOTE that this is only workable due to never starting in a non-saved scene outside of debugging
 
 			saveFile.Read(out int[] spawnCountsPrev, saveFile.ReadInt32);
 			m_enemySpawnCounts = m_enemySpawnCounts == null ? spawnCountsPrev : m_enemySpawnCounts.Zip(spawnCountsPrev, (a, b) => System.Math.Max(a, b)).ToArray(); // TODO: don't assume array length will always match? guarantee accurate counts even if loading/quitting directly to/from non-saved scenes?
