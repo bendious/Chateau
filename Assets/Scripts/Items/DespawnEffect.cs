@@ -48,7 +48,7 @@ public class DespawnEffect : MonoBehaviour
 		}
 
 		AIController ai = collider.GetComponent<AIController>();
-		if (ai == null || ai.m_friendly)
+		if (ai == null || ai.m_friendly || !ai.GetComponent<Health>().IsAlive)
 		{
 			return;
 		}

@@ -7,7 +7,7 @@ public class InteractChute : MonoBehaviour, IInteractable
 	[SerializeField] private Dialogue m_dialogue;
 
 
-	public bool CanInteract(KinematicCharacter interactor) => enabled && !GameController.Instance.ActiveEnemiesRemain();
+	public bool CanInteract(KinematicCharacter interactor) => enabled && !GameController.Instance.m_dialogueController.IsPlaying && !GameController.Instance.ActiveEnemiesRemain();
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{

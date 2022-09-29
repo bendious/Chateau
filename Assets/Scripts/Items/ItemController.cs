@@ -9,8 +9,7 @@ using UnityEngine.VFX;
 [DisallowMultipleComponent, RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), /*RequireComponent(typeof(SpriteRenderer), typeof(TrailRenderer))*/] // NOTE that we assume {Trail/Sprite}Renderer are present, but can be on child object(s)
 public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, IKey, ISavable
 {
-	[TextArea]
-	public string m_tooltip;
+	[TextArea] public string m_tooltip;
 
 	public SwingInfo m_swingInfo = new() {
 		m_angularNewtonmeters = 150.0f,
@@ -36,8 +35,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	[SerializeField] private WeightedObject<string[]>[] m_sourceTextOptions;
 
-	[SerializeField]
-	private GameObject m_drawPrefab;
+	[SerializeField] private GameObject m_drawPrefab;
 
 
 	public float Speed => m_holder == null ? m_body.velocity.magnitude : m_holder.Speed;
@@ -63,8 +61,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	private GameObject m_drawObjectCurrent;
 
 
-	[SerializeField]
-	private int m_savableType = -1;
+	[SerializeField] private int m_savableType = -1;
 	int ISavable.Type { get => m_savableType; set => m_savableType = value; }
 
 	public IUnlockable Lock { get; set; }
