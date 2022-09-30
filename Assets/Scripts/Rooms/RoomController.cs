@@ -463,7 +463,7 @@ public class RoomController : MonoBehaviour
 				{
 					// add one-way lock
 					int dummyLockIdx = -1;
-					noLadder |= shallowRoom.SpawnGate(shallowRoom != this ? doorwayInfo : reverseInfo, cutbackIsLocked ? LayoutGenerator.Node.Type.Lock : LayoutGenerator.Node.Type.GateBreakable, !cutbackIsLocked || doorwayInfo.m_excludeSelf.Value ? 0 : 1, cutbackIsLocked ? 0.0f : float.MinValue, ref dummyLockIdx, true); // NOTE the "reversed" DoorwayInfos to place the gate in deepRoom but as a child of shallowRoom, for better shadowing
+					noLadder |= shallowRoom.SpawnGate(shallowRoom != this ? doorwayInfo : reverseInfo, cutbackIsLocked ? LayoutGenerator.Node.Type.Lock : LayoutGenerator.Node.Type.GateBreakable, !cutbackIsLocked || doorwayInfo.m_excludeSelf.Value ? 0 : 1, cutbackIsLocked ? 0.0f : float.MinValue, ref dummyLockIdx, true, false); // NOTE the "reversed" DoorwayInfos to place the gate in deepRoom but as a child of shallowRoom, for better shadowing
 				}
 
 				if (noLadder)
@@ -587,7 +587,7 @@ public class RoomController : MonoBehaviour
 
 				RoomController shallowRoom = doorwayInfo.SiblingShallowerRoom != null ? doorwayInfo.SiblingShallowerRoom : this;
 				int dummyLockIdx = -1;
-				bool noLadder = shallowRoom.SpawnGate(shallowRoom != this ? doorwayInfo : doorwayInfo.m_infoReverse, LayoutGenerator.Node.Type.Lock, doorwayInfo.m_excludeSelf.Value ? 0 : 1, 0.0f, ref dummyLockIdx, true); // NOTE the "reversed" DoorwayInfos to place the gate in deepRoom but as a child of shallowRoom, for better shadowing
+				bool noLadder = shallowRoom.SpawnGate(shallowRoom != this ? doorwayInfo : doorwayInfo.m_infoReverse, LayoutGenerator.Node.Type.Lock, doorwayInfo.m_excludeSelf.Value ? 0 : 1, 0.0f, ref dummyLockIdx, true, false); // NOTE the "reversed" DoorwayInfos to place the gate in deepRoom but as a child of shallowRoom, for better shadowing
 				if (noLadder)
 				{
 					doorwayInfo.m_onewayBlockageType = DoorwayInfo.BlockageType.NoLadder; // NOTE that it's okay if we overwrite an existing value of Destructible; NoLadder should take priority since there should never be a situation where a ladder is dynamically spawned in a doorway that also has a one-way destructible
@@ -963,10 +963,11 @@ public class RoomController : MonoBehaviour
 		return posBackup;
 	}
 
-	public GameObject SpawnKey(GameObject prefab, float nonitemHeightMax, bool noLock)
+	public GameObject SpawnKey(GameObject prefab, float nonitemHeightMax, bool noLock, bool isCriticalPath)
 	{
 		bool isItem = prefab.GetComponent<Rigidbody2D>() != null; // TODO: ignore non-dynamic bodies?
 		Vector3 spawnPos = isItem ? Vector3.zero : InteriorPosition(nonitemHeightMax, prefab); // TODO: prioritize placing non-items close to self if multiple in this room?
+		GameObject keyObj = null;
 		if (isItem)
 		{
 			IEnumerable<FurnitureController> validFurniture = transform.GetComponentsInChildren<FurnitureController>(true);
@@ -981,17 +982,26 @@ public class RoomController : MonoBehaviour
 			}
 			if (validFurniture.Count() <= 0)
 			{
-				spawnPos = InteriorPosition(0.0f);
+				spawnPos = InteriorPosition(0.0f) + (Vector3)prefab.OriginToCenterY();
 			}
 			else
 			{
 				FurnitureController chosenFurniture = validFurniture.Random(); // TODO: prioritize based on furniture type / existing items?
-				return chosenFurniture.SpawnKey(prefab);
+				keyObj = chosenFurniture.SpawnKey(prefab, isCriticalPath);
 			}
-
-			spawnPos += (Vector3)prefab.OriginToCenterY();
 		}
-		return prefab.GetComponent<ISavable>() == null ? Instantiate(prefab, spawnPos, Quaternion.identity, isItem ? null : transform) : GameController.Instance.m_savableFactory.Instantiate(prefab, spawnPos, Quaternion.identity);
+		if (keyObj == null)
+		{
+			keyObj = prefab.GetComponent<ISavable>() == null ? Instantiate(prefab, spawnPos, Quaternion.identity, isItem ? null : transform) : GameController.Instance.m_savableFactory.Instantiate(prefab, spawnPos, Quaternion.identity);
+		}
+
+		ItemController item = keyObj.GetComponent<ItemController>();
+		if (item != null)
+		{
+			item.IsCriticalPath = isCriticalPath;
+		}
+
+		return keyObj;
 	}
 
 	public Vector3 SpawnPointRandom() => m_spawnPoints.Random().transform.position;
@@ -1426,7 +1436,7 @@ public class RoomController : MonoBehaviour
 		LayoutGenerator.Node blockerNode = GateNodeToChild(childNodes, LayoutGenerator.Node.Type.Lock, LayoutGenerator.Node.Type.LockOrdered, LayoutGenerator.Node.Type.GateBreakable, LayoutGenerator.Node.Type.Secret);
 		if (blockerNode != null)
 		{
-			bool noLadder = SpawnGate(doorwayInfo, blockerNode.m_type, blockerNode.m_type != LayoutGenerator.Node.Type.Lock ? 0 : blockerNode.DirectParents.Count(node => node.m_type == LayoutGenerator.Node.Type.Key && (!doorwayInfo.m_excludeSelf.Value || node.m_room != this)), blockerNode.DepthPercent, ref orderedLockIdx, false);
+			bool noLadder = SpawnGate(doorwayInfo, blockerNode.m_type, blockerNode.m_type != LayoutGenerator.Node.Type.Lock ? 0 : blockerNode.DirectParents.Count(node => node.m_type == LayoutGenerator.Node.Type.Key && (!doorwayInfo.m_excludeSelf.Value || node.m_room != this)), blockerNode.DepthPercent, ref orderedLockIdx, false, !blockerNode.IsOptional);
 			if (noLadder)
 			{
 				doorwayInfo.m_onewayBlockageType = DoorwayInfo.BlockageType.NoLadder; // NOTE that it's okay if we overwrite an existing value of Destructible; NoLadder should take priority since there should never be a situation where a ladder is dynamically spawned in a doorway that also has a one-way destructible
@@ -1451,7 +1461,7 @@ public class RoomController : MonoBehaviour
 		return ChildBounds(doorInteract.gameObject).extents.x / extentsInteriorX;
 	}
 
-	private bool SpawnGate(DoorwayInfo doorwayInfo, LayoutGenerator.Node.Type type, int preferredKeyCount, float depthPct, ref int orderedLockIdx, bool isCutback)
+	private bool SpawnGate(DoorwayInfo doorwayInfo, LayoutGenerator.Node.Type type, int preferredKeyCount, float depthPct, ref int orderedLockIdx, bool isCutback, bool isCriticalPath)
 	{
 		DoorwayInfo reverseInfo = doorwayInfo.m_infoReverse;
 		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo) || m_doorwayInfos.Contains(reverseInfo));
@@ -1480,6 +1490,7 @@ public class RoomController : MonoBehaviour
 		if (unlockable != null)
 		{
 			unlockable.Parent = gameObject;
+			unlockable.IsCriticalPath = isCriticalPath;
 		}
 		Debug.Assert(reverseInfo.m_blocker == null);
 		reverseInfo.m_blocker = doorwayInfo.m_blocker;

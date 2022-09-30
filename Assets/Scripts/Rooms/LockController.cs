@@ -55,6 +55,8 @@ public class LockController : MonoBehaviour, IUnlockable
 	public GameObject Parent { get; set; }
 	public bool IsLocked => enabled;
 
+	public bool IsCriticalPath { private get; set; }
+
 
 	private readonly List<Tuple<IKey, GameObject>> m_keys = new();
 #if DEBUG
@@ -104,7 +106,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		for (int i = 0; i < keyCount; ++i)
 		{
 			GameObject keyPrefab = m_keyInfo.m_prefabs.RandomWeighted(weightsEdited).m_object.m_object;
-			GameObject keyObj = keyOrLockRooms[i].SpawnKey(keyPrefab, m_keyHeightMax, false);
+			GameObject keyObj = keyOrLockRooms[i].SpawnKey(keyPrefab, m_keyHeightMax, false, IsCriticalPath);
 			foreach (IKey key in keyObj.GetComponentsInChildren<IKey>())
 			{
 				key.Lock = this;

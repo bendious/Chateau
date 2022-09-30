@@ -15,6 +15,8 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 	public GameObject Parent { get => null; set => Debug.LogError("Cannot set ChestController.Parent"); }
 	public bool IsLocked => m_isLocked;
 
+	public bool IsCriticalPath { private get; set; }
+
 
 	private bool m_rare;
 	private RoomType m_roomType;
@@ -46,13 +48,21 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 		return base.SpawnItems(rare, roomType, itemCountExisting, furnitureRemaining);
 	}
 
-	public override GameObject SpawnKey(GameObject prefab)
+	public override GameObject SpawnKey(GameObject prefab, bool isCriticalPath)
 	{
-		GameObject obj = base.SpawnKey(prefab); // TODO: account for difference in closed/open collider size?
+		GameObject obj = base.SpawnKey(prefab, isCriticalPath); // TODO: account for difference in closed/open collider size?
 		if (!m_isOpen)
 		{
 			obj.SetActive(false);
 			m_prespawnedKeys.Add(obj);
+			if (isCriticalPath)
+			{
+				IsCriticalPath = true;
+				if (m_keyObj != null)
+				{
+					m_keyObj.GetComponent<ItemController>().IsCriticalPath = true;
+				}
+			}
 			--m_itemsMin;
 			--m_itemsMax;
 		}
@@ -96,7 +106,7 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 
 	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms, float difficultyPct)
 	{
-		m_keyObj = keyRooms.Random().SpawnKey(m_keyPrefabs.RandomWeighted(), 0.0f, true);
+		m_keyObj = keyRooms.Random().SpawnKey(m_keyPrefabs.RandomWeighted(), 0.0f, true, IsCriticalPath);
 		GetComponent<SpriteRenderer>().color = m_keyObj.GetComponent<SpriteRenderer>().color;
 	}
 

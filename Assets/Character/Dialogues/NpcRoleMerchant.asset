@@ -140,6 +140,10 @@ MonoBehaviour:
       m_replacement: '{thanks.} {assurance} I won''t forget this.'
     m_weight: 1
   - m_object:
+      m_key: merchantSellCriticalPath.
+      m_replacement: That looks important... I don't think I should take it.
+    m_weight: 1
+  - m_object:
       m_key: merchantSellCancel.
       m_replacement: Nevermind.
     m_weight: 1

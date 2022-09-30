@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.VFX;
 
 
@@ -43,6 +44,26 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public Vector3 TrailPosition => (m_trail == null ? transform : m_trail.transform).position;
 
 	public bool IsSwinging => m_holder != null && m_holder.IsSwinging;
+
+	private bool m_isCriticalPath;
+	public bool IsCriticalPath {
+		get => m_isCriticalPath;
+		set {
+			if (m_isCriticalPath == value)
+			{
+				return; // avoid double-adding/removing the OnSceneLoaded delegate
+			}
+			m_isCriticalPath = value;
+			if (m_isCriticalPath)
+			{
+				SceneManager.sceneLoaded += OnSceneLoaded;
+			}
+			else
+			{
+				SceneManager.sceneLoaded -= OnSceneLoaded;
+			}
+		}
+	}
 
 
 	private Rigidbody2D m_body;
@@ -146,6 +167,10 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	{
 		OnTriggerEnter2D(collider);
 	}
+
+	private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => IsCriticalPath = false; // TODO: don't assume that once any item is taken out of its scene it is no longer required?
+
+	private void OnDestroy() => IsCriticalPath = false; // to ensure cleanup of a possible SceneManager.sceneLoaded delegate
 
 
 	public void Interact(KinematicCharacter interactor, bool reverse) => interactor.ChildAttach(this);

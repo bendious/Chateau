@@ -115,6 +115,17 @@ public class LayoutGenerator
 
 		public IEnumerable<Node> WithDescendants => m_children == null ? new[] { this } : m_children.SelectMany(node => node.WithDescendants).Concat(new[] { this });
 
+		public bool IsOptional {
+			get {
+				Node downstreamExit = FindDescendant(n => n.m_type == Type.ExitDoor); // TODO: handle multiple separate exits?
+				if (downstreamExit == null)
+				{
+					return true;
+				}
+				return !RequiredBy(downstreamExit);
+			}
+		}
+
 
 		internal List<Node> DirectParentsInternal;
 
@@ -141,24 +152,28 @@ public class LayoutGenerator
 			return parents;
 		}
 
-		public bool HasDescendant(Node node)
+		public bool HasDescendant(Node node) => FindDescendant(n => n == node) != null;
+
+		public Node FindDescendant(Func<Node, bool> f)
 		{
 			if (m_children == null)
 			{
-				return false;
+				return null;
 			}
-			if (m_children.Contains(node))
+			Node matchingChild = m_children.FirstOrDefault(node => f(node));
+			if (matchingChild != null)
 			{
-				return true;
+				return matchingChild;
 			}
 			foreach (Node child in m_children)
 			{
-				if (child.HasDescendant(node))
+				Node matchingDescendant = child.FindDescendant(f);
+				if (matchingDescendant != null)
 				{
-					return true;
+					return matchingDescendant;
 				}
 			}
-			return false;
+			return null;
 		}
 
 		public Node FirstCommonAncestor(IEnumerable<Node> nodes)
@@ -357,6 +372,34 @@ public class LayoutGenerator
 				}
 			}
 			return true;
+		}
+
+		private bool RequiredBy(Node rhs)
+		{
+			if (this == rhs)
+			{
+				return true;
+			}
+			if (m_children == null || m_children.Count <= 0)
+			{
+				return false;
+			}
+			foreach (Node child in m_children)
+			{
+				if (child != rhs && !child.HasDescendant(rhs))
+				{
+					continue;
+				}
+				if (child.m_type == Type.Lock && m_type != Type.Key) // NOTE the assumption that all key nodes directly precede their lock node
+				{
+					continue;
+				}
+				if (child.RequiredBy(rhs))
+				{
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 

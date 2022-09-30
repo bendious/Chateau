@@ -99,11 +99,19 @@ public class FurnitureController : MonoBehaviour
 		return itemCount;
 	}
 
-	public virtual GameObject SpawnKey(GameObject prefab)
+	public virtual GameObject SpawnKey(GameObject prefab, bool isCriticalPath)
 	{
 		Vector3 size = GetComponent<Collider2D>().bounds.size; // NOTE that the collider likely hasn't updated its position, but the size should be valid
 		Vector3 spawnPos = ItemSpawnPositionInternal(prefab, size.x * 0.5f, size.y, (m_childRenderers.Length + 1));
-		return prefab.GetComponent<ISavable>() == null ? Instantiate(prefab, spawnPos, Quaternion.identity) : GameController.Instance.m_savableFactory.Instantiate(prefab, spawnPos, Quaternion.identity);
+		GameObject keyObj = prefab.GetComponent<ISavable>() == null ? Instantiate(prefab, spawnPos, Quaternion.identity) : GameController.Instance.m_savableFactory.Instantiate(prefab, spawnPos, Quaternion.identity);
+
+		ItemController item = keyObj.GetComponent<ItemController>();
+		if (item != null)
+		{
+			item.IsCriticalPath = isCriticalPath;
+		}
+
+		return keyObj;
 	}
 
 

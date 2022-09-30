@@ -8,6 +8,8 @@ public interface IUnlockable
 	public GameObject Parent { get; set; }
 	public bool IsLocked { get; }
 
+	public bool IsCriticalPath { set; }
+
 
 	public void SpawnKeysStatic(RoomController lockRoom, RoomController[] keyRooms, float difficultyPct);
 	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms, float difficultyPct);

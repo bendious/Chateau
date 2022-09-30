@@ -55,6 +55,10 @@ MonoBehaviour:
       m_replacement: it slid down the chute and vanished.
     m_weight: 1
   - m_object:
+      m_key: merchantSellCriticalPath.
+      m_replacement: For some reason, you feel you should hang on to that...
+    m_weight: 1
+  - m_object:
       m_key: merchantSellCancel.
       m_replacement: Not now.
     m_weight: 1

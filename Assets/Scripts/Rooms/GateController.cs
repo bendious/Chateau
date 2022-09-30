@@ -20,6 +20,8 @@ public class GateController : MonoBehaviour, IUnlockable
 	public GameObject Parent { get; set; }
 	public bool IsLocked => m_child != null && m_child.IsLocked;
 
+	public bool IsCriticalPath { private get; set; }
+
 
 	private IUnlockable m_child;
 
@@ -54,6 +56,7 @@ public class GateController : MonoBehaviour, IUnlockable
 
 		m_child = Instantiate(lockInfo.m_prefab, spawnPos, Quaternion.identity, transform.parent).GetComponent<IUnlockable>();
 		m_child.Parent = gameObject;
+		m_child.IsCriticalPath = IsCriticalPath;
 		m_child.SpawnKeysStatic(lockRoom, keyRooms, difficultyPct);
 	}
 

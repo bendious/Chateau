@@ -20,6 +20,7 @@ public class DialogueController : MonoBehaviour
 
 	[SerializeField] private float m_indicatorSpacing = 7.5f;
 
+	[SerializeField] private string[] m_merchantFollowUpCriticalPath = new[] { "{merchantSellCriticalPath.}" };
 	[SerializeField] private string[] m_merchantFollowUpSell = new[] { "{merchantSellPost.}" };
 	[SerializeField] private string[] m_merchantFollowUpCancel = new[] { "{merchantSellCanceled.}" };
 
@@ -138,7 +139,8 @@ public class DialogueController : MonoBehaviour
 			{
 				continue; // un-typed "savable", such as a torch
 			}
-			replyList.Add(new() { m_text = attachable.Name + " - " + GameController.Instance.m_savableFactory.m_savables[savableType].m_materialsProduced + " materials", m_eventName = "MerchantDespawn", m_followUp = m_merchantFollowUpSell }); // TODO: parameterize whether to show material costs?
+			bool isCriticalPath = attachable is ItemController item && item.IsCriticalPath;
+			replyList.Add(new() { m_text = attachable.Name + " - " + GameController.Instance.m_savableFactory.m_savables[savableType].m_materialsProduced + " materials", m_eventName = isCriticalPath ? null : "MerchantDespawn", m_followUp = isCriticalPath ? m_merchantFollowUpCriticalPath : m_merchantFollowUpSell }); // TODO: parameterize whether to show material costs?
 		}
 		replyList.Add(new() { m_text = "{merchantSellCancel.}", m_followUp = m_merchantFollowUpCancel, m_breakAfterward = true });
 
