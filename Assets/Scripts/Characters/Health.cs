@@ -205,6 +205,20 @@ public class Health : MonoBehaviour
 		m_currentHP = m_maxHP;
 	}
 
+	private void Start()
+	{
+		if (m_gradientActive) // TODO: don't assume that m_gradientActive is never set later?
+		{
+			SpriteRenderer r = GetComponent<SpriteRenderer>();
+			GradientColorKey[] colorKeys = m_gradient.colorKeys;
+			if (r != null && r.color != colorKeys.First().color)
+			{
+				colorKeys[0].color = r.color;
+				m_gradient.colorKeys = colorKeys; // NOTE that we have to replace the whole array since trying to modify m_gradient.colorKeys[0] results in modifying only a local copy...
+			}
+		}
+	}
+
 
 	private bool IncrementInternal(float diff)
 	{
