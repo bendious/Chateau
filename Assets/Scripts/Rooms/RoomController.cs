@@ -1349,7 +1349,8 @@ public class RoomController : MonoBehaviour
 
 	private static Bounds ChildBounds(GameObject obj, bool recursive = true, Quaternion? rotation = null)
 	{
-		Renderer[] renderers = (recursive ? obj.GetComponentsInChildren<Renderer>() : new Renderer[] { obj.GetComponentInChildren<Renderer>() }).Where(r => r is SpriteRenderer or SpriteMask or MeshRenderer).ToArray(); // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
+		bool isBoundsRenderer(Renderer r) => r is SpriteRenderer or SpriteMask or MeshRenderer; // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
+		Renderer[] renderers = (recursive ? obj.GetComponentsInChildren<Renderer>().Where(r => isBoundsRenderer(r)) : new Renderer[] { obj.GetComponentsInChildren<Renderer>().First(r => isBoundsRenderer(r)) }).ToArray();
 		Bounds SemiLocalBounds(Renderer r)
 		{
 			Bounds b = r.localBounds;
@@ -1676,7 +1677,8 @@ public class RoomController : MonoBehaviour
 				bool isHorizontalDoorway = doorwayDirY == 0.0f;
 
 				// tweak bboxes to push each point into the room a little to prevent paths running inside walls
-				Vector3 expansion = isHorizontalDoorway ? new(extentY, -extentY) : new(-extentY, extentY);
+				float sizeY = 2.0f * extentY; // NOTE that Bounds.Expand() apparently expands each AXIS rather than each SIDE by the given amount, meaning that to move both the positive and negative directions by extentY requires using sizeY
+				Vector3 expansion = isHorizontalDoorway ? new(sizeY, -sizeY) : new(-sizeY, sizeY);
 				bbox1.Expand(expansion);
 				bbox2.Expand(expansion);
 
@@ -1686,10 +1688,10 @@ public class RoomController : MonoBehaviour
 				// edit y-coordinate at doorways to match character/object midpoint
 				if (extentY >= 0.0f && !ignoreGravity)
 				{
-					float yAdjustment = isHorizontalDoorway ? bbox1.min.y : extentY * doorwayDirY; // TODO: don't assume all horizontal doors are at equal height to each other?
+					float yAdjustment = isHorizontalDoorway ? bbox1.min.y : extentY; // TODO: don't assume all horizontal doors are at equal height to each other?
 					for (int i = 1; i < connectionPoints.Count; ++i) // NOTE that we skip over posPrev
 					{
-						connectionPoints[i] = new(connectionPoints[i].x, isHorizontalDoorway ? yAdjustment : connectionPoints[i].y + yAdjustment * (i == 0 ? -1 : 1));
+						connectionPoints[i] = new(connectionPoints[i].x, isHorizontalDoorway ? yAdjustment : connectionPoints[i].y + yAdjustment * (i == 1 ? -doorwayDirY : doorwayDirY));
 					}
 				}
 

@@ -11,10 +11,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Item
       objectReference: {fileID: 0}
-    - target: {fileID: 3224368909162631007, guid: 9ecf75cb82e6b5b4da0fb23b27cb2a1f, type: 3}
-      propertyPath: m_TagString
-      value: Item
-      objectReference: {fileID: 0}
     - target: {fileID: 6037178001319151839, guid: 9ecf75cb82e6b5b4da0fb23b27cb2a1f, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -157,11 +153,13 @@ MonoBehaviour:
     m_linearNewtons: 0.5
     m_damageThresholdSpeed: 4
     m_damage: 1
+  m_damageSelf: 0.1
   m_restDegreesOffset: 0
   m_throwSpeed: 20
   m_vfxAlpha: 0.5
   m_healAmount: 0
   m_healSeconds: 3
+  m_toggleLight: {fileID: 0}
   m_detachOnDamage: 0
   m_keyDestroyAfterUse: 1
   m_nondamageColliders: []

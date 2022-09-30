@@ -66,6 +66,7 @@ MonoBehaviour:
   m_invincibilityTime: 0
   m_invincible: 0
   m_invincibilityDirection: {x: 0, y: 0}
+  m_minorDamageThreshold: 0.1
   m_gradientActive: 0
   m_gradient:
     serializedVersion: 2

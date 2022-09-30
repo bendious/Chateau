@@ -47,7 +47,7 @@ public abstract class AIState
 
 		// TODO: efficiency?
 		bool enemyAccessible = GameController.Instance.AiTargets.Any(target => target.TargetPriority(ai, false) > 0.0f && PathfindDistanceTo(ai, target.gameObject) != float.MaxValue);
-		bool itemAccessible = allowedTypes.Contains(Type.FindAmmo) && GameObject.FindGameObjectsWithTag("Item").Any(itemObj => itemObj.transform.parent == null && PathfindDistanceTo(ai, itemObj) != float.MaxValue);
+		bool itemAccessible = allowedTypes.Contains(Type.FindAmmo) && ItemsTargetable.Any(item => item.transform.parent == null && PathfindDistanceTo(ai, item.gameObject) != float.MaxValue);
 
 		float[] priorities = allowedTypes.Select(type =>
 		{
@@ -165,6 +165,8 @@ public abstract class AIState
 	}
 #endif
 
+
+	protected static ItemController[] ItemsTargetable => GameObject.FindObjectsOfType<ItemController>(); // TODO: efficiency? include backpacks as well as items?
 
 	protected static float PathfindDistanceTo(AIController ai, GameObject obj)
 	{
@@ -365,22 +367,12 @@ public sealed class AIPursueErratic : AIPursue
 
 public sealed class AIFlee : AIState
 {
-	public float m_fleeSeconds = 5.0f;
 	public Vector2 m_fleeOffset = 12.0f * Vector2.right;
-
-
-	private float m_secondsRemaining;
 
 
 	public AIFlee(AIController ai)
 		: base(ai)
 	{
-	}
-
-	public override void Enter()
-	{
-		base.Enter();
-		m_secondsRemaining = m_fleeSeconds; // NOTE that we don't set this in the constructor in case it needs to be edited post-instantiation
 	}
 
 	public override AIState Update()
@@ -392,8 +384,9 @@ public sealed class AIFlee : AIState
 		}
 
 		m_ai.NavigateTowardTarget(m_fleeOffset);
-		m_secondsRemaining -= Time.deltaTime;
-		return m_secondsRemaining > 0.0f ? this : null;
+
+		// NOTE that once fleeing begins, it never ends except via base.Update() (e.g. unable to re-target)
+		return this;
 	}
 }
 
@@ -745,20 +738,19 @@ public sealed class AIFindAmmo : AIState
 
 	public override void Retarget()
 	{
-		// TODO: efficiency?
-		GameObject[] items = GameObject.FindGameObjectsWithTag("Item");
+		ItemController[] items = ItemsTargetable;
 
 		// prioritize by pathfind distance
-		System.Tuple<GameObject, float> closestTarget = items.Length <= 0 ? System.Tuple.Create<GameObject, float>(null, float.MaxValue) : items.SelectMinWithValue(obj =>
+		System.Tuple<ItemController, float> closestTarget = items.Length <= 0 ? System.Tuple.Create<ItemController, float>(null, float.MaxValue) : items.SelectMinWithValue(item =>
 		{
-			if (obj.transform.parent != null)
+			if (item.transform.parent != null)
 			{
 				return float.MaxValue; // ignore held items
 			}
-			return PathfindDistanceTo(m_ai, obj);
+			return PathfindDistanceTo(m_ai, item.gameObject);
 		});
 
-		m_ai.m_target = closestTarget.Item1 == null || closestTarget.Item2 == float.MaxValue ? null : closestTarget.Item1.GetComponent<ItemController>();
+		m_ai.m_target = closestTarget.Item1 == null || closestTarget.Item2 == float.MaxValue ? null : closestTarget.Item1;
 	}
 
 	public override void Exit()

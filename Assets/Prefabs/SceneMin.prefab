@@ -690,6 +690,8 @@ MonoBehaviour:
   m_revealSeconds: 0.1
   m_revealSecondsFast: 0.005
   m_indicatorSpacing: 7.5
+  m_merchantFollowUpCriticalPath:
+  - '{merchantSellCriticalPath.}'
   m_merchantFollowUpSell:
   - '{merchantSellPost.}'
   m_merchantFollowUpCancel:
@@ -1457,7 +1459,6 @@ MonoBehaviour:
   m_bossRoomSealed: 0
   m_savableTags:
   - Savable
-  - Item
 --- !u!114 &5490871640693437359
 MonoBehaviour:
   m_ObjectHideFlags: 0

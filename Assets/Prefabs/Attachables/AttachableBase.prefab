@@ -331,5 +331,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_colorMin: 0.5
-  m_colorMax: 1
+  m_colorMin: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_colorMax: {r: 1, g: 1, b: 1, a: 1}
+  m_proportional: 0
