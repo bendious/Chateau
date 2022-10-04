@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.U2D;
 
 
 [DisallowMultipleComponent]
@@ -14,7 +15,18 @@ public class ColorRandomizer : MonoBehaviour
 	private void Awake()
 	{
 		Color color = Utility.ColorRandom(m_colorMin, m_colorMax, m_proportional); // TODO: more deliberate choice?
+
+		// TODO: find a way to functionize?
 		foreach (SpriteRenderer r in GetComponentsInChildren<SpriteRenderer>())
+		{
+			if (r.GetComponentInParent<ColorRandomizer>() != this)
+			{
+				continue; // skip descendants w/ a more immediate ColorRandomizer
+			}
+			r.color = color;
+		}
+
+		foreach (SpriteShapeRenderer r in GetComponentsInChildren<SpriteShapeRenderer>())
 		{
 			if (r.GetComponentInParent<ColorRandomizer>() != this)
 			{

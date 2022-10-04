@@ -1770,6 +1770,12 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 6609035632312482546, guid: 60809d47e284d6b499909cdfbe6852b5, type: 3}
     m_weight: 1
+  m_exteriorPrefabsWithin:
+  - m_object: {fileID: 8575191935050479598, guid: 4848e230ecdc1304499f1f87951d7307, type: 3}
+    m_weight: 1
+  m_exteriorPrefabsOnGround:
+  - m_object: {fileID: 1379845116731097997, guid: 2132a37e1a0c48e48932616aaf41fe56, type: 3}
+    m_weight: 1
   m_exteriorPrefabsBelow:
   - m_object: {fileID: 4211371217478480363, guid: 289891d984af2654988862418139c1dd, type: 3}
     m_weight: 1

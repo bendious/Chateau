@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
+using UnityEngine.U2D;
 using UnityEngine.VFX;
 
 
@@ -26,6 +27,8 @@ public class RoomController : MonoBehaviour
 	[SerializeField] private GameObject[] m_lockOrderedPrefabs;
 
 	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsAbove;
+	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsWithin;
+	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsOnGround;
 	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsBelow;
 
 	[SerializeField] private Sprite m_floorPlatformSprite;
@@ -802,22 +805,91 @@ public class RoomController : MonoBehaviour
 
 	public void FinalizeTopDown(float widthIncrement)
 	{
+		// TODO: early-out if no windows/lookouts have been spawned?
+
 		// shared logic
 		float widthIncrementHalf = widthIncrement * 0.5f;
 		int layerMask = GameController.Instance.m_layerWalls | GameController.Instance.m_layerExterior;
-		void trySpawningExteriorDecoration(WeightedObject<GameObject>[] prefabs, Vector3 position, float heightOverride, bool isBelow)
+		void trySpawningExteriorDecoration(WeightedObject<GameObject>[] prefabs, Vector3 position, float heightOverride, float verticalScale, System.Func<int, int, Vector3> posFunc = null, System.Func<Spline, Vector3, int, int, System.Tuple<Vector3, Vector3>> tangentFunc = null)
 		{
-			bool hasSpace = position.y > 0.0f && !Physics2D.OverlapArea(position + new Vector3(-widthIncrementHalf + m_physicsCheckEpsilon, isBelow ? -m_physicsCheckEpsilon : m_physicsCheckEpsilon), position + new Vector3(widthIncrementHalf - m_physicsCheckEpsilon, isBelow ? -1.0f : 1.0f), layerMask); // TODO: more nuanced height check?
+			bool hasSpace = verticalScale == 0.0f ? position.y >= 0.0f : position.y > 0.0f && !Physics2D.OverlapArea(position + new Vector3(-widthIncrementHalf + m_physicsCheckEpsilon, verticalScale * m_physicsCheckEpsilon), position + new Vector3(widthIncrementHalf - m_physicsCheckEpsilon, verticalScale), layerMask); // TODO: more nuanced height check?
 			if (!hasSpace)
 			{
 				return;
 			}
 
-			SpriteRenderer renderer = Instantiate(prefabs.RandomWeighted(), position, transform.rotation, transform).GetComponent<SpriteRenderer>();
-			renderer.size = new(widthIncrement, heightOverride >= 0.0f ? heightOverride : renderer.size.y);
-			BoxCollider2D collider = renderer.GetComponent<BoxCollider2D>();
-			collider.size = renderer.size;
-			collider.offset = new(collider.offset.x, collider.size.y * (isBelow ? -0.5f : 0.5f));
+			GameObject obj = Instantiate(prefabs.RandomWeighted(), position, transform.rotation, transform);
+
+			SpriteRenderer renderer = obj.GetComponent<SpriteRenderer>();
+			if (renderer != null)
+			{
+				renderer.size = new(widthIncrement, heightOverride >= 0.0f ? heightOverride : renderer.size.y);
+			}
+
+			if (posFunc != null || tangentFunc != null)
+			{
+				SpriteShapeController shape = obj.GetComponent<SpriteShapeController>();
+				if (shape != null)
+				{
+					Spline spline = shape.spline;
+					int nInitial = spline.GetPointCount();
+					int n = Random.Range(nInitial, 12); // TODO: parameterize max?
+
+					// set positions
+					if (posFunc != null)
+					{
+						for (int i = 0; i < n; ++i)
+						{
+							Vector3 posLocal = posFunc(i, n);
+							if (posLocal.y + position.y < 0.0f) // TODO: parameterize / move into posFunc()?
+							{
+								posLocal.y = -position.y;
+							}
+							if (i < nInitial)
+							{
+								spline.SetPosition(i, posLocal);
+							}
+							else
+							{
+								spline.InsertPointAt(i, posLocal);
+								spline.SetTangentMode(i, ShapeTangentMode.Continuous); // TODO: parameterize / move into tangentFunc()?
+							}
+						}
+					}
+
+					// set tangents
+					if (tangentFunc != null)
+					{
+						for (int i = 0; i < n; ++i)
+						{
+							System.Tuple<Vector3, Vector3> tangents = tangentFunc(spline, position, i, n);
+							spline.SetLeftTangent(i, tangents.Item1);
+							spline.SetRightTangent(i, tangents.Item2);
+						}
+					}
+				}
+			}
+
+			BoxCollider2D collider = obj.GetComponent<BoxCollider2D>();
+			if (collider != null)
+			{
+				collider.size = new(widthIncrement, heightOverride >= 0.0f ? heightOverride : renderer != null ? renderer.size.y : collider.size.y);
+				collider.offset = new(collider.offset.x, collider.size.y * verticalScale * 0.5f);
+			}
+		}
+
+		bool tangentGroundCheck = false;
+		System.Tuple<Vector3, Vector3> tangentsFromSpline(Spline spline, Vector3 splinePos, int idx, int idxCount)
+		{
+			Vector3 pos = spline.GetPosition(idx);
+			if (tangentGroundCheck && pos.y + splinePos.y <= 0.0f)
+			{
+				return System.Tuple.Create(Vector3.zero, Vector3.zero);
+			}
+			Vector3 leftDiff = spline.GetPosition((idx - 1).Modulo(idxCount)) - pos;
+			Vector3 rightDiff = pos - spline.GetPosition((idx + 1).Modulo(idxCount));
+			Vector3 diffAvgDir = (leftDiff.normalized + rightDiff.normalized).normalized;
+			return System.Tuple.Create(leftDiff.magnitude * Random.Range(0.0f, 1.0f) * diffAvgDir, Random.Range(0.0f, 1.0f) * rightDiff.magnitude * -diffAvgDir);
 		}
 
 		// try to spawn exterior decorations
@@ -826,12 +898,36 @@ public class RoomController : MonoBehaviour
 		{
 			// above
 			Vector3 exteriorPos = new(Bounds.min.x + widthIncrementHalf + widthIncrement * i, Bounds.max.y, Bounds.center.z);
-			trySpawningExteriorDecoration(m_exteriorPrefabsAbove, exteriorPos, -1.0f, false);
+			trySpawningExteriorDecoration(m_exteriorPrefabsAbove, exteriorPos, -1.0f, 1.0f);
+
+			// within
+			// TODO: support multiple per width increment?
+			exteriorPos.y = Bounds.center.y;
+			float radiusMax = Mathf.Min(widthIncrementHalf, Bounds.extents.y);
+			trySpawningExteriorDecoration(m_exteriorPrefabsWithin, exteriorPos + new Vector3(Random.Range(-widthIncrementHalf, widthIncrementHalf), Random.Range(-Bounds.extents.y, Bounds.extents.y)), -1.0f, 0.0f, (idx, countMax) =>
+			{
+				float radiusCur = Random.Range(1.0f, radiusMax); // TODO: more continuity?
+				return Quaternion.Euler(0.0f, 0.0f, idx * -360.0f / countMax) * Vector3.right * radiusCur; // NOTE the negative rotation direction since SpriteShapes expect clockwise rotation for calculating outward-facing tangents
+			}, tangentsFromSpline);
+
+			// on ground
+			tangentGroundCheck = true;
+			if (transform.position.y == 0.0f)
+			{
+				exteriorPos.y = 0.0f;
+				float extentXPerPoint = Random.Range(0.5f, 1.0f); // TODO: parameterize?
+				trySpawningExteriorDecoration(m_exteriorPrefabsOnGround, exteriorPos + new Vector3(Random.Range(-widthIncrementHalf, widthIncrementHalf), 0.0f), -1.0f, 0.0f, (idx, countMax) =>
+				{
+					float extentX = extentXPerPoint * countMax;
+					float x = idx == countMax - 2 ? extentX : idx == countMax - 1 ? -extentX : Mathf.Lerp(-extentX, extentX, idx / (float)(countMax - 3));
+					return new(x, idx >= countMax - 2 ? 0.0f : Random.Range(0.0f, Bounds.size.y)); // TODO: allow across room vertical boundaries?
+				}, tangentsFromSpline);
+			}
 
 			// below
 			exteriorPos.y = Bounds.min.y;
 			RaycastHit2D raycast = Physics2D.Raycast(exteriorPos + Vector3.down * m_physicsCheckEpsilon, Vector2.down, transform.position.y, layerMask);
-			trySpawningExteriorDecoration(m_exteriorPrefabsBelow, exteriorPos, raycast.distance == 0.0f ? transform.position.y : raycast.distance + m_physicsCheckEpsilon, true);
+			trySpawningExteriorDecoration(m_exteriorPrefabsBelow, exteriorPos, raycast.distance == 0.0f ? transform.position.y : raycast.distance + m_physicsCheckEpsilon, -1.0f);
 		}
 	}
 
