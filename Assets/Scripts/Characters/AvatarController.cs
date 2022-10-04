@@ -167,7 +167,7 @@ public sealed class AvatarController : KinematicCharacter
 				aimPctsFromCenter = (m_mousePosPixels - (Vector2)camera.WorldToScreenPoint(transform.position)) / cameraExtentsPixels;
 			}
 			aimPctsFromCenter = aimPctsFromCenter.Clamp(-1.0f, 1.0f);
-			CinemachineVirtualCamera vCam = GameController.Instance.m_virtualCamera;
+			CinemachineVirtualCamera vCam = GameController.Instance.m_vCamMain;
 			Vector2 screenSizeWS = vCam == null ? Vector2.zero : new Vector2(vCam.m_Lens.OrthographicSize * vCam.m_Lens.Aspect, vCam.m_Lens.OrthographicSize) * 2.0f;
 			aimPosConstrained = transform.position + (Vector3)(screenSizeWS * aimPctsFromCenter * m_lookScreenPercentMax);
 			aimPos = m_usingMouse ? camera.ScreenToWorldPoint(m_mousePosPixels) : aimPosConstrained;

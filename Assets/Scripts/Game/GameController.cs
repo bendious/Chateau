@@ -25,8 +25,10 @@ public class GameController : MonoBehaviour
 
 	public List<AvatarController> m_avatars = new();
 
-	public CinemachineVirtualCamera m_virtualCamera;
-	public CinemachineTargetGroup m_cameraTargetGroup;
+	public CinemachineVirtualCamera m_vCamMain;
+	public CinemachineVirtualCamera m_vCamOverview;
+	[SerializeField] private CinemachineTargetGroup m_ctGroupMain;
+	public CinemachineTargetGroup m_ctGroupOverview;
 
 	public DialogueController m_dialogueController;
 
@@ -102,9 +104,6 @@ public class GameController : MonoBehaviour
 
 	public RoomController[] SpecialRooms { get; private set; }
 
-	public Transform[] RoomBackdropsAboveGround => m_roomBackdropsAboveGroundInternal.Value;
-	private readonly System.Lazy<Transform[]> m_roomBackdropsAboveGroundInternal = new(() => Instance.m_startRoom.BackdropsAboveGroundRecursive.ToArray(), false);
-
 	public IEnumerable<KinematicCharacter> AiTargets => m_avatars.Select(avatar => (KinematicCharacter)avatar).Concat(m_enemiesActive).Concat(m_npcsInstantiated); // TODO: efficiency?
 
 	public bool Victory { get; private set; }
@@ -126,6 +125,8 @@ public class GameController : MonoBehaviour
 		public Dialogue[] m_dialogues;
 	}
 	private static NpcInfo[] m_npcs;
+
+	private CinemachineConfiner2D m_vCamMainConfiner;
 
 	private bool m_usingMouse = false;
 
@@ -153,6 +154,8 @@ public class GameController : MonoBehaviour
 		m_seed = Random.Range(int.MinValue, int.MaxValue); // TODO: don't use Random to seed Random?
 #endif
 		Random.InitState(m_seed);
+
+		m_vCamMainConfiner = m_vCamMain.GetComponentInChildren<CinemachineConfiner2D>();
 
 		// TODO: use Animator on persistent object?
 		Image loadImage = m_loadingScreen.GetComponentsInChildren<Image>().Last()/*TODO*/;
@@ -231,7 +234,7 @@ public class GameController : MonoBehaviour
 		}
 
 		// spawn progress indicator(s)
-		if (SpecialRooms.Length > 1)
+		if (m_specialRoomCount > 1)
 		{
 			List<InteractUpgrade> progressIndicatorsTemp = new();
 			RoomController room = SpecialRooms[1];
@@ -271,7 +274,7 @@ public class GameController : MonoBehaviour
 			GameObject sign = Instantiate(signPrefab, signPos, Quaternion.identity, m_startRoom.transform);
 
 			// aim
-			RoomController targetRoom = signIdx < SpecialRooms.Length ? SpecialRooms[signIdx] : FindObjectsOfType<InteractScene>().First(interact => interact.DestinationIndex == signIdx - SpecialRooms.Length + 1).transform.parent.GetComponent<RoomController>(); // TODO: less hardcoding?
+			RoomController targetRoom = signIdx < m_specialRoomCount ? SpecialRooms[signIdx] : FindObjectsOfType<InteractScene>().First(interact => interact.DestinationIndex == signIdx - m_specialRoomCount + 1).transform.parent.GetComponent<RoomController>(); // TODO: less hardcoding?
 			sign.transform.GetChild(0).transform.rotation = Utility.ZRotation(targetRoom.transform.position - signPos); // TODO: un-hardcode child index?
 
 			++signIdx;
@@ -324,7 +327,7 @@ public class GameController : MonoBehaviour
 		AvatarController liveAvatar = m_avatars.FirstOrDefault(avatar => avatar.IsAlive);
 		RoomController constraintRoom = liveAvatar == null ? null : RoomFromPosition(liveAvatar.transform.position);
 		bool unconstrained = constraintRoom == null || m_avatars.Any(avatar => avatar.IsAlive && (avatar.IsLooking || RoomFromPosition(avatar.transform.position) != constraintRoom));
-		m_virtualCamera.GetComponentInChildren<CinemachineConfiner2D>().m_BoundingShape2D = unconstrained ? null : constraintRoom.GetComponentInChildren<PolygonCollider2D>();
+		m_vCamMainConfiner.m_BoundingShape2D = unconstrained ? null : constraintRoom.GetComponentInChildren<PolygonCollider2D>();
 
 		Simulation.Tick();
 	}
@@ -428,8 +431,8 @@ public class GameController : MonoBehaviour
 	{
 		foreach (Transform tf in transforms)
 		{
-			m_cameraTargetGroup.RemoveMember(tf); // prevent duplication // TODO: necessary?
-			m_cameraTargetGroup.AddMember(tf, 1.0f, 0.0f); // TODO: blend weight in? calculate/expose radius?
+			m_ctGroupMain.RemoveMember(tf); // prevent duplication // TODO: necessary?
+			m_ctGroupMain.AddMember(tf, 1.0f, 0.0f); // TODO: blend weight in? calculate/expose radius?
 			// TODO: auto-remove on target destruction?
 		}
 	}
@@ -438,7 +441,7 @@ public class GameController : MonoBehaviour
 	{
 		foreach (Transform tf in transforms)
 		{
-			m_cameraTargetGroup.RemoveMember(tf); // TODO: blend weight out?
+			m_ctGroupMain.RemoveMember(tf); // TODO: blend weight out?
 		}
 	}
 
@@ -741,8 +744,15 @@ public class GameController : MonoBehaviour
 				m_startRoom = Instantiate(m_entryRoomPrefabs.RandomWeighted()).GetComponent<RoomController>();
 				m_startRoom.SetNodes(nodesList.ToArray());
 				++roomCount;
+				if (m_startRoom.transform.position.y >= 0.0f)
+				{
+					m_ctGroupOverview.AddMember(m_startRoom.m_backdrop.transform, 1.0f, 0.0f);
+				}
 				Debug.Assert(SpecialRooms == null);
-				SpecialRooms = new RoomController[m_specialRoomCount];
+				if (m_specialRoomCount > 0)
+				{
+					SpecialRooms = new RoomController[m_specialRoomCount];
+				}
 			}
 			else
 			{
@@ -774,18 +784,22 @@ public class GameController : MonoBehaviour
 					if (childRoom != null)
 					{
 						++roomCount;
+						if (childRoom.transform.position.y >= 0.0f)
+						{
+							m_ctGroupOverview.AddMember(childRoom.m_backdrop.transform, 1.0f, 0.0f);
+						}
 						if (m_specialRoomCount > 0)
 						{
 							if (SpecialRooms.Any(room => room == null))
 							{
 								// fill random empty slot
-								IEnumerable<int> emptyIndices = Enumerable.Range(0, SpecialRooms.Length).Where(i => SpecialRooms[i] == null);
+								IEnumerable<int> emptyIndices = Enumerable.Range(0, m_specialRoomCount).Where(i => SpecialRooms[i] == null);
 								SpecialRooms[emptyIndices.Random()] = childRoom;
 							}
 							else
 							{
 								// give each slot an even chance to be swapped
-								for (int i = 0; i < SpecialRooms.Length; ++i)
+								for (int i = 0; i < m_specialRoomCount; ++i)
 								{
 									if (Random.value <= 1.0f / roomCount) // NOTE the 1/n chance to give each room an equal probability of final selection regardless of order
 									{

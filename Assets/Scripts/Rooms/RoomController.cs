@@ -37,7 +37,7 @@ public class RoomController : MonoBehaviour
 	[SerializeField] private WeightedObject<GameObject>[] m_spawnPointPrefabs;
 	[SerializeField] private int m_spawnPointsMax = 4;
 
-	[SerializeField] private GameObject m_backdrop;
+	public GameObject m_backdrop;
 
 	[SerializeField] private GameObject[] m_walls;
 
@@ -75,12 +75,6 @@ public class RoomController : MonoBehaviour
 	public Vector2 ParentDoorwayPosition => Connection(m_doorwayInfos.Select(info => info.ParentRoom).First(parentRoom => parentRoom != null), PathFlags.None, Vector2.zero)[1];
 
 	public IEnumerable<RoomController> WithDescendants => new[] { this }.Concat(m_doorwayInfos.Where(info => info.ChildRoom != null).SelectMany(info => info.ChildRoom.WithDescendants)); // TODO: efficiency?
-
-	public IEnumerable<Transform> BackdropsAboveGroundRecursive
-	{ get {
-		IEnumerable<Transform> childBackdrops = m_doorwayInfos.Where(info => info.ChildRoom != null).SelectMany(info => info.ChildRoom.BackdropsAboveGroundRecursive);
-		return (Bounds.max.y > 0.0f) ? childBackdrops.Concat(new[] { m_backdrop.transform }) : childBackdrops;
-	} }
 
 	public RoomType RoomType { get; private set; }
 
