@@ -182,6 +182,14 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 		m_holder = holder;
 
+		// update renderers in case we're getting moved across sorting layers
+		Renderer holderRenderer = m_holder.Component.GetComponentInParent<Renderer>(); // TODO: don't assume all holders have a Renderer?
+		foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
+		{
+			renderer.sortingLayerID = holderRenderer.sortingLayerID;
+			renderer.sortingLayerName = holderRenderer.sortingLayerName; // TODO: redundant?
+		}
+
 		if (m_drawObjectCurrent != null)
 		{
 			// stop drawing to prevent lines getting disabled "within" backpacks
