@@ -206,24 +206,24 @@ public class RoomController : MonoBehaviour
 	private static readonly List<RoomController> m_runtimeRooms = new();
 
 
-	public static T RandomWeightedByKeyCount<T>(IEnumerable<WeightedObject<T>> candidates, System.Func<T, int, System.Tuple<Vector2Int, Vector2>> candidateToStats, int preferredKeyCount, float difficultyPct, float scalarPerDiff = 0.5f)
+	public static T RandomWeightedByKeyCount<T>(IEnumerable<WeightedObject<T>> candidates, System.Func<T, int, LockController.KeyStats> candidateToStats, int preferredKeyCount, float difficultyPct, float scalarPerDiff = 0.5f)
 	{
 		float difficultyDesired = Mathf.Max(0.0f, Mathf.LerpUnclamped(GameController.Instance.m_difficultyMin, GameController.Instance.m_difficultyMax, difficultyPct));
 
 		// NOTE the copy to avoid altering existing weights
 		WeightedObject<T>[] candidatesProcessed = candidates.Where(candidate => candidate.m_object != null).Select(candidate =>
 		{
-			System.Tuple<Vector2Int, Vector2> keyDifficultyRanges = candidateToStats(candidate.m_object, preferredKeyCount);
-			Debug.Assert(keyDifficultyRanges.Item1.x <= keyDifficultyRanges.Item1.y && keyDifficultyRanges.Item2.x <= keyDifficultyRanges.Item2.y);
-			int keyDiff = keyDifficultyRanges.Item1.x <= preferredKeyCount && preferredKeyCount <= keyDifficultyRanges.Item1.y ? 0 : preferredKeyCount < keyDifficultyRanges.Item1.x ? keyDifficultyRanges.Item1.x - preferredKeyCount : keyDifficultyRanges.Item1.y - preferredKeyCount;
-			float difficultyDiff = keyDifficultyRanges.Item2.x <= difficultyDesired && difficultyDesired <= keyDifficultyRanges.Item2.y ? 0.0f : difficultyDesired < keyDifficultyRanges.Item2.x ? keyDifficultyRanges.Item2.x - difficultyDesired : keyDifficultyRanges.Item2.y - difficultyDesired;
-			float weight = keyDiff < 0 || keyDifficultyRanges.Item2.x > GameController.Instance.m_difficultyMax ? 0.0f : candidate.m_weight / (1 + (keyDiff + Mathf.Abs(difficultyDiff)) * scalarPerDiff); // NOTE that we hard-prevent too-difficult puzzles but only discourage too-easy puzzles
+			LockController.KeyStats keyDifficultyRanges = candidateToStats(candidate.m_object, preferredKeyCount);
+			Debug.Assert(keyDifficultyRanges.IsValid);
+			int keyDiff = keyDifficultyRanges.m_keyRoomsMinMax.x <= preferredKeyCount && preferredKeyCount <= keyDifficultyRanges.m_keyRoomsMinMax.y ? 0 : preferredKeyCount < keyDifficultyRanges.m_keyRoomsMinMax.x ? keyDifficultyRanges.m_keyRoomsMinMax.x - preferredKeyCount : keyDifficultyRanges.m_keyRoomsMinMax.y - preferredKeyCount;
+			float difficultyDiff = keyDifficultyRanges.m_difficultyMinMax.x <= difficultyDesired && difficultyDesired <= keyDifficultyRanges.m_difficultyMinMax.y ? 0.0f : difficultyDesired < keyDifficultyRanges.m_difficultyMinMax.x ? keyDifficultyRanges.m_difficultyMinMax.x - difficultyDesired : keyDifficultyRanges.m_difficultyMinMax.y - difficultyDesired;
+			float weight = keyDiff < 0 || keyDifficultyRanges.m_difficultyMinMax.x > GameController.Instance.m_difficultyMax ? 0.0f : candidate.m_weight / (1 + (keyDiff + Mathf.Abs(difficultyDiff)) * scalarPerDiff); // NOTE that we hard-prevent too-difficult puzzles but only discourage too-easy puzzles
 			return new WeightedObject<T> { m_object = candidate.m_object, m_weight = weight };
 		}).ToArray();
 		return candidatesProcessed.Length <= 0 ? default : candidatesProcessed.All(pair => pair.m_weight <= 0.0f) ? candidatesProcessed.Random().m_object : candidatesProcessed.RandomWeighted(); // NOTE that we handle all candidates being "excluded", since that really just means "suboptimal"
 	}
 
-	public static System.Tuple<Vector2Int, Vector2> ObjectToKeyStats(GameObject prefab, int preferredKeyCount)
+	public static LockController.KeyStats ObjectToKeyStats(GameObject prefab, int preferredKeyCount)
 	{
 		LockController[] locks = prefab.GetComponents<LockController>();
 		if (locks.Length <= 0)
@@ -234,11 +234,7 @@ public class RoomController : MonoBehaviour
 				locks = gate.m_lockPrefabs.Select(info => info.m_object.m_prefab.GetComponent<LockController>()).ToArray();
 			}
 		}
-		return locks.Length <= 0 ? System.Tuple.Create(Vector2Int.zero, Vector2.zero) : locks.Aggregate(System.Tuple.Create(new Vector2Int(int.MaxValue, 0), new Vector2(float.MaxValue, 0.0f)), (sum, nextLock) =>
-		{
-			System.Tuple<Vector2Int, Vector2> nextStats = nextLock.ToKeyStats(preferredKeyCount);
-			return System.Tuple.Create(new Vector2Int(System.Math.Min(sum.Item1.x, nextStats.Item1.x), System.Math.Max(sum.Item1.y, nextStats.Item1.y)), new Vector2(Mathf.Min(sum.Item2.x, nextStats.Item2.x), Mathf.Max(sum.Item2.y, nextStats.Item2.y)));
-		});
+		return locks.Length <= 0 ? new LockController.KeyStats() : locks.Aggregate(LockController.KeyStats.Invalid, (sum, nextLock) => sum.Aggregate(nextLock.ToKeyStats(preferredKeyCount)));
 	}
 
 

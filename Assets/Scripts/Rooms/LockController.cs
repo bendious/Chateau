@@ -283,13 +283,19 @@ public class LockController : MonoBehaviour, IUnlockable
 		return retVal;
 	}
 
-	public Tuple<Vector2Int, Vector2> ToKeyStats(int keyRoomCount) => m_keyPrefabs.Length <= 0 ? Tuple.Create(new Vector2Int(m_builtinKeysMin, m_builtinKeysMax), new Vector2(m_builtinKeysMin, m_builtinKeysMax) * m_builtinKeyDifficulty) : m_keyPrefabs.Aggregate(Tuple.Create(new Vector2Int(int.MaxValue, 0), new Vector2(float.MaxValue, 0.0f)), (total, nextInfo) =>
+	public struct KeyStats
 	{
-		Tuple<Vector2Int, Vector2> nextStats = ToKeyStats(nextInfo.m_object, keyRoomCount);
-		return Tuple.Create(new Vector2Int(Math.Min(total.Item1.x, nextStats.Item1.x), Math.Max(total.Item1.y, nextStats.Item1.y)), new Vector2(Mathf.Min(total.Item2.x, nextStats.Item2.x), Mathf.Max(total.Item2.y, nextStats.Item2.y)));
-	});
+		public Vector2Int m_keyRoomsMinMax;
+		public Vector2 m_difficultyMinMax;
 
-	private Tuple<Vector2Int, Vector2> ToKeyStats(KeyInfo info, int keyRoomCount) => Tuple.Create(new Vector2Int(m_builtinKeysMin + info.m_keyCountMax, m_builtinKeysMax + info.m_keyCountMax), new Vector2(m_difficulty, m_difficulty) + new Vector2(m_builtinKeysMin, m_builtinKeysMax) * m_builtinKeyDifficulty + info.DifficultyRange(keyRoomCount, m_combinationSets.MinMax(set => set.m_object.m_difficulty)));
+		public static KeyStats Invalid => new() { m_keyRoomsMinMax = new(int.MaxValue, 0), m_difficultyMinMax = new(float.MaxValue, 0.0f) };
+		public bool IsValid => m_keyRoomsMinMax.x <= m_keyRoomsMinMax.y && m_difficultyMinMax.x <= m_difficultyMinMax.y;
+		public KeyStats Aggregate(KeyStats rhs) => new() { m_keyRoomsMinMax = new(Math.Min(m_keyRoomsMinMax.x, rhs.m_keyRoomsMinMax.x), Math.Max(m_keyRoomsMinMax.y, rhs.m_keyRoomsMinMax.y)), m_difficultyMinMax = new(Mathf.Min(m_difficultyMinMax.x, rhs.m_difficultyMinMax.x), Mathf.Max(m_difficultyMinMax.y, rhs.m_difficultyMinMax.y)) };
+	};
+
+	public KeyStats ToKeyStats(int keyRoomCount) => m_keyPrefabs.Length <= 0 ? new() { m_difficultyMinMax = new Vector2(m_builtinKeysMin, m_builtinKeysMax) * m_builtinKeyDifficulty } : m_keyPrefabs.Aggregate(KeyStats.Invalid, (total, nextInfo) => total.Aggregate(ToKeyStats(nextInfo.m_object, keyRoomCount)));
+
+	private KeyStats ToKeyStats(KeyInfo info, int keyRoomCount) => new() { m_keyRoomsMinMax = new(info.m_keyCountMax, info.m_keyCountMax), m_difficultyMinMax = new Vector2(m_difficulty, m_difficulty) + new Vector2(m_builtinKeysMin, m_builtinKeysMax) * m_builtinKeyDifficulty + info.DifficultyRange(keyRoomCount, m_combinationSets.MinMax(set => set.m_object.m_difficulty)) };
 
 	public bool CheckInput()
 	{
