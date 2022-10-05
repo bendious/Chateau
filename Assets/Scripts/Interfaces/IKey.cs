@@ -13,6 +13,7 @@ public interface IKey
 
 	private const string m_spriteText = "<sprite index=0 tint=1>";
 
+	public bool SetDesiredDifficulty(float desiredDifficulty) => false;
 
 	public void SetCombination(LockController.CombinationSet set, int[] combination, int optionIndex, int indexCorrect, int startIndex, int endIndex, bool useSprites);
 

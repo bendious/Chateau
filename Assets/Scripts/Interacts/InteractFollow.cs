@@ -41,44 +41,8 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 		SpriteRenderer rendererLocal = GetComponent<SpriteRenderer>();
 		if (m_spriteAlternates != null && m_spriteAlternates.Length > 0)
 		{
-			rendererLocal.sprite = m_spriteAlternates.RandomWeighted();
+			rendererLocal.sprite = m_spriteAlternates.RandomWeighted(); // TODO: difficulty weighting?
 			m_spriteAlternates = null; // NOTE that this is BEFORE duplication
-		}
-
-		if (m_splitCountMax > 0) // TODO: separate component?
-		{
-			// NOTE that this is BEFORE VoronoiMasks()
-			rendererLocal.flipX = UnityEngine.Random.value < 0.5f;
-			rendererLocal.flipY = UnityEngine.Random.value < 0.5f;
-
-			Tuple<Sprite, Bounds>[] spritesAndBounds = VoronoiMasks(UnityEngine.Random.Range(2, m_splitCountMax + 1), rendererLocal); // TODO: influence number of pieces based on size / intended difficulty?
-			m_splitCountMax = 0; // NOTE that this is BEFORE duplication
-			foreach (Tuple<Sprite, Bounds> pair in spritesAndBounds)
-			{
-				// TODO: skip if no pixels are visible? update m_snapPrecursors
-				InteractFollow newInteract = pair == spritesAndBounds.First() ? this : Instantiate(gameObject, transform.parent).GetComponent<InteractFollow>();
-				newInteract.Lock = Lock;
-				newInteract.GetComponent<SpriteMask>().sprite = pair.Item1;
-
-				SpriteRenderer rendererChild = newInteract.GetComponent<SpriteRenderer>();
-				rendererChild.flipX = rendererLocal.flipX;
-				rendererChild.flipY = rendererLocal.flipY;
-
-				BoxCollider2D trigger = newInteract.GetComponent<BoxCollider2D>();
-				trigger.size = pair.Item2.size;
-				trigger.offset = pair.Item2.center; // NOTE that this is unaffected by flip{X/Y} since only the rendered sprite is flipped and not the masks
-
-				foreach (Transform childTf in newInteract.GetComponentsInChildren<Transform>())
-				{
-					if (childTf == newInteract.transform)
-					{
-						continue;
-					}
-					childTf.localPosition = pair.Item2.center;
-				}
-			}
-
-			enabled = false; // to fix in place as the starting piece // NOTE that this is AFTER duplication
 		}
 
 		// ensure we haven't expanded beyond room bounds due to sprite change/flip
@@ -148,6 +112,57 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 		}
 	}
 
+
+	public bool SetDesiredDifficulty(float desiredDifficulty)
+	{
+		if (m_splitCountMax <= 0) // TODO: separate component?
+		{
+			return false;
+		}
+
+		// NOTE that this is BEFORE VoronoiMasks()
+		SpriteRenderer rendererLocal = GetComponent<SpriteRenderer>();
+		rendererLocal.flipX = UnityEngine.Random.value < 0.5f;
+		rendererLocal.flipY = UnityEngine.Random.value < 0.5f;
+
+		// ensure we haven't expanded beyond room bounds due to sprite change/flip
+		// TODO: more robust checks against room sides/top? unify w/ Awake() logic
+		transform.position += new Vector3(0.0f, Mathf.Max(0.0f, m_room.transform.position.y - rendererLocal.bounds.min.y));
+
+		m_correctPosition = transform.position;
+		m_correctRotationDegrees = transform.rotation.eulerAngles.z;
+
+		Tuple<Sprite, Bounds>[] spritesAndBounds = VoronoiMasks(UnityEngine.Random.Range(2, Math.Min(m_splitCountMax, Mathf.RoundToInt(desiredDifficulty * Lock.Component.GetComponent<LockController>().m_builtinKeyDifficulty)) + 1), rendererLocal); // TODO: also influence number of pieces based on size of sprite? localize LockController.m_builtinKeyDifficulty?
+		m_splitCountMax = 0; // NOTE that this is BEFORE duplication
+		foreach (Tuple<Sprite, Bounds> pair in spritesAndBounds)
+		{
+			// TODO: skip if no pixels are visible? update m_snapPrecursors
+			InteractFollow newInteract = pair == spritesAndBounds.First() ? this : Instantiate(gameObject, transform.parent).GetComponent<InteractFollow>();
+			newInteract.Lock = Lock;
+			newInteract.GetComponent<SpriteMask>().sprite = pair.Item1;
+
+			SpriteRenderer rendererChild = newInteract.GetComponent<SpriteRenderer>();
+			rendererChild.flipX = rendererLocal.flipX;
+			rendererChild.flipY = rendererLocal.flipY;
+
+			BoxCollider2D trigger = newInteract.GetComponent<BoxCollider2D>();
+			trigger.size = pair.Item2.size;
+			trigger.offset = pair.Item2.center; // NOTE that this is unaffected by flip{X/Y} since only the rendered sprite is flipped and not the masks
+
+			foreach (Transform childTf in newInteract.GetComponentsInChildren<Transform>())
+			{
+				if (childTf == newInteract.transform)
+				{
+					continue;
+				}
+				childTf.localPosition = pair.Item2.center;
+			}
+		}
+
+		enabled = false; // to fix in place as the starting piece // NOTE that this is AFTER duplication
+		transform.SetPositionAndRotation(m_correctPosition, Quaternion.Euler(0.0f, 0.0f, m_correctRotationDegrees));
+		return true;
+	}
 
 	public void SetCombination(LockController.CombinationSet set, int[] combination, int optionIndex, int indexCorrect, int startIndex, int endIndex, bool useSprites) => Debug.LogError("Can't SetCombination() on InteractFollow");
 

@@ -53,10 +53,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_keyPrefabs: []
   m_combinationSets: []
-  m_difficulty: 4
+  m_difficulty: 0
+  m_builtinKeysMin: 4
+  m_builtinKeysMax: 4
+  m_builtinKeyDifficulty: 1
   m_keyHeightMax: 7.5
   m_keyDelaySeconds: 0
   m_vfxDisableDelaySeconds: 2
+  m_vfxKeyDelay: {fileID: 0}
   m_failureSFX: []
   m_unlockSFX:
   - m_object: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
