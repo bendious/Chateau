@@ -7,8 +7,6 @@ public class HiddenDestructible : MonoBehaviour
 	[SerializeField] private GameObject m_hiddenPrefab;
 
 	[SerializeField] private float m_hiddenPct = 0.25f;
-	[SerializeField] private float m_lockedPct = 0.5f;
-	[SerializeField] private float m_unlockedRarePct = 0.5f;
 
 
 	private GameObject m_hiddenObject;
@@ -24,32 +22,15 @@ public class HiddenDestructible : MonoBehaviour
 			return;
 		}
 
-		m_hiddenObject = Instantiate(m_hiddenPrefab, transform.position, transform.rotation, transform.parent);
-		m_hiddenObject.SetActive(false);
+		m_hiddenObject = Instantiate(m_hiddenPrefab, transform.position, transform.rotation, transform);
 
-		RoomController room = transform.parent.GetComponent<RoomController>();
 		FurnitureController hiddenFurniture = m_hiddenObject.GetComponentInChildren<FurnitureController>(true);
-		IUnlockable hiddenLock = m_hiddenObject.GetComponentInChildren<IUnlockable>(true);
-		bool isLocked = hiddenLock != null && Random.value < m_lockedPct;
-
 		if (hiddenFurniture != null)
 		{
 			hiddenFurniture.RandomizeSize(GetComponent<SpriteRenderer>().bounds.extents);
-			hiddenFurniture.SpawnItems(isLocked || Random.value < m_unlockedRarePct, room.RoomType, 0, 0); // TODO: track/estimate room item count / remaining HiddenDestructibles?
 		}
-		if (hiddenLock != null)
-		{
-			if (isLocked)
-			{
-				RoomController[] keyRooms = new[] { room }; // TODO: spread out keys more?
-				hiddenLock.SpawnKeysStatic(room, keyRooms, 0.0f);
-				hiddenLock.SpawnKeysDynamic(room, keyRooms, 0.0f);
-			}
-			else
-			{
-				hiddenLock.Unlock(null, true);
-			}
-		}
+
+		m_hiddenObject.SetActive(false);
 	}
 
 	private void OnDestroy()
@@ -58,6 +39,15 @@ public class HiddenDestructible : MonoBehaviour
 		{
 			return;
 		}
+		m_hiddenObject.transform.SetParent(transform.parent);
+
+		// unfortunately, since destruction has already started, child components have been deactivated, so we have to go through and re-enable them
+		// TODO: exclude components that were already disabled?
+		foreach (Behaviour component in m_hiddenObject.GetComponents<Behaviour>())
+		{
+			component.enabled = true;
+		}
+
 		m_hiddenObject.SetActive(true);
 	}
 }

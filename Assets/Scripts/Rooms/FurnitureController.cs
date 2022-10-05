@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -70,20 +71,21 @@ public class FurnitureController : MonoBehaviour
 		return width;
 	}
 
-	public virtual int SpawnItems(bool rare, RoomType roomType, int itemCountExisting, int furnitureRemaining)
+	public virtual List<GameObject> SpawnItems(bool rare, RoomType roomType, int itemCountExisting, int furnitureRemaining, List<GameObject> prefabsSpawned)
 	{
 		// determine final spawn types/weights based on furniture and room type
 		int itemCount = ItemCount(itemCountExisting, furnitureRemaining, roomType);
-		System.Collections.Generic.IEnumerable<WeightedObject<GameObject>> itemsFinal = (rare ? m_itemRarePrefabs : m_itemPrefabs).CombineWeighted(rare ? roomType.m_itemRarePrefabs : roomType.m_itemPrefabs);
+		IEnumerable<WeightedObject<GameObject>> itemsFinal = (rare ? m_itemRarePrefabs : m_itemPrefabs).CombineWeighted(rare ? roomType.m_itemRarePrefabs : roomType.m_itemPrefabs);
 
+		List<GameObject> items = new();
 		if (itemsFinal.Count() <= 0)
 		{
-			return 0; // NOTE that this is valid for non-bonus Entryway rooms
+			return items; // NOTE that this is valid for non-bonus Entryway rooms
 		}
 
-		System.Collections.Generic.Queue<GameObject> itemsNext = null; // TODO: share across instances of the same type in the same room?
+		Queue<GameObject> itemsNext = null; // TODO: share across instances of the same type in the same room?
 		Vector3 size = GetComponent<Collider2D>().bounds.size; // NOTE that the collider likely hasn't updated its position, but the size should be valid
-		int numPlatforms = (m_childRenderers.Length + 1);
+		int numPlatforms = m_childRenderers.Length + 1;
 		float extentX = size.x * 0.5f;
 		for (int i = 0; i < itemCount; ++i)
 		{
@@ -92,11 +94,23 @@ public class FurnitureController : MonoBehaviour
 				itemsNext = new(itemsFinal.RandomWeightedOrder());
 			}
 			GameObject itemPrefab = itemsNext.Dequeue();
+
+			// rare duplication prevention
+			// TODO: parameterize per-type rather than by rarity?
+			if (rare && prefabsSpawned.Contains(itemPrefab))
+			{
+				// NOTE that we don't keep trying to spawn more items due to infinite loop safety
+				--i;
+				--itemCount;
+				continue;
+			}
+			prefabsSpawned.Add(itemPrefab);
+
 			Vector3 spawnCenterPos = ItemSpawnPositionInternal(itemPrefab, extentX, size.y, numPlatforms);
-			GameController.Instance.m_savableFactory.Instantiate(itemPrefab, spawnCenterPos, Quaternion.identity);
+			items.Add(GameController.Instance.m_savableFactory.Instantiate(itemPrefab, spawnCenterPos, Quaternion.identity));
 		}
 
-		return itemCount;
+		return items;
 	}
 
 	public virtual GameObject SpawnKey(GameObject prefab, bool isCriticalPath)

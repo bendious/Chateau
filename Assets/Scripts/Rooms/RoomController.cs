@@ -697,9 +697,31 @@ public class RoomController : MonoBehaviour
 			}
 		}
 
+		// shared furniture processing since decorations can end up containing furniture, too
+		List<System.Tuple<FurnitureController, IUnlockable>> furnitureList = new();
+		float processNewFurniture(FurnitureController furniture, float width)
+		{
+			IUnlockable furnitureLock = furniture.GetComponent<IUnlockable>();
+			bool isLocked = furnitureLock != null && Random.value < m_furnitureLockPct; // TODO: more deliberate choice?
+			furnitureList.Add(System.Tuple.Create(furniture, isLocked ? furnitureLock : null));
+
+			if (furnitureLock != null)
+			{
+				if (isLocked)
+				{
+					furnitureLock.SpawnKeysStatic(this, new[] { this }, 0.0f);
+				}
+				else
+				{
+					furnitureLock.Unlock(null, true);
+				}
+			}
+
+			return width * 0.5f / extentsInterior.x;
+		}
+
 		// spawn furniture
 		// NOTE that this has to be before keys to allow spawning them on furniture
-		List<System.Tuple<FurnitureController, IUnlockable>> furnitureList = new();
 		while (RoomType.m_furniturePrefabs.Length > 0 && fillPct < RoomType.m_fillPctMin)
 		{
 			FurnitureController furniture = Instantiate(RoomType.m_furniturePrefabs.RandomWeighted(), transform).GetComponent<FurnitureController>(); // NOTE that we have to spawn before placement due to potential size randomization
@@ -714,52 +736,7 @@ public class RoomController : MonoBehaviour
 			{
 				break; // must have failed to find a valid placement position
 			}
-			IUnlockable furnitureLock = furniture.GetComponent<IUnlockable>();
-			bool isLocked = furnitureLock != null && Random.value < m_furnitureLockPct; // TODO: more deliberate choice?
-			furnitureList.Add(System.Tuple.Create(furniture, isLocked ? furnitureLock : null));
-			fillPct += width * 0.5f / extentsInterior.x;
-
-			if (furnitureLock != null)
-			{
-				if (isLocked)
-				{
-					furnitureLock.SpawnKeysStatic(this, new[] { this }, 0.0f);
-				}
-				else
-				{
-					furnitureLock.Unlock(null, true);
-				}
-			}
-		}
-
-		// spawn items
-		int itemCount = 0;
-		int furnitureRemaining = furnitureList.Count - 1;
-		foreach (System.Tuple<FurnitureController, IUnlockable> furniture in furnitureList)
-		{
-			itemCount += furniture.Item1.SpawnItems(m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.BonusItems), RoomType, itemCount, furnitureRemaining);
-			--furnitureRemaining;
-
-			if (furniture.Item2 != null)
-			{
-				furniture.Item2.SpawnKeysDynamic(this, new[] { this }, 0.0f); // TODO: spaced-out keys?
-			}
-		}
-
-		// spawn keys
-		foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
-		{
-			SpawnKeys(doorwayInfo, (unlockable, lockRoom, keyRooms, difficultyPct) => unlockable.SpawnKeysDynamic(lockRoom, keyRooms, difficultyPct)); // NOTE that this has to be after furniture for item key placement
-		}
-
-		// spawn enemy spawn points
-		m_spawnPoints = new GameObject[Random.Range(1, m_spawnPointsMax + 1)]; // TODO: base on room size?
-		for (int spawnIdx = 0; spawnIdx < m_spawnPoints.Length; ++spawnIdx)
-		{
-			GameObject spawnPrefab = m_spawnPointPrefabs.RandomWeighted();
-			Quaternion rotation = Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f));
-			Vector3 spawnPos = InteriorPosition(float.MaxValue, spawnPrefab, rotation); // NOTE that we don't account for maximum enemy size, relying upon KinematicObject's checks to prevent getting stuck in walls
-			m_spawnPoints[spawnIdx] = Instantiate(spawnPrefab, spawnPos, rotation, transform);
+			fillPct += processNewFurniture(furniture, width);
 		}
 
 		// spawn interior decorations
@@ -794,6 +771,42 @@ public class RoomController : MonoBehaviour
 				}
 				renderer.flipX = Random.Range(0, 2) != 0;
 			}
+
+			foreach (FurnitureController decoFurniture in decoration.GetComponentsInChildren<FurnitureController>(true))
+			{
+				fillPct += processNewFurniture(decoFurniture, ChildBounds(decoration).size.x);
+			}
+		}
+
+		// spawn items
+		int itemCount = 0;
+		List<GameObject> prefabsSpawned = new();
+		int furnitureRemaining = furnitureList.Count - 1;
+		foreach (System.Tuple<FurnitureController, IUnlockable> furniture in furnitureList)
+		{
+			itemCount += furniture.Item1.SpawnItems(furniture.Item2 != null || m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.BonusItems), RoomType, itemCount, furnitureRemaining, prefabsSpawned).Count;
+			--furnitureRemaining;
+
+			if (furniture.Item2 != null)
+			{
+				furniture.Item2.SpawnKeysDynamic(this, new[] { this }, 0.0f); // TODO: spaced-out keys?
+			}
+		}
+
+		// spawn keys
+		foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
+		{
+			SpawnKeys(doorwayInfo, (unlockable, lockRoom, keyRooms, difficultyPct) => unlockable.SpawnKeysDynamic(lockRoom, keyRooms, difficultyPct)); // NOTE that this has to be after furniture for item key placement
+		}
+
+		// spawn enemy spawn points
+		m_spawnPoints = new GameObject[Random.Range(1, m_spawnPointsMax + 1)]; // TODO: base on room size?
+		for (int spawnIdx = 0; spawnIdx < m_spawnPoints.Length; ++spawnIdx)
+		{
+			GameObject spawnPrefab = m_spawnPointPrefabs.RandomWeighted();
+			Quaternion rotation = Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f));
+			Vector3 spawnPos = InteriorPosition(float.MaxValue, spawnPrefab, rotation); // NOTE that we don't account for maximum enemy size, relying upon KinematicObject's checks to prevent getting stuck in walls
+			m_spawnPoints[spawnIdx] = Instantiate(spawnPrefab, spawnPos, rotation, transform);
 		}
 	}
 

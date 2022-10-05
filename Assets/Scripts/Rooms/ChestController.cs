@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -18,34 +19,25 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 	public bool IsCriticalPath { private get; set; }
 
 
-	private bool m_rare;
-	private RoomType m_roomType;
-	private int m_itemCountExisting;
-	private int m_furnitureRemaining;
-
 	private GameObject m_keyObj;
 	private bool m_isLocked = true;
 	private bool m_isOpen = false;
-	private readonly System.Collections.Generic.List<GameObject> m_prespawnedKeys = new();
+	private readonly List<GameObject> m_prespawned = new();
 
 
-	public override int SpawnItems(bool rare, RoomType roomType, int itemCountExisting, int furnitureRemaining)
+	public override List<GameObject> SpawnItems(bool rare, RoomType roomType, int itemCountExisting, int furnitureRemaining, List<GameObject> prefabsSpawned)
 	{
-		// store item params for use when opened
-		m_rare = rare;
-		m_roomType = roomType;
-		m_itemCountExisting = itemCountExisting;
-		m_furnitureRemaining = furnitureRemaining;
-
-		// defer or spawn
+		// TODO: account for difference in closed/open collider size?
+		List<GameObject> items = base.SpawnItems(rare, roomType, itemCountExisting, furnitureRemaining, prefabsSpawned);
 		if (!m_isOpen)
 		{
-			// determine item count now to "reserve" the proper number w/ our caller
-			m_itemsMin = ItemCount(itemCountExisting, furnitureRemaining, roomType);
-			m_itemsMax = m_itemsMin;
-			return m_itemsMin;
+			foreach (GameObject obj in items)
+			{
+				obj.SetActive(false);
+				m_prespawned.Add(obj);
+			}
 		}
-		return base.SpawnItems(rare, roomType, itemCountExisting, furnitureRemaining);
+		return items;
 	}
 
 	public override GameObject SpawnKey(GameObject prefab, bool isCriticalPath)
@@ -54,7 +46,7 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 		if (!m_isOpen)
 		{
 			obj.SetActive(false);
-			m_prespawnedKeys.Add(obj);
+			m_prespawned.Add(obj);
 			if (isCriticalPath)
 			{
 				IsCriticalPath = true;
@@ -83,8 +75,8 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 		collider.size = new(collider.size.x, collider.size.y * m_openSizePct);
 		collider.offset = new(collider.offset.x, collider.size.y * 0.5f); // TODO: don't assume collider lower edges are always at y=0?
 
-		// activate any pre-spawned keys
-		foreach (GameObject obj in m_prespawnedKeys)
+		// activate any pre-spawned objects
+		foreach (GameObject obj in m_prespawned)
 		{
 			if (obj == null) // NOTE that this is possible if locks have been unlocked via other means (e.g. guesswork, console command)
 			{
@@ -92,11 +84,9 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 			}
 			obj.SetActive(true);
 		}
-		m_prespawnedKeys.Clear();
+		m_prespawned.Clear();
 
-		// spawn furniture items
 		m_isOpen = true;
-		SpawnItems(m_rare, m_roomType, m_itemCountExisting, m_furnitureRemaining);
 	}
 
 
