@@ -27,6 +27,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ItemBreakable
       objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_damageSelf
+      value: 0.333
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
 --- !u!1 &7701380722503224308 stripped
@@ -60,7 +64,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e9c1bd3b458dfc4ab7a9c66b6782439, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_maxHP: 3
+  m_maxHP: 2
   m_damageAudio: {fileID: 0}
   m_deathAudio: {fileID: 0}
   m_invincibilityTime: 0

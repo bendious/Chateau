@@ -57,16 +57,19 @@ VisualEffect:
       - m_Value: 0.5
         m_Name: SecondsMin
         m_Overridden: 1
-      - m_Value: 5
-        m_Name: SpeedStartMax
-        m_Overridden: 1
       - m_Value: 1
         m_Name: SecondsMax
         m_Overridden: 1
     m_Vector2f:
       m_Array: []
     m_Vector3f:
-      m_Array: []
+      m_Array:
+      - m_Value: {x: -5, y: -5, z: 0}
+        m_Name: SpeedStartMin
+        m_Overridden: 1
+      - m_Value: {x: 5, y: 5, z: 0}
+        m_Name: SpeedStartMax
+        m_Overridden: 1
     m_Vector4f:
       m_Array: []
     m_Uint:

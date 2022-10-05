@@ -96,9 +96,6 @@ VisualEffect:
       - m_Value: 1.4
         m_Name: SecondsMax
         m_Overridden: 1
-      - m_Value: 0.5
-        m_Name: SpeedStartMax
-        m_Overridden: 1
       - m_Value: 250
         m_Name: DragCoefficient
         m_Overridden: 1
@@ -126,6 +123,12 @@ VisualEffect:
         m_Overridden: 1
       - m_Value: {x: 0.25, y: 0, z: 0}
         m_Name: StartAreaPos
+        m_Overridden: 1
+      - m_Value: {x: -0.5, y: 0, z: 0}
+        m_Name: SpeedStartMin
+        m_Overridden: 1
+      - m_Value: {x: 0.5, y: 0, z: 0}
+        m_Name: SpeedStartMax
         m_Overridden: 1
     m_Vector4f:
       m_Array: []
@@ -293,11 +296,11 @@ VisualEffect:
       - m_Value: 2
         m_Name: SecondsMin
         m_Overridden: 1
-      - m_Value: 5
+      - m_Value: 4
         m_Name: SecondsMax
         m_Overridden: 1
       - m_Value: 1
-        m_Name: SpeedStartMax
+        m_Name: DragCoefficient
         m_Overridden: 1
     m_Vector2f:
       m_Array:
@@ -312,7 +315,7 @@ VisualEffect:
         m_Overridden: 1
     m_Vector3f:
       m_Array:
-      - m_Value: {x: 0, y: 7, z: 0}
+      - m_Value: {x: 0, y: 0.5, z: 0}
         m_Name: Gravity
         m_Overridden: 1
       - m_Value: {x: 0.1, y: 0, z: 0}
@@ -320,6 +323,12 @@ VisualEffect:
         m_Overridden: 1
       - m_Value: {x: 0.3, y: 0, z: 0}
         m_Name: StartAreaPos
+        m_Overridden: 1
+      - m_Value: {x: -0.2, y: 0, z: 0}
+        m_Name: SpeedStartMin
+        m_Overridden: 1
+      - m_Value: {x: 0.2, y: 0, z: 0}
+        m_Name: SpeedStartMax
         m_Overridden: 1
     m_Vector4f:
       m_Array: []
@@ -345,12 +354,12 @@ VisualEffect:
             outWeight: 0.21666667
           - serializedVersion: 3
             time: 1
-            value: 2
-            inSlope: 1.5956658
-            outSlope: 1.5956658
+            value: 3
+            inSlope: 7.9245315
+            outSlope: 7.9245315
             tangentMode: 0
             weightedMode: 0
-            inWeight: 0.077408135
+            inWeight: 0.04583335
             outWeight: 0
           m_PreInfinity: 2
           m_PostInfinity: 2
@@ -362,8 +371,8 @@ VisualEffect:
       - m_Value:
           serializedVersion: 2
           key0: {r: 1, g: 1, b: 1, a: 0}
-          key1: {r: 0.5, g: 0.5, b: 0.5, a: 0.5019608}
-          key2: {r: 0, g: 0, b: 0, a: 0.2509804}
+          key1: {r: 0.5, g: 0.5, b: 0.5, a: 0.2509804}
+          key2: {r: 0, g: 0, b: 0, a: 0.1254902}
           key3: {r: 0, g: 0, b: 0, a: 0}
           key4: {r: 0, g: 0, b: 0, a: 0}
           key5: {r: 0, g: 0, b: 0, a: 0}

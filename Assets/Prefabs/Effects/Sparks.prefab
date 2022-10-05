@@ -84,6 +84,10 @@ PrefabInstance:
       value: Texture
       objectReference: {fileID: 0}
     - target: {fileID: 3137492953035613680, guid: d64f2849f48fc6644bde5562c716f1c1, type: 3}
+      propertyPath: m_PropertySheet.m_Vector3f.m_Array.Array.data[0].m_Value.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3137492953035613680, guid: d64f2849f48fc6644bde5562c716f1c1, type: 3}
       propertyPath: m_PropertySheet.m_Vector3f.m_Array.Array.data[0].m_Value.y
       value: -1
       objectReference: {fileID: 0}
