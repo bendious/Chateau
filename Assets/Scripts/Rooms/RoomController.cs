@@ -836,7 +836,7 @@ public class RoomController : MonoBehaviour
 				{
 					Spline spline = shape.spline;
 					int nInitial = spline.GetPointCount();
-					int n = Random.Range(nInitial, 12); // TODO: parameterize max?
+					int n = Random.Range(nInitial, 13); // TODO: parameterize max?
 
 					// set positions
 					if (posFunc != null)
@@ -923,7 +923,7 @@ public class RoomController : MonoBehaviour
 				{
 					float extentX = extentXPerPoint * countMax;
 					float x = idx == countMax - 2 ? extentX : idx == countMax - 1 ? -extentX : Mathf.Lerp(-extentX, extentX, idx / (float)(countMax - 3));
-					return new(x, idx >= countMax - 2 ? 0.0f : Random.Range(0.0f, Bounds.size.y)); // TODO: allow across room vertical boundaries?
+					return new(x, idx >= countMax - 2 ? 0.0f : Random.Range(0.1f, Bounds.size.y)); // TODO: allow across room vertical boundaries?
 				}, tangentsFromSpline);
 			}
 
