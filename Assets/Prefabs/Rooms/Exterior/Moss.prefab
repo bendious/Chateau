@@ -95,13 +95,5 @@ PrefabInstance:
       propertyPath: m_Sprites.Array.data[8]
       value: 
       objectReference: {fileID: 21300000, guid: 37aa526047e44f9478a4f03b5967f6f1, type: 3}
-    - target: {fileID: 6848462992233837457, guid: 2132a37e1a0c48e48932616aaf41fe56, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: c1cab16bfb41f69439a9f16258605c7e, type: 2}
-    - target: {fileID: 6848462992233837457, guid: 2132a37e1a0c48e48932616aaf41fe56, type: 3}
-      propertyPath: m_Materials.Array.data[1]
-      value: 
-      objectReference: {fileID: 2100000, guid: c1cab16bfb41f69439a9f16258605c7e, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2132a37e1a0c48e48932616aaf41fe56, type: 3}
