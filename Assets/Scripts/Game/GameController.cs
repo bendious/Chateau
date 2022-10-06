@@ -127,6 +127,8 @@ public class GameController : MonoBehaviour
 	private static NpcInfo[] m_npcs;
 
 	private CinemachineConfiner2D m_vCamMainConfiner;
+	private CinemachineFramingTransposer m_vCamMainFramer;
+	private float m_lookaheadTimeOrig;
 
 	private bool m_usingMouse = false;
 
@@ -156,6 +158,8 @@ public class GameController : MonoBehaviour
 		Random.InitState(m_seed);
 
 		m_vCamMainConfiner = m_vCamMain.GetComponentInChildren<CinemachineConfiner2D>();
+		m_vCamMainFramer = m_vCamMain.GetCinemachineComponent<CinemachineFramingTransposer>();
+		m_lookaheadTimeOrig = m_vCamMainFramer.m_LookaheadTime;
 
 		// TODO: use Animator on persistent object?
 		Image loadImage = m_loadingScreen.GetComponentsInChildren<Image>().Last()/*TODO*/;
@@ -322,12 +326,14 @@ public class GameController : MonoBehaviour
 
 	private void Update()
 	{
-		// constrain camera
+		// update camera constraint/lookahead
 		// TODO: efficiency?
 		AvatarController liveAvatar = m_avatars.FirstOrDefault(avatar => avatar.IsAlive);
 		RoomController constraintRoom = liveAvatar == null ? null : RoomFromPosition(liveAvatar.transform.position);
-		bool unconstrained = constraintRoom == null || m_avatars.Any(avatar => avatar.IsAlive && (avatar.IsLooking || RoomFromPosition(avatar.transform.position) != constraintRoom));
+		bool isLooking = m_avatars.Any(avatar => avatar.IsAlive && avatar.IsLooking);
+		bool unconstrained = constraintRoom == null || isLooking || m_avatars.Any(avatar => avatar.IsAlive && RoomFromPosition(avatar.transform.position) != constraintRoom);
 		m_vCamMainConfiner.m_BoundingShape2D = unconstrained ? null : constraintRoom.GetComponentInChildren<PolygonCollider2D>();
+		m_vCamMainFramer.m_LookaheadTime = isLooking ? 0.0f : m_lookaheadTimeOrig;
 
 		Simulation.Tick();
 	}
