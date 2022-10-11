@@ -352,6 +352,8 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	public virtual bool CanDamage(GameObject target) => gameObject != target;
 
+	// TODO: CanBeDamagedBy()?
+
 	public virtual float TargetPriority(KinematicCharacter source, bool friendly) => source != this && source.CanDamage(gameObject) != friendly ? 1.0f : 0.0f;
 
 

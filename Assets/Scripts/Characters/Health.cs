@@ -16,10 +16,11 @@ public class Health : MonoBehaviour
 	public AudioClip m_damageAudio;
 	public AudioClip m_deathAudio;
 
-	public const float m_invincibilityTimeDefault = 1.0f;
-	public float m_invincibilityTime = m_invincibilityTimeDefault; // TODO: vary by animation played?
+	public float m_invincibilityTime = 0.25f; // TODO: vary by animation played?
 	public bool m_invincible;
 	public Vector2 m_invincibilityDirection;
+
+	[SerializeField] private float m_damageMergeSeconds = 0.1f;
 
 	public float m_minorDamageThreshold = 0.1f;
 
@@ -48,6 +49,9 @@ public class Health : MonoBehaviour
 
 	private Animator m_animator;
 	private KinematicCharacter m_character;
+
+	private float m_lastDamageTime; // NOTE that this excludes minor damage
+	private float m_lastDamageAmount; // NOTE that this is pre-scaled damage amount and excludes minor damage
 
 
 	/// <summary>
@@ -84,9 +88,11 @@ public class Health : MonoBehaviour
 	/// <summary>
 	/// Decrement the HP of the entity.
 	/// </summary>
-	public virtual bool Decrement(GameObject source, float amount = 1.0f)
+	public virtual bool Decrement(GameObject source, float amount = 1.0f) // TODO: damage types & chemistry system?
 	{
-		if (m_invincible)
+		bool notMinor = amount >= m_minorDamageThreshold;
+		bool mergeWithPrevious = notMinor && amount > m_lastDamageAmount && m_lastDamageAmount >= m_minorDamageThreshold && m_lastDamageTime + m_damageMergeSeconds >= Time.time;
+		if (!mergeWithPrevious && m_invincible)
 		{
 			return false;
 		}
@@ -104,6 +110,18 @@ public class Health : MonoBehaviour
 			return false;
 		}
 
+		// NOTE that we merge BEFORE scaling to preserve the final summed amount
+		if (mergeWithPrevious)
+		{
+			amount -= m_lastDamageAmount;
+			m_lastDamageAmount += amount;
+		}
+		else if (notMinor)
+		{
+			m_lastDamageTime = Time.time;
+			m_lastDamageAmount = amount;
+		}
+
 		// set item cause if appropriate, to enable chain reactions
 		ItemController item = GetComponentInParent<ItemController>(); // TODO: ensure this doesn't catch unwanted ancestors?
 		if (item != null && item.Cause == null)
@@ -115,20 +133,24 @@ public class Health : MonoBehaviour
 		HealCancel();
 		float amountFinal = -(sourceCharacter == null ? amount : sourceCharacter.m_damageScalar * amount);
 		IncrementInternal(amountFinal);
-		AudioSource audioSource = GetComponent<AudioSource>();
-		if (m_damageAudio != null)
-		{
-			audioSource.PlayOneShot(m_damageAudio);
-		}
-		bool notMinor = amount >= m_minorDamageThreshold;
-		if (m_animator != null && notMinor)
-		{
-			m_animator.SetTrigger("hurt");
-		}
 		OnHealthDecrement evt = Simulation.Schedule<OnHealthDecrement>();
 		evt.m_health = this;
 		evt.m_damageSource = source;
 		evt.m_amountUnscaled = amount; // TODO: also give access to amountFinal?
+
+		// effects
+		AudioSource audioSource = GetComponent<AudioSource>();
+		if (!mergeWithPrevious)
+		{
+			if (m_damageAudio != null)
+			{
+				audioSource.PlayOneShot(m_damageAudio);
+			}
+			if (m_animator != null && notMinor)
+			{
+				m_animator.SetTrigger("hurt");
+			}
+		}
 
 		// death/despawn
 		bool isDead = m_currentHP.FloatEqual(0.0f) && (!ConsoleCommands.NeverDie || GameController.Instance.m_avatars.All(avatar => avatar.gameObject != gameObject));
@@ -157,7 +179,7 @@ public class Health : MonoBehaviour
 		}
 
 		// invincibility period
-		if (!isDead && notMinor && m_invincibilityTime > 0.0f)
+		if (!isDead && notMinor && !mergeWithPrevious && m_invincibilityTime > 0.0f)
 		{
 			m_invincible = true;
 

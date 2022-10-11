@@ -17,6 +17,7 @@ public class Laser : MonoBehaviour
 
 	private Collider2D m_target;
 	private float m_secondsAccum;
+	private GameObject m_causeObjMostRecent;
 
 
 	private void Awake()
@@ -25,6 +26,7 @@ public class Laser : MonoBehaviour
 		m_light = GetComponent<Light2D>();
 		RangeMax = m_light.pointLightOuterRadius;
 		m_item = GetComponentInParent<ItemController>();
+		m_causeObjMostRecent = gameObject;
 	}
 
 	private void OnDisable()
@@ -32,6 +34,7 @@ public class Laser : MonoBehaviour
 		m_endpointObj.SetActive(false);
 		m_target = null;
 		m_secondsAccum = 0.0f;
+		m_causeObjMostRecent = gameObject;
 	}
 
 	private void Update()
@@ -45,6 +48,12 @@ public class Laser : MonoBehaviour
 		if (Time.deltaTime <= 0.0f)
 		{
 			return;
+		}
+
+		// track damage source in case we are dropped while enabled
+		if (m_item.Cause != null)
+		{
+			m_causeObjMostRecent = m_item.Cause.gameObject;
 		}
 
 		// raycast & accumulate time/damage
@@ -62,7 +71,7 @@ public class Laser : MonoBehaviour
 				}
 				if (health != null)
 				{
-					health.Decrement(m_item.Cause == null ? m_item.gameObject : m_item.Cause.gameObject, m_damagePerSecond * Time.deltaTime);
+					health.Decrement(m_causeObjMostRecent, m_damagePerSecond * Time.deltaTime);
 				}
 			}
 		}
@@ -73,6 +82,7 @@ public class Laser : MonoBehaviour
 		m_target = hit.collider;
 
 		// update visuals
+		// TODO: play/soft-stop VFX on endpoint object
 		if (hit.collider == null)
 		{
 			m_endpointObj.SetActive(false);

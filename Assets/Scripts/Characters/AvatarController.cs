@@ -719,6 +719,8 @@ public sealed class AvatarController : KinematicCharacter
 		return true;
 	}
 
+	// TODO: CanBeDamagedBy() to exclude some types of non-character-caused damage?
+
 	public override float TargetPriority(KinematicCharacter source, bool friendly) => !IsAlive ? 0.0f : base.TargetPriority(source, friendly);
 
 

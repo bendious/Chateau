@@ -219,6 +219,8 @@ public sealed class AIController : KinematicCharacter
 		return true;
 	}
 
+	// TODO: CanBeDamagedBy()?
+
 	public override float TargetPriority(KinematicCharacter source, bool friendly) => m_passive ? 0.0f : base.TargetPriority(source, friendly);
 
 
@@ -229,7 +231,7 @@ public sealed class AIController : KinematicCharacter
 			return;
 		}
 
-		AIState stateNew = m_aiState?.OnDamage(evt.m_damageSource);
+		AIState stateNew = m_aiState?.OnDamage(evt.m_damageSource, evt.m_amountUnscaled);
 		if (stateNew != m_aiState)
 		{
 			// NOTE that we can't split this across frames since we might not get another Update() call due to death

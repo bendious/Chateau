@@ -152,7 +152,7 @@ public abstract class AIState
 		}
 	}
 
-	public virtual AIState OnDamage(GameObject source) => null;
+	public virtual AIState OnDamage(GameObject source, float amountUnscaled) => amountUnscaled >= m_ai.GetComponent<Health>().m_minorDamageThreshold ? null : this;
 	public virtual void Exit() => m_ai.ClearPath(true);
 
 #if UNITY_EDITOR
