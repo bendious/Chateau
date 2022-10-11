@@ -256,6 +256,20 @@ public static class Utility
 		return source.Remove(index, oldValue.Length).Insert(index, newValue);
 	}
 
+	public static Health ToHealth(this Collider2D collider)
+	{
+		if (collider == null)
+		{
+			return null;
+		}
+		Health health = collider.GetComponent<Health>();
+		if (health != null || collider.attachedRigidbody == null || collider.attachedRigidbody.gameObject == collider.gameObject)
+		{
+			return health;
+		}
+		return collider.attachedRigidbody.GetComponent<Health>();
+	}
+
 	public static bool ShouldIgnore(this Collider2D self, Rigidbody2D body, Collider2D[] colliders, float dynamicsMassThreshold = 0.0f, Type ignoreChildrenExcept = null, float oneWayTopEpsilon = -1.0f, bool ignoreStatics = false, bool ignorePhysicsSystem = false)
 	{
 		Assert.IsTrue(colliders != null && colliders.Length > 0);

@@ -469,11 +469,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		}
 
 		// ignore non-destructible trigger/static objects when held
-		Health otherHealth = collider.GetComponent<Health>();
-		if (otherHealth == null && mainObj != collider.gameObject)
-		{
-			otherHealth = mainObj.GetComponent<Health>();
-		}
+		Health otherHealth = collider.ToHealth();
 		if (!isDetached && otherHealth == null && (collider.isTrigger || rigidbody == null || rigidbody.bodyType != RigidbodyType2D.Dynamic))
 		{
 			DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Static);
