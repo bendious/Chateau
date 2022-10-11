@@ -507,11 +507,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			{
 				if (otherHealth != null)
 				{
-					otherHealth.Decrement(Cause != null ? Cause.gameObject : gameObject, m_swingInfo.m_damage); // TODO: round if damaging avatar?
+					otherHealth.Decrement(Cause != null ? Cause.gameObject : gameObject, m_swingInfo.m_damage, m_swingInfo.m_damageType);
 				}
 				if (m_health != null && !collider.isTrigger)
 				{
-					m_health.Decrement(gameObject, m_damageSelf);
+					m_health.Decrement(gameObject, m_damageSelf, Health.DamageType.Generic);
 				}
 				if (m_detachOnDamage && !collider.isTrigger)
 				{

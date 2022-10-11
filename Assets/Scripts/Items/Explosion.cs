@@ -4,11 +4,12 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class Explosion : MonoBehaviour
 {
-	public float m_radius = -1.0f;
+	[SerializeField] private float m_radius = -1.0f;
 
-	public float m_damage = 1.0f;
+	[SerializeField] private float m_damage = 1.0f;
+	[SerializeField] private Health.DamageType m_damageType = Health.DamageType.Explosive;
 
-	public WeightedObject<AudioClip>[] m_sfx;
+	[SerializeField] private WeightedObject<AudioClip>[] m_sfx;
 
 	public KinematicCharacter m_source;
 
@@ -74,6 +75,6 @@ public class Explosion : MonoBehaviour
 		{
 			return;
 		}
-		health.Decrement(m_source == null ? gameObject : m_source.gameObject, m_damage);
+		health.Decrement(m_source == null ? gameObject : m_source.gameObject, m_damage, m_damageType);
 	}
 }

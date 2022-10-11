@@ -566,6 +566,10 @@ PrefabInstance:
       propertyPath: m_keyDestroyAfterUse
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_swingInfo.m_damageType
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
 --- !u!1 &2867064283445791729 stripped

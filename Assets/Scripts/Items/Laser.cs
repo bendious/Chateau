@@ -8,6 +8,7 @@ public class Laser : MonoBehaviour
 {
 	[SerializeField] private float m_warmupSeconds = 0.5f;
 	[SerializeField] private float m_damagePerSecond = 0.5f;
+	[SerializeField] private Health.DamageType m_damageType = Health.DamageType.Heat;
 	[SerializeField] private LayerMaskHelper m_layers;
 	[SerializeField] private Light2D m_endpointLight;
 	[SerializeField] private UnityEngine.VFX.VisualEffect m_endpointVFX;
@@ -85,7 +86,7 @@ public class Laser : MonoBehaviour
 			m_secondsAccum += Time.deltaTime;
 			if (m_secondsAccum > m_warmupSeconds)
 			{
-				m_target.Decrement(m_causeObjMostRecent, m_damagePerSecond * Time.deltaTime);
+				m_target.Decrement(m_causeObjMostRecent, m_damagePerSecond * Time.deltaTime, m_damageType);
 			}
 		}
 		else

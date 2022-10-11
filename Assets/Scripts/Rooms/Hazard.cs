@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Hazard : MonoBehaviour
 {
-	[SerializeField]
-	private float m_damage = 1.0f;
+	[SerializeField] private float m_damage = 1.0f;
+	[SerializeField] private Health.DamageType m_type;
 
 	[SerializeField] private Vector2 m_damageImpulse;
 	[SerializeField] private WeightedObject<AudioClip>[] m_damageSfx;
@@ -66,7 +66,7 @@ public class Hazard : MonoBehaviour
 		{
 			return;
 		}
-		health.Decrement(gameObject, m_damage);
+		health.Decrement(gameObject, m_damage, m_type);
 
 		if (m_damageImpulse != Vector2.zero)
 		{

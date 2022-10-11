@@ -41,9 +41,9 @@ public sealed class HealthUI : Health
 	/// <summary>
 	/// Decrement the HP of the entity, then update UI.
 	/// </summary>
-	public override bool Decrement(GameObject source, float amount = 1.0f)
+	public override bool Decrement(GameObject source, float amount, DamageType type)
 	{
-		bool changed = base.Decrement(source, amount);
+		bool changed = base.Decrement(source, amount, type);
 		if (!changed)
 		{
 			return false;

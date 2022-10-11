@@ -10,4 +10,5 @@ public struct SwingInfo
 
 	public float m_damageThresholdSpeed;
 	public float m_damage;
+	public Health.DamageType m_damageType;
 };

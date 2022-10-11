@@ -72,6 +72,11 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	/// </summary>
 	[SerializeField] private float m_contactDamage = 1.0f;
 
+	/// <summary>
+	/// Type of damage caused to other characters that collide with this one
+	/// </summary>
+	[SerializeField] private Health.DamageType m_contactDamageType = Health.DamageType.Blunt;
+
 
 	/// <summary>
 	/// Used to indicate desired direction of travel.
@@ -264,7 +269,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 			return false;
 		}
 
-		return character.m_health.Decrement(gameObject, damage);
+		return character.m_health.Decrement(gameObject, damage, m_contactDamageType);
 	}
 
 

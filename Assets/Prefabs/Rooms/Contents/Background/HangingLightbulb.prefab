@@ -112,6 +112,13 @@ MonoBehaviour:
   m_blinkSeconds: 0.3
   m_blinkColor: {r: 1, g: 1, b: 1, a: 1}
   m_blinkSecondsPost: 0.25
+  m_typeScalars:
+  - m_type: 0
+    m_scalar: 0
+  - m_type: 4
+    m_scalar: 0
+  - m_type: 5
+    m_scalar: 0
 --- !u!1 &2107013846910800877
 GameObject:
   m_ObjectHideFlags: 0
@@ -555,7 +562,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e9c1bd3b458dfc4ab7a9c66b6782439, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_maxHP: 1
+  m_maxHP: 0.25
   m_damageAudio: {fileID: 0}
   m_deathAudio: {fileID: 0}
   m_invincibilityTime: 0
@@ -596,6 +603,9 @@ MonoBehaviour:
   m_blinkSeconds: 0.3
   m_blinkColor: {r: 1, g: 1, b: 1, a: 1}
   m_blinkSecondsPost: 0.25
+  m_typeScalars:
+  - m_type: 5
+    m_scalar: 0
 --- !u!114 &7945988881669848815
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -735,6 +745,7 @@ MonoBehaviour:
     m_linearNewtons: 0.5
     m_damageThresholdSpeed: 2
     m_damage: 1
+    m_damageType: 0
   m_damageSelf: 1
   m_restDegreesOffset: 0
   m_throwSpeed: 20

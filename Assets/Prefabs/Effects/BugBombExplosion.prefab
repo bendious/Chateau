@@ -163,6 +163,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_radius: -1
   m_damage: 2
+  m_damageType: 5
   m_sfx:
   - m_object: {fileID: 8300000, guid: 015bca1f9888c0441ac7168f7d64bfda, type: 3}
     m_weight: 1

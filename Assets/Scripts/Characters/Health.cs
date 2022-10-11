@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 
@@ -8,6 +10,18 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class Health : MonoBehaviour
 {
+	[Serializable] public enum DamageType
+	{
+		Generic = -1,
+		Blunt,
+		Edge,
+		Pierce,
+		Heat,
+		Explosive,
+		Chemical,
+	}
+
+
 	/// <summary>
 	/// The maximum hit points for the entity.
 	/// </summary>
@@ -30,6 +44,12 @@ public class Health : MonoBehaviour
 	[SerializeField] private float m_blinkSeconds = 0.3f;
 	[SerializeField] private Color m_blinkColor = new(1.0f, 0.25f, 0.25f);
 	[SerializeField] private float m_blinkSecondsPost = 0.25f;
+
+	[Serializable] private struct DamageTypeScalar {
+		public DamageType m_type;
+		public float m_scalar;
+	}
+	[SerializeField] private DamageTypeScalar[] m_typeScalars;
 
 
 	/// <summary>
@@ -76,7 +96,7 @@ public class Health : MonoBehaviour
 		m_currentHP = m_maxHP - diff;
 		if (m_currentHP <= 0.0f)
 		{
-			Decrement(null, 0.0f); // TODO: split out death function?
+			Decrement(null, 0.0f, DamageType.Generic); // TODO: split out death function?
 		}
 	}
 
@@ -88,7 +108,7 @@ public class Health : MonoBehaviour
 	/// <summary>
 	/// Decrement the HP of the entity.
 	/// </summary>
-	public virtual bool Decrement(GameObject source, float amount = 1.0f) // TODO: damage types & chemistry system?
+	public virtual bool Decrement(GameObject source, float amount, DamageType type) // TODO: types[]?
 	{
 		bool notMinor = amount >= m_minorDamageThreshold;
 		bool mergeWithPrevious = notMinor && amount > m_lastDamageAmount && m_lastDamageAmount >= m_minorDamageThreshold && m_lastDamageTime + m_damageMergeSeconds >= Time.time;
@@ -111,6 +131,7 @@ public class Health : MonoBehaviour
 		}
 
 		// NOTE that we merge BEFORE scaling to preserve the final summed amount
+		// TODO: take damage type(s) into account?
 		if (mergeWithPrevious)
 		{
 			amount -= m_lastDamageAmount;
@@ -132,6 +153,13 @@ public class Health : MonoBehaviour
 		// damage
 		HealCancel();
 		float amountFinal = -(sourceCharacter == null ? amount : sourceCharacter.m_damageScalar * amount);
+		foreach (DamageTypeScalar typeScalar in m_typeScalars)
+		{
+			if (typeScalar.m_type == type)
+			{
+				amountFinal *= typeScalar.m_scalar;
+			}
+		}
 		IncrementInternal(amountFinal);
 		OnHealthDecrement evt = Simulation.Schedule<OnHealthDecrement>();
 		evt.m_health = this;
@@ -200,16 +228,6 @@ public class Health : MonoBehaviour
 
 	public void HealCancel() => HealInProgress = false; // NOTE that we don't forcibly stop HealDelayed() since it has cleanup to do
 
-#if DEBUG
-	/// <summary>
-	/// Decrement the HP of the entity until HP reaches 0.
-	/// </summary>
-	public void Die()
-	{
-		Decrement(GameController.Instance.m_avatars.First().gameObject, m_currentHP); // NOTE that we can't use IncrementInternal() directly since that skips the death logic, and we can't use ourself or null as the source due to source checking logic // TODO: support using w/o any spawned avatars?
-	}
-#endif
-
 	/// <summary>
 	/// Increment the HP of the entity until HP reaches max.
 	/// </summary>
@@ -260,7 +278,7 @@ public class Health : MonoBehaviour
 		return !Mathf.Approximately(m_currentHP, hpPrev);
 	}
 
-	private System.Collections.IEnumerator InvincibilityBlink(float secondsMax)
+	private IEnumerator InvincibilityBlink(float secondsMax)
 	{
 		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
 		if (renderer == null)
@@ -284,7 +302,7 @@ public class Health : MonoBehaviour
 		renderer.color = colorOrig;
 	}
 
-	private System.Collections.IEnumerator HealDelayed(float delaySeconds, int amount, GameObject source)
+	private IEnumerator HealDelayed(float delaySeconds, int amount, GameObject source)
 	{
 		float speedPrev = m_character.maxSpeed;
 		Debug.Assert(speedPrev > 0.0f); // TODO: better way of detecting/preventing multiple HealDelayed() instances in progress?

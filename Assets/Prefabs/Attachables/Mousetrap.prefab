@@ -146,6 +146,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_damage: 1
+  m_type: 1
   m_damageImpulse: {x: 0, y: 20}
   m_damageSfx:
   - m_object: {fileID: 8300000, guid: 53ad87a1af3241c4b88b3efaf0bb588e, type: 3}

@@ -165,3 +165,6 @@ MonoBehaviour:
   m_blinkSeconds: 0.3
   m_blinkColor: {r: 1, g: 0.25, b: 0.25, a: 1}
   m_blinkSecondsPost: 1
+  m_typeScalars:
+  - m_type: 5
+    m_scalar: 0
