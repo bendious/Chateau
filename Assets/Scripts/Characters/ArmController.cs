@@ -7,11 +7,11 @@ public sealed class ArmController : MonoBehaviour, IHolder
 {
 	public /*override*/ int HoldCountMax => 1;
 
-	public Vector3 m_offset;
+	[SerializeField] private Vector3 m_offset;
 	public /*override*/ Vector3 AttachOffsetLocal => m_offset;
 	public /*override*/ Vector3 ChildAttachPointLocal => Vector3.right * GetComponent<SpriteRenderer>().sprite.bounds.size.x;
 
-	public SwingInfo m_swingInfoDefault = new() {
+	[SerializeField] private SwingInfo m_swingInfoDefault = new() {
 		m_angularNewtonmeters = 300.0f,
 		m_linearNewtons = 0.1f,
 		m_aimSpringDampPct = 0.25f,
@@ -19,16 +19,24 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		m_damageThresholdSpeed = 4.0f,
 		m_damage = 0.1f
 	};
+	[SerializeField] private SwingInfo m_jabInfo = new() {
+		m_angularNewtonmeters = 25.0f,
+		m_linearNewtons = 25.0f,
+		m_aimSpringDampPct = 0.25f,
+		m_radiusSpringDampPct = 0.75f,
+		m_damageThresholdSpeed = 4.0f,
+		m_damage = 0.1f
+	};
 
-	public float m_mass = 0.1f;
+	[SerializeField] private float m_mass = 0.1f;
 
-	public float m_aimStiffnessMin = 25.0f;
-	public float m_aimStiffnessMax = 125.0f;
-	public float m_radiusStiffnessMin = 100.0f;
-	public float m_radiusStiffnessMax = 150.0f;
-	public float m_springMassMax = 1.0f;
+	[SerializeField] private float m_aimStiffnessMin = 25.0f;
+	[SerializeField] private float m_aimStiffnessMax = 125.0f;
+	[SerializeField] private float m_radiusStiffnessMin = 100.0f;
+	[SerializeField] private float m_radiusStiffnessMax = 150.0f;
+	[SerializeField] private float m_springMassMax = 1.0f;
 
-	public float m_swingDecayStiffness = 100.0f;
+	[SerializeField] private float m_swingDecayStiffness = 100.0f;
 
 
 	public float Speed => Mathf.Abs(Mathf.Deg2Rad * (m_aimVelocityArm + m_aimVelocityItem) * ((Vector2)transform.parent.position - (Vector2)transform.position).magnitude) + Mathf.Abs(m_aimRadiusVelocity); // NOTE the conversion from angular velocity to linear speed via arclength=radians*radius // TODO: incorporate aim velocity directions?
@@ -172,7 +180,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	}
 
 
-	public void Swing(bool isRelease)
+	public void Swing(bool isRelease, bool isJab)
 	{
 		if (isRelease)
 		{
@@ -181,7 +189,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 			return;
 		}
 
-		AddVelocity(m_swingDirection);
+		AddVelocity(m_swingDirection, isJab);
 
 		// play audio if not holding anything (any held item will play audio for itself)
 		if (GetComponentInChildren<IAttachable>() == null)
@@ -245,7 +253,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 	public void PostThrow()
 	{
-		AddVelocity(LeftFacing);
+		AddVelocity(LeftFacing, false);
 	}
 
 
@@ -255,12 +263,13 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		return aimDiff.x.FloatEqual(0.0f) && aimDiff.y.FloatEqual(0.0f) ? degreesPrev : Utility.ZDegrees(aimDiff);
 	}
 
-	private void AddVelocity(bool forward)
+	private void AddVelocity(bool forward, bool isJab)
 	{
 		float torqueArmLength = GetComponentsInChildren<SpriteRenderer>().Max(renderer => Mathf.Max(((Vector2)renderer.bounds.min - (Vector2)transform.position).magnitude, ((Vector2)renderer.bounds.max - (Vector2)transform.position).magnitude));
 
-		m_aimVelocityContinuing += (forward ? m_swingInfoCur.m_angularNewtonmeters : -m_swingInfoCur.m_angularNewtonmeters) / m_massTotal / torqueArmLength;
-		m_radiusVelocityContinuing += m_swingInfoCur.m_linearNewtons / m_massTotal;
+		SwingInfo infoFinal = isJab ? m_jabInfo : m_swingInfoCur; // TODO: handle "jabbing" with a held item via per-item jab speeds?
+		m_aimVelocityContinuing += (forward ? infoFinal.m_angularNewtonmeters : -infoFinal.m_angularNewtonmeters) / m_massTotal / torqueArmLength;
+		m_radiusVelocityContinuing += infoFinal.m_linearNewtons / m_massTotal;
 	}
 
 	private float DampedSpring(float current, float target, float dampPct, bool isAngle, float stiffness, ref float velocityCurrent)

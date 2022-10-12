@@ -39,7 +39,7 @@ public abstract class AIState
 	public static AIState FromTypePrioritized(Type[] allowedTypes, AIController ai)
 	{
 		float distanceFromTarget = ai.m_target == null ? float.MaxValue : Vector2.Distance(ai.transform.position, ai.m_target.transform.position); // TODO: use closest bbox points?
-		Vector2 targetOffset = ai.m_target == null ? Vector2.zero : ai.m_target.transform.position.x < ai.transform.position.x ? ai.m_targetOffset : new(-ai.m_targetOffset.x, ai.m_targetOffset.y);
+		Vector2 targetOffset = ai.m_target == null ? Vector2.zero : ai.m_target.transform.position.x < ai.transform.position.x ? ai.m_targetOffset : new(-ai.m_targetOffset.x, ai.m_targetOffset.y); // TODO: use ai.m_meleeRange if going for a melee? account for item size when meleeing w/ item?
 		float distanceFromOffsetPos = ai.m_target == null ? float.MaxValue : Vector2.Distance(ai.transform.position, (Vector2)ai.m_target.transform.position + targetOffset);
 		int numItems = ai.GetComponentsInChildren<ItemController>().Length;
 		int holdCountMax = ai.HoldCountMax;
@@ -455,7 +455,7 @@ public sealed class AIMelee : AIState
 		}
 		else
 		{
-			m_arm.Swing(false);
+			m_arm.Swing(false, Random.value < 0.5f); // TODO: more deliberate use of jabs/swings?
 		}
 	}
 }

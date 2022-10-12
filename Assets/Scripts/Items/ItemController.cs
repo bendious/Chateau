@@ -307,7 +307,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	{
 		if (m_holder is ArmController arm)
 		{
-			arm.Swing(isRelease);
+			arm.Swing(isRelease, false);
 		}
 
 		if (isRelease)

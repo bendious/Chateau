@@ -1,5 +1,5 @@
 [System.Serializable]
-public struct SwingInfo
+public class SwingInfo
 {
 	// TODO: base on mass?
 	public float m_aimSpringDampPct;

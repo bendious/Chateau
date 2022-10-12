@@ -31,10 +31,6 @@ PrefabInstance:
       propertyPath: m_Parameters.colorGradient.key1.r
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: 2554413207766914395, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
-      propertyPath: m_swingInfoDefault.m_damage
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2554413207766914396, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_Color.b
       value: 0.5
@@ -90,10 +86,6 @@ PrefabInstance:
     - target: {fileID: 3034714236938576274, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_Color.r
       value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3034714236938576277, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
-      propertyPath: m_swingInfoDefault.m_damage
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3764918345094839160, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_Intensity

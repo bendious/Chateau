@@ -383,7 +383,7 @@ public sealed class AvatarController : KinematicCharacter
 		ItemController primaryItem = GetComponentInChildren<ItemController>();
 		if (primaryItem == null)
 		{
-			(LeftFacing ? GetComponentsInChildren<ArmController>().Last() : GetComponentInChildren<ArmController>()).Swing(!input.isPressed);
+			(LeftFacing ? GetComponentsInChildren<ArmController>().Last() : GetComponentInChildren<ArmController>()).Swing(!input.isPressed, false);
 		}
 		else
 		{
@@ -406,6 +406,7 @@ public sealed class AvatarController : KinematicCharacter
 		ItemController primaryItem = GetComponentInChildren<ItemController>();
 		if (primaryItem == null)
 		{
+			(LeftFacing ? GetComponentsInChildren<ArmController>().Last() : GetComponentInChildren<ArmController>()).Swing(!input.isPressed, true); // TODO: switch back and forth between both arms?
 			return;
 		}
 
