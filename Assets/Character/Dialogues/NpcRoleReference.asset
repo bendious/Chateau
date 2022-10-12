@@ -29,6 +29,40 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
+      - m_text: Fighting is just like chess.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: It's all about knowing your opponent.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: Make sure you understand what types of damage are most effective
+          against each type of pest.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: I just don't get why anyone would think it's acceptable to hit things
+          four times more than necessary.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
       - m_text: Did you want to ask me about something else, {avatar}?
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
@@ -40,6 +74,8 @@ MonoBehaviour:
           - Ah, slimes.
           - They're slow, but be sure you don't get swarmed!
           - They can even slither right past an unwary defense.
+          - They don't care about physical damage or electricity so much, but heat'll
+            melt right through 'em.
           m_eventName: 
           m_breakAfterward: 0
         - m_text: Snakes
@@ -48,7 +84,9 @@ MonoBehaviour:
           m_followUp:
           - Snakes?
           - Of course it had to be snakes.
-          - They're quick, so stay on your toes!
+          - Since they're always so close to the ground, they deal very well with
+            things like electricity and chemicals.
+          - And they're quick, so stay on your toes!
           - If you get up above them, though, you're probably safe.
           m_eventName: 
           m_breakAfterward: 0
@@ -56,10 +94,17 @@ MonoBehaviour:
           m_preconditionName: EnemyTypeHasSpawned
           m_userdata: 2
           m_followUp:
-          - Yeah, we've got some big ones around here, don't we?
+          - Yeah, we've got some big ones around here, don't we? At least they're
+            not much for web-building.
           - They're pretty skittish, even so; you never know where they're heading
             next.
           - Dropping from above seems to be one of their favorite tactics, though.
+          - Despite the old adage, fire isn't a particularly good way to kill 'em.
+          - Sprays and such don't really excel either, given how chemically well-developed
+            they are. <i>We're</i> the ones still learning from <i>them</i> when
+            it comes to venom and silk and all.
+          - 'Just smash ''em, honestly: spiders have surprisingly fragile bodies,
+            since they''re basically just hydraulic-powered balloons.'
           m_eventName: 
           m_breakAfterward: 0
         - m_text: Bats
@@ -67,22 +112,25 @@ MonoBehaviour:
           m_userdata: 3
           m_followUp:
           - Bats, yes!
-          - So easy to miss!
-          - But keep your ears open, and they'll run themselves right into their
-            own demise.
+          - Shockingly easy to miss!
+          - Being practically blind is both an advantage and a disadvantage.
+          - Keep your ears open, and they'll run themselves right into their own
+            demise.
           m_eventName: 
           m_breakAfterward: 0
-        - m_text: Skeletons
+        - m_text: Bone Piles
           m_preconditionName: EnemyTypeHasSpawned
           m_userdata: 4
           m_followUp:
-          - Skeletons?
-          - Oh, those things.
+          - Yeah, you definitely have some skeletons in your closets, buddy.
           - Talk about litterbugs, am I right?
+          - Don't bother trying to slice 'em up or burn 'em or anything. Blunt force
+            trauma all the way.
           - Smash right through their defenses if you dare, or knock open a hole
             from a distance.
           - You can even rip off pieces by hand!
-          - My favorite is when I can slip a blade past to their core in one shot.
+          - My favorite is when I can slip past to their core in one shot. The rest
+            of the pile'll just collapse!
           m_eventName: 
           m_breakAfterward: 0
         - m_text: Shadows

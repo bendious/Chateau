@@ -292,7 +292,7 @@ public class DialogueController : MonoBehaviour
 				m_lastRevealTime += revealDurationCur * numToReveal;
 
 				// ensure matching tags
-				// TODO: only parse newly added characters?
+				// TODO: only parse newly added characters? handle multiple sets of tags w/i a single line?
 				tagCharCount = 0;
 				List<string> endTags = new();
 				MatchCollection matches = m_tagMatcher.Matches(textCur);
