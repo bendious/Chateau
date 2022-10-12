@@ -1385,20 +1385,20 @@ MonoBehaviour:
   - m_object: {fileID: 11400000, guid: 30ab735d166f6cd45a32827777dd635d, type: 2}
     m_weight: 1
   m_enemyPrefabs:
-  - m_object: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+  - m_object: {fileID: 5008818805582489474, guid: 7279d3fac13df0c49a659889f1c1a70b, type: 3}
     m_weight: 1
   - m_object: {fileID: 4591554789177784179, guid: 1187c6293fee67d4da01f8200f643835, type: 3}
     m_weight: 1
   - m_object: {fileID: 6725369280228572274, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
-    m_weight: 1
+    m_weight: 0.5
   - m_object: {fileID: 1685173867853252375, guid: 0112a6934fe93af4cac38fb37ef6b61c, type: 3}
     m_weight: 1
   - m_object: {fileID: 7860237375500733911, guid: a59b0c7f16c0a4b43838a3bf904c9952, type: 3}
     m_weight: 1
   - m_object: {fileID: 4332540462406199803, guid: a76b6335cfa95454897fe0488d403446, type: 3}
-    m_weight: 1
+    m_weight: 2
   - m_object: {fileID: 7544776239863355960, guid: c247edf037d4fb347984cdee36601f9b, type: 3}
-    m_weight: 1
+    m_weight: 0.5
   - m_object: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
     m_weight: 2
   m_npcRoles:

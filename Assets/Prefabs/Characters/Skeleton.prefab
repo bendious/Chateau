@@ -256,15 +256,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2596667095425139531, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
       propertyPath: m_typeScalars.Array.size
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2596667095425139531, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
       propertyPath: m_typeScalars.Array.data[0].m_type
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2596667095425139531, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_typeScalars.Array.data[1].m_type
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2596667095425139531, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_typeScalars.Array.data[2].m_type
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2596667095425139531, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
       propertyPath: m_typeScalars.Array.data[0].m_scalar
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2596667095425139531, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_typeScalars.Array.data[1].m_scalar
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2596667095425139531, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_typeScalars.Array.data[2].m_scalar
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
       propertyPath: m_difficulty

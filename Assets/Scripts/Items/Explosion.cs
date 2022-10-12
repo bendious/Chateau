@@ -7,7 +7,7 @@ public class Explosion : MonoBehaviour
 	[SerializeField] private float m_radius = -1.0f;
 
 	[SerializeField] private float m_damage = 1.0f;
-	[SerializeField] private Health.DamageType m_damageType = Health.DamageType.Explosive;
+	[SerializeField] private Health.DamageType m_damageType = Health.DamageType.Heat;
 
 	[SerializeField] private WeightedObject<AudioClip>[] m_sfx;
 

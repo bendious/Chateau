@@ -119,6 +119,8 @@ MonoBehaviour:
     m_scalar: 0
   - m_type: 5
     m_scalar: 0
+  - m_type: 6
+    m_scalar: 0
 --- !u!1 &2107013846910800877
 GameObject:
   m_ObjectHideFlags: 0
@@ -605,6 +607,8 @@ MonoBehaviour:
   m_blinkSecondsPost: 0.25
   m_typeScalars:
   - m_type: 5
+    m_scalar: 0
+  - m_type: 6
     m_scalar: 0
 --- !u!114 &7945988881669848815
 MonoBehaviour:

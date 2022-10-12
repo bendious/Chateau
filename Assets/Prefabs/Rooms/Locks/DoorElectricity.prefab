@@ -315,6 +315,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_damage: 1
+  m_type: 4
   m_damageImpulse: {x: 0, y: 0}
   m_damageSfx: []
   m_singleUse: 0

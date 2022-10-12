@@ -17,7 +17,7 @@ public class Health : MonoBehaviour
 		Edge,
 		Pierce,
 		Heat,
-		Explosive,
+		Electric,
 		Chemical,
 	}
 
@@ -143,6 +143,20 @@ public class Health : MonoBehaviour
 			m_lastDamageAmount = amount;
 		}
 
+		// scale
+		float amountFinal = -(sourceCharacter == null ? amount : sourceCharacter.m_damageScalar * amount);
+		foreach (DamageTypeScalar typeScalar in m_typeScalars)
+		{
+			if (typeScalar.m_type == type)
+			{
+				amountFinal *= typeScalar.m_scalar;
+			}
+		}
+		if (amountFinal.FloatEqual(0.0f))
+		{
+			return false;
+		}
+
 		// set item cause if appropriate, to enable chain reactions
 		ItemController item = GetComponentInParent<ItemController>(); // TODO: ensure this doesn't catch unwanted ancestors?
 		if (item != null && item.Cause == null)
@@ -152,14 +166,6 @@ public class Health : MonoBehaviour
 
 		// damage
 		HealCancel();
-		float amountFinal = -(sourceCharacter == null ? amount : sourceCharacter.m_damageScalar * amount);
-		foreach (DamageTypeScalar typeScalar in m_typeScalars)
-		{
-			if (typeScalar.m_type == type)
-			{
-				amountFinal *= typeScalar.m_scalar;
-			}
-		}
 		IncrementInternal(amountFinal);
 		OnHealthDecrement evt = Simulation.Schedule<OnHealthDecrement>();
 		evt.m_health = this;
