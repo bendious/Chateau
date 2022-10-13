@@ -951,12 +951,12 @@ public class RoomController : MonoBehaviour
 		}
 	}
 
-	public Vector3 InteriorPosition(float heightMax, GameObject preventOverlapPrefab = null, Quaternion? rotation = null, float edgeBuffer = 0.0f, System.Action resizeAction = null, System.Action failureAction = null)
+	public Vector3 InteriorPosition(float heightMax, GameObject preventOverlapPrefab = null, Quaternion? rotation = null, float edgeBuffer = 0.0f, System.Action resizeAction = null, System.Action failureAction = null, float xPreferred = float.NaN)
 	{
-		return InteriorPosition(0.0f, heightMax, preventOverlapPrefab, rotation, edgeBuffer, resizeAction, failureAction);
+		return InteriorPosition(0.0f, heightMax, preventOverlapPrefab, rotation, edgeBuffer, resizeAction, failureAction, xPreferred);
 	}
 
-	public Vector3 InteriorPosition(float heightMin, float heightMax, GameObject preventOverlapPrefab = null, Quaternion? rotation = null, float edgeBuffer = 0.0f, System.Action resizeAction = null, System.Action failureAction = null)
+	public Vector3 InteriorPosition(float heightMin, float heightMax, GameObject preventOverlapPrefab = null, Quaternion? rotation = null, float edgeBuffer = 0.0f, System.Action resizeAction = null, System.Action failureAction = null, float xPreferred = float.NaN)
 	{
 		static float getOverlap(Bounds a, Bounds b)
 		{
@@ -986,11 +986,18 @@ public class RoomController : MonoBehaviour
 				bboxNew.Expand(new Vector3(-Utility.FloatEpsilon, -Utility.FloatEpsilon, float.MaxValue)); // NOTE the slight x/y contraction to avoid always collecting the floor when up against it
 			}
 
-			float xDiffMax = boundsInterior.extents.x - bboxNew.extents.x;
-			Debug.Assert(xDiffMax >= 0.0f);
-			float yMaxFinal = Mathf.Min(heightMax, boundsInterior.size.y - bboxNew.size.y); // TODO: also count furniture surfaces as "floor"
+			// ensure overlap object fits entirely inside room bounds
+			boundsInterior.Expand(-bboxNew.size);
+			if (boundsInterior.extents.x < 0.0f)
+			{
+				resizeAction?.Invoke();
+				continue;
+			}
 
-			pos = new(boundsInterior.center.x + Random.Range(-xDiffMax, xDiffMax), transform.position.y + Random.Range(heightMin, yMaxFinal), transform.position.z); // NOTE the assumptions that the object position is on the floor of the room but not necessarily centered
+			// construct initial position
+			float xInitial = float.IsNaN(xPreferred) ? boundsInterior.center.x + Random.Range(-boundsInterior.extents.x, boundsInterior.extents.x) : Mathf.Clamp(xPreferred, boundsInterior.min.x, boundsInterior.max.x);
+			float yMaxFinal = Mathf.Min(heightMax, boundsInterior.size.y); // TODO: also count furniture surfaces as "floor"
+			pos = new(xInitial, transform.position.y + Random.Range(heightMin, yMaxFinal), transform.position.z); // NOTE the assumptions that the object position is on the floor of the room but not necessarily centered
 			if (preventOverlapPrefab == null)
 			{
 				return pos;
@@ -999,12 +1006,15 @@ public class RoomController : MonoBehaviour
 			// get points until no overlap
 			// TODO: more deliberate iteration? avoid tendency to line up in a row?
 			Vector3 offsetToCenter = bboxNew.center - preventOverlapPrefab.transform.position; // NOTE that we can't assume the bbox is centered
-			float xSizeEffective = boundsInterior.size.x - bboxNew.size.x;
+			int xDir = (float.IsNaN(xPreferred) ? Random.value > 0.5f : xPreferred > boundsInterior.center.x) ? -1 : 1;
+			float xWrap = boundsInterior.size.x * xDir;
+			float xStep = xWrap / attemptsMax;
 			int moveCount = attemptsMax;
 			do
 			{
 				bboxNew.center = pos + offsetToCenter;
 
+				// calculate overlap
 				float overlap = 0.0f;
 				foreach (Renderer renderer in GetComponentsInChildren<Renderer>().Where(r => r is SpriteRenderer or SpriteMask or MeshRenderer)) // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
 				{
@@ -1031,17 +1041,19 @@ public class RoomController : MonoBehaviour
 					return pos;
 				}
 
+				// track best backup position
 				if (overlap < backupOverlap)
 				{
 					posBackup = pos;
 					backupOverlap = overlap;
 				}
 
-				pos.x += xSizeEffective / attemptsMax;
+				// iterate
+				pos.x += xStep;
 				pos.y = transform.position.y + Random.Range(heightMin, yMaxFinal);
-				if (pos.x > boundsInterior.max.x - bboxNew.extents.x)
+				if (xDir > 0 ? pos.x > boundsInterior.max.x : pos.x < boundsInterior.min.x)
 				{
-					pos.x -= xSizeEffective;
+					pos.x -= xWrap;
 				}
 			}
 			while (--moveCount > 0);

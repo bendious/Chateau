@@ -48,13 +48,13 @@ public class GateController : MonoBehaviour, IUnlockable
 		LockInfo lockInfo = RoomController.RandomWeightedByKeyCount(m_lockPrefabs.CombineWeighted(GameController.Instance.m_lockPrefabs, info => info.m_object.m_prefab, pair => pair.m_object), (info, preferredKeyCount) => RoomController.ObjectToKeyStats(info.m_prefab, preferredKeyCount), keyRoomsCount, difficultyPct);
 
 		float yOffset = lockInfo.m_prefab.OriginToCenterY(true).y;
-		Vector3 spawnPos = lockRoom.InteriorPosition(lockInfo.m_heightMin + yOffset, lockInfo.m_heightMax + yOffset, lockInfo.m_prefab); // TODO: prioritize placing near self if multiple gates in this room?
+		Vector3 spawnPos = lockRoom.InteriorPosition(lockInfo.m_heightMin + yOffset, lockInfo.m_heightMax + yOffset, lockInfo.m_prefab, xPreferred: transform.position.x);
 		if (lockInfo.m_alignVertically)
 		{
-			spawnPos.x = transform.position.x;
+			spawnPos.x = transform.position.x; // TODO: move other object(s) if overlapping?
 		}
 
-		m_child = Instantiate(lockInfo.m_prefab, spawnPos, Quaternion.identity, transform.parent).GetComponent<IUnlockable>();
+		m_child = Instantiate(lockInfo.m_prefab, spawnPos, Quaternion.identity, lockRoom.transform).GetComponent<IUnlockable>();
 		m_child.Parent = gameObject;
 		m_child.IsCriticalPath = IsCriticalPath;
 		m_child.SpawnKeysStatic(lockRoom, keyRooms, difficultyPct);
