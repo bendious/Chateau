@@ -38,6 +38,8 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 	[SerializeField] private float m_swingDecayStiffness = 100.0f;
 
+	[SerializeField] private bool m_colorMatching = true;
+
 
 	public float Speed => Mathf.Abs(Mathf.Deg2Rad * (m_aimVelocityArm + m_aimVelocityItem) * ((Vector2)transform.parent.position - (Vector2)transform.position).magnitude) + Mathf.Abs(m_aimRadiusVelocity); // NOTE the conversion from angular velocity to linear speed via arclength=radians*radius // TODO: incorporate aim velocity directions?
 
@@ -93,7 +95,16 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		// update layer/color/alpha
 		// TODO: efficiency?
 		gameObject.layer = transform.parent.gameObject.layer;
-		m_renderer.color = m_rendererParent.color;
+		if (m_colorMatching)
+		{
+			m_renderer.color = m_rendererParent.color;
+		}
+		else
+		{
+			Color color = m_renderer.color;
+			color.a = m_rendererParent.color.a;
+			m_renderer.color = color;
+		}
 	}
 
 	// TODO: combine w/ ItemController version?

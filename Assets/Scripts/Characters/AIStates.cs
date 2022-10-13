@@ -62,7 +62,7 @@ public abstract class AIState
 				case Type.Flee:
 					return !ai.m_friendly && GameController.Instance.Victory ? 100.0f : 0.0f;
 				case Type.Melee:
-					return (numItems > 0 || !itemAccessible) && holdCountMax > 0 ? Mathf.InverseLerp(2.0f * ai.m_meleeRange, ai.m_meleeRange, distanceFromTarget) : 0.0f;
+					return (numItems > 0 || !itemAccessible || !allowedTypes.Contains(Type.FindAmmo)) && holdCountMax > 0 ? Mathf.InverseLerp(2.0f * ai.m_meleeRange, ai.m_meleeRange, distanceFromTarget) : 0.0f;
 				case Type.Throw:
 					return ai.m_target != null && distanceFromTarget > ai.m_meleeRange && numItems > 0 ? 1.0f : 0.0f;
 				case Type.ThrowAll:
@@ -393,12 +393,11 @@ public sealed class AIFlee : AIState
 
 public sealed class AIMelee : AIState
 {
-	public float m_durationSeconds = 1.0f;
-	public float m_swingTimeSeconds = 0.2f;
+	public float m_swingTimeSeconds = 0.2f; // TODO: vary based on item weight?
 
 
-	private float m_startTime;
-	private float m_swingTime;
+	private float m_durationRemaining;
+	private float m_swingDurationRemaining;
 
 
 	private ItemController m_item;
@@ -414,12 +413,10 @@ public sealed class AIMelee : AIState
 	{
 		base.Enter();
 
-		m_startTime = Time.time;
+		m_durationRemaining = Random.Range(m_ai.m_meleeSecondsMin, m_ai.m_meleeSecondsMax);
 
 		m_item = m_ai.GetComponentInChildren<ItemController>();
 		m_arm = m_item != null ? null : m_ai.GetComponentInChildren<ArmController>();
-
-		Swing();
 	}
 
 	public override AIState Update()
@@ -432,13 +429,14 @@ public sealed class AIMelee : AIState
 
 		m_ai.NavigateTowardTarget(Vector2.zero);
 
-		if (Time.time >= m_swingTime + m_swingTimeSeconds)
+		m_swingDurationRemaining -= Time.deltaTime;
+		if (m_swingDurationRemaining <= 0.0f)
 		{
 			Swing();
-			m_swingTime = Time.time;
 		}
 
-		if (Time.time >= m_startTime + m_durationSeconds)
+		m_durationRemaining -= Time.deltaTime;
+		if (m_durationRemaining <= 0.0f)
 		{
 			return null;
 		}
@@ -457,6 +455,7 @@ public sealed class AIMelee : AIState
 		{
 			m_arm.Swing(false, Random.value < 0.5f); // TODO: more deliberate use of jabs/swings?
 		}
+		m_swingDurationRemaining = m_swingTimeSeconds;
 	}
 }
 

@@ -18,6 +18,8 @@ public class LineConnector : MonoBehaviour
 	[SerializeField] private WeightedObject<AudioClip>[] m_sfxStretch;
 	[SerializeField] private WeightedObject<AudioClip>[] m_sfxSnap;
 
+	[SerializeField] private bool m_colorMatching = true;
+
 
 	private LineRenderer[] m_lines;
 
@@ -104,7 +106,7 @@ public class LineConnector : MonoBehaviour
 			{
 				line.SetPosition(0, startPosLocal);
 				line.SetPosition(1, endPosLocal);
-				if (line.colorGradient.colorKeys.First().color != color || line.colorGradient.alphaKeys.First().alpha != color.a) // TODO: don't assume a constant gradient across the line?
+				if (m_colorMatching && (line.colorGradient.colorKeys.First().color != color || line.colorGradient.alphaKeys.First().alpha != color.a)) // TODO: don't assume a constant gradient across the line?
 				{
 					line.colorGradient = newGradient.Value; // NOTE that we have to replace the whole gradient rather than just setting individual attributes due to the annoying way LineRenderer prevents those changes
 				}

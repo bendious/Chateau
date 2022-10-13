@@ -275,7 +275,7 @@ public class Health : MonoBehaviour
 		if (m_gradientActive)
 		{
 			Color color = ColorCurrent;
-			foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>().Where(renderer => renderer.GetComponent<IAttachable>() == null))
+			foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>().Where(renderer => renderer.GetComponent<IAttachable>() == null && renderer.GetComponent<ArmController>() == null))
 			{
 				renderer.color = color;
 			}

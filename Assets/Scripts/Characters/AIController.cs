@@ -22,6 +22,8 @@ public sealed class AIController : KinematicCharacter
 	public float m_replanSecondsMax = 3.0f;
 
 	public float m_meleeRange = 1.0f;
+	public float m_meleeSecondsMin = 0.5f;
+	public float m_meleeSecondsMax = 1.0f;
 	[SerializeField] float m_alertDistanceMax = 10.0f;
 
 	[SerializeField] private float m_jumpMaxSpeedOverride = -1.0f;
