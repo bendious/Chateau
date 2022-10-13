@@ -48,6 +48,8 @@ public class DialogueController : MonoBehaviour
 
 	public bool IsPlaying => gameObject.activeSelf;
 
+	public Transform ReplyMenu => m_replyTemplate.transform.parent;
+
 
 	private static readonly Regex m_tagMatcher = new(@"<(.+)>.*</\1>");
 
@@ -59,7 +61,7 @@ public class DialogueController : MonoBehaviour
 	private int m_replyIdx;
 	private Queue<string> m_queueFollowUp;
 	private GameObject m_callbackObject;
-	private AvatarController m_avatar;
+	public AvatarController Avatar { get; private set; }
 	private int m_loopIdx = -1;
 
 	private bool m_forceNewLine = false;
@@ -78,7 +80,7 @@ public class DialogueController : MonoBehaviour
 		m_replyIdx = 0;
 		m_queueFollowUp = null;
 		m_callbackObject = callbackObject;
-		m_avatar = avatar;
+		Avatar = avatar;
 		m_loopIdx = loopIdx;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
@@ -106,10 +108,10 @@ public class DialogueController : MonoBehaviour
 		{
 			m_forceNewLine = true;
 		}
-		m_replyTemplate.transform.parent.gameObject.SetActive(false);
-		for (int i = 0, n = m_replyTemplate.transform.parent.childCount; i < n; ++i)
+		ReplyMenu.gameObject.SetActive(false);
+		for (int i = 0, n = ReplyMenu.childCount; i < n; ++i)
 		{
-			GameObject child = m_replyTemplate.transform.parent.GetChild(i).gameObject;
+			GameObject child = ReplyMenu.GetChild(i).gameObject;
 			if (child == m_replyTemplate)
 			{
 				continue;
@@ -123,7 +125,7 @@ public class DialogueController : MonoBehaviour
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)")]
 	public void MerchantSell(Line.Reply reply)
 	{
-		IAttachable[] attachables = m_avatar.GetComponentsInChildren<IAttachable>(true);
+		IAttachable[] attachables = Avatar.GetComponentsInChildren<IAttachable>(true);
 		if (attachables.Length <= 0)
 		{
 			m_queue.Enqueue(new() { m_text = "{merchantSellEmpty.}" });
@@ -153,7 +155,7 @@ public class DialogueController : MonoBehaviour
 	public void MerchantDespawn(Line.Reply reply)
 	{
 		// record acquisition
-		IEnumerable<IAttachable> attachables = m_avatar.GetComponentsInChildren<IAttachable>(true).Where(attachable => ((ISavable)attachable).Type >= 0); // TODO: don't assume all attachables are also savables?
+		IEnumerable<IAttachable> attachables = Avatar.GetComponentsInChildren<IAttachable>(true).Where(attachable => ((ISavable)attachable).Type >= 0); // TODO: don't assume all attachables are also savables?
 		IAttachable attachable = attachables.ElementAt(m_replyIdx);
 		int savableType = ((ISavable)attachable).Type; // TODO: don't assume all attachables are also savables?
 		++GameController.MerchantAcquiredCounts[savableType];
@@ -206,8 +208,8 @@ public class DialogueController : MonoBehaviour
 		int savableType = reply.m_userdata;
 		int cost = GameController.Instance.m_savableFactory.m_savables[savableType].m_materialsConsumed;
 		Debug.Assert(GameController.MerchantMaterials >= cost);
-		ISavable savable = GameController.Instance.m_savableFactory.Instantiate(savableType, m_avatar.transform.position, Quaternion.identity);
-		m_avatar.ChildAttach(savable.Component.GetComponent<IAttachable>()); // TODO: don't assume all savables are also attachable?
+		ISavable savable = GameController.Instance.m_savableFactory.Instantiate(savableType, Avatar.transform.position, Quaternion.identity);
+		Avatar.ChildAttach(savable.Component.GetComponent<IAttachable>()); // TODO: don't assume all savables are also attachable?
 		GameController.MerchantMaterials -= cost;
 	}
 
@@ -220,25 +222,25 @@ public class DialogueController : MonoBehaviour
 		m_audio.clip = sfx;
 
 		// avatar setup
-		if (m_avatar == null)
+		if (Avatar == null)
 		{
 			Canvas canvas = GetComponent<Canvas>();
 			canvas.enabled = false; // don't show dialogue box until we're ready
 			yield return new WaitUntil(() => GameController.Instance.m_avatars.Count > 0);
-			m_avatar = GameController.Instance.m_avatars.First(); // TODO: don't assume that the first avatar will always remain?
+			Avatar = GameController.Instance.m_avatars.First(); // TODO: don't assume that the first avatar will always remain?
 			canvas.enabled = true;
 		}
-		m_avatar.Controls.SwitchCurrentActionMap("UI"); // TODO: un-hardcode?
-		InputAction submitKey = m_avatar.Controls.actions["Submit"];
+		Avatar.ControlsUI.Enable();
+		InputAction submitKey = Avatar.Controls.actions["Submit"];
 		bool submitReleasedSinceNewline = true;
 
-		WaitUntil replyWait = new(() => !m_replyTemplate.transform.parent.gameObject.activeInHierarchy);
+		WaitUntil replyWait = new(() => !ReplyMenu.gameObject.activeInHierarchy);
 		int tagCharCount = 0;
 
 		while (m_queue.Count > 0)
 		{
 			// handle input for reply selection
-			if (m_replyTemplate.transform.parent.gameObject.activeInHierarchy)
+			if (ReplyMenu.gameObject.activeInHierarchy)
 			{
 				// wait for OnReplySelected()
 				yield return replyWait;
@@ -331,7 +333,7 @@ public class DialogueController : MonoBehaviour
 
 					// display any replies
 					bool active = m_queueFollowUp == null && lineCur.m_replies != null && lineCur.m_replies.Length > 0;
-					m_replyTemplate.transform.parent.gameObject.SetActive(active);
+					ReplyMenu.gameObject.SetActive(active);
 					if (active)
 					{
 						TMP_Text newText = null;
@@ -350,7 +352,7 @@ public class DialogueController : MonoBehaviour
 								continue;
 							}
 
-							GameObject newObj = Instantiate(m_replyTemplate, m_replyTemplate.transform.parent);
+							GameObject newObj = Instantiate(m_replyTemplate, ReplyMenu);
 							newText = newObj.GetComponentInChildren<TMP_Text>();
 							newText.text = ReplaceExpressions(replyCur.m_text, expressionsOrdered);
 							RectTransform newTf = newObj.GetComponent<RectTransform>();
@@ -365,7 +367,7 @@ public class DialogueController : MonoBehaviour
 						}
 
 						// set background size to fit
-						RectTransform tf = m_replyTemplate.transform.parent.GetComponent<RectTransform>();
+						RectTransform tf = ReplyMenu.GetComponent<RectTransform>();
 						tf.sizeDelta = new(tf.sizeDelta.x, Mathf.Abs(yOffsetCur) + yMargin * 2.0f);
 					}
 					else
@@ -386,7 +388,7 @@ public class DialogueController : MonoBehaviour
 			}
 		}
 
-		m_avatar.Controls.SwitchCurrentActionMap("Avatar"); // TODO: un-hardcode? check for other UI?
+		Avatar.ControlsUI.Disable(); // TODO: check for other UI?
 		gameObject.SetActive(false);
 	}
 
@@ -427,7 +429,7 @@ public class DialogueController : MonoBehaviour
 		}
 		else
 		{
-			InteractNpc sourceInteract = FindObjectsOfType<InteractNpc>().FirstOrDefault(interact => GameController.NpcDialogues(interact.Index).Contains(line.m_source) && Vector2.Distance(m_avatar.transform.position, interact.transform.position) <= line.m_sourceDistMax);
+			InteractNpc sourceInteract = FindObjectsOfType<InteractNpc>().FirstOrDefault(interact => GameController.NpcDialogues(interact.Index).Contains(line.m_source) && Vector2.Distance(Avatar.transform.position, interact.transform.position) <= line.m_sourceDistMax);
 			if (sourceInteract == null)
 			{
 				// if the source is not present, end the dialogue // TODO: parameterize?
@@ -481,7 +483,7 @@ public class DialogueController : MonoBehaviour
 		{
 			m_callbackObject.SendMessage(functionName, value, SendMessageOptions.DontRequireReceiver);
 		}
-		m_avatar.gameObject.SendMessage(functionName, value, SendMessageOptions.DontRequireReceiver);
+		Avatar.gameObject.SendMessage(functionName, value, SendMessageOptions.DontRequireReceiver);
 		GameController.Instance.gameObject.SendMessage(functionName, value, SendMessageOptions.DontRequireReceiver);
 	}
 }

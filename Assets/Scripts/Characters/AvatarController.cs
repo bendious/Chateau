@@ -54,6 +54,7 @@ public sealed class AvatarController : KinematicCharacter
 
 
 	public PlayerInput Controls { get; private set; }
+	public InputActionMap ControlsUI { get; private set; }
 
 	public bool IsAlive => ConsoleCommands.NeverDie || m_health.IsAlive;
 
@@ -126,6 +127,7 @@ public sealed class AvatarController : KinematicCharacter
 		InventorySync();
 
 		Controls = GetComponent<PlayerInput>();
+		ControlsUI = Controls.actions.FindActionMap("UI");
 		Controls.actions.FindActionMap("AlwaysOn").Enable();
 		Controls.actions.FindActionMap("Avatar").FindAction("LookToggle").canceled += OnLookToggleCancel; // NOTE that this wouldn't be necessary if the Hold and Press/Release interactions worked together to allow detecting hold stop as well as start // TODO: cleaner workaround / remove hardcoding?
 
@@ -799,7 +801,14 @@ public sealed class AvatarController : KinematicCharacter
 			overlayObj.GetComponentInChildren<TMP_Text>().text = text;
 		}
 		overlayObj.SetActive(!overlayObj.activeSelf);
-		Controls.SwitchCurrentActionMap(m_overlayCanvas.gameObject.activeSelf ? "UI" : "Avatar"); // TODO: account for other UI instances?
+		if (m_overlayCanvas.gameObject.activeSelf) // TODO: account for other UI instances?
+		{
+			ControlsUI.Enable();
+		}
+		else
+		{
+			ControlsUI.Disable();
+		}
 		return overlayObj.activeSelf;
 	}
 

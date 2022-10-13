@@ -152,12 +152,12 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 			m_speedMeter.fillAmount = item.m_throwSpeed / referenceSpeed / maxMeterPct;
 		}
 
-		ChangeActivation("UI", 1.0f, tooltip && item != null);
+		ChangeActivation(true, 1.0f, tooltip && item != null);
 	}
 
 	public void Deactivate()
 	{
-		ChangeActivation("Avatar", 0.5f, false); // TODO: check for active menus/overlays?
+		ChangeActivation(false, 0.5f, false); // TODO: check for active menus/overlays?
 	}
 
 	public void SwapWithIndex(int index2)
@@ -272,9 +272,17 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 		transform.root.GetComponent<AvatarController>().InventorySync();
 	}
 
-	private void ChangeActivation(string actionMapName, float alpha, bool tooltip)
+	private void ChangeActivation(bool active, float alpha, bool tooltip)
 	{
-		transform.root.GetComponent<PlayerInput>().SwitchCurrentActionMap(actionMapName);
+		InputActionMap actionMap = transform.root.GetComponent<AvatarController>().ControlsUI; // TODO: cache? don't assume avatars will never have a parent object?
+		if (active)
+		{
+			actionMap.Enable();
+		}
+		else
+		{
+			actionMap.Disable();
+		}
 		Image image = GetComponent<Image>();
 		image.color = new(image.color.r, image.color.g, image.color.b, alpha);
 		m_tooltip.gameObject.SetActive(tooltip);

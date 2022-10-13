@@ -467,7 +467,7 @@ public class GameController : MonoBehaviour
 		}
 
 		Time.timeScale = Time.timeScale == 0.0f ? 1.0f : 0.0f;
-		ActivateMenu(m_pauseUI, !m_pauseUI.gameObject.activeSelf);
+		StartCoroutine(ActivateMenuCoroutine(m_pauseUI, !m_pauseUI.gameObject.activeSelf));
 		// NOTE that if the avatar is ever visible while paused, we should disable its script here to avoid continuing to update facing
 	}
 
@@ -532,7 +532,7 @@ public class GameController : MonoBehaviour
 		Simulation.Schedule<GameOver>(3.0f); // TODO: time via animation event?
 	}
 
-	public void OnGameOver() => ActivateMenu(m_gameOverUI, true);
+	public void OnGameOver() => StartCoroutine(ActivateMenuCoroutine(m_gameOverUI, true));
 
 	public void DeleteSaveAndQuit()
 	{
@@ -559,7 +559,7 @@ public class GameController : MonoBehaviour
 				avatar.Respawn(!noInventoryClear && !Victory, true);
 			}
 			Simulation.Schedule<DebugRespawn>();
-			ActivateMenu(m_gameOverUI, false);
+			StartCoroutine(ActivateMenuCoroutine(m_gameOverUI, false));
 			GetComponent<PlayerInputManager>().EnableJoining();
 			return;
 		}
@@ -586,7 +586,7 @@ public class GameController : MonoBehaviour
 		{
 			TogglePause();
 		}
-		ActivateMenu(m_gameOverUI, false);
+		StartCoroutine(ActivateMenuCoroutine(m_gameOverUI, false));
 
 		IsSceneLoad = true;
 
@@ -1122,16 +1122,28 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	private void ActivateMenu(Canvas menu, bool active)
+	private IEnumerator ActivateMenuCoroutine(Canvas menu, bool active)
 	{
 		menu.gameObject.SetActive(active);
-		if (active)
+
+		yield return null; // delay one frame to mitigate input double-processing
+
+		GameObject activeMenu = active ? menu.gameObject : m_gameOverUI.gameObject.activeSelf ? m_gameOverUI.gameObject : m_pauseUI.gameObject.activeSelf ? m_pauseUI.gameObject : m_dialogueController.ReplyMenu.gameObject.activeInHierarchy ? m_dialogueController.ReplyMenu.gameObject : null; // TODO: account for other UI instances?
+		if (activeMenu != null)
 		{
-			UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(menu.GetComponentInChildren<Button>().gameObject);
+			UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(activeMenu.GetComponentInChildren<Button>().gameObject);
 		}
 		foreach (AvatarController avatar in m_avatars)
 		{
-			avatar.Controls.SwitchCurrentActionMap(m_pauseUI.gameObject.activeSelf || m_gameOverUI.gameObject.activeSelf || avatar.m_overlayCanvas.gameObject.activeSelf ? "UI" : "Avatar"); // TODO: account for other UI instances?
+			avatar.Controls.SwitchCurrentActionMap(active || m_pauseUI.gameObject.activeSelf || m_gameOverUI.gameObject.activeSelf ? "UI" : "Avatar"); // TODO: account for other UI instances?
+		}
+
+		yield return null; // delay one frame to mitigate input double-processing
+
+		// TODO: move into DialogueController?
+		if (m_dialogueController.IsPlaying && m_dialogueController.Avatar != null)
+		{
+			m_dialogueController.Avatar.ControlsUI.Enable();
 		}
 	}
 }
