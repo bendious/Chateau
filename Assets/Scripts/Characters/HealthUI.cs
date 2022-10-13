@@ -9,8 +9,6 @@ using UnityEngine.UI;
 public sealed class HealthUI : Health
 {
 	[SerializeField] private GameObject m_healthUIParent;
-	[SerializeField] private Sprite m_healthSprite;
-	[SerializeField] private Sprite m_healthMissingSprite;
 	[SerializeField] private float m_UIPadding = 5.0f;
 
 
@@ -96,13 +94,10 @@ public sealed class HealthUI : Health
 			uiNew.SetActive(true);
 		}
 
-		// set sprites
+		// set sprite fill
 		for (int i = 0; i < maxHP; ++i)
 		{
-			Image image = m_healthUIParent.transform.GetChild(i + 1).GetComponent<Image>(); // NOTE +1 due to template object
-			bool notEmpty = i < m_currentHP;
-			image.sprite = notEmpty ? m_healthSprite : m_healthMissingSprite;
-			image.fillAmount = notEmpty ? Mathf.Clamp01(m_currentHP - i) : 1.0f;
+			m_healthUIParent.transform.GetChild(i + 1).GetComponent<Image>().fillAmount = Mathf.Clamp01(m_currentHP - i); // NOTE i+1 indexing due to template object
 		}
 
 		// TODO: adjust size of parent if its width is ever visible/used
