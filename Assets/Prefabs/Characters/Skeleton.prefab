@@ -226,6 +226,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1577774018119691272, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: a5195744d84f8fc45a597ea070f0e2ab, type: 3}
+    - target: {fileID: 1605217082131907960, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 22100000, guid: 15879f24cfd6b33438a0fe10635f37cc, type: 2}
     - target: {fileID: 1658460978237467174, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -248,11 +256,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1724124757368974630, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
       propertyPath: m_Size.x
-      value: 0.65
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 1724124757368974630, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
       propertyPath: m_Size.y
-      value: 0.65
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2596667095425139531, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_gradient.key1.b
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2596667095425139531, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_gradient.key1.g
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2596667095425139531, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_gradient.key1.r
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 2596667095425139531, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
       propertyPath: m_typeScalars.Array.size
