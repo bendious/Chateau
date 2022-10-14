@@ -1381,22 +1381,26 @@ public class RoomController : MonoBehaviour
 			}
 
 			int dummyIdx = GameController.Instance.m_doorInteractPrefabs.Length - 1; // TODO: don't assume that always/only the last door will spawn via runtime generation?
-			List<LayoutGenerator.Node> newNodes = null;
+			List<LayoutGenerator.Node> newNodeTree = null;
 			const int maxAttempts = 4; // NOTE that this corresponds to the maximum number of sideways/downward doors in a room // TODO: un-hardcode?
 			for (int i = 0; i < maxAttempts; ++i)
 			{
 				// create and link nodes
-				if (newNodes == null)
+				int depth = m_layoutNodes.Max(node => node.Depth);
+				if (newNodeTree == null)
 				{
-					newNodes = new() { new(LayoutGenerator.Node.Type.Secret, new() { new(LayoutGenerator.Node.Type.TightCoupling, new() { new(i == 0 && GameController.Instance.OnNarrowPath && m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomIndefiniteCorrect) ? m_layoutNodes.First().Depth >= m_generatedPathDepth ? LayoutGenerator.Node.Type.ExitDoor : LayoutGenerator.Node.Type.RoomIndefiniteCorrect : LayoutGenerator.Node.Type.RoomIndefinite) }) }) }; // TODO: streamline?
+					isCorrect = isCorrect && i == 0 && GameController.Instance.OnNarrowPath;
+					newNodeTree = new() { new(LayoutGenerator.Node.Type.Secret, new() { new(LayoutGenerator.Node.Type.TightCoupling, new() { new(isCorrect ? (depth >= m_generatedPathDepth ? LayoutGenerator.Node.Type.ExitDoor : LayoutGenerator.Node.Type.RoomIndefiniteCorrect) : LayoutGenerator.Node.Type.RoomIndefinite) }) }) }; // TODO: streamline?
 					foreach (LayoutGenerator.Node node in m_layoutNodes)
 					{
-						node.AddChildren(newNodes);
+						node.AddChildren(newNodeTree);
 					}
 				}
 
 				// create room
-				RoomController newRoom = SpawnChildRoom(GameController.Instance.m_roomPrefabs.RandomWeighted(), newNodes.SelectMany(node => node.WithDescendants).ToArray(), new[] { Vector2.left, Vector2.right, Vector2.down }, ref dummyIdx); // TODO: allow upward generation as long as it doesn't break through the ground?
+				// TODO: better way of specifying gate color? prevent similar colors?
+				newNodeTree.First().AreaParents.First().m_room.m_wallColor = isCorrect ? GameController.NarrowPathColors[System.Math.Clamp(depth - 2, 0, 2)] : Utility.ColorRandom(Color.black, Color.white, false); // TODO: better way of getting NarrowPathColors[] index?
+				RoomController newRoom = SpawnChildRoom(GameController.Instance.m_roomPrefabs.RandomWeighted(), newNodeTree.SelectMany(node => node.WithDescendants).ToArray(), new[] { Vector2.left, Vector2.right, Vector2.down }, ref dummyIdx); // TODO: allow upward generation as long as it doesn't break through the ground?
 				if (newRoom != null)
 				{
 					newRoom.FinalizeRecursive(ref dummyIdx, ref dummyIdx);
@@ -1440,14 +1444,14 @@ public class RoomController : MonoBehaviour
 					}
 					m_runtimeRooms.Add(newRoom);
 
-					newNodes = null;
+					newNodeTree = null;
 				}
 			}
 
 			// cleanup if the last room was canceled
-			if (newNodes != null)
+			if (newNodeTree != null)
 			{
-				foreach (LayoutGenerator.Node node in newNodes)
+				foreach (LayoutGenerator.Node node in newNodeTree)
 				{
 					node.DirectParents.Remove(node);
 				}
@@ -1633,7 +1637,7 @@ public class RoomController : MonoBehaviour
 			renderer.GetComponent<BoxCollider2D>().size = size;
 			if (isSecret)
 			{
-				renderer.color = m_wallColor; // NOTE that m_wallColor generally isn't set yet, but FinalizeRecursive() will also iterate over existing doorway blockers when m_wallColor is set
+				renderer.color = m_layoutNodes.First().AreaParents.First().m_room.m_wallColor; // NOTE that in case m_wallColor isn't set yet FinalizeRecursive() will iterate over existing doorway blockers when m_wallColor is set
 			}
 
 			// TODO: don't assume that multi-part gates are synonymous w/ one-way breakable gates?

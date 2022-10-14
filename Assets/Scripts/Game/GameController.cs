@@ -98,6 +98,7 @@ public class GameController : MonoBehaviour
 
 	public static int ZonesFinishedCount { get; private set; }
 
+	public static Color[] NarrowPathColors { get; private set; }
 	public bool OnNarrowPath { get; set; } = true;
 
 	public static bool SecretFound(int index) => m_secretsFoundBitmask[index];
@@ -222,6 +223,15 @@ public class GameController : MonoBehaviour
 		if (MerchantAcquiredCounts == null)
 		{
 			MerchantAcquiredCounts = new int[m_savableFactory.m_savables.Length]; // TODO: don't assume the same number/arrangement of savables in each scene?
+		}
+		if (NarrowPathColors == null)
+		{
+			const int colorCount = 3; // TODO: dynamic length?
+			NarrowPathColors = new Color[colorCount];
+			for (int i = 0; i < colorCount; ++i)
+			{
+				NarrowPathColors[i] = Utility.ColorRandom(Color.black, Color.white, false); // NOTE that we don't have to worry about duplicate colors here since these are sequential and not presented simultaneously
+			}
 		}
 		if (m_enemySpawnCounts == null)
 		{
@@ -887,6 +897,8 @@ public class GameController : MonoBehaviour
 
 		saveFile.Write(ZonesFinishedCount);
 
+		saveFile.Write(NarrowPathColors, color => saveFile.Write(color));
+
 		int[] secretsFoundArray = new int[1]; // TODO: avoid limiting to a single int?
 		m_secretsFoundBitmask.CopyTo(secretsFoundArray, 0);
 		saveFile.Write(secretsFoundArray.First());
@@ -951,6 +963,8 @@ public class GameController : MonoBehaviour
 			m_enemySpawnCounts = m_enemySpawnCounts == null ? spawnCountsPrev : m_enemySpawnCounts.Zip(spawnCountsPrev, (a, b) => System.Math.Max(a, b)).ToArray(); // TODO: don't assume array length will always match? guarantee accurate counts even if loading/quitting directly to/from non-saved scenes?
 
 			ZonesFinishedCount = System.Math.Max(ZonesFinishedCount, saveFile.ReadInt32()); // NOTE the max() to somewhat handle debug loading directly into non-saved scenes, incrementing ZonesFinishedCount, and then loading a saved scene
+
+			NarrowPathColors = saveFile.ReadArray(() => saveFile.ReadColor());
 
 			m_secretsFoundBitmask.Or(new(new[] { saveFile.ReadInt32() })); // NOTE the OR to handle debug loading directly into non-saved scenes, editing m_secretsFoundBitmask, and then loading a saved scene
 
