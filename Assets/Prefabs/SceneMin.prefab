@@ -1303,7 +1303,9 @@ MonoBehaviour:
     m_weight: 0.5
   - m_object: {fileID: 3219298760607032273, guid: b2846bbea2ec52e4082109700bc8c035, type: 3}
     m_weight: 0.25
-  m_bossRoomPrefabs: []
+  m_bossRoomPrefabs:
+  - m_object: {fileID: 1412368570536617553, guid: 334661055f7cd0d428253c133da63b70, type: 3}
+    m_weight: 1
   m_gatePrefabs:
   - m_object: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
     m_weight: 1

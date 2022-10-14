@@ -48,6 +48,7 @@ public class RoomController : MonoBehaviour
 	[SerializeField] private float m_noLadderNoPlatformPct = 0.5f;
 	[SerializeField] private float m_furnitureLockPct = 0.5f;
 
+	[SerializeField] private int m_generatedPathDepth = 5;
 
 	public static readonly Color m_oneWayPlatformColor = new(0.3f, 0.2f, 0.1f);
 
@@ -346,7 +347,7 @@ public class RoomController : MonoBehaviour
 
 		// open cutbacks
 		// NOTE that this has to be before flexible-placement spawning to avoid overlap w/ ladders
-		if (GameController.Instance.m_allowCutbacks && m_layoutNodes.All(node => node.m_type != LayoutGenerator.Node.Type.RoomSecret && node.m_type != LayoutGenerator.Node.Type.RoomIndefinite))
+		if (GameController.Instance.m_allowCutbacks && m_layoutNodes.All(node => node.m_type != LayoutGenerator.Node.Type.RoomSecret && node.m_type != LayoutGenerator.Node.Type.RoomIndefinite && node.m_type != LayoutGenerator.Node.Type.RoomIndefiniteCorrect))
 		{
 			foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
 			{
@@ -360,7 +361,7 @@ public class RoomController : MonoBehaviour
 				GameObject doorway = doorwayInfo.m_object;
 				Vector2 doorwayPos = doorway.transform.position;
 				RoomController sibling = FromPosition(doorwayPos + direction);
-				if (sibling == null || sibling.m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret || node.m_type == LayoutGenerator.Node.Type.RoomIndefinite)) // TODO: allow some cutbacks in indefinite room generation?
+				if (sibling == null || sibling.m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret || node.m_type == LayoutGenerator.Node.Type.RoomIndefinite || node.m_type == LayoutGenerator.Node.Type.RoomIndefiniteCorrect)) // TODO: allow some cutbacks in indefinite room generation?
 				{
 					continue;
 				}
@@ -1185,7 +1186,11 @@ public class RoomController : MonoBehaviour
 			return childRoom;
 		}
 
-		// NOTE that if we ever return to some rooms requiring direct parent-child connection, they should early-out here
+		// any rooms requiring direct parent-child connection should early-out here
+		if (layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomIndefinite || node.m_type == LayoutGenerator.Node.Type.RoomIndefiniteCorrect))
+		{
+			return null;
+		}
 
 		// try spawning from children
 		RoomController newRoom = DoorwaysRandomOrder(i =>
@@ -1367,16 +1372,23 @@ public class RoomController : MonoBehaviour
 
 		// runtime generation if requested
 		const int runtimeRoomsMax = 10; // TODO: calculate based on hardware capabilities?
-		if (m_doorwayInfos.All(info => info.ChildRoom == null) && m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomIndefinite))
+		bool isCorrect = m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomIndefiniteCorrect);
+		if (m_doorwayInfos.All(info => info.ChildRoom == null) && (isCorrect || m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomIndefinite)))
 		{
-			int dummyIdx = -1;
+			if (!isCorrect)
+			{
+				GameController.Instance.OnNarrowPath = false;
+			}
+
+			int dummyIdx = GameController.Instance.m_doorInteractPrefabs.Length - 1; // TODO: don't assume that always/only the last door will spawn via runtime generation?
 			List<LayoutGenerator.Node> newNodes = null;
-			for (int i = 0, n = Random.Range(1, 3); i < n; ++i)
+			const int maxAttempts = 4; // NOTE that this corresponds to the maximum number of sideways/downward doors in a room // TODO: un-hardcode?
+			for (int i = 0; i < maxAttempts; ++i)
 			{
 				// create and link nodes
 				if (newNodes == null)
 				{
-					newNodes = new() { new(LayoutGenerator.Node.Type.Secret, new() { new(LayoutGenerator.Node.Type.TightCoupling, new() { new(LayoutGenerator.Node.Type.RoomIndefinite) }) }) }; // TODO: streamline?
+					newNodes = new() { new(LayoutGenerator.Node.Type.Secret, new() { new(LayoutGenerator.Node.Type.TightCoupling, new() { new(i == 0 && GameController.Instance.OnNarrowPath && m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomIndefiniteCorrect) ? m_layoutNodes.First().Depth >= m_generatedPathDepth ? LayoutGenerator.Node.Type.ExitDoor : LayoutGenerator.Node.Type.RoomIndefiniteCorrect : LayoutGenerator.Node.Type.RoomIndefinite) }) }) }; // TODO: streamline?
 					foreach (LayoutGenerator.Node node in m_layoutNodes)
 					{
 						node.AddChildren(newNodes);
@@ -1393,7 +1405,7 @@ public class RoomController : MonoBehaviour
 					m_runtimeRooms.RemoveAll(room => room == null); // NOTE that this is so that we don't need to bother detecting scene load and clearing m_runtimeRooms[]
 					if (m_runtimeRooms.Count >= runtimeRoomsMax)
 					{
-						RoomController roomToDelete = m_runtimeRooms.SelectMax(room => GameController.Instance.m_avatars.Min(avatar => (avatar.transform.position - room.transform.position).sqrMagnitude));
+						RoomController roomToDelete = m_runtimeRooms.SelectMax(room => GameController.Instance.m_avatars.Min(avatar => (avatar.transform.position - room.Bounds.ClosestPoint(avatar.transform.position)).sqrMagnitude));
 
 						foreach (DoorwayInfo doorway in roomToDelete.m_doorwayInfos)
 						{

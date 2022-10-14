@@ -98,6 +98,8 @@ public class GameController : MonoBehaviour
 
 	public static int ZonesFinishedCount { get; private set; }
 
+	public bool OnNarrowPath { get; set; } = true;
+
 	public static bool SecretFound(int index) => m_secretsFoundBitmask[index];
 	public static void SetSecretFound(int index) => m_secretsFoundBitmask.Set(index, true);
 
@@ -451,7 +453,7 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	public RoomController RoomFromPosition(Vector2 position) => m_startRoom.FromPosition(position);
+	public RoomController RoomFromPosition(Vector2 position) => m_startRoom.FromPosition(position); // TODO: work even when disconnected from start room?
 
 	public System.Tuple<List<Vector2>, float> Pathfind(GameObject start, GameObject target, float extentY = -1.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, RoomController.PathFlags flags = RoomController.PathFlags.ObstructionCheck)
 	{
@@ -725,7 +727,7 @@ public class GameController : MonoBehaviour
 			do
 			{
 				LayoutGenerator.Node node = nodesShuffled[i];
-				static bool isExtraRoomType(LayoutGenerator.Node.Type t) => t == LayoutGenerator.Node.Type.RoomVertical || t == LayoutGenerator.Node.Type.RoomDown || t == LayoutGenerator.Node.Type.RoomUp || t == LayoutGenerator.Node.Type.RoomHorizontal || t == LayoutGenerator.Node.Type.RoomSecret || t == LayoutGenerator.Node.Type.RoomIndefinite; // TODO: move into LayoutGenerator?
+				static bool isExtraRoomType(LayoutGenerator.Node.Type t) => t == LayoutGenerator.Node.Type.RoomVertical || t == LayoutGenerator.Node.Type.RoomDown || t == LayoutGenerator.Node.Type.RoomUp || t == LayoutGenerator.Node.Type.RoomHorizontal || t == LayoutGenerator.Node.Type.RoomSecret || t == LayoutGenerator.Node.Type.RoomIndefinite || t == LayoutGenerator.Node.Type.RoomIndefiniteCorrect; // TODO: move into LayoutGenerator?
 				if ((node.m_type == LayoutGenerator.Node.Type.Room && newList.Count > 0) || (isExtraRoomType(node.m_type) && newList.Exists(newNode => isExtraRoomType(newNode.m_type))))
 				{
 					break; // start new room
@@ -783,7 +785,7 @@ public class GameController : MonoBehaviour
 				// try spawning prefabs in random order
 				RoomController childRoom = null;
 				WeightedObject<GameObject>[] prefabsOrdered = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? m_bossRoomPrefabs : m_roomPrefabs;
-				Vector2[] allowedDirections = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical) ? new[] { Vector2.down, Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomDown) ? new[] { Vector2.down } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomUp) ? new[] { Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) ? new[] { Vector2.left, Vector2.right } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret || node.m_type == LayoutGenerator.Node.Type.RoomIndefinite) ? new[] { Vector2.left, Vector2.right, Vector2.down } : null;
+				Vector2[] allowedDirections = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical) ? new[] { Vector2.down, Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomDown) ? new[] { Vector2.down } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomUp) ? new[] { Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) ? new[] { Vector2.left, Vector2.right } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret || node.m_type == LayoutGenerator.Node.Type.RoomIndefinite || node.m_type == LayoutGenerator.Node.Type.RoomIndefiniteCorrect) ? new[] { Vector2.left, Vector2.right, Vector2.down } : null;
 				foreach (GameObject roomPrefab in prefabsOrdered.RandomWeightedOrder())
 				{
 					childRoom = spawnRoom.SpawnChildRoom(roomPrefab, nodesList.ToArray(), allowedDirections, ref orderedLockIdx); // TODO: bias RootCoupling child nodes toward existing leaf rooms?
