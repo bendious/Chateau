@@ -26,6 +26,8 @@ public class RoomController : MonoBehaviour
 	[SerializeField] private WeightedObject<GameObject>[] m_cutbackPrefabs;
 	[SerializeField] private GameObject[] m_lockOrderedPrefabs;
 
+	[SerializeField] private WeightedObject<GameObject>[] m_hintPrefabs;
+
 	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsAbove;
 	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsWithin;
 	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsOnGround;
@@ -47,8 +49,6 @@ public class RoomController : MonoBehaviour
 	[SerializeField] private float m_cutbackBreakablePct = 0.5f;
 	[SerializeField] private float m_noLadderNoPlatformPct = 0.5f;
 	[SerializeField] private float m_furnitureLockPct = 0.5f;
-
-	[SerializeField] private int m_generatedPathDepth = 5;
 
 	public static readonly Color m_oneWayPlatformColor = new(0.3f, 0.2f, 0.1f);
 
@@ -687,6 +687,17 @@ public class RoomController : MonoBehaviour
 						InteractUpgrade upgradeI = Instantiate(prefabI, InteriorPosition(0.0f, prefabI), Quaternion.identity, transform).GetComponent<InteractUpgrade>();
 						upgradeI.m_sources = upgradeInitial;
 					}
+					break;
+
+				case LayoutGenerator.Node.Type.FinalHint:
+					GameObject hintPrefab = m_hintPrefabs.RandomWeighted();
+					GameObject hintObj = Instantiate(hintPrefab, InteriorPosition(float.MaxValue, hintPrefab), Quaternion.identity);
+					Color hintColor = GameController.NarrowPathColors[2 * (SceneManager.GetActiveScene().buildIndex - 1) + GameController.Instance.NarrowPathHintCount]; // TODO: remove hardcoded assumption of two hints per zone? guarantee order of hints spawned
+					foreach (SpriteRenderer r in hintObj.GetComponentsInChildren<SpriteRenderer>())
+					{
+						r.color = hintColor;
+					}
+					++GameController.Instance.NarrowPathHintCount;
 					break;
 
 				default:
@@ -1390,7 +1401,7 @@ public class RoomController : MonoBehaviour
 				if (newNodeTree == null)
 				{
 					isCorrect = isCorrect && i == 0 && GameController.Instance.OnNarrowPath;
-					newNodeTree = new() { new(LayoutGenerator.Node.Type.Secret, new() { new(LayoutGenerator.Node.Type.TightCoupling, new() { new(isCorrect ? (depth >= m_generatedPathDepth ? LayoutGenerator.Node.Type.ExitDoor : LayoutGenerator.Node.Type.RoomIndefiniteCorrect) : LayoutGenerator.Node.Type.RoomIndefinite) }) }) }; // TODO: streamline?
+					newNodeTree = new() { new(LayoutGenerator.Node.Type.Secret, new() { new(LayoutGenerator.Node.Type.TightCoupling, new() { new(isCorrect ? (depth > GameController.NarrowPathColors.Length ? LayoutGenerator.Node.Type.ExitDoor : LayoutGenerator.Node.Type.RoomIndefiniteCorrect) : LayoutGenerator.Node.Type.RoomIndefinite) }) }) }; // TODO: streamline?
 					foreach (LayoutGenerator.Node node in m_layoutNodes)
 					{
 						node.AddChildren(newNodeTree);
@@ -1399,7 +1410,8 @@ public class RoomController : MonoBehaviour
 
 				// create room
 				// TODO: better way of specifying gate color? prevent similar colors?
-				newNodeTree.First().AreaParents.First().m_room.m_wallColor = isCorrect ? GameController.NarrowPathColors[System.Math.Clamp(depth - 2, 0, 2)] : Utility.ColorRandom(Color.black, Color.white, false); // TODO: better way of getting NarrowPathColors[] index?
+				Color colorCorrect = GameController.Instance.OnNarrowPath ? GameController.NarrowPathColors[System.Math.Clamp(depth - 2, 0, GameController.NarrowPathColors.Length - 1)] : Color.black;
+				newNodeTree.First().AreaParents.First().m_room.m_wallColor = isCorrect ? colorCorrect : Utility.ColorRandom(Color.black, Color.white, false, colorsToAvoid: colorCorrect); // TODO: better way of getting NarrowPathColors[] index?
 				RoomController newRoom = SpawnChildRoom(GameController.Instance.m_roomPrefabs.RandomWeighted(), newNodeTree.SelectMany(node => node.WithDescendants).ToArray(), new[] { Vector2.left, Vector2.right, Vector2.down }, ref dummyIdx); // TODO: allow upward generation as long as it doesn't break through the ground?
 				if (newRoom != null)
 				{

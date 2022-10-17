@@ -55,6 +55,8 @@ public class GameController : MonoBehaviour
 	[SerializeField] private bool m_waveSealing = false;
 	public float m_zoneScalar = 1.0f;
 
+	[SerializeField] private int m_narrowPathLength = 6; // TODO: derive from number of zones?
+
 	public float m_difficultyMin = 0.0f;
 	public float m_difficultyMax = 0.0f;
 
@@ -99,6 +101,7 @@ public class GameController : MonoBehaviour
 	public static int ZonesFinishedCount { get; private set; }
 
 	public static Color[] NarrowPathColors { get; private set; }
+	public int NarrowPathHintCount { get; set; }
 	public bool OnNarrowPath { get; set; } = true;
 
 	public static bool SecretFound(int index) => m_secretsFoundBitmask[index];
@@ -226,9 +229,8 @@ public class GameController : MonoBehaviour
 		}
 		if (NarrowPathColors == null)
 		{
-			const int colorCount = 3; // TODO: dynamic length?
-			NarrowPathColors = new Color[colorCount];
-			for (int i = 0; i < colorCount; ++i)
+			NarrowPathColors = new Color[m_narrowPathLength];
+			for (int i = 0; i < m_narrowPathLength; ++i)
 			{
 				NarrowPathColors[i] = Utility.ColorRandom(Color.black, Color.white, false); // NOTE that we don't have to worry about duplicate colors here since these are sequential and not presented simultaneously
 			}
@@ -708,7 +710,7 @@ public class GameController : MonoBehaviour
 		void NpcsRandomize()
 	{
 		m_npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => new[] { a, b }).Select(dialogue => new NpcInfo { m_color = Utility.ColorRandom(Color.black, Color.white, false), m_dialogues = dialogue }).ToArray();
-		for (int i = 0; i < m_npcs.Length; ++i)
+		for (int i = 0; i < m_npcs.Length; ++i) // TODO: replace w/ ColorRandom() colorsToAvoid param?
 		{
 			NpcInfo info1 = m_npcs[i];
 			for (int j = i + 1; j < m_npcs.Length; ++j)
