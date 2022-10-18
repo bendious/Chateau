@@ -19,6 +19,7 @@ public abstract class AIState
 		FindAmmo,
 
 		Teleport,
+		Spawn,
 	};
 
 
@@ -75,6 +76,8 @@ public abstract class AIState
 					return !itemAccessible || holdCountMax <= 0 ? 0.0f : 1.0f - itemHoldPct;
 				case Type.Teleport:
 					return Mathf.Max(0.0f, AITeleport.CooldownPct * (1.0f - 1.0f / distanceFromOffsetPos));
+				case Type.Spawn:
+					return ai.m_attackPrefabs.Length > 0 && ai.m_target != null && ai.m_target.GetComponent<Health>().IsAlive ? 1.0f : 0.0f;
 				default:
 					Debug.Assert(false, "Unhandled AIState.");
 					return 0.0f;
@@ -105,6 +108,8 @@ public abstract class AIState
 				return new AIFindAmmo(ai);
 			case Type.Teleport:
 				return new AITeleport(ai);
+			case Type.Spawn:
+				return new AISpawn(ai);
 			default:
 				Debug.Assert(false, "Unhandled AIState.");
 				return null;
@@ -283,6 +288,7 @@ public class AIPursue : AIState
 			return baseVal;
 		}
 
+		// TODO: prevent getting "chased" by target when m_targetOffset is large and target is moving toward m_ai
 		bool hasArrived = m_ai.NavigateTowardTarget(m_targetOffset);
 
 		// check for target death
@@ -840,4 +846,71 @@ public sealed class AITeleport : AIState
 	}
 
 	public override void Retarget() => m_ai.m_target = null;
+}
+
+
+public sealed class AISpawn : AIState
+{
+	public float m_delaySeconds = 0.5f;
+
+
+	private float m_preDelayRemaining;
+	private float m_postDelayRemaining;
+
+	private bool m_spawned;
+
+
+	public AISpawn(AIController ai) : base(ai)
+	{
+	}
+
+	public override void Enter()
+	{
+		base.Enter();
+		m_preDelayRemaining = m_delaySeconds;
+		m_postDelayRemaining = m_delaySeconds;
+	}
+
+	public override AIState Update()
+	{
+		AIState baseVal = base.Update();
+		if (baseVal != this)
+		{
+			return baseVal;
+		}
+
+		m_ai.move = Vector2.zero;
+
+		// TODO: animation?
+
+		m_preDelayRemaining -= Time.deltaTime;
+		if (m_preDelayRemaining > 0.0f)
+		{
+			return this;
+		}
+
+		if (!m_spawned)
+		{
+			GameObject obj = Object.Instantiate(m_ai.m_attackPrefabs.RandomWeighted(), m_ai.m_target.transform.position + (Vector3)m_ai.m_attackOffset, Quaternion.identity);
+			SpriteRenderer r = obj.GetComponent<SpriteRenderer>();
+			if (r != null)
+			{
+				r.color = m_ai.GetComponent<SpriteRenderer>().color;
+			}
+			DespawnEffect despawnEffect = obj.GetComponent<DespawnEffect>();
+			if (despawnEffect != null)
+			{
+				despawnEffect.CauseExternal = m_ai;
+			}
+			m_spawned = true;
+		}
+
+		m_postDelayRemaining -= Time.deltaTime;
+		if (m_postDelayRemaining > 0.0f)
+		{
+			return this;
+		}
+
+		return null;
+	}
 }

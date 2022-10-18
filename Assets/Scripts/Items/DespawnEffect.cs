@@ -6,17 +6,33 @@ public class DespawnEffect : MonoBehaviour
 {
 	[SerializeField] private GameObject m_prefab;
 
-	[SerializeField] private bool m_enemyAutoTrigger; // TODO: split into separate script?
+	// TODO: split into separate scripts?
+	[SerializeField] private bool m_enemyAutoTrigger;
+	[SerializeField] private bool m_groundAutoTrigger;
 
+
+	public KinematicCharacter CauseExternal { private get; set; }
+
+
+	private KinematicCharacter Cause => CauseExternal != null ? CauseExternal : m_item != null ? m_item.Cause : null; // TODO: track last damage source independent of ItemController?
+
+
+	private ItemController m_item;
+
+
+	private void Awake()
+	{
+		m_item = GetComponent<ItemController>();
+	}
 
 	private void OnTriggerEnter2D(Collider2D collider)
 	{
-		ProcessCollision(collider);
+		ProcessCollision(collider, Vector2.zero);
 	}
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		ProcessCollision(collision.collider);
+		ProcessCollision(collision.collider, collision.GetContact(0).normal); // TODO: handle multiple contacts?
 	}
 
 	private void OnDestroy()
@@ -29,31 +45,32 @@ public class DespawnEffect : MonoBehaviour
 		Explosion explosion = Instantiate(m_prefab, transform.position, transform.rotation).GetComponent<Explosion>();
 		if (explosion != null)
 		{
-			// assign cause
-			// TODO: track last damage source regardless of ItemController
-			ItemController item = GetComponent<ItemController>();
-			if (item != null)
-			{
-				explosion.m_source = item.Cause;
-			}
+			explosion.m_source = Cause;
 		}
 	}
 
 
-	private void ProcessCollision(Collider2D collider)
+	private void ProcessCollision(Collider2D collider, Vector2 normal)
 	{
-		if (!m_enemyAutoTrigger || GetComponent<ItemController>().Cause == null)
+		bool trigger = false;
+		if (m_enemyAutoTrigger && Cause != null)
 		{
-			return;
+			KinematicCharacter character = collider.GetComponent<KinematicCharacter>();
+			if (character != null && character.GetComponent<Health>().IsAlive && Cause.CanDamage(character.gameObject))
+			{
+				trigger = true;
+			}
 		}
 
-		AIController ai = collider.GetComponent<AIController>();
-		if (ai == null || ai.m_friendly || !ai.GetComponent<Health>().IsAlive)
+		if (m_groundAutoTrigger && collider.gameObject.layer == GameController.Instance.m_layerWalls.ToIndex() && Vector2.Dot(normal, Vector2.up) > 0.0f) // TODO: parameterize ground normal threshold?
 		{
-			return;
+			trigger = true;
 		}
 
-		gameObject.SetActive(false);
-		Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
+		if (trigger)
+		{
+			gameObject.SetActive(false);
+			Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
+		}
 	}
 }
