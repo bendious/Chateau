@@ -146,10 +146,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: SceneMin
       objectReference: {fileID: 0}
-    - target: {fileID: 5271682946291878117, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_AdditionalShaderChannelsFlag
-      value: 25
-      objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_type
       value: 5
@@ -173,6 +169,10 @@ PrefabInstance:
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_allowHiddenDestructibles
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_roomTypesBoss.Array.size
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_cutbackPrefabs.Array.size
@@ -214,6 +214,14 @@ PrefabInstance:
       propertyPath: m_doorInteractPrefabs.Array.data[4]
       value: 
       objectReference: {fileID: 2923841410956672815, guid: d85c41abf50cd684e942ff72af23a561, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_roomTypesBoss.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 11400000, guid: 0579c5ac22f47694e841dd4df7d1c607, type: 2}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_bossRoomPrefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 8978284120855630503, guid: 616282ff19c4a3d4bbb6ec9cb0ef8935, type: 3}
     - target: {fileID: 8494391376400586852, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -120

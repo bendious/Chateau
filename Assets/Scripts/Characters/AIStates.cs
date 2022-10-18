@@ -272,7 +272,7 @@ public class AIPursue : AIState
 	public AIPursue(AIController ai)
 		: base(ai)
 	{
-		m_targetOffset = (ai.HoldCountMax > 0 && ai.GetComponentInChildren<ItemController>() == null) || Random.value > 0.9f ? 0.75f/*?*/ * m_ai.m_meleeRange * Vector2.right : m_ai.m_targetOffset; // NOTE that even enemies w/ range go in for melee sometimes // TODO: AIController.disallowMelee flag?
+		m_targetOffset = m_ai.m_meleeRange >= 0.0f && ((ai.HoldCountMax > 0 && ai.GetComponentInChildren<ItemController>() == null) || Random.value > 0.9f) ? 0.75f/*?*/ * m_ai.m_meleeRange * Vector2.right : m_ai.m_targetOffset; // NOTE that even enemies w/ range go in for melee sometimes unless they are flagged w/ negative m_meleeRange
 	}
 
 	public override AIState Update()

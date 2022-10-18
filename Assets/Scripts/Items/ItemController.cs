@@ -461,8 +461,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			return;
 		}
 
-		Collider2D[] colliderArray = new[] { collider };
-		if (colliderLocal.ShouldIgnore(rigidbody, colliderArray, oneWayTopEpsilon: isDetached ? 0.1f : float.MaxValue))
+		if (colliderLocal.ShouldIgnore(rigidbody, new[] { collider }, oneWayTopEpsilon: isDetached ? 0.1f : float.MaxValue))
 		{
 			DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Ignored);
 			return;

@@ -21,10 +21,12 @@ public sealed class AIController : KinematicCharacter
 	public float m_replanSecondsMin = 1.5f; // NOTE that this is just to discourage constant replanning and not a hard minimum; it can be preempted based on state change / etc.
 	public float m_replanSecondsMax = 3.0f;
 
+	public float m_offsetDegreesMaxPerArm = 60.0f;
+
 	public float m_meleeRange = 1.0f;
 	public float m_meleeSecondsMin = 0.5f;
 	public float m_meleeSecondsMax = 1.0f;
-	[SerializeField] float m_alertDistanceMax = 10.0f;
+	[SerializeField] private float m_alertDistanceMax = 10.0f;
 
 	[SerializeField] private float m_jumpMaxSpeedOverride = -1.0f;
 	[SerializeField] private bool m_airControl = true;
@@ -159,7 +161,7 @@ public sealed class AIController : KinematicCharacter
 					{
 						continue; // primaryArm is already aimed
 					}
-					Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, offsetScalar * System.Math.Min(60, 360 / arms.Length) * AimScalar) * (targetPosSafe - (Vector2)transform.position); // TODO: remove hardcoded max?
+					Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, offsetScalar * Mathf.Min(m_offsetDegreesMaxPerArm, 360 / arms.Length) * AimScalar) * (targetPosSafe - (Vector2)transform.position);
 					offsetScalar = offsetScalar <= 0 ? -offsetScalar + 1 : -offsetScalar; // this groups any arms w/ items around the primary arm in both directions
 					arm.UpdateAim(ArmOffset, aimPos, targetPosSafe);
 				}
@@ -296,7 +298,7 @@ public sealed class AIController : KinematicCharacter
 		bool isStartingPoint = false;
 		if (m_pathfindTimeNext <= Time.time || (m_pathfindWaypoints != null && m_pathfindWaypoints.Count > 0 && !Vector2.Distance(m_target.transform.position, m_pathfindWaypoints.Last()).FloatEqual(targetOffsetAbs.magnitude, m_meleeRange))) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases); avoid trying to go past moving targets?
 		{
-			System.Tuple<List<Vector2>, float> path = GameController.Instance.Pathfind(gameObject, m_target.gameObject, m_collider.bounds.extents.y, !HasFlying && jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue, targetOffsetAbs, RoomController.PathFlags.ObstructionCheck | (HasFlying ? RoomController.PathFlags.IgnoreGravity : RoomController.PathFlags.None)); // TODO: limit to max jump height once pathfinding takes platforms into account? prevent pathing beyond a threshold distance?
+			System.Tuple<List<Vector2>, float> path = GameController.Instance.Pathfind(gameObject, m_target.gameObject, Bounds.extents.y, !HasFlying && jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue, targetOffsetAbs, RoomController.PathFlags.ObstructionCheck | (HasFlying ? RoomController.PathFlags.IgnoreGravity : RoomController.PathFlags.None)); // TODO: limit to max jump height once pathfinding takes platforms into account? prevent pathing beyond a threshold distance?
 			m_pathfindWaypoints = path?.Item1;
 			isStartingPoint = true;
 			if (m_pathfindWaypoints == null)
@@ -328,10 +330,10 @@ public sealed class AIController : KinematicCharacter
 		{
 			// get relative position
 			nextWaypoint = m_pathfindWaypoints.First();
-			diff = nextWaypoint - (Vector2)m_collider.bounds.center;
+			diff = nextWaypoint - (Vector2)Bounds.center;
 
 			// prevent jittering
-			Vector2 halfExtentsCombined = ((Vector2)m_collider.bounds.extents + (m_pathfindWaypoints.Count > 1 ? Vector2.zero : targetCollider.bounds.extents)) * 0.5f;
+			Vector2 halfExtentsCombined = ((Vector2)Bounds.extents + (m_pathfindWaypoints.Count > 1 ? Vector2.zero : targetCollider.bounds.extents)) * 0.5f;
 			if (Mathf.Abs(diff.x) < halfExtentsCombined.x)
 			{
 				diff.x = 0.0f;
@@ -344,7 +346,7 @@ public sealed class AIController : KinematicCharacter
 			// check arrival
 			const float arrivalEpsilon = 0.1f; // TODO: derive/calculate?
 			bool isHighEnough = isStartingPoint || IsGrounded || HasFlying || transform.position.y >= nextWaypoint.y; // NOTE the stricter condition when in mid-air to prevent starting to move sideways too soon and falling back below the waypoint
-			atWaypoint = isHighEnough && diff.magnitude <= ((Vector2)m_collider.bounds.extents).magnitude + m_collider.offset.magnitude + arrivalEpsilon;
+			atWaypoint = isHighEnough && diff.magnitude <= ((Vector2)Bounds.extents).magnitude + arrivalEpsilon;
 			if (atWaypoint)
 			{
 				m_pathfindWaypoints.RemoveAt(0);
@@ -381,7 +383,7 @@ public sealed class AIController : KinematicCharacter
 			// jump/drop
 			// TODO: only jump when directly below, but w/o getting stuck?
 			Bounds nextBounds = targetCollider == null || m_pathfindWaypoints.Count > 1 ? new(nextWaypoint, Vector3.zero) : targetCollider.bounds;
-			Bounds selfBounds = m_collider.bounds;
+			Bounds selfBounds = Bounds;
 			if (IsGrounded && (m_jumpAlways || nextBounds.min.y > selfBounds.max.y) && Random.value <= m_jumpPct)
 			{
 				m_jump = 1.0f;

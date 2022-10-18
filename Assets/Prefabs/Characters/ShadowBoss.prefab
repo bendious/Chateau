@@ -335,6 +335,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_gradientActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4787025527002729041, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_gradient.ctime1
       value: 16384
       objectReference: {fileID: 0}
@@ -452,15 +456,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_allowedStates.Array.size
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_allowedStates.Array.data[2]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_allowedStates.Array.data[3]
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_allowedStates.Array.data[4]
       value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
-      propertyPath: m_allowedStates.Array.data[6]
+      propertyPath: m_allowedStates.Array.data[5]
       value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
-      propertyPath: m_allowedStates.Array.data[7]
+      propertyPath: m_allowedStates.Array.data[6]
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_allowedStates.Array.data[7]
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_allowedStates.Array.data[8]

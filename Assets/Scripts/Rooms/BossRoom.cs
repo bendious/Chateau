@@ -7,6 +7,8 @@ using UnityEngine;
 public class BossRoom : MonoBehaviour
 {
 	[SerializeField] private WeightedObject<GameObject>[] m_bossPrefabs;
+	[SerializeField] private float m_bossHeightMin = 0.0f;
+	[SerializeField] private float m_bossHeightMax = 0.0f;
 
 	[SerializeField] private WeightedObject<GameObject>[] m_platformPrefabs;
 	[SerializeField] private int m_platformsMin = 0;
@@ -32,6 +34,7 @@ public class BossRoom : MonoBehaviour
 		Vector3 spawnPos = transform.position + (Vector3)bossPrefab.OriginToCenterY();
 		Bounds triggerBounds = GetComponent<Collider2D>().bounds;
 		spawnPos.x = parentPos.x <= spawnPos.x ? triggerBounds.max.x : triggerBounds.min.x; // TODO: don't assume origin position is closer to min than max?
+		spawnPos.y += Random.Range(m_bossHeightMin, m_bossHeightMax);
 
 		// spawn boss
 		m_boss = Instantiate(bossPrefab, spawnPos, Quaternion.identity).GetComponent<Boss>();

@@ -179,7 +179,10 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 				if (!canWallJump) // TODO: also skip when only slightly above ground/platform?
 				{
 					List<ContactPoint2D> contacts = new();
-					m_collider.GetContacts(contacts);
+					foreach (Collider2D collider in m_colliders)
+					{
+						collider.GetContacts(contacts);
+					}
 					Vector2 wallNormal = contacts.FirstOrDefault(contact =>
 					{
 						if (contact.rigidbody != null || contact.normal.y < m_minWallClingNormalY)
@@ -298,7 +301,10 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 		m_animator.SetBool("dead", true);
 
-		m_collider.enabled = false;
+		foreach (Collider2D collider in m_colliders)
+		{
+			collider.enabled = false;
+		}
 		body.simulated = false; // TODO: continue simulating physics movement?
 
 		Bounce(Vector2.zero); // to remove any current forced input

@@ -37,4 +37,6 @@ public class RoomType : ScriptableObject
 	public WeightedObject<DecorationInfo>[] m_decorations;
 	public int m_decorationsMin = 0;
 	public int m_decorationsMax = 2;
+
+	public int m_spawnPointsMax = 4;
 }

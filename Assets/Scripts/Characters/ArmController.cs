@@ -30,6 +30,8 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 	[SerializeField] private float m_mass = 0.1f;
 
+	[SerializeField] private float m_radiusBase = 0.0f;
+
 	[SerializeField] private float m_aimStiffnessMin = 25.0f;
 	[SerializeField] private float m_aimStiffnessMax = 125.0f;
 	[SerializeField] private float m_radiusStiffnessMin = 100.0f;
@@ -38,7 +40,9 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 	[SerializeField] private float m_swingDecayStiffness = 100.0f;
 
-	[SerializeField] private bool m_colorMatching = true;
+	[SerializeField] private bool m_noRotation = false;
+
+	public bool m_colorMatching = true;
 
 
 	public float Speed => Mathf.Abs(Mathf.Deg2Rad * (m_aimVelocityArm + m_aimVelocityItem) * ((Vector2)transform.parent.position - (Vector2)transform.position).magnitude) + Mathf.Abs(m_aimRadiusVelocity); // NOTE the conversion from angular velocity to linear speed via arclength=radians*radius // TODO: incorporate aim velocity directions?
@@ -220,13 +224,16 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		// update current rotation
 		float targetDegreesArm = AimDegreesRaw(transform.parent.position, rootOffset, aimPositionArm, m_aimDegreesArm);
 		m_aimDegreesArm = DampedSpring(m_aimDegreesArm, targetDegreesArm, m_swingInfoCur.m_aimSpringDampPct, true, m_aimStiffness, ref m_aimVelocityArm);
-		m_aimRadius = DampedSpring(m_aimRadius, 0.0f, m_swingInfoCur.m_radiusSpringDampPct, false, m_radiusStiffness, ref m_aimRadiusVelocity);
+		m_aimRadius = DampedSpring(m_aimRadius, m_radiusBase, m_swingInfoCur.m_radiusSpringDampPct, false, m_radiusStiffness, ref m_aimRadiusVelocity);
 		m_swingDirection = (targetDegreesArm - m_aimDegreesArm).Modulo(360.0f) < 180.0f; // should swing "up" if we are "below" the current target angle
 
 		// apply
-		transform.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesArm);
-		Vector3 localPos = (Vector3)rootOffset + (LeftFacing ? new(m_offset.x, m_offset.y, -m_offset.z) : m_offset) + transform.localRotation * Vector3.right * m_aimRadius;
-		transform.localPosition = localPos;
+		Quaternion rotationArm = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesArm);
+		if (!m_noRotation)
+		{
+			transform.localRotation = rotationArm;
+		}
+		transform.localPosition = (Vector3)rootOffset + (LeftFacing ? new(m_offset.x, m_offset.y, -m_offset.z) : m_offset) + rotationArm * Vector3.right * m_aimRadius;
 
 		// maybe flip sprite
 		bool leftFacingCached = LeftFacing;

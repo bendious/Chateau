@@ -604,6 +604,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_damage: 1
+  m_type: 3
   m_damageImpulse: {x: 0, y: 0}
   m_damageSfx: []
   m_singleUse: 0
@@ -635,6 +636,9 @@ MonoBehaviour:
     m_weight: 0
   m_combinationSets: []
   m_difficulty: 0
+  m_builtinKeysMin: 0
+  m_builtinKeysMax: 0
+  m_builtinKeyDifficulty: 0
   m_keyHeightMax: 2
   m_keyDelaySeconds: 1.5
   m_vfxDisableDelaySeconds: 2

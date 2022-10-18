@@ -99,7 +99,7 @@ public sealed class AvatarController : KinematicCharacter
 	private static int m_forwardToUpID;
 
 
-	private float FocusDistance => ((CircleCollider2D)m_collider).radius;
+	private float FocusDistance => Bounds.extents.x;
 	private float FocusRadius => FocusDistance * 2.0f; // TODO: parameterize?
 	private Vector2 FocusCollectPos => (Vector2)transform.position + ((Vector2)m_aimObject.transform.position - (Vector2)transform.position).normalized * FocusDistance;
 	private Vector2 FocusPriorityPos => m_usingMouse ? Camera.main.ScreenToWorldPoint(m_mousePosPixels) : m_aimObject.transform.position;
@@ -231,7 +231,7 @@ public sealed class AvatarController : KinematicCharacter
 		Vector2 priorityPos = FocusPriorityPos;
 		Tuple<Collider2D, Tuple<float, float>> focus = focusCandidates.Length <= 0 ? Tuple.Create<Collider2D, Tuple<float, float>>(null, Tuple.Create(-1.0f, float.MaxValue)) : focusCandidates.SelectMinWithValue(candidate =>
 		{
-			if (m_collider.ShouldIgnore(candidate.attachedRigidbody, new[] { candidate }, ignorePhysicsSystem: true) || (candidate.gameObject == m_throwObj && m_throwIgnoreTime >= Time.time))
+			if (m_colliders.All(collider => collider.ShouldIgnore(candidate.attachedRigidbody, new[] { candidate }, ignorePhysicsSystem: true)) || (candidate.gameObject == m_throwObj && m_throwIgnoreTime >= Time.time))
 			{
 				return Tuple.Create(-1.0f, float.MaxValue); // ignore ourself / attached/ignored/just-thrown objects
 			}
@@ -749,7 +749,10 @@ public sealed class AvatarController : KinematicCharacter
 
 	public void Respawn(bool clearInventory, bool resetPosition)
 	{
-		m_collider.enabled = true;
+		foreach (Collider2D collider in m_colliders)
+		{
+			collider.enabled = true;
+		}
 		body.simulated = true;
 
 		if (clearInventory)

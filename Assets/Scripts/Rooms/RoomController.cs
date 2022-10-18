@@ -37,7 +37,6 @@ public class RoomController : MonoBehaviour
 	[SerializeField] private GameObject m_doorSealVFX;
 
 	[SerializeField] private WeightedObject<GameObject>[] m_spawnPointPrefabs;
-	[SerializeField] private int m_spawnPointsMax = 4;
 
 	public GameObject m_backdrop;
 
@@ -485,7 +484,7 @@ public class RoomController : MonoBehaviour
 		// room type
 		// TODO: more deliberate choice?
 		List<float> weightsScaled = new();
-		RoomType = (m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret) ? GameController.Instance.m_roomTypesSecret : GameController.Instance.m_roomTypes).Where(type =>
+		RoomType = (m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? GameController.Instance.m_roomTypesBoss : m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret) ? GameController.Instance.m_roomTypesSecret : GameController.Instance.m_roomTypes).Where(type =>
 		{
 			float weightScaled = type.m_weight;
 			if (type.m_object.m_preconditionNames == null)
@@ -808,8 +807,8 @@ public class RoomController : MonoBehaviour
 		}
 
 		// spawn enemy spawn points
-		m_spawnPoints = new GameObject[Random.Range(1, m_spawnPointsMax + 1)]; // TODO: base on room size?
-		for (int spawnIdx = 0; spawnIdx < m_spawnPoints.Length; ++spawnIdx)
+		m_spawnPoints = RoomType.m_spawnPointsMax <= 0 ? null : new GameObject[Random.Range(1, RoomType.m_spawnPointsMax + 1)]; // TODO: base on room size?
+		for (int spawnIdx = 0, n = m_spawnPoints == null ? 0 : m_spawnPoints.Length; spawnIdx < n; ++spawnIdx)
 		{
 			GameObject spawnPrefab = m_spawnPointPrefabs.RandomWeighted();
 			Quaternion rotation = Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f));
@@ -1127,7 +1126,7 @@ public class RoomController : MonoBehaviour
 		return keyObj;
 	}
 
-	public Vector3 SpawnPointRandom() => m_spawnPoints.Random().transform.position;
+	public Vector3 SpawnPointRandom() => (m_spawnPoints == null ? gameObject : m_spawnPoints.Random()).transform.position;
 
 	public System.Tuple<List<Vector2>, float> PositionPath(GameObject start, GameObject end, PathFlags flags = PathFlags.None, float extentY = -1.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, float incrementDegrees = -1.0f)
 	{

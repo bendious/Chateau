@@ -1386,6 +1386,23 @@ MonoBehaviour:
   m_roomTypesSecret:
   - m_object: {fileID: 11400000, guid: 30ab735d166f6cd45a32827777dd635d, type: 2}
     m_weight: 1
+  m_roomTypesBoss:
+  - m_object: {fileID: 11400000, guid: d334c59576f62e94ca99e526e7ae5ee7, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: d935886517d03ba4aa24782d51e0f3d1, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: c9b1024af3342214aa7f650cf2cc2f3b, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: b1dc3971fed5a6b48b3ac7679149659e, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: e5be24f31360d6d4cae1b05cff0be1f8, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: 6b322b384db2ed8448e8604b5cf2d337, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: 3db4e460cb1e73048a27f62c80368268, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: 0fd5ec20856c9c0449077470ce345869, type: 2}
+    m_weight: 1
   m_enemyPrefabs:
   - m_object: {fileID: 5008818805582489474, guid: 7279d3fac13df0c49a659889f1c1a70b, type: 3}
     m_weight: 1
@@ -1438,6 +1455,7 @@ MonoBehaviour:
   m_allowCutbacks: 1
   m_waveSealing: 0
   m_zoneScalar: 1
+  m_narrowPathLength: 6
   m_difficultyMin: 0
   m_difficultyMax: 0
   m_loadingScreen: {fileID: 7202315660601374811}

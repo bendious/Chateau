@@ -38,7 +38,7 @@ public class Health : MonoBehaviour
 
 	public float m_minorDamageThreshold = 0.1f;
 
-	[SerializeField] private bool m_gradientActive = false;
+	public bool m_gradientActive = false;
 	[SerializeField] private Gradient m_gradient;
 
 	[SerializeField] private float m_blinkSeconds = 0.3f;
@@ -253,7 +253,7 @@ public class Health : MonoBehaviour
 
 	private void Start()
 	{
-		if (m_gradientActive) // TODO: don't assume that m_gradientActive is never set later?
+		if (m_gradientActive) // NOTE that this may be set later, but that means we don't want to color-match initially
 		{
 			SpriteRenderer r = GetComponent<SpriteRenderer>();
 			GradientColorKey[] colorKeys = m_gradient.colorKeys;

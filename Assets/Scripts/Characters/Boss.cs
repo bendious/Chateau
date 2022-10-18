@@ -85,8 +85,10 @@ public class Boss : MonoBehaviour
 			return;
 		}
 
-		Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, m_introAimDegrees) * Vector2.right;
-		for (int i = (int)m_introAimDegrees * m_arms.Length / 360; i < m_arms.Length; ++i)
+		Vector2 closestAvatarDiff = (Vector2)GameController.Instance.m_avatars.SelectMin(avatar => Vector2.Distance(avatar.transform.position, transform.position)).transform.position - (Vector2)transform.position; // TODO: don't re-choose every frame?
+		Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, m_introAimDegrees + Utility.ZDegrees(closestAvatarDiff)) * Vector2.right;
+		bool hasOffset = m_ai.m_offsetDegreesMaxPerArm > 0.0f;
+		for (int i = hasOffset ? (int)m_introAimDegrees * m_arms.Length / 360 : 0; i < m_arms.Length; ++i)
 		{
 			m_arms[i].UpdateAim(m_ai.ArmOffset, aimPos, aimPos);
 		}
@@ -145,8 +147,24 @@ public class Boss : MonoBehaviour
 		// adjust camera
 		GameController.Instance.AddCameraTargets(transform);
 
+		// enable initially disabled components
+		SpriteMask mask = GetComponent<SpriteMask>();
+		if (mask != null)
+		{
+			mask.enabled = true;
+		}
+		m_health.m_gradientActive = true;
+
 		// recolor
-		SpriteRenderer[] bossRenderers = GetComponentsInChildren<SpriteRenderer>().Where(renderer => renderer.GetComponent<ItemController>() == null).ToArray();
+		SpriteRenderer[] bossRenderers = GetComponentsInChildren<SpriteRenderer>().Where(renderer =>
+		{
+			if (renderer.GetComponent<ItemController>() != null)
+			{
+				return false;
+			}
+			ArmController arm = renderer.GetComponent<ArmController>();
+			return arm == null || arm.m_colorMatching;
+		}).ToArray();
 		Light2D bossLight = GetComponent<Light2D>();
 		const float intensityTarget = 1.0f;
 		Vector4[] colorSpeedCur = new Vector4[bossRenderers.Length + 1];
@@ -163,6 +181,9 @@ public class Boss : MonoBehaviour
 			yield return null;
 		}
 
+		// enable components needed after color/visibility change
+		GetComponent<Collider2D>().enabled = true;
+
 		// float into air
 		m_ai.gravityModifier = 0.0f;
 		float yTarget = transform.position.y + 4.5f; // TODO: unhardcode?
@@ -175,7 +196,7 @@ public class Boss : MonoBehaviour
 			yield return null;
 		}
 
-		// reveal arms
+		// reveal arms / roll eyes
 		// (see also FixedUpdate())
 		m_introAimDegrees = 0.0f;
 		yield return new WaitWhile(() => IsArmReveal);

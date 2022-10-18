@@ -54,6 +54,8 @@ public abstract class KinematicObject : MonoBehaviour
 
 	public bool HasForcedVelocity => !m_velocityForcedWeight.magnitude.FloatEqual(0.0f);
 
+	public Bounds Bounds => m_colliders.Aggregate(new Bounds() { size = Vector3.negativeInfinity }, (bounds, collider) => { bounds.Encapsulate(collider.bounds); return bounds; }); // TODO: cache local bounds?
+
 
 	protected Vector2 targetVelocity;
 	protected Vector2 groundNormal = Vector2.up;
@@ -67,7 +69,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 
 	private KinematicCharacter m_character;
-	protected Collider2D m_collider; // TODO: handle multi-collider objects?
+	protected Collider2D[] m_colliders;
 	private AvatarController m_avatar;
 
 	private Vector2 m_velocityForced = Vector2.zero;
@@ -113,7 +115,7 @@ public abstract class KinematicObject : MonoBehaviour
 		body = GetComponent<Rigidbody2D>();
 		body.isKinematic = true;
 		m_character = GetComponent<KinematicCharacter>();
-		m_collider = GetComponent<Collider2D>();
+		m_colliders = GetComponents<Collider2D>(); // NOTE that we purposely ignore colliders on child objects
 		m_avatar = GetComponent<AvatarController>();
 		m_layerIdxOrig = gameObject.layer;
 	}
@@ -142,25 +144,28 @@ public abstract class KinematicObject : MonoBehaviour
 
 		// if partially overlapping other geometry, separate
 		// TODO: efficiency?
-		System.Collections.Generic.List<ContactPoint2D> contacts = new();
-		m_collider.GetContacts(contacts);
 		Vector2 totalOverlap = Vector2.zero;
-		foreach (ContactPoint2D contact in contacts)
+		foreach (Collider2D collider in m_colliders)
 		{
-			if (m_collider.ShouldIgnore(contact.rigidbody, new[] { contact.collider }, body.mass, typeof(AnchoredJoint2D), 0.1f))
+			System.Collections.Generic.List<ContactPoint2D> contacts = new();
+			collider.GetContacts(contacts);
+			foreach (ContactPoint2D contact in contacts)
 			{
-				continue;
-			}
+				if (collider.ShouldIgnore(contact.rigidbody, new[] { contact.collider }, body.mass, typeof(AnchoredJoint2D), 0.1f))
+				{
+					continue;
+				}
 
-			Vector2 newOverlap = contact.normal * -contact.separation;
-			if (newOverlap.x.FloatEqual(0.0f) && newOverlap.y.FloatEqual(0.0f))
-			{
-				continue;
-			}
+				Vector2 newOverlap = contact.normal * -contact.separation;
+				if (newOverlap.x.FloatEqual(0.0f) && newOverlap.y.FloatEqual(0.0f))
+				{
+					continue;
+				}
 
-			// TODO: reconcile overlaps in opposing directions?
-			totalOverlap.x = Mathf.Abs(newOverlap.x) > Mathf.Abs(totalOverlap.x) ? newOverlap.x : totalOverlap.x;
-			totalOverlap.y = Mathf.Abs(newOverlap.y) > Mathf.Abs(totalOverlap.y) ? newOverlap.y : totalOverlap.y;
+				// TODO: reconcile overlaps in opposing directions?
+				totalOverlap.x = Mathf.Abs(newOverlap.x) > Mathf.Abs(totalOverlap.x) ? newOverlap.x : totalOverlap.x;
+				totalOverlap.y = Mathf.Abs(newOverlap.y) > Mathf.Abs(totalOverlap.y) ? newOverlap.y : totalOverlap.y;
+			}
 		}
 		transform.position += (Vector3)totalOverlap;
 
@@ -194,7 +199,7 @@ public abstract class KinematicObject : MonoBehaviour
 		gameObject.layer = shouldIgnoreOneWays ? m_layerIgnoreOneWay.ToIndex() : m_layerIdxOrig;
 		contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
 
-		Lazy<bool> isNearGround = new(() => Physics2D.Raycast(m_collider.bounds.min, Vector2.down, m_nearGroundDistance, GameController.Instance.m_layerWalls).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground? cast whole collider for better detection?
+		Lazy<bool> isNearGround = new(() => Physics2D.Raycast(Bounds.min, Vector2.down, m_nearGroundDistance, GameController.Instance.m_layerWalls).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground? cast whole collider for better detection?
 		PerformMovement(move, false, ref isNearGround);
 
 		move = Vector2.up * deltaPosition.y;
@@ -218,66 +223,68 @@ public abstract class KinematicObject : MonoBehaviour
 		}
 
 		// check if we hit anything in current direction of travel
-		// TODO: prevent getting stuck in floors/ceilings if starting slightly overlapped
-		int count = m_collider.Cast(move, contactFilter, hitBuffer, distance + m_shellRadius, true); // NOTE that we ignore child colliders such as arms
-		for (int i = 0; i < count; i++)
+		foreach (Collider2D collider in m_colliders)
 		{
-			RaycastHit2D hit = hitBuffer[i];
-			if (m_collider.ShouldIgnore(hit.rigidbody, new[] { hit.collider }, body.mass, typeof(AnchoredJoint2D), 0.1f))
+			int count = collider.Cast(move, contactFilter, hitBuffer, distance + m_shellRadius, true); // NOTE that we ignore child colliders such as arms
+			for (int i = 0; i < count; i++)
 			{
-				// push-through floor/walls prevention
-				if (hit.transform.parent == null && hit.rigidbody != null && hit.rigidbody.IsTouchingLayers(GameController.Instance.m_layerWalls))
+				RaycastHit2D hit = hitBuffer[i];
+				if (collider.ShouldIgnore(hit.rigidbody, new[] { hit.collider }, body.mass, typeof(AnchoredJoint2D), 0.1f))
 				{
-					Hazard hazard = hit.collider.GetComponent<Hazard>();
-					if (hazard == null || !hazard.enabled) // TODO: more general way of ensuring "important" collisions aren't ignored?
+					// push-through floor/walls prevention
+					if (hit.transform.parent == null && hit.rigidbody != null && hit.rigidbody.IsTouchingLayers(GameController.Instance.m_layerWalls))
 					{
-						EnableCollision.TemporarilyDisableCollision(new[] { m_collider }, new[] { hit.collider }, m_wallPushDisableSeconds);
+						Hazard hazard = hit.collider.GetComponent<Hazard>();
+						if (hazard == null || !hazard.enabled) // TODO: more general way of ensuring "important" collisions aren't ignored?
+						{
+							EnableCollision.TemporarilyDisableCollision(m_colliders, new[] { hit.collider }, m_wallPushDisableSeconds);
+						}
+					}
+
+					continue; // don't get hung up on dynamic/carried/ignored objects
+				}
+
+				Vector2 currentNormal = hit.normal;
+
+				// is this surface flat enough to land on?
+				if (currentNormal.y >= minGroundNormalY)
+				{
+					IsGrounded = true;
+					IsWallClinging = false;
+					// if moving down, change the groundNormal to new surface normal.
+					if (move.y < 0.0f)
+					{
+						groundNormal = currentNormal;
+						currentNormal.x = 0;
 					}
 				}
-
-				continue; // don't get hung up on dynamic/carried/ignored objects
-			}
-
-			Vector2 currentNormal = hit.normal;
-
-			// is this surface flat enough to land on?
-			if (currentNormal.y >= minGroundNormalY)
-			{
-				IsGrounded = true;
-				IsWallClinging = false;
-				// if moving down, change the groundNormal to new surface normal.
-				if (move.y < 0.0f)
+				if (!IsGrounded && currentNormal.y >= m_minWallClingNormalY && velocity.y <= 0.0f && !isNearGround.Value)
 				{
-					groundNormal = currentNormal;
-					currentNormal.x = 0;
+					IsWallClinging = true;
+					m_wallNormal = currentNormal;
 				}
-			}
-			if (!IsGrounded && currentNormal.y >= m_minWallClingNormalY && velocity.y <= 0.0f && !isNearGround.Value)
-			{
-				IsWallClinging = true;
-				m_wallNormal = currentNormal;
-			}
-			if (!HasFlying)
-			{
-				if (IsGrounded)
+				if (!HasFlying)
 				{
-					// how much of our velocity aligns with surface normal?
-					float projection = Vector2.Dot(velocity, currentNormal);
-					if (projection < 0)
+					if (IsGrounded)
 					{
-						// slower velocity if moving against the normal (up a hill).
-						velocity -= projection * currentNormal;
+						// how much of our velocity aligns with surface normal?
+						float projection = Vector2.Dot(velocity, currentNormal);
+						if (projection < 0)
+						{
+							// slower velocity if moving against the normal (up a hill).
+							velocity -= projection * currentNormal;
+						}
+					}
+					else if (!isNearGround.Value)
+					{
+						// airborne, but hit something, so cancel horizontal velocity.
+						velocity.x = 0.0f;
 					}
 				}
-				else if (!isNearGround.Value)
-				{
-					// airborne, but hit something, so cancel horizontal velocity.
-					velocity.x = 0.0f;
-				}
+				// remove shellDistance from actual move distance.
+				float modifiedDistance = hit.distance - m_shellRadius; // TODO: don't move backward when colliding from multiple directions in-place
+				distance = modifiedDistance < distance ? modifiedDistance : distance;
 			}
-			// remove shellDistance from actual move distance.
-			float modifiedDistance = hit.distance - m_shellRadius; // TODO: don't move backward when colliding from multiple directions in-place
-			distance = modifiedDistance < distance ? modifiedDistance : distance;
 		}
 		body.position += move.normalized * distance;
 
