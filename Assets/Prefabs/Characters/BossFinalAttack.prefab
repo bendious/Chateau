@@ -115,7 +115,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_prefab: {fileID: 5619937708861602581, guid: acf98808bd047be419405e774427d42a, type: 3}
-  m_enemyAutoTrigger: 1
+  m_enemyAutoTrigger: 0
   m_groundAutoTrigger: 1
 --- !u!70 &3338821205527098138
 CapsuleCollider2D:
@@ -166,6 +166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa70392825dbeb946914e090414d9b0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_priority: 10
   m_layerIgnoreOneWay:
     m_mask:
       serializedVersion: 2

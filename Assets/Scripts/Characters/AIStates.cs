@@ -288,7 +288,6 @@ public class AIPursue : AIState
 			return baseVal;
 		}
 
-		// TODO: prevent getting "chased" by target when m_targetOffset is large and target is moving toward m_ai
 		bool hasArrived = m_ai.NavigateTowardTarget(m_targetOffset);
 
 		// check for target death
@@ -853,11 +852,14 @@ public sealed class AISpawn : AIState
 {
 	public float m_delaySeconds = 0.5f;
 
+	public bool m_waitForDespawn = true;
+
 
 	private float m_preDelayRemaining;
 	private float m_postDelayRemaining;
 
 	private bool m_spawned;
+	private GameObject m_spawnedObj;
 
 
 	public AISpawn(AIController ai) : base(ai)
@@ -891,11 +893,13 @@ public sealed class AISpawn : AIState
 
 		if (!m_spawned)
 		{
-			GameObject obj = Object.Instantiate(m_ai.m_attackPrefabs.RandomWeighted(), m_ai.m_target.transform.position + (Vector3)m_ai.m_attackOffset, Quaternion.identity);
+			Vector3 spawnPos = m_ai.m_target.transform.position + (Vector3)m_ai.m_attackOffset;
+			GameObject obj = Object.Instantiate(m_ai.m_attackPrefabs.RandomWeighted(), spawnPos, Quaternion.identity);
 			SpriteRenderer r = obj.GetComponent<SpriteRenderer>();
 			if (r != null)
 			{
 				r.color = m_ai.GetComponent<SpriteRenderer>().color;
+				r.flipX = spawnPos.x < m_ai.transform.position.x; // TODO: parameterize?
 			}
 			DespawnEffect despawnEffect = obj.GetComponent<DespawnEffect>();
 			if (despawnEffect != null)
@@ -903,6 +907,11 @@ public sealed class AISpawn : AIState
 				despawnEffect.CauseExternal = m_ai;
 			}
 			m_spawned = true;
+		}
+
+		if (m_waitForDespawn && m_spawnedObj != null)
+		{
+			return this;
 		}
 
 		m_postDelayRemaining -= Time.deltaTime;

@@ -9,6 +9,7 @@ public class DespawnEffect : MonoBehaviour
 	// TODO: split into separate scripts?
 	[SerializeField] private bool m_enemyAutoTrigger;
 	[SerializeField] private bool m_groundAutoTrigger;
+	[SerializeField] private float m_groundSnapDistMax;
 
 
 	public KinematicCharacter CauseExternal { private get; set; }
@@ -32,7 +33,9 @@ public class DespawnEffect : MonoBehaviour
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		ProcessCollision(collision.collider, collision.GetContact(0).normal); // TODO: handle multiple contacts?
+		System.Collections.Generic.List<ContactPoint2D> contacts = new();
+		collision.GetContacts(contacts);
+		ProcessCollision(collision.collider, contacts.SelectMax(contact => contact.normal.y).normal); // TODO: parameterize multi-normal selection/merge?
 	}
 
 	private void OnDestroy()
@@ -53,6 +56,7 @@ public class DespawnEffect : MonoBehaviour
 	private void ProcessCollision(Collider2D collider, Vector2 normal)
 	{
 		bool trigger = false;
+		bool atGround = false;
 		if (m_enemyAutoTrigger && Cause != null)
 		{
 			KinematicCharacter character = collider.GetComponent<KinematicCharacter>();
@@ -62,13 +66,25 @@ public class DespawnEffect : MonoBehaviour
 			}
 		}
 
-		if (m_groundAutoTrigger && collider.gameObject.layer == GameController.Instance.m_layerWalls.ToIndex() && Vector2.Dot(normal, Vector2.up) > 0.0f) // TODO: parameterize ground normal threshold?
+		int groundLayerMask = GameController.Instance.m_layerWalls | GameController.Instance.m_layerOneWay; // TODO: parameterize?
+		if (m_groundAutoTrigger && ((1 << collider.gameObject.layer) & groundLayerMask) != 0 && Vector2.Dot(normal, Vector2.up) > 0.0f) // TODO: parameterize ground normal threshold?
 		{
 			trigger = true;
+			atGround = true;
 		}
 
 		if (trigger)
 		{
+			// if ground-based and near the ground, snap there
+			if (m_groundSnapDistMax > 0.0f && !atGround)
+			{
+				RaycastHit2D groundCheck = Physics2D.Raycast(transform.position, Vector2.down, m_groundSnapDistMax, groundLayerMask); // TODO: cast whole collider/body?
+				if (groundCheck.collider != null)
+				{
+					transform.position = groundCheck.point;
+				}
+			}
+
 			gameObject.SetActive(false);
 			Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
 		}

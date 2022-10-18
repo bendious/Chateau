@@ -1729,7 +1729,7 @@ public class RoomController : MonoBehaviour
 			doorway.GetComponent<Collider2D>().usedByEffector = open;
 
 			// set layer for kinematic movement
-			doorway.layer = (open ? GameController.Instance.m_layerOneWay : GameController.Instance.m_layerDefault).ToIndex();
+			doorway.layer = (open ? GameController.Instance.m_layerOneWay : GameController.Instance.m_layerWalls).ToIndex();
 
 			// change color/shadows for user visibility
 			// TODO: match wall texture?

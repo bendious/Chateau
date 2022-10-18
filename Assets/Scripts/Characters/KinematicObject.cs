@@ -9,6 +9,11 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public abstract class KinematicObject : MonoBehaviour
 {
+	/// <summary>
+	/// The priority value used to decide which of two KinematicObjects should yield when colliding; higher priorities push lower priorities
+	/// </summary>
+	[SerializeField] private float m_priority;
+
 	public LayerMaskHelper m_layerIgnoreOneWay;
 
 	/// <summary>
@@ -155,6 +160,13 @@ public abstract class KinematicObject : MonoBehaviour
 					continue;
 				}
 
+				// resolve kinematic-kinematic collisions
+				KinematicObject otherKinematic = contact.collider.GetComponent<KinematicObject>();
+				if (otherKinematic != null && otherKinematic.m_priority < m_priority)
+				{
+					continue;
+				}
+
 				Vector2 newOverlap = contact.normal * -contact.separation;
 				if (newOverlap.x.FloatEqual(0.0f) && newOverlap.y.FloatEqual(0.0f))
 				{
@@ -228,7 +240,8 @@ public abstract class KinematicObject : MonoBehaviour
 			for (int i = 0; i < count; i++)
 			{
 				RaycastHit2D hit = hitBuffer[i];
-				if (collider.ShouldIgnore(hit.rigidbody, new[] { hit.collider }, body.mass, typeof(AnchoredJoint2D), 0.1f))
+				KinematicObject otherKinematic = hit.collider.GetComponent<KinematicObject>();
+				if (collider.ShouldIgnore(hit.rigidbody, new[] { hit.collider }, body.mass, typeof(AnchoredJoint2D), 0.1f) || (otherKinematic != null && otherKinematic.m_priority < m_priority))
 				{
 					// push-through floor/walls prevention
 					if (hit.transform.parent == null && hit.rigidbody != null && hit.rigidbody.IsTouchingLayers(GameController.Instance.m_layerWalls))
