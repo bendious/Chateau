@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 
 /// <summary>
@@ -44,6 +45,7 @@ public class Health : MonoBehaviour
 	[SerializeField] private float m_blinkSeconds = 0.3f;
 	[SerializeField] private Color m_blinkColor = new(1.0f, 0.25f, 0.25f);
 	[SerializeField] private float m_blinkSecondsPost = 0.25f;
+	[SerializeField] private float m_blinkLightRadiusMax = 5.0f;
 
 	[Serializable] private struct DamageTypeScalar {
 		public DamageType m_type;
@@ -266,19 +268,34 @@ public class Health : MonoBehaviour
 	}
 
 
+	private void Recolor(Color color, float lightRadiusMax) // TODO: support separate colors for sprites/lights?
+	{
+		static bool isColorable(Component comp) => comp.GetComponent<IAttachable>() == null && comp.GetComponent<ArmController>() == null; // we don't want to recolor attached items, and ArmController takes care of mirroring color itself
+
+		// TODO: efficiency?
+		foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>().Where(isColorable))
+		{
+			renderer.color = color;
+		}
+
+		foreach (Light2D light in GetComponentsInChildren<Light2D>().Where(isColorable))
+		{
+			if (light.pointLightOuterRadius > lightRadiusMax)
+			{
+				continue;
+			}
+			light.color = color;
+		}
+	}
+
 	private bool IncrementInternal(float diff)
 	{
 		float hpPrev = m_currentHP;
 		m_currentHP = Mathf.Clamp(m_currentHP + diff, 0.0f, m_maxHP);
 
-		// NOTE that color is adjusted here rather than in SyncUI() to avoid stomping boss start color
 		if (m_gradientActive)
 		{
-			Color color = ColorCurrent;
-			foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>().Where(renderer => renderer.GetComponent<IAttachable>() == null && renderer.GetComponent<ArmController>() == null))
-			{
-				renderer.color = color;
-			}
+			Recolor(ColorCurrent, float.MaxValue);
 		}
 
 		return !Mathf.Approximately(m_currentHP, hpPrev);
@@ -286,8 +303,8 @@ public class Health : MonoBehaviour
 
 	private IEnumerator InvincibilityBlink(float secondsMax)
 	{
-		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-		if (renderer == null)
+		SpriteRenderer firstSprite = GetComponentInChildren<SpriteRenderer>();
+		if (firstSprite == null && GetComponentInChildren<Light2D>() == null) // TODO: better early-out conditions?
 		{
 			// TODO: support other types of renderer?
 			yield break;
@@ -296,16 +313,16 @@ public class Health : MonoBehaviour
 		float timeMax = Time.time + secondsMax;
 		float colorT = 0.0f;
 		float tPerSec = 1.0f / m_blinkSeconds;
-		Color colorOrig = renderer.color;
+		Color colorOrig = firstSprite.color;
 
 		while (m_invincible && Time.time < timeMax)
 		{
 			colorT = (colorT + Time.deltaTime * tPerSec).Modulo(1.0f); // NOTE that this is deliberately discontinuous when passing 1.0 // TODO: smoothly vary down as well as up?
-			renderer.color = Color.Lerp(colorOrig, m_blinkColor, colorT);
+			Recolor(Color.Lerp(colorOrig, m_blinkColor, colorT), m_blinkLightRadiusMax);
 			yield return null;
 		}
 
-		renderer.color = colorOrig;
+		Recolor(colorOrig, m_blinkLightRadiusMax);
 	}
 
 	private IEnumerator HealDelayed(float delaySeconds, int amount, GameObject source)

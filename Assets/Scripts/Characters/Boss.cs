@@ -10,6 +10,7 @@ public class Boss : MonoBehaviour
 	public BossRoom m_room;
 
 	[SerializeField] private float m_smoothTimeSlow = 0.5f;
+	[SerializeField] private float m_lightIntensityFinal = 1.0f;
 
 	[SerializeField] private Dialogue m_dialogue;
 
@@ -166,17 +167,16 @@ public class Boss : MonoBehaviour
 			return arm == null || arm.m_colorMatching;
 		}).ToArray();
 		Light2D bossLight = GetComponent<Light2D>();
-		const float intensityTarget = 1.0f;
 		Vector4[] colorSpeedCur = new Vector4[bossRenderers.Length + 1];
 		float lightSpeedCur = 0.0f;
-		while (!bossRenderers.First().color.ColorsSimilar(m_colorFinal) || !bossLight.intensity.FloatEqual(intensityTarget)) // TODO: don't assume colors are always in sync?
+		while (!bossRenderers.First().color.ColorsSimilar(m_colorFinal) || !bossLight.intensity.FloatEqual(m_lightIntensityFinal)) // TODO: don't assume colors are always in sync?
 		{
 			int colorSpeedIdx = 0;
 			foreach (SpriteRenderer bossRenderer in bossRenderers)
 			{
 				bossRenderer.color = bossRenderer.color.SmoothDamp(m_colorFinal, ref colorSpeedCur[colorSpeedIdx++], m_smoothTimeSlow);
 			}
-			bossLight.intensity = Mathf.SmoothDamp(bossLight.intensity, intensityTarget, ref lightSpeedCur, m_smoothTimeSlow);
+			bossLight.intensity = Mathf.SmoothDamp(bossLight.intensity, m_lightIntensityFinal, ref lightSpeedCur, m_smoothTimeSlow);
 			bossLight.color = bossLight.color.SmoothDamp(m_colorFinal, ref colorSpeedCur[colorSpeedIdx++], m_smoothTimeSlow);
 			yield return null;
 		}
