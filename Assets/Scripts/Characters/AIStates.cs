@@ -20,6 +20,7 @@ public abstract class AIState
 
 		Teleport,
 		Spawn,
+		FinalDialogue,
 	};
 
 
@@ -78,6 +79,8 @@ public abstract class AIState
 					return Mathf.Max(0.0f, AITeleport.CooldownPct * (1.0f - 1.0f / distanceFromOffsetPos));
 				case Type.Spawn:
 					return ai.m_attackPrefabs.Length > 0 && ai.m_target != null && ai.m_target.GetComponent<Health>().IsAlive ? 1.0f : 0.0f;
+				case Type.FinalDialogue:
+					return ai.m_target != null && ai.m_target.GetComponent<Health>().CurrentHP <= 1.0f && !ai.GetComponent<Health>().CanIncrement ? float.MaxValue : 0.0f;
 				default:
 					Debug.Assert(false, "Unhandled AIState.");
 					return 0.0f;
@@ -109,7 +112,22 @@ public abstract class AIState
 			case Type.Teleport:
 				return new AITeleport(ai);
 			case Type.Spawn:
-				return new AISpawn(ai);
+				AISpawn state = new(ai);
+
+				// TODO: parameterize / move elsewhere?
+				float healthPct = ai.GetComponent<Health>().PercentHP;
+				if (healthPct < 0.5f)
+				{
+					state.m_waitForDespawn = false;
+				}
+				if (healthPct < 0.25f)
+				{
+					state.m_delaySeconds *= 0.5f;
+				}
+
+				return state;
+			case Type.FinalDialogue:
+				return new AIFinalDialogue(ai);
 			default:
 				Debug.Assert(false, "Unhandled AIState.");
 				return null;
@@ -894,14 +912,14 @@ public sealed class AISpawn : AIState
 		if (!m_spawned)
 		{
 			Vector3 spawnPos = m_ai.m_target.transform.position + (Vector3)m_ai.m_attackOffset;
-			GameObject obj = Object.Instantiate(m_ai.m_attackPrefabs.RandomWeighted(), spawnPos, Quaternion.identity);
-			SpriteRenderer r = obj.GetComponent<SpriteRenderer>();
+			m_spawnedObj = Object.Instantiate(m_ai.m_attackPrefabs.RandomWeighted(), spawnPos, Quaternion.identity);
+			SpriteRenderer r = m_spawnedObj.GetComponent<SpriteRenderer>();
 			if (r != null)
 			{
 				r.color = m_ai.GetComponent<SpriteRenderer>().color;
 				r.flipX = spawnPos.x < m_ai.transform.position.x; // TODO: parameterize?
 			}
-			DespawnEffect despawnEffect = obj.GetComponent<DespawnEffect>();
+			DespawnEffect despawnEffect = m_spawnedObj.GetComponent<DespawnEffect>();
 			if (despawnEffect != null)
 			{
 				despawnEffect.CauseExternal = m_ai;
@@ -921,5 +939,59 @@ public sealed class AISpawn : AIState
 		}
 
 		return null;
+	}
+}
+
+
+public sealed class AIFinalDialogue : AIState
+{
+	public float m_musicFadeOutSeconds = 2.0f;
+
+
+	private bool m_dialogueDone = false;
+
+
+	public AIFinalDialogue(AIController ai) : base(ai)
+	{
+	}
+
+	public override void Enter()
+	{
+		// NOTE that we deliberately don't invoke base.Enter() since we don't want the usual retargeting behavior
+
+		GameController.Instance.GetComponent<MusicManager>().FadeOut(m_musicFadeOutSeconds);
+
+		Boss boss = m_ai.GetComponent<Boss>();
+		Dialogue dialogue = boss.m_dialogueFinal;
+		Coroutine dialogueCoroutine = GameController.Instance.m_dialogueController.Play(dialogue.m_dialogue.RandomWeighted().m_lines, m_ai.gameObject, m_ai.m_target.GetComponent<AvatarController>(), boss.m_dialogueSprite, boss.GetComponent<SpriteRenderer>().color, dialogue.m_expressions, boss.m_dialogueSfx.RandomWeighted());
+		m_ai.StartCoroutine(WaitForDialogue(dialogueCoroutine)); // TODO: ensure AIController never accidentally interferes via StopAllCoroutines()?
+	}
+
+	public override AIState Update()
+	{
+		// NOTE that we deliberately don't invoke base.Update() since we don't want the usual retargeting behavior
+
+		if (!m_dialogueDone)
+		{
+			return this;
+		}
+
+		m_ai.m_passive = true; // to prevent trying to continue acting / restarting this state/dialogue
+		m_ai.GetComponent<Animator>().SetBool("dead", true);
+		foreach (AvatarController avatar in GameController.Instance.m_avatars)
+		{
+			avatar.GetComponent<Animator>().SetTrigger("despawn");
+		}
+
+		// TODO: wait for animation(s) and then roll/load credits?
+
+		return null;
+	}
+
+
+	private System.Collections.IEnumerator WaitForDialogue(Coroutine dialogueCoroutine)
+	{
+		yield return dialogueCoroutine;
+		m_dialogueDone = true;
 	}
 }

@@ -57,16 +57,17 @@ public class Health : MonoBehaviour
 	/// <summary>
 	/// Indicates if the entity should be considered 'alive'.
 	/// </summary>
-	public bool IsAlive => m_currentHP > 0;
+	public bool IsAlive => CurrentHP > 0;
 
-	public bool CanIncrement => m_currentHP < m_maxHP;
+	public bool CanIncrement => CurrentHP < m_maxHP;
 
 	public bool HealInProgress { get; private set; }
 
-	public Color ColorCurrent => m_gradient.Evaluate(1.0f - m_currentHP / m_maxHP);
+	public float PercentHP => CurrentHP / m_maxHP;
+	public Color ColorCurrent => m_gradient.Evaluate(1.0f - PercentHP);
 
 
-	protected float m_currentHP;
+	public float CurrentHP { get; private set; }
 
 
 	private Animator m_animator;
@@ -86,17 +87,17 @@ public class Health : MonoBehaviour
 	/// </summary>
 	public virtual void SetMax(float hp)
 	{
-		float diff = m_maxHP - m_currentHP;
+		float diff = m_maxHP - CurrentHP;
 		m_maxHP = hp;
 
-		if (m_currentHP <= 0.0f)
+		if (CurrentHP <= 0.0f)
 		{
 			return; // "He's already dead!"
 		}
 
 		// update current health
-		m_currentHP = m_maxHP - diff;
-		if (m_currentHP <= 0.0f)
+		CurrentHP = m_maxHP - diff;
+		if (CurrentHP <= 0.0f)
 		{
 			Decrement(null, 0.0f, DamageType.Generic); // TODO: split out death function?
 		}
@@ -189,7 +190,7 @@ public class Health : MonoBehaviour
 		}
 
 		// death/despawn
-		bool isDead = m_currentHP.FloatEqual(0.0f) && (!ConsoleCommands.NeverDie || GameController.Instance.m_avatars.All(avatar => avatar.gameObject != gameObject));
+		bool isDead = CurrentHP.FloatEqual(0.0f) && (!ConsoleCommands.NeverDie || GameController.Instance.m_avatars.All(avatar => avatar.gameObject != gameObject));
 		if (isDead)
 		{
 			OnHealthDeath deathEvt = Simulation.Schedule<OnHealthDeath>();
@@ -241,7 +242,7 @@ public class Health : MonoBehaviour
 	/// </summary>
 	public virtual void Respawn()
 	{
-		IncrementInternal(m_maxHP - m_currentHP);
+		IncrementInternal(m_maxHP - CurrentHP);
 		m_invincible = false;
 	}
 
@@ -250,7 +251,7 @@ public class Health : MonoBehaviour
 	{
 		m_animator = GetComponent<Animator>();
 		m_character = GetComponent<KinematicCharacter>();
-		m_currentHP = m_maxHP;
+		CurrentHP = m_maxHP;
 	}
 
 	private void Start()
@@ -290,15 +291,15 @@ public class Health : MonoBehaviour
 
 	private bool IncrementInternal(float diff)
 	{
-		float hpPrev = m_currentHP;
-		m_currentHP = Mathf.Clamp(m_currentHP + diff, 0.0f, m_maxHP);
+		float hpPrev = CurrentHP;
+		CurrentHP = Mathf.Clamp(CurrentHP + diff, 0.0f, m_maxHP);
 
 		if (m_gradientActive)
 		{
 			Recolor(ColorCurrent, float.MaxValue);
 		}
 
-		return !Mathf.Approximately(m_currentHP, hpPrev);
+		return !Mathf.Approximately(CurrentHP, hpPrev);
 	}
 
 	private IEnumerator InvincibilityBlink(float secondsMax)

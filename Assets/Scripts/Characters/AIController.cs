@@ -286,6 +286,8 @@ public sealed class AIController : KinematicCharacter
 		}
 	}
 
+	public void AddAllowedState(AIState.Type type) => m_allowedStates = m_allowedStates.Append(type).ToArray();
+
 
 	// TODO: un-expose?
 	public bool NavigateTowardTarget(Vector2 targetOffsetAbs)

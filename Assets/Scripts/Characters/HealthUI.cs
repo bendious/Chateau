@@ -97,7 +97,7 @@ public sealed class HealthUI : Health
 		// set sprite fill
 		for (int i = 0; i < maxHP; ++i)
 		{
-			m_healthUIParent.transform.GetChild(i + 1).GetComponent<Image>().fillAmount = Mathf.Clamp01(m_currentHP - i); // NOTE i+1 indexing due to template object
+			m_healthUIParent.transform.GetChild(i + 1).GetComponent<Image>().fillAmount = Mathf.Clamp01(CurrentHP - i); // NOTE i+1 indexing due to template object
 		}
 
 		// TODO: adjust size of parent if its width is ever visible/used

@@ -31,7 +31,7 @@ MonoBehaviour:
           m_preconditionName: 
           m_userdata: 0
           m_followUp: []
-          m_eventName: 
+          m_eventName: AllowFinalDialogue
           m_breakAfterward: 0
       m_loop: 0
       m_singleUse: 0

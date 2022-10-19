@@ -615,6 +615,12 @@ public class GameController : MonoBehaviour
 
 	public void OnVictory()
 	{
+		if (Victory) // although OnVictory() shouldn't ever be called multiple times, we don't want to trigger effects in zones where Victory is set initially
+		{
+			GetComponent<MusicManager>().FadeOut(2.0f); // TODO: parameterize?
+			return;
+		}
+
 		Victory = true;
 		ZonesFinishedCount = System.Math.Max(ZonesFinishedCount, SceneManager.GetActiveScene().buildIndex);
 		foreach (AvatarController avatar in m_avatars)

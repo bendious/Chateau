@@ -240,6 +240,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 1f165e50968701e44aa70349f12a833a, type: 2}
     - target: {fileID: 5059967226220737805, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
+      propertyPath: m_dialogueFinal
+      value: 
+      objectReference: {fileID: 11400000, guid: d1aa1277a8937264484e9e7644cd8491, type: 2}
+    - target: {fileID: 5059967226220737805, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
       propertyPath: m_dialogueSprite
       value: 
       objectReference: {fileID: 21300000, guid: 959d745fa1f1c8d4cb7fb5bff6a0a340, type: 3}

@@ -13,10 +13,11 @@ public class Boss : MonoBehaviour
 	[SerializeField] private float m_lightIntensityFinal = 1.0f;
 
 	[SerializeField] private Dialogue m_dialogue;
+	public Dialogue m_dialogueFinal;
 
-	[SerializeField] private Sprite m_dialogueSprite;
+	public Sprite m_dialogueSprite;
 
-	[SerializeField] private WeightedObject<AudioClip>[] m_dialogueSfx;
+	public WeightedObject<AudioClip>[] m_dialogueSfx;
 
 
 #if DEBUG
@@ -122,6 +123,10 @@ public class Boss : MonoBehaviour
 
 		GameController.Instance.OnVictory();
 	}
+
+
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "called via DialogueController.OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)")]
+	public void AllowFinalDialogue(DialogueController.Line.Reply reply) => m_ai.AddAllowedState(AIState.Type.FinalDialogue);
 
 
 #if DEBUG
