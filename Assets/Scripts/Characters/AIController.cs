@@ -205,6 +205,11 @@ public sealed class AIController : KinematicCharacter
 
 		OnHealthDecrement.OnExecute -= OnDamage;
 		OnHealthDeath.OnExecute -= OnDeath;
+
+		if (m_aiState != null)
+		{
+			m_aiState.Exit(); // in case the AIState manages external things (e.g. AIFinalDialogue loads a scene)
+		}
 	}
 
 

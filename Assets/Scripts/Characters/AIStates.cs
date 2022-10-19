@@ -976,16 +976,20 @@ public sealed class AIFinalDialogue : AIState
 			return this;
 		}
 
-		m_ai.m_passive = true; // to prevent trying to continue acting / restarting this state/dialogue
 		m_ai.GetComponent<Animator>().SetBool("dead", true);
 		foreach (AvatarController avatar in GameController.Instance.m_avatars)
 		{
 			avatar.GetComponent<Animator>().SetTrigger("despawn");
 		}
 
-		// TODO: wait for animation(s) and then roll/load credits?
+		return this; // NOTE that we never exit until character despawn
+	}
 
-		return null;
+	public override void Exit()
+	{
+		// NOTE that we deliberately don't invoke base.Exit() since this class ignores the standard functionality
+
+		UnityEngine.SceneManagement.SceneManager.LoadScene("Credits"); // TODO: un-hardcode?
 	}
 
 
