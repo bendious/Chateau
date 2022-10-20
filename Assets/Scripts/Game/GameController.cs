@@ -449,12 +449,14 @@ public class GameController : MonoBehaviour
 	private void OnApplicationQuit() => IsSceneLoad = true;
 
 
-	public void AddCameraTargets(params Transform[] transforms)
+	public void AddCameraTargets(params Transform[] transforms) => AddCameraTargetsSized(0.0f, transforms);
+
+	public void AddCameraTargetsSized(float size, params Transform[] transforms)
 	{
 		foreach (Transform tf in transforms)
 		{
 			m_ctGroupMain.RemoveMember(tf); // prevent duplication // TODO: necessary?
-			m_ctGroupMain.AddMember(tf, 1.0f, 0.0f); // TODO: blend weight in? calculate/expose radius?
+			m_ctGroupMain.AddMember(tf, 1.0f, size); // TODO: blend weight in?
 			// TODO: auto-remove on target destruction?
 		}
 	}

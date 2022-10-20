@@ -72,7 +72,10 @@ public class RoomController : MonoBehaviour
 		return boundsInterior;
 	} }
 
-	public Vector2 ParentDoorwayPosition => Connection(m_doorwayInfos.Select(info => info.ParentRoom).First(parentRoom => parentRoom != null), PathFlags.None, Vector2.zero)[1];
+	public RoomController Parent => m_doorwayInfos.Select(info => info.ParentRoom).FirstOrDefault(room => room != null);
+	public RoomController FirstChild => m_doorwayInfos.Select(info => info.ChildRoom).FirstOrDefault(room => room != null);
+
+	public Vector2 ParentDoorwayPosition => Connection(Parent, PathFlags.None, Vector2.zero)[1];
 
 	public IEnumerable<RoomController> WithDescendants => new[] { this }.Concat(m_doorwayInfos.Where(info => info.ChildRoom != null).SelectMany(info => info.ChildRoom.WithDescendants)); // TODO: efficiency?
 

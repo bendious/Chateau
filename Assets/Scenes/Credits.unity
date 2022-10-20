@@ -123,6 +123,54 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &427768099 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1239318319195568209, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+  m_PrefabInstance: {fileID: 1869457612}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &427768107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 427768099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 937f22e6b9e6a6b49abe313a56f1a7bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ctBackdropRadius: 1
+--- !u!114 &427768108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 427768099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: 015b7eb7423650b40b84f032f2cf97d1, type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: UI
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!1001 &1869457612
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -246,6 +294,22 @@ PrefabInstance:
       propertyPath: m_textPrefabs.Array.data[2].m_prefabs.Array.data[0].m_weight
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7576226454887440344, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_delayMax
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7576226454887440344, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_delayMin
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7576226454887440344, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_music.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7576226454887440344, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_music.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 8300000, guid: 5833894e2899f1840ac04193ca462e39, type: 3}
     - target: {fileID: 8494391376400586852, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -120
@@ -266,5 +330,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 9004531423071069859, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_text
+      value: 
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 5490871640693437359, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
