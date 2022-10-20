@@ -96,6 +96,13 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 
 	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms, float difficultyPct)
 	{
+		// prevent empty locked chests
+		if (m_prespawned.Count <= 0) // NOTE that this assumes that a furniture object's keys are always spawned AFTER its items, which is the case at least currently (see RoomController.FinalizeRecursive())
+		{
+			Unlock(null, true);
+			return;
+		}
+
 		m_keyObj = keyRooms.Random().SpawnKey(m_keyPrefabs.RandomWeighted(), 0.0f, true, IsCriticalPath);
 		GetComponent<SpriteRenderer>().color = m_keyObj.GetComponent<SpriteRenderer>().color;
 	}
