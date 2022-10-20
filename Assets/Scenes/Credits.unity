@@ -204,7 +204,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_textPrefabs.Array.size
-      value: 3
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_entryRoomPrefabs.Array.size
@@ -247,12 +247,60 @@ PrefabInstance:
       value: 7.5
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[3].m_heightMax
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[4].m_heightMax
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[5].m_heightMax
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[6].m_heightMax
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[7].m_heightMax
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[8].m_heightMax
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[9].m_heightMax
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[10].m_heightMax
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[11].m_heightMax
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[12].m_heightMax
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[13].m_heightMax
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[14].m_heightMax
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_textPrefabs.Array.data[0].m_prefabs.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_textPrefabs.Array.data[0].m_rotationDegreesMax
-      value: 15
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_textPrefabs.Array.data[1].m_prefabs.Array.size
@@ -260,7 +308,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_textPrefabs.Array.data[1].m_rotationDegreesMax
-      value: 15
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_textPrefabs.Array.data[2].m_prefabs.Array.size
@@ -268,7 +316,103 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_textPrefabs.Array.data[2].m_rotationDegreesMax
-      value: 15
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[3].m_prefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[3].m_rotationDegreesMax
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[4].m_prefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[4].m_rotationDegreesMax
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[5].m_prefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[5].m_rotationDegreesMax
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[6].m_prefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[6].m_rotationDegreesMax
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[7].m_prefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[7].m_rotationDegreesMax
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[8].m_prefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[8].m_rotationDegreesMax
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[9].m_prefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[9].m_rotationDegreesMax
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[10].m_prefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[10].m_rotationDegreesMax
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[11].m_prefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[11].m_rotationDegreesMax
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[12].m_prefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[12].m_rotationDegreesMax
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[13].m_prefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[13].m_rotationDegreesMax
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[14].m_prefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[14].m_rotationDegreesMax
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_textPrefabs.Array.data[0].m_prefabs.Array.data[0].m_object
@@ -289,9 +433,105 @@ PrefabInstance:
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_textPrefabs.Array.data[2].m_prefabs.Array.data[0].m_object
       value: 
-      objectReference: {fileID: 639696683959501459, guid: f68ed404f7872714abd3776c785b115f, type: 3}
+      objectReference: {fileID: 271792840976756559, guid: a1a6d5ebfe892d942ac1b63416c87721, type: 3}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_textPrefabs.Array.data[2].m_prefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[3].m_prefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 6988757006677635040, guid: ca16016bb40c39b499864c1b89e243c0, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[3].m_prefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[4].m_prefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 6988757006677635040, guid: 06974406047b233418470839e2b9e9d6, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[4].m_prefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[5].m_prefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 6988757006677635040, guid: 1b8c9802d0a9acd40850ebd240c8d556, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[5].m_prefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[6].m_prefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 6988757006677635040, guid: 48498d979ecf19445888edebcfe75aad, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[6].m_prefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[7].m_prefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 6988757006677635040, guid: 826043f5495fb9f418d9ac5f58836c28, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[7].m_prefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[8].m_prefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 6988757006677635040, guid: 655e3c5cfe0bf5f4d9db3e4d3bea5780, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[8].m_prefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[9].m_prefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 6988757006677635040, guid: 3a85b5e3489fa754c835f636877457c1, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[9].m_prefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[10].m_prefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 6988757006677635040, guid: edd96be8d0ce19648b2e0acbb47034eb, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[10].m_prefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[11].m_prefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 6988757006677635040, guid: 27bc7b7cad1dcdd4d9773c4200a3768d, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[11].m_prefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[12].m_prefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 6988757006677635040, guid: 197b37f68df7560468a5fb1ffa1a04c9, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[12].m_prefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[13].m_prefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 6988757006677635040, guid: 4547f33986530964e8dc82a1633d74e1, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[13].m_prefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[14].m_prefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 639696683959501459, guid: f68ed404f7872714abd3776c785b115f, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[14].m_prefabs.Array.data[0].m_weight
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7576226454887440344, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}

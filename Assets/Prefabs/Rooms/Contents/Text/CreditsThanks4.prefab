@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &5904113368656131039
+--- !u!1001 &4175463667662200492
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -9,23 +9,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1234358254779069897, guid: c6778f302141c514eb665ea77aec172b, type: 3}
       propertyPath: m_text
-      value: Thanks for playing!
+      value: Maria
       objectReference: {fileID: 0}
     - target: {fileID: 6417408937448239436, guid: c6778f302141c514eb665ea77aec172b, type: 3}
       propertyPath: m_Name
-      value: Credits3
+      value: CreditsThanks4
       objectReference: {fileID: 0}
     - target: {fileID: 8377146280284097707, guid: c6778f302141c514eb665ea77aec172b, type: 3}
       propertyPath: m_RootOrder
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8377146280284097707, guid: c6778f302141c514eb665ea77aec172b, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 2.75
-      objectReference: {fileID: 0}
-    - target: {fileID: 8377146280284097707, guid: c6778f302141c514eb665ea77aec172b, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 8377146280284097707, guid: c6778f302141c514eb665ea77aec172b, type: 3}
       propertyPath: m_LocalPosition.x
