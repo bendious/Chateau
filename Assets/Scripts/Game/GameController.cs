@@ -39,6 +39,7 @@ public class GameController : MonoBehaviour
 	public WeightedObject<GameObject>[] m_lockPrefabs;
 	public WeightedObject<GameObject>[] m_keyPrefabs;
 	public WeightedObject<GameObject>[] m_cutbackPrefabs;
+	public RoomType.DecorationInfo[] m_textPrefabs;
 	public WeightedObject<RoomType>[] m_roomTypes;
 	public WeightedObject<RoomType>[] m_roomTypesSecret;
 	public WeightedObject<RoomType>[] m_roomTypesBoss;

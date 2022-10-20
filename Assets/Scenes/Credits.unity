@@ -151,17 +151,21 @@ PrefabInstance:
       value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_roomTypes.Array.size
+      propertyPath: m_roomPrefabs.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_entryRoomPrefabs.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_doorInteractPrefabs.Array.size
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_roomTypes.Array.data[0].m_object
-      value: 
-      objectReference: {fileID: 11400000, guid: 9934871c5325da842a064e6bfa207f78, type: 2}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_doorInteractPrefabs.Array.data[0]
       value: 
@@ -182,6 +186,66 @@ PrefabInstance:
       propertyPath: m_doorInteractPrefabs.Array.data[4]
       value: 
       objectReference: {fileID: 2923841410956672815, guid: d85c41abf50cd684e942ff72af23a561, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[0].m_heightMax
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[1].m_heightMax
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[2].m_heightMax
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[0].m_prefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[0].m_rotationDegreesMax
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[1].m_prefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[1].m_rotationDegreesMax
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[2].m_prefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[2].m_rotationDegreesMax
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[0].m_prefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 6417408937448239436, guid: c6778f302141c514eb665ea77aec172b, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[0].m_prefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[1].m_prefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 2913653632924657829, guid: 6c07a5056e2009440b6c03605a767409, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[1].m_prefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[2].m_prefabs.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 639696683959501459, guid: f68ed404f7872714abd3776c785b115f, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_textPrefabs.Array.data[2].m_prefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8494391376400586852, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -120

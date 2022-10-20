@@ -638,7 +638,7 @@ public class RoomController : MonoBehaviour
 				case LayoutGenerator.Node.Type.TutorialDash:
 				case LayoutGenerator.Node.Type.TutorialDashDamage:
 				case LayoutGenerator.Node.Type.TutorialWallJump:
-					RoomType.DecorationInfo info = RoomType.m_decorations[node.m_type - LayoutGenerator.Node.Type.TutorialPlatforms].m_object;
+					RoomType.DecorationInfo info = GameController.Instance.m_textPrefabs[node.m_type - LayoutGenerator.Node.Type.TutorialPlatforms];
 					GameObject prefab = info.m_prefabs.RandomWeighted();
 					Quaternion rotation = info.m_rotationDegreesMax == 0.0f ? Quaternion.identity : Quaternion.Euler(0.0f, 0.0f, Random.Range(-info.m_rotationDegreesMax, info.m_rotationDegreesMax));
 					Instantiate(prefab, InteriorPosition(info.m_heightMin, info.m_heightMax, prefab, rotation), rotation, transform);

@@ -1366,6 +1366,7 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 3346888056824497695, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
     m_weight: 1
+  m_textPrefabs: []
   m_roomTypes:
   - m_object: {fileID: 11400000, guid: d334c59576f62e94ca99e526e7ae5ee7, type: 2}
     m_weight: 1
