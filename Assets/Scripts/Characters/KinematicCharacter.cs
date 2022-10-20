@@ -284,6 +284,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		}
 
 		// knock away from source
+		// TODO: differentiate between source and weapon?
 		Vector2 bounceVecOriented = transform.position.x < evt.m_damageSource.transform.position.x ? new(-m_damageBounceMagnitude.x, m_damageBounceMagnitude.y) : m_damageBounceMagnitude;
 		Bounce(bounceVecOriented);
 	}

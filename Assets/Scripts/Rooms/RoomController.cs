@@ -737,15 +737,16 @@ public class RoomController : MonoBehaviour
 			FurnitureController furniture = Instantiate(RoomType.m_furniturePrefabs.RandomWeighted(), transform).GetComponent<FurnitureController>(); // NOTE that we have to spawn before placement due to potential size randomization
 			Vector2 extentsEffective = extentsInterior * (1.0f - fillPct);
 			float width = furniture.RandomizeSize(extentsEffective);
-			furniture.transform.position = InteriorPosition(0.0f, furniture.gameObject, resizeAction: () => width = furniture.RandomizeSize(extentsEffective), failureAction: () =>
+			Vector3 furniturePos = InteriorPosition(0.0f, furniture.gameObject, resizeAction: () => width = furniture.RandomizeSize(extentsEffective), failureAction: () =>
 			{
 				Simulation.Schedule<ObjectDespawn>().m_object = furniture.gameObject;
-				furniture = null; // TODO: ensure this is safe even though we're in the middle of assigning to furniture.transform.position
+				furniture = null; // NOTE that this is why we assign to a temporary position variable rather than straight to furniture.transform.position
 			});
 			if (furniture == null)
 			{
 				break; // must have failed to find a valid placement position
 			}
+			furniture.transform.position = furniturePos; // NOTE that we have to delay assigning to furniture since failureAction can potentially nullify it
 			fillPct += processNewFurniture(furniture, width);
 		}
 
