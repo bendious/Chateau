@@ -1421,6 +1421,9 @@ MonoBehaviour:
     m_weight: 0.5
   - m_object: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
     m_weight: 2
+  m_npcPrefabs:
+  - m_object: {fileID: 1798732658372887148, guid: 286335db291a89e4a861600f39917758, type: 3}
+    m_weight: 1
   m_npcRoles:
   - m_object: {fileID: 11400000, guid: 8620c986938d35e489ba749b30b261f5, type: 2}
     m_weight: 1e+27

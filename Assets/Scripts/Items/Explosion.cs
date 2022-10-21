@@ -64,10 +64,18 @@ public class Explosion : MonoBehaviour
 			return;
 		}
 
-		// restrict avatar damage to only enemy-caused explosions
-		if (m_source == null && GameController.Instance.m_avatars.Exists(avatar => avatar.gameObject == collider.gameObject))
+		// restrict avatar/NPC damage to only explicitly enemy-caused explosions
+		if (m_source == null)
 		{
-			return;
+			if (GameController.Instance.m_avatars.Exists(avatar => avatar.gameObject == collider.gameObject))
+			{
+				return;
+			}
+			AIController ai = collider.GetComponent<AIController>();
+			if (ai != null && ai.m_friendly)
+			{
+				return;
+			}
 		}
 
 		Health health = collider.GetComponent<Health>();

@@ -18,8 +18,6 @@ public class RoomController : MonoBehaviour
 	};
 
 
-	[SerializeField] private WeightedObject<GameObject>[] m_npcPrefabs;
-
 	[SerializeField] private WeightedObject<GameObject>[] m_gatePrefabs;
 	[SerializeField] private DirectionalDoors[] m_doorDirectionalPrefabs;
 	[SerializeField] private WeightedObject<GameObject>[] m_doorSecretPrefabs;
@@ -663,7 +661,7 @@ public class RoomController : MonoBehaviour
 					{
 						break;
 					}
-					GameObject npcPrefab = m_npcPrefabs.RandomWeighted();
+					GameObject npcPrefab = GameController.Instance.m_npcPrefabs.RandomWeighted().gameObject;
 					InteractNpc npc = Instantiate(npcPrefab, InteriorPosition(0.0f) + (Vector3)npcPrefab.OriginToCenterY(), Quaternion.identity).GetComponent<InteractNpc>();
 					npc.Index = npcDepthLocal + sceneIdx;
 					++npcDepthLocal;

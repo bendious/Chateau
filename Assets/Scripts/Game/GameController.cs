@@ -44,6 +44,7 @@ public class GameController : MonoBehaviour
 	public WeightedObject<RoomType>[] m_roomTypesSecret;
 	public WeightedObject<RoomType>[] m_roomTypesBoss;
 	public WeightedObject<AIController>[] m_enemyPrefabs;
+	public WeightedObject<AIController>[] m_npcPrefabs;
 	[SerializeField] private WeightedObject<Dialogue>[] m_npcRoles;
 	[SerializeField] private WeightedObject<Dialogue>[] m_npcAttitudes;
 	public GameObject[] m_doorInteractPrefabs;
@@ -81,6 +82,8 @@ public class GameController : MonoBehaviour
 	[SerializeField] private float m_waveSecondsMin = 45.0f;
 	[SerializeField] private float m_waveSecondsMax = 90.0f;
 	public float m_waveStartWeight = 1.0f;
+	[SerializeField] private bool m_startWavesImmediately = false;
+	[SerializeField] private int m_waveEnemyCountMax = int.MaxValue;
 	[SerializeField] private float m_waveEscalationMin = 0.0f;
 	[SerializeField] private float m_waveEscalationMax = 4.0f;
 	[SerializeField] private float m_waveEnemyDelayMin = 0.5f;
@@ -111,6 +114,9 @@ public class GameController : MonoBehaviour
 
 
 	public RoomController[] SpecialRooms { get; private set; }
+
+	public int NpcsTotal => m_npcs.Length; // NOTE that this is not available until after Start()
+	public int NpcsInstantiatedCount => m_npcsInstantiated.Count;
 
 	public IEnumerable<KinematicCharacter> AiTargets => m_avatars.Select(avatar => (KinematicCharacter)avatar).Concat(m_enemies).Concat(m_npcsInstantiated); // TODO: efficiency?
 
@@ -313,7 +319,7 @@ public class GameController : MonoBehaviour
 				}
 			}
 
-			EnterAtDoor(m_avatars);
+			EnterAtDoor(m_avatars.ToArray());
 		}
 
 		if (!saveExists)
@@ -328,6 +334,11 @@ public class GameController : MonoBehaviour
 			}
 
 			m_dialogueController.Play(m_introDialogue.m_dialogue.RandomWeighted().m_lines, expressions: m_introDialogue.m_expressions); // TODO: take any preconditions into account?
+		}
+
+		if (m_startWavesImmediately)
+		{
+			StartWaves();
 		}
 
 		m_loadingScreen.SetActive(false);
@@ -359,21 +370,9 @@ public class GameController : MonoBehaviour
 	private void OnPlayerJoined(PlayerInput player)
 	{
 		// NOTE that we can place this here since OnPlayerJoined() is called even if the avatar object(s) is/are carried over from a previously loaded scene
-		if (m_enemyPrefabs.Length > 0 && m_waveSecondsMin > 0.0f)
+		if (!m_startWavesImmediately && m_enemyPrefabs.Length > 0 && m_waveSecondsMin > 0.0f && m_avatars.Count == 0)
 		{
-			if (m_avatars.Count == 0)
-			{
-				if (m_waveEscalationMax <= 0.0f || Random.value > 0.5f)
-				{
-					m_nextWaveTime = Random.Range(m_waveSecondsMin, m_waveSecondsMax);
-				}
-				StopAllCoroutines();
-				StartCoroutine(SpawnWavesCoroutine());
-				if (m_waveEscalationMax > 0.0f)
-				{
-					StartCoroutine(TimerCoroutine());
-				}
-			}
+			StartWaves();
 		}
 		if (m_waveEscalationMax <= 0.0f)
 		{
@@ -422,7 +421,7 @@ public class GameController : MonoBehaviour
 
 		if (m_startRoom != null)
 		{
-			EnterAtDoor(new[] { m_avatars.Last() });
+			EnterAtDoor(m_avatars.Last());
 		}
 	}
 
@@ -719,10 +718,10 @@ public class GameController : MonoBehaviour
 		void NpcsRandomize()
 	{
 		m_npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => new[] { a, b }).Select(dialogue => new NpcInfo { m_color = Utility.ColorRandom(Color.black, Color.white, false), m_dialogues = dialogue }).ToArray();
-		for (int i = 0; i < m_npcs.Length; ++i) // TODO: replace w/ ColorRandom() colorsToAvoid param?
+		for (int i = 0; i < NpcsTotal; ++i) // TODO: replace w/ ColorRandom() colorsToAvoid param?
 		{
 			NpcInfo info1 = m_npcs[i];
-			for (int j = i + 1; j < m_npcs.Length; ++j)
+			for (int j = i + 1; j < NpcsTotal; ++j)
 			{
 				NpcInfo info2 = m_npcs[j];
 				if (info1.m_color.ColorsSimilar(info2.m_color))
@@ -850,7 +849,7 @@ public class GameController : MonoBehaviour
 		return roomCount;
 	}
 
-	private void EnterAtDoor(IEnumerable<AvatarController> avatars)
+	public void EnterAtDoor(params KinematicCharacter[] characters)
 	{
 		// find closest door prioritized by previous scene
 		InteractScene[] doors = FindObjectsOfType<InteractScene>();
@@ -860,19 +859,27 @@ public class GameController : MonoBehaviour
 			door = doors.First(interact => Vector2.Distance(interact.transform.position, Vector2.zero) < 1.0f); // TODO: remove assumption that there will be a door at the origin?
 		}
 
-		// place avatar(s) and aim(s)
-		foreach (AvatarController avatar in avatars)
+		// place characters(s) and aim(s)
+		bool includesAvatar = false;
+		foreach (KinematicCharacter character in characters)
 		{
-			avatar.Teleport(door.transform.position + (Vector3)avatar.gameObject.OriginToCenterY());
-			avatar.m_aimObject.transform.position = avatar.transform.position;
+			character.Teleport(door.transform.position + (Vector3)character.gameObject.OriginToCenterY());
+			if (character is AvatarController avatar)
+			{
+				includesAvatar = true;
+				avatar.m_aimObject.transform.position = character.transform.position;
+			}
 			if (door.m_entryVFX.Length > 0)
 			{
-				Instantiate(door.m_entryVFX.RandomWeighted(), avatar.transform);
+				Instantiate(door.m_entryVFX.RandomWeighted(), character.transform);
 			}
 		}
 
 		// update shadow casting
-		door.GetComponentInParent<RoomController>().LinkRecursive();
+		if (includesAvatar)
+		{
+			door.GetComponentInParent<RoomController>().LinkRecursive();
+		}
 
 		// animate door
 		door.GetComponent<Animator>().SetTrigger("activate");
@@ -1014,6 +1021,19 @@ public class GameController : MonoBehaviour
 		avatar.m_damageScalar = avatarObjOrig.GetComponent<KinematicCharacter>().m_damageScalar + m_upgradeCounts[(int)InteractUpgrade.Type.Damage];
 	}
 
+	private void StartWaves()
+	{
+		if (m_waveEscalationMax <= 0.0f || Random.value > 0.5f) // TODO: parameterize?
+		{
+			m_nextWaveTime = Random.Range(m_waveSecondsMin, m_waveSecondsMax);
+		}
+		StartCoroutine(SpawnWavesCoroutine());
+		if (m_waveEscalationMax > 0.0f)
+		{
+			StartCoroutine(TimerCoroutine());
+		}
+	}
+
 	private IEnumerator SpawnWavesCoroutine()
 	{
 		WaitUntil waitUntilUnpaused = new(() => !ConsoleCommands.TimerPaused);
@@ -1067,7 +1087,8 @@ public class GameController : MonoBehaviour
 		}
 
 		// sequentially spawn enemies
-		for (m_waveWeightRemaining = m_waveWeight; m_waveWeightRemaining > 0.0f; )
+		m_waveWeightRemaining = m_waveWeight;
+		for (int waveEnemyCount = 0; waveEnemyCount < m_waveEnemyCountMax && m_waveWeightRemaining > 0.0f; ++waveEnemyCount)
 		{
 			options = options.Where(weightedObj => weightedObj.m_object.m_difficulty <= m_waveWeightRemaining).ToArray(); // NOTE that since m_waveWeightRemaining never increases, it is safe to assume that all previously excluded options are still excluded
 			if (options.Length <= 0)
