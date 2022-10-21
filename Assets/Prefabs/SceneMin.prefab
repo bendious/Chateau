@@ -1478,6 +1478,8 @@ MonoBehaviour:
   m_waveSecondsMin: 0
   m_waveSecondsMax: 0
   m_waveStartWeight: 0
+  m_startWavesImmediately: 0
+  m_waveEnemyCountMax: 2147483647
   m_waveEscalationMin: 0
   m_waveEscalationMax: 0
   m_waveEnemyDelayMin: 0
@@ -5823,7 +5825,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 25
+  m_AdditionalShaderChannelsFlag: 1
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -6433,7 +6435,7 @@ MonoBehaviour:
       - m_Target: {fileID: 5689484937066196568}
         m_TargetAssemblyTypeName: GameController, Assembly-CSharp
         m_MethodName: TogglePause
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

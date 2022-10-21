@@ -477,14 +477,14 @@ public class GameController : MonoBehaviour
 		return startRoom == null ? null : startRoom.PositionPath(start, target, flags, extentY, upwardMax, offsetMag);
 	}
 
-	public void TogglePause()
+	public void TogglePause(bool noTimeScale = false)
 	{
 		if (m_gameOverUI.gameObject.activeSelf)
 		{
 			return;
 		}
 
-		Time.timeScale = Time.timeScale == 0.0f ? 1.0f : 0.0f;
+		Time.timeScale = noTimeScale || Time.timeScale == 0.0f ? 1.0f : 0.0f;
 		StartCoroutine(ActivateMenuCoroutine(m_pauseUI, !m_pauseUI.gameObject.activeSelf));
 		// NOTE that if the avatar is ever visible while paused, we should disable its script here to avoid continuing to update facing
 	}
@@ -598,7 +598,7 @@ public class GameController : MonoBehaviour
 			Save();
 		}
 
-		if (m_pauseUI.isActiveAndEnabled)
+		if (Time.timeScale == 0.0f)
 		{
 			TogglePause();
 		}

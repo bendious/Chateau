@@ -989,6 +989,12 @@ public sealed class AIFinalDialogue : AIState
 	{
 		// NOTE that we deliberately don't invoke base.Exit() since this class ignores the standard functionality
 
+		// despawn avatars since Credits uses its own controls
+		foreach (AvatarController avatar in GameController.Instance.m_avatars)
+		{
+			Simulation.Schedule<ObjectDespawn>().m_object = avatar.gameObject;
+		}
+
 		UnityEngine.SceneManagement.SceneManager.LoadScene("Credits"); // TODO: un-hardcode?
 	}
 

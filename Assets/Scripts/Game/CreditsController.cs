@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 
 public class CreditsController : MonoBehaviour
@@ -18,32 +19,35 @@ public class CreditsController : MonoBehaviour
 	private readonly System.Collections.Generic.List<GameObject> m_npcsOrdered = new();
 
 
-	private void OnEnable()
+	private void Start()
 	{
 		m_cameraSize = GameController.Instance.m_vCamMain.GetCinemachineComponent<Cinemachine.CinemachineFramingTransposer>().m_MinimumOrthoSize;
 		StartCoroutine(SetInitialRoomDelayed());
 
-		ObjectDespawn.OnExecute += OnObjectDespawn;
+		ObjectDespawn.OnExecute += OnObjectDespawn; // NOTE that since this is just to start a coroutine, it might make more sense to hook/unhook it in On{Enable/Disable}(), but OnEnable() didn't seem to be getting called in standalone builds for some reason...
 		StartCoroutine(SpawnNpcsDelayed());
 	}
 
-	private void OnDisable()
+	private void OnDestroy()
 	{
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
 	}
 
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
-	public void OnForward(UnityEngine.InputSystem.InputValue input)
+	public void OnForward(InputValue input)
 	{
 		UpdateRoom(room => room.FirstChild);
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
-	public void OnBack(UnityEngine.InputSystem.InputValue input)
+	public void OnBack(InputValue input)
 	{
 		UpdateRoom(room => room.Parent);
 	}
+
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
+	public void OnPause(InputValue input) => GameController.Instance.TogglePause(true);
 
 
 	private IEnumerator SetInitialRoomDelayed()
