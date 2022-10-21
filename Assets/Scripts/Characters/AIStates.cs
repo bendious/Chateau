@@ -439,7 +439,7 @@ public sealed class AIMelee : AIState
 		m_durationRemaining = Random.Range(m_ai.m_meleeSecondsMin, m_ai.m_meleeSecondsMax);
 
 		m_item = m_ai.GetComponentInChildren<ItemController>();
-		m_arm = m_item != null ? null : m_ai.GetComponentInChildren<ArmController>();
+		m_arm = m_item != null ? m_item.GetComponentInParent<ArmController>() : m_ai.GetComponentInChildren<ArmController>(); // NOTE that we get the relevant arm even if planning to use m_item, since m_item could break or be taken during the course of this state // TODO: don't assume that AI only have items via arms?
 	}
 
 	public override AIState Update()
@@ -470,7 +470,7 @@ public sealed class AIMelee : AIState
 
 	private void Swing()
 	{
-		if (m_item != null)
+		if (m_item != null && m_item.transform.parent == m_arm.transform) // NOTE that we have to check whether we're still holding the item since it could have broken or been taken at any point since Enter()
 		{
 			m_item.Swing(false);
 		}
