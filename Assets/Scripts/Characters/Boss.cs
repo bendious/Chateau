@@ -217,5 +217,6 @@ public class Boss : MonoBehaviour
 		m_health.m_invincible = false;
 		m_ai.m_passive = false;
 		GameController.Instance.EnemyAdd(m_ai);
+		GameController.Instance.EnemyAddToWave(m_ai);
 	}
 }

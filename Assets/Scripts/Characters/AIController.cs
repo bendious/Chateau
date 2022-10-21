@@ -317,15 +317,15 @@ public sealed class AIController : KinematicCharacter
 			}
 			else if (!m_friendly && path.Item2 < m_alertDistanceMax && GameController.Instance.m_avatars.Any(avatar => avatar.gameObject == m_target.gameObject))
 			{
-				// if targeting and successfully pathfinding to a close-enough avatar, ensure we are now contained in GameController.m_enemiesActive[]
+				// if targeting and successfully pathfinding to a close-enough avatar, ensure we are now contained in GameController.m_enemiesInWave[]
 				// TODO: efficiency? remove if later unable to pathfind again? activate when targeting NPCs (while still preventing softlocks)?
-				GameController.Instance.EnemyAdd(this);
+				GameController.Instance.EnemyAddToWave(this);
 			}
 			m_pathfindTimeNext = Time.time + Random.Range(m_replanSecondsMin, m_replanSecondsMax);
 		}
 		if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0)
 		{
-			// NOTE that even if targeting an avatar and unable to pathfind to any avatars, we don't have to remove ourself from GameController.m_enemiesActive[] to prevent wave softlocks, since GameController.SpawnEnemyWaveCoroutine() takes care of that
+			// NOTE that even if targeting an avatar and unable to pathfind to any avatars, we don't have to remove ourself from GameController.m_enemiesInWave[] to prevent wave softlocks, since GameController.SpawnEnemyWaveCoroutine() takes care of that
 			move = Vector2.zero;
 			return false;
 		}

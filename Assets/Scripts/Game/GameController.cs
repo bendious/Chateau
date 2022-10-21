@@ -112,7 +112,7 @@ public class GameController : MonoBehaviour
 
 	public RoomController[] SpecialRooms { get; private set; }
 
-	public IEnumerable<KinematicCharacter> AiTargets => m_avatars.Select(avatar => (KinematicCharacter)avatar).Concat(m_enemiesActive).Concat(m_npcsInstantiated); // TODO: efficiency?
+	public IEnumerable<KinematicCharacter> AiTargets => m_avatars.Select(avatar => (KinematicCharacter)avatar).Concat(m_enemies).Concat(m_npcsInstantiated); // TODO: efficiency?
 
 	public bool Victory { get; private set; }
 
@@ -145,7 +145,8 @@ public class GameController : MonoBehaviour
 	private float m_nextWaveTime = 0.0f;
 	private bool m_waveSpawningInProgress = false;
 
-	private readonly List<AIController> m_enemiesActive = new();
+	private readonly List<AIController> m_enemies = new();
+	private readonly List<AIController> m_enemiesInWave = new();
 	private static int[] m_enemySpawnCounts;
 
 	private readonly List<AIController> m_npcsInstantiated = new();
@@ -491,19 +492,17 @@ public class GameController : MonoBehaviour
 
 	public void EnemyAdd(AIController enemy)
 	{
-		if (m_enemiesActive.Contains(enemy))
-		{
-			return;
-		}
-		m_enemiesActive.Add(enemy);
+		EnemyAddInternal(m_enemies, enemy);
 		// TODO: increment m_enemySpawnCounts[] if appropriate
 	}
 
+	public void EnemyAddToWave(AIController enemy) => EnemyAddInternal(m_enemiesInWave, enemy);
+
 	public void NpcAdd(AIController npc) => m_npcsInstantiated.Add(npc);
 
-	public float ActiveEnemiesWeight() => m_waveWeightRemaining + m_enemiesActive.Aggregate(0.0f, (sum, enemy) => sum + enemy.m_difficulty);
+	public float ActiveEnemiesWeight() => m_waveWeightRemaining + m_enemiesInWave.Aggregate(0.0f, (sum, enemy) => sum + enemy.m_difficulty);
 
-	public bool ActiveEnemiesRemain() => m_waveSpawningInProgress || m_enemiesActive.Count > 0;
+	public bool ActiveEnemiesRemain() => m_waveSpawningInProgress || m_enemiesInWave.Count > 0;
 
 	public bool EnemyTypeHasSpawned(int typeIndex) => m_enemySpawnCounts[typeIndex] > 0;
 
@@ -519,7 +518,7 @@ public class GameController : MonoBehaviour
 		List<AIController> unreachableEnemies = new();
 		HashSet<RoomController> roomsToUnseal = new();
 
-		foreach (AIController enemy in m_enemiesActive)
+		foreach (AIController enemy in m_enemiesInWave)
 		{
 			RoomController room = RoomFromPosition(enemy.transform.position);
 			if (reachableRooms.Contains(room))
@@ -530,9 +529,9 @@ public class GameController : MonoBehaviour
 			unreachableEnemies.Add(enemy);
 			roomsToUnseal.Add(room);
 		}
-		m_enemiesActive.RemoveAll(enemy => unreachableEnemies.Contains(enemy));
+		m_enemiesInWave.RemoveAll(enemy => unreachableEnemies.Contains(enemy));
 
-		if (m_enemiesActive.Count <= 0)
+		if (m_enemiesInWave.Count <= 0)
 		{
 			roomsToUnseal.UnionWith(reachableRooms);
 		}
@@ -699,7 +698,7 @@ public class GameController : MonoBehaviour
 
 	public void DebugKillAllEnemies()
 	{
-		foreach (AIController enemy in m_enemiesActive)
+		foreach (AIController enemy in m_enemies)
 		{
 			enemy.GetComponent<Health>().Decrement(null, float.MaxValue, Health.DamageType.Generic);
 		}
@@ -1051,7 +1050,7 @@ public class GameController : MonoBehaviour
 			{
 				room.SealRoom(true);
 			}
-			m_enemiesActive.Clear(); // NOTE that any that remain able to reach an avatar will re-add themselves via EnemyAdd(), and due to m_waveSpawningInProgress, ActiveEnemiesRemain() won't hiccup in the meantime
+			m_enemiesInWave.Clear(); // NOTE that any that remain able to reach an avatar will re-add themselves via AIController.NavigateTowardTarget()-->EnemyAddToWave(), and due to m_waveSpawningInProgress, ActiveEnemiesRemain() won't hiccup in the meantime
 		}
 
 		m_waveWeight += Random.Range(m_waveEscalationMin, m_waveEscalationMax); // TODO: exponential/logistic escalation?
@@ -1088,7 +1087,7 @@ public class GameController : MonoBehaviour
 		m_waveSpawningInProgress = false;
 
 		// unseal rooms if the last enemy was killed immediately
-		if (m_waveSealing && m_enemiesActive.Count == 0 && !m_bossRoomSealed)
+		if (m_waveSealing && m_enemiesInWave.Count == 0 && !m_bossRoomSealed)
 		{
 			foreach (RoomController room in sealedRooms)
 			{
@@ -1101,10 +1100,19 @@ public class GameController : MonoBehaviour
 	{
 		RoomController spawnRoom = m_waveSealing ? RoomFromPosition(m_avatars.Random().transform.position) : m_startRoom.WithDescendants.Random(); // TODO: efficiency? restrict to currently reachable rooms?
 		Vector3 spawnPos = spawnRoom.SpawnPointRandom();
-		GameObject enemyObj = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
-		if (m_waveSealing) // NOTE that for non-sealed zones we don't invoke EnemyAdd() directly anymore, since we aren't guaranteed to be within reach of the avatar(s) - instead it will occur through AIController.NavigateTowardTarget(); however, we still need instantly active enemies in sealed zones to avoid immediately un-sealing during single-enemy waves
+		AIController enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<AIController>();
+		EnemyAdd(enemy);
+		if (m_waveSealing) // NOTE that for non-sealed zones we don't invoke EnemyAddToWave() directly anymore, since we aren't guaranteed to be within reach of the avatar(s) - instead it will occur through AIController.NavigateTowardTarget(); however, we still need instantly active enemies in sealed zones to avoid immediately un-sealing during single-enemy waves
 		{
-			EnemyAdd(enemyObj.GetComponent<AIController>());
+			EnemyAddToWave(enemy);
+		}
+	}
+
+	private void EnemyAddInternal(List<AIController> list, AIController enemy)
+	{
+		if (!list.Contains(enemy))
+		{
+			list.Add(enemy);
 		}
 	}
 
@@ -1116,7 +1124,8 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
-		m_enemiesActive.Remove(ai);
+		m_enemies.Remove(ai);
+		m_enemiesInWave.Remove(ai);
 		m_npcsInstantiated.Remove(ai);
 
 		if (m_waveSealing && !ActiveEnemiesRemain() && !m_bossRoomSealed)

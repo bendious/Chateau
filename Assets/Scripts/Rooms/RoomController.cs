@@ -673,7 +673,8 @@ public class RoomController : MonoBehaviour
 				case LayoutGenerator.Node.Type.Enemy:
 					// NOTE that this enemy won't be included in GameController.m_{waveEnemies/enemySpawnCounts}[] until room is opened and pathfinding succeeds
 					AIController enemyPrefab = GameController.Instance.m_enemyPrefabs.Where(enemyObj => enemyObj.m_object.m_difficulty <= GameController.Instance.m_waveStartWeight).RandomWeighted();
-					Instantiate(enemyPrefab, InteriorPosition(0.0f) + (Vector3)enemyPrefab.gameObject.OriginToCenterY(), Quaternion.identity);
+					AIController enemy = Instantiate(enemyPrefab, InteriorPosition(0.0f) + (Vector3)enemyPrefab.gameObject.OriginToCenterY(), Quaternion.identity).GetComponent<AIController>();
+					GameController.Instance.EnemyAdd(enemy);
 					break;
 
 				case LayoutGenerator.Node.Type.Upgrade:
@@ -980,10 +981,10 @@ public class RoomController : MonoBehaviour
 			return Mathf.Min(overlap2D.x, overlap2D.y);
 		}
 
-		Bounds boundsInterior = BoundsInterior;
+		Bounds boundsInteriorOrig = BoundsInterior;
 		if (edgeBuffer != 0.0f)
 		{
-			boundsInterior.Expand(new Vector3(-edgeBuffer, -edgeBuffer));
+			boundsInteriorOrig.Expand(new Vector3(-edgeBuffer, -edgeBuffer));
 		}
 
 		Vector3 pos = Vector3.zero;
@@ -1002,6 +1003,7 @@ public class RoomController : MonoBehaviour
 			}
 
 			// ensure overlap object fits entirely inside room bounds
+			Bounds boundsInterior = boundsInteriorOrig;
 			boundsInterior.Expand(-bboxNew.size);
 			if (boundsInterior.extents.x < 0.0f)
 			{
