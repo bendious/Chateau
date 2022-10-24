@@ -329,7 +329,7 @@ public class GameController : MonoBehaviour
 			if (SceneManager.GetActiveScene().name != tutorialSceneName)
 			{
 				IsSceneLoad = true; // to preempt LoadScene() setting SceneIndexPrev, which we don't want in this case
-				LoadScene(tutorialSceneName, false, false);
+				StartCoroutine(LoadSceneCoroutine(tutorialSceneName, false, false));
 				return;
 			}
 
@@ -580,12 +580,12 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
-		LoadScene(SceneManager.GetActiveScene().name, !noInventoryClear, noInventoryClear);
+		StartCoroutine(LoadSceneCoroutine(SceneManager.GetActiveScene().name, !noInventoryClear, noInventoryClear));
 	}
 
-	public void LoadScene(string name) => LoadScene(name, true, false);
+	public void LoadScene(string name) => StartCoroutine(LoadSceneCoroutine(name, true, false));
 
-	public void LoadScene(string name, bool save, bool noInventoryClear)
+	private IEnumerator LoadSceneCoroutine(string name, bool save, bool noInventoryClear)
 	{
 		Scene sceneCur = SceneManager.GetActiveScene();
 		if (!IsSceneLoad && sceneCur.name != name)
@@ -602,7 +602,7 @@ public class GameController : MonoBehaviour
 		{
 			TogglePause();
 		}
-		StartCoroutine(ActivateMenuCoroutine(m_gameOverUI, false));
+		yield return StartCoroutine(ActivateMenuCoroutine(m_gameOverUI, false));
 
 		IsSceneLoad = true;
 
