@@ -49,32 +49,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 
 	public bool CanInteract(KinematicCharacter interactor) => !GameController.Instance.m_dialogueController.IsPlaying && !GameController.Instance.ActiveEnemiesRemain();
 
-	public void Interact(KinematicCharacter interactor, bool reverse)
-	{
-		WeightedObject<Dialogue.Info>[] dialogueAllowed = DialogueFiltered().ToArray();
-
-		// pick dialogue option(s)
-		Dialogue.Info dialogueCur = dialogueAllowed.FirstOrDefault(dialogue => dialogue.m_weight == 0.0f)?.m_object;
-		if (dialogueCur == null)
-		{
-			dialogueCur = dialogueAllowed.RandomWeighted();
-		}
-		Dialogue.Info dialogueAppend = dialogueAllowed.FirstOrDefault(dialogueWeighted => dialogueWeighted.m_object.m_appendToAll && dialogueWeighted.m_object != dialogueCur)?.m_object; // TODO: support multiple append dialogues?
-
-		// play dialogue
-		GameController.Instance.m_dialogueController.Play(dialogueAppend != null ? dialogueCur.m_lines.Concat(dialogueAppend.m_lines) : dialogueCur.m_lines, gameObject, interactor.GetComponent<AvatarController>(), m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_expressionsCombined, m_sfxChosen, dialogueCur.m_loop ? 0 : dialogueAppend != null && dialogueAppend.m_loop ? dialogueCur.m_lines.Length : -1);
-
-		// update weight
-		// TODO: save across instantiations/sessions?
-		WeightedObject<Dialogue.Info> weightedDialogueCur = m_dialogueCombined.First(dialogue => dialogue.m_object == dialogueCur); // TODO: support duplicate dialogue options?
-		weightedDialogueCur.m_weight = weightedDialogueCur.m_object.m_singleUse ? -1.0f : weightedDialogueCur.m_weight == 0.0f ? 1.0f : weightedDialogueCur.m_weight * m_weightUseScalar;
-
-		// deactivate single-minded pursuit if appropriate
-		if (m_ai != null && m_ai.m_friendly && m_ai.OnlyPursueAvatar && !HasSingleUseAvailable)
-		{
-			m_ai.SetOnlyPursueAvatar(false);
-		}
-	}
+	public void Interact(KinematicCharacter interactor, bool reverse) => StartCoroutine(PlayDialogueCoroutine(interactor));
 
 	// called via Interact()/SendMessage(NpcDialogue.Info.m_preconditionName)
 	public void HasFinishedZone(SendMessageValue<Dialogue.Info, bool> info)
@@ -124,5 +99,30 @@ public class InteractNpc : MonoBehaviour, IInteractable
 			SendMessage(info.m_object.m_preconditionName, inOutValues);
 			return inOutValues.m_out;
 		});
+	}
+
+	private System.Collections.IEnumerator PlayDialogueCoroutine(KinematicCharacter interactor)
+	{
+		// pick dialogue option(s)
+		WeightedObject<Dialogue.Info>[] dialogueAllowed = DialogueFiltered().ToArray();
+		Dialogue.Info dialogueCur = dialogueAllowed.FirstOrDefault(dialogue => dialogue.m_weight == 0.0f)?.m_object;
+		if (dialogueCur == null)
+		{
+			dialogueCur = dialogueAllowed.RandomWeighted();
+		}
+		Dialogue.Info dialogueAppend = dialogueAllowed.FirstOrDefault(dialogueWeighted => dialogueWeighted.m_object.m_appendToAll && dialogueWeighted.m_object != dialogueCur)?.m_object; // TODO: support multiple append dialogues?
+
+		// play dialogue and wait
+		yield return GameController.Instance.m_dialogueController.Play(dialogueAppend != null ? dialogueCur.m_lines.Concat(dialogueAppend.m_lines) : dialogueCur.m_lines, gameObject, interactor.GetComponent<AvatarController>(), m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_expressionsCombined, m_sfxChosen, dialogueCur.m_loop ? 0 : dialogueAppend != null && dialogueAppend.m_loop ? dialogueCur.m_lines.Length : -1);
+
+		// update weight
+		WeightedObject<Dialogue.Info> weightedDialogueCur = m_dialogueCombined.First(dialogue => dialogue.m_object == dialogueCur); // TODO: support duplicate dialogue options?
+		weightedDialogueCur.m_weight = weightedDialogueCur.m_object.m_singleUse ? -1.0f : weightedDialogueCur.m_weight == 0.0f ? 1.0f : weightedDialogueCur.m_weight * m_weightUseScalar;
+
+		// deactivate single-minded pursuit if appropriate
+		if (m_ai != null && m_ai.m_friendly && m_ai.OnlyPursueAvatar && !HasSingleUseAvailable)
+		{
+			m_ai.SetOnlyPursueAvatar(false);
+		}
 	}
 }

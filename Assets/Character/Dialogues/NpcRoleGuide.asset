@@ -38,6 +38,12 @@ MonoBehaviour:
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
+      - m_text: And now that you're familiar with the first wing, I'm sure you can
+          grab supplies and duck back here with them without having to make it through
+          the whole area.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
       m_loop: 0
       m_singleUse: 1
       m_appendToAll: 0
@@ -76,6 +82,18 @@ MonoBehaviour:
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
       - m_text: I wish I could do more than just say thank you...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Is that it, then? Mission accomplished?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: I feel like there's still something...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: But no, I don't know anything, don't listen to me.
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
@@ -389,15 +407,44 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: The locked doors here?
+      - m_text: Keep your eyes open when you're out and about; I've found stashes
+          of neat things in the most unexpected places.
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
-      - m_text: I don't actually know what's behind them.
+      - m_text: Well, okay, maybe hiding a safe behind a painting on the wall isn't
+          <i>that</i> unexpected, but still...
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
-      - m_text: Their keys don't seem to still be around here.
+      - m_text: The fact remains that the deeper something has been hidden and the
+          more locks are on it, the more likely it is to be valuable.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: Be careful if you're headed down into the basement.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: I can't say that it used to be this place's dungeons, but hey, I
+          wouldn't be surprised if it had been.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: It's a veritable maze even compared to the rest of the mansion.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: You may very well end up stuck down there forever if you just wander
+          around aimlessly.
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
