@@ -1,6 +1,7 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
 
 [DisallowMultipleComponent]
@@ -34,6 +35,7 @@ public class LightFlickerSynced : MonoBehaviour
 
 	private ComponentInfo<Light2D, float>[] m_lights;
 	private ComponentInfo<SpriteRenderer, Color>[] m_renderers;
+	private ComponentInfo<Graphic, Color>[] m_ui;
 
 
 	protected virtual void OnEnable()
@@ -42,6 +44,7 @@ public class LightFlickerSynced : MonoBehaviour
 
 		m_lights = GetComponentsInChildren<Light2D>(true).Select(light => new ComponentInfo<Light2D, float> { m_component = light, m_max = light.intensity }).ToArray();
 		m_renderers = GetComponentsInChildren<SpriteRenderer>(true).Select(renderer => new ComponentInfo<SpriteRenderer, Color> { m_component = renderer, m_max = renderer.color }).ToArray();
+		m_ui = GetComponentsInChildren<Graphic>(true).Select(graphic => new ComponentInfo<Graphic, Color> { m_component = graphic, m_max = graphic.color }).ToArray();
 
 		if (Synced)
 		{
@@ -57,6 +60,10 @@ public class LightFlickerSynced : MonoBehaviour
 			info.m_component.intensity = info.m_max;
 		}
 		foreach (ComponentInfo<SpriteRenderer, Color> info in m_renderers)
+		{
+			info.m_component.color = info.m_max;
+		}
+		foreach (ComponentInfo<Graphic, Color> info in m_ui)
 		{
 			info.m_component.color = info.m_max;
 		}
@@ -105,17 +112,22 @@ public class LightFlickerSynced : MonoBehaviour
 		// set intensity
 		// TODO: support for varying color as well?
 		float intensityT = m_intensityCurve.Evaluate(phase) * IntensityScalar;
+		Color colorPct = new(intensityT, intensityT, intensityT, 1.0f); // TODO: support flickering via alpha?
 		foreach (ComponentInfo<Light2D, float> info in m_lights)
 		{
 			info.m_component.intensity = Mathf.Lerp(0.0f, info.m_max, intensityT);
 		}
 		foreach (ComponentInfo<SpriteRenderer, Color> info in m_renderers)
 		{
-			info.m_component.color = info.m_max * new Color(intensityT, intensityT, intensityT, 1.0f);
+			info.m_component.color = info.m_max * colorPct;
 			foreach (Material material in info.m_component.materials)
 			{
 				material.SetFloat(m_emissivePctID, intensityT); // TODO: avoid creating separate material instances for each renderer w/o syncing un-synced LightFlicker components?
 			}
+		}
+		foreach (ComponentInfo<Graphic, Color> info in m_ui)
+		{
+			info.m_component.color = info.m_max * colorPct;
 		}
 	}
 

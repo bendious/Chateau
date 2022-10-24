@@ -65,6 +65,7 @@ public class GameController : MonoBehaviour
 
 	[SerializeField] private GameObject m_loadingScreen;
 	public TMPro.TMP_Text m_timerUI;
+	public GameObject m_startUI;
 	public Canvas m_pauseUI;
 	public Canvas m_gameOverUI;
 
@@ -370,13 +371,13 @@ public class GameController : MonoBehaviour
 	private void OnPlayerJoined(PlayerInput player)
 	{
 		// NOTE that we can place this here since OnPlayerJoined() is called even if the avatar object(s) is/are carried over from a previously loaded scene
+		m_startUI.gameObject.SetActive(false);
 		if (!m_startWavesImmediately && m_enemyPrefabs.Length > 0 && m_waveSecondsMin > 0.0f && m_avatars.Count == 0)
 		{
 			StartWaves();
 		}
 		if (m_waveEscalationMax <= 0.0f)
 		{
-			m_timerUI.text = null;
 			Victory = true;
 		}
 
