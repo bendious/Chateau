@@ -84,16 +84,8 @@ PrefabInstance:
       value: -748412
       objectReference: {fileID: 0}
     - target: {fileID: 7382172388579407405, guid: bc523bdaf3586ea4385e45a9a5838915, type: 3}
-      propertyPath: m_walls.Array.size
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 7382172388579407405, guid: bc523bdaf3586ea4385e45a9a5838915, type: 3}
-      propertyPath: m_walls.Array.data[6]
-      value: 
-      objectReference: {fileID: 8660166117789544507}
-    - target: {fileID: 7382172388579407405, guid: bc523bdaf3586ea4385e45a9a5838915, type: 3}
-      propertyPath: m_doorwayInfos.Array.size
-      value: 3
+      propertyPath: m_doorwayInfos.Array.data[3].m_disallowLadders
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7422594126546487761, guid: bc523bdaf3586ea4385e45a9a5838915, type: 3}
       propertyPath: m_Name
@@ -121,8 +113,3 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bc523bdaf3586ea4385e45a9a5838915, type: 3}
---- !u!1 &8660166117789544507 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3865645025881897782, guid: bc523bdaf3586ea4385e45a9a5838915, type: 3}
-  m_PrefabInstance: {fileID: 5587437273869847309}
-  m_PrefabAsset: {fileID: 0}

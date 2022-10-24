@@ -12,13 +12,13 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8484230768814261513}
     - target: {fileID: 615052631741110546, guid: 59aba3142642cde47a43b3aa316178fc, type: 3}
-      propertyPath: m_doorwayInfos.Array.data[3].m_object
-      value: 
-      objectReference: {fileID: 4197351347755189444}
+      propertyPath: m_doorwayInfos.Array.data[3].m_disallowLadders
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 615052631741110546, guid: 59aba3142642cde47a43b3aa316178fc, type: 3}
-      propertyPath: m_doorwayInfos.Array.data[4].m_doorway
-      value: 
-      objectReference: {fileID: 4197351347755189444}
+      propertyPath: m_doorwayInfos.Array.data[5].m_disallowLadders
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 718886785481287406, guid: 59aba3142642cde47a43b3aa316178fc, type: 3}
       propertyPath: m_Name
       value: RoomEntryWideOffset
@@ -217,11 +217,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 59aba3142642cde47a43b3aa316178fc, type: 3}
---- !u!1 &4197351347755189444 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6583737206393000969, guid: 59aba3142642cde47a43b3aa316178fc, type: 3}
-  m_PrefabInstance: {fileID: 7017134699116449997}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8484230768814261513 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1504154147589084612, guid: 59aba3142642cde47a43b3aa316178fc, type: 3}

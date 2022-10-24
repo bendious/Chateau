@@ -85,6 +85,8 @@ public class RoomController : MonoBehaviour
 	{
 		public /*readonly*/ GameObject m_object;
 
+		public bool m_disallowLadders = false;
+
 
 		internal RoomController ParentRoom
 		{
@@ -388,6 +390,11 @@ public class RoomController : MonoBehaviour
 				RoomController shallowRoom = deepRoom == this ? sibling : this;
 				RoomController lowRoom = direction.y.FloatEqual(0.0f) ? deepRoom : (direction.y > 0.0f ? this : sibling);
 				bool noLadder = deepRoom != lowRoom;
+
+				if (!noLadder && (lowRoom == this ? doorwayInfo : reverseInfo).m_disallowLadders)
+				{
+					continue; // TODO: detect & allow if one-way loop creation would set noLadder below?
+				}
 
 				// determine traversability before adding cutback
 				// TODO: use avatar max jump height once RoomPath() takes platforms into account?
@@ -1222,7 +1229,10 @@ public class RoomController : MonoBehaviour
 
 	public GameObject SpawnLadder(GameObject doorway, GameObject prefabForced = null, bool spawnBunched = false)
 	{
-		Assert.IsTrue(m_doorwayInfos.Any(info => info.m_object == doorway || info.m_blocker == doorway));
+#if DEBUG
+		DoorwayInfo info = m_doorwayInfos.FirstOrDefault(info => info.m_object == doorway || info.m_blocker == doorway);
+		Debug.Assert(info != null && !info.m_disallowLadders);
+#endif
 
 		GameObject ladderRungPrefab = prefabForced != null || m_ladderRungPrefabs.Length <= 0 ? prefabForced : m_ladderRungPrefabs.RandomWeighted();
 		if (ladderRungPrefab == null)
@@ -1532,6 +1542,10 @@ public class RoomController : MonoBehaviour
 	{
 		DoorwayInfo doorwayInfo = m_doorwayInfos[index];
 		Vector2 replaceDirection = doorwayInfo.DirectionOutward();
+		if (replaceDirection.y > 0.0f && doorwayInfo.m_disallowLadders) // TODO: detect & allow situations that won't end up needing a ladder?
+		{
+			return;
+		}
 		if (allowedDirections != null && !allowedDirections.Contains(replaceDirection))
 		{
 			return;
@@ -1565,6 +1579,11 @@ public class RoomController : MonoBehaviour
 			}
 		}
 		if (!isOpen)
+		{
+			return;
+		}
+
+		if (replaceDirection.y < 0.0f && roomPrefab.m_doorwayInfos[reverseIdx].m_disallowLadders) // TODO: detect & allow situations that won't end up needing a ladder?
 		{
 			return;
 		}
