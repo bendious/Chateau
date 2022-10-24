@@ -30,7 +30,7 @@ PrefabInstance:
     - target: {fileID: 116330599843900332, guid: 334661055f7cd0d428253c133da63b70, type: 3}
       propertyPath: m_bossPrefabs.Array.data[0].m_object
       value: 
-      objectReference: {fileID: 6063473657391316580, guid: bce67a4ad8761134396dce87d6f32a15, type: 3}
+      objectReference: {fileID: 1316249225396498692, guid: bce67a4ad8761134396dce87d6f32a15, type: 3}
     - target: {fileID: 1412368570536617553, guid: 334661055f7cd0d428253c133da63b70, type: 3}
       propertyPath: m_Name
       value: RoomWideTallBossFinal

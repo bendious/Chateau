@@ -1288,23 +1288,23 @@ MonoBehaviour:
   m_ctGroupOverview: {fileID: 2164150195133768035}
   m_dialogueController: {fileID: 8780978965584514848}
   m_entryRoomPrefabs:
-  - m_object: {fileID: 3064922269630218972, guid: 875cea8ea28ce664db617d8b73fe2adb, type: 3}
+  - m_object: {fileID: 3168333139033652512, guid: 875cea8ea28ce664db617d8b73fe2adb, type: 3}
     m_weight: 1
-  - m_object: {fileID: 718886785481287406, guid: 59aba3142642cde47a43b3aa316178fc, type: 3}
+  - m_object: {fileID: 615052631741110546, guid: 59aba3142642cde47a43b3aa316178fc, type: 3}
     m_weight: 1
-  - m_object: {fileID: 7536810725817382435, guid: 3ce22aa9dc166ba459f3e4f71d6468a3, type: 3}
+  - m_object: {fileID: 7631567034467109343, guid: 3ce22aa9dc166ba459f3e4f71d6468a3, type: 3}
     m_weight: 1
   m_roomPrefabs:
-  - m_object: {fileID: 7422594126546487761, guid: bc523bdaf3586ea4385e45a9a5838915, type: 3}
+  - m_object: {fileID: 7382172388579407405, guid: bc523bdaf3586ea4385e45a9a5838915, type: 3}
     m_weight: 1
-  - m_object: {fileID: 6889197759833524710, guid: 8db8d798ebe82374788bcea51b356028, type: 3}
+  - m_object: {fileID: 6839767684637783578, guid: 8db8d798ebe82374788bcea51b356028, type: 3}
     m_weight: 0.5
-  - m_object: {fileID: 4621985994950227315, guid: 573662fa838eb464b9f092bc733dd263, type: 3}
+  - m_object: {fileID: 4707514379323181711, guid: 573662fa838eb464b9f092bc733dd263, type: 3}
     m_weight: 0.5
-  - m_object: {fileID: 3219298760607032273, guid: b2846bbea2ec52e4082109700bc8c035, type: 3}
+  - m_object: {fileID: 3305039105843977261, guid: b2846bbea2ec52e4082109700bc8c035, type: 3}
     m_weight: 0.25
   m_bossRoomPrefabs:
-  - m_object: {fileID: 1412368570536617553, guid: 334661055f7cd0d428253c133da63b70, type: 3}
+  - m_object: {fileID: 1362718354108733869, guid: 334661055f7cd0d428253c133da63b70, type: 3}
     m_weight: 1
   m_gatePrefabs:
   - m_object: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}

@@ -221,7 +221,7 @@ PrefabInstance:
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_bossRoomPrefabs.Array.data[0].m_object
       value: 
-      objectReference: {fileID: 8978284120855630503, guid: 616282ff19c4a3d4bbb6ec9cb0ef8935, type: 3}
+      objectReference: {fileID: 9072960435840216411, guid: 616282ff19c4a3d4bbb6ec9cb0ef8935, type: 3}
     - target: {fileID: 8494391376400586852, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -120

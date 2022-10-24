@@ -6,7 +6,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class BossRoom : MonoBehaviour
 {
-	[SerializeField] private WeightedObject<GameObject>[] m_bossPrefabs;
+	[SerializeField] private WeightedObject<Boss>[] m_bossPrefabs;
 	[SerializeField] private float m_bossHeightMin = 0.0f;
 	[SerializeField] private float m_bossHeightMax = 0.0f;
 
@@ -30,14 +30,14 @@ public class BossRoom : MonoBehaviour
 		// determine farthest valid position from entrance
 		RoomController room = GetComponent<RoomController>();
 		Vector3 parentPos = room.ParentDoorwayPosition;
-		GameObject bossPrefab = m_bossPrefabs.RandomWeighted();
-		Vector3 spawnPos = transform.position + (Vector3)bossPrefab.OriginToCenterY();
+		Boss bossPrefab = m_bossPrefabs.RandomWeighted();
+		Vector3 spawnPos = transform.position + (Vector3)bossPrefab.gameObject.OriginToCenterY();
 		Bounds triggerBounds = GetComponent<Collider2D>().bounds;
 		spawnPos.x = parentPos.x <= spawnPos.x ? triggerBounds.max.x : triggerBounds.min.x; // TODO: don't assume origin position is closer to min than max?
 		spawnPos.y += Random.Range(m_bossHeightMin, m_bossHeightMax);
 
 		// spawn boss
-		m_boss = Instantiate(bossPrefab, spawnPos, Quaternion.identity).GetComponent<Boss>();
+		m_boss = Instantiate(bossPrefab, spawnPos, Quaternion.identity);
 		m_boss.m_room = this;
 
 		// spawn platforms

@@ -32,7 +32,7 @@ public class RoomController : MonoBehaviour
 	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsBelow;
 
 	[SerializeField] private Sprite m_floorPlatformSprite;
-	[SerializeField] private GameObject m_doorSealVFX;
+	[SerializeField] private WeightedObject<VisualEffect>[] m_doorSealVFX;
 
 	[SerializeField] private WeightedObject<GameObject>[] m_spawnPointPrefabs;
 
@@ -549,12 +549,6 @@ public class RoomController : MonoBehaviour
 			}
 			foreach (DoorwayInfo info in m_doorwayInfos)
 			{
-				if (info.m_object.GetComponent<PlatformEffector2D>() == null)
-				{
-					SpriteRenderer renderer = info.m_object.GetComponent<SpriteRenderer>();
-					renderer.sprite = m_wallInfo.m_sprite;
-					renderer.color = m_wallColor; // TODO: slight variation?
-				}
 				GameObject obj = info.m_blocker;
 				if (obj == null || obj.transform.parent != transform || obj.GetComponent<IUnlockable>() != null || obj.GetComponent<ColorRandomizer>() != null)
 				{
@@ -668,8 +662,8 @@ public class RoomController : MonoBehaviour
 					{
 						break;
 					}
-					GameObject npcPrefab = GameController.Instance.m_npcPrefabs.RandomWeighted().gameObject;
-					InteractNpc npc = Instantiate(npcPrefab, InteriorPosition(0.0f) + (Vector3)npcPrefab.OriginToCenterY(), Quaternion.identity).GetComponent<InteractNpc>();
+					AIController npcPrefab = GameController.Instance.m_npcPrefabs.RandomWeighted();
+					InteractNpc npc = Instantiate(npcPrefab, InteriorPosition(0.0f) + (Vector3)npcPrefab.gameObject.OriginToCenterY(), Quaternion.identity).GetComponent<InteractNpc>();
 					npc.Index = npcDepthLocal + sceneIdx;
 					++npcDepthLocal;
 					GameController.Instance.NpcAdd(npc.GetComponent<AIController>());
@@ -678,7 +672,7 @@ public class RoomController : MonoBehaviour
 				case LayoutGenerator.Node.Type.Enemy:
 					// NOTE that this enemy won't be included in GameController.m_{waveEnemies/enemySpawnCounts}[] until room is opened and pathfinding succeeds
 					AIController enemyPrefab = GameController.Instance.m_enemyPrefabs.Where(enemyObj => enemyObj.m_object.m_difficulty <= GameController.Instance.m_waveStartWeight).RandomWeighted();
-					AIController enemy = Instantiate(enemyPrefab, InteriorPosition(0.0f) + (Vector3)enemyPrefab.gameObject.OriginToCenterY(), Quaternion.identity).GetComponent<AIController>();
+					AIController enemy = Instantiate(enemyPrefab, InteriorPosition(0.0f) + (Vector3)enemyPrefab.gameObject.OriginToCenterY(), Quaternion.identity);
 					GameController.Instance.EnemyAdd(enemy);
 					break;
 
@@ -1170,7 +1164,7 @@ public class RoomController : MonoBehaviour
 		return System.Tuple.Create(waypointPath, roomPath.m_distanceTotalEst);
 	}
 
-	public RoomController SpawnChildRoom(GameObject roomPrefab, LayoutGenerator.Node[] layoutNodes, Vector2[] allowedDirections, ref int orderedLockIdx)
+	public RoomController SpawnChildRoom(RoomController roomPrefab, LayoutGenerator.Node[] layoutNodes, Vector2[] allowedDirections, ref int orderedLockIdx)
 	{
 		// prevent putting keys behind their lock
 		// NOTE that we check all nodes' depth even though all nodes w/i a single room should be at the same depth
@@ -1188,16 +1182,15 @@ public class RoomController : MonoBehaviour
 		}
 
 		int orderedLockIdxTmp = orderedLockIdx; // due to not being able to use an outside reference inside a lambda
-		RoomController childRoom = DoorwaysRandomOrder(i =>
+		RoomController childRoom = DoorwaysRandomOrder(doorway =>
 		{
-			DoorwayInfo doorway = m_doorwayInfos[i];
 			if (doorway.ConnectedRoom != null)
 			{
 				return null;
 			}
 
 			// maybe replace/remove
-			MaybeReplaceDoor(i, roomPrefab, layoutNodes, allowedDirections, ref orderedLockIdxTmp);
+			MaybeReplaceDoor(doorway, roomPrefab, layoutNodes, allowedDirections, ref orderedLockIdxTmp);
 			return doorway.ChildRoom;
 		});
 		orderedLockIdx = orderedLockIdxTmp;
@@ -1214,9 +1207,8 @@ public class RoomController : MonoBehaviour
 		}
 
 		// try spawning from children
-		RoomController newRoom = DoorwaysRandomOrder(i =>
+		RoomController newRoom = DoorwaysRandomOrder(doorway =>
 		{
-			DoorwayInfo doorway = m_doorwayInfos[i];
 			if (doorway.ChildRoom == null)
 			{
 				return null;
@@ -1319,7 +1311,7 @@ public class RoomController : MonoBehaviour
 			{
 				GameObject doorway = doorwayInfo.m_object;
 				Vector2 doorwaySize = doorwayInfo.Size();
-				VisualEffect vfx = Instantiate(m_doorSealVFX, doorway.transform.position + new Vector3(0.0f, -0.5f * doorwaySize.y), Quaternion.identity).GetComponent<VisualEffect>();
+				VisualEffect vfx = Instantiate(m_doorSealVFX.RandomWeighted(), doorway.transform.position + new Vector3(0.0f, -0.5f * doorwaySize.y), Quaternion.identity);
 				vfx.SetVector3("StartAreaSize", new(doorwaySize.x, 0.0f));
 
 				doorway.GetComponent<AudioSource>().Play();
@@ -1354,12 +1346,11 @@ public class RoomController : MonoBehaviour
 		return indices.ToArray();
 	}
 
-	private T DoorwaysRandomOrder<T>(System.Func<int, T> f)
+	private T DoorwaysRandomOrder<T>(System.Func<DoorwayInfo, T> f)
 	{
-		int[] order = Enumerable.Range(0, m_doorwayInfos.Length).OrderBy(i => Random.value).ToArray();
-		foreach (int i in order)
+		foreach (DoorwayInfo info in m_doorwayInfos.OrderBy(i => Random.value))
 		{
-			T result = f(i);
+			T result = f(info);
 			if (result != null)
 			{
 				return result;
@@ -1538,9 +1529,9 @@ public class RoomController : MonoBehaviour
 	}
 
 	// TODO: inline?
-	private void MaybeReplaceDoor(int index, GameObject roomPrefab, LayoutGenerator.Node[] childNodes, Vector2[] allowedDirections, ref int orderedLockIdx)
+	private void MaybeReplaceDoor(DoorwayInfo doorwayInfo, RoomController roomPrefab, LayoutGenerator.Node[] childNodes, Vector2[] allowedDirections, ref int orderedLockIdx)
 	{
-		DoorwayInfo doorwayInfo = m_doorwayInfos[index];
+		Debug.Assert(m_doorwayInfos.Contains(doorwayInfo));
 		Vector2 replaceDirection = doorwayInfo.DirectionOutward();
 		if (replaceDirection.y > 0.0f && doorwayInfo.m_disallowLadders) // TODO: detect & allow situations that won't end up needing a ladder?
 		{
@@ -1556,17 +1547,16 @@ public class RoomController : MonoBehaviour
 		Assert.AreApproximatelyEqual(replaceDirection.magnitude, 1.0f);
 
 		// determine child position
-		RoomController otherRoom = roomPrefab.GetComponent<RoomController>();
-		Bounds childBounds = otherRoom.m_backdrop.GetComponent<SpriteRenderer>().bounds; // NOTE that we can't use Bounds since uninstantiated prefabs don't have Awake() called on them
+		Bounds childBounds = roomPrefab.m_backdrop.GetComponent<SpriteRenderer>().bounds; // NOTE that we can't use Bounds since uninstantiated prefabs don't have Awake() called on them
 		Vector2 doorwayPos = doorway.transform.position;
 		int reverseIdx = -1;
 		float doorwayToEdge = Mathf.Min(Bounds.max.x - doorwayPos.x, Bounds.max.y - doorwayPos.y, doorwayPos.x - Bounds.min.x, doorwayPos.y - Bounds.min.y); // TODO: don't assume convex rooms?
 		Vector2 childPivotPos = Vector2.zero;
 		Vector2 childPivotToCenter = childBounds.center - roomPrefab.transform.position;
 		bool isOpen = false;
-		foreach (int idxCandidate in otherRoom.DoorwayReverseIndices(replaceDirection).OrderBy(i => Random.value))
+		foreach (int idxCandidate in roomPrefab.DoorwayReverseIndices(replaceDirection).OrderBy(i => Random.value))
 		{
-			Vector2 childDoorwayPosLocal = otherRoom.m_doorwayInfos[idxCandidate].m_object.transform.position;
+			Vector2 childDoorwayPosLocal = roomPrefab.m_doorwayInfos[idxCandidate].m_object.transform.position;
 			float childDoorwayToEdge = Mathf.Min(childBounds.max.x - childDoorwayPosLocal.x, childBounds.max.y - childDoorwayPosLocal.y, childDoorwayPosLocal.x - childBounds.min.x, childDoorwayPosLocal.y - childBounds.min.y);
 			childPivotPos = doorwayPos + replaceDirection * (doorwayToEdge + childDoorwayToEdge) - childDoorwayPosLocal;
 
@@ -1588,7 +1578,7 @@ public class RoomController : MonoBehaviour
 			return;
 		}
 
-		RoomController childRoom = Instantiate(roomPrefab, childPivotPos, Quaternion.identity).GetComponent<RoomController>();
+		RoomController childRoom = Instantiate(roomPrefab, childPivotPos, Quaternion.identity);
 		doorwayInfo.ChildRoom = childRoom;
 		DoorwayInfo reverseDoorwayInfo = childRoom.m_doorwayInfos[reverseIdx];
 		doorwayInfo.m_infoReverse = reverseDoorwayInfo;

@@ -32,9 +32,9 @@ public class GameController : MonoBehaviour
 
 	public DialogueController m_dialogueController;
 
-	public WeightedObject<GameObject>[] m_entryRoomPrefabs;
-	public WeightedObject<GameObject>[] m_roomPrefabs;
-	public WeightedObject<GameObject>[] m_bossRoomPrefabs;
+	public WeightedObject<RoomController>[] m_entryRoomPrefabs;
+	public WeightedObject<RoomController>[] m_roomPrefabs;
+	public WeightedObject<RoomController>[] m_bossRoomPrefabs;
 	public WeightedObject<GameObject>[] m_gatePrefabs;
 	public WeightedObject<GameObject>[] m_lockPrefabs;
 	public WeightedObject<GameObject>[] m_keyPrefabs;
@@ -691,7 +691,7 @@ public class GameController : MonoBehaviour
 			return; // NOTE that we don't complain since this is triggered from user input
 		}
 
-		SpawnEnemy(m_enemyPrefabs[typeIndex].m_object.gameObject);
+		SpawnEnemy(m_enemyPrefabs[typeIndex].m_object);
 		++m_enemySpawnCounts[typeIndex];
 	}
 
@@ -804,9 +804,9 @@ public class GameController : MonoBehaviour
 
 				// try spawning prefabs in random order
 				RoomController childRoom = null;
-				WeightedObject<GameObject>[] prefabsOrdered = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? m_bossRoomPrefabs : m_roomPrefabs;
+				WeightedObject<RoomController>[] prefabsOrdered = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? m_bossRoomPrefabs : m_roomPrefabs;
 				Vector2[] allowedDirections = nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomVertical) ? new[] { Vector2.down, Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomDown) ? new[] { Vector2.down } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomUp) ? new[] { Vector2.up } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomHorizontal) ? new[] { Vector2.left, Vector2.right } : nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret || node.m_type == LayoutGenerator.Node.Type.RoomIndefinite || node.m_type == LayoutGenerator.Node.Type.RoomIndefiniteCorrect) ? new[] { Vector2.left, Vector2.right, Vector2.down } : null;
-				foreach (GameObject roomPrefab in prefabsOrdered.RandomWeightedOrder())
+				foreach (RoomController roomPrefab in prefabsOrdered.RandomWeightedOrder())
 				{
 					childRoom = spawnRoom.SpawnChildRoom(roomPrefab, nodesList.ToArray(), allowedDirections, ref orderedLockIdx); // TODO: bias RootCoupling child nodes toward existing leaf rooms?
 					if (childRoom != null)
@@ -1097,7 +1097,7 @@ public class GameController : MonoBehaviour
 			}
 			int idx = options.RandomWeightedIndex();
 			AIController enemyPrefab = options[idx].m_object; // TODO: if no items in room, spawn enemy w/ included item
-			SpawnEnemy(enemyPrefab.gameObject);
+			SpawnEnemy(enemyPrefab);
 			++m_enemySpawnCounts[idx];
 
 			m_waveWeightRemaining -= enemyPrefab.m_difficulty;
@@ -1117,11 +1117,11 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	private void SpawnEnemy(GameObject enemyPrefab)
+	private void SpawnEnemy(AIController enemyPrefab)
 	{
 		RoomController spawnRoom = m_waveSealing ? RoomFromPosition(m_avatars.Random().transform.position) : m_startRoom.WithDescendants.Random(); // TODO: efficiency? restrict to currently reachable rooms?
 		Vector3 spawnPos = spawnRoom.SpawnPointRandom();
-		AIController enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity).GetComponent<AIController>();
+		AIController enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
 		EnemyAdd(enemy);
 		if (m_waveSealing) // NOTE that for non-sealed zones we don't invoke EnemyAddToWave() directly anymore, since we aren't guaranteed to be within reach of the avatar(s) - instead it will occur through AIController.NavigateTowardTarget(); however, we still need instantly active enemies in sealed zones to avoid immediately un-sealing during single-enemy waves
 		{

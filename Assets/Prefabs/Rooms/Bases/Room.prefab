@@ -1788,7 +1788,9 @@ MonoBehaviour:
   - m_object: {fileID: 4342981593774351095, guid: 4d7c8adc5e9da274f820730d570f6fdc, type: 3}
     m_weight: 1
   m_floorPlatformSprite: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
-  m_doorSealVFX: {fileID: 5619937708861602581, guid: d64f2849f48fc6644bde5562c716f1c1, type: 3}
+  m_doorSealVFX:
+  - m_object: {fileID: 3137492953035613680, guid: d64f2849f48fc6644bde5562c716f1c1, type: 3}
+    m_weight: 1
   m_spawnPointPrefabs:
   - m_object: {fileID: 7287174281192745631, guid: 196ada7618954f24ab2fd50f97411481, type: 3}
     m_weight: 1
