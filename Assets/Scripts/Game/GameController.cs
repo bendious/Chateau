@@ -64,9 +64,10 @@ public class GameController : MonoBehaviour
 	public float m_difficultyMax = 0.0f;
 
 	[SerializeField] private GameObject m_loadingScreen;
-	public TMPro.TMP_Text m_timerUI;
-	public GameObject m_startUI;
-	public Canvas m_pauseUI;
+	[SerializeField] private Image m_timerUI;
+	[SerializeField] private Animator m_timerAnimator;
+	[SerializeField] private GameObject m_startUI;
+	[SerializeField] private Canvas m_pauseUI;
 	public Canvas m_gameOverUI;
 
 	[SerializeField] private Dialogue m_introDialogue;
@@ -629,7 +630,7 @@ public class GameController : MonoBehaviour
 		{
 			avatar.OnVictory();
 		}
-		m_timerUI.text = null;
+		m_timerUI.gameObject.SetActive(false);
 		m_nextWaveTime = -1.0f;
 		StopAllCoroutines(); // TODO: continue spawning waves?
 
@@ -1039,6 +1040,16 @@ public class GameController : MonoBehaviour
 	{
 		WaitUntil waitUntilUnpaused = new(() => !ConsoleCommands.TimerPaused);
 
+		if (m_waveEscalationMax > 0.0f)
+		{
+			// enable timer image/animation
+			m_timerUI.gameObject.SetActive(true);
+			if (m_nextWaveTime > Time.time)
+			{
+				m_timerAnimator.speed = 1.0f / (m_nextWaveTime - Time.time);
+			}
+		}
+
 		while (m_nextWaveTime >= 0.0f)
 		{
 			yield return ConsoleCommands.TimerPaused ? waitUntilUnpaused : new WaitForSeconds(m_nextWaveTime - Time.time);
@@ -1048,7 +1059,13 @@ public class GameController : MonoBehaviour
 			}
 
 			SpawnEnemyWave();
-			m_nextWaveTime = Time.time + Random.Range(m_waveSecondsMin, m_waveSecondsMax);
+			float waveSeconds = Random.Range(m_waveSecondsMin, m_waveSecondsMax);
+			m_nextWaveTime = Time.time + waveSeconds;
+			if (m_timerAnimator.isActiveAndEnabled)
+			{
+				m_timerAnimator.SetTrigger("reset");
+				m_timerAnimator.speed = 1.0f / waveSeconds;
+			}
 		}
 	}
 
@@ -1171,8 +1188,11 @@ public class GameController : MonoBehaviour
 			yield return ConsoleCommands.TimerPaused ? waitUntilUnpaused : waitTime; // NOTE that we currently don't care whether the UI timer is precise within partial seconds
 
 			float secondsRemaining = m_nextWaveTime - Time.time;
-			m_timerUI.text = System.TimeSpan.FromSeconds(secondsRemaining).ToString("m':'ss");
-			m_timerUI.color = ActiveEnemiesRemain() ? Color.red : Color.green;
+			Color color = ActiveEnemiesRemain() ? Color.red : Color.white;
+			foreach (Graphic g in m_timerUI.GetComponentsInChildren<Graphic>()) // TODO: cache for efficiency? move to wave start/end?
+			{
+				g.color = color;
+			}
 
 			if (secondsRemaining >= 1.0f && secondsRemaining <= m_waveWeight + 1.0f)
 			{
