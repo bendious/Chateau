@@ -1235,10 +1235,10 @@ public class RoomController : MonoBehaviour
 		// determine rung count/height
 		DistanceJoint2D firstJoint = ladderRungPrefab.GetComponent<DistanceJoint2D>(); // TODO: genericize?
 		bool hanging = firstJoint != null;
-		float yTop = doorway.transform.position.y - (hanging ? 0.0f : 1.5f); // TODO: base top distance on character height
+		float yTop = doorway.transform.position.y - (hanging ? 0.0f : 1.5f); // TODO: base top distance on character jump height?
 		float heightDiff = yTop - transform.position.y; // TODO: don't assume pivot point is always the place to stop?
 		float rungOnlyHeight = ladderRungPrefab.GetComponent<SpriteRenderer>().size.y;
-		float rungHeightTotal = hanging ? firstJoint.distance : rungOnlyHeight;
+		float rungHeightTotal = hanging ? firstJoint.distance + rungOnlyHeight : rungOnlyHeight;
 		int rungCount = Mathf.RoundToInt(heightDiff / rungHeightTotal) - (hanging ? 1 : 0);
 		if (!hanging)
 		{
@@ -1247,7 +1247,8 @@ public class RoomController : MonoBehaviour
 
 		Vector3 posItr = doorway.transform.position;
 		GameObject firstRung = null;
-		posItr.y = yTop - (hanging ? 0.0f : rungHeightTotal);
+		bool postSpawnDrop = hanging && spawnBunched;
+		posItr.y = yTop - (postSpawnDrop ? 0.0f : rungHeightTotal);
 		Rigidbody2D bodyPrev = null;
 		for (int i = 0; i < rungCount; ++i)
 		{
@@ -1265,7 +1266,7 @@ public class RoomController : MonoBehaviour
 				joint.connectedBody = bodyPrev;
 				if (bodyPrev == null)
 				{
-					joint.connectedAnchor = (Vector2)joint.transform.position + new Vector2(joint.anchor.x, 0.0f);
+					joint.connectedAnchor = (Vector2)joint.transform.position + new Vector2(joint.anchor.x, postSpawnDrop ? 0.0f : rungHeightTotal);
 				}
 			}
 			bodyPrev = ladder.GetComponent<Rigidbody2D>();
@@ -1273,7 +1274,7 @@ public class RoomController : MonoBehaviour
 			if (!hanging)
 			{
 				// resize
-				// NOTE that we have to adjust bottom-up ladders to ensure the top rung is within reach of any combination lock above it
+				// NOTE that we adjust bottom-up ladders to ensure the top rung is within reach of any lock above it due to the way that combination locks used to work
 				SpriteRenderer renderer = ladder.GetComponent<SpriteRenderer>();
 				renderer.size = new(renderer.size.x, rungHeightTotal);
 				BoxCollider2D collider = ladder.GetComponent<BoxCollider2D>();
