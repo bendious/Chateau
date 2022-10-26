@@ -145,6 +145,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8135375202748356285}
   - component: {fileID: 2269718783957890245}
+  - component: {fileID: 5660353519122542602}
   m_Layer: 5
   m_Name: ControlsMapper
   m_TagString: Untagged
@@ -186,8 +187,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7ce9d06179431142812255d46035b0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionReference: {fileID: 0}
-  bindingIndex: 0
+--- !u!114 &5660353519122542602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3602854300008836748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee81929919a7453448f9e5e4648014bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_scrollItemRoot: {fileID: 8135375202748356285}
 --- !u!1001 &6416521031666007734
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -242,6 +254,18 @@ PrefabInstance:
     - target: {fileID: 5637347849264719461, guid: 50d6cc713f2c0074c8b3bd6742cfbef4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5782292160357324102, guid: 50d6cc713f2c0074c8b3bd6742cfbef4, type: 3}
+      propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 5660353519122542602}
+    - target: {fileID: 5782292160357324102, guid: 50d6cc713f2c0074c8b3bd6742cfbef4, type: 3}
+      propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ScrollToVisibility
+      objectReference: {fileID: 0}
+    - target: {fileID: 5782292160357324102, guid: 50d6cc713f2c0074c8b3bd6742cfbef4, type: 3}
+      propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: ScrollHelper, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 6898909272770460376, guid: 50d6cc713f2c0074c8b3bd6742cfbef4, type: 3}
       propertyPath: m_HorizontalAlignment

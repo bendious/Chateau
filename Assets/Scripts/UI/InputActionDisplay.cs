@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 
 // edited from https://dastmo.com/tutorials/unity-input-system-persistent-rebinds/
+[DisallowMultipleComponent]
 public class InputActionDisplay : MonoBehaviour
 {
 	private InputAction m_action;
@@ -12,14 +13,12 @@ public class InputActionDisplay : MonoBehaviour
 
 	private Button m_rebindButton;
 	private ScrollRect m_scrollView;
-	private RectTransform m_scrollViewTf;
 
 
 	private void Awake()
 	{
 		m_rebindButton = GetComponentInChildren<Button>();
 		m_scrollView = GetComponentInParent<ScrollRect>();
-		m_scrollViewTf = m_scrollView.GetComponent<RectTransform>();
 
 		m_rebindButton.onClick.AddListener(RebindAction);
 	}
@@ -78,26 +77,6 @@ public class InputActionDisplay : MonoBehaviour
 		RefreshButtonText();
 	}
 
-
-	public void ScrollToVisibility()
-	{
-		float yMin = m_scrollView.content.GetComponent<RectTransform>().anchoredPosition.y;
-		float height = m_scrollViewTf.rect.height;
-		float yMax = yMin + height;
-
-		RectTransform selectionTf = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.GetComponent<RectTransform>();
-		float ySelectionMin = -selectionTf.parent/*?*/.GetComponent<RectTransform>().anchoredPosition.y;
-		float ySelectionMax = ySelectionMin + selectionTf.rect.height;
-
-		if (ySelectionMin < yMin)
-		{
-			m_scrollView.verticalNormalizedPosition = 1.0f - ySelectionMin / m_scrollView.content.sizeDelta.y;
-		}
-		else if (ySelectionMax > yMax)
-		{
-			m_scrollView.verticalNormalizedPosition = 1.0f - ySelectionMax / m_scrollView.content.sizeDelta.y;
-		}
-	}
 
 	public void RefreshButtonText()
 	{

@@ -1254,7 +1254,7 @@ public class GameController : MonoBehaviour
 
 		yield return null; // delay one frame to mitigate input double-processing
 
-		GameObject activeMenu = active ? menu.gameObject : m_gameOverUI.gameObject.activeSelf ? m_gameOverUI.gameObject : m_pauseUI.gameObject.activeSelf ? m_pauseUI.gameObject : m_dialogueController.ReplyMenu.gameObject.activeInHierarchy ? m_dialogueController.ReplyMenu.gameObject : null; // TODO: account for other UI instances?
+		GameObject activeMenu = active ? menu.gameObject : m_gameOverUI.gameObject.activeSelf ? m_gameOverUI.gameObject : m_pauseUI.gameObject.activeSelf ? m_pauseUI.gameObject : m_dialogueController.m_replyMenu.gameObject.activeInHierarchy ? m_dialogueController.m_replyMenu.gameObject : null; // TODO: account for other UI instances?
 		if (activeMenu != null)
 		{
 			UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(activeMenu.GetComponentInChildren<Button>().gameObject);

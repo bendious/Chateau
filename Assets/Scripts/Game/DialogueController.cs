@@ -13,6 +13,7 @@ public class DialogueController : MonoBehaviour
 	[SerializeField] private UnityEngine.UI.Image m_image;
 	[SerializeField] private TMP_Text m_text;
 	[SerializeField] private GameObject m_continueIndicator;
+	public Transform m_replyMenu;
 	[SerializeField] private GameObject m_replyTemplate;
 
 	[SerializeField] private float m_revealSeconds = 0.1f;
@@ -48,7 +49,8 @@ public class DialogueController : MonoBehaviour
 
 	public bool IsPlaying => gameObject.activeSelf;
 
-	public Transform ReplyMenu => m_replyTemplate.transform.parent;
+
+	private Transform ReplyParentTf => m_replyTemplate.transform.parent;
 
 
 	private static readonly Regex m_tagMatcher = new(@"<(.+)>.*</\1>");
@@ -108,10 +110,11 @@ public class DialogueController : MonoBehaviour
 		{
 			m_forceNewLine = true;
 		}
-		ReplyMenu.gameObject.SetActive(false);
-		for (int i = 0, n = ReplyMenu.childCount; i < n; ++i)
+		m_replyMenu.gameObject.SetActive(false);
+		Transform parentTf = ReplyParentTf;
+		for (int i = 0, n = parentTf.childCount; i < n; ++i)
 		{
-			GameObject child = ReplyMenu.GetChild(i).gameObject;
+			GameObject child = parentTf.GetChild(i).gameObject;
 			if (child == m_replyTemplate)
 			{
 				continue;
@@ -234,13 +237,13 @@ public class DialogueController : MonoBehaviour
 		InputAction submitKey = Avatar.Controls.actions["Submit"];
 		bool submitReleasedSinceNewline = true;
 
-		WaitUntil replyWait = new(() => !ReplyMenu.gameObject.activeInHierarchy);
+		WaitUntil replyWait = new(() => !m_replyMenu.gameObject.activeInHierarchy);
 		int tagCharCount = 0;
 
 		while (m_queue.Count > 0)
 		{
 			// handle input for reply selection
-			if (ReplyMenu.gameObject.activeInHierarchy)
+			if (m_replyMenu.gameObject.activeInHierarchy)
 			{
 				// wait for OnReplySelected()
 				yield return replyWait;
@@ -333,7 +336,7 @@ public class DialogueController : MonoBehaviour
 
 					// display any replies
 					bool active = m_queueFollowUp == null && lineCur.m_replies != null && lineCur.m_replies.Length > 0;
-					ReplyMenu.gameObject.SetActive(active);
+					m_replyMenu.gameObject.SetActive(active);
 					if (active)
 					{
 						TMP_Text newText = null;
@@ -352,7 +355,7 @@ public class DialogueController : MonoBehaviour
 								continue;
 							}
 
-							GameObject newObj = Instantiate(m_replyTemplate, ReplyMenu);
+							GameObject newObj = Instantiate(m_replyTemplate, ReplyParentTf);
 							newText = newObj.GetComponentInChildren<TMP_Text>();
 							newText.text = ReplaceExpressions(replyCur.m_text, expressionsOrdered);
 							RectTransform newTf = newObj.GetComponent<RectTransform>();
@@ -366,9 +369,11 @@ public class DialogueController : MonoBehaviour
 							yOffsetCur -= newTf.sizeDelta.y;
 						}
 
-						// set background size to fit
-						RectTransform tf = ReplyMenu.GetComponent<RectTransform>();
-						tf.sizeDelta = new(tf.sizeDelta.x, Mathf.Abs(yOffsetCur) + yMargin * 2.0f);
+						// set background sizes to fit and scroll if necessary
+						RectTransform scrollTf = (RectTransform)ReplyParentTf;
+						scrollTf.sizeDelta = new(scrollTf.sizeDelta.x, Mathf.Abs(yOffsetCur) + yMargin * 2.0f);
+						RectTransform menuTf = (RectTransform)m_replyMenu;
+						menuTf.sizeDelta = new(menuTf.sizeDelta.x, Mathf.Min(scrollTf.sizeDelta.y + Mathf.Abs(((RectTransform)menuTf.GetChild(0)).sizeDelta.y), Screen.height - menuTf.anchoredPosition.y));
 					}
 					else
 					{
