@@ -353,6 +353,7 @@ public class GameController : MonoBehaviour
 	{
 		IsSceneLoad = true;
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
+		Simulation.Clear();
 	}
 
 	private void Update()

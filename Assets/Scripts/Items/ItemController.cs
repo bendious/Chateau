@@ -183,11 +183,19 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		m_holder = holder;
 
 		// update renderers in case we're getting moved across sorting layers
+		// TODO: generalize to IAttachable.AttachInternalShared()?
 		Renderer holderRenderer = m_holder.Component.GetComponentInParent<Renderer>(); // TODO: don't assume all holders have a Renderer?
 		foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
 		{
 			renderer.sortingLayerID = holderRenderer.sortingLayerID;
 			renderer.sortingLayerName = holderRenderer.sortingLayerName; // TODO: redundant?
+		}
+
+		// ensure non-trigger collision is enabled
+		// TODO: support triggers in addition to normal colliders? generalize to IAttachable.AttachInternalShared()?
+		foreach (Collider2D collider in m_colliders)
+		{
+			collider.isTrigger = false;
 		}
 
 		if (m_drawObjectCurrent != null)
