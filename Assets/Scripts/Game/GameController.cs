@@ -64,6 +64,8 @@ public class GameController : MonoBehaviour
 	public float m_difficultyMax = 0.0f;
 
 	[SerializeField] private GameObject m_loadingScreen;
+	[SerializeField] private Image m_loadingIcon;
+	public float m_fadeSeconds = 0.5f;
 	[SerializeField] private Image m_timerUI;
 	[SerializeField] private Animator m_timerAnimator;
 	[SerializeField] private GameObject m_startUI;
@@ -179,9 +181,8 @@ public class GameController : MonoBehaviour
 		m_lookaheadTimeOrig = m_vCamMainFramer.m_LookaheadTime;
 
 		// TODO: use Animator on persistent object?
-		Image loadImage = m_loadingScreen.GetComponentsInChildren<Image>().Last()/*TODO*/;
 		float alpha = Mathf.Abs((Time.realtimeSinceStartup % 1.0f) - 0.5f) * 2.0f;
-		loadImage.color = new(loadImage.color.r, loadImage.color.g, loadImage.color.b, alpha);
+		m_loadingIcon.color = new(m_loadingIcon.color.r, m_loadingIcon.color.g, m_loadingIcon.color.b, alpha);
 	}
 
 	private void Start()
@@ -343,7 +344,7 @@ public class GameController : MonoBehaviour
 			StartWaves();
 		}
 
-		m_loadingScreen.SetActive(false);
+		StartCoroutine(FadeCoroutine(false));
 
 		IsSceneLoad = false;
 	}
@@ -372,7 +373,7 @@ public class GameController : MonoBehaviour
 	private void OnPlayerJoined(PlayerInput player)
 	{
 		// NOTE that we can place this here since OnPlayerJoined() is called even if the avatar object(s) is/are carried over from a previously loaded scene
-		m_startUI.gameObject.SetActive(false);
+		m_startUI.SetActive(false);
 		if (!m_startWavesImmediately && m_enemyPrefabs.Length > 0 && m_waveSecondsMin > 0.0f && m_avatars.Count == 0)
 		{
 			StartWaves();
@@ -481,7 +482,7 @@ public class GameController : MonoBehaviour
 
 	public void TogglePause(bool noTimeScale = false)
 	{
-		if (m_gameOverUI.gameObject.activeSelf)
+		if (m_loadingScreen.activeSelf || m_gameOverUI.gameObject.activeSelf)
 		{
 			return;
 		}
@@ -582,10 +583,10 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
-		StartCoroutine(LoadSceneCoroutine(SceneManager.GetActiveScene().name, !noInventoryClear, noInventoryClear));
+		StartCoroutine(FadeCoroutine(true, SceneManager.GetActiveScene().name, !noInventoryClear, noInventoryClear));
 	}
 
-	public void LoadScene(string name) => StartCoroutine(LoadSceneCoroutine(name, true, false));
+	public void LoadScene(string name) => StartCoroutine(FadeCoroutine(true, name));
 
 	private IEnumerator LoadSceneCoroutine(string name, bool save, bool noInventoryClear)
 	{
@@ -1174,6 +1175,52 @@ public class GameController : MonoBehaviour
 			{
 				room.SealRoom(false);
 			}
+		}
+	}
+
+	// TODO: start scene load in background during fade?
+	private IEnumerator FadeCoroutine(bool fadeOut, string nextSceneName = null, bool save = true, bool noInventoryClear = false)
+	{
+		if (m_pauseUI.isActiveAndEnabled)
+		{
+			TogglePause(Time.timeScale > 0.0f);
+		}
+
+		Image screenImage = m_loadingScreen.GetComponentInChildren<Image>(); // TODO?
+		float targetAlpha = fadeOut ? 1.0f : 0.0f;
+		m_loadingScreen.SetActive(true);
+
+		Color colorTmp;
+		float screenVel = 0.0f;
+		float iconVel = 0.0f;
+		while (!screenImage.color.a.FloatEqual(targetAlpha, 0.05f))
+		{
+			colorTmp = screenImage.color;
+			colorTmp.a = Mathf.SmoothDamp(screenImage.color.a, targetAlpha, ref screenVel, m_fadeSeconds);
+			screenImage.color = colorTmp;
+
+			colorTmp = m_loadingIcon.color;
+			colorTmp.a = Mathf.SmoothDamp(m_loadingIcon.color.a, targetAlpha, ref iconVel, m_fadeSeconds);
+			m_loadingIcon.color = colorTmp;
+
+			yield return null;
+		}
+
+		colorTmp = screenImage.color;
+		colorTmp.a = targetAlpha;
+		screenImage.color = colorTmp;
+		colorTmp = m_loadingIcon.color;
+		colorTmp.a = targetAlpha;
+		m_loadingIcon.color = colorTmp;
+
+		if (!fadeOut)
+		{
+			m_loadingScreen.SetActive(false);
+		}
+
+		if (!string.IsNullOrEmpty(nextSceneName))
+		{
+			StartCoroutine(LoadSceneCoroutine(nextSceneName, save, noInventoryClear));
 		}
 	}
 

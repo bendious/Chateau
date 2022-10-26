@@ -1,5 +1,6 @@
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 public abstract class AIState
@@ -747,7 +748,12 @@ public sealed class AIFindAmmo : AIState
 		// pick up target
 		if (hasArrived)
 		{
-			m_ai.ChildAttach(m_ai.m_target.GetComponent<ItemController>());
+			ItemController targetItem = m_ai.m_target as ItemController;
+			bool attached = m_ai.ChildAttach(targetItem);
+			if (attached)
+			{
+				targetItem.Use(true);
+			}
 			m_ai.m_target = null;
 			if (m_ai.GetComponentsInChildren<ItemController>().Length >= m_ai.HoldCountMax || Random.value > m_multiFindPct)
 			{
@@ -946,6 +952,7 @@ public sealed class AISpawn : AIState
 public sealed class AIFinalDialogue : AIState
 {
 	public float m_musicFadeOutSeconds = 2.0f;
+	public float m_visualFadeOutSeconds = 2.0f;
 
 
 	private bool m_dialogueDone = false;
@@ -989,13 +996,21 @@ public sealed class AIFinalDialogue : AIState
 	{
 		// NOTE that we deliberately don't invoke base.Exit() since this class ignores the standard functionality
 
-		// despawn avatars since Credits uses its own controls
+		// despawn avatars w/ the scene since Credits uses its own controls
+		// NOTE that we don't despawn immediately to avoid losing the avatar light(s)
+		// NOTE that we clear out all camera targets to avoid camera movement due to boss despawn
+		GameController.Instance.RemoveCameraTargets(m_ai.transform);
 		foreach (AvatarController avatar in GameController.Instance.m_avatars)
 		{
-			Simulation.Schedule<ObjectDespawn>().m_object = avatar.gameObject;
+			// "cancel" the effect of DontDestroyOnLoad()
+			// see https://answers.unity.com/questions/1491238/undo-dontdestroyonload.html
+			SceneManager.MoveGameObjectToScene(avatar.gameObject, SceneManager.GetActiveScene());
+
+			GameController.Instance.RemoveCameraTargets(avatar.transform, avatar.m_aimObject.transform);
 		}
 
-		UnityEngine.SceneManagement.SceneManager.LoadScene("Credits"); // TODO: un-hardcode?
+		GameController.Instance.m_fadeSeconds = m_visualFadeOutSeconds;
+		GameController.Instance.LoadScene("Credits"); // TODO: un-hardcode scene name?
 	}
 
 

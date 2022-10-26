@@ -1073,7 +1073,7 @@ GameObject:
   - component: {fileID: 5754787427232994707}
   - component: {fileID: 2073031957805775272}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1463,6 +1463,8 @@ MonoBehaviour:
   m_difficultyMin: 0
   m_difficultyMax: 0
   m_loadingScreen: {fileID: 7202315660601374811}
+  m_loadingIcon: {fileID: 2073031957805775272}
+  m_fadeSeconds: 0.25
   m_timerUI: {fileID: 4722330076168976223}
   m_timerAnimator: {fileID: 6963762329565886585}
   m_startUI: {fileID: 3001265745151133835}
@@ -4402,7 +4404,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.25, g: 0.25, b: 0.25, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

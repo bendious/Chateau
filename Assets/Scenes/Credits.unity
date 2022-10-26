@@ -192,13 +192,29 @@ PrefabInstance:
       propertyPath: m_Name
       value: SceneMin
       objectReference: {fileID: 0}
+    - target: {fileID: 3001265745151133835, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3062142890652435423, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4975039013704514940, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 118.89
+      objectReference: {fileID: 0}
+    - target: {fileID: 4975039013704514940, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 26.82
+      objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_type
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_fadeSeconds
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_waveSecondsMax
