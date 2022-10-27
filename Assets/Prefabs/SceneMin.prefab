@@ -1369,8 +1369,6 @@ MonoBehaviour:
     m_weight: 1
   m_textPrefabs: []
   m_roomTypes:
-  - m_object: {fileID: 11400000, guid: d334c59576f62e94ca99e526e7ae5ee7, type: 2}
-    m_weight: 1
   - m_object: {fileID: 11400000, guid: d935886517d03ba4aa24782d51e0f3d1, type: 2}
     m_weight: 1
   - m_object: {fileID: 11400000, guid: c9b1024af3342214aa7f650cf2cc2f3b, type: 2}
@@ -1389,8 +1387,6 @@ MonoBehaviour:
   - m_object: {fileID: 11400000, guid: 30ab735d166f6cd45a32827777dd635d, type: 2}
     m_weight: 1
   m_roomTypesBoss:
-  - m_object: {fileID: 11400000, guid: d334c59576f62e94ca99e526e7ae5ee7, type: 2}
-    m_weight: 1
   - m_object: {fileID: 11400000, guid: d935886517d03ba4aa24782d51e0f3d1, type: 2}
     m_weight: 1
   - m_object: {fileID: 11400000, guid: c9b1024af3342214aa7f650cf2cc2f3b, type: 2}

@@ -74,7 +74,7 @@ MonoBehaviour:
   - m_object: {fileID: 5329113729594168994, guid: a39b436b4827fa148af89586f9b560f3, type: 3}
     m_weight: 3
   - m_object: {fileID: 4892872906617963342, guid: c7eaa25f16cf12a43af6e9177433afc1, type: 3}
-    m_weight: 3
+    m_weight: 2
   - m_object: {fileID: 6048625821855157070, guid: a5c7caeee92be8249ba14b290b6bb238, type: 3}
     m_weight: 0.5
   - m_object: {fileID: 1271183342043709178, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
