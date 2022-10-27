@@ -17,6 +17,7 @@ public class MaterialPairInfo
 	public PhysicsMaterial2D m_material2;
 
 	public AudioClip[] m_collisionAudio;
+	public WeightedObject<AudioClip>[] m_collisionStrongAudio;
 
 	// TODO: collision VFX
 }

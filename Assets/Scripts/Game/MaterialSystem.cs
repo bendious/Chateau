@@ -55,6 +55,6 @@ public class MaterialSystem : ScriptableObject
 			}
 		}
 
-		return partialMatches.Count > 0 ? partialMatches.Random() : backupInfo; // TODO: partial match priority?
+		return partialMatches.Count > 0 ? partialMatches.SelectMin(info => info.m_material1 == null && info.m_material2 == null ? float.MaxValue : info.m_material1 == null ? info.m_material2.bounciness : info.m_material2 == null ? info.m_material1.bounciness : Mathf.Min(info.m_material1.bounciness, info.m_material2.bounciness)) : backupInfo; // NOTE that the softer material takes precedence in collisions // TODO: explicit partial match priority?
 	}
 }

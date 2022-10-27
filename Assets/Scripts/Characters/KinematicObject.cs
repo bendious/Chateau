@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ using UnityEngine;
 /// <summary>
 /// Implements game physics for some in-game, controlled entity.
 /// </summary>
-[DisallowMultipleComponent]
+[DisallowMultipleComponent, RequireComponent(typeof(Rigidbody2D))]
 public abstract class KinematicObject : MonoBehaviour
 {
 	/// <summary>
@@ -62,11 +63,12 @@ public abstract class KinematicObject : MonoBehaviour
 
 
 	protected Vector2 targetVelocity;
-	protected Vector2 groundNormal = Vector2.up;
+	private Vector2 m_groundNormal = Vector2.up;
+	private PhysicsMaterial2D m_groundMaterial;
 	protected Vector2 m_wallNormal;
 	protected Rigidbody2D body;
-	protected ContactFilter2D contactFilter;
-	protected RaycastHit2D[] hitBuffer = new RaycastHit2D[16];
+	private ContactFilter2D m_contactFilter;
+	private readonly List<RaycastHit2D> m_hitBuffer = new();
 
 	protected const float minMoveDistance = 0.001f;
 	private const float m_shellRadius = Utility.FloatEpsilon;
@@ -126,7 +128,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 	protected virtual void Start()
 	{
-		contactFilter.useTriggers = false;
+		m_contactFilter.useTriggers = false;
 	}
 
 	protected virtual void Update()
@@ -151,7 +153,7 @@ public abstract class KinematicObject : MonoBehaviour
 		Vector2 totalOverlap = Vector2.zero;
 		foreach (Collider2D collider in m_colliders)
 		{
-			System.Collections.Generic.List<ContactPoint2D> contacts = new();
+			List<ContactPoint2D> contacts = new();
 			collider.GetContacts(contacts);
 			foreach (ContactPoint2D contact in contacts)
 			{
@@ -201,14 +203,14 @@ public abstract class KinematicObject : MonoBehaviour
 
 		Vector2 deltaPosition = velocity * Time.fixedDeltaTime;
 
-		Vector2 moveAlongGround = new(groundNormal.y, -groundNormal.x);
+		Vector2 moveAlongGround = new(m_groundNormal.y, -m_groundNormal.x);
 
 		Vector2 move = moveAlongGround * deltaPosition.x;
 
 		// update our collision mask
 		bool shouldIgnoreOneWays = velocity.y >= 0.0f || (m_character != null && m_character.IsDropping); // TODO: don't require knowledge of KinematicCharacter
 		gameObject.layer = shouldIgnoreOneWays ? m_layerIgnoreOneWay.ToIndex() : m_layerIdxOrig;
-		contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
+		m_contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
 
 		Lazy<bool> isNearGround = new(() => Physics2D.Raycast(Bounds.min, Vector2.down, m_nearGroundDistance, GameController.Instance.m_layerWalls).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground? cast whole collider for better detection?
 		PerformMovement(move, false, ref isNearGround);
@@ -218,13 +220,23 @@ public abstract class KinematicObject : MonoBehaviour
 		PerformMovement(move, true, ref isNearGround);
 	}
 
+
 	protected virtual void DespawnSelf()
 	{
 		Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
 	}
 
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called by animation triggers")]
+	private void GroundAudioEvent(AnimationEvent evt)
+	{
+		PhysicsMaterial2D colliderMaterial = m_colliders.Select(c => c.sharedMaterial).FirstOrDefault(m => m != null); // TODO: prioritize between multiple different materials?
+		MaterialPairInfo info = GameController.Instance.m_materialSystem.PairBestMatch(m_groundMaterial, colliderMaterial != null ? colliderMaterial : body.sharedMaterial);
+		AudioSource source = GetComponent<AudioSource>(); // TODO: cache?
+		source.PlayOneShot(evt.intParameter == 0 || info.m_collisionStrongAudio.Length <= 0 ? info.m_collisionAudio.Random() : info.m_collisionStrongAudio.RandomWeighted()); // TODO: separate arrays for collision/ground SFX?
+	}
 
-	void PerformMovement(Vector2 move, bool yMovement, ref Lazy<bool> isNearGround)
+
+	private void PerformMovement(Vector2 move, bool yMovement, ref Lazy<bool> isNearGround)
 	{
 		float distance = move.magnitude;
 
@@ -236,10 +248,11 @@ public abstract class KinematicObject : MonoBehaviour
 		// check if we hit anything in current direction of travel
 		foreach (Collider2D collider in m_colliders)
 		{
-			int count = collider.Cast(move, contactFilter, hitBuffer, distance + m_shellRadius, true); // NOTE that we ignore child colliders such as arms
+			m_hitBuffer.Clear();
+			int count = collider.Cast(move, m_contactFilter, m_hitBuffer, distance + m_shellRadius, true); // NOTE that we ignore child colliders such as arms
 			for (int i = 0; i < count; i++)
 			{
-				RaycastHit2D hit = hitBuffer[i];
+				RaycastHit2D hit = m_hitBuffer[i];
 				KinematicObject otherKinematic = hit.collider.GetComponent<KinematicObject>();
 				if (collider.ShouldIgnore(hit.rigidbody, new[] { hit.collider }, body.mass, typeof(AnchoredJoint2D), 0.1f) || (otherKinematic != null && otherKinematic.m_priority < m_priority))
 				{
@@ -266,7 +279,8 @@ public abstract class KinematicObject : MonoBehaviour
 					// if moving down, change the groundNormal to new surface normal.
 					if (move.y < 0.0f)
 					{
-						groundNormal = currentNormal;
+						m_groundNormal = currentNormal;
+						m_groundMaterial = hit.collider.sharedMaterial != null ? hit.collider.sharedMaterial : hit.rigidbody.sharedMaterial;
 						currentNormal.x = 0;
 					}
 				}

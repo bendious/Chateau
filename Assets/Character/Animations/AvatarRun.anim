@@ -382,16 +382,16 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0.125
-    functionName: ProcessAnimEvent
+    functionName: GroundAudioEvent
     data: 
-    objectReferenceParameter: {fileID: 11400000, guid: b772d2c292214ed4e8b8c98a5bbf6f98, type: 2}
+    objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.39583334
-    functionName: ProcessAnimEvent
+    functionName: GroundAudioEvent
     data: 
-    objectReferenceParameter: {fileID: 11400000, guid: b772d2c292214ed4e8b8c98a5bbf6f98, type: 2}
+    objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0

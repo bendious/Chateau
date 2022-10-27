@@ -21,11 +21,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		m_damage = 1.0f
 	};
 	[SerializeField] private float m_damageSelf = 0.1f;
+	[SerializeField] private float m_impactStrongPctScalar = 2.0f;
 	public float m_restDegreesOffset = 0.0f;
 	public float m_throwSpeed = 20.0f;
 	public float m_vfxAlpha = 0.5f;
 	public int m_healAmount = 0;
 	[SerializeField] private float m_healSeconds = 3.0f;
+	[SerializeField] private float m_impactAudioRepeatSeconds = 0.25f;
 	[SerializeField] private UnityEngine.Rendering.Universal.Light2D m_toggleLight;
 
 	public bool m_detachOnDamage = false; // TODO: cumulative damage threshold?
@@ -80,6 +82,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public KinematicCharacter Cause { get; private set; }
 
 	private GameObject m_drawObjectCurrent;
+
+	private float m_impactAudioLastTime;
+	private PhysicsMaterial2D m_impactAudioLastMaterial;
 
 
 	[SerializeField] private int m_savableType = -1;
@@ -488,8 +493,14 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		if (m_audioSource.enabled && collisionSpeed > sfxThresholdSpeed)
 		{
 			PhysicsMaterial2D material1 = collider.sharedMaterial != null || rigidbody == null ? collider.sharedMaterial : rigidbody.sharedMaterial;
-			PhysicsMaterial2D material2 = colliderLocal.sharedMaterial != null || bodyLocal == null ? colliderLocal.sharedMaterial : bodyLocal.sharedMaterial;
-			m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.PairBestMatch(material1, material2).m_collisionAudio.Random());
+			if (material1 != m_impactAudioLastMaterial || m_impactAudioLastTime + m_impactAudioRepeatSeconds <= Time.time) // TODO: also compare local material for multi-material objects?
+			{
+				PhysicsMaterial2D material2 = colliderLocal.sharedMaterial != null || bodyLocal == null ? colliderLocal.sharedMaterial : bodyLocal.sharedMaterial;
+				MaterialPairInfo info = GameController.Instance.m_materialSystem.PairBestMatch(material1, material2);
+				m_audioSource.PlayOneShot(info.m_collisionStrongAudio.Length > 0 && collisionSpeed >= sfxThresholdSpeed * m_impactStrongPctScalar ? info.m_collisionStrongAudio.RandomWeighted() : info.m_collisionAudio.Random());
+				m_impactAudioLastTime = Time.time;
+				m_impactAudioLastMaterial = material1;
+			}
 		}
 
 		// maybe attach to character
