@@ -66,10 +66,10 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 3087063712995650317, guid: c8cbccd5771bad24bbeca9fec0c4c630, type: 3}
     m_weight: 1
-  - m_object: {fileID: 5633263597544632054, guid: 363ef80775ecf784d9b197861f3b21d6, type: 3}
-    m_weight: 2
   - m_object: {fileID: 3563995205693016049, guid: 69d40fac0f1698941a65a3c419d31179, type: 3}
     m_weight: 1
+  - m_object: {fileID: 5633263597544632054, guid: 363ef80775ecf784d9b197861f3b21d6, type: 3}
+    m_weight: 2
   m_fillPctMin: 0.25
   m_itemPrefabs:
   - m_object: {fileID: 6107488262492150209, guid: 4feae967d8b4799409bbcd10967052ed, type: 3}
@@ -91,6 +91,8 @@ MonoBehaviour:
   - m_object: {fileID: 2669405598871929106, guid: ca1c40b66b5ed6149bdb17ca934cbef6, type: 3}
     m_weight: 1
   - m_object: {fileID: 8702566855440006765, guid: 04a605dc436c93a4ba6107e015b490fd, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 3647033716410897721, guid: 370b422600898224b8156f9164dda404, type: 3}
     m_weight: 1
   m_itemRarePrefabs:
   - m_object: {fileID: 505130580196242298, guid: 71fa7082e8d89d145b74f631fa1055a0, type: 3}
@@ -157,3 +159,4 @@ MonoBehaviour:
     m_weight: 1
   m_decorationsMin: 1
   m_decorationsMax: 4
+  m_spawnPointsMax: 4

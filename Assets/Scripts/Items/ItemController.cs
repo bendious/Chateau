@@ -200,6 +200,10 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		// TODO: support triggers in addition to normal colliders? generalize to IAttachable.AttachInternalShared()?
 		foreach (Collider2D collider in m_colliders)
 		{
+			if (collider == null) // colliders such as hanging lightbulb wires can be destroyed after Awake()
+			{
+				continue;
+			}
 			collider.isTrigger = false;
 		}
 
