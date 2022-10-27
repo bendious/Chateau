@@ -1187,32 +1187,32 @@ public class GameController : MonoBehaviour
 			TogglePause(Time.timeScale > 0.0f);
 		}
 
-		Image screenImage = m_loadingScreen.GetComponentInChildren<Image>(); // TODO?
+		Graphic[] graphics = m_loadingScreen.GetComponentsInChildren<Graphic>();
 		float targetAlpha = fadeOut ? 1.0f : 0.0f;
 		m_loadingScreen.SetActive(true);
 
 		Color colorTmp;
-		float screenVel = 0.0f;
-		float iconVel = 0.0f;
-		while (!screenImage.color.a.FloatEqual(targetAlpha, 0.05f))
+		float[] alphaVels = new float[graphics.Length];
+		while (graphics.Any(g => !g.color.a.FloatEqual(targetAlpha, 0.05f)))
 		{
-			colorTmp = screenImage.color;
-			colorTmp.a = Mathf.SmoothDamp(screenImage.color.a, targetAlpha, ref screenVel, m_fadeSeconds);
-			screenImage.color = colorTmp;
-
-			colorTmp = m_loadingIcon.color;
-			colorTmp.a = Mathf.SmoothDamp(m_loadingIcon.color.a, targetAlpha, ref iconVel, m_fadeSeconds);
-			m_loadingIcon.color = colorTmp;
+			int i = 0;
+			foreach (Graphic g in graphics)
+			{
+				colorTmp = g.color;
+				colorTmp.a = Mathf.SmoothDamp(g.color.a, targetAlpha, ref alphaVels[i], m_fadeSeconds);
+				g.color = colorTmp;
+				++i;
+			}
 
 			yield return null;
 		}
 
-		colorTmp = screenImage.color;
-		colorTmp.a = targetAlpha;
-		screenImage.color = colorTmp;
-		colorTmp = m_loadingIcon.color;
-		colorTmp.a = targetAlpha;
-		m_loadingIcon.color = colorTmp;
+		foreach (Graphic g in graphics)
+		{
+			colorTmp = g.color;
+			colorTmp.a = targetAlpha;
+			g.color = colorTmp;
+		}
 
 		if (!fadeOut)
 		{
