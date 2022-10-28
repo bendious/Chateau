@@ -197,15 +197,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		}
 
 		// ensure non-trigger collision is enabled
-		// TODO: support triggers in addition to normal colliders? generalize to IAttachable.AttachInternalShared()?
-		foreach (Collider2D collider in m_colliders)
-		{
-			if (collider == null) // colliders such as hanging lightbulb wires can be destroyed after Awake()
-			{
-				continue;
-			}
-			collider.isTrigger = false;
-		}
+		// NOTE that we don't use m_colliders[] since that can include non-collider triggers (e.g. lightbulb wires)
+		// TODO: generalize to IAttachable.AttachInternalShared()?
+		GetComponent<Collider2D>().isTrigger = false;
 
 		if (m_drawObjectCurrent != null)
 		{

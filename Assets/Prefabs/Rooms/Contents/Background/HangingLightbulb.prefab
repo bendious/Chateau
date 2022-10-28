@@ -112,14 +112,13 @@ MonoBehaviour:
   m_blinkSeconds: 0.3
   m_blinkColor: {r: 1, g: 1, b: 1, a: 1}
   m_blinkSecondsPost: 0.25
+  m_blinkLightRadiusMax: 5
   m_typeScalars:
   - m_type: 0
     m_scalar: 0
   - m_type: 4
     m_scalar: 0
   - m_type: 5
-    m_scalar: 0
-  - m_type: 6
     m_scalar: 0
 --- !u!1 &2107013846910800877
 GameObject:
@@ -515,6 +514,7 @@ MonoBehaviour:
   m_sfxSnap:
   - m_object: {fileID: 8300000, guid: 53ad87a1af3241c4b88b3efaf0bb588e, type: 3}
     m_weight: 1
+  m_colorMatching: 1
 --- !u!50 &5959516256248953318
 Rigidbody2D:
   serializedVersion: 4
@@ -605,10 +605,11 @@ MonoBehaviour:
   m_blinkSeconds: 0.3
   m_blinkColor: {r: 1, g: 1, b: 1, a: 1}
   m_blinkSecondsPost: 0.25
+  m_blinkLightRadiusMax: 5
   m_typeScalars:
-  - m_type: 5
+  - m_type: 4
     m_scalar: 0
-  - m_type: 6
+  - m_type: 5
     m_scalar: 0
 --- !u!114 &7945988881669848815
 MonoBehaviour:
@@ -624,6 +625,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_prefab: {fileID: 4398339694799148722, guid: 6cf9d7eefe017c7458a97f68b968e321, type: 3}
   m_enemyAutoTrigger: 1
+  m_groundAutoTrigger: 0
+  m_groundSnapDistMax: 0
 --- !u!82 &4178940318906148873
 AudioSource:
   m_ObjectHideFlags: 0
@@ -751,11 +754,13 @@ MonoBehaviour:
     m_damage: 1
     m_damageType: 0
   m_damageSelf: 1
+  m_impactStrongPctScalar: 2
   m_restDegreesOffset: 0
   m_throwSpeed: 20
   m_vfxAlpha: 0.5
   m_healAmount: 0
   m_healSeconds: 3
+  m_impactAudioRepeatSeconds: 0.25
   m_toggleLight: {fileID: 0}
   m_detachOnDamage: 0
   m_keyDestroyAfterUse: 1
