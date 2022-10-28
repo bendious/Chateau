@@ -5101,8 +5101,8 @@ MonoBehaviour:
     - Some are even completely immune to certain effects.
     m_weight: 1
   - m_object:
-    - Once an area has been cleared, it may be exited via doorway or menu without
-      losing currently held items.
+    - If an area has been cleared in the past, it may be exited via doorway or menu
+      without losing currently held items.
     m_weight: 1
   - m_object:
     - Bring items from the Entryway with you into tough zones to give yourself an
@@ -5127,6 +5127,15 @@ MonoBehaviour:
   - m_object:
     - Slow-moving enemies can sneak right past weapons that are being held still.
     - Swing or throw items to ensure they connect with their intended target.
+    m_weight: 1
+  - m_object:
+    - Be wary after opening a door; who knows what skeletons may have been hiding
+      in the closets?
+    m_weight: 1
+  - m_object:
+    - Sometimes the arrival of pests has to be dealt with before moving on, but some
+      areas permit free movement at all times.
+    - It pays to be strategic about when and where you choose to fight.
     m_weight: 1
 --- !u!222 &5837914634819301278
 CanvasRenderer:

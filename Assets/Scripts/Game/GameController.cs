@@ -1187,6 +1187,8 @@ public class GameController : MonoBehaviour
 			TogglePause(Time.timeScale > 0.0f);
 		}
 
+		GetComponent<MusicManager>().FadeOut(m_fadeSeconds);
+
 		Graphic[] graphics = m_loadingScreen.GetComponentsInChildren<Graphic>();
 		float targetAlpha = fadeOut ? 1.0f : 0.0f;
 		m_loadingScreen.SetActive(true);

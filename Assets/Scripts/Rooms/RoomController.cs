@@ -15,6 +15,7 @@ public class RoomController : MonoBehaviour
 	{
 		public Vector2 m_direction;
 		public WeightedObject<GameObject>[] m_prefabs;
+		public bool m_suppressLadders;
 	};
 
 
@@ -1628,9 +1629,9 @@ public class RoomController : MonoBehaviour
 
 		// filter allowed gates
 		// TODO: disallow cutbacks w/ generic keys that already exist?
-		WeightedObject<GameObject>[] directionalGates = m_doorDirectionalPrefabs.FirstOrDefault(pair => pair.m_direction == replaceDirection).m_prefabs; // NOTE that even if we don't use this list to choose, we still check it for ladder suppression
+		DirectionalDoors[] directionalGates = m_doorDirectionalPrefabs.Where(pair => pair.m_direction == replaceDirection).ToArray(); // NOTE that even if we don't use this list to choose, we still check it for ladder suppression
 		WeightedObject<GameObject>[] nondirectionalGates = isOrderedOrSecret ? null : isCutback ? m_cutbackPrefabs : m_gatePrefabs;
-		IEnumerable<WeightedObject<GameObject>> gatesFinal = isOrdered ? null : isSecret ? m_doorSecretPrefabs : directionalGates != null ? directionalGates.Concat(nondirectionalGates) : nondirectionalGates;
+		IEnumerable<WeightedObject<GameObject>> gatesFinal = isOrdered ? null : isSecret ? m_doorSecretPrefabs : directionalGates != null ? directionalGates.SelectMany(gate => gate.m_prefabs).Concat(nondirectionalGates) : nondirectionalGates;
 		gatesFinal = isOrdered ? null : gatesFinal.Where(weightedObj => isLock ? weightedObj.m_object.GetComponentInChildren<IUnlockable>() != null : weightedObj.m_object.GetComponentInChildren<IUnlockable>() == null).CombineWeighted(isCutback ? GameController.Instance.m_cutbackPrefabs : GameController.Instance.m_gatePrefabs);
 
 		// pick & create gate
@@ -1699,7 +1700,7 @@ public class RoomController : MonoBehaviour
 		}
 
 		// determine whether to disallow ladders
-		return directionalGates != null && directionalGates.Any(pair => blockerPrefab == pair.m_object); // TODO: don't assume directional gates will never want default ladders?
+		return directionalGates != null && directionalGates.FirstOrDefault(gates => gates.m_prefabs.Any(p => p.m_object == blockerPrefab)).m_suppressLadders; // TODO: handle duplicate entries?
 	}
 
 	private void SpawnKeys(DoorwayInfo doorwayInfo, System.Action<IUnlockable, RoomController, RoomController[], float> spawnAction)

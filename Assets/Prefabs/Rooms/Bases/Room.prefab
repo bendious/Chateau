@@ -1744,7 +1744,8 @@ MonoBehaviour:
   - m_direction: {x: 0, y: 1}
     m_prefabs:
     - m_object: {fileID: 6676558204597996972, guid: a07871bf36908524ea4aba70a9bb16f1, type: 3}
-      m_weight: 1
+      m_weight: 9999
+    m_suppressLadders: 1
   m_doorSecretPrefabs:
   - m_object: {fileID: 2530109060553961877, guid: b214be9997254b949af66fe5a19fae4f, type: 3}
     m_weight: 1
