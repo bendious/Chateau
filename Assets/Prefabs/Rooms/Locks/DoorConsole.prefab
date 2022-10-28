@@ -132,8 +132,8 @@ PrefabInstance:
       value: DoorConsole
       objectReference: {fileID: 0}
     - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_destroyOnUnlock
-      value: 0
+      propertyPath: m_unlockDestroyDelay
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 8437240503871108722, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
       propertyPath: m_SortingLayer

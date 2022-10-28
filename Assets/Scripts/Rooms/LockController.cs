@@ -42,6 +42,7 @@ public class LockController : MonoBehaviour, IUnlockable
 	[SerializeField] private int m_builtinKeysMax;
 	public int m_builtinKeyDifficulty;
 	public float m_keyHeightMax = 7.5f;
+	[SerializeField] private float m_keySpeedMin = 0.0f;
 	[SerializeField] private float m_keyDelaySeconds = 0.0f;
 	[SerializeField] private float m_vfxDisableDelaySeconds = 2.0f;
 	[SerializeField] private VisualEffect m_vfxKeyDelay;
@@ -52,7 +53,7 @@ public class LockController : MonoBehaviour, IUnlockable
 	[SerializeField] private float m_activeColorPct = 2.0f;
 
 
-	[SerializeField] private bool m_destroyOnUnlock = true;
+	[SerializeField] private float m_unlockDestroyDelay = -1.0f;
 
 
 	public GameObject Parent { get; set; }
@@ -241,6 +242,18 @@ public class LockController : MonoBehaviour, IUnlockable
 			if (key == null || key.Component == null)
 			{
 				return false;
+			}
+			if (m_keySpeedMin > 0.0f)
+			{
+				if (key.Component.transform.parent != null)
+				{
+					return false;
+				}
+				Rigidbody2D body = key.Component.GetComponent<Rigidbody2D>();
+				if (body == null || body.velocity.magnitude < m_keySpeedMin)
+				{
+					return false;
+				}
 			}
 			if (key.Component.gameObject == obj)
 			{
@@ -453,9 +466,9 @@ public class LockController : MonoBehaviour, IUnlockable
 			}
 
 			// destroy/disable ourself
-			if (m_destroyOnUnlock)
+			if (m_unlockDestroyDelay >= 0.0f)
 			{
-				Simulation.Schedule<ObjectDespawn>(0.5f).m_object = gameObject;
+				Simulation.Schedule<ObjectDespawn>(m_unlockDestroyDelay).m_object = gameObject;
 			}
 			else
 			{

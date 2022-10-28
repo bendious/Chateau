@@ -1318,6 +1318,8 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 3346888056824497695, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
     m_weight: 1
+  - m_object: {fileID: 798767993087980408, guid: 2e81a61a96e51a24e8a385879e02d47a, type: 3}
+    m_weight: 1
   - m_object: {fileID: 6676558204597996972, guid: a07871bf36908524ea4aba70a9bb16f1, type: 3}
     m_weight: 1
   m_lockPrefabs:
@@ -1356,6 +1358,8 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 8498127701983908984, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
     m_weight: 1
+  - m_object: {fileID: 6163602902597221319, guid: ea8855b8519012847b500068eec80d29, type: 3}
+    m_weight: 1
   m_cutbackPrefabs:
   - m_object: {fileID: 7962405609981993185, guid: 45247f91abc13ae44a2fcc5669b184d1, type: 3}
     m_weight: 1
@@ -1366,6 +1370,8 @@ MonoBehaviour:
   - m_object: {fileID: 1365230811573513431, guid: fe495bb420265d946a84ada74b132a5a, type: 3}
     m_weight: 1
   - m_object: {fileID: 3346888056824497695, guid: 3457971c6d2d2a048a0a55d30bd11f18, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 798767993087980408, guid: 2e81a61a96e51a24e8a385879e02d47a, type: 3}
     m_weight: 1
   m_textPrefabs: []
   m_roomTypes:

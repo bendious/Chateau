@@ -58,6 +58,7 @@ MonoBehaviour:
   m_builtinKeysMax: 4
   m_builtinKeyDifficulty: 1
   m_keyHeightMax: 7.5
+  m_keySpeedMin: 0
   m_keyDelaySeconds: 0
   m_vfxDisableDelaySeconds: 2
   m_vfxKeyDelay: {fileID: 0}
@@ -66,7 +67,7 @@ MonoBehaviour:
   - m_object: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
     m_weight: 1
   m_activeColorPct: 2
-  m_destroyOnUnlock: 0
+  m_unlockDestroyDelay: -1
 --- !u!82 &6798587328417340159
 AudioSource:
   m_ObjectHideFlags: 0
