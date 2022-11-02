@@ -33,6 +33,7 @@ MonoBehaviour:
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
+      m_target: {fileID: 0}
       m_loop: 0
       m_singleUse: 1
       m_appendToAll: 0
@@ -49,8 +50,64 @@ MonoBehaviour:
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
+      m_target: {fileID: 0}
       m_loop: 0
       m_singleUse: 1
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: '{avatar}, chill. You''re scowling so hard I can hear it.'
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: Good.
+        m_source: {fileID: 11400000, guid: eeef22f43d928934d9f902dbd6ac6bbb, type: 2}
+        m_sourceDistMax: 6
+        m_replies: []
+      m_target: {fileID: 11400000, guid: eeef22f43d928934d9f902dbd6ac6bbb, type: 2}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: Hey, {avatar}, you okay?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: Just makin' sure you're still alive there.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 11400000, guid: ecc445ba987b94f4db2568e42e239914, type: 2}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: Calm down, {avatar}.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: There <i>is</i> such a thing as too much pep in your step, you know.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: Is there, though?
+        m_source: {fileID: 11400000, guid: 9eabba7ea6dc477428519349a00d66a7, type: 2}
+        m_sourceDistMax: 6
+        m_replies: []
+      m_target: {fileID: 11400000, guid: 9eabba7ea6dc477428519349a00d66a7, type: 2}
+      m_loop: 0
+      m_singleUse: 0
       m_appendToAll: 0
     m_weight: 0
   m_expressions:
@@ -61,6 +118,10 @@ MonoBehaviour:
   - m_object:
       m_key: avatar
       m_replacement: dude
+    m_weight: 1
+  - m_object:
+      m_key: avatar
+      m_replacement: man
     m_weight: 1
   - m_object:
       m_key: denied.

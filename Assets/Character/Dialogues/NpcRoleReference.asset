@@ -21,6 +21,7 @@ MonoBehaviour:
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
+      m_target: {fileID: 0}
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
@@ -37,6 +38,7 @@ MonoBehaviour:
         m_source: {fileID: 0}
         m_sourceDistMax: 0
         m_replies: []
+      m_target: {fileID: 0}
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
@@ -55,6 +57,7 @@ MonoBehaviour:
         m_source: {fileID: 0}
         m_sourceDistMax: 0
         m_replies: []
+      m_target: {fileID: 0}
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
@@ -202,9 +205,49 @@ MonoBehaviour:
           - '{denied.}'
           m_eventName: 
           m_breakAfterward: 1
+      m_target: {fileID: 0}
       m_loop: 1
       m_singleUse: 0
       m_appendToAll: 1
+    m_weight: 0
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: Alex...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 11400000, guid: 23ae61cdb98cd1d47a9a15914cfdf4d7, type: 2}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: Martha...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 11400000, guid: a4d57240072259046ba25a999d984f47, type: 2}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: Will...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 11400000, guid: 253660f765b3ae44fa1b73d1f26a6594, type: 2}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 0
   m_expressions:
   - m_object:

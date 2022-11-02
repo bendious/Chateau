@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -73,7 +74,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 #endif
 
 
-	private System.Collections.Generic.IEnumerable<WeightedObject<Dialogue.Info>> DialogueFiltered(bool excludeReplies)
+	private IEnumerable<WeightedObject<Dialogue.Info>> DialogueFiltered(bool excludeReplies, params Dialogue[] targets)
 	{
 		// lazy initialize dialogue options
 		if (m_dialogueCombined == null)
@@ -86,7 +87,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 		// filter dialogue options
 		return m_dialogueCombined.Where(info =>
 		{
-			if (info.m_weight < 0.0f || (excludeReplies && info.m_object.m_lines.Any(line => line.m_replies.Length > 0)))
+			if (info.m_weight < 0.0f || (excludeReplies && info.m_object.m_lines.Any(line => line.m_replies.Length > 0)) || ((targets != null && targets.Length > 0) ? targets.All(target => target != info.m_object.m_target) : (info.m_object.m_target != null)))
 			{
 				return false;
 			}
@@ -104,7 +105,8 @@ public class InteractNpc : MonoBehaviour, IInteractable
 	private System.Collections.IEnumerator PlayDialogueCoroutine(KinematicCharacter interactor)
 	{
 		// pick dialogue option(s)
-		WeightedObject<Dialogue.Info>[] dialogueAllowed = DialogueFiltered(interactor is not AvatarController).ToArray();
+		InteractNpc otherNpc = interactor.GetComponent<InteractNpc>();
+		WeightedObject<Dialogue.Info>[] dialogueAllowed = DialogueFiltered(interactor is not AvatarController, otherNpc == null ? null : GameController.NpcDialogues(otherNpc.Index)).ToArray();
 		if (dialogueAllowed.Length <= 0)
 		{
 			yield break;

@@ -25,6 +25,7 @@ MonoBehaviour:
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
+      m_target: {fileID: 0}
       m_loop: 0
       m_singleUse: 1
       m_appendToAll: 0
@@ -56,6 +57,7 @@ MonoBehaviour:
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
+      m_target: {fileID: 0}
       m_loop: 0
       m_singleUse: 1
       m_appendToAll: 0
@@ -82,6 +84,7 @@ MonoBehaviour:
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
+      m_target: {fileID: 0}
       m_loop: 0
       m_singleUse: 1
       m_appendToAll: 0
@@ -113,9 +116,77 @@ MonoBehaviour:
           - '{interjection} don''t forget to come find me when you do.'
           m_eventName: 
           m_breakAfterward: 1
+      m_target: {fileID: 0}
       m_loop: 1
       m_singleUse: 0
       m_appendToAll: 1
+    m_weight: 0
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: Alex, have you been playing with my stuff again?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: It really doesn't matter to me how prettily things are arranged,
+          you know.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: I just need to know where everything is!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 11400000, guid: 23ae61cdb98cd1d47a9a15914cfdf4d7, type: 2}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: 'Ida, I''ve told you a million times: <i>please</i> stop rearranging
+          my supplies!'
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: I don't care if your boxes are more "organized"; now I can't find
+          anything!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Most of the categories you come up with don't even work very well!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 11400000, guid: 249d36032d347d240b8638f14da317f9, type: 2}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: Will, you were rummaging around in my workshop earlier, weren't you?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: If you want something, just ask me, seriously!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: And if you still can't figure out what you want, at least leave things
+          the way you found them, please...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 11400000, guid: 253660f765b3ae44fa1b73d1f26a6594, type: 2}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
     m_weight: 0
   m_expressions:
   - m_object:
