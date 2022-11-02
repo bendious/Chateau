@@ -11,6 +11,6 @@ public class InteractChute : MonoBehaviour, IInteractable
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
-		GameController.Instance.m_dialogueController.Play(m_dialogue.m_dialogue.RandomWeighted().m_lines, avatar: interactor.GetComponent<AvatarController>(), expressions: m_dialogue.m_expressions);
+		GameController.Instance.m_dialogueController.Play(m_dialogue.m_dialogue.RandomWeighted().m_lines, character: interactor.GetComponent<KinematicCharacter>(), expressions: m_dialogue.m_expressions);
 	}
 }

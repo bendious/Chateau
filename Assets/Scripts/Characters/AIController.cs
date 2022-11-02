@@ -297,6 +297,28 @@ public sealed class AIController : KinematicCharacter
 	// TODO: un-expose?
 	public bool NavigateTowardTarget(Vector2 targetOffsetAbs)
 	{
+		Vector2 waypointDiff;
+		bool isAtWaypoint(Vector2 waypoint, Collider2D targetCollider, bool isStartingPoint)
+		{
+			waypointDiff = waypoint - (Vector2)Bounds.center;
+
+			// prevent jittering
+			Vector2 halfExtentsCombined = ((Vector2)Bounds.extents + (targetCollider == null || (m_pathfindWaypoints != null && m_pathfindWaypoints.Count > 1) ? Vector2.zero : targetCollider.bounds.extents)) * 0.5f;
+			if (Mathf.Abs(waypointDiff.x) < halfExtentsCombined.x)
+			{
+				waypointDiff.x = 0.0f;
+			}
+			if (Mathf.Abs(waypointDiff.y) < halfExtentsCombined.y)
+			{
+				waypointDiff.y = 0.0f;
+			}
+
+			// check arrival
+			const float arrivalEpsilon = 0.1f; // TODO: derive/calculate?
+			bool isHighEnough = isStartingPoint || IsGrounded || HasFlying || transform.position.y >= waypoint.y; // NOTE the stricter condition when in mid-air to prevent starting to move sideways too soon and falling back below the waypoint
+			return isHighEnough && waypointDiff.magnitude <= ((Vector2)Bounds.extents).magnitude + arrivalEpsilon;
+		}
+
 		if (m_target == null || ShouldSkipUpdates)
 		{
 			move = Vector2.zero;
@@ -323,40 +345,22 @@ public sealed class AIController : KinematicCharacter
 			}
 			m_pathfindTimeNext = Time.time + Random.Range(m_replanSecondsMin, m_replanSecondsMax);
 		}
+		Collider2D targetCollider = m_target == null ? null : m_target.GetComponent<Collider2D>(); // TODO: efficiency?
 		if (m_pathfindWaypoints == null || m_pathfindWaypoints.Count == 0)
 		{
 			// NOTE that even if targeting an avatar and unable to pathfind to any avatars, we don't have to remove ourself from GameController.m_enemiesInWave[] to prevent wave softlocks, since GameController.SpawnEnemyWaveCoroutine() takes care of that
 			move = Vector2.zero;
-			return false;
+			return m_target == null ? false : isAtWaypoint(targetCollider == null ? m_target.transform.position : targetCollider.bounds.center, targetCollider, isStartingPoint);
 		}
-
-		Collider2D targetCollider = m_target.GetComponent<Collider2D>(); // TODO: efficiency?
 
 		// process & check for arrival at current waypoint(s)
 		Vector2 nextWaypoint;
-		Vector2 diff;
 		bool atWaypoint;
 		do
 		{
 			// get relative position
 			nextWaypoint = m_pathfindWaypoints.First();
-			diff = nextWaypoint - (Vector2)Bounds.center;
-
-			// prevent jittering
-			Vector2 halfExtentsCombined = ((Vector2)Bounds.extents + (m_pathfindWaypoints.Count > 1 ? Vector2.zero : targetCollider.bounds.extents)) * 0.5f;
-			if (Mathf.Abs(diff.x) < halfExtentsCombined.x)
-			{
-				diff.x = 0.0f;
-			}
-			if (Mathf.Abs(diff.y) < halfExtentsCombined.y)
-			{
-				diff.y = 0.0f;
-			}
-
-			// check arrival
-			const float arrivalEpsilon = 0.1f; // TODO: derive/calculate?
-			bool isHighEnough = isStartingPoint || IsGrounded || HasFlying || transform.position.y >= nextWaypoint.y; // NOTE the stricter condition when in mid-air to prevent starting to move sideways too soon and falling back below the waypoint
-			atWaypoint = isHighEnough && diff.magnitude <= ((Vector2)Bounds.extents).magnitude + arrivalEpsilon;
+			atWaypoint = isAtWaypoint(nextWaypoint, targetCollider, isStartingPoint);
 			if (atWaypoint)
 			{
 				m_pathfindWaypoints.RemoveAt(0);
@@ -366,7 +370,7 @@ public sealed class AIController : KinematicCharacter
 		while (atWaypoint && m_pathfindWaypoints.Count > 0);
 
 		// determine current direction
-		Vector2 dir = diff.normalized;
+		Vector2 dir = waypointDiff.normalized;
 		if ((IsGrounded || m_airControl) && maxSpeed != 0.0f)
 		{
 			if (HasFlying)
@@ -403,13 +407,13 @@ public sealed class AIController : KinematicCharacter
 
 					// determine how hard to jump
 					float gravityEffective = -9.81f * gravityModifier; // TODO: determine why Physics2D.gravity is inaccurate; don't assume vertical gravity?
-					float determinant = jumpTakeOffSpeed * jumpTakeOffSpeed - 4.0f * gravityEffective * -diff.y; // TODO: better determination of how far up/down we'll land if too far to make it to the waypoint?
+					float determinant = jumpTakeOffSpeed * jumpTakeOffSpeed - 4.0f * gravityEffective * -waypointDiff.y; // TODO: better determination of how far up/down we'll land if too far to make it to the waypoint?
 					if (determinant < 0.0f)
 					{
 						determinant = jumpTakeOffSpeed * jumpTakeOffSpeed;
 					}
 					float jumpMaxDist = (-jumpTakeOffSpeed - Mathf.Sqrt(determinant)) / (2.0f * gravityEffective) * m_jumpMaxSpeedOverride;
-					m_jump *= Mathf.Min(1.0f, diff.magnitude / jumpMaxDist); // TODO: separate x/y logic for improved upward movement?
+					m_jump *= Mathf.Min(1.0f, waypointDiff.magnitude / jumpMaxDist); // TODO: separate x/y logic for improved upward movement?
 				}
 			}
 			move.y = IsGrounded && nextBounds.max.y < selfBounds.min.y ? -1.0f : Mathf.SmoothDamp(move.y, 0.0f, ref m_dropDecayVel, m_dropDecayTime * 2.0f); // NOTE the IsGrounded check and damped decay (x2 since IsDropping's threshold is -0.5) to cause stopping at each ladder rung when descending

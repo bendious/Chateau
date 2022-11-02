@@ -210,6 +210,8 @@ public sealed class AIFraternize : AIState
 	public float m_postSecMin = 1.0f;
 	public float m_postSecMax = 2.0f;
 
+	public float m_dialoguePct = 0.75f;
+
 	public float m_enemyCheckSecMin = 1.0f;
 	public float m_enemyCheckSecMax = 2.0f;
 
@@ -218,6 +220,7 @@ public sealed class AIFraternize : AIState
 	private readonly float m_retargetOrigMax;
 
 	private float m_postSecRemaining;
+	private bool m_shouldStartDialogue;
 
 	private float m_enemyCheckTime;
 
@@ -236,6 +239,7 @@ public sealed class AIFraternize : AIState
 		base.Enter();
 
 		m_postSecRemaining = Random.Range(m_postSecMin, m_postSecMax);
+		m_shouldStartDialogue = Random.value <= m_dialoguePct;
 
 		m_ai.m_replanSecondsMin = m_retargetSecMin;
 		m_ai.m_replanSecondsMax = m_retargetSecMax;
@@ -254,6 +258,20 @@ public sealed class AIFraternize : AIState
 		// check for arrival
 		if (hasArrived)
 		{
+			if (m_shouldStartDialogue)
+			{
+				m_shouldStartDialogue = false;
+				if (!GameController.Instance.m_dialogueController.IsPlaying)
+				{
+					InteractNpc npc = m_ai.GetComponent<InteractNpc>();
+					KinematicCharacter otherChar = m_ai.m_target.GetComponent<KinematicCharacter>();
+					if (npc != null && otherChar != null)
+					{
+						npc.Interact(otherChar, false);
+					}
+				}
+			}
+
 			m_postSecRemaining -= Time.deltaTime;
 			if (m_postSecRemaining <= 0.0f)
 			{
@@ -970,7 +988,7 @@ public sealed class AIFinalDialogue : AIState
 
 		Boss boss = m_ai.GetComponent<Boss>();
 		Dialogue dialogue = boss.m_dialogueFinal;
-		Coroutine dialogueCoroutine = GameController.Instance.m_dialogueController.Play(dialogue.m_dialogue.RandomWeighted().m_lines, m_ai.gameObject, m_ai.m_target.GetComponent<AvatarController>(), boss.m_dialogueSprite, boss.GetComponent<SpriteRenderer>().color, dialogue.m_expressions, boss.m_dialogueSfx.RandomWeighted());
+		Coroutine dialogueCoroutine = GameController.Instance.m_dialogueController.Play(dialogue.m_dialogue.RandomWeighted().m_lines, m_ai.gameObject, m_ai.m_target.GetComponent<KinematicCharacter>(), boss.m_dialogueSprite, boss.GetComponent<SpriteRenderer>().color, dialogue.m_expressions, boss.m_dialogueSfx.RandomWeighted());
 		m_ai.StartCoroutine(WaitForDialogue(dialogueCoroutine)); // TODO: ensure AIController never accidentally interferes via StopAllCoroutines()?
 	}
 

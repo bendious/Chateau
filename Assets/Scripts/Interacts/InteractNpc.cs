@@ -15,7 +15,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 	public int Index { get; set; }
 
 
-	private bool HasSingleUseAvailable => DialogueFiltered().Any(line => line.m_object.m_singleUse);
+	private bool HasSingleUseAvailable => DialogueFiltered(false).Any(line => line.m_object.m_singleUse);
 
 
 	private bool m_isVice;
@@ -73,7 +73,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 #endif
 
 
-	private System.Collections.Generic.IEnumerable<WeightedObject<Dialogue.Info>> DialogueFiltered()
+	private System.Collections.Generic.IEnumerable<WeightedObject<Dialogue.Info>> DialogueFiltered(bool excludeReplies)
 	{
 		// lazy initialize dialogue options
 		if (m_dialogueCombined == null)
@@ -86,7 +86,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 		// filter dialogue options
 		return m_dialogueCombined.Where(info =>
 		{
-			if (info.m_weight < 0.0f)
+			if (info.m_weight < 0.0f || (excludeReplies && info.m_object.m_lines.Any(line => line.m_replies.Length > 0)))
 			{
 				return false;
 			}
@@ -104,7 +104,11 @@ public class InteractNpc : MonoBehaviour, IInteractable
 	private System.Collections.IEnumerator PlayDialogueCoroutine(KinematicCharacter interactor)
 	{
 		// pick dialogue option(s)
-		WeightedObject<Dialogue.Info>[] dialogueAllowed = DialogueFiltered().ToArray();
+		WeightedObject<Dialogue.Info>[] dialogueAllowed = DialogueFiltered(interactor is not AvatarController).ToArray();
+		if (dialogueAllowed.Length <= 0)
+		{
+			yield break;
+		}
 		Dialogue.Info dialogueCur = dialogueAllowed.FirstOrDefault(dialogue => dialogue.m_weight == 0.0f)?.m_object;
 		if (dialogueCur == null)
 		{
@@ -113,7 +117,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 		Dialogue.Info dialogueAppend = dialogueAllowed.FirstOrDefault(dialogueWeighted => dialogueWeighted.m_object.m_appendToAll && dialogueWeighted.m_object != dialogueCur)?.m_object; // TODO: support multiple append dialogues?
 
 		// play dialogue and wait
-		yield return GameController.Instance.m_dialogueController.Play(dialogueAppend != null ? dialogueCur.m_lines.Concat(dialogueAppend.m_lines) : dialogueCur.m_lines, gameObject, interactor.GetComponent<AvatarController>(), m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_expressionsCombined, m_sfxChosen, dialogueCur.m_loop ? 0 : dialogueAppend != null && dialogueAppend.m_loop ? dialogueCur.m_lines.Length : -1);
+		yield return GameController.Instance.m_dialogueController.Play(dialogueAppend != null ? dialogueCur.m_lines.Concat(dialogueAppend.m_lines) : dialogueCur.m_lines, gameObject, interactor.GetComponent<KinematicCharacter>(), m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_expressionsCombined, m_sfxChosen, dialogueCur.m_loop ? 0 : dialogueAppend != null && dialogueAppend.m_loop ? dialogueCur.m_lines.Length : -1);
 
 		// update weight
 		WeightedObject<Dialogue.Info> weightedDialogueCur = m_dialogueCombined.First(dialogue => dialogue.m_object == dialogueCur); // TODO: support duplicate dialogue options?

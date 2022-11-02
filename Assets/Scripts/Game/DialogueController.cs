@@ -16,8 +16,10 @@ public class DialogueController : MonoBehaviour
 	public Transform m_replyMenu;
 	[SerializeField] private GameObject m_replyTemplate;
 
-	[SerializeField] private float m_revealSeconds = 0.1f;
-	[SerializeField] private float m_revealSecondsFast = 0.01f;
+	[SerializeField] private float m_worldspaceWidth = 8.0f;
+
+	[SerializeField] private float m_revealSeconds = 0.05f;
+	[SerializeField] private float m_revealSecondsFast = 0.005f;
 
 	[SerializeField] private float m_indicatorSpacing = 7.5f;
 
@@ -63,7 +65,7 @@ public class DialogueController : MonoBehaviour
 	private int m_replyIdx;
 	private Queue<string> m_queueFollowUp;
 	private GameObject m_callbackObject;
-	public AvatarController Avatar { get; private set; }
+	public KinematicCharacter Character { get; private set; }
 	private int m_loopIdx = -1;
 
 	private bool m_forceNewLine = false;
@@ -75,14 +77,14 @@ public class DialogueController : MonoBehaviour
 	}
 
 
-	public Coroutine Play(IEnumerable<Line> lines, GameObject callbackObject = null, AvatarController avatar = null, Sprite sprite = null, Color spriteColor = default, IEnumerable<WeightedObject<Dialogue.Expression>> expressions = null, AudioClip sfx = null, int loopIdx = -1)
+	public Coroutine Play(IEnumerable<Line> lines, GameObject callbackObject = null, KinematicCharacter character = null, Sprite sprite = null, Color spriteColor = default, IEnumerable<WeightedObject<Dialogue.Expression>> expressions = null, AudioClip sfx = null, int loopIdx = -1)
 	{
 		m_revealedCharCount = 0;
 		m_lastRevealTime = Time.time;
 		m_replyIdx = 0;
 		m_queueFollowUp = null;
 		m_callbackObject = callbackObject;
-		Avatar = avatar;
+		Character = character;
 		m_loopIdx = loopIdx;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
@@ -128,7 +130,7 @@ public class DialogueController : MonoBehaviour
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)")]
 	public void MerchantSell(Line.Reply reply)
 	{
-		IAttachable[] attachables = Avatar.GetComponentsInChildren<IAttachable>(true);
+		IAttachable[] attachables = Character.GetComponentsInChildren<IAttachable>(true);
 		if (attachables.Length <= 0)
 		{
 			m_queue.Enqueue(new() { m_text = "{merchantSellEmpty.}" });
@@ -158,7 +160,7 @@ public class DialogueController : MonoBehaviour
 	public void MerchantDespawn(Line.Reply reply)
 	{
 		// record acquisition
-		IEnumerable<IAttachable> attachables = Avatar.GetComponentsInChildren<IAttachable>(true).Where(attachable => ((ISavable)attachable).Type >= 0); // TODO: don't assume all attachables are also savables?
+		IEnumerable<IAttachable> attachables = Character.GetComponentsInChildren<IAttachable>(true).Where(attachable => ((ISavable)attachable).Type >= 0); // TODO: don't assume all attachables are also savables?
 		IAttachable attachable = attachables.ElementAt(m_replyIdx);
 		int savableType = ((ISavable)attachable).Type; // TODO: don't assume all attachables are also savables?
 		++GameController.MerchantAcquiredCounts[savableType];
@@ -211,8 +213,8 @@ public class DialogueController : MonoBehaviour
 		int savableType = reply.m_userdata;
 		int cost = GameController.Instance.m_savableFactory.m_savables[savableType].m_materialsConsumed;
 		Debug.Assert(GameController.MerchantMaterials >= cost);
-		ISavable savable = GameController.Instance.m_savableFactory.Instantiate(savableType, Avatar.transform.position, Quaternion.identity);
-		Avatar.ChildAttach(savable.Component.GetComponent<IAttachable>()); // TODO: don't assume all savables are also attachable?
+		ISavable savable = GameController.Instance.m_savableFactory.Instantiate(savableType, Character.transform.position, Quaternion.identity);
+		Character.ChildAttach(savable.Component.GetComponent<IAttachable>()); // TODO: don't assume all savables are also attachable?
 		GameController.MerchantMaterials -= cost;
 	}
 
@@ -224,18 +226,32 @@ public class DialogueController : MonoBehaviour
 		Dialogue.Expression[] expressionsOrdered = expressions?.RandomWeightedOrder().ToArray(); // NOTE the conversion to an array to prevent IEnumerable re-calculating w/ each access // TODO: re-order after each line?
 		m_audio.clip = sfx;
 
-		// avatar setup
-		if (Avatar == null)
+		// character/controls setup
+		Canvas canvas = GetComponent<Canvas>();
+		if (Character == null)
 		{
-			Canvas canvas = GetComponent<Canvas>();
 			canvas.enabled = false; // don't show dialogue box until we're ready
 			yield return new WaitUntil(() => GameController.Instance.m_avatars.Count > 0);
-			Avatar = GameController.Instance.m_avatars.First(); // TODO: don't assume that the first avatar will always remain?
+			Character = GameController.Instance.m_avatars.First(); // TODO: don't assume that the first avatar will always remain?
 			canvas.enabled = true;
 		}
-		Avatar.ControlsUI.Enable();
-		InputAction submitKey = Avatar.Controls.actions["Submit"];
+		AvatarController avatar = Character as AvatarController;
+		if (avatar != null)
+		{
+			avatar.ControlsUI.Enable();
+		}
+		bool isWorldspace = avatar == null;
+		InputAction submitKey = isWorldspace ? null : avatar.Controls.actions["Submit"];
 		bool submitReleasedSinceNewline = true;
+
+		// canvas setup
+		canvas.renderMode = isWorldspace ? RenderMode.WorldSpace : RenderMode.ScreenSpaceOverlay;
+		canvas.transform.position = isWorldspace ? new(Character.transform.position.x, Character.GetComponent<Collider2D>().bounds.max.y, Character.transform.position.z) : Vector3.zero;
+		RectTransform rectTf = canvas.GetComponent<RectTransform>();
+		float scale = isWorldspace ? m_worldspaceWidth / rectTf.sizeDelta.x : 1.0f;
+		canvas.transform.localScale = new(scale, scale, scale);
+		rectTf.pivot = new(0.5f, isWorldspace ? 0.0f : 0.5f);
+		canvas.GetComponent<AudioSource>().spatialBlend = isWorldspace ? 1.0f : 0.0f;
 
 		WaitUntil replyWait = new(() => !m_replyMenu.gameObject.activeInHierarchy);
 		int tagCharCount = 0;
@@ -256,7 +272,7 @@ public class DialogueController : MonoBehaviour
 
 			// maybe move to next line
 			bool stillRevealing = m_revealedCharCount + tagCharCount < textCurLen;
-			if (m_forceNewLine || (submitKey.WasPressedThisFrame() && !stillRevealing))
+			if (m_forceNewLine || ((submitKey == null || submitKey.WasPressedThisFrame()) && !stillRevealing)) // TODO: non-avatar delay before newline
 			{
 				// next line
 				m_continueIndicator.SetActive(false);
@@ -284,10 +300,11 @@ public class DialogueController : MonoBehaviour
 				submitReleasedSinceNewline = false;
 				stillRevealing = true;
 			}
-			submitReleasedSinceNewline = submitReleasedSinceNewline || !submitKey.IsPressed();
+			bool submitPressed = submitKey != null && submitKey.IsPressed();
+			submitReleasedSinceNewline = submitReleasedSinceNewline || !submitPressed;
 
 			// maybe reveal next letter(s)
-			float revealDurationCur = stillRevealing && submitReleasedSinceNewline && submitKey.IsPressed() ? m_revealSecondsFast : m_revealSeconds;
+			float revealDurationCur = stillRevealing && submitReleasedSinceNewline && submitPressed ? m_revealSecondsFast : m_revealSeconds;
 			float nextRevealTime = m_lastRevealTime + revealDurationCur;
 			if (stillRevealing && nextRevealTime <= Time.time)
 			{
@@ -393,7 +410,10 @@ public class DialogueController : MonoBehaviour
 			}
 		}
 
-		Avatar.ControlsUI.Disable(); // TODO: check for other UI?
+		if (avatar != null)
+		{
+			avatar.ControlsUI.Disable(); // TODO: check for other UI?
+		}
 		gameObject.SetActive(false);
 	}
 
@@ -434,7 +454,7 @@ public class DialogueController : MonoBehaviour
 		}
 		else
 		{
-			InteractNpc sourceInteract = FindObjectsOfType<InteractNpc>().FirstOrDefault(interact => GameController.NpcDialogues(interact.Index).Contains(line.m_source) && Vector2.Distance(Avatar.transform.position, interact.transform.position) <= line.m_sourceDistMax);
+			InteractNpc sourceInteract = FindObjectsOfType<InteractNpc>().FirstOrDefault(interact => GameController.NpcDialogues(interact.Index).Contains(line.m_source) && Vector2.Distance(Character.transform.position, interact.transform.position) <= line.m_sourceDistMax);
 			if (sourceInteract == null)
 			{
 				// if the source is not present, end the dialogue // TODO: parameterize?
@@ -488,7 +508,7 @@ public class DialogueController : MonoBehaviour
 		{
 			m_callbackObject.SendMessage(functionName, value, SendMessageOptions.DontRequireReceiver);
 		}
-		Avatar.gameObject.SendMessage(functionName, value, SendMessageOptions.DontRequireReceiver);
+		Character.gameObject.SendMessage(functionName, value, SendMessageOptions.DontRequireReceiver);
 		GameController.Instance.gameObject.SendMessage(functionName, value, SendMessageOptions.DontRequireReceiver);
 	}
 }
