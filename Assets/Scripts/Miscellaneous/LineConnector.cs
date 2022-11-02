@@ -12,6 +12,7 @@ public class LineConnector : MonoBehaviour
 
 	[SerializeField] Collider2D[] m_colliders;
 
+	[SerializeField] private float m_collisionVelocityMin = 1.0f;
 	[SerializeField] private float m_collisionForceMax = 10.0f;
 	[SerializeField] private float m_stretchThreshold = 0.25f;
 
@@ -139,7 +140,7 @@ public class LineConnector : MonoBehaviour
 					collider.transform.localPosition = centerLocal;
 					Vector2 anchorToCenterLocal = (Vector2)centerLocal - joint.anchor;
 					collider.transform.localRotation = Utility.ZRotation(anchorToCenterLocal);
-					(collider as BoxCollider2D).size = new(anchorToCenterLocal.magnitude * 2.0f, Mathf.Min(0.05f, line.startWidth)); // TODO: don't assume BoxCollider2D? more dynamic minimum?
+					(collider as BoxCollider2D).size = new(anchorToCenterLocal.magnitude * 2.0f, Mathf.Max(0.05f, line.startWidth)); // TODO: don't assume BoxCollider2D? more dynamic minimum?
 
 					// stretch SFX
 					if (m_sfxStretch.Length > 0)
@@ -188,8 +189,13 @@ public class LineConnector : MonoBehaviour
 		// add small force, as if this were an non-trigger collider thin enough to slip past after getting grazed
 		KinematicCharacter character = collider.attachedRigidbody.GetComponent<KinematicCharacter>();
 		Vector2 velocity = character != null ? character.velocity : collider.attachedRigidbody.velocity;
-		Vector2 velocityClamped = velocity.sqrMagnitude > m_collisionForceMaxSq ? velocity.normalized * m_collisionForceMax : velocity;
-		body.AddForceAtPosition(velocityClamped * UnityEngine.Random.value, body.ClosestPoint(collider.transform.position));
+		if (velocity.sqrMagnitude < m_collisionVelocityMin)
+		{
+			return;
+		}
+		Vector2 force = velocity * collider.attachedRigidbody.mass;
+		Vector2 forceClamped = force.sqrMagnitude > m_collisionForceMaxSq ? force.normalized * m_collisionForceMax : force;
+		body.AddForceAtPosition(forceClamped, body.ClosestPoint(collider.transform.position));
 	}
 
 	private void OnJointBreak2D(Joint2D joint)

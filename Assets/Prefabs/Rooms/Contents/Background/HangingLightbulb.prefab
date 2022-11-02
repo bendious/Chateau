@@ -502,7 +502,8 @@ MonoBehaviour:
   m_lengthMax: 5
   m_colliders:
   - {fileID: 757425089799779749}
-  m_collisionForceMax: 10
+  m_collisionVelocityMin: 1
+  m_collisionForceMax: 1
   m_stretchThreshold: 0.25
   m_sfxStretch:
   - m_object: {fileID: 8300000, guid: eb021c48906db25469d856f3b8743649, type: 3}
