@@ -59,7 +59,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 	public bool HasForcedVelocity => !m_velocityForcedWeight.magnitude.FloatEqual(0.0f);
 
-	public Bounds Bounds => m_colliders.Aggregate(new Bounds() { size = Vector3.negativeInfinity }, (bounds, collider) => { bounds.Encapsulate(collider.bounds); return bounds; }); // TODO: cache local bounds?
+	public Bounds Bounds => (m_colliders != null && m_colliders.Length > 0 ? m_colliders : GetComponents<Collider2D>()).Aggregate(new Bounds() { size = Vector3.negativeInfinity }, (bounds, collider) => { bounds.Encapsulate(collider.bounds); return bounds; }); // NOTE the extra logic to support being used before Awake() to support prefabs // TODO: cache local bounds?
 
 
 	protected Vector2 targetVelocity;
@@ -180,7 +180,7 @@ public abstract class KinematicObject : MonoBehaviour
 				totalOverlap.y = Mathf.Abs(newOverlap.y) > Mathf.Abs(totalOverlap.y) ? newOverlap.y : totalOverlap.y;
 			}
 		}
-		transform.position += (Vector3)totalOverlap;
+		transform.position += (Vector3)totalOverlap; // TODO: ensure new position is w/i a room?
 
 		//if already falling, fall faster than the jump speed, otherwise use normal gravity.
 		velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0.0f ? gravityModifier : 1.0f) * Time.fixedDeltaTime * Physics2D.gravity;

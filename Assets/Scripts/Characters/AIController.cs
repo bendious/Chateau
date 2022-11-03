@@ -68,7 +68,7 @@ public sealed class AIController : KinematicCharacter
 	private GameObject m_attentionFlag;
 
 
-	private bool ShouldSkipUpdates => m_passive || ConsoleCommands.PassiveAI || HasForcedVelocity; // TODO: decouple AI process pausing from forced velocity?
+	private bool ShouldSkipUpdates => m_passive || ConsoleCommands.PassiveAI || HasForcedVelocity || Time.deltaTime <= 0.0f; // TODO: decouple AI process pausing from forced velocity?
 
 
 	protected override void Awake()
@@ -350,7 +350,7 @@ public sealed class AIController : KinematicCharacter
 		{
 			// NOTE that even if targeting an avatar and unable to pathfind to any avatars, we don't have to remove ourself from GameController.m_enemiesInWave[] to prevent wave softlocks, since GameController.SpawnEnemyWaveCoroutine() takes care of that
 			move = Vector2.zero;
-			return m_target == null ? false : isAtWaypoint(targetCollider == null ? m_target.transform.position : targetCollider.bounds.center, targetCollider, isStartingPoint);
+			return m_target != null && isAtWaypoint(targetCollider == null ? m_target.transform.position : targetCollider.bounds.center, targetCollider, isStartingPoint);
 		}
 
 		// process & check for arrival at current waypoint(s)
@@ -422,7 +422,7 @@ public sealed class AIController : KinematicCharacter
 		return m_pathfindWaypoints.Count == 0;
 	}
 
-	public System.Tuple<List<Vector2>, float> Pathfind(GameObject startObj, GameObject endObj, Vector2 targetOffsetAbs) => GameController.Instance.Pathfind(startObj, endObj, Bounds.extents.y, !HasFlying && jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue, targetOffsetAbs, RoomController.PathFlags.ObstructionCheck | (HasFlying ? RoomController.PathFlags.IgnoreGravity : RoomController.PathFlags.None)); // TODO: limit to max jump height once pathfinding takes platforms into account? prevent pathing beyond a threshold distance?
+	public System.Tuple<List<Vector2>, float> Pathfind(GameObject startObj, GameObject endObj, Vector2 targetOffsetAbs) => GameController.Instance.Pathfind(startObj, endObj, Bounds.extents.y, !HasFlying && jumpTakeOffSpeed <= 0.0f ? Bounds.extents.y : float.MaxValue, targetOffsetAbs, RoomController.PathFlags.ObstructionCheck | (HasFlying ? RoomController.PathFlags.IgnoreGravity : RoomController.PathFlags.None)); // TODO: limit to max jump height once pathfinding takes platforms into account? prevent pathing beyond a threshold distance?
 
 	public void ClearPath(bool immediateRepath)
 	{
