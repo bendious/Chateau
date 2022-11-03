@@ -77,7 +77,7 @@ public class DialogueController : MonoBehaviour
 	}
 
 
-	public Coroutine Play(IEnumerable<Line> lines, GameObject callbackObject = null, KinematicCharacter character = null, Sprite sprite = null, Color spriteColor = default, IEnumerable<WeightedObject<Dialogue.Expression>> expressions = null, AudioClip sfx = null, int loopIdx = -1)
+	public Coroutine Play(IEnumerable<Line> lines, GameObject callbackObject = null, KinematicCharacter character = null, Sprite sprite = null, Color spriteColor = default, AudioClip sfx = null, int loopIdx = -1, params WeightedObject<Dialogue.Expression>[][] expressionSets)
 	{
 		m_revealedCharCount = 0;
 		m_lastRevealTime = Time.time;
@@ -88,7 +88,7 @@ public class DialogueController : MonoBehaviour
 		m_loopIdx = loopIdx;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
-		return StartCoroutine(AdvanceDialogue(lines, expressions, sfx, sprite, spriteColor));
+		return StartCoroutine(AdvanceDialogue(lines, expressionSets, sfx, sprite, spriteColor));
 	}
 
 	public void OnReplySelected(GameObject replyObject)
@@ -219,11 +219,11 @@ public class DialogueController : MonoBehaviour
 	}
 
 
-	private System.Collections.IEnumerator AdvanceDialogue(IEnumerable<Line> linesOrig, IEnumerable<WeightedObject<Dialogue.Expression>> expressions, AudioClip sfx, Sprite sprite, Color color)
+	private System.Collections.IEnumerator AdvanceDialogue(IEnumerable<Line> linesOrig, WeightedObject<Dialogue.Expression>[][] expressionSets, AudioClip sfx, Sprite sprite, Color color)
 	{
 		m_text.text = null;
 		m_queue = new(linesOrig);
-		Dialogue.Expression[] expressionsOrdered = expressions?.RandomWeightedOrder().ToArray(); // NOTE the conversion to an array to prevent IEnumerable re-calculating w/ each access // TODO: re-order after each line?
+		Dialogue.Expression[][] expressionSetsOrdered = expressionSets?.Select(set => set?.RandomWeightedOrder().ToArray()).ToArray(); // NOTE the conversion to an array to prevent IEnumerable re-calculating w/ each access // TODO: re-order after each line?
 		m_audio.clip = sfx;
 
 		// character/controls setup
@@ -246,7 +246,6 @@ public class DialogueController : MonoBehaviour
 
 		// canvas setup
 		canvas.renderMode = isWorldspace ? RenderMode.WorldSpace : RenderMode.ScreenSpaceOverlay;
-		canvas.transform.position = isWorldspace ? new(Character.transform.position.x, Character.GetComponent<Collider2D>().bounds.max.y, Character.transform.position.z) : Vector3.zero;
 		RectTransform rectTf = canvas.GetComponent<RectTransform>();
 		float scale = isWorldspace ? m_worldspaceWidth / rectTf.sizeDelta.x : 1.0f;
 		canvas.transform.localScale = new(scale, scale, scale);
@@ -268,7 +267,7 @@ public class DialogueController : MonoBehaviour
 
 			// current state
 			// TODO: don't redo every time?
-			Line lineCur = NextLine(out string textCur, out int textCurLen, expressionsOrdered, sprite, color);
+			Line lineCur = NextLine(out string textCur, out int textCurLen, expressionSetsOrdered, sprite, color);
 
 			// maybe move to next line
 			bool stillRevealing = m_revealedCharCount + tagCharCount < textCurLen;
@@ -292,7 +291,11 @@ public class DialogueController : MonoBehaviour
 				else
 				{
 					m_queue.Dequeue();
-					lineCur = NextLine(out textCur, out textCurLen, expressionsOrdered, sprite, color);
+					lineCur = NextLine(out textCur, out textCurLen, expressionSetsOrdered, sprite, color);
+					if (lineCur == null)
+					{
+						break;
+					}
 				}
 				m_revealedCharCount = 0;
 				m_lastRevealTime = Time.time;
@@ -374,7 +377,7 @@ public class DialogueController : MonoBehaviour
 
 							GameObject newObj = Instantiate(m_replyTemplate, ReplyParentTf);
 							newText = newObj.GetComponentInChildren<TMP_Text>();
-							newText.text = ReplaceExpressions(replyCur.m_text, expressionsOrdered);
+							newText.text = ReplaceExpressions(replyCur.m_text, expressionSetsOrdered);
 							RectTransform newTf = newObj.GetComponent<RectTransform>();
 							if (yMargin == -1.0f)
 							{
@@ -417,14 +420,14 @@ public class DialogueController : MonoBehaviour
 		gameObject.SetActive(false);
 	}
 
-	private Line NextLine(out string text, out int textLen, IEnumerable<Dialogue.Expression> expressionsOrdered, Sprite spriteDefault, Color colorDefault)
+	private Line NextLine(out string text, out int textLen, Dialogue.Expression[][] expressionSetsOrdered, Sprite spriteDefault, Color colorDefault)
 	{
 		Line line = m_queue.Count > 0 ? m_queue.Peek() : null;
 		text = m_queueFollowUp != null ? m_queueFollowUp.Peek() : line?.m_text;
 
 		if (!string.IsNullOrEmpty(text))
 		{
-			text = ReplaceExpressions(text, expressionsOrdered);
+			text = ReplaceExpressions(text, expressionSetsOrdered);
 
 			if (!string.IsNullOrEmpty(text)) // NOTE that we handle empty replacements even though we generally don't want to end up w/ an empty string
 			{
@@ -446,11 +449,22 @@ public class DialogueController : MonoBehaviour
 			}
 		}
 
-		// update image if necessary
+		// update image/canvas if necessary
+		void updateWorldspaceCanvas(Transform parent)
+		{
+			Canvas canvas = GetComponent<Canvas>();
+			if (canvas.renderMode != RenderMode.WorldSpace)
+			{
+				return;
+			}
+			canvas.transform.SetParent(parent);
+			canvas.transform.position = new(parent.position.x, parent.GetComponent<Collider2D>().bounds.max.y, parent.position.z);
+		}
 		if (line?.m_source == null)
 		{
 			m_image.sprite = spriteDefault;
 			m_image.color = colorDefault;
+			updateWorldspaceCanvas(Character.transform);
 		}
 		else
 		{
@@ -466,6 +480,7 @@ public class DialogueController : MonoBehaviour
 			{
 				m_image.sprite = sourceInteract.m_dialogueSprite;
 				m_image.color = sourceInteract.GetComponent<SpriteRenderer>().color;
+				updateWorldspaceCanvas(sourceInteract.transform);
 			}
 		}
 		m_image.enabled = m_image.sprite != null;
@@ -475,27 +490,35 @@ public class DialogueController : MonoBehaviour
 		return line;
 	}
 
-	private static string ReplaceExpressions(string text, IEnumerable<Dialogue.Expression> expressionsOrdered)
+	private static string ReplaceExpressions(string text, Dialogue.Expression[][] expressionSetsOrdered)
 	{
-		if (expressionsOrdered == null)
+		if (expressionSetsOrdered == null)
 		{
 			return text;
 		}
 
 		bool foundReplacement = false; // NOTE that this isn't strictly necessary, but safeguards against infinite looping
-		do
+		int setIdx = 0;
+		foreach (Dialogue.Expression[] expressionSet in expressionSetsOrdered)
 		{
-			foreach (Dialogue.Expression expression in expressionsOrdered)
+			if (expressionSet != null)
 			{
-				string keyBracketed = "{" + expression.m_key + "}";
-				if (text.Contains(keyBracketed)) // TODO: reduce redundant searching?
+				do
 				{
-					foundReplacement = true;
-					text = text.ReplaceFirst(keyBracketed, expression.m_replacement);
+					foreach (Dialogue.Expression expression in expressionSet)
+					{
+						string keyBracketed = "{" + expression.m_key + (setIdx > 0 ? setIdx.ToString() : "") + "}";
+						if (text.Contains(keyBracketed)) // TODO: reduce redundant searching?
+						{
+							foundReplacement = true;
+							text = text.ReplaceFirst(keyBracketed, expression.m_replacement);
+						}
+					}
 				}
+				while (foundReplacement && text.Contains('{')); // NOTE that we have to allow looping over expressionSet multiple times since expression replacements can contain keys from earlier in the list
 			}
+			++setIdx;
 		}
-		while (foundReplacement && text.Contains('{')); // NOTE that we have to allow looping over expressionsOrdered[] multiple times since expression replacements can contain keys from earlier in the list
 
 		return text;
 	}

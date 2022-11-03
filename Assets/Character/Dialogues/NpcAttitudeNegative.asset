@@ -74,7 +74,7 @@ MonoBehaviour:
         m_source: {fileID: 0}
         m_sourceDistMax: 0
         m_replies: []
-      - m_text: Hey, whatever floats your boat, {avatar}.
+      - m_text: Hey, whatever floats your boat, {name1}.
         m_source: {fileID: 11400000, guid: f5f7a7ef2e93c6f4b98b9f193e44cb38, type: 2}
         m_sourceDistMax: 0
         m_replies: []

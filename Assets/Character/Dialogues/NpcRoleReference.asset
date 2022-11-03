@@ -214,7 +214,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Alex...
+      - m_text: '{name1}...'
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
@@ -227,7 +227,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Martha...
+      - m_text: '{name1}...'
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
@@ -240,7 +240,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Will...
+      - m_text: '{name1}...'
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []

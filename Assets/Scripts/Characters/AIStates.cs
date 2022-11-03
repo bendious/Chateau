@@ -988,7 +988,7 @@ public sealed class AIFinalDialogue : AIState
 
 		Boss boss = m_ai.GetComponent<Boss>();
 		Dialogue dialogue = boss.m_dialogueFinal;
-		Coroutine dialogueCoroutine = GameController.Instance.m_dialogueController.Play(dialogue.m_dialogue.RandomWeighted().m_lines, m_ai.gameObject, m_ai.m_target.GetComponent<KinematicCharacter>(), boss.m_dialogueSprite, boss.GetComponent<SpriteRenderer>().color, dialogue.m_expressions, boss.m_dialogueSfx.RandomWeighted());
+		Coroutine dialogueCoroutine = GameController.Instance.m_dialogueController.Play(dialogue.m_dialogue.RandomWeighted().m_lines, m_ai.gameObject, m_ai.m_target.GetComponent<KinematicCharacter>(), boss.m_dialogueSprite, boss.GetComponent<SpriteRenderer>().color, boss.m_dialogueSfx.RandomWeighted(), expressionSets: dialogue.m_expressions);
 		m_ai.StartCoroutine(WaitForDialogue(dialogueCoroutine)); // TODO: ensure AIController never accidentally interferes via StopAllCoroutines()?
 	}
 

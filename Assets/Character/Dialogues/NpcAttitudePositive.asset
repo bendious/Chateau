@@ -51,7 +51,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Hey! What are you thinking, {avatar}?
+      - m_text: Hey! What are you thinking, {name1}?
         m_source: {fileID: 0}
         m_sourceDistMax: 0
         m_replies: []
@@ -84,7 +84,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Hey, cheer up already!
+      - m_text: Hey, cheer up already, {name1}!
         m_source: {fileID: 0}
         m_sourceDistMax: 0
         m_replies: []
@@ -105,7 +105,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Hey, cheer up already!
+      - m_text: Hey, cheer up already, {name1}!
         m_source: {fileID: 0}
         m_sourceDistMax: 0
         m_replies: []
@@ -126,7 +126,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Hello, {avatar}!
+      - m_text: Hello, {name1}!
         m_source: {fileID: 0}
         m_sourceDistMax: 0
         m_replies: []

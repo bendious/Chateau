@@ -30,7 +30,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Customization rules, Martha!
+      - m_text: Customization rules, {name1}!
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
@@ -43,7 +43,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Customization rules, Ida!
+      - m_text: Customization rules, {name1}!
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
@@ -56,7 +56,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Customization rules, Will!
+      - m_text: Customization rules, {name1}!
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []

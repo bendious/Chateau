@@ -336,7 +336,7 @@ public class GameController : MonoBehaviour
 				return;
 			}
 
-			m_dialogueController.Play(m_introDialogue.m_dialogue.RandomWeighted().m_lines, expressions: m_introDialogue.m_expressions); // TODO: take any preconditions into account?
+			m_dialogueController.Play(m_introDialogue.m_dialogue.RandomWeighted().m_lines, expressionSets: m_introDialogue.m_expressions); // TODO: take any preconditions into account?
 		}
 
 		if (m_startWavesImmediately)

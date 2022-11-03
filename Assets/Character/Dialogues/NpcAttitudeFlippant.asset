@@ -59,7 +59,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: '{avatar}, chill. You''re scowling so hard I can hear it.'
+      - m_text: '{name1}, chill. You''re scowling so hard I can hear it.'
         m_source: {fileID: 0}
         m_sourceDistMax: 0
         m_replies: []
@@ -76,7 +76,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Hey, {avatar}, you okay?
+      - m_text: Hey, {name1}, you okay?
         m_source: {fileID: 0}
         m_sourceDistMax: 0
         m_replies: []
@@ -93,7 +93,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Calm down, {avatar}.
+      - m_text: Calm down, {name1}.
         m_source: {fileID: 0}
         m_sourceDistMax: 0
         m_replies: []

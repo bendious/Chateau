@@ -40,7 +40,7 @@ public class InteractScene : MonoBehaviour, IInteractable
 		if (m_isSaveDeletion || !GameController.Instance.Victory)
 		{
 			// TODO: visual/audio indicator(s) rather than dialogue for non-Victory refusal?
-			GameController.Instance.m_dialogueController.Play(m_dialogue.m_dialogue.RandomWeighted().m_lines, gameObject, interactor.GetComponent<KinematicCharacter>(), expressions: m_dialogue.m_expressions);
+			GameController.Instance.m_dialogueController.Play(m_dialogue.m_dialogue.RandomWeighted().m_lines, gameObject, interactor.GetComponent<KinematicCharacter>(), expressionSets: m_dialogue.m_expressions);
 			return;
 		}
 

@@ -125,7 +125,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Alex, have you been playing with my stuff again?
+      - m_text: '{name1}, have you been playing with my stuff again?'
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
@@ -147,7 +147,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: 'Ida, I''ve told you a million times: <i>please</i> stop rearranging
+      - m_text: '{name1}, I''ve told you a million times: <i>please</i> stop rearranging
           my supplies!'
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
@@ -170,7 +170,8 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Will, you were rummaging around in my workshop earlier, weren't you?
+      - m_text: '{name1}, you were rummaging around in my workshop earlier, weren''t
+          you?'
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []

@@ -97,7 +97,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Oh, hi Alex.
+      - m_text: Oh, hi {name1}.
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
@@ -110,7 +110,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Martha, do you remember...
+      - m_text: '{name1}, do you remember...'
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
@@ -123,7 +123,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
-      - m_text: Ida, can I get your opinion...
+      - m_text: '{name1}, can I get your opinion...'
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
