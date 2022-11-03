@@ -1494,8 +1494,7 @@ public class RoomController : MonoBehaviour
 
 	private static Bounds ChildBounds(GameObject obj, bool recursive = true, Quaternion? rotation = null)
 	{
-		bool isBoundsRenderer(Renderer r) => r is SpriteRenderer or SpriteMask or MeshRenderer; // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
-		Renderer[] renderers = (recursive ? obj.GetComponentsInChildren<Renderer>().Where(r => isBoundsRenderer(r)) : new Renderer[] { obj.GetComponentsInChildren<Renderer>().First(r => isBoundsRenderer(r)) }).ToArray();
+		Renderer[] renderers = obj.GetComponentsInChildren<Renderer>().Where(r => r is SpriteRenderer or SpriteMask or MeshRenderer).ToArray(); // NOTE that we would just exclude {Trail/VFX}Renderers except that VFXRenderer is inaccessible...
 		Bounds SemiLocalBounds(Renderer r)
 		{
 			Bounds b = r.localBounds;
@@ -1503,10 +1502,13 @@ public class RoomController : MonoBehaviour
 			b.center += r.transform.position - obj.transform.position;
 			return b;
 		}
-		Bounds bboxNew = SemiLocalBounds(renderers.First()); // NOTE that we can't assume the local origin should always be included
-		foreach (Renderer renderer in renderers)
+		Bounds bboxNew = renderers.Length <= 0 ? new(obj.transform.position, Vector3.zero) : SemiLocalBounds(renderers.First()); // NOTE that we can't assume the local origin should always be included
+		if (recursive)
 		{
-			bboxNew.Encapsulate(SemiLocalBounds(renderer));
+			foreach (Renderer renderer in renderers)
+			{
+				bboxNew.Encapsulate(SemiLocalBounds(renderer));
+			}
 		}
 		RectTransform[] tfs = recursive ? obj.GetComponentsInChildren<RectTransform>() : obj.GetComponents<RectTransform>();
 		foreach (RectTransform tf in tfs)

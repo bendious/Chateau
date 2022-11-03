@@ -210,14 +210,20 @@ public sealed class AIFraternize : AIState
 	public float m_postSecMin = 1.0f;
 	public float m_postSecMax = 2.0f;
 
-	public float m_dialoguePct = 0.75f;
+	public float m_wanderPct = 0.5f;
+	public float m_dialoguePct = 1.0f;
 
 	public float m_enemyCheckSecMin = 1.0f;
 	public float m_enemyCheckSecMax = 2.0f;
 
 
+	private const string m_targetName = "AIFraternizeWanderTarget";
+
+
 	private readonly float m_retargetOrigMin;
 	private readonly float m_retargetOrigMax;
+
+	private GameObject m_wanderTarget; // NOTE that we can't just track a managed object via m_ai.m_target since that can be reset in other places
 
 	private float m_postSecRemaining;
 	private bool m_shouldStartDialogue;
@@ -230,19 +236,21 @@ public sealed class AIFraternize : AIState
 	{
 		m_retargetOrigMin = m_ai.m_replanSecondsMin;
 		m_retargetOrigMax = m_ai.m_replanSecondsMax;
-
-		ResetEnemyCheckTime();
 	}
 
 	public override void Enter()
 	{
 		base.Enter();
 
+		m_wanderTarget = Random.value <= m_wanderPct ? new(m_targetName) : null;
+
 		m_postSecRemaining = Random.Range(m_postSecMin, m_postSecMax);
-		m_shouldStartDialogue = Random.value <= m_dialoguePct;
+		m_shouldStartDialogue = m_wanderTarget == null && Random.value <= m_dialoguePct;
 
 		m_ai.m_replanSecondsMin = m_retargetSecMin;
 		m_ai.m_replanSecondsMax = m_retargetSecMax;
+
+		ResetEnemyCheckTime();
 	}
 
 	public override AIState Update()
@@ -292,6 +300,21 @@ public sealed class AIFraternize : AIState
 		return this;
 	}
 
+	public override void Retarget()
+	{
+		if (m_wanderTarget != null)
+		{
+			Debug.Assert(m_wanderTarget.name == m_targetName);
+			Transform targetTf = m_wanderTarget.transform;
+			targetTf.position = GameController.Instance.RandomReachableRoom(m_ai, m_ai.gameObject, true).InteriorPosition(m_ai.HasFlying ? float.MaxValue : 0.0f);
+			m_ai.m_target = targetTf; // NOTE that we have to set this each time since m_target can be reset elsewhere
+		}
+		else
+		{
+			base.Retarget();
+		}
+	}
+
 	public override void Exit()
 	{
 		base.Exit();
@@ -299,6 +322,12 @@ public sealed class AIFraternize : AIState
 		m_ai.m_replanSecondsMin = m_retargetOrigMin;
 		m_ai.m_replanSecondsMax = m_retargetOrigMax;
 		m_ai.m_target = null; // to prevent subsequent states aiming at / attacking friendlies
+
+		if (m_wanderTarget != null)
+		{
+			Debug.Assert(m_wanderTarget.name == m_targetName);
+			Simulation.Schedule<ObjectDespawn>().m_object = m_wanderTarget;
+		}
 	}
 
 

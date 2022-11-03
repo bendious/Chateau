@@ -330,7 +330,7 @@ public sealed class AIController : KinematicCharacter
 		bool isStartingPoint = false;
 		if (m_pathfindTimeNext <= Time.time || (m_pathfindWaypoints != null && m_pathfindWaypoints.Count > 0 && Vector2.Distance(m_target.transform.position, m_pathfindWaypoints.Last()) > targetOffsetAbs.magnitude + Mathf.Max(0.0f, m_meleeRange))) // TODO: better re-plan trigger(s) (more precise as distance remaining decreases); avoid trying to go past moving targets?
 		{
-			System.Tuple<List<Vector2>, float> path = GameController.Instance.Pathfind(gameObject, m_target.gameObject, Bounds.extents.y, !HasFlying && jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue, targetOffsetAbs, RoomController.PathFlags.ObstructionCheck | (HasFlying ? RoomController.PathFlags.IgnoreGravity : RoomController.PathFlags.None)); // TODO: limit to max jump height once pathfinding takes platforms into account? prevent pathing beyond a threshold distance?
+			System.Tuple<List<Vector2>, float> path = Pathfind(gameObject, m_target.gameObject, targetOffsetAbs);
 			m_pathfindWaypoints = path?.Item1;
 			isStartingPoint = true;
 			if (m_pathfindWaypoints == null)
@@ -421,6 +421,8 @@ public sealed class AIController : KinematicCharacter
 
 		return m_pathfindWaypoints.Count == 0;
 	}
+
+	public System.Tuple<List<Vector2>, float> Pathfind(GameObject startObj, GameObject endObj, Vector2 targetOffsetAbs) => GameController.Instance.Pathfind(startObj, endObj, Bounds.extents.y, !HasFlying && jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue, targetOffsetAbs, RoomController.PathFlags.ObstructionCheck | (HasFlying ? RoomController.PathFlags.IgnoreGravity : RoomController.PathFlags.None)); // TODO: limit to max jump height once pathfinding takes platforms into account? prevent pathing beyond a threshold distance?
 
 	public void ClearPath(bool immediateRepath)
 	{

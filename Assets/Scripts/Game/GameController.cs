@@ -475,6 +475,8 @@ public class GameController : MonoBehaviour
 
 	public RoomController RoomFromPosition(Vector2 position) => m_startRoom.FromPosition(position); // TODO: work even when disconnected from start room?
 
+	public RoomController RandomReachableRoom(AIController ai, GameObject endpointObj, bool endpointIsStart) => m_startRoom.WithDescendants.Where(room => ai.Pathfind(endpointIsStart ? endpointObj : room.gameObject, endpointIsStart ? room.gameObject : endpointObj, Vector2.zero) != null).Random();
+
 	public System.Tuple<List<Vector2>, float> Pathfind(GameObject start, GameObject target, float extentY = -1.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, RoomController.PathFlags flags = RoomController.PathFlags.ObstructionCheck)
 	{
 		RoomController startRoom = RoomFromPosition(start.transform.position); // TODO: use closest bbox point?
@@ -1139,9 +1141,9 @@ public class GameController : MonoBehaviour
 
 	private void SpawnEnemy(AIController enemyPrefab)
 	{
-		RoomController spawnRoom = m_waveSealing ? RoomFromPosition(m_avatars.Random().transform.position) : m_startRoom.WithDescendants.Random(); // TODO: efficiency? restrict to currently reachable rooms?
-		Vector3 spawnPos = spawnRoom.SpawnPointRandom();
-		AIController enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+		AvatarController targetAvatar = m_avatars.Random();
+		RoomController spawnRoom = m_waveSealing ? RoomFromPosition(targetAvatar.transform.position) : RandomReachableRoom(enemyPrefab, targetAvatar.gameObject, false);
+		AIController enemy = Instantiate(enemyPrefab, spawnRoom.SpawnPointRandom(), Quaternion.identity);
 		EnemyAdd(enemy);
 		if (m_waveSealing) // NOTE that for non-sealed zones we don't invoke EnemyAddToWave() directly anymore, since we aren't guaranteed to be within reach of the avatar(s) - instead it will occur through AIController.NavigateTowardTarget(); however, we still need instantly active enemies in sealed zones to avoid immediately un-sealing during single-enemy waves
 		{
