@@ -55,7 +55,7 @@ public class DialogueController : MonoBehaviour
 	private Transform ReplyParentTf => m_replyTemplate.transform.parent;
 
 
-	private static readonly Regex m_tagMatcher = new(@"<(.+)>.*</\1>");
+	private static readonly Regex m_tagMatcher = new(@"<(.+)>.*?</\1>"); // NOTE the lazy rather than greedy wildcard matching to prevent multiple sets of identical tags being combined into one group // TODO: handle identical nested tags?
 
 	private AudioSource m_audio;
 
@@ -317,14 +317,14 @@ public class DialogueController : MonoBehaviour
 				m_lastRevealTime += revealDurationCur * numToReveal;
 
 				// ensure matching tags
-				// TODO: only parse newly added characters? handle multiple sets of tags w/i a single line?
+				// TODO: only parse newly added characters?
 				tagCharCount = 0;
 				List<string> endTags = new();
 				MatchCollection matches = m_tagMatcher.Matches(textCur);
 				foreach (Match match in matches)
 				{
 					Debug.Assert(match.Success);
-					if (match.Index < m_revealedCharCount)
+					if (match.Index < m_revealedCharCount + tagCharCount)
 					{
 						string endTag = "</" + match.Groups[1] + ">";
 						tagCharCount += endTag.Length - 1; // -1 due to '/' not being contained in opening tag
