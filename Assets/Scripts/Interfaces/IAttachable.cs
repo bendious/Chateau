@@ -46,8 +46,10 @@ public interface IAttachable
 		(attachableComp as MonoBehaviour).StartCoroutine(attachable.MirrorParentAlphaCoroutine());
 	}
 
-	public static void DetachInternalShared(GameObject attachableObj)
+	public static void DetachInternalShared(IAttachable attachable)
 	{
+		GameObject attachableObj = attachable.Component.gameObject;
+		Transform holderTf = attachableObj.transform.parent;
 		attachableObj.transform.SetParent(null);
 
 		Rigidbody2D body = attachableObj.GetComponent<Rigidbody2D>();
@@ -57,6 +59,12 @@ public interface IAttachable
 		// "cancel" the effect of DontDestroyOnLoad() in case we were attached to the avatar
 		// see https://answers.unity.com/questions/1491238/undo-dontdestroyonload.html
 		SceneManager.MoveGameObjectToScene(attachableObj, SceneManager.GetActiveScene());
+
+		AvatarController avatar = holderTf == null ? null : holderTf.GetComponent<AvatarController>();
+		if (avatar != null)
+		{
+			avatar.InventorySync();
+		}
 
 		// NOTE that we rely upon MirrorParentAlphaCoroutine() terminating itself rather than tracking and canceling it here
 	}

@@ -348,10 +348,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		return false;
 	}
 
-	public void ChildDetach(IAttachable attachable, bool noAutoReplace)
-	{
-		IHolder.ChildDetachInternal(attachable, this, noAutoReplace);
-	}
+	public void ChildDetach(IAttachable attachable, bool noAutoReplace) => IHolder.ChildDetachInternal(attachable, this, noAutoReplace);
 
 	public void DetachAll()
 	{

@@ -50,7 +50,7 @@ public interface IHolder
 
 	protected static void ChildDetachInternal(IAttachable attachable, IHolder holder, bool noAutoReplace)
 	{
-		IAttachable.DetachInternalShared(attachable.Component.gameObject);
+		IAttachable.DetachInternalShared(attachable);
 
 		if (noAutoReplace)
 		{
