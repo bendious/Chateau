@@ -345,7 +345,7 @@ public class GameController : MonoBehaviour
 			StartWaves();
 		}
 
-		if (m_quitText != null)
+		if (m_quitText != null || m_avatars.Count <= 0)
 		{
 			GetComponent<PlayerInputManager>().EnableJoining();
 		}

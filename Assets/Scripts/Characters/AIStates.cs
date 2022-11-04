@@ -822,6 +822,11 @@ public sealed class AIFindAmmo : AIState
 			{
 				return float.MaxValue; // ignore held items
 			}
+			Hazard hazard = item.GetComponent<Hazard>();
+			if (hazard != null && hazard.isActiveAndEnabled)
+			{
+				return float.MaxValue; // ignore hazardous items
+			}
 			return PathfindDistanceTo(m_ai, item.gameObject);
 		});
 

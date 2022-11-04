@@ -123,8 +123,60 @@ PrefabInstance:
         <sprite index=5>: arm and drop'
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_useSFX.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_swingInfo.m_damage
       value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_useSFX.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 8300000, guid: e3276f249f715ee4dbf23ba3ead85be9, type: 3}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_useSFX.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_useSFX.Array.data[1].m_object
+      value: 
+      objectReference: {fileID: 8300000, guid: a89c4ed25efc025489cd69d34bc3a5fa, type: 3}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_useSFX.Array.data[1].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_useSFX.Array.data[2].m_object
+      value: 
+      objectReference: {fileID: 8300000, guid: 76efdb11e3ed497489d20a005ee15d57, type: 3}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_useSFX.Array.data[2].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_useSFX.Array.data[3].m_object
+      value: 
+      objectReference: {fileID: 8300000, guid: 1c96aa8c2c44f2649a381df75fddbb4b, type: 3}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_useSFX.Array.data[3].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_useSFX.Array.data[4].m_object
+      value: 
+      objectReference: {fileID: 8300000, guid: ae00b11a9d6f0eb41bcb535887e14b03, type: 3}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_useSFX.Array.data[4].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_useSFX.Array.data[5].m_object
+      value: 
+      objectReference: {fileID: 8300000, guid: d21e5709dc4d0634b92152a51fbf98c3, type: 3}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_useSFX.Array.data[5].m_weight
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}

@@ -29,6 +29,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	[SerializeField] private float m_healSeconds = 3.0f;
 	[SerializeField] private float m_impactAudioRepeatSeconds = 0.25f;
 	[SerializeField] private UnityEngine.Rendering.Universal.Light2D m_toggleLight;
+	[SerializeField] private WeightedObject<AudioClip>[] m_useSFX;
 
 	public bool m_detachOnDamage = false; // TODO: cumulative damage threshold?
 	[SerializeField] private bool m_keyDestroyAfterUse = true;
@@ -333,6 +334,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	public bool Use(bool isPressed)
 	{
+		if (m_useSFX.Length > 0)
+		{
+			m_audioSource.PlayOneShot(m_useSFX.RandomWeighted());
+		}
+
 		if (m_healAmount > 0)
 		{
 			Health causeHealth = Cause.GetComponent<Health>();
@@ -392,6 +398,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		if (isPressed && m_hazard != null)
 		{
 			m_hazard.enabled = true;
+			EnableCollision.TemporarilyDisableCollision(Cause.GetComponentsInChildren<Collider2D>(), m_colliders, 0.5f); // TODO: parameterize time?
 			Detach(false);
 			return true;
 		}
