@@ -245,11 +245,11 @@ public class LockController : MonoBehaviour, IUnlockable
 			}
 			if (m_keySpeedMin > 0.0f)
 			{
-				if (key.Component.transform.parent != null)
+				if (obj.transform.parent != null)
 				{
 					return false;
 				}
-				Rigidbody2D body = key.Component.GetComponent<Rigidbody2D>();
+				Rigidbody2D body = obj.GetComponent<Rigidbody2D>();
 				if (body == null || body.velocity.magnitude < m_keySpeedMin)
 				{
 					return false;
