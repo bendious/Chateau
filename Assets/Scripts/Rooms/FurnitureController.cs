@@ -20,6 +20,9 @@ public class FurnitureController : MonoBehaviour
 	[SerializeField] private WeightedObject<GameObject>[] m_itemRarePrefabs;
 
 
+	private Vector2 m_sizePcts;
+
+
 	private void Start()
 	{
 		GetComponent<SpriteRenderer>().flipX = Random.value < 0.5f; // TODO: align w/ nearer wall?
@@ -29,8 +32,9 @@ public class FurnitureController : MonoBehaviour
 	public float RandomizeSize(Vector2 roomExtents)
 	{
 		// randomize size
-		float width = Random.Range(m_sizeMin.x, Mathf.Min(m_sizeMax.x, roomExtents.x));
-		float heightTotal = Random.Range(m_sizeMin.y, Mathf.Min(m_sizeMax.y, roomExtents.y));
+		m_sizePcts = new(Random.value, Random.value);
+		float width = Mathf.Lerp(m_sizeMin.x, Mathf.Min(m_sizeMax.x, roomExtents.x), m_sizePcts.x);
+		float heightTotal = Mathf.Lerp(m_sizeMin.y, Mathf.Min(m_sizeMax.y, roomExtents.y), m_sizePcts.y);
 
 		// apply size evenly across pieces
 		// TODO: don't assume even stacking?
@@ -132,7 +136,7 @@ public class FurnitureController : MonoBehaviour
 	protected int ItemCount(int itemCountExisting, int furnitureRemaining, RoomType roomType)
 	{
 		int minItemsOtherFurniture = itemCountExisting + furnitureRemaining * m_itemsMin; // TODO: don't assume all future furniture will have the same m_itemsMin
-		return Random.Range(Mathf.Max(m_itemsMin, roomType.m_itemsMin - minItemsOtherFurniture), Mathf.Min(m_itemsMax, roomType.m_itemsMax - minItemsOtherFurniture) + 1); // TODO: correlate w/ size?
+		return Mathf.RoundToInt(Mathf.Lerp(Mathf.Max(m_itemsMin, roomType.m_itemsMin - minItemsOtherFurniture), Mathf.Min(m_itemsMax, roomType.m_itemsMax - minItemsOtherFurniture) + 1, Mathf.Min(1.0f, m_sizePcts.magnitude))); // TODO: correlate total item value/size w/ furniture size?
 	}
 
 
