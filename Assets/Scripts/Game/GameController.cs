@@ -70,6 +70,7 @@ public class GameController : MonoBehaviour
 	[SerializeField] private Animator m_timerAnimator;
 	[SerializeField] private GameObject m_startUI;
 	[SerializeField] private Canvas m_pauseUI;
+	[SerializeField] private TMPro.TMP_Text m_quitText;
 	public Canvas m_gameOverUI;
 
 	[SerializeField] private Dialogue m_introDialogue;
@@ -344,6 +345,11 @@ public class GameController : MonoBehaviour
 			StartWaves();
 		}
 
+		if (m_quitText != null)
+		{
+			GetComponent<PlayerInputManager>().EnableJoining();
+		}
+
 		StartCoroutine(FadeCoroutine(false));
 
 		IsSceneLoad = false;
@@ -374,7 +380,19 @@ public class GameController : MonoBehaviour
 	private void OnPlayerJoined(PlayerInput player)
 	{
 		// NOTE that we can place this here since OnPlayerJoined() is called even if the avatar object(s) is/are carried over from a previously loaded scene
-		m_startUI.SetActive(false);
+		if (m_quitText != null && m_avatars.Count <= 0)
+		{
+			// move/update start text to indicate possibility of co-op
+			m_startUI.GetComponentInChildren<TMPro.TMP_Text>().text = "2nd player: Press Start";
+			RectTransform rectTf = m_startUI.GetComponent<RectTransform>();
+			rectTf.anchorMin = Vector2.one;
+			rectTf.anchorMax = Vector2.one;
+			rectTf.pivot = Vector2.one;
+		}
+		else
+		{
+			m_startUI.SetActive(false);
+		}
 		if (!m_startWavesImmediately && m_enemyPrefabs.Length > 0 && m_waveSecondsMin > 0.0f && m_avatars.Count == 0)
 		{
 			StartWaves();
@@ -415,6 +433,11 @@ public class GameController : MonoBehaviour
 						tf.anchoredPosition *= new Vector2(-1.0f, 1.0f);
 					}
 				}
+				if (m_quitText != null)
+				{
+					m_quitText.text = "Exit Co-op";
+				}
+				GetComponent<PlayerInputManager>().DisableJoining(); // NOTE that we don't just use PlayerInputManager's max player count since that was giving an error when/after reaching the max
 			}
 
 			// NOTE that we don't replace the whole m_Targets array in case a non-avatar object is also present
@@ -440,6 +463,12 @@ public class GameController : MonoBehaviour
 		Simulation.Schedule<ObjectDespawn>().m_object = player.gameObject;
 		m_avatars.Remove(player.GetComponent<AvatarController>());
 		// TODO: clean up camera targeting?
+
+		if (m_avatars.Count <= 1 && m_quitText != null)
+		{
+			m_quitText.text = "Quit";
+		}
+		GetComponent<PlayerInputManager>().EnableJoining();
 	}
 
 	private void OnApplicationFocus(bool focus)

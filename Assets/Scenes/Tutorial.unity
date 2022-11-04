@@ -159,6 +159,10 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_quitText
+      value: 
+      objectReference: {fileID: 1869457613}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_allowCutbacks
       value: 0
       objectReference: {fileID: 0}
@@ -676,3 +680,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+--- !u!114 &1869457613 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4597435333137130887, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+  m_PrefabInstance: {fileID: 1869457612}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
