@@ -11,6 +11,7 @@ public class Boss : MonoBehaviour
 
 	[SerializeField] private float m_smoothTimeSlow = 0.5f;
 	[SerializeField] private float m_lightIntensityFinal = 1.0f;
+	[SerializeField] private float m_floatHeight = 4.5f;
 
 	[SerializeField] private Dialogue m_dialogue;
 	public Dialogue m_dialogueFinal;
@@ -189,16 +190,19 @@ public class Boss : MonoBehaviour
 		// enable components needed after color/visibility change
 		GetComponent<Collider2D>().enabled = true;
 
-		// float into air
-		m_ai.gravityModifier = 0.0f;
-		float yTarget = transform.position.y + 4.5f; // TODO: unhardcode?
-		float ySpeedCur = 0.0f;
-		while (!transform.position.y.FloatEqual(yTarget))
+		if (m_floatHeight > 0.0f)
 		{
-			Vector3 pos = transform.position;
-			pos.y = Mathf.SmoothDamp(transform.position.y, yTarget, ref ySpeedCur, m_smoothTimeSlow);
-			transform.position = pos;
-			yield return null;
+			// float into air
+			m_ai.gravityModifier = 0.0f;
+			float yTarget = transform.position.y + m_floatHeight;
+			float ySpeedCur = 0.0f;
+			while (!transform.position.y.FloatEqual(yTarget))
+			{
+				Vector3 pos = transform.position;
+				pos.y = Mathf.SmoothDamp(transform.position.y, yTarget, ref ySpeedCur, m_smoothTimeSlow);
+				transform.position = pos;
+				yield return null;
+			}
 		}
 
 		// reveal arms / roll eyes
