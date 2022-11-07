@@ -12,6 +12,8 @@ public class Boss : MonoBehaviour
 	[SerializeField] private float m_smoothTimeSlow = 0.5f;
 	[SerializeField] private float m_lightIntensityFinal = 1.0f;
 	[SerializeField] private float m_floatHeight = 4.5f;
+	[SerializeField] private float m_blinkSecondsMin = 0.5f;
+	[SerializeField] private float m_blinkSecondsMax = 10.0f;
 
 	[SerializeField] private Dialogue m_dialogue;
 	public Dialogue m_dialogueFinal;
@@ -156,11 +158,14 @@ public class Boss : MonoBehaviour
 
 		// enable initially disabled components
 		SpriteMask mask = GetComponent<SpriteMask>();
+		Animator animator = GetComponent<Animator>();
 		if (mask != null)
 		{
 			mask.enabled = true;
+			StartCoroutine(EyeManagementCoroutine(mask, animator)); // TODO: parameterize/vary?
 		}
 		m_health.m_gradientActive = true;
+		animator.enabled = true;
 
 		// recolor
 		SpriteRenderer[] bossRenderers = GetComponentsInChildren<SpriteRenderer>().Where(renderer =>
@@ -222,5 +227,24 @@ public class Boss : MonoBehaviour
 		m_ai.m_passive = false;
 		GameController.Instance.EnemyAdd(m_ai);
 		GameController.Instance.EnemyAddToWave(m_ai);
+	}
+
+	private IEnumerator EyeManagementCoroutine(SpriteMask mask, Animator animator)
+	{
+		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+		float blinkTimeNext = Time.time + Random.Range(m_blinkSecondsMax * 0.5f, m_blinkSecondsMax); // TODO: better initial minimum based on intro length?
+
+		while (true)
+		{
+			mask.sprite = renderer.sprite;
+
+			if (Time.time >= blinkTimeNext)
+			{
+				animator.SetTrigger("blink"); // TODO: un-hardcode?
+				blinkTimeNext = Time.time + Random.Range(m_blinkSecondsMin, m_blinkSecondsMax);
+			}
+
+			yield return null;
+		}
 	}
 }

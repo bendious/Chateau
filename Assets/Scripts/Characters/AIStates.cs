@@ -1019,6 +1019,7 @@ public sealed class AIFinalDialogue : AIState
 		// NOTE that we deliberately don't invoke base.Enter() since we don't want the usual retargeting behavior
 
 		GameController.Instance.GetComponent<MusicManager>().FadeOut(m_musicFadeOutSeconds);
+		m_ai.GetComponent<Health>().m_invincible = true;
 
 		Boss boss = m_ai.GetComponent<Boss>();
 		Dialogue dialogue = boss.m_dialogueFinal;
@@ -1043,6 +1044,8 @@ public sealed class AIFinalDialogue : AIState
 
 		return this; // NOTE that we never exit until character despawn
 	}
+
+	public override AIState OnDamage(GameObject source, float amountUnscaled) => this;
 
 	public override void Exit()
 	{

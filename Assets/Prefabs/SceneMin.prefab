@@ -1474,6 +1474,7 @@ MonoBehaviour:
   m_startUI: {fileID: 3001265745151133835}
   m_pauseUI: {fileID: 8953914197898318485}
   m_quitText: {fileID: 0}
+  m_inputManager: {fileID: 5490871640693437359}
   m_gameOverUI: {fileID: 8429885465154309406}
   m_introDialogue: {fileID: 11400000, guid: 49cf0fd5821245c4e872afae77032026, type: 2}
   m_materialSystem: {fileID: 11400000, guid: 17f41ccd08cb0cb40a164c155fdf365d, type: 2}

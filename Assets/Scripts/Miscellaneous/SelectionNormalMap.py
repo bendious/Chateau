@@ -7,7 +7,7 @@ import math
 
 def IsNotSelected(image, layer, x, y):
 	# TODO: option to wrap edges?
-	return x < 0 or y < 0 or x >= layer.width or y >= layer.height or image.selection.get_pixel(x, y)[0] < 128
+	return x < 0 or y < 0 or x >= layer.width or y >= layer.height or image.selection.get_pixel(x, y)[0] < 128 # TODO: don't assume equivalent image/layer sizes
 
 def EdgeRange(edgeWidth, stepSize):
 	return range(1, int(edgeWidth / stepSize) + 1) # TODO: round?
@@ -46,9 +46,9 @@ def CheckEdge(image, layer, x, y, pixel, xDiff, yDiff, invert):
 
 def SelectionNormalMap(image, layerOrChannel, edgeWidth, stepSize, fromCenter, centerX, centerY, linearFalloff, invert):
 	# create new layer to copy to for safety
-	layer = gimp.Layer(image, "selectionNormalMap", layerOrChannel.width, layerOrChannel.height, RGBA_IMAGE)
+	layer = gimp.Layer(image, "selectionNormalMap", layerOrChannel.width, layerOrChannel.height, RGBA_IMAGE) # TODO: don't assume equivalent image/layer sizes
 	
-	for x in range(layer.width):
+	for x in range(layer.width): # TODO: don't assume equivalent image/layer sizes
 		for y in range(layer.height):
 			if (IsNotSelected(image, layer, x, y)):
 				layer.set_pixel(x, y, (0, 0, 0, 0))

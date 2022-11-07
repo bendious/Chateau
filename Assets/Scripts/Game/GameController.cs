@@ -71,6 +71,7 @@ public class GameController : MonoBehaviour
 	[SerializeField] private GameObject m_startUI;
 	[SerializeField] private Canvas m_pauseUI;
 	[SerializeField] private TMPro.TMP_Text m_quitText;
+	[SerializeField] private PlayerInputManager m_inputManager;
 	public Canvas m_gameOverUI;
 
 	[SerializeField] private Dialogue m_introDialogue;
@@ -345,9 +346,9 @@ public class GameController : MonoBehaviour
 			StartWaves();
 		}
 
-		if (m_quitText != null || m_avatars.Count <= 0)
+		if ((m_quitText != null || m_avatars.Count <= 0) && m_inputManager != null)
 		{
-			GetComponent<PlayerInputManager>().EnableJoining();
+			m_inputManager.EnableJoining();
 		}
 
 		StartCoroutine(FadeCoroutine(false));
@@ -437,7 +438,10 @@ public class GameController : MonoBehaviour
 				{
 					m_quitText.text = "Exit Co-op";
 				}
-				GetComponent<PlayerInputManager>().DisableJoining(); // NOTE that we don't just use PlayerInputManager's max player count since that was giving an error when/after reaching the max
+				if (m_inputManager != null)
+				{
+					m_inputManager.DisableJoining(); // NOTE that we don't just use PlayerInputManager's max player count since that was giving an error when/after reaching the max
+				}
 			}
 
 			// NOTE that we don't replace the whole m_Targets array in case a non-avatar object is also present
@@ -468,7 +472,10 @@ public class GameController : MonoBehaviour
 		{
 			m_quitText.text = "Quit";
 		}
-		GetComponent<PlayerInputManager>().EnableJoining();
+		if (m_inputManager != null)
+		{
+			m_inputManager.EnableJoining();
+		}
 	}
 
 	private void OnApplicationFocus(bool focus)
@@ -579,7 +586,10 @@ public class GameController : MonoBehaviour
 
 	public void OnLastAvatarDeath()
 	{
-		GetComponent<PlayerInputManager>().DisableJoining();
+		if (m_inputManager != null)
+		{
+			m_inputManager.DisableJoining();
+		}
 		Simulation.Schedule<GameOver>(3.0f); // TODO: time via animation event?
 	}
 
@@ -611,7 +621,10 @@ public class GameController : MonoBehaviour
 			}
 			Simulation.Schedule<DebugRespawn>();
 			StartCoroutine(ActivateMenuCoroutine(m_gameOverUI, false));
-			GetComponent<PlayerInputManager>().EnableJoining();
+			if (m_inputManager != null)
+			{
+				m_inputManager.EnableJoining();
+			}
 			return;
 		}
 
@@ -1038,7 +1051,7 @@ public class GameController : MonoBehaviour
 
 	private void ApplyUpgrades(AvatarController avatar)
 	{
-		GameObject avatarObjOrig = GetComponent<PlayerInputManager>().playerPrefab;
+		GameObject avatarObjOrig = m_inputManager.playerPrefab;
 
 		// health
 		Health health = avatar.GetComponent<Health>();
@@ -1170,8 +1183,8 @@ public class GameController : MonoBehaviour
 
 	private void SpawnEnemy(AIController enemyPrefab)
 	{
-		AvatarController targetAvatar = m_avatars.Random();
-		RoomController spawnRoom = m_waveSealing ? RoomFromPosition(targetAvatar.transform.position) : RandomReachableRoom(enemyPrefab, targetAvatar.gameObject, false);
+		KinematicCharacter target = m_avatars.Count <= 0 ? AiTargets.FirstOrDefault(t => t is AIController ai && ai.m_friendly) : m_avatars.Random();
+		RoomController spawnRoom = target == null ? m_startRoom.WithDescendants.Random() : m_waveSealing ? RoomFromPosition(target.transform.position) : RandomReachableRoom(enemyPrefab, target.gameObject, false);
 		AIController enemy = Instantiate(enemyPrefab, spawnRoom.SpawnPointRandom(), Quaternion.identity);
 		EnemyAdd(enemy);
 		if (m_waveSealing) // NOTE that for non-sealed zones we don't invoke EnemyAddToWave() directly anymore, since we aren't guaranteed to be within reach of the avatar(s) - instead it will occur through AIController.NavigateTowardTarget(); however, we still need instantly active enemies in sealed zones to avoid immediately un-sealing during single-enemy waves
