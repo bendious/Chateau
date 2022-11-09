@@ -272,20 +272,20 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 			return false;
 		}
 
-		return character.m_health.Decrement(gameObject, damage, m_contactDamageType);
+		return character.m_health.Decrement(gameObject, gameObject, damage, m_contactDamageType);
 	}
 
 
 	private void OnDamage(OnHealthDecrement evt)
 	{
-		if (evt.m_health.gameObject != gameObject || evt.m_damageSource == null || evt.m_amountUnscaled < m_health.m_minorDamageThreshold)
+		if (evt.m_health.gameObject != gameObject || evt.m_directCause == null || evt.m_amountUnscaled < m_health.m_minorDamageThreshold)
 		{
 			return;
 		}
 
 		// knock away from source
 		// TODO: differentiate between source and weapon?
-		Vector2 bounceVecOriented = transform.position.x < evt.m_damageSource.transform.position.x ? new(-m_damageBounceMagnitude.x, m_damageBounceMagnitude.y) : m_damageBounceMagnitude;
+		Vector2 bounceVecOriented = transform.position.x < evt.m_directCause.transform.position.x ? new(-m_damageBounceMagnitude.x, m_damageBounceMagnitude.y) : m_damageBounceMagnitude;
 		Bounce(bounceVecOriented);
 	}
 

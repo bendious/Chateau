@@ -66,7 +66,7 @@ public class Hazard : MonoBehaviour
 		{
 			return;
 		}
-		health.Decrement(gameObject, m_damage, m_type);
+		health.Decrement(gameObject, gameObject, m_damage, m_type);
 
 		if (m_damageImpulse != Vector2.zero)
 		{

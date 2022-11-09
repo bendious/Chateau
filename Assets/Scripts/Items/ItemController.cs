@@ -530,11 +530,11 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			{
 				if (otherHealth != null)
 				{
-					otherHealth.Decrement(Cause != null ? Cause.gameObject : gameObject, m_swingInfo.m_damage, m_swingInfo.m_damageType);
+					otherHealth.Decrement(Cause != null ? Cause.gameObject : gameObject, gameObject, m_swingInfo.m_damage, m_swingInfo.m_damageType);
 				}
 				if (m_health != null && !collider.isTrigger)
 				{
-					m_health.Decrement(gameObject, m_damageSelf, Health.DamageType.Generic);
+					m_health.Decrement(gameObject, collider.gameObject, m_damageSelf, Health.DamageType.Generic);
 				}
 				if (m_detachOnDamage && !collider.isTrigger)
 				{

@@ -99,7 +99,7 @@ public class Health : MonoBehaviour
 		CurrentHP = m_maxHP - diff;
 		if (CurrentHP <= 0.0f)
 		{
-			Decrement(null, 0.0f, DamageType.Generic); // TODO: split out death function?
+			Decrement(null, null, 0.0f, DamageType.Generic); // TODO: split out death function?
 		}
 	}
 
@@ -111,7 +111,7 @@ public class Health : MonoBehaviour
 	/// <summary>
 	/// Decrement the HP of the entity.
 	/// </summary>
-	public virtual bool Decrement(GameObject source, float amount, DamageType type) // TODO: types[]?
+	public virtual bool Decrement(GameObject source, GameObject directCause, float amount, DamageType type) // TODO: types[]?
 	{
 		bool notMinor = amount >= m_minorDamageThreshold;
 		bool mergeWithPrevious = notMinor && amount > m_lastDamageAmount && m_lastDamageAmount >= m_minorDamageThreshold && m_lastDamageTime + m_damageMergeSeconds >= Time.time;
@@ -173,6 +173,7 @@ public class Health : MonoBehaviour
 		OnHealthDecrement evt = Simulation.Schedule<OnHealthDecrement>();
 		evt.m_health = this;
 		evt.m_damageSource = source;
+		evt.m_directCause = directCause;
 		evt.m_amountUnscaled = amount; // TODO: also give access to amountFinal?
 
 		// effects

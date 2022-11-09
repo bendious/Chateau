@@ -83,6 +83,6 @@ public class Explosion : MonoBehaviour
 		{
 			return;
 		}
-		health.Decrement(m_source == null ? gameObject : m_source.gameObject, m_damage, m_damageType);
+		health.Decrement(m_source == null ? gameObject : m_source.gameObject, gameObject, m_damage, m_damageType);
 	}
 }

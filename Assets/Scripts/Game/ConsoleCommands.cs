@@ -88,7 +88,7 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 			}
 			else
 			{
-				avatarHealth.Decrement(gameObject, 1.0f, Health.DamageType.Generic);
+				avatarHealth.Decrement(gameObject, null, 1.0f, Health.DamageType.Generic);
 			}
 		});
 		m_controls.Console.SpawnEnemy.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.DebugSpawnEnemy(Mathf.RoundToInt(m_controls.Console.SpawnEnemy.ReadValue<float>()) % 10));

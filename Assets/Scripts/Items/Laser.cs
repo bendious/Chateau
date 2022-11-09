@@ -86,7 +86,7 @@ public class Laser : MonoBehaviour
 			m_secondsAccum += Time.deltaTime;
 			if (m_secondsAccum > m_warmupSeconds)
 			{
-				m_target.Decrement(m_causeObjMostRecent, m_damagePerSecond * Time.deltaTime, m_damageType);
+				m_target.Decrement(m_causeObjMostRecent, gameObject, m_damagePerSecond * Time.deltaTime, m_damageType);
 			}
 		}
 		else

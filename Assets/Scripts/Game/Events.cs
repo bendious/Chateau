@@ -78,6 +78,7 @@ public class OnHealthDecrement : Event<OnHealthDecrement>
 {
 	public Health m_health;
 	public GameObject m_damageSource;
+	public GameObject m_directCause;
 	public float m_amountUnscaled;
 
 	public override void Execute() { }

@@ -747,7 +747,7 @@ public class GameController : MonoBehaviour
 	{
 		foreach (AIController enemy in m_enemies)
 		{
-			enemy.GetComponent<Health>().Decrement(null, float.MaxValue, Health.DamageType.Generic);
+			enemy.GetComponent<Health>().Decrement(gameObject, null, float.MaxValue, Health.DamageType.Generic);
 		}
 	}
 

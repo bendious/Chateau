@@ -133,7 +133,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 			Health otherHealth = collision.gameObject.GetComponent<Health>();
 			if (otherHealth != null)
 			{
-				otherHealth.Decrement(transform.parent.gameObject, m_swingInfoCur.m_damage, m_swingInfoCur.m_damageType);
+				otherHealth.Decrement(transform.parent.gameObject, gameObject, m_swingInfoCur.m_damage, m_swingInfoCur.m_damageType);
 			}
 		}
 	}
