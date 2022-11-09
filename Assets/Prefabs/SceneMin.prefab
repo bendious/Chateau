@@ -5065,6 +5065,7 @@ GameObject:
   - component: {fileID: 4951105184621155191}
   - component: {fileID: 5837914634819301278}
   - component: {fileID: 1473605297054294309}
+  - component: {fileID: 7700440046502879152}
   m_Layer: 5
   m_Name: TipText
   m_TagString: Untagged
@@ -5146,6 +5147,15 @@ MonoBehaviour:
       areas permit free movement at all times.
     - It pays to be strategic about when and where you choose to fight.
     m_weight: 1
+  - m_object:
+    - Hold down the throw button (<sprite index=1>) to generate aim guides for more
+      precise targeting.
+    m_weight: 1
+  - m_object:
+    - When throwing or dropping items, the item in the secondary hand will remain
+      until last.
+    - Use this to help retain items that you wish to hold on to.
+    m_weight: 1
 --- !u!222 &5837914634819301278
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5193,7 +5203,7 @@ MonoBehaviour:
     bottomLeft: {r: 1, g: 1, b: 1, a: 1}
     bottomRight: {r: 1, g: 1, b: 1, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
-  m_spriteAsset: {fileID: 0}
+  m_spriteAsset: {fileID: 11400000, guid: f3c96880417a66e4a8ea11611a5fef55, type: 2}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
   m_TextStyleHashCode: -1183493901
@@ -5243,6 +5253,29 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &7700440046502879152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5161081017476313173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6837a81e6745fd4abc91b5232155582, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_playerInput: {fileID: 0}
+  m_infos:
+  - m_controlSchemeNames:
+    - Keyboard&Mouse
+    - KeyboardOnly
+    m_sprites:
+    - {fileID: 11400000, guid: f3c96880417a66e4a8ea11611a5fef55, type: 2}
+  - m_controlSchemeNames:
+    - Gamepad
+    m_sprites:
+    - {fileID: 11400000, guid: 7c0ed5672c09c0b4a93e0b51474cadf5, type: 2}
 --- !u!1 &5239500528311612963
 GameObject:
   m_ObjectHideFlags: 0
