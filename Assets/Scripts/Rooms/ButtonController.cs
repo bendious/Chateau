@@ -15,11 +15,15 @@ public class ButtonController : MonoBehaviour, IInteractable, IKey
 
 
 	private SpriteRenderer m_renderer;
+	private LineRenderer m_line;
+	private int m_sortingOrderInitial;
 
 
 	private void Awake()
 	{
 		m_renderer = GetComponent<SpriteRenderer>();
+		m_line = GetComponent<LineRenderer>();
+		m_sortingOrderInitial = m_line.sortingOrder;
 	}
 
 
@@ -68,7 +72,7 @@ public class ButtonController : MonoBehaviour, IInteractable, IKey
 
 	private void UpdateWireColor(bool active)
 	{
-		LineRenderer line = GetComponent<LineRenderer>();
-		line.colorGradient = new() { colorKeys = new GradientColorKey[] { new(m_renderer.color * (active ? m_activeColorPct : m_unactiveColorPct), 0.0f) }, alphaKeys = new GradientAlphaKey[] { new(1.0f, 0.0f) } }; // NOTE that we have to replace the whole gradient rather than just setting individual attributes due to the annoying way LineRenderer's attribute setup results in local copies
+		m_line.colorGradient = new() { colorKeys = new GradientColorKey[] { new(m_renderer.color * (active ? m_activeColorPct : m_unactiveColorPct), 0.0f) }, alphaKeys = new GradientAlphaKey[] { new(1.0f, 0.0f) } }; // NOTE that we have to replace the whole gradient rather than just setting individual attributes due to the annoying way LineRenderer's attribute setup results in local copies
+		m_line.sortingOrder = active ? m_sortingOrderInitial - 1 : m_sortingOrderInitial;
 	}
 }
