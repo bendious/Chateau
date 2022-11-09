@@ -65,7 +65,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4246392204537585348, guid: b214be9997254b949af66fe5a19fae4f, type: 3}
       propertyPath: m_typeScalars.Array.data[2].m_scalar
-      value: 0
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 4246392204537585348, guid: b214be9997254b949af66fe5a19fae4f, type: 3}
       propertyPath: m_typeScalars.Array.data[3].m_scalar

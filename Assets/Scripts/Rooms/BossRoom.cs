@@ -115,7 +115,7 @@ public class BossRoom : MonoBehaviour
 		}
 
 		// reset room entrance(s)
-		GetComponent<RoomController>().SealRoom(false);
+		GetComponent<RoomController>().SealRoom(false, true);
 	}
 
 

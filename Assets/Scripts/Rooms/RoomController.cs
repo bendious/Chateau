@@ -61,7 +61,7 @@ public class RoomController : MonoBehaviour
 	};
 
 
-	public IEnumerable<System.Tuple<GameObject, RoomController>> DoorwaysUpwardOpen => m_doorwayInfos.Where(info => info.IsOpen() && info.DirectionOutward() == Vector2.up).Select(info => System.Tuple.Create(info.m_object, info.ConnectedRoom));
+	public IEnumerable<System.Tuple<GameObject, RoomController>> DoorwaysUpwardOpen => m_doorwayInfos.Where(info => info.IsOpen(true) && info.DirectionOutward() == Vector2.up).Select(info => System.Tuple.Create(info.m_object, info.ConnectedRoom));
 
 	public /*readonly*/ Bounds Bounds { get; private set; }
 
@@ -1296,27 +1296,27 @@ public class RoomController : MonoBehaviour
 
 	public void LinkRecursive() => LinkRecursiveInternal(new());
 
-	public void SealRoom(bool seal)
+	public void SealRoom(bool seal, bool isBossUnseal = false)
 	{
-		for (int i = 0; i < m_doorwayInfos.Length; ++i)
+		foreach (DoorwayInfo doorway in m_doorwayInfos)
 		{
-			DoorwayInfo doorwayInfo = m_doorwayInfos[i];
-			if (doorwayInfo.ConnectedRoom == null)
+			const PathFlags flags = PathFlags.ObstructionCheck | PathFlags.Directional;
+			if (doorway.ConnectedRoom == null || (isBossUnseal && doorway.ParentRoom != null && RoomPath(doorway.Room.gameObject, doorway.ConnectedRoom.gameObject, flags) != null && doorway.ConnectedRoom.RoomPath(doorway.ConnectedRoom.gameObject, doorway.Room.gameObject, flags) != null)) // TODO: efficiency?
 			{
 				continue;
 			}
 
-			bool wasOpen = doorwayInfo.IsOpen();
-			OpenDoorway(doorwayInfo, !seal);
+			bool wasOpen = doorway.IsOpen();
+			OpenDoorway(doorway, !seal);
 
 			if (seal && wasOpen)
 			{
-				GameObject doorway = doorwayInfo.m_object;
-				Vector2 doorwaySize = doorwayInfo.Size();
-				VisualEffect vfx = Instantiate(m_doorSealVFX.RandomWeighted(), doorway.transform.position + new Vector3(0.0f, -0.5f * doorwaySize.y), Quaternion.identity);
+				GameObject doorwayObj = doorway.m_object;
+				Vector2 doorwaySize = doorway.Size();
+				VisualEffect vfx = Instantiate(m_doorSealVFX.RandomWeighted(), doorwayObj.transform.position + new Vector3(0.0f, -0.5f * doorwaySize.y), Quaternion.identity);
 				vfx.SetVector3("StartAreaSize", new(doorwaySize.x, 0.0f));
 
-				doorway.GetComponent<AudioSource>().Play();
+				doorwayObj.GetComponent<AudioSource>().Play();
 				// TODO: animation?
 			}
 		}
