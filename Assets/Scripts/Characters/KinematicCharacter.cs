@@ -256,7 +256,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		m_animator.SetBool("aimReverse", m_aimDir != 0 && (velocity.x < 0.0f) != (m_aimDir < 0)); // NOTE that we compare x-velocity to 0.0 rather than Utility.FloatEpsilon since reverse aim needs to remain stable as velocity decays
 		m_animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / (maxSpeed == 0.0f ? 1.0f : maxSpeed));
 
-		targetVelocity = move * maxSpeed;
+		TargetVelocity = move * maxSpeed;
 	}
 
 	protected virtual bool OnCharacterCollision(KinematicCharacter character)

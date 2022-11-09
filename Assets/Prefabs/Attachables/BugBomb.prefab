@@ -168,6 +168,7 @@ MonoBehaviour:
   m_blinkSeconds: 0.3
   m_blinkColor: {r: 1, g: 0.25, b: 0.25, a: 1}
   m_blinkSecondsPost: 0.25
+  m_blinkLightRadiusMax: 5
   m_typeScalars:
   - m_type: 1
     m_scalar: 2
@@ -192,4 +193,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_prefab: {fileID: 5619937708861602581, guid: b31878369e652264ab53995b1e78ee19, type: 3}
-  m_enemyAutoTrigger: 1
+  m_prefabAltRepeated: {fileID: 0}
+  m_triggerDefault: 2
+  m_triggerEnemy: 3
+  m_triggerGround: 0
+  m_triggerWall: 0

@@ -216,10 +216,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
-      propertyPath: m_attackOffset.y
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
       propertyPath: m_offsetDegreesMaxPerArm
       value: 0
       objectReference: {fileID: 0}
@@ -229,7 +225,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
       propertyPath: m_attackPrefabs.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
       propertyPath: m_allowedStates.Array.data[2]
@@ -241,6 +237,14 @@ PrefabInstance:
       objectReference: {fileID: 1949470060110950323, guid: 884a6eaa1d4c9b24b822c28fb4c8d0ca, type: 3}
     - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
       propertyPath: m_attackPrefabs.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
+      propertyPath: m_attackPrefabs.Array.data[1].m_object
+      value: 
+      objectReference: {fileID: 3908710818061755078, guid: 35ec015028613c9419e9db5ee07fca26, type: 3}
+    - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
+      propertyPath: m_attackPrefabs.Array.data[1].m_weight
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5059967226220737805, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
@@ -503,7 +507,7 @@ SpriteMask:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1845152305, guid: 4216ecc6dc24d574f91901eda35ba2b5, type: 3}
+  m_Sprite: {fileID: 646945760, guid: 4216ecc6dc24d574f91901eda35ba2b5, type: 3}
   m_MaskAlphaCutoff: 0.2
   m_FrontSortingLayerID: 0
   m_BackSortingLayerID: 0

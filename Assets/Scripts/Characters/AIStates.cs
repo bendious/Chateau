@@ -969,8 +969,15 @@ public sealed class AISpawn : AIState
 
 		if (!m_spawned)
 		{
-			Vector3 spawnPos = m_ai.m_target.transform.position + (Vector3)m_ai.m_attackOffset;
-			m_spawnedObj = Object.Instantiate(m_ai.m_attackPrefabs.RandomWeighted(), spawnPos, Quaternion.identity);
+			GameObject prefab = m_ai.m_attackPrefabs.RandomWeighted();
+			KinematicAccelerator prefabAccelerator = prefab.GetComponent<KinematicAccelerator>();
+			Vector3 spawnPos = prefabAccelerator == null ? m_ai.m_target.transform.position : m_ai.m_target.transform.position + (Random.value < 0.5f ? (Vector3)prefabAccelerator.m_startOffset : new(-prefabAccelerator.m_startOffset.x, prefabAccelerator.m_startOffset.y)); // TODO: make sure starting point is in room
+			m_spawnedObj = Object.Instantiate(prefab, spawnPos, Quaternion.identity);
+			KinematicAccelerator accelerator = m_spawnedObj.GetComponent<KinematicAccelerator>();
+			if (accelerator != null)
+			{
+				accelerator.m_target = m_ai.m_target;
+			}
 			SpriteRenderer r = m_spawnedObj.GetComponent<SpriteRenderer>();
 			if (r != null)
 			{

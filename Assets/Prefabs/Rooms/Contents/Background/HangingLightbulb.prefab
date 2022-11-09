@@ -625,9 +625,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_prefab: {fileID: 4398339694799148722, guid: 6cf9d7eefe017c7458a97f68b968e321, type: 3}
-  m_enemyAutoTrigger: 1
-  m_groundAutoTrigger: 0
-  m_groundSnapDistMax: 0
+  m_prefabAltRepeated: {fileID: 0}
+  m_triggerDefault: 2
+  m_triggerEnemy: 3
+  m_triggerGround: 3
+  m_triggerWall: 0
 --- !u!82 &4178940318906148873
 AudioSource:
   m_ObjectHideFlags: 0
@@ -763,6 +765,7 @@ MonoBehaviour:
   m_healSeconds: 3
   m_impactAudioRepeatSeconds: 0.25
   m_toggleLight: {fileID: 0}
+  m_useSFX: []
   m_detachOnDamage: 0
   m_keyDestroyAfterUse: 1
   m_nondamageColliders:

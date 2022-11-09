@@ -35,6 +35,21 @@ public class EnableCollision : Event<EnableCollision>
 }
 
 /// <summary>
+/// This event is fired when multiple KinematicObjects detect/handle collisions since the physics system will not reliably know about them.
+/// </summary>
+public class KinematicCollision : Event<KinematicCollision>
+{
+	public KinematicObject m_component1;
+	public KinematicObject m_component2;
+	public Vector2 m_position;
+	public Vector2 m_normal;
+
+	public override void Execute()
+	{
+	}
+}
+
+/// <summary>
 /// This event is fired when player control of an avatar should be re-enabled.
 /// </summary>
 public class EnableControl : Event<EnableControl>

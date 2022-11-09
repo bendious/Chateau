@@ -111,6 +111,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_prefab: {fileID: 1725705494736589193, guid: 380f8de1f5528c540903039e5616d0c3, type: 3}
-  m_enemyAutoTrigger: 0
-  m_groundAutoTrigger: 0
-  m_groundSnapDistMax: 0
+  m_prefabAltRepeated: {fileID: 0}
+  m_triggerDefault: 2
+  m_triggerEnemy: 0
+  m_triggerGround: 0
+  m_triggerWall: 0

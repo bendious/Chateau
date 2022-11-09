@@ -62,7 +62,7 @@ public abstract class KinematicObject : MonoBehaviour
 	public Bounds Bounds => (m_colliders != null && m_colliders.Length > 0 ? m_colliders : GetComponents<Collider2D>()).Aggregate(new Bounds() { size = Vector3.negativeInfinity }, (bounds, collider) => { bounds.Encapsulate(collider.bounds); return bounds; }); // NOTE the extra logic to support being used before Awake() to support prefabs // TODO: cache local bounds?
 
 
-	protected Vector2 targetVelocity;
+	public Vector2 TargetVelocity { get; protected set; }
 	private Vector2 m_groundNormal = Vector2.up;
 	private PhysicsMaterial2D m_groundMaterial;
 	protected Vector2 m_wallNormal;
@@ -133,7 +133,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 	protected virtual void Update()
 	{
-		targetVelocity = Vector2.zero;
+		TargetVelocity = Vector2.zero;
 		ComputeVelocity();
 	}
 
@@ -164,9 +164,18 @@ public abstract class KinematicObject : MonoBehaviour
 
 				// resolve kinematic-kinematic collisions
 				KinematicObject otherKinematic = contact.collider.GetComponent<KinematicObject>();
-				if (otherKinematic != null && otherKinematic.m_priority < m_priority)
+				if (otherKinematic != null)
 				{
-					continue;
+					KinematicCollision evt = Simulation.Schedule<KinematicCollision>();
+					evt.m_component1 = this;
+					evt.m_component2 = otherKinematic;
+					evt.m_position = contact.point;
+					evt.m_normal = contact.normal;
+
+					if (otherKinematic.m_priority < m_priority)
+					{
+						continue;
+					}
 				}
 
 				Vector2 newOverlap = contact.normal * -contact.separation;
@@ -185,14 +194,14 @@ public abstract class KinematicObject : MonoBehaviour
 		//if already falling, fall faster than the jump speed, otherwise use normal gravity.
 		velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0.0f ? gravityModifier : 1.0f) * Time.fixedDeltaTime * Physics2D.gravity;
 
-		velocity.x = Mathf.Lerp(targetVelocity.x, m_velocityForced.x, m_velocityForcedWeight.x);
+		velocity.x = Mathf.Lerp(TargetVelocity.x, m_velocityForced.x, m_velocityForcedWeight.x);
 		if (!m_velocityForcedWeight.y.FloatEqual(0.0f))
 		{
 			velocity.y = Mathf.Lerp(velocity.y, m_velocityForced.y, m_velocityForcedWeight.y);
 		}
 		else if (HasFlying)
 		{
-			velocity.y = targetVelocity.y;
+			velocity.y = TargetVelocity.y;
 		}
 
 		// blend velocity back from forced if necessary
@@ -254,6 +263,14 @@ public abstract class KinematicObject : MonoBehaviour
 			{
 				RaycastHit2D hit = m_hitBuffer[i];
 				KinematicObject otherKinematic = hit.collider.GetComponent<KinematicObject>();
+				if (otherKinematic != null)
+				{
+					KinematicCollision evt = Simulation.Schedule<KinematicCollision>();
+					evt.m_component1 = this;
+					evt.m_component2 = otherKinematic;
+					evt.m_position = hit.point;
+					evt.m_normal = hit.normal;
+				}
 				if (collider.ShouldIgnore(hit.rigidbody, new[] { hit.collider }, body.mass, typeof(AnchoredJoint2D), 0.1f) || (otherKinematic != null && otherKinematic.m_priority < m_priority))
 				{
 					// push-through floor/walls prevention

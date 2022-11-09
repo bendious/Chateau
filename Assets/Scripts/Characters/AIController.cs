@@ -37,7 +37,6 @@ public sealed class AIController : KinematicCharacter
 
 	[SerializeField] private AudioClip[] m_attackSFX; // TODO: remove in favor of animation triggers w/ AudioCollection?
 	public WeightedObject<GameObject>[] m_attackPrefabs;
-	public Vector2 m_attackOffset; // TODO: per-attack
 
 	public WeightedObject<GameObject>[] m_teleportVFX;
 

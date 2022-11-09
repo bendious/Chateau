@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -5,11 +7,20 @@ using UnityEngine;
 public class DespawnEffect : MonoBehaviour
 {
 	[SerializeField] private GameObject m_prefab;
+	[SerializeField] private GameObject m_prefabAltRepeated;
 
 	// TODO: split into separate scripts?
-	[SerializeField] private bool m_enemyAutoTrigger;
-	[SerializeField] private bool m_groundAutoTrigger;
-	[SerializeField] private float m_groundSnapDistMax;
+	[Serializable] private enum Action
+	{
+		None,
+		TriggerRepeated,
+		TriggerOnce,
+		TriggerAndDespawn,
+	}
+	[SerializeField] private Action m_triggerDefault = Action.TriggerOnce;
+	[SerializeField] private Action m_triggerEnemy;
+	[SerializeField] private Action m_triggerGround;
+	[SerializeField] private Action m_triggerWall;
 
 
 	public KinematicCharacter CauseExternal { private get; set; }
@@ -20,73 +31,111 @@ public class DespawnEffect : MonoBehaviour
 
 	private ItemController m_item;
 
+	private readonly List<Collider2D> m_collidersToIgnore = new();
+
 
 	private void Awake()
 	{
 		m_item = GetComponent<ItemController>();
+
+		KinematicCollision.OnExecute += OnKinematicCollision;
 	}
 
 	private void OnTriggerEnter2D(Collider2D collider)
 	{
-		ProcessCollision(collider, Vector2.zero);
+		ProcessCollision(collider, collider.transform.position, Vector2.zero); // TODO: better position?
 	}
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		System.Collections.Generic.List<ContactPoint2D> contacts = new();
+		List<ContactPoint2D> contacts = new();
 		collision.GetContacts(contacts);
-		ProcessCollision(collision.collider, contacts.SelectMax(contact => contact.normal.y).normal); // TODO: parameterize multi-normal selection/merge?
+		ContactPoint2D contact = contacts.SelectMax(contact => contact.normal.y); // TODO: parameterize multi-normal selection/merge?
+		ProcessCollision(collision.collider, contact.point, contact.normal);
 	}
+
+	private void OnCollisionStay2D(Collision2D collision) => OnCollisionEnter2D(collision);
 
 	private void OnDestroy()
 	{
-		if (GameController.IsSceneLoad || gameObject.activeSelf) // NOTE that if the game object is still active, then this script is getting removed while the object is still alive, so we shouldn't activate despawn effects
+		KinematicCollision.OnExecute -= OnKinematicCollision;
+
+		if (m_triggerDefault == Action.None || GameController.IsSceneLoad || gameObject.activeSelf) // NOTE that if the game object is still active, then this script is getting removed while the object is still alive, so we shouldn't activate despawn effects
+		{
+			return;
+		}
+		SpawnEffect(m_triggerDefault, transform.position);
+	}
+
+
+	private void OnKinematicCollision(KinematicCollision evt)
+	{
+		bool isObj1 = evt.m_component1.gameObject == gameObject;
+		if (!isObj1 && evt.m_component2.gameObject != gameObject)
 		{
 			return;
 		}
 
-		Explosion explosion = Instantiate(m_prefab, transform.position, transform.rotation).GetComponent<Explosion>();
-		if (explosion != null)
-		{
-			explosion.m_source = Cause;
-		}
+		ProcessCollision((isObj1 ? evt.m_component2 : evt.m_component1).GetComponent<Collider2D>(), evt.m_position, isObj1 ? evt.m_normal : -evt.m_normal);
 	}
 
-
-	private void ProcessCollision(Collider2D collider, Vector2 normal)
+	private void ProcessCollision(Collider2D collider, Vector3 position, Vector2 normal)
 	{
-		bool trigger = false;
-		bool atGround = false;
-		if (m_enemyAutoTrigger && Cause != null)
+		if (m_collidersToIgnore.Contains(collider))
+		{
+			return;
+		}
+
+		Action trigger = Action.None;
+		if (m_triggerEnemy != Action.None && Cause != null)
 		{
 			KinematicCharacter character = collider.GetComponent<KinematicCharacter>();
 			if (character != null && character.GetComponent<Health>().IsAlive && Cause.CanDamage(character.gameObject))
 			{
-				trigger = true;
+				trigger = (Action)Math.Max((byte)trigger, (byte)m_triggerEnemy);
 			}
 		}
 
 		int groundLayerMask = GameController.Instance.m_layerWalls | GameController.Instance.m_layerOneWay; // TODO: parameterize?
-		if (m_groundAutoTrigger && ((1 << collider.gameObject.layer) & groundLayerMask) != 0 && Vector2.Dot(normal, Vector2.up) > 0.0f) // TODO: parameterize ground normal threshold?
+		if (((1 << collider.gameObject.layer) & groundLayerMask) != 0)
 		{
-			trigger = true;
-			atGround = true;
+			KinematicObject kinematicObj = GetComponent<KinematicObject>(); // TODO: cache?
+			Rigidbody2D body = GetComponent<Rigidbody2D>(); // TODO: cache?
+			Vector2 velocity = kinematicObj != null ? (kinematicObj.velocity.sqrMagnitude.FloatEqual(0.0f) ? kinematicObj.TargetVelocity : kinematicObj.velocity) : body != null ? body.velocity : Vector2.zero; // NOTE that we can't rely on KinematicObject.velocity still being set since this is post-collision
+			float dot = Vector2.Dot(normal, velocity);
+
+			// TODO: parameterize thresholds? exclude grazing contacts?
+			bool isGroundTrigger = m_triggerGround != Action.None && dot < -0.05f;
+			bool isWallTrigger = m_triggerWall != Action.None && dot.FloatEqual(0.0f, 0.05f);
+			if (isGroundTrigger || isWallTrigger)
+			{
+				trigger = (Action)Math.Max((byte)trigger, isGroundTrigger && isWallTrigger ? Math.Max((byte)m_triggerGround, (byte)m_triggerWall) : isGroundTrigger ? (byte)m_triggerGround : (byte)m_triggerWall);
+			}
 		}
 
-		if (trigger)
+		if (trigger != Action.None)
 		{
-			// if ground-based and near the ground, snap there
-			if (m_groundSnapDistMax > 0.0f && !atGround)
-			{
-				RaycastHit2D groundCheck = Physics2D.Raycast(transform.position, Vector2.down, m_groundSnapDistMax, groundLayerMask); // TODO: cast whole collider/body?
-				if (groundCheck.collider != null)
-				{
-					transform.position = groundCheck.point;
-				}
-			}
+			SpawnEffect(trigger, position);
+			m_triggerDefault = Action.None; // TODO: don't lie to ourselves?
 
-			gameObject.SetActive(false);
-			Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
+			if (trigger == Action.TriggerOnce || trigger == Action.TriggerAndDespawn)
+			{
+				m_collidersToIgnore.Add(collider);
+			}
+			if (trigger == Action.TriggerAndDespawn)
+			{
+				gameObject.SetActive(false);
+				Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
+			}
+		}
+	}
+
+	private void SpawnEffect(Action type, Vector3 position)
+	{
+		Explosion explosion = Instantiate(type == Action.TriggerRepeated && m_prefabAltRepeated != null ? m_prefabAltRepeated : m_prefab, position, transform.rotation).GetComponent<Explosion>();
+		if (explosion != null)
+		{
+			explosion.m_source = Cause;
 		}
 	}
 }

@@ -115,8 +115,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_prefab: {fileID: 5619937708861602581, guid: acf98808bd047be419405e774427d42a, type: 3}
-  m_enemyAutoTrigger: 0
-  m_groundAutoTrigger: 1
+  m_prefabAltRepeated: {fileID: 0}
+  m_triggerDefault: 0
+  m_triggerEnemy: 0
+  m_triggerGround: 3
+  m_triggerWall: 0
 --- !u!70 &3338821205527098138
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -170,9 +173,12 @@ MonoBehaviour:
   m_layerIgnoreOneWay:
     m_mask:
       serializedVersion: 2
-      m_Bits: 0
+      m_Bits: 2048
   minGroundNormalY: 0.65
   m_minWallClingNormalY: 3.4028235e+38
   gravityModifier: 1
   m_wallClingGravityScalar: 0.1
   velocity: {x: 0, y: 0}
+  m_target: {fileID: 0}
+  m_startOffset: {x: 0, y: 2}
+  m_accelerationMag: {x: 0, y: 17.62}
