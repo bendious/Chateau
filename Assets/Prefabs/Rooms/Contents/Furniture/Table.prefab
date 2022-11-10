@@ -66,7 +66,8 @@ MonoBehaviour:
   m_itemsMax: 4
   m_sizeMin: {x: 2, y: 0.5}
   m_sizeMax: {x: 8, y: 1}
-  m_childRenderers: []
+  m_childRenderers:
+  - {fileID: 3857514424952958384}
   m_itemPrefabs:
   - m_object: {fileID: 6107488262492150209, guid: 4feae967d8b4799409bbcd10967052ed, type: 3}
     m_weight: 1
@@ -99,3 +100,8 @@ MonoBehaviour:
     m_weight: 0.2
   - m_object: {fileID: 1688978110452577463, guid: ea7685c25a954ef4ea9fbfef51eb721b, type: 3}
     m_weight: 0.2
+--- !u!212 &3857514424952958384 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 4774662376995590474, guid: 717755c04a138404d80679d2c0d06ab5, type: 3}
+  m_PrefabInstance: {fileID: 8632176505897270522}
+  m_PrefabAsset: {fileID: 0}

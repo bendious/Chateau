@@ -62,6 +62,8 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 3087063712995650317, guid: c8cbccd5771bad24bbeca9fec0c4c630, type: 3}
     m_weight: 0.5
+  - m_object: {fileID: 3779706840238637801, guid: 8dc00c0997cb9f54f89140f27fed4cfe, type: 3}
+    m_weight: 0.5
   m_fillPctMin: 0.5
   m_itemPrefabs:
   - m_object: {fileID: 6107488262492150209, guid: 4feae967d8b4799409bbcd10967052ed, type: 3}
@@ -76,6 +78,8 @@ MonoBehaviour:
     m_weight: 0.5
   - m_object: {fileID: 8702566855440006765, guid: 04a605dc436c93a4ba6107e015b490fd, type: 3}
     m_weight: 0.5
+  - m_object: {fileID: 248710772380000577, guid: 12c71736343a4ff47a4b7fa090b831df, type: 3}
+    m_weight: 1
   m_itemRarePrefabs:
   - m_object: {fileID: 1271183342043709178, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
     m_weight: 0.5
@@ -83,6 +87,8 @@ MonoBehaviour:
     m_weight: 0.5
   - m_object: {fileID: 4221545259124064584, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
     m_weight: 0.5
+  - m_object: {fileID: 4892872906617963342, guid: c7eaa25f16cf12a43af6e9177433afc1, type: 3}
+    m_weight: 1
   m_itemsMin: 4
   m_itemsMax: 8
   m_decorations:

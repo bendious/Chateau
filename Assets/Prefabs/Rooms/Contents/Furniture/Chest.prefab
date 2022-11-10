@@ -270,4 +270,4 @@ MonoBehaviour:
   m_openSFX:
   - m_object: {fileID: 8300000, guid: 1bb478851188bfb4f94c0c7341b9129f, type: 3}
     m_weight: 1
-  m_openSizePct: 0.5
+  m_openSizePcts: {x: 1, y: 0.5}

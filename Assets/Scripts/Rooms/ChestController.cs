@@ -10,7 +10,7 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 	[SerializeField] private Sprite m_spriteUnlocked;
 	[SerializeField] private Sprite m_spriteOpen; // TODO: use animation?
 	[SerializeField] private WeightedObject<AudioClip>[] m_openSFX;
-	[SerializeField] private float m_openSizePct = 0.5f;
+	[SerializeField] private Vector2 m_openSizePcts = new(1.0f, 0.5f);
 
 
 	public GameObject Parent { get => null; set => Debug.LogError("Cannot set ChestController.Parent"); }
@@ -25,10 +25,9 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 	private readonly List<GameObject> m_prespawned = new();
 
 
-	public override List<GameObject> SpawnItems(bool rare, RoomType roomType, int itemCountExisting, int furnitureRemaining, List<GameObject> prefabsSpawned)
+	public override List<GameObject> SpawnItems(bool rare, RoomType roomType, int itemCountExisting, int furnitureRemaining, List<GameObject> prefabsSpawned, float sizeScalarX = 1.0f, float sizeScalarY = 1.0f)
 	{
-		// TODO: account for difference in closed/open collider size?
-		List<GameObject> items = base.SpawnItems(rare, roomType, itemCountExisting, furnitureRemaining, prefabsSpawned);
+		List<GameObject> items = base.SpawnItems(rare, roomType, itemCountExisting, furnitureRemaining, prefabsSpawned, Mathf.Min(1.0f, sizeScalarX * m_openSizePcts.x), Mathf.Min(1.0f, sizeScalarY * m_openSizePcts.y));
 		if (!m_isOpen)
 		{
 			foreach (GameObject obj in items)
@@ -40,9 +39,9 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 		return items;
 	}
 
-	public override GameObject SpawnKey(GameObject prefab, bool isCriticalPath)
+	public override GameObject SpawnKey(GameObject prefab, bool isCriticalPath, float sizeScalarX = 1.0f, float sizeScalarY = 1.0f)
 	{
-		GameObject obj = base.SpawnKey(prefab, isCriticalPath); // TODO: account for difference in closed/open collider size?
+		GameObject obj = base.SpawnKey(prefab, isCriticalPath, Mathf.Min(1.0f, sizeScalarX * m_openSizePcts.x), Mathf.Min(1.0f, sizeScalarY * m_openSizePcts.y));
 		if (!m_isOpen)
 		{
 			obj.SetActive(false);
@@ -70,10 +69,19 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 		GetComponent<AudioSource>().PlayOneShot(m_openSFX.RandomWeighted());
 
 		// update appearance/size
-		GetComponent<SpriteRenderer>().sprite = m_spriteOpen;
+		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+		renderer.sprite = m_spriteOpen;
+		renderer.size *= m_openSizePcts;
 		BoxCollider2D collider = GetComponent<BoxCollider2D>();
-		collider.size = new(collider.size.x, collider.size.y * m_openSizePct);
-		collider.offset = new(collider.offset.x, collider.size.y * 0.5f); // TODO: don't assume collider lower edges are always at y=0?
+		float heightPrev = collider.size.y;
+		collider.size *= m_openSizePcts;
+		collider.offset = new(collider.offset.x, collider.offset.y - heightPrev * 0.5f + collider.size.y * 0.5f); // TODO: don't assume that the space below the collider should stay the same height?
+
+		// ensure children are active
+		for (int i = 0, n = transform.childCount; i < n; ++i)
+		{
+			transform.GetChild(i).gameObject.SetActive(true);
+		}
 
 		// activate any pre-spawned objects
 		foreach (GameObject obj in m_prespawned)
@@ -96,8 +104,8 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 
 	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms, float difficultyPct)
 	{
-		// prevent empty locked chests
-		if (m_prespawned.Count <= 0) // NOTE that this assumes that a furniture object's keys are always spawned AFTER its items, which is the case at least currently (see RoomController.FinalizeRecursive())
+		// prevent empty/invalid locked chests
+		if (m_prespawned.Count <= 0 || m_keyPrefabs.Length <= 0) // NOTE that this assumes that a furniture object's keys are always spawned AFTER its items, which is the case at least currently (see RoomController.FinalizeRecursive())
 		{
 			Unlock(null, true);
 			return;

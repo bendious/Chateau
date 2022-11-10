@@ -213,18 +213,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3563075277247242641, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
       propertyPath: m_childRenderers.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
-    - target: {fileID: 3563075277247242641, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
-      propertyPath: m_childRenderers.Array.data[0]
-      value: 
-      objectReference: {fileID: 5366482228932291742}
     - target: {fileID: 3563075277247242641, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
       propertyPath: m_childRenderers.Array.data[1]
       value: 
-      objectReference: {fileID: 4385477520069990599}
+      objectReference: {fileID: 5366482228932291742}
     - target: {fileID: 3563075277247242641, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
       propertyPath: m_childRenderers.Array.data[2]
+      value: 
+      objectReference: {fileID: 4385477520069990599}
+    - target: {fileID: 3563075277247242641, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
+      propertyPath: m_childRenderers.Array.data[3]
       value: 
       objectReference: {fileID: 503687051835451526}
     - target: {fileID: 3563075277247242641, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
