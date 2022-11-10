@@ -161,11 +161,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1627454014906337523, guid: 965caaff450150540afaa57f9d77e599, type: 3}
       propertyPath: m_SpriteTilingProperty.pivot.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1627454014906337523, guid: 965caaff450150540afaa57f9d77e599, type: 3}
       propertyPath: m_SpriteTilingProperty.border.w
-      value: 0
+      value: 0.089999996
       objectReference: {fileID: 0}
     - target: {fileID: 1627454014906337523, guid: 965caaff450150540afaa57f9d77e599, type: 3}
       propertyPath: m_SpriteTilingProperty.border.x
@@ -217,11 +217,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3221424930522446002, guid: 965caaff450150540afaa57f9d77e599, type: 3}
       propertyPath: m_SpriteTilingProperty.pivot.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3221424930522446002, guid: 965caaff450150540afaa57f9d77e599, type: 3}
       propertyPath: m_SpriteTilingProperty.border.w
-      value: 0
+      value: 0.089999996
       objectReference: {fileID: 0}
     - target: {fileID: 3221424930522446002, guid: 965caaff450150540afaa57f9d77e599, type: 3}
       propertyPath: m_SpriteTilingProperty.border.x
@@ -349,11 +349,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6489976639142726891, guid: 965caaff450150540afaa57f9d77e599, type: 3}
       propertyPath: m_SpriteTilingProperty.pivot.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6489976639142726891, guid: 965caaff450150540afaa57f9d77e599, type: 3}
       propertyPath: m_SpriteTilingProperty.border.w
-      value: 0
+      value: 0.089999996
       objectReference: {fileID: 0}
     - target: {fileID: 6489976639142726891, guid: 965caaff450150540afaa57f9d77e599, type: 3}
       propertyPath: m_SpriteTilingProperty.border.x
@@ -681,10 +681,19 @@ MonoBehaviour:
   m_unlockSFX: []
   m_spriteUnlocked: {fileID: 21300000, guid: d85d1b498bd2ff547a9a2fbfb8170447, type: 3}
   m_spriteOpen: {fileID: 21300000, guid: e297401247a46c842b732a7afb449e97, type: 3}
-  m_openSFX:
-  - m_object: {fileID: 8300000, guid: 1bb478851188bfb4f94c0c7341b9129f, type: 3}
+  m_openCloseSFX:
+  - m_object: {fileID: 8300000, guid: 8248de35b3694d3469358e60b30ccce5, type: 3}
     m_weight: 1
+  - m_object: {fileID: 8300000, guid: c758b12cd3e8c6544a4799939d06c480, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 73746d95c4d38874388cbd7f9dde907d, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 287b0c7d1160c9c43bf42b3b1139d736, type: 3}
+    m_weight: 1
+  m_openCloseDamage: 1
+  m_damageType: 0
   m_openSizePcts: {x: 1.467, y: 1}
+  m_reuseSeconds: 0.5
 --- !u!1 &5395000647530420895 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 279241045730851109, guid: 965caaff450150540afaa57f9d77e599, type: 3}

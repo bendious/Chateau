@@ -9,8 +9,11 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 	[SerializeField] private WeightedObject<AudioClip>[] m_unlockSFX;
 	[SerializeField] private Sprite m_spriteUnlocked;
 	[SerializeField] private Sprite m_spriteOpen; // TODO: use animation?
-	[SerializeField] private WeightedObject<AudioClip>[] m_openSFX;
+	[SerializeField] private WeightedObject<AudioClip>[] m_openCloseSFX;
+	[SerializeField] private float m_openCloseDamage;
+	[SerializeField] private Health.DamageType m_damageType = Health.DamageType.Blunt;
 	[SerializeField] private Vector2 m_openSizePcts = new(1.0f, 0.5f);
+	[SerializeField] private float m_reuseSeconds = -1.0f;
 
 
 	public GameObject Parent { get => null; set => Debug.LogError("Cannot set ChestController.Parent"); }
@@ -22,7 +25,8 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 	private GameObject m_keyObj;
 	private bool m_isLocked = true;
 	private bool m_isOpen = false;
-	private readonly List<GameObject> m_prespawned = new();
+	private float m_lastOpenCloseTime = -1.0f;
+	private readonly List<GameObject> m_enclosedObjects = new();
 
 
 	public override List<GameObject> SpawnItems(bool rare, RoomType roomType, int itemCountExisting, int furnitureRemaining, List<GameObject> prefabsSpawned, float sizeScalarX = 1.0f, float sizeScalarY = 1.0f)
@@ -33,7 +37,7 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 			foreach (GameObject obj in items)
 			{
 				obj.SetActive(false);
-				m_prespawned.Add(obj);
+				m_enclosedObjects.Add(obj);
 			}
 		}
 		return items;
@@ -45,7 +49,7 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 		if (!m_isOpen)
 		{
 			obj.SetActive(false);
-			m_prespawned.Add(obj);
+			m_enclosedObjects.Add(obj);
 			if (isCriticalPath)
 			{
 				IsCriticalPath = true;
@@ -61,40 +65,60 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 	}
 
 
-	public bool CanInteract(KinematicCharacter interactor) => enabled && !m_isLocked && !m_isOpen;
+	public bool CanInteract(KinematicCharacter interactor) => enabled && !m_isLocked && (m_reuseSeconds < 0.0f ? !m_isOpen : (m_lastOpenCloseTime + m_reuseSeconds <= Time.time));
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
 		// TODO: animations/delay/VFX?
-		GetComponent<AudioSource>().PlayOneShot(m_openSFX.RandomWeighted());
+		GetComponent<AudioSource>().PlayOneShot(m_openCloseSFX.RandomWeighted());
+
+		// activate any enclosed objects
+		List<GameObject> enclosedPrev = new(m_enclosedObjects); // NOTE the copy due to m_enclosedObjects.Clear() below
+		if (!m_isOpen)
+		{
+			foreach (GameObject obj in m_enclosedObjects)
+			{
+				if (obj == null) // NOTE that this is possible if locks have been unlocked via other means (e.g. guesswork, console command)
+				{
+					continue;
+				}
+				obj.SetActive(true);
+			}
+			m_enclosedObjects.Clear();
+		}
+
+		// damage anything in contact with us
+		if (m_openCloseDamage > 0.0f)
+		{
+			if (m_isOpen)
+			{
+				// damage immediately, BEFORE disabling colliders
+				ContactProcessing(m_isOpen, interactor.gameObject, enclosedPrev);
+			}
+			else
+			{
+				// wait to damage until colliders are active and have updated contacts
+				StartCoroutine(ContactProcessingDelayed(m_isOpen, interactor.gameObject, enclosedPrev));
+			}
+		}
 
 		// update appearance/size
 		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-		renderer.sprite = m_spriteOpen;
-		renderer.size *= m_openSizePcts;
+		renderer.sprite = m_isOpen ? m_spriteUnlocked : m_spriteOpen;
+		renderer.size = m_isOpen ? renderer.size / m_openSizePcts : renderer.size * m_openSizePcts;
 		BoxCollider2D collider = GetComponent<BoxCollider2D>();
 		float heightPrev = collider.size.y;
-		collider.size *= m_openSizePcts;
+		collider.size = m_isOpen ? collider.size / m_openSizePcts : collider.size * m_openSizePcts;
 		collider.offset = new(collider.offset.x, collider.offset.y - heightPrev * 0.5f + collider.size.y * 0.5f); // TODO: don't assume that the space below the collider should stay the same height?
 
-		// ensure children are active
+		// toggle child activations
 		for (int i = 0, n = transform.childCount; i < n; ++i)
 		{
-			transform.GetChild(i).gameObject.SetActive(true);
+			transform.GetChild(i).gameObject.SetActive(!m_isOpen);
 		}
 
-		// activate any pre-spawned objects
-		foreach (GameObject obj in m_prespawned)
-		{
-			if (obj == null) // NOTE that this is possible if locks have been unlocked via other means (e.g. guesswork, console command)
-			{
-				continue;
-			}
-			obj.SetActive(true);
-		}
-		m_prespawned.Clear();
-
-		m_isOpen = true;
+		m_isOpen = !m_isOpen;
+		m_lastOpenCloseTime = Time.time;
 	}
 
 
@@ -105,7 +129,7 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 	public void SpawnKeysDynamic(RoomController lockRoom, RoomController[] keyRooms, float difficultyPct)
 	{
 		// prevent empty/invalid locked chests
-		if (m_prespawned.Count <= 0 || m_keyPrefabs.Length <= 0) // NOTE that this assumes that a furniture object's keys are always spawned AFTER its items, which is the case at least currently (see RoomController.FinalizeRecursive())
+		if (m_enclosedObjects.Count <= 0 || m_keyPrefabs.Length <= 0) // NOTE that this assumes that a furniture object's keys are always spawned AFTER its items, which is the case at least currently (see RoomController.FinalizeRecursive())
 		{
 			Unlock(null, true);
 			return;
@@ -144,5 +168,55 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 				break;
 			}
 		}
+	}
+
+
+	private void ContactProcessing(bool isClosing, GameObject source, List<GameObject> ignoredObjects)
+	{
+		Debug.Assert(m_openCloseDamage > 0.0f); // TODO: decouple enclosing from damage capability?
+
+		List<ContactPoint2D> contacts = new();
+		Bounds boundsOverall = GetComponent<SpriteRenderer>().bounds; // TODO: use aggregate collider bounds?
+		foreach (Collider2D c in GetComponentsInChildren<Collider2D>())
+		{
+			c.GetContacts(contacts);
+			foreach (ContactPoint2D contact in contacts)
+			{
+				Rigidbody2D body = contact.rigidbody;
+				if (body == null)
+				{
+					continue; // TODO: support static objects?
+				}
+				if (body.gameObject == source || ignoredObjects.Contains(body.gameObject)) // TODO: handle multi-part objects?
+				{
+					continue;
+				}
+				Bounds bounds = contact.collider.bounds; // TODO: handle multi-collider objects?
+				if (isClosing && boundsOverall.min.x <= bounds.min.x && boundsOverall.min.y <= bounds.min.y && boundsOverall.max.x >= bounds.max.x && boundsOverall.max.y >= bounds.max.y)
+				{
+					// fully enclosed; shut inside if not attached
+					if (body.transform.parent == null)
+					{
+						body.gameObject.SetActive(false);
+						m_enclosedObjects.Add(body.gameObject);
+					}
+				}
+				else
+				{
+					// across the edge; apply damage
+					Health health = contact.collider.ToHealth(); // NOTE that it's okay if we get duplicate health components since Health.Decrement() should handle aggregating into a single damage event
+					if (health != null)
+					{
+						health.Decrement(source, gameObject, m_openCloseDamage, m_damageType);
+					}
+				}
+			}
+		}
+	}
+
+	private System.Collections.IEnumerator ContactProcessingDelayed(bool isClosing, GameObject source, List<GameObject> ignoredObjects)
+	{
+		yield return null;
+		ContactProcessing(isClosing, source, ignoredObjects);
 	}
 }

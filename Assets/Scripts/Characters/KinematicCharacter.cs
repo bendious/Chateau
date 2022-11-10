@@ -182,20 +182,21 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 					foreach (Collider2D collider in m_colliders)
 					{
 						collider.GetContacts(contacts);
-					}
-					Vector2 wallNormal = contacts.FirstOrDefault(contact =>
-					{
-						if (contact.rigidbody != null || contact.normal.y < m_minWallClingNormalY)
+						Vector2 wallNormal = contacts.FirstOrDefault(contact =>
 						{
-							return false;
+							if (contact.rigidbody != null || contact.normal.y < m_minWallClingNormalY)
+							{
+								return false;
+							}
+							PlatformEffector2D effector = contact.collider.GetComponent<PlatformEffector2D>();
+							return effector == null || !effector.enabled;
+						}).normal;
+						if (wallNormal != Vector2.zero && wallNormal.y >= m_minWallClingNormalY)
+						{
+							m_wallNormal = wallNormal;
+							canWallJump = true;
+							break;
 						}
-						PlatformEffector2D effector = contact.collider.GetComponent<PlatformEffector2D>();
-						return effector == null || !effector.enabled;
-					}).normal;
-					if (wallNormal != Vector2.zero && wallNormal.y >= m_minWallClingNormalY)
-					{
-						m_wallNormal = wallNormal;
-						canWallJump = true;
 					}
 				}
 				if (canWallJump)

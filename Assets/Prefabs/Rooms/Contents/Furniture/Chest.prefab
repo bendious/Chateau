@@ -267,7 +267,10 @@ MonoBehaviour:
     m_weight: 1
   m_spriteUnlocked: {fileID: 21300000, guid: 95b97ae279ec6bc42ba66b13c03d41a5, type: 3}
   m_spriteOpen: {fileID: 21300000, guid: 004eeb2339ed10c47aca6bd10e6c5a90, type: 3}
-  m_openSFX:
+  m_openCloseSFX:
   - m_object: {fileID: 8300000, guid: 1bb478851188bfb4f94c0c7341b9129f, type: 3}
     m_weight: 1
+  m_openCloseDamage: 0
+  m_damageType: 0
   m_openSizePcts: {x: 1, y: 0.5}
+  m_reuseSeconds: -1
