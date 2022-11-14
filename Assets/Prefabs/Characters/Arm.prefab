@@ -119,12 +119,15 @@ MonoBehaviour:
     m_damage: 0.1
     m_damageType: 0
   m_mass: 0.1
+  m_radiusBase: 0
   m_aimStiffnessMin: 25
   m_aimStiffnessMax: 100
   m_radiusStiffnessMin: 100
   m_radiusStiffnessMax: 150
   m_springMassMax: 1
   m_swingDecayStiffness: 100
+  m_noRotation: 0
+  m_colorMatching: 1
 --- !u!70 &4030274311394631088
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -150,7 +153,7 @@ AudioSource:
   m_GameObject: {fileID: 3060130244721252944}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 96a05763381b2794cbb2b9f850b82527, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 0.25
@@ -262,10 +265,12 @@ MonoBehaviour:
   m_lengthMin: 0.1
   m_lengthMax: 0
   m_colliders: []
+  m_collisionVelocityMin: 1
   m_collisionForceMax: 10
   m_stretchThreshold: 0.25
   m_sfxStretch: []
   m_sfxSnap: []
+  m_colorMatching: 1
 --- !u!120 &2961888344388029937
 LineRenderer:
   m_ObjectHideFlags: 0

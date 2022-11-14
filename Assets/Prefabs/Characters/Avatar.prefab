@@ -909,6 +909,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9351ace568ee14042a227f767b027b2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_priority: 0
   m_layerIgnoreOneWay:
     m_mask:
       serializedVersion: 2
@@ -1097,7 +1098,7 @@ AudioSource:
   m_GameObject: {fileID: 6654259642884158821}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 96a05763381b2794cbb2b9f850b82527, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 0.5
@@ -1246,6 +1247,7 @@ MonoBehaviour:
   m_blinkSeconds: 0.3
   m_blinkColor: {r: 1, g: 0.25, b: 0.25, a: 1}
   m_blinkSecondsPost: 0.25
+  m_blinkLightRadiusMax: 5
   m_typeScalars: []
   m_healthUIParent: {fileID: 6654259644173391003}
   m_UIPadding: 5

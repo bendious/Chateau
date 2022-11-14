@@ -173,6 +173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf5e58a61f97a2b4594c15b6f3ff0e0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_priority: 0
   m_layerIgnoreOneWay:
     m_mask:
       serializedVersion: 2
@@ -205,7 +206,10 @@ MonoBehaviour:
   m_target: {fileID: 0}
   m_replanSecondsMin: 1.5
   m_replanSecondsMax: 3
+  m_offsetDegreesMaxPerArm: 60
   m_meleeRange: 1
+  m_meleeSecondsMin: 0.5
+  m_meleeSecondsMax: 1
   m_alertDistanceMax: 10
   m_jumpMaxSpeedOverride: -1
   m_airControl: 1
@@ -213,6 +217,7 @@ MonoBehaviour:
   m_jumpPct: 0.05
   m_dropDecayTime: 0.2
   m_attackSFX: []
+  m_attackPrefabs: []
   m_teleportVFX: []
   m_attentionFlagPrefab: {fileID: 0}
   m_heldPrefab: {fileID: 0}
@@ -227,7 +232,7 @@ AudioSource:
   m_GameObject: {fileID: 1661912868639658944}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 96a05763381b2794cbb2b9f850b82527, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 0.5
@@ -376,6 +381,7 @@ MonoBehaviour:
   m_blinkSeconds: 0.3
   m_blinkColor: {r: 1, g: 0.25, b: 0.25, a: 1}
   m_blinkSecondsPost: 0.25
+  m_blinkLightRadiusMax: 5
   m_typeScalars: []
 --- !u!114 &5933622131622539874
 MonoBehaviour:
