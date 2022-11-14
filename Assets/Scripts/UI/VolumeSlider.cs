@@ -1,10 +1,13 @@
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 
 public class VolumeSlider : MonoBehaviour
 {
 	[SerializeField] private UnityEngine.UI.Slider m_slider;
 	[SerializeField] private UnityEngine.Audio.AudioMixer m_mixer;
+	[SerializeField] private Volume m_volume;
 
 	[SerializeField] private string m_paramName = "VolumeDB"; // TODO: split param names for prefs/slider since one is a percentage and the other in decibels?
 
@@ -28,7 +31,17 @@ public class VolumeSlider : MonoBehaviour
 
 	public void SetVolume(float pct)
 	{
-		m_mixer.SetFloat(m_paramName, PercentToDecibels(pct));
+		if (m_volume != null)
+		{
+			Debug.Assert(m_paramName == "Gamma"); // TODO: support other types of postprocess volume params?
+			LiftGammaGain liftGammaGain = VolumeManager.instance.stack.GetComponent<LiftGammaGain>(); // see https://forum.unity.com/threads/how-to-modify-post-processing-profiles-in-script.758375/ for why we have to use VolumeManager's stack rather than modifying m_volume // TODO: don't assume that m_volume will be the active postprocess volume?
+			liftGammaGain.gamma = new(new(1.0f, 1.0f, 1.0f, pct), !pct.FloatEqual(0.0f));
+		}
+		if (m_mixer != null)
+		{
+			m_mixer.SetFloat(m_paramName, PercentToDecibels(pct));
+		}
+
 		PlayerPrefs.SetFloat(m_paramName, pct);
 		if (m_initialized)
 		{
