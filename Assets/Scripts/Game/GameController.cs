@@ -743,11 +743,11 @@ public class GameController : MonoBehaviour
 		++m_enemySpawnCounts[typeIndex];
 	}
 
-	public void DebugKillAllEnemies()
+	public void DebugKillAllEnemies(bool partial)
 	{
 		foreach (AIController enemy in m_enemies)
 		{
-			enemy.GetComponent<Health>().Decrement(gameObject, null, float.MaxValue, Health.DamageType.Generic);
+			enemy.GetComponent<Health>().Decrement(gameObject, null, partial ? 0.1f : float.MaxValue, Health.DamageType.Generic);
 		}
 	}
 

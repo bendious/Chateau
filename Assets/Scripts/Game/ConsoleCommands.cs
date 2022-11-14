@@ -77,7 +77,7 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 		m_controls.Console.LayoutOutputSeed.performed += ctx => ExecuteIfConsoleOpen(() => Debug.Log(GameController.Seed));
 		m_controls.Console.RegenerateDisabled.performed += ctx => ExecuteIfConsoleOpen(() => RegenerateDisabled = !RegenerateDisabled);
 		m_controls.Console.SpawnEnemyWave.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.SpawnEnemyWave());
-		m_controls.Console.KillAllEnemies.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.DebugKillAllEnemies());
+		m_controls.Console.KillAllEnemies.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.DebugKillAllEnemies(m_controls.Console.Shift.IsPressed()));
 		m_controls.Console.ReSetWaves.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.DebugResetWaves());
 		m_controls.Console.HarmHealAvatar.performed += ctx => ExecuteIfConsoleOpen(() =>
 		{

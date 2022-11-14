@@ -272,7 +272,7 @@ public class Health : MonoBehaviour
 
 	private void Recolor(Color color, float lightRadiusMax) // TODO: support separate colors for sprites/lights?
 	{
-		static bool isColorable(Component comp) => comp.GetComponent<IAttachable>() == null && comp.GetComponent<ArmController>() == null; // we don't want to recolor attached items, and ArmController takes care of mirroring color itself
+		static bool isColorable(Component comp) => comp.GetComponentInParent<IAttachable>() == null && comp.GetComponent<ArmController>() == null; // we don't want to recolor attached items, and ArmController takes care of mirroring color itself // TODO: also ensure the component does not have a separate rigid body or ColorRandomizer?
 
 		// TODO: efficiency?
 		foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>().Where(isColorable))
