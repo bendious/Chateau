@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &918476657915369184
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 798767993087980408, guid: 2e81a61a96e51a24e8a385879e02d47a, type: 3}
+      propertyPath: m_Name
+      value: GateWeightEntryway
+      objectReference: {fileID: 0}
+    - target: {fileID: 1773807299941207245, guid: 2e81a61a96e51a24e8a385879e02d47a, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1773807299941207245, guid: 2e81a61a96e51a24e8a385879e02d47a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1773807299941207245, guid: 2e81a61a96e51a24e8a385879e02d47a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1773807299941207245, guid: 2e81a61a96e51a24e8a385879e02d47a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8119964717315285177, guid: 2e81a61a96e51a24e8a385879e02d47a, type: 3}
+      propertyPath: m_InstanceId
+      value: -883822
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2e81a61a96e51a24e8a385879e02d47a, type: 3}
+--- !u!1 &552498985952961944 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 798767993087980408, guid: 2e81a61a96e51a24e8a385879e02d47a, type: 3}
+  m_PrefabInstance: {fileID: 918476657915369184}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2087814396297252849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 552498985952961944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7460e8a2db3af245b906b858c1559a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_unlockSceneIndices: 0300000004000000

@@ -1767,6 +1767,7 @@ MonoBehaviour:
     m_weight: 5
   m_lockOrderedPrefabs:
   - {fileID: 2462374082034073912, guid: 79633d7b16e714943859256a37691fe7, type: 3}
+  - {fileID: 552498985952961944, guid: 3d79e4eecd76cb5429ec575123b170d6, type: 3}
   - {fileID: 6676558204597996972, guid: a07871bf36908524ea4aba70a9bb16f1, type: 3}
   m_hintPrefabs:
   - m_object: {fileID: 706043663315506005, guid: 0e1589d80130066419e9c9d17cfca61a, type: 3}

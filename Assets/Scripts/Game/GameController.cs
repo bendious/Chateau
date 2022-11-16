@@ -58,7 +58,9 @@ public class GameController : MonoBehaviour
 	[SerializeField] private bool m_waveSealing = false;
 	public float m_zoneScalar = 1.0f;
 
-	[SerializeField] private int m_narrowPathLength = 6; // TODO: derive from number of zones?
+	public const int m_zoneCount = 4; // TODO: derive?
+	public const int m_hintsPerZone = 2;
+	[SerializeField] private int m_narrowPathLength = m_zoneCount * m_hintsPerZone;
 
 	public float m_difficultyMin = 0.0f;
 	public float m_difficultyMax = 0.0f;
@@ -755,7 +757,7 @@ public class GameController : MonoBehaviour
 
 	public static void DebugToggleAllUnlocks()
 	{
-		ZonesFinishedCount = ZonesFinishedCount == 3 ? 0 : 3; // TODO: remove hardcoding?
+		ZonesFinishedCount = ZonesFinishedCount == m_zoneCount ? 0 : m_zoneCount;
 		m_secretsFoundBitmask.SetAll(!m_secretsFoundBitmask.Get(0));
 	}
 

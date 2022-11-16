@@ -659,13 +659,13 @@ public class RoomController : MonoBehaviour
 
 				case LayoutGenerator.Node.Type.Npc:
 					int sceneIdx = SceneManager.GetActiveScene().buildIndex;
-					if (sceneIdx == 0 ? npcDepthLocal > GameController.ZonesFinishedCount : npcDepthLocal + GameController.ZonesFinishedCount >= sceneIdx) // TODO: don't assume that the first scene is where NPCs congregate?
+					if (sceneIdx == 0 ? npcDepthLocal + 1 > GameController.ZonesFinishedCount : npcDepthLocal + GameController.ZonesFinishedCount >= sceneIdx) // TODO: don't assume that the first scene is where NPCs congregate?
 					{
 						break;
 					}
 					AIController npcPrefab = GameController.Instance.m_npcPrefabs.RandomWeighted();
 					InteractNpc npc = Instantiate(npcPrefab, InteriorPosition(0.0f) + (Vector3)npcPrefab.gameObject.OriginToCenterY(), Quaternion.identity).GetComponent<InteractNpc>();
-					npc.Index = npcDepthLocal + sceneIdx;
+					npc.Index = npcDepthLocal + System.Math.Max(0, sceneIdx - 1);
 					++npcDepthLocal;
 					GameController.Instance.NpcAdd(npc.GetComponent<AIController>());
 					break;
@@ -695,7 +695,7 @@ public class RoomController : MonoBehaviour
 				case LayoutGenerator.Node.Type.FinalHint:
 					GameObject hintPrefab = m_hintPrefabs.RandomWeighted();
 					GameObject hintObj = Instantiate(hintPrefab, InteriorPosition(float.MaxValue, hintPrefab), Quaternion.identity);
-					Color hintColor = GameController.NarrowPathColors[2 * (SceneManager.GetActiveScene().buildIndex - 1) + GameController.Instance.NarrowPathHintCount]; // TODO: remove hardcoded assumption of two hints per zone? guarantee order of hints spawned
+					Color hintColor = GameController.NarrowPathColors[GameController.m_hintsPerZone * (SceneManager.GetActiveScene().buildIndex - 1) + GameController.Instance.NarrowPathHintCount]; // TODO: guarantee order of hints spawned
 					foreach (SpriteRenderer r in hintObj.GetComponentsInChildren<SpriteRenderer>())
 					{
 						r.color = hintColor;

@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Zone3.unity
     guid: a2970bd823ebda6478d6f62904e475c0
   - enabled: 1
+    path: Assets/Scenes/Zone4.unity
+    guid: ca357a8d1fd2ec44097514a241cb67e4
+  - enabled: 1
     path: Assets/Scenes/Tutorial.unity
     guid: bbe1cdd87b6f4f34baa803db585890bf
   - enabled: 1

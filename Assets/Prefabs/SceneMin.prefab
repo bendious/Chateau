@@ -1782,7 +1782,7 @@ MonoBehaviour:
   m_allowCutbacks: 1
   m_waveSealing: 0
   m_zoneScalar: 1
-  m_narrowPathLength: 6
+  m_narrowPathLength: 8
   m_difficultyMin: 0
   m_difficultyMax: 0
   m_loadingScreen: {fileID: 7202315660601374811}

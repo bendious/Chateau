@@ -46,4 +46,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7460e8a2db3af245b906b858c1559a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_unlockSceneIndices: 0200000003000000
+  m_unlockSceneIndices: 020000000300000004000000

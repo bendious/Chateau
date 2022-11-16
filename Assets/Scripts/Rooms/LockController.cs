@@ -539,8 +539,15 @@ public class LockController : MonoBehaviour, IUnlockable
 		if (!silent)
 		{
 			audio.clip = m_unlockSFX.RandomWeighted();
-			audio.time = 0.0f;
-			audio.Play();
+			if (m_unlockDestroyDelay <= 0.0f)
+			{
+				AudioSource.PlayClipAtPoint(audio.clip, transform.position); // NOTE that we can't use our own audio source if we're being despawned immediately
+			}
+			else
+			{
+				audio.time = 0.0f;
+				audio.Play();
+			}
 		}
 
 		return true;
