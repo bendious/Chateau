@@ -1808,6 +1808,7 @@ MonoBehaviour:
   m_waveSecondsMax: 0
   m_waveStartWeight: 0
   m_startWavesImmediately: 0
+  m_enemyCountMax: 20
   m_waveEnemyCountMax: 2147483647
   m_waveEscalationMin: 0
   m_waveEscalationMax: 0

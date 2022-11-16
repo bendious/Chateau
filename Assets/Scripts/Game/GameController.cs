@@ -91,6 +91,7 @@ public class GameController : MonoBehaviour
 	[SerializeField] private float m_waveSecondsMax = 90.0f;
 	public float m_waveStartWeight = 1.0f;
 	[SerializeField] private bool m_startWavesImmediately = false;
+	[SerializeField] private int m_enemyCountMax = 20;
 	[SerializeField] private int m_waveEnemyCountMax = int.MaxValue;
 	[SerializeField] private float m_waveEscalationMin = 0.0f;
 	[SerializeField] private float m_waveEscalationMax = 4.0f;
@@ -1153,8 +1154,9 @@ public class GameController : MonoBehaviour
 		}
 
 		// sequentially spawn enemies
+		// TODO: despawn/kill farthest enemies rather than early-outing if too many are currently active?
 		m_waveWeightRemaining = m_waveWeight;
-		for (int waveEnemyCount = 0; waveEnemyCount < m_waveEnemyCountMax && m_waveWeightRemaining > 0.0f; ++waveEnemyCount)
+		for (int waveEnemyCount = 0; waveEnemyCount < m_waveEnemyCountMax && m_enemies.Count < m_enemyCountMax && m_waveWeightRemaining > 0.0f; ++waveEnemyCount)
 		{
 			options = options.Where(weightedObj => weightedObj.m_object.m_difficulty <= m_waveWeightRemaining).ToArray(); // NOTE that since m_waveWeightRemaining never increases, it is safe to assume that all previously excluded options are still excluded
 			if (options.Length <= 0)
