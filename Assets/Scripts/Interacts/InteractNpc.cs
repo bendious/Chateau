@@ -121,7 +121,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 		{
 			dialogueCur = dialogueAllowed.RandomWeighted();
 		}
-		Dialogue.Info dialogueAppend = dialogueAllowed.FirstOrDefault(dialogueWeighted => dialogueWeighted.m_object.m_appendToAll && dialogueWeighted.m_object != dialogueCur)?.m_object; // TODO: support multiple append dialogues?
+		Dialogue.Info dialogueAppend = dialogueCur.m_singleUse ? null : dialogueAllowed.FirstOrDefault(dialogueWeighted => dialogueWeighted.m_object.m_appendToAll && dialogueWeighted.m_object != dialogueCur)?.m_object; // TODO: support multiple append dialogues?
 
 		// play dialogue and wait
 		if (otherNpc != null && otherNpc.m_expressionsCombined == null)

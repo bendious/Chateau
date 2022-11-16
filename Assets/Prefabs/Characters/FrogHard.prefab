@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &299841367225577416
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 6725369280228572274, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_difficulty
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6743793685333810325, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_maxHP
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6743793685333810325, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_gradient.ctime0
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6743793685333810325, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_gradient.ctime1
+      value: 32768
+      objectReference: {fileID: 0}
+    - target: {fileID: 6743793685333810325, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_gradient.ctime2
+      value: 65535
+      objectReference: {fileID: 0}
+    - target: {fileID: 6743793685333810325, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_gradient.key0.g
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6743793685333810325, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_gradient.key0.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6743793685333810325, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_gradient.key1.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6743793685333810325, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_gradient.key2.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6743793685333810325, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_gradient.key2.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6743793685333810325, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_gradient.m_NumColorKeys
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7816722055462106070, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_Color.g
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7816722055462106070, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7966795884487773214, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_Name
+      value: FrogHard
+      objectReference: {fileID: 0}
+    - target: {fileID: 7970240141818738168, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7970240141818738168, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7970240141818738168, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7970240141818738168, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}

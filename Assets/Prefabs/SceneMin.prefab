@@ -1738,12 +1738,24 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 7860237375500733911, guid: a59b0c7f16c0a4b43838a3bf904c9952, type: 3}
     m_weight: 1
-  - m_object: {fileID: 4332540462406199803, guid: a76b6335cfa95454897fe0488d403446, type: 3}
-    m_weight: 2
   - m_object: {fileID: 7544776239863355960, guid: c247edf037d4fb347984cdee36601f9b, type: 3}
     m_weight: 0.5
   - m_object: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
     m_weight: 2
+  - m_object: {fileID: 6078414917976764449, guid: 91d037443bcf7ff489d3fd3888a611c3, type: 3}
+    m_weight: 2
+  - m_object: {fileID: 1461884866152942204, guid: 206f3bb30caff0a48b30738ae5080706, type: 3}
+    m_weight: 2
+  - m_object: {fileID: 6448045915573556154, guid: f1ce27cf7b6cd4a42a624314d510c57e, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 5384693274687778750, guid: 96536b785289e7a4ca17e2fa71d9bbe8, type: 3}
+    m_weight: 2
+  - m_object: {fileID: 4332540462406199803, guid: a76b6335cfa95454897fe0488d403446, type: 3}
+    m_weight: 2
+  - m_object: {fileID: 3911103402705972133, guid: 6e82c5b726bf4204ab185ae08eda0132, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 6431455113897143375, guid: 0220fb3dbd0f65e4b8ec6028b0b39be6, type: 3}
+    m_weight: 4
   m_npcPrefabs:
   - m_object: {fileID: 1798732658372887148, guid: 286335db291a89e4a861600f39917758, type: 3}
     m_weight: 1

@@ -108,9 +108,35 @@ MonoBehaviour:
             stop moving for one second so you can off 'em.
           m_eventName: 
           m_breakAfterward: 0
-        - m_text: Spiders
+        - m_text: Bats
           m_preconditionName: EnemyTypeHasSpawned
           m_userdata: 3
+          m_followUp:
+          - Bats, yes!
+          - Shockingly easy to miss!
+          - Being practically blind is both an advantage and a disadvantage.
+          - Keep your ears open, and they'll run themselves right into their own
+            demise.
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: Bone Piles
+          m_preconditionName: EnemyTypeHasSpawned
+          m_userdata: 4
+          m_followUp:
+          - Yeah, you definitely have some skeletons in your closets, buddy.
+          - Talk about litterbugs, am I right?
+          - Don't bother trying to slice 'em up or burn 'em or anything. Blunt force
+            trauma all the way.
+          - Smash right through their defenses if you dare, or knock open a hole
+            from a distance.
+          - You can even rip off pieces by hand!
+          - My favorite is when I can slip past to their core in one shot. The rest
+            of the pile'll just collapse!
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: Spiders
+          m_preconditionName: EnemyTypeHasSpawned
+          m_userdata: 5
           m_followUp:
           - Yeah, we've got some big ones around here, don't we? At least they're
             not much for web-building.
@@ -125,35 +151,9 @@ MonoBehaviour:
             since they''re basically just hydraulic-powered balloons.'
           m_eventName: 
           m_breakAfterward: 0
-        - m_text: Bats
-          m_preconditionName: EnemyTypeHasSpawned
-          m_userdata: 4
-          m_followUp:
-          - Bats, yes!
-          - Shockingly easy to miss!
-          - Being practically blind is both an advantage and a disadvantage.
-          - Keep your ears open, and they'll run themselves right into their own
-            demise.
-          m_eventName: 
-          m_breakAfterward: 0
-        - m_text: Bone Piles
-          m_preconditionName: EnemyTypeHasSpawned
-          m_userdata: 5
-          m_followUp:
-          - Yeah, you definitely have some skeletons in your closets, buddy.
-          - Talk about litterbugs, am I right?
-          - Don't bother trying to slice 'em up or burn 'em or anything. Blunt force
-            trauma all the way.
-          - Smash right through their defenses if you dare, or knock open a hole
-            from a distance.
-          - You can even rip off pieces by hand!
-          - My favorite is when I can slip past to their core in one shot. The rest
-            of the pile'll just collapse!
-          m_eventName: 
-          m_breakAfterward: 0
         - m_text: Shadows
           m_preconditionName: EnemyTypeHasSpawned
-          m_userdata: 7
+          m_userdata: 6
           m_followUp:
           - Hmm, the worst; shadows...
           - They look like people, don't they?
@@ -196,6 +196,14 @@ MonoBehaviour:
           - I know of the Flames, of course, but the reference to six of them is
             unusual.
           - How would so many even be lit at the same time?
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: TODO
+          m_preconditionName: SecretFound
+          m_userdata: 3
+          m_followUp:
+          - (Ooo.)
+          - (Congrats, you found some temporary text that probably should be removed...)
           m_eventName: 
           m_breakAfterward: 0
         - m_text: Nothing.
