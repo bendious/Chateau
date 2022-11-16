@@ -47,8 +47,9 @@ public class LockController : MonoBehaviour, IUnlockable
 	[SerializeField] private float m_vfxDisableDelaySeconds = 2.0f;
 	[SerializeField] private VisualEffect m_vfxKeyDelay;
 
-	public WeightedObject<AudioClip>[] m_failureSFX;
-	public WeightedObject<AudioClip>[] m_unlockSFX;
+	[SerializeField] private WeightedObject<AudioClip>[] m_failureSFX;
+	[SerializeField] private WeightedObject<AudioClip>[] m_unlockSFX;
+	[SerializeField] private WeightedObject<GameObject>[] m_unlockVFX;
 
 	[SerializeField] private float m_activeColorPct = 2.0f;
 
@@ -535,18 +536,25 @@ public class LockController : MonoBehaviour, IUnlockable
 		// TODO: support arbitrary key placement?
 		UpdateSprite();
 
-		// TODO: unlock animation/VFX/etc.
+		// TODO: unlock animation/etc.
 		if (!silent)
 		{
-			audio.clip = m_unlockSFX.RandomWeighted();
-			if (m_unlockDestroyDelay <= 0.0f)
+			if (m_unlockSFX.Length > 0)
 			{
-				AudioSource.PlayClipAtPoint(audio.clip, transform.position); // NOTE that we can't use our own audio source if we're being despawned immediately
+				audio.clip = m_unlockSFX.RandomWeighted();
+				if (m_unlockDestroyDelay <= 0.0f)
+				{
+					AudioSource.PlayClipAtPoint(audio.clip, transform.position); // NOTE that we can't use our own audio source if we're being despawned immediately
+				}
+				else
+				{
+					audio.time = 0.0f;
+					audio.Play();
+				}
 			}
-			else
+			if (m_unlockVFX.Length > 0)
 			{
-				audio.time = 0.0f;
-				audio.Play();
+				Instantiate(m_unlockVFX.RandomWeighted(), transform.position, transform.rotation);
 			}
 		}
 

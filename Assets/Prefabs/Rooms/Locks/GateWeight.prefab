@@ -68,13 +68,21 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
+      propertyPath: m_unlockVFX.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
       propertyPath: m_keyPrefabs.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-      propertyPath: m_unlockSFX.Array.data[0].m_object
+      propertyPath: m_unlockVFX.Array.data[0].m_object
       value: 
-      objectReference: {fileID: 8300000, guid: 58a003fc4985fbe41bab1cf11f30743a, type: 3}
+      objectReference: {fileID: 1725705494736589193, guid: 380f8de1f5528c540903039e5616d0c3, type: 3}
+    - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
+      propertyPath: m_unlockVFX.Array.data[0].m_weight
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7240169466329799325, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
       propertyPath: m_keyPrefabs.Array.data[0].m_object.m_genericKeys
       value: 1
@@ -93,26 +101,3 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 5067f35a40cf377469673d711257b7f8, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
---- !u!1 &798767993087980408 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
-  m_PrefabInstance: {fileID: 5945927362639387083}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &6506707651237619916
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 798767993087980408}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b10adb0928a4164d99a4172c09b8c0b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_prefab: {fileID: 1725705494736589193, guid: 380f8de1f5528c540903039e5616d0c3, type: 3}
-  m_prefabAltRepeated: {fileID: 0}
-  m_triggerDefault: 2
-  m_triggerEnemy: 0
-  m_triggerGround: 0
-  m_triggerWall: 0
