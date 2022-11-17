@@ -273,6 +273,8 @@ public static class Utility
 		return collider.attachedRigidbody.GetComponent<Health>();
 	}
 
+	public static Bounds ToBounds(this Collider2D[] colliders) => colliders.Aggregate(new Bounds() { size = Vector3.negativeInfinity }, (bounds, collider) => { bounds.Encapsulate(collider.bounds); return bounds; });
+
 	public static bool ShouldIgnore(this Collider2D self, Rigidbody2D body, Collider2D[] colliders, float dynamicsMassThreshold = 0.0f, Type ignoreChildrenExcept = null, float oneWayTopEpsilon = -1.0f, bool ignoreStatics = false, bool ignorePhysicsSystem = false)
 	{
 		Assert.IsTrue(colliders != null && colliders.Length > 0);
@@ -410,11 +412,14 @@ public static class Utility
 		}
 	}
 
+	private const System.Reflection.BindingFlags m_nonpublicWorkaroundFlags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+
+	public static object NonpublicGetterWorkaround(this object component, string fieldName) => component.GetType().GetField(fieldName, m_nonpublicWorkaroundFlags).GetValue(component);
+
 	public static void NonpublicSetterWorkaround(this object component, string fieldName, object value)
 	{
 		// see https://forum.unity.com/threads/lwrp-light-2d-change-sprite-in-script.753542/ for explanation of workaround for serialized properties not having public setters
-		const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-		System.Reflection.FieldInfo setterWorkaround = component.GetType().GetField(fieldName, flags);
+		System.Reflection.FieldInfo setterWorkaround = component.GetType().GetField(fieldName, m_nonpublicWorkaroundFlags);
 		setterWorkaround.SetValue(component, value);
 	}
 

@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 using UnityEngine.VFX;
 
@@ -251,12 +252,35 @@ public sealed class AvatarController : KinematicCharacter
 		bool focusCanInteract = focus.Item2.Item1 > 0.0f;
 		if (focusCanInteract)
 		{
-			m_focusIndicator.transform.SetPositionAndRotation(m_focusObj.transform.position, m_focusObj.transform.rotation);
+			// gather components from indicator and focus
+			// TODO: cache indicator components?
+			SpriteMask maskIndicator = m_focusIndicator.GetComponent<SpriteMask>();
+			SpriteMask maskOrig = m_focusObj.GetComponent<SpriteMask>();
+			SpriteRenderer rendererOrig = m_focusObj.GetComponent<SpriteRenderer>();
+			SpriteRenderer rendererIndicator = m_focusIndicator.GetComponent<SpriteRenderer>();
+			Light2D lightIndicator = m_focusIndicator.GetComponent<Light2D>();
+			Light2D lightOrig = m_focusObj.GetComponentsInChildren<Light2D>().FirstOrDefault(light => light.lightType == Light2D.LightType.Sprite);
+
+			// enable/disable indicator components
+			maskIndicator.enabled = maskOrig != null && rendererOrig != null && rendererOrig.maskInteraction != SpriteMaskInteraction.None;
+			lightIndicator.enabled = (rendererOrig != null || lightOrig != null) && !maskIndicator.enabled && rendererOrig.drawMode == SpriteDrawMode.Simple;
+			rendererIndicator.enabled = rendererOrig != null && !lightIndicator.enabled;
+
+			// set transform
+			// NOTE the extra logic due to Light2D not handling sprite pivots the same way as SpriteRenderer...
+			Vector3 indicatorPos = lightIndicator.enabled ? lightOrig != null ? lightOrig.transform.position : m_focusObj.transform.position + m_focusObj.transform.rotation * Vector3.Scale(rendererOrig.bounds.size, new Vector2(0.5f - (rendererOrig.flipX ? -rendererOrig.sprite.pivot.x : rendererOrig.sprite.pivot.x) / rendererOrig.sprite.rect.size.x, 0.5f - (rendererOrig.flipY ? -rendererOrig.sprite.pivot.y : rendererOrig.sprite.pivot.y) / rendererOrig.sprite.rect.size.y)) : m_focusObj.transform.position;
+			m_focusIndicator.transform.SetPositionAndRotation(indicatorPos, lightOrig != null && lightIndicator.enabled ? lightOrig.transform.rotation : m_focusObj.transform.rotation);
+
+			// use sprite light to encourage bloom
+			if (lightIndicator.enabled)
+			{
+				lightIndicator.NonpublicSetterWorkaround("m_LightCookieSprite", lightOrig != null ? lightOrig.lightCookieSprite : rendererOrig.sprite);
+				lightIndicator.color = lightOrig != null ? lightOrig.color : rendererOrig.color;
+				lightIndicator.NonpublicSetterWorkaround("m_ApplyToSortingLayers", lightOrig != null ? lightOrig.NonpublicGetterWorkaround("m_ApplyToSortingLayers") : new[] { rendererOrig.sortingLayerID });
+				// TODO: handle flip{X/Y}/maskInteraction?
+			}
 
 			// mirror sprite rendering
-			SpriteRenderer rendererIndicator = m_focusIndicator.GetComponent<SpriteRenderer>();
-			SpriteRenderer rendererOrig = m_focusObj.GetComponent<SpriteRenderer>();
-			rendererIndicator.enabled = rendererOrig != null;
 			if (rendererIndicator.enabled)
 			{
 				rendererIndicator.sortingLayerName = rendererOrig.sortingLayerName;
@@ -272,9 +296,6 @@ public sealed class AvatarController : KinematicCharacter
 			}
 
 			// mirror sprite masking
-			SpriteMask maskIndicator = m_focusIndicator.GetComponent<SpriteMask>();
-			SpriteMask maskOrig = m_focusObj.GetComponent<SpriteMask>();
-			maskIndicator.enabled = maskOrig != null;
 			if (maskIndicator.enabled)
 			{
 				maskIndicator.sprite = maskOrig.sprite;
@@ -287,7 +308,8 @@ public sealed class AvatarController : KinematicCharacter
 
 			m_focusIndicator.transform.localScale = m_focusObj.transform.localScale; // NOTE that w/o this, swapping between renderer draw modes was doing weird things to the indicator's scale...
 
-			m_focusPrompt.transform.position = new Vector3(focus.Item1.bounds.center.x, focus.Item1.bounds.max.y, m_focusIndicator.transform.position.z) + m_focusPromptOffset;
+			Bounds bbox = focus.Item1.GetComponents<Collider2D>().ToBounds();
+			m_focusPrompt.transform.position = new Vector3(bbox.center.x, bbox.max.y, m_focusIndicator.transform.position.z) + m_focusPromptOffset;
 			m_focusPrompt.SetSprite(m_focusObj.GetComponent<IInteractable>().CanInteractReverse(this) ? 1 : 0);
 		}
 		m_focusIndicator.SetActive(focusCanInteract);

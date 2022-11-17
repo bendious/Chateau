@@ -59,7 +59,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 	public bool HasForcedVelocity => !m_velocityForcedWeight.magnitude.FloatEqual(0.0f);
 
-	public Bounds Bounds => (m_colliders != null && m_colliders.Length > 0 ? m_colliders : GetComponents<Collider2D>()).Aggregate(new Bounds() { size = Vector3.negativeInfinity }, (bounds, collider) => { bounds.Encapsulate(collider.bounds); return bounds; }); // NOTE the extra logic to support being used before Awake() to support prefabs // TODO: cache local bounds?
+	public Bounds Bounds => (m_colliders != null && m_colliders.Length > 0 ? m_colliders : GetComponents<Collider2D>()).ToBounds(); // NOTE the extra logic to support being used before Awake() to support prefabs // TODO: cache local bounds?
 
 
 	public Vector2 TargetVelocity { get; protected set; }
