@@ -153,7 +153,7 @@ public class RoomController : MonoBehaviour
 			{
 				return false;
 			}
-			if (flags.BitsSet(PathFlags.Directional) && ((m_connectionType == ConnectionType.SiblingShallower && m_onewayBlockageType != BlockageType.NoLadder) || room.m_layoutNodes.Any(fromNode => fromNode.m_children != null && fromNode.m_children.Count > 0 && fromNode.m_children.All(toNode => ConnectedRoom.m_layoutNodes.Contains(toNode))))) //TODO: take areas into account and the fact that earlier area exits are guaranteed to be traversable once later areas are accessed
+			if (flags.BitsSet(PathFlags.Directional) && ((m_connectionType == ConnectionType.SiblingShallower && m_onewayBlockageType != BlockageType.NoLadder) || room.LayoutNodes.Any(fromNode => fromNode.m_children != null && fromNode.m_children.Count > 0 && fromNode.m_children.All(toNode => ConnectedRoom.LayoutNodes.Contains(toNode))))) // TODO: take areas into account and the fact that earlier area exits are guaranteed to be traversable once later areas are accessed?
 			{
 				return false;
 			}
@@ -196,7 +196,7 @@ public class RoomController : MonoBehaviour
 	[SerializeField]
 	private /*readonly*/ DoorwayInfo[] m_doorwayInfos;
 
-	private /*readonly*/ LayoutGenerator.Node[] m_layoutNodes;
+	public LayoutGenerator.Node[] LayoutNodes { get; private set; }
 
 	private /*readonly*/ GameObject[] m_spawnPoints;
 
@@ -256,7 +256,7 @@ public class RoomController : MonoBehaviour
 #if UNITY_EDITOR
 	private void OnDrawGizmos()
 	{
-		if (m_layoutNodes == null || ConsoleCommands.LayoutDebugLevel == (int)ConsoleCommands.LayoutDebugLevels.None)
+		if (LayoutNodes == null || ConsoleCommands.LayoutDebugLevel == (int)ConsoleCommands.LayoutDebugLevels.None)
 		{
 			return;
 		}
@@ -267,7 +267,7 @@ public class RoomController : MonoBehaviour
 			UnityEditor.Handles.Label(centerPosItr, RoomType.ToString()); // TODO: prevent drift from Scene camera?
 		}
 
-		foreach (LayoutGenerator.Node node in m_layoutNodes)
+		foreach (LayoutGenerator.Node node in LayoutNodes)
 		{
 			centerPosItr.y -= 1.0f;
 			UnityEditor.Handles.Label(centerPosItr, node.m_type.ToString() + " (depth " + node.Depth + ")"); // TODO: prevent drift from Scene camera?
@@ -316,9 +316,8 @@ public class RoomController : MonoBehaviour
 
 	public void SetNodes(LayoutGenerator.Node[] layoutNodes)
 	{
-		Assert.IsNull(m_layoutNodes);
-		m_layoutNodes = layoutNodes;
-		foreach (LayoutGenerator.Node node in m_layoutNodes)
+		LayoutNodes = layoutNodes;
+		foreach (LayoutGenerator.Node node in LayoutNodes)
 		{
 			Debug.Assert(node.m_room == null);
 			node.m_room = this;
@@ -330,14 +329,14 @@ public class RoomController : MonoBehaviour
 		// record/increment depths since we need the original values after passing the incremented values to our descendants
 		int doorwayDepthLocal = doorwayDepth;
 		int npcDepthLocal = npcDepth;
-		npcDepth += m_layoutNodes.Count(node => node.m_type == LayoutGenerator.Node.Type.Npc);
-		doorwayDepth += m_layoutNodes.Count(node => node.m_type == LayoutGenerator.Node.Type.Entrance || node.m_type == LayoutGenerator.Node.Type.ExitDoor);
+		npcDepth += LayoutNodes.Count(node => node.m_type == LayoutGenerator.Node.Type.Npc);
+		doorwayDepth += LayoutNodes.Count(node => node.m_type == LayoutGenerator.Node.Type.Entrance || node.m_type == LayoutGenerator.Node.Type.ExitDoor);
 
 		// spawn fixed-placement node architecture
 		// NOTE the separate loops to ensure fixed-placement nodes are processed before flexible ones; also that this needs to be before flexibly-placed objects such as furniture
 		float fillPct = 0.0f;
 		Vector2 extentsInterior = BoundsInterior.extents;
-		foreach (LayoutGenerator.Node node in m_layoutNodes)
+		foreach (LayoutGenerator.Node node in LayoutNodes)
 		{
 			switch (node.m_type)
 			{
@@ -350,7 +349,7 @@ public class RoomController : MonoBehaviour
 
 		// open cutbacks
 		// NOTE that this has to be before flexible-placement spawning to avoid overlap w/ ladders
-		if (GameController.Instance.m_allowCutbacks && m_layoutNodes.All(node => node.m_type != LayoutGenerator.Node.Type.RoomSecret && node.m_type != LayoutGenerator.Node.Type.RoomIndefinite && node.m_type != LayoutGenerator.Node.Type.RoomIndefiniteCorrect))
+		if (GameController.Instance.m_allowCutbacks && LayoutNodes.All(node => node.m_type != LayoutGenerator.Node.Type.RoomSecret && node.m_type != LayoutGenerator.Node.Type.RoomIndefinite && node.m_type != LayoutGenerator.Node.Type.RoomIndefiniteCorrect))
 		{
 			foreach (DoorwayInfo doorwayInfo in m_doorwayInfos)
 			{
@@ -364,7 +363,7 @@ public class RoomController : MonoBehaviour
 				GameObject doorway = doorwayInfo.m_object;
 				Vector2 doorwayPos = doorway.transform.position;
 				RoomController sibling = FromPosition(doorwayPos + direction);
-				if (sibling == null || sibling.m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret || node.m_type == LayoutGenerator.Node.Type.RoomIndefinite || node.m_type == LayoutGenerator.Node.Type.RoomIndefiniteCorrect)) // TODO: allow some cutbacks in indefinite room generation?
+				if (sibling == null || sibling.LayoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret || node.m_type == LayoutGenerator.Node.Type.RoomIndefinite || node.m_type == LayoutGenerator.Node.Type.RoomIndefiniteCorrect)) // TODO: allow some cutbacks in indefinite room generation?
 				{
 					continue;
 				}
@@ -386,7 +385,7 @@ public class RoomController : MonoBehaviour
 				DoorwayInfo reverseInfo = sibling.m_doorwayInfos[reverseIdx];
 
 				// determine relationships
-				int siblingDepthComparison = sibling.m_layoutNodes.Max(node => node.Depth).CompareTo(m_layoutNodes.Max(node => node.Depth));
+				int siblingDepthComparison = sibling.LayoutNodes.Max(node => node.Depth).CompareTo(LayoutNodes.Max(node => node.Depth));
 				RoomController deepRoom = siblingDepthComparison < 0 ? this : sibling;
 				RoomController shallowRoom = deepRoom == this ? sibling : this;
 				RoomController lowRoom = direction.y.FloatEqual(0.0f) ? deepRoom : (direction.y > 0.0f ? this : sibling);
@@ -445,7 +444,7 @@ public class RoomController : MonoBehaviour
 						{
 							// block w/ a destructible if the siblings are or can be oriented in the desired direction
 							// TODO: allow orienting destructible one-ways in either deep-->shallow or shallow-->deep orientations?
-							if (infoReverse.SiblingShallowerRoom != null && infoReverse.SiblingShallowerRoom.m_layoutNodes.Max(node => node.Depth) == infoReverse.Room.m_layoutNodes.Max(node => node.Depth))
+							if (infoReverse.SiblingShallowerRoom != null && infoReverse.SiblingShallowerRoom.LayoutNodes.Max(node => node.Depth) == infoReverse.Room.LayoutNodes.Max(node => node.Depth))
 							{
 								infoReverse.FlipSiblingDirection();
 							}
@@ -460,7 +459,7 @@ public class RoomController : MonoBehaviour
 				}
 
 				// maybe add one-way lock
-				Debug.Assert(noLadder || cutbackIsLocked || SceneManager.GetActiveScene().buildIndex == 0 || m_layoutNodes.First().AreaParents.Zip(sibling.m_layoutNodes.First().AreaParents, System.Tuple.Create).All(pair => pair.Item1 == pair.Item2), "Open cutback between separate areas?"); // TODO: don't assume 0th scene is open-concept?
+				Debug.Assert(noLadder || cutbackIsLocked || SceneManager.GetActiveScene().buildIndex == 0 || LayoutNodes.First().AreaParents.Zip(sibling.LayoutNodes.First().AreaParents, System.Tuple.Create).All(pair => pair.Item1 == pair.Item2), "Open cutback between separate areas?"); // TODO: don't assume 0th scene is open-concept?
 				if (cutbackIsLocked || Random.value <= m_cutbackBreakablePct)
 				{
 					// add one-way lock
@@ -493,7 +492,7 @@ public class RoomController : MonoBehaviour
 		// room type
 		// TODO: more deliberate choice?
 		List<float> weightsScaled = new();
-		RoomType = (m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? GameController.Instance.m_roomTypesBoss : m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret) ? GameController.Instance.m_roomTypesSecret : GameController.Instance.m_roomTypes).Where(type =>
+		RoomType = (LayoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.Boss) ? GameController.Instance.m_roomTypesBoss : LayoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomSecret) ? GameController.Instance.m_roomTypesSecret : GameController.Instance.m_roomTypes).Where(type =>
 		{
 			float weightScaled = type.m_weight;
 			if (type.m_object.m_preconditionNames == null)
@@ -526,7 +525,7 @@ public class RoomController : MonoBehaviour
 
 		// per-area appearance
 		// TODO: separate RoomType into {Area/Room}Type? tend brighter based on progress?
-		IEnumerable<RoomController> areaParents = m_layoutNodes.SelectMany(node => node.AreaParents).Select(node => node.m_room).Distinct();
+		IEnumerable<RoomController> areaParents = LayoutNodes.SelectMany(node => node.AreaParents).Select(node => node.m_room).Distinct();
 		RoomController areaParent = areaParents.FirstOrDefault(room => room.m_wallInfo != null);
 		bool isAreaInit = areaParent == null;
 		if (isAreaInit)
@@ -619,7 +618,7 @@ public class RoomController : MonoBehaviour
 		}
 
 		// spawn flexible node architecture
-		foreach (LayoutGenerator.Node node in m_layoutNodes)
+		foreach (LayoutGenerator.Node node in LayoutNodes)
 		{
 			switch (node.m_type)
 			{
@@ -796,7 +795,7 @@ public class RoomController : MonoBehaviour
 		int furnitureRemaining = furnitureList.Count - 1;
 		foreach (System.Tuple<FurnitureController, IUnlockable> furniture in furnitureList)
 		{
-			itemCount += furniture.Item1.SpawnItems(furniture.Item2 != null || m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.BonusItems), RoomType, itemCount, furnitureRemaining, prefabsSpawned).Count;
+			itemCount += furniture.Item1.SpawnItems(furniture.Item2 != null || LayoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.BonusItems), RoomType, itemCount, furnitureRemaining, prefabsSpawned).Count;
 			--furnitureRemaining;
 
 			if (furniture.Item2 != null)
@@ -1169,14 +1168,14 @@ public class RoomController : MonoBehaviour
 	{
 		// prevent putting keys behind their lock
 		// NOTE that we check all nodes' depth even though all nodes w/i a single room should be at the same depth
-		if (layoutNodes.Max(node => node.Depth) < m_layoutNodes.Min(node => node.Depth))
+		if (layoutNodes.Max(node => node.Depth) < LayoutNodes.Min(node => node.Depth))
 		{
 			return null;
 		}
 
 		// ensure areas end up grouped under a single room rather than spread out in different directions
-		bool isSameArea = m_layoutNodes.First().AreaParents == layoutNodes.First().AreaParents; // NOTE the assumption that all nodes w/i a single room share an area
-		RoomController areaHeadRoom = isSameArea ? null : m_doorwayInfos.Select(info => info.ChildRoom).FirstOrDefault(childRoom => childRoom != null && childRoom.m_layoutNodes.First().AreaParents == layoutNodes.First().AreaParents);
+		bool isSameArea = LayoutNodes.First().AreaParents == layoutNodes.First().AreaParents; // NOTE the assumption that all nodes w/i a single room share an area
+		RoomController areaHeadRoom = isSameArea ? null : m_doorwayInfos.Select(info => info.ChildRoom).FirstOrDefault(childRoom => childRoom != null && childRoom.LayoutNodes.First().AreaParents == layoutNodes.First().AreaParents);
 		if (areaHeadRoom != null)
 		{
 			return areaHeadRoom.SpawnChildRoom(roomPrefab, layoutNodes, allowedDirections, ref orderedLockIdx);
@@ -1389,8 +1388,8 @@ public class RoomController : MonoBehaviour
 
 		// runtime generation if requested
 		const int runtimeRoomsMax = 10; // TODO: calculate based on hardware capabilities?
-		bool isCorrect = m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomIndefiniteCorrect);
-		if (m_doorwayInfos.All(info => info.ChildRoom == null) && (isCorrect || m_layoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomIndefinite)))
+		bool isCorrect = LayoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomIndefiniteCorrect);
+		if (m_doorwayInfos.All(info => info.ChildRoom == null) && (isCorrect || LayoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.RoomIndefinite)))
 		{
 			if (!isCorrect)
 			{
@@ -1403,12 +1402,12 @@ public class RoomController : MonoBehaviour
 			for (int i = 0; i < maxAttempts; ++i)
 			{
 				// create and link nodes
-				int depth = m_layoutNodes.Max(node => node.Depth);
+				int depth = LayoutNodes.Max(node => node.Depth);
 				if (newNodeTree == null)
 				{
 					isCorrect = isCorrect && i == 0 && GameController.Instance.OnNarrowPath;
 					newNodeTree = new() { new(LayoutGenerator.Node.Type.Secret, new() { new(LayoutGenerator.Node.Type.TightCoupling, new() { new(isCorrect ? (depth > GameController.NarrowPathColors.Length ? LayoutGenerator.Node.Type.ExitDoor : LayoutGenerator.Node.Type.RoomIndefiniteCorrect) : LayoutGenerator.Node.Type.RoomIndefinite) }) }) }; // TODO: streamline?
-					foreach (LayoutGenerator.Node node in m_layoutNodes)
+					foreach (LayoutGenerator.Node node in LayoutNodes)
 					{
 						node.AddChildren(newNodeTree);
 					}
@@ -1441,7 +1440,7 @@ public class RoomController : MonoBehaviour
 
 						// TODO: despawn any non-child objects in room?
 
-						foreach (LayoutGenerator.Node node in roomToDelete.m_layoutNodes)
+						foreach (LayoutGenerator.Node node in roomToDelete.LayoutNodes)
 						{
 							foreach (LayoutGenerator.Node parentNode in node.DirectParentsInternal)
 							{
@@ -1528,7 +1527,7 @@ public class RoomController : MonoBehaviour
 
 	private LayoutGenerator.Node GateNodeToChild(LayoutGenerator.Node[] childNodes, params LayoutGenerator.Node.Type[] gateTypes)
 	{
-		IEnumerable<LayoutGenerator.Node> ancestors = m_layoutNodes.Select(node => node.FirstCommonAncestor(childNodes)).Distinct();
+		IEnumerable<LayoutGenerator.Node> ancestors = LayoutNodes.Select(node => node.FirstCommonAncestor(childNodes)).Distinct();
 		return ancestors.FirstOrDefault(node => gateTypes.Contains(node.m_type) && childNodes.Any(childNode => childNode.DirectParents.Contains(node))); // TODO: ensure gates are placed even if a room ends up between the gate and child rooms?
 	}
 
@@ -1665,7 +1664,7 @@ public class RoomController : MonoBehaviour
 			renderer.GetComponent<BoxCollider2D>().size = size;
 			if (isSecret)
 			{
-				renderer.color = m_layoutNodes.First().AreaParents.First().m_room.m_wallColor; // NOTE that in case m_wallColor isn't set yet FinalizeRecursive() will iterate over existing doorway blockers when m_wallColor is set
+				renderer.color = LayoutNodes.First().AreaParents.First().m_room.m_wallColor; // NOTE that in case m_wallColor isn't set yet FinalizeRecursive() will iterate over existing doorway blockers when m_wallColor is set
 			}
 
 			// TODO: don't assume that multi-part gates are synonymous w/ one-way breakable gates?
@@ -1721,7 +1720,7 @@ public class RoomController : MonoBehaviour
 		}
 
 		// spawn keys
-		LayoutGenerator.Node lockNode = doorwayInfo.ChildRoom == null ? null : GateNodeToChild(doorwayInfo.ChildRoom.m_layoutNodes, LayoutGenerator.Node.Type.Lock); // NOTE that we ignore LockOrdered nodes since Entryway locks don't spawn their own keys
+		LayoutGenerator.Node lockNode = doorwayInfo.ChildRoom == null ? null : GateNodeToChild(doorwayInfo.ChildRoom.LayoutNodes, LayoutGenerator.Node.Type.Lock); // NOTE that we ignore LockOrdered nodes since Entryway locks don't spawn their own keys
 		RoomController[] keyRooms = doorwayInfo.ChildRoom == null ? new[] { this } : lockNode?.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray();
 		float depthPct = lockNode == null ? 0.0f : lockNode.DepthPercent;
 		spawnAction(unlockable, this, keyRooms == null || keyRooms.Length <= 0 ? null : doorwayInfo.m_excludeSelf.Value ? keyRooms.Where(room => room != this).ToArray() : keyRooms, depthPct);

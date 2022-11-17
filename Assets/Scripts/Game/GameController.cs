@@ -815,6 +815,7 @@ public class GameController : MonoBehaviour
 			nodesSplit.Enqueue(newList);
 		}
 
+		RoomController insertedRoomParent = null;
 		while (nodesSplit.TryDequeue(out List<LayoutGenerator.Node> nodesList))
 		{
 			if (nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Entrance))
@@ -839,7 +840,7 @@ public class GameController : MonoBehaviour
 				RoomController spawnRoom = null;
 				foreach (LayoutGenerator.Node node in nodesList)
 				{
-					spawnRoom = node.TightCoupleParent?.m_room;
+					spawnRoom = insertedRoomParent != null ? insertedRoomParent : node.TightCoupleParent?.m_room;
 					if (spawnRoom != null)
 					{
 						break;
@@ -863,6 +864,7 @@ public class GameController : MonoBehaviour
 					if (childRoom != null)
 					{
 						++roomCount;
+						insertedRoomParent = null; // TODO: limit the length of chains of inserted rooms?
 						if (childRoom.transform.position.y >= 0.0f)
 						{
 							m_ctGroupOverview.AddMember(childRoom.m_backdrop.transform, 1.0f, 0.0f);
@@ -893,6 +895,40 @@ public class GameController : MonoBehaviour
 				}
 				if (childRoom == null)
 				{
+					if (allowedDirections != null && insertedRoomParent == null)
+					{
+						// try inserting an arbitrary room before the direction-constrained room
+						// track/detach nodes to place/move
+						LayoutGenerator.Node nodeNew = new(LayoutGenerator.Node.Type.Room);
+						IEnumerable<LayoutGenerator.Node> movedNodes = spawnRoom.LayoutNodes.Where(n => n.m_type == LayoutGenerator.Node.Type.Lock || n.m_type == LayoutGenerator.Node.Type.LockOrdered); // TODO: generalize?
+						foreach (LayoutGenerator.Node n in spawnRoom.LayoutNodes)
+						{
+							n.m_room = null;
+						}
+						spawnRoom.SetNodes(spawnRoom.LayoutNodes.Where(n => !movedNodes.Contains(n)).ToArray());
+
+						// determine insertion point & insert
+						IEnumerable<LayoutGenerator.Node> parentNodes = spawnRoom.LayoutNodes.Where(n => spawnRoom.LayoutNodes.All(n2 => n == n2 || !n.HasDescendant(n2)));
+						List<LayoutGenerator.Node> nodeListNew = new() { nodeNew };
+						foreach (LayoutGenerator.Node n in parentNodes)
+						{
+							n.Insert(nodeListNew);
+						}
+						nodeListNew.AddRange(movedNodes);
+
+						// re-queue at front
+						Queue<List<LayoutGenerator.Node>> tempQueue = nodesSplit;
+						nodesSplit = new();
+						nodesSplit.Enqueue(nodeListNew);
+						nodesSplit.Enqueue(nodesList);
+						foreach (List<LayoutGenerator.Node> list in tempQueue)
+						{
+							nodesSplit.Enqueue(list);
+						}
+
+						insertedRoomParent = spawnRoom;
+						continue;
+					}
 					return 0;
 				}
 			}
@@ -1243,7 +1279,7 @@ public class GameController : MonoBehaviour
 
 		Color colorTmp;
 		float[] alphaVels = new float[graphics.Length];
-		while (graphics.Any(g => !g.color.a.FloatEqual(targetAlpha, 0.05f)))
+		while (!graphics.First().color.a.FloatEqual(targetAlpha, 0.05f)) // TODO: don't assume the first graphic is the backdrop?
 		{
 			int i = 0;
 			foreach (Graphic g in graphics)

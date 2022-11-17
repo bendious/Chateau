@@ -159,6 +159,30 @@ public class LayoutGenerator
 			return parents;
 		}
 
+		public void Insert(List<Node> newNodes)
+		{
+			if (m_children == null || m_children.Count <= 0)
+			{
+				AddChildren(newNodes);
+				return;
+			}
+
+			// break former connections
+			List<Node> childrenPrev = m_children;
+			m_children = null;
+			foreach (Node child in childrenPrev)
+			{
+				child.DirectParentsInternal.Remove(this);
+			}
+
+			// add new connections
+			AddChildren(newNodes);
+			foreach (Node n in newNodes.Where(n => newNodes.All(n2 => n == n2 || !n.HasDescendant(n2))))
+			{
+				n.AppendLeafChildren(childrenPrev);
+			}
+		}
+
 		public bool HasDescendant(Node node) => FindDescendant(n => n == node) != null;
 
 		public Node FindDescendant(Func<Node, bool> f)
