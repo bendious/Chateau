@@ -399,6 +399,7 @@ public static class Utility
 
 		if (shouldCancelFunc != null && shouldCancelFunc())
 		{
+			vfx.Play();
 			yield break;
 		}
 
