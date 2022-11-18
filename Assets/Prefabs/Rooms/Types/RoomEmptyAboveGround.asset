@@ -72,6 +72,7 @@ MonoBehaviour:
       m_rotationDegreesMax: 0
       m_heightMin: 0.5
       m_heightMax: 2
+      m_sharedHeight: 1
     m_weight: 1
   - m_object:
       m_prefabs:
@@ -80,14 +81,16 @@ MonoBehaviour:
       m_rotationDegreesMax: 15
       m_heightMin: 0.5
       m_heightMax: 2
+      m_sharedHeight: 1
     m_weight: 1
   - m_object:
       m_prefabs:
-      - m_object: {fileID: 2822861490100594337, guid: 9967047840e20ff49ab80acfc67aac4d, type: 3}
+      - m_object: {fileID: 9190664853761623357, guid: a2c0c828cf355094c8b57863e650a2f1, type: 3}
         m_weight: 1
       m_rotationDegreesMax: 90
       m_heightMin: 3
       m_heightMax: 4
+      m_sharedHeight: 1
     m_weight: 1
   - m_object:
       m_prefabs:
@@ -98,6 +101,8 @@ MonoBehaviour:
       m_rotationDegreesMax: 0
       m_heightMin: 0.25
       m_heightMax: 1
+      m_sharedHeight: 1
     m_weight: 1
   m_decorationsMin: 0
   m_decorationsMax: 2
+  m_spawnPointsMax: 4

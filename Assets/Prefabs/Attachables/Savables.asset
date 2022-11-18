@@ -19,13 +19,13 @@ MonoBehaviour:
   - m_prefab: {fileID: 505130580196242298, guid: 71fa7082e8d89d145b74f631fa1055a0, type: 3}
     m_materialsProduced: 20
     m_materialsConsumed: 30
-  - m_prefab: {fileID: 5431467373616861197, guid: c7dddeaea25a4ae45a3dbd762b81adab, type: 3}
+  - m_prefab: {fileID: 7395967157498622214, guid: c7dddeaea25a4ae45a3dbd762b81adab, type: 3}
     m_materialsProduced: 1
     m_materialsConsumed: 2
   - m_prefab: {fileID: 6107488262492150209, guid: 4feae967d8b4799409bbcd10967052ed, type: 3}
     m_materialsProduced: 2
     m_materialsConsumed: 3
-  - m_prefab: {fileID: 4368307219418328836, guid: a8338ae7ab0a6b640b8195decea2b6fb, type: 3}
+  - m_prefab: {fileID: 3652452028863203351, guid: 523ea983c0e948845b326ba2b8e10207, type: 3}
     m_materialsProduced: 10
     m_materialsConsumed: 15
   - m_prefab: {fileID: 6048625821855157070, guid: a5c7caeee92be8249ba14b290b6bb238, type: 3}

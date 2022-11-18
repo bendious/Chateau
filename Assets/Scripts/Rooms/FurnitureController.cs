@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 
 
-[DisallowMultipleComponent, RequireComponent(typeof(SpriteRenderer), typeof(Collider2D))]
+[DisallowMultipleComponent, RequireComponent(typeof(SpriteRenderer))]
 public class FurnitureController : MonoBehaviour
 {
 	[SerializeField] protected int m_itemsMin = 1;

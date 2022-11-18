@@ -154,10 +154,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		ProcessCollision(collision.collider, collision.rigidbody, collision.relativeVelocity, collision.otherCollider, collision.otherRigidbody, contacts);
 	}
 
-	private void OnCollisionStay2D(Collision2D collision)
-	{
-		OnCollisionEnter2D(collision);
-	}
+	private void OnCollisionStay2D(Collision2D collision) => OnCollisionEnter2D(collision);
 
 	private void OnTriggerEnter2D(Collider2D collider)
 	{
@@ -169,10 +166,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		ProcessCollision(collider, collider.attachedRigidbody, m_body.velocity, colliderLocal, m_body, null);
 	}
 
-	private void OnTriggerStay2D(Collider2D collider)
-	{
-		OnTriggerEnter2D(collider);
-	}
+	private void OnTriggerStay2D(Collider2D collider) => OnTriggerEnter2D(collider);
 
 	private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => IsCriticalPath = false; // TODO: don't assume that once any item is taken out of its scene it is no longer required?
 
@@ -561,7 +555,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.TooSlow);
 		}
 
-		if (isDetached)
+		if (isDetached && !collider.isTrigger)
 		{
 			// set layer back to default to re-enable default collisions
 			gameObject.layer = GameController.Instance.m_layerDefault.ToIndex();

@@ -672,7 +672,7 @@ MonoBehaviour:
   m_itemPrefabs:
   - m_object: {fileID: 248710772380000577, guid: 12c71736343a4ff47a4b7fa090b831df, type: 3}
     m_weight: 1
-  - m_object: {fileID: 5431467373616861197, guid: c7dddeaea25a4ae45a3dbd762b81adab, type: 3}
+  - m_object: {fileID: 7395967157498622214, guid: c7dddeaea25a4ae45a3dbd762b81adab, type: 3}
     m_weight: 1
   m_itemRarePrefabs:
   - m_object: {fileID: 4892872906617963342, guid: c7eaa25f16cf12a43af6e9177433afc1, type: 3}
