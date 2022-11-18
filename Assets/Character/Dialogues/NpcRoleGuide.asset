@@ -444,6 +444,40 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_lines:
+      - m_text: If you need to light a fire, watch yourself; the fireplaces around
+          here are a little... finicky.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: And by "finicky", I mean "they'll burn your eyebrows off if not your
+          hand"!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Even after getting them lit, they'll flare up at the slightest disturbance,
+          and I pity whoever's standing in front of them then.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: I almost want to say that somebody must've gotten <i>way</i> too
+          excited when first discovering lighter fluid, 'cause it's like the stones
+          are still soaked in it!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: You wouldn't happen to know who that was, would you?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
       - m_text: Be careful if you're headed down into the basement.
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38

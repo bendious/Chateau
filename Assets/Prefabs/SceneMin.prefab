@@ -5711,6 +5711,10 @@ MonoBehaviour:
       until last.
     - Use this to help retain items that you wish to hold on to.
     m_weight: 1
+  - m_object:
+    - Some elements of the environment can be hazardous to you... or to your adversaries.
+    - Positioning can be the difference between life and death.
+    m_weight: 1
 --- !u!222 &5837914634819301278
 CanvasRenderer:
   m_ObjectHideFlags: 0
