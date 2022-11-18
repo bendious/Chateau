@@ -49,7 +49,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public bool IsSwinging => m_holder != null && m_holder.IsSwinging;
 
 	private bool m_isCriticalPath;
-	public bool IsCriticalPath {
+	public bool IsCriticalPath { // TODO: set false for persistent keys after gate is unlocked
 		get => m_isCriticalPath;
 		set {
 			if (m_isCriticalPath == value)
@@ -228,9 +228,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	{
 		// ensure our overlay doesn't get stuck on
 		AvatarController avatar = Cause == null ? null : Cause.GetComponent<AvatarController>();
-		if (avatar != null && avatar.m_overlayCanvas.gameObject.activeSelf)
+		if (avatar != null)
 		{
-			avatar.ToggleOverlay(null, null);
+			if (avatar.m_overlayCanvas.gameObject.activeSelf)
+			{
+				avatar.ToggleOverlay(null, null);
+			}
+			avatar.StopAiming();
 		}
 
 		Health causeHealth = Cause == null ? null : Cause.GetComponent<Health>();
@@ -358,7 +362,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		if (text != null && !string.IsNullOrEmpty(text.text))
 		{
 			AvatarController avatar = Cause.GetComponent<AvatarController>();
-			if (avatar.m_overlayCanvas.gameObject.activeSelf != isPressed)
+			if (avatar != null && avatar.m_overlayCanvas.gameObject.activeSelf != isPressed)
 			{
 				avatar.ToggleOverlay(m_renderer, text.text);
 				return true;

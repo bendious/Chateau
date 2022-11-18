@@ -187,19 +187,16 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 				{
 					continue; // TODO: support static objects?
 				}
-				if (body.gameObject == source || ignoredObjects.Contains(body.gameObject)) // TODO: handle multi-part objects?
+				if (body.gameObject == source || ignoredObjects.Contains(body.gameObject) || body.transform.parent != null) // TODO: handle multi-part objects?
 				{
 					continue;
 				}
 				Bounds bounds = contact.collider.bounds; // TODO: handle multi-collider objects?
 				if (isClosing && boundsOverall.min.x <= bounds.min.x && boundsOverall.min.y <= bounds.min.y && boundsOverall.max.x >= bounds.max.x && boundsOverall.max.y >= bounds.max.y)
 				{
-					// fully enclosed; shut inside if not attached
-					if (body.transform.parent == null)
-					{
-						body.gameObject.SetActive(false);
-						m_enclosedObjects.Add(body.gameObject);
-					}
+					// fully enclosed; shut inside
+					body.gameObject.SetActive(false);
+					m_enclosedObjects.Add(body.gameObject);
 				}
 				else
 				{

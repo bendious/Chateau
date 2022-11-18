@@ -263,7 +263,7 @@ public sealed class AvatarController : KinematicCharacter
 
 			// enable/disable indicator components
 			maskIndicator.enabled = maskOrig != null && rendererOrig != null && rendererOrig.maskInteraction != SpriteMaskInteraction.None;
-			lightIndicator.enabled = (rendererOrig != null || lightOrig != null) && !maskIndicator.enabled && rendererOrig.drawMode == SpriteDrawMode.Simple;
+			lightIndicator.enabled = (rendererOrig != null || lightOrig != null) && !maskIndicator.enabled && (rendererOrig == null || rendererOrig.drawMode == SpriteDrawMode.Simple);
 			rendererIndicator.enabled = rendererOrig != null && !lightIndicator.enabled;
 
 			// set transform
@@ -644,8 +644,6 @@ public sealed class AvatarController : KinematicCharacter
 			return;
 		}
 
-		StopAiming();
-
 		// cycle inventory
 		// prep item/holder lists
 		IAttachable[] attachables = GetComponentsInChildren<IAttachable>(true).Where(attachable => attachable is not IHolder).ToArray();
@@ -970,7 +968,7 @@ public sealed class AvatarController : KinematicCharacter
 		InventorySync();
 	}
 
-	private void StopAiming()
+	public void StopAiming()
 	{
 		m_aimVfx.enabled = false; // NOTE that this instantly removes any existing particles, which is fine for this effect
 		m_aiming = false;
