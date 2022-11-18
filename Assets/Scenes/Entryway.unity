@@ -292,7 +292,7 @@ PrefabInstance:
       objectReference: {fileID: 2923841410956672815, guid: d85c41abf50cd684e942ff72af23a561, type: 3}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_zoneFinishedIndicators.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_zoneFinishedIndicators.Array.data[1]
@@ -302,6 +302,10 @@ PrefabInstance:
       propertyPath: m_zoneFinishedIndicators.Array.data[2]
       value: 
       objectReference: {fileID: 8759656438644630908, guid: 00cf494f795f0394c8564d479d236482, type: 3}
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_zoneFinishedIndicators.Array.data[3]
+      value: 
+      objectReference: {fileID: 7444162680440353626, guid: 9749b9a06849f544fa4eadc6e1793c26, type: 3}
     - target: {fileID: 6695799204022657180, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0

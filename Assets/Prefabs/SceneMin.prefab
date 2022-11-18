@@ -1826,6 +1826,7 @@ MonoBehaviour:
   m_waveEscalationMax: 0
   m_waveEnemyDelayMin: 0
   m_waveEnemyDelayMax: 0
+  m_damagePctPerUpgrade: 0.5
   m_bossRoomSealed: 0
   m_savableTags:
   - Savable

@@ -98,6 +98,8 @@ public class GameController : MonoBehaviour
 	[SerializeField] private float m_waveEnemyDelayMin = 0.5f;
 	[SerializeField] private float m_waveEnemyDelayMax = 2.0f;
 
+	[SerializeField] private float m_damagePctPerUpgrade = 0.5f;
+
 
 	[HideInInspector] public bool m_bossRoomSealed = false;
 
@@ -1105,7 +1107,7 @@ public class GameController : MonoBehaviour
 		light.NonpublicSetterWorkaround("m_NormalMapDistance", lightOrig.normalMapDistance + lightingUpgradeCount);
 
 		// damage
-		avatar.m_damageScalar = avatarObjOrig.GetComponent<KinematicCharacter>().m_damageScalar + m_upgradeCounts[(int)InteractUpgrade.Type.Damage];
+		avatar.m_damageScalar = avatarObjOrig.GetComponent<KinematicCharacter>().m_damageScalar + m_upgradeCounts[(int)InteractUpgrade.Type.Damage] * m_damagePctPerUpgrade;
 	}
 
 	private void StartWaves()
