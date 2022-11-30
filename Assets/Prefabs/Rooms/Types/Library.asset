@@ -62,6 +62,8 @@ MonoBehaviour:
   - m_object: {fileID: 3500915504940809235, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
     m_weight: 1
   - m_object: {fileID: 9028243466021937491, guid: 965caaff450150540afaa57f9d77e599, type: 3}
+    m_weight: 2
+  - m_object: {fileID: 7006169876976113177, guid: 2f0a9d2801151844382a714faeed710e, type: 3}
     m_weight: 4
   - m_object: {fileID: 3087063712995650317, guid: c8cbccd5771bad24bbeca9fec0c4c630, type: 3}
     m_weight: 0.5

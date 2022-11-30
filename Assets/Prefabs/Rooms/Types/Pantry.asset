@@ -60,6 +60,8 @@ MonoBehaviour:
   m_furniturePrefabs:
   - m_object: {fileID: 9028243466021937491, guid: 965caaff450150540afaa57f9d77e599, type: 3}
     m_weight: 1
+  - m_object: {fileID: 7006169876976113177, guid: 2f0a9d2801151844382a714faeed710e, type: 3}
+    m_weight: 0.5
   - m_object: {fileID: 3087063712995650317, guid: c8cbccd5771bad24bbeca9fec0c4c630, type: 3}
     m_weight: 0.5
   - m_object: {fileID: 3779706840238637801, guid: 8dc00c0997cb9f54f89140f27fed4cfe, type: 3}
