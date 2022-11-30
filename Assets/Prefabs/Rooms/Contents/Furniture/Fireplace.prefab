@@ -215,9 +215,7 @@ PrefabInstance:
       propertyPath: m_SortingLayerID
       value: 44612063
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 2729234802558307781, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
-    - {fileID: 5932594129036104068, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
 --- !u!4 &2212447094165274766 stripped
 Transform:
@@ -273,7 +271,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5142660895504974057, guid: 717755c04a138404d80679d2c0d06ab5, type: 3}
       propertyPath: m_Name
-      value: Platforms
+      value: InnerPlatform
       objectReference: {fileID: 0}
     - target: {fileID: 5920991455973060927, guid: 717755c04a138404d80679d2c0d06ab5, type: 3}
       propertyPath: m_Size.x
@@ -317,34 +315,3 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 717755c04a138404d80679d2c0d06ab5, type: 3}
---- !u!1 &2310609452631622074 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5142660895504974057, guid: 717755c04a138404d80679d2c0d06ab5, type: 3}
-  m_PrefabInstance: {fileID: 7444038796810207571}
-  m_PrefabAsset: {fileID: 0}
---- !u!61 &5625070125031216180
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2310609452631622074}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 6200000, guid: d18c3df8db137cc4684c97f20fb78a73, type: 2}
-  m_IsTrigger: 0
-  m_UsedByEffector: 1
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.5}
-  m_SpriteTilingProperty:
-    border: {x: 0.32, y: 0.32, z: 0.32, w: 0.32}
-    pivot: {x: 0.5, y: 0}
-    oldSize: {x: 1.28, y: 1.28}
-    newSize: {x: 2, y: 2}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 1
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 2, y: 1.85}
-  m_EdgeRadius: 0
