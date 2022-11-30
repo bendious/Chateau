@@ -251,12 +251,20 @@ public class DialogueController : MonoBehaviour
 		canvas.transform.localScale = new(scale, scale, scale);
 		rectTf.pivot = new(0.5f, isWorldspace ? 0.0f : 0.5f);
 		canvas.GetComponent<AudioSource>().spatialBlend = isWorldspace ? 1.0f : 0.0f;
+		Transform followTf = isWorldspace ? Character.transform : null;
 
 		WaitUntil replyWait = new(() => !m_replyMenu.gameObject.activeInHierarchy);
 		int tagCharCount = 0;
 
 		while (m_queue.Count > 0)
 		{
+			// NOTE that we don't use transform parenting/attachment to avoid destruction if character dies
+			// TODO: efficiency?
+			if (isWorldspace && followTf != null)
+			{
+				canvas.transform.position = new(followTf.position.x, followTf.GetComponent<Collider2D>().bounds.max.y, followTf.position.z);
+			}
+
 			// handle input for reply selection
 			if (m_replyMenu.gameObject.activeInHierarchy)
 			{
@@ -267,7 +275,7 @@ public class DialogueController : MonoBehaviour
 
 			// current state
 			// TODO: don't redo every time?
-			Line lineCur = NextLine(out string textCur, out int textCurLen, expressionSetsOrdered, sprite, color);
+			Line lineCur = NextLine(out string textCur, out int textCurLen, ref followTf, expressionSetsOrdered, sprite, color);
 
 			// maybe move to next line
 			bool stillRevealing = m_revealedCharCount + tagCharCount < textCurLen;
@@ -291,7 +299,7 @@ public class DialogueController : MonoBehaviour
 				else
 				{
 					m_queue.Dequeue();
-					lineCur = NextLine(out textCur, out textCurLen, expressionSetsOrdered, sprite, color);
+					lineCur = NextLine(out textCur, out textCurLen, ref followTf, expressionSetsOrdered, sprite, color);
 					if (lineCur == null)
 					{
 						break;
@@ -420,7 +428,7 @@ public class DialogueController : MonoBehaviour
 		gameObject.SetActive(false);
 	}
 
-	private Line NextLine(out string text, out int textLen, Dialogue.Expression[][] expressionSetsOrdered, Sprite spriteDefault, Color colorDefault)
+	private Line NextLine(out string text, out int textLen, ref Transform followTf, Dialogue.Expression[][] expressionSetsOrdered, Sprite spriteDefault, Color colorDefault)
 	{
 		Line line = m_queue.Count > 0 ? m_queue.Peek() : null;
 		text = m_queueFollowUp != null ? m_queueFollowUp.Peek() : line?.m_text;
@@ -449,22 +457,12 @@ public class DialogueController : MonoBehaviour
 			}
 		}
 
-		// update image/canvas if necessary
-		void updateWorldspaceCanvas(Transform parent)
-		{
-			Canvas canvas = GetComponent<Canvas>();
-			if (canvas.renderMode != RenderMode.WorldSpace)
-			{
-				return;
-			}
-			canvas.transform.SetParent(parent);
-			canvas.transform.position = new(parent.position.x, parent.GetComponent<Collider2D>().bounds.max.y, parent.position.z);
-		}
+		// update image if necessary
 		if (line?.m_source == null)
 		{
 			m_image.sprite = spriteDefault;
 			m_image.color = colorDefault;
-			updateWorldspaceCanvas(Character.transform);
+			followTf = Character == null ? null : Character.transform;
 		}
 		else
 		{
@@ -480,7 +478,7 @@ public class DialogueController : MonoBehaviour
 			{
 				m_image.sprite = sourceInteract.m_dialogueSprite;
 				m_image.color = sourceInteract.GetComponent<SpriteRenderer>().color;
-				updateWorldspaceCanvas(sourceInteract.transform);
+				followTf = sourceInteract.transform;
 			}
 		}
 		m_image.enabled = m_image.sprite != null;
