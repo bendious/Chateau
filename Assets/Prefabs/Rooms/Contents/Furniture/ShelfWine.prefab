@@ -25,7 +25,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8984001299210157265, guid: 965caaff450150540afaa57f9d77e599, type: 3}
       propertyPath: m_itemPrefabs.Array.size
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8984001299210157265, guid: 965caaff450150540afaa57f9d77e599, type: 3}
       propertyPath: m_itemRarePrefabs.Array.size
@@ -55,6 +55,14 @@ PrefabInstance:
       propertyPath: m_itemPrefabs.Array.data[3].m_object
       value: 
       objectReference: {fileID: 4892872906617963342, guid: c7eaa25f16cf12a43af6e9177433afc1, type: 3}
+    - target: {fileID: 8984001299210157265, guid: 965caaff450150540afaa57f9d77e599, type: 3}
+      propertyPath: m_itemPrefabs.Array.data[4].m_object
+      value: 
+      objectReference: {fileID: 6502489962529929026, guid: 7867b33d847e7444a83256ab09684fb0, type: 3}
+    - target: {fileID: 8984001299210157265, guid: 965caaff450150540afaa57f9d77e599, type: 3}
+      propertyPath: m_itemPrefabs.Array.data[4].m_weight
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8984001299210157265, guid: 965caaff450150540afaa57f9d77e599, type: 3}
       propertyPath: m_itemRarePrefabs.Array.data[0].m_object
       value: 

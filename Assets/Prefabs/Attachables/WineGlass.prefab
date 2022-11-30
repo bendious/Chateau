@@ -1,0 +1,127 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &3521164950950853814
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 527082021829585196, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: 88fc809a785b2da40af7b8a91cb43635, type: 2}
+    - target: {fileID: 848659554012485791, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_prefab
+      value: 
+      objectReference: {fileID: 4398339694799148722, guid: 6cf9d7eefe017c7458a97f68b968e321, type: 3}
+    - target: {fileID: 1555945160637222004, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1555945160637222004, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1555945160637222004, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1555945160637222004, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2662211206026023278, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_Size.x
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2662211206026023278, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_Size.y
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2662211206026023278, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 656351ac5e94e044780e2b7d46c50413, type: 3}
+    - target: {fileID: 2662211206026023278, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4014939671081850879, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_Size.x
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4014939671081850879, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_Size.y
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5798313233011251755, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_maxHP
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5798313233011251755, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_typeScalars.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5798313233011251755, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_typeScalars.Array.data[3].m_type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5798313233011251755, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_typeScalars.Array.data[2].m_scalar
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5798313233011251755, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_typeScalars.Array.data[3].m_scalar
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5849246084018440235, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_Size.x
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5849246084018440235, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_Size.y
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5849246084018440235, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: 88fc809a785b2da40af7b8a91cb43635, type: 2}
+    - target: {fileID: 5849246084018440235, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5849246084018440235, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_SpriteTilingProperty.newSize.x
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5849246084018440235, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_SpriteTilingProperty.newSize.y
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5849246084018440235, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5849246084018440235, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6941436806059290100, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_tooltip
+      value: "Wine Glass\nThin and delicate; will easily break into sharp shards.\n "
+      objectReference: {fileID: 0}
+    - target: {fileID: 6941436806059290100, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_damageSelf
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6941436806059290100, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_swingInfo.m_damage
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7701380722503224308, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_Name
+      value: WineGlass
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
