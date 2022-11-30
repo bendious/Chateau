@@ -60,7 +60,7 @@ public class GameController : MonoBehaviour
 
 	public const int m_zoneCount = 4; // TODO: derive?
 	public const int m_hintsPerZone = 2;
-	[SerializeField] private int m_narrowPathLength = m_zoneCount * m_hintsPerZone;
+	public const int m_narrowPathLength = m_zoneCount * m_hintsPerZone;
 
 	public float m_difficultyMin = 0.0f;
 	public float m_difficultyMax = 0.0f;

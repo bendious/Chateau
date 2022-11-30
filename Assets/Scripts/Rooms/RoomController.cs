@@ -692,14 +692,24 @@ public class RoomController : MonoBehaviour
 					break;
 
 				case LayoutGenerator.Node.Type.FinalHint:
+				case LayoutGenerator.Node.Type.FinalHintSequence:
 					GameObject hintPrefab = m_hintPrefabs.RandomWeighted();
-					GameObject hintObj = Instantiate(hintPrefab, InteriorPosition(float.MaxValue, hintPrefab), Quaternion.identity);
-					Color hintColor = GameController.NarrowPathColors[GameController.m_hintsPerZone * (SceneManager.GetActiveScene().buildIndex - 1) + GameController.Instance.NarrowPathHintCount]; // TODO: guarantee order of hints spawned
-					foreach (SpriteRenderer r in hintObj.GetComponentsInChildren<SpriteRenderer>())
+					Vector3 spawnPos = InteriorPosition(float.MaxValue, hintPrefab/*, edgeBuffer: GameController.m_narrowPathLength*/); // TODO: ensure the whole sequence can fit
+					int sceneIndex = SceneManager.GetActiveScene().buildIndex;
+					for (int i = 0; i < (node.m_type == LayoutGenerator.Node.Type.FinalHintSequence ? GameController.m_narrowPathLength : 1); ++i)
 					{
-						r.color = hintColor;
+						GameObject hintObj = Instantiate(hintPrefab, spawnPos, Quaternion.identity);
+						Color hintColor = (sceneIndex != 0 || (i % 2 == 0 ? GameController.SecretFound(i / 2) : GameController.ZonesFinishedCount > i / 2)) ? GameController.NarrowPathColors[GameController.m_hintsPerZone * System.Math.Max(0, sceneIndex - 1) + GameController.Instance.NarrowPathHintCount] : Color.black; // TODO: guarantee order of hints spawned?
+						float width = 0.0f;
+						foreach (SpriteRenderer r in hintObj.GetComponentsInChildren<SpriteRenderer>())
+						{
+							r.color = hintColor;
+							width = Mathf.Max(width, r.bounds.size.x);
+						}
+						++GameController.Instance.NarrowPathHintCount;
+						spawnPos.x += width;
+						hintPrefab = m_hintPrefabs.RandomWeighted();
 					}
-					++GameController.Instance.NarrowPathHintCount;
 					break;
 
 				default:
