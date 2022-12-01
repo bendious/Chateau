@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &3521164950950853814
+--- !u!1001 &5744846729391219168
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -42,7 +42,7 @@ PrefabInstance:
     - target: {fileID: 2662211206026023278, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 656351ac5e94e044780e2b7d46c50413, type: 3}
+      objectReference: {fileID: 21300000, guid: cd480dd04e12de14e90a33a55e101323, type: 3}
     - target: {fileID: 2662211206026023278, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
       propertyPath: m_WasSpriteAssigned
       value: 1
@@ -61,7 +61,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5798313233011251755, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
       propertyPath: m_maxHP
-      value: 0.5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5798313233011251755, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
       propertyPath: m_typeScalars.Array.size
@@ -117,19 +117,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6941436806059290100, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
       propertyPath: m_tooltip
-      value: "Wine Glass\nThin and delicate; will easily break into sharp shards.\n "
-      objectReference: {fileID: 0}
-    - target: {fileID: 6941436806059290100, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
-      propertyPath: m_damageSelf
-      value: 0.5
+      value: "Tumbler\nA big, thick drinking glass. Relatively durable - for glass.\n "
       objectReference: {fileID: 0}
     - target: {fileID: 6941436806059290100, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
       propertyPath: m_swingInfo.m_damage
-      value: 0.5
+      value: 0.666
       objectReference: {fileID: 0}
     - target: {fileID: 7701380722503224308, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
       propertyPath: m_Name
-      value: WineGlass
+      value: Tumbler
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
