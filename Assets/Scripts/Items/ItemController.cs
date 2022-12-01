@@ -445,11 +445,27 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			return;
 		}
 
-		// if still and supported, set our layer to whatever we're resting on and sleep
-		// TODO: better logic for determining when about to sleep? don't assume only one collision at a time?
+		// get reused info
 		bool isDetached = m_holder == null;
 		GameObject mainObj = rigidbody == null ? collider.gameObject : rigidbody.gameObject;
+		bool canDamage = Cause != null && Cause.CanDamage(mainObj) && !m_nondamageColliders.Contains(colliderLocal);
 		KinematicObject kinematicObj = mainObj.GetComponent<KinematicObject>();
+		KinematicCharacter character = kinematicObj as KinematicCharacter; // NOTE that this works since objects shouldn't ever have multiple different KinematicObject-derived components
+
+		// maybe attach to character
+		// TODO: extend to BackpackController as well?
+		if (isDetached && !canDamage && character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>(true).Length < character.HoldCountMax) // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus (see AvatarController.OnInteract()) or if it is a secondary (non-damaging) collider making collision
+		{
+			bool attached = character.ChildAttach(this);
+			if (attached)
+			{
+				DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Attach);
+				return;
+			}
+		}
+
+		// if still and supported, set our layer to whatever we're resting on and sleep
+		// TODO: better logic for determining when about to sleep? don't assume only one collision at a time?
 		float collisionSpeed = (relativeVelocity + (kinematicObj == null ? Vector2.zero : -kinematicObj.velocity)).magnitude + Speed;
 		if (isDetached && collisionSpeed < Physics2D.linearSleepTolerance)
 		{
@@ -489,20 +505,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 				m_audioSource.PlayOneShot(info.m_collisionStrongAudio.Length > 0 && collisionSpeed >= sfxThresholdSpeed * m_impactStrongPctScalar ? info.m_collisionStrongAudio.RandomWeighted() : info.m_collisionAudio.Random());
 				m_impactAudioLastTime = Time.time;
 				m_impactAudioLastMaterial = material1;
-			}
-		}
-
-		// maybe attach to character
-		// TODO: extend to BackpackController as well?
-		bool canDamage = Cause != null && Cause.CanDamage(mainObj) && !m_nondamageColliders.Contains(colliderLocal);
-		KinematicCharacter character = kinematicObj as KinematicCharacter; // NOTE that this works since objects shouldn't ever have multiple different KinematicObject-derived components
-		if (isDetached && !canDamage) // NOTE that we prevent collision-catching dangerous projectiles, but they can still be caught if the button is pressed with perfect timing when the object becomes the avatar's focus or if it is a secondary (non-damaging) collider making collision
-		{
-			if (character != null && character.IsPickingUp && character.GetComponentsInChildren<ItemController>(true).Length < character.HoldCountMax)
-			{
-				character.ChildAttach(this);
-				DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Attach);
-				return;
 			}
 		}
 

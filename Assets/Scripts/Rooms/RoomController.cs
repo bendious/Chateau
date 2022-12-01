@@ -36,6 +36,7 @@ public class RoomController : MonoBehaviour
 	[SerializeField] private WeightedObject<VisualEffect>[] m_doorSealVFX;
 
 	[SerializeField] private WeightedObject<GameObject>[] m_spawnPointPrefabs;
+	[SerializeField] private float m_spawnPointHeightMax = 6.0f;
 
 	public GameObject m_backdrop;
 
@@ -826,7 +827,7 @@ public class RoomController : MonoBehaviour
 		{
 			GameObject spawnPrefab = m_spawnPointPrefabs.RandomWeighted();
 			Quaternion rotation = Quaternion.Euler(0.0f, 0.0f, Random.Range(0.0f, 360.0f));
-			Vector3 spawnPos = InteriorPosition(float.MaxValue, spawnPrefab, rotation); // NOTE that we don't account for maximum enemy size, relying upon KinematicObject's checks to prevent getting stuck in walls
+			Vector3 spawnPos = InteriorPosition(m_spawnPointHeightMax, spawnPrefab, rotation); // NOTE that we don't account for maximum enemy size, relying upon KinematicObject's checks to prevent getting stuck in walls
 			m_spawnPoints[spawnIdx] = Instantiate(spawnPrefab, spawnPos, rotation, transform);
 		}
 	}

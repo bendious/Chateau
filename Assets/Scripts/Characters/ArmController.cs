@@ -171,6 +171,11 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 		m_aimDegreesArm = AimDegreesRaw(transform.parent.position, Vector2.zero, attachableComp.transform.position, m_aimDegreesArm); // TODO: lerp? use most recent rootOffset?
 		m_aimVelocityArm = 0.0f;
+		m_aimVelocityContinuing = 0.0f;
+		m_aimVelocityContinuingVel = 0.0f;
+		m_aimRadiusVelocity = 0.0f;
+		m_radiusVelocityContinuing = 0.0f;
+		m_radiusVelocityContinuingVel = 0.0f;
 		m_aimDegreesItem = attachableComp.transform.rotation.eulerAngles.z - m_aimDegreesArm;
 		m_aimVelocityItem = 0.0f;
 		m_aimRadiusVelocity = 0.0f;
