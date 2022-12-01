@@ -120,7 +120,7 @@ PrefabInstance:
       value: 'Mousetrap
 
 
-        <sprite index=5>: arm and drop'
+        <sprite index=6>: arm and drop'
       objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_useSFX.Array.size
@@ -204,3 +204,7 @@ MonoBehaviour:
   - m_object: {fileID: 8300000, guid: 53ad87a1af3241c4b88b3efaf0bb588e, type: 3}
     m_weight: 1
   m_singleUse: 1
+  m_reenableOnDamage: 0
+  m_lifetimeSeconds: -1
+  m_vfx: {fileID: 0}
+  m_enableSfx: []

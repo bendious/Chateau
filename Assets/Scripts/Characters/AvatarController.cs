@@ -33,7 +33,6 @@ public sealed class AvatarController : KinematicCharacter
 	[SerializeField] private ButtonPrompt m_focusPrompt;
 	public GameObject m_aimObject;
 	[SerializeField] private GameObject m_inventoryUI;
-	public Canvas m_overlayCanvas;
 
 	public Vector3 m_focusPromptOffset = new(0.0f, 0.3f, -0.15f);
 
@@ -609,24 +608,13 @@ public sealed class AvatarController : KinematicCharacter
 	public void OnSubmit(InputValue input)
 	{
 		// NOTE that we don't check ControlEnabled for UI-only actions
-		if (input.isPressed && m_overlayCanvas.gameObject.activeSelf)
-		{
-			ToggleOverlay(null, null);
-		}
-		else
-		{
-			m_inventoryDrag = input.isPressed;
-		}
+		m_inventoryDrag = input.isPressed;
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnCancel(InputValue input)
 	{
 		// NOTE that we don't check ControlEnabled for UI-only actions
-		if (m_overlayCanvas.gameObject.activeSelf)
-		{
-			ToggleOverlay(null, null);
-		}
 	}
 
 	// called by InputSystem / PlayerInput component
@@ -698,11 +686,7 @@ public sealed class AvatarController : KinematicCharacter
 			return;
 		}
 
-		// forcibly exit overlay/inventory if active
-		if (m_overlayCanvas.gameObject.activeSelf)
-		{
-			ToggleOverlay(null, null);
-		}
+		// forcibly exit inventory if active
 		if (m_inventoryIdx >= 0)
 		{
 			OnInventory(null);
@@ -819,28 +803,6 @@ public sealed class AvatarController : KinematicCharacter
 
 		m_animator.SetBool("dead", false);
 		m_animator.SetTrigger("respawn");
-	}
-
-	public bool ToggleOverlay(SpriteRenderer sourceRenderer, string text)
-	{
-		GameObject overlayObj = m_overlayCanvas.gameObject;
-		if (!overlayObj.activeSelf)
-		{
-			Image overlayImage = overlayObj.GetComponentInChildren<Image>();
-			overlayImage.sprite = sourceRenderer.sprite;
-			overlayImage.color = sourceRenderer.color;
-			overlayObj.GetComponentInChildren<TMP_Text>().text = text;
-		}
-		overlayObj.SetActive(!overlayObj.activeSelf);
-		if (m_overlayCanvas.gameObject.activeSelf) // TODO: account for other UI instances?
-		{
-			ControlsUI.Enable();
-		}
-		else
-		{
-			ControlsUI.Disable();
-		}
-		return overlayObj.activeSelf;
 	}
 
 	// TODO: move to event handler?

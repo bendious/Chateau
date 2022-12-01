@@ -5703,7 +5703,7 @@ MonoBehaviour:
     - It pays to be strategic about when and where you choose to fight.
     m_weight: 1
   - m_object:
-    - Hold down the throw button (<sprite index=1>) to generate aim guides for more
+    - Hold down the throw button (<sprite index=2>) to generate aim guides for more
       precise targeting.
     m_weight: 1
   - m_object:

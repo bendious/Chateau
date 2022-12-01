@@ -220,14 +220,10 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	// this is the detachment entry point
 	public void /*override*/ Detach(bool noAutoReplace)
 	{
-		// ensure our overlay doesn't get stuck on
+		// ensure our aim indicators don't get stuck on
 		AvatarController avatar = Cause == null ? null : Cause.GetComponent<AvatarController>();
 		if (avatar != null)
 		{
-			if (avatar.m_overlayCanvas.gameObject.activeSelf)
-			{
-				avatar.ToggleOverlay(null, null);
-			}
 			avatar.StopAiming();
 		}
 
@@ -277,6 +273,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 		// set
 		GetComponentInChildren<TMP_Text>().text = aggregateText;
+		m_tooltip += "\n" + aggregateText + "\n\n";
 	}
 
 	void IKey.Use()
@@ -348,17 +345,6 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			else if (causeHealth.HealInProgress)
 			{
 				causeHealth.HealCancel();
-				return true;
-			}
-		}
-
-		TMP_Text text = GetComponentInChildren<TMP_Text>();
-		if (text != null && !string.IsNullOrEmpty(text.text))
-		{
-			AvatarController avatar = Cause.GetComponent<AvatarController>();
-			if (avatar != null && avatar.m_overlayCanvas.gameObject.activeSelf != isPressed)
-			{
-				avatar.ToggleOverlay(m_renderer, text.text);
 				return true;
 			}
 		}

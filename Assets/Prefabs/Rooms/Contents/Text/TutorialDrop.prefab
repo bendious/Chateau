@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3246914194384268826, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
       propertyPath: m_text
-      value: <sprite index=4> to drop item
+      value: <sprite index=5> to drop item
       objectReference: {fileID: 0}
     - target: {fileID: 5219552273189721976, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
       propertyPath: m_RootOrder
