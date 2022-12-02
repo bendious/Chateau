@@ -1709,6 +1709,8 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 11400000, guid: 0fd5ec20856c9c0449077470ce345869, type: 2}
     m_weight: 1
+  - m_object: {fileID: 11400000, guid: f78b64d44d50d0e4680abee89ac35fef, type: 2}
+    m_weight: 1
   m_roomTypesSecret:
   - m_object: {fileID: 11400000, guid: 30ab735d166f6cd45a32827777dd635d, type: 2}
     m_weight: 1
@@ -1726,6 +1728,8 @@ MonoBehaviour:
   - m_object: {fileID: 11400000, guid: 3db4e460cb1e73048a27f62c80368268, type: 2}
     m_weight: 1
   - m_object: {fileID: 11400000, guid: 0fd5ec20856c9c0449077470ce345869, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: f78b64d44d50d0e4680abee89ac35fef, type: 2}
     m_weight: 1
   m_enemyPrefabs:
   - m_object: {fileID: 5008818805582489474, guid: 7279d3fac13df0c49a659889f1c1a70b, type: 3}
