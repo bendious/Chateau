@@ -43,7 +43,7 @@ public class DespawnEffect : MonoBehaviour
 
 	private void OnTriggerEnter2D(Collider2D collider)
 	{
-		ProcessCollision(collider, collider.transform.position, Vector2.zero); // TODO: better position?
+		ProcessCollision(collider, collider.transform.position, Vector2.zero, Vector2.zero); // TODO: better position?
 	}
 
 	private void OnCollisionEnter2D(Collision2D collision)
@@ -51,7 +51,7 @@ public class DespawnEffect : MonoBehaviour
 		List<ContactPoint2D> contacts = new();
 		collision.GetContacts(contacts);
 		ContactPoint2D contact = contacts.SelectMax(contact => contact.normal.y); // TODO: parameterize multi-normal selection/merge?
-		ProcessCollision(collision.collider, contact.point, contact.normal);
+		ProcessCollision(collision.collider, contact.point, contact.normal, collision.relativeVelocity);
 	}
 
 	private void OnCollisionStay2D(Collision2D collision) => OnCollisionEnter2D(collision);
@@ -76,10 +76,10 @@ public class DespawnEffect : MonoBehaviour
 			return;
 		}
 
-		ProcessCollision((isObj1 ? evt.m_component2 : evt.m_component1).GetComponent<Collider2D>(), evt.m_position, isObj1 ? evt.m_normal : -evt.m_normal);
+		ProcessCollision((isObj1 ? evt.m_component2 : evt.m_component1).GetComponent<Collider2D>(), evt.m_position, isObj1 ? evt.m_normal : -evt.m_normal, Vector2.zero);
 	}
 
-	private void ProcessCollision(Collider2D collider, Vector3 position, Vector2 normal)
+	private void ProcessCollision(Collider2D collider, Vector3 position, Vector2 normal, Vector2 preCollisionVelocity)
 	{
 		if (m_collidersToIgnore.Contains(collider))
 		{
@@ -101,7 +101,7 @@ public class DespawnEffect : MonoBehaviour
 		{
 			KinematicObject kinematicObj = GetComponent<KinematicObject>(); // TODO: cache?
 			Rigidbody2D body = GetComponent<Rigidbody2D>(); // TODO: cache?
-			Vector2 velocity = kinematicObj != null ? (kinematicObj.velocity.sqrMagnitude.FloatEqual(0.0f) ? kinematicObj.TargetVelocity : kinematicObj.velocity) : body != null ? body.velocity : Vector2.zero; // NOTE that we can't rely on KinematicObject.velocity still being set since this is post-collision
+			Vector2 velocity = preCollisionVelocity != Vector2.zero ? preCollisionVelocity : kinematicObj != null ? (kinematicObj.velocity.sqrMagnitude.FloatEqual(0.0f) ? kinematicObj.TargetVelocity : kinematicObj.velocity) : body != null ? body.velocity : Vector2.zero; // NOTE that we can't rely on KinematicObject.velocity still being set since this is post-collision // TODO: use pre-collision velocity for kinematic collisions, too?
 			float dot = Vector2.Dot(normal, velocity);
 
 			// TODO: parameterize thresholds? exclude grazing contacts?

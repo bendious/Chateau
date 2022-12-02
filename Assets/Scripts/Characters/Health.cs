@@ -160,11 +160,16 @@ public class Health : MonoBehaviour
 			return false;
 		}
 
-		// set item cause if appropriate, to enable chain reactions
+		// set item/effect cause if appropriate, to enable chain reactions
 		ItemController item = GetComponentInParent<ItemController>(); // TODO: ensure this doesn't catch unwanted ancestors?
 		if (item != null && item.Cause == null)
 		{
 			item.SetCause(sourceCharacter);
+		}
+		DespawnEffect effect = GetComponent<DespawnEffect>();
+		if (effect != null)
+		{
+			effect.CauseExternal = sourceCharacter;
 		}
 
 		// damage

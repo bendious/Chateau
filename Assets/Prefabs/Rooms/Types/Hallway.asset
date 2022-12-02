@@ -87,11 +87,11 @@ MonoBehaviour:
     m_weight: 1
   - m_object:
       m_prefabs:
-      - m_object: {fileID: 9190664853761623357, guid: a2c0c828cf355094c8b57863e650a2f1, type: 3}
-        m_weight: 1
+      - m_object: {fileID: 2395381759834517093, guid: 2fd8693fca9d54d49a605a52efb21ffc, type: 3}
+        m_weight: 4
       m_rotationDegreesMax: 90
-      m_heightMin: 3
-      m_heightMax: 4
+      m_heightMin: 4
+      m_heightMax: 6
       m_sharedHeight: 1
     m_weight: 1
   m_decorationsMin: 0
