@@ -53,6 +53,32 @@ MonoBehaviour:
       m_preconditionName: HasFinishedZone
       m_userdata: 2
       m_lines:
+      - m_text: Ooo, did you get through the second wing, then?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Congrats.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Can you figure out where to go next?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Worst case scenario, you can keep trudging through the earlier wings
+          to get there, but there's gotta be a more direct way, too...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 1
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_preconditionName: HasFinishedZone
+      m_userdata: 3
+      m_lines:
       - m_text: Ah, you got another one? Most excellent!
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
@@ -73,7 +99,7 @@ MonoBehaviour:
     m_weight: 0
   - m_object:
       m_preconditionName: HasFinishedZone
-      m_userdata: 3
+      m_userdata: 4
       m_lines:
       - m_text: Wow, have you gone through the whole mansion?
         m_source: {fileID: 0}

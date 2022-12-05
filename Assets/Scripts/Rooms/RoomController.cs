@@ -325,13 +325,11 @@ public class RoomController : MonoBehaviour
 		}
 	}
 
-	public void FinalizeRecursive(ref int doorwayDepth, ref int npcDepth)
+	public void FinalizeRecursive(ref int npcDepth)
 	{
 		// record/increment depths since we need the original values after passing the incremented values to our descendants
-		int doorwayDepthLocal = doorwayDepth;
 		int npcDepthLocal = npcDepth;
 		npcDepth += LayoutNodes.Count(node => node.m_type == LayoutGenerator.Node.Type.Npc);
-		doorwayDepth += LayoutNodes.Count(node => node.m_type == LayoutGenerator.Node.Type.Entrance || node.m_type == LayoutGenerator.Node.Type.ExitDoor);
 
 		// spawn fixed-placement node architecture
 		// NOTE the separate loops to ensure fixed-placement nodes are processed before flexible ones; also that this needs to be before flexibly-placed objects such as furniture
@@ -342,8 +340,7 @@ public class RoomController : MonoBehaviour
 			switch (node.m_type)
 			{
 				case LayoutGenerator.Node.Type.Entrance:
-					fillPct += SpawnDoor(doorwayDepthLocal, true, extentsInterior.x);
-					++doorwayDepthLocal;
+					fillPct += SpawnDoor(0, true, extentsInterior.x);
 					break;
 			}
 		}
@@ -566,7 +563,7 @@ public class RoomController : MonoBehaviour
 		{
 			if (doorwayInfo.ChildRoom != null)
 			{
-				doorwayInfo.ChildRoom.FinalizeRecursive(ref doorwayDepth, ref npcDepth);
+				doorwayInfo.ChildRoom.FinalizeRecursive(ref npcDepth);
 			}
 		}
 
@@ -652,9 +649,12 @@ public class RoomController : MonoBehaviour
 					}
 					break;
 
-				case LayoutGenerator.Node.Type.ExitDoor:
-					fillPct += SpawnDoor(doorwayDepthLocal, false, extentsInterior.x);
-					++doorwayDepthLocal;
+				case LayoutGenerator.Node.Type.ExitDoor1:
+				case LayoutGenerator.Node.Type.ExitDoor2:
+				case LayoutGenerator.Node.Type.ExitDoor3:
+				case LayoutGenerator.Node.Type.ExitDoor4:
+				case LayoutGenerator.Node.Type.ExitDoor5:
+					fillPct += SpawnDoor(1 + node.m_type - LayoutGenerator.Node.Type.ExitDoor1, false, extentsInterior.x); // +1 due to entrance doors
 					break;
 
 				case LayoutGenerator.Node.Type.Npc:
@@ -1418,7 +1418,7 @@ public class RoomController : MonoBehaviour
 				if (newNodeTree == null)
 				{
 					isCorrect = isCorrect && i == 0 && GameController.Instance.OnNarrowPath;
-					newNodeTree = new() { new(LayoutGenerator.Node.Type.Secret, new() { new(LayoutGenerator.Node.Type.TightCoupling, new() { new(isCorrect ? (depth > GameController.NarrowPathColors.Length ? LayoutGenerator.Node.Type.ExitDoor : LayoutGenerator.Node.Type.RoomIndefiniteCorrect) : LayoutGenerator.Node.Type.RoomIndefinite) }) }) }; // TODO: streamline?
+					newNodeTree = new() { new(LayoutGenerator.Node.Type.Secret, new() { new(LayoutGenerator.Node.Type.TightCoupling, new() { new(isCorrect ? (depth > GameController.NarrowPathColors.Length ? LayoutGenerator.Node.Type.ExitDoor5 : LayoutGenerator.Node.Type.RoomIndefiniteCorrect) : LayoutGenerator.Node.Type.RoomIndefinite) }) }) }; // TODO: streamline?
 					foreach (LayoutGenerator.Node node in LayoutNodes)
 					{
 						node.AddChildren(newNodeTree);
@@ -1432,7 +1432,7 @@ public class RoomController : MonoBehaviour
 				RoomController newRoom = SpawnChildRoom(GameController.Instance.m_roomPrefabs.RandomWeighted(), newNodeTree.SelectMany(node => node.WithDescendants).ToArray(), new[] { Vector2.left, Vector2.right, Vector2.down }, ref dummyIdx); // TODO: allow upward generation as long as it doesn't break through the ground?
 				if (newRoom != null)
 				{
-					newRoom.FinalizeRecursive(ref dummyIdx, ref dummyIdx);
+					newRoom.FinalizeRecursive(ref dummyIdx);
 
 					// add/replace room
 					m_runtimeRooms.RemoveAll(room => room == null); // NOTE that this is so that we don't need to bother detecting scene load and clearing m_runtimeRooms[]

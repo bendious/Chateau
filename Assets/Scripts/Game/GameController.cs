@@ -211,7 +211,7 @@ public class GameController : MonoBehaviour
 			Debug.Assert(node.m_room == null && node.m_type != LayoutGenerator.Node.Type.TightCoupling && node.m_type != LayoutGenerator.Node.Type.AreaDivider);
 
 			LayoutGenerator.Node parent = node.TightCoupleParent;
-			if (parent != parentPending && nodesPending.Count > 0 && parentPending != null)
+			if (parent != parentPending && nodesPending.Count > 0 && (parentPending != null || node.DirectParentsInternal.Any(n => n.m_type == LayoutGenerator.Node.Type.AreaDivider)))
 			{
 				roomCount = AddRoomsForNodes(nodesPending.ToArray(), roomCount, ref orderedLockIdx);
 				if (roomCount == 0)
@@ -260,9 +260,8 @@ public class GameController : MonoBehaviour
 		}
 
 		// fill rooms
-		int doorwayDepth = 0;
 		int npcDepth = 0;
-		m_startRoom.FinalizeRecursive(ref doorwayDepth, ref npcDepth);
+		m_startRoom.FinalizeRecursive(ref npcDepth);
 		RoomController[] roomsHighToLow = m_startRoom.WithDescendants.OrderBy(room => -room.transform.position.y).ToArray();
 		float roomWidthMin = roomsHighToLow.Min(room => room.Bounds.size.x);
 		foreach (RoomController room in roomsHighToLow)
@@ -907,10 +906,25 @@ public class GameController : MonoBehaviour
 						{
 							n.m_room = null;
 						}
-						spawnRoom.SetNodes(spawnRoom.LayoutNodes.Where(n => !movedNodes.Contains(n)).ToArray());
+						List<LayoutGenerator.Node> remainingNodes = spawnRoom.LayoutNodes.Where(n => !movedNodes.Contains(n)).ToList();
+						if (remainingNodes.Count <= 0)
+						{
+							// ensure that no rooms are left w/o any layout nodes
+							remainingNodes.Add(new(LayoutGenerator.Node.Type.Room));
+							foreach (LayoutGenerator.Node n in movedNodes)
+							{
+								for (int i = 0, count = n.DirectParentsInternal.Count; i < count; ++i) // can't use foreach() due to Insert() counting as modifying the collection for some reason...
+								{
+									n.DirectParentsInternal[i].Insert(remainingNodes);
+								}
+							}
+						}
+						Debug.Assert(remainingNodes.Count > 0);
+						spawnRoom.SetNodes(remainingNodes.ToArray());
 
 						// determine insertion point & insert
 						IEnumerable<LayoutGenerator.Node> parentNodes = spawnRoom.LayoutNodes.Where(n => spawnRoom.LayoutNodes.All(n2 => n == n2 || !n.HasDescendant(n2)));
+						Debug.Assert(parentNodes.Count() > 0);
 						List<LayoutGenerator.Node> nodeListNew = new() { nodeNew };
 						foreach (LayoutGenerator.Node n in parentNodes)
 						{
