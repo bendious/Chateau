@@ -306,12 +306,17 @@ public class GameController : MonoBehaviour
 		int signIdx = 0;
 		foreach (GameObject signPrefab in m_directionSigns)
 		{
-			Vector3 signPos = m_startRoom.InteriorPosition(0.0f, signPrefab);
+			// position
+			Vector3 targetPos = (signIdx < m_specialRoomCount ? SpecialRooms[signIdx].transform : FindObjectsOfType<InteractScene>().First(interact => interact.DestinationIndex == signIdx - m_specialRoomCount + 1).transform).position; // TODO: less hardcoding?
+			float offsetMag = Random.Range(2.0f, m_startRoom.BoundsInterior.extents.x); // TODO: determine min offset based on start door width? take offset room centers into account?
+			bool toLeft = targetPos.x < m_startRoom.transform.position.x || (targetPos.x == m_startRoom.transform.position.x && Random.value > 0.5f);
+			Vector3 signPos = m_startRoom.InteriorPosition(0.0f, signPrefab, xPreferred: m_startRoom.transform.position.x + (toLeft ? -offsetMag : offsetMag));
+
+			// spawn
 			GameObject sign = Instantiate(signPrefab, signPos, Quaternion.identity, m_startRoom.transform);
 
 			// aim
-			RoomController targetRoom = signIdx < m_specialRoomCount ? SpecialRooms[signIdx] : FindObjectsOfType<InteractScene>().First(interact => interact.DestinationIndex == signIdx - m_specialRoomCount + 1).transform.parent.GetComponent<RoomController>(); // TODO: less hardcoding?
-			sign.transform.GetChild(0).transform.rotation = Utility.ZRotation(targetRoom.transform.position - signPos); // TODO: un-hardcode child index?
+			sign.transform.GetChild(0).transform.rotation = Utility.ZRotation(targetPos - signPos); // TODO: un-hardcode child index?
 
 			++signIdx;
 		}

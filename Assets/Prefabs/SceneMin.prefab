@@ -1662,6 +1662,8 @@ MonoBehaviour:
   m_keyPrefabs:
   - m_object: {fileID: 7680583005214381087, guid: a7c46a786f6b16841b2341cb70a08253, type: 3}
     m_weight: 1
+  - m_object: {fileID: 6163602902597221319, guid: ea8855b8519012847b500068eec80d29, type: 3}
+    m_weight: 1
   - m_object: {fileID: 6152125228709660974, guid: c8502590ca924fb42b44ab31ce5740d9, type: 3}
     m_weight: 1
   - m_object: {fileID: 3916154150493127968, guid: de4eda1bf76463147931e4988117aeb6, type: 3}
@@ -1677,8 +1679,6 @@ MonoBehaviour:
   - m_object: {fileID: 2985935573955904460, guid: d0f5470f46df30c4b9004f62adc55cc9, type: 3}
     m_weight: 1
   - m_object: {fileID: 8498127701983908984, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 6163602902597221319, guid: ea8855b8519012847b500068eec80d29, type: 3}
     m_weight: 1
   m_cutbackPrefabs:
   - m_object: {fileID: 7962405609981993185, guid: 45247f91abc13ae44a2fcc5669b184d1, type: 3}
