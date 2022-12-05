@@ -58,6 +58,9 @@ public class DialogueController : MonoBehaviour
 	private static readonly Regex m_tagMatcher = new(@"<(.+)>.*?</\1>"); // NOTE the lazy rather than greedy wildcard matching to prevent multiple sets of identical tags being combined into one group // TODO: handle identical nested tags?
 
 	private AudioSource m_audio;
+	private Canvas m_canvas;
+
+	private int m_canvasLayerOrig;
 
 	private Queue<Line> m_queue;
 	private int m_revealedCharCount;
@@ -74,6 +77,8 @@ public class DialogueController : MonoBehaviour
 	private void Awake()
 	{
 		m_audio = GetComponent<AudioSource>();
+		m_canvas = GetComponent<Canvas>();
+		m_canvasLayerOrig = m_canvas.sortingLayerID;
 	}
 
 
@@ -227,13 +232,12 @@ public class DialogueController : MonoBehaviour
 		m_audio.clip = sfx;
 
 		// character/controls setup
-		Canvas canvas = GetComponent<Canvas>();
 		if (Character == null)
 		{
-			canvas.enabled = false; // don't show dialogue box until we're ready
+			m_canvas.enabled = false; // don't show dialogue box until we're ready
 			yield return new WaitUntil(() => GameController.Instance.m_avatars.Count > 0);
 			Character = GameController.Instance.m_avatars.First(); // TODO: don't assume that the first avatar will always remain?
-			canvas.enabled = true;
+			m_canvas.enabled = true;
 		}
 		AvatarController avatar = Character as AvatarController;
 		if (avatar != null)
@@ -245,12 +249,13 @@ public class DialogueController : MonoBehaviour
 		bool submitReleasedSinceNewline = true;
 
 		// canvas setup
-		canvas.renderMode = isWorldspace ? RenderMode.WorldSpace : RenderMode.ScreenSpaceOverlay;
-		RectTransform rectTf = canvas.GetComponent<RectTransform>();
+		m_canvas.renderMode = isWorldspace ? RenderMode.WorldSpace : RenderMode.ScreenSpaceOverlay;
+		m_canvas.sortingLayerID = isWorldspace ? 0 : m_canvasLayerOrig; // to prevent worldspace canvas visibility through Exterior objects // TODO: don't assume the default layer is always the desired worldspace layer?
+		RectTransform rectTf = m_canvas.GetComponent<RectTransform>();
 		float scale = isWorldspace ? m_worldspaceWidth / rectTf.sizeDelta.x : 1.0f;
-		canvas.transform.localScale = new(scale, scale, scale);
+		m_canvas.transform.localScale = new(scale, scale, scale);
 		rectTf.pivot = new(0.5f, isWorldspace ? 0.0f : 0.5f);
-		canvas.GetComponent<AudioSource>().spatialBlend = isWorldspace ? 1.0f : 0.0f;
+		m_canvas.GetComponent<AudioSource>().spatialBlend = isWorldspace ? 1.0f : 0.0f;
 		Transform followTf = isWorldspace ? Character.transform : null;
 
 		WaitUntil replyWait = new(() => !m_replyMenu.gameObject.activeInHierarchy);
@@ -262,7 +267,7 @@ public class DialogueController : MonoBehaviour
 			// TODO: efficiency?
 			if (isWorldspace && followTf != null)
 			{
-				canvas.transform.position = new(followTf.position.x, followTf.GetComponent<Collider2D>().bounds.max.y, followTf.position.z);
+				m_canvas.transform.position = new(followTf.position.x, followTf.GetComponent<Collider2D>().bounds.max.y, followTf.position.z);
 			}
 
 			// handle input for reply selection
