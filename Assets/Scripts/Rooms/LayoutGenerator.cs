@@ -508,12 +508,17 @@ public class LayoutGenerator
 		m_rootNode = rootNode;
 	}
 
-	public void Generate()
+	public System.Collections.IEnumerator Generate()
 	{
 		Queue<Node> nodeQueue = new(new List<Node> { m_rootNode });
 
 		while (nodeQueue.TryDequeue(out Node nodeItr))
 		{
+			if (GameController.Instance.LoadShouldYield("LayoutGenerator.Generate()"))
+			{
+				yield return null;
+			}
+
 			if (nodeItr.m_processed)
 			{
 				continue;

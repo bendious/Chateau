@@ -1,4 +1,5 @@
 //#define FIXED_SEED
+//#define DEBUG_VERBOSE
 
 
 using Cinemachine;
@@ -66,7 +67,6 @@ public class GameController : MonoBehaviour
 	public float m_difficultyMax = 0.0f;
 
 	[SerializeField] private GameObject m_loadingScreen;
-	[SerializeField] private Image m_loadingIcon;
 	public float m_fadeSeconds = 0.5f;
 	[SerializeField] private Image m_timerUI;
 	[SerializeField] private Animator m_timerAnimator;
@@ -142,6 +142,8 @@ public class GameController : MonoBehaviour
 
 	public static int SceneIndexPrev { get; private set; } = -1;
 
+	private float m_loadYieldTimePrev = 0.0f;
+
 	private RoomController m_startRoom;
 
 	private struct NpcInfo
@@ -187,9 +189,7 @@ public class GameController : MonoBehaviour
 		m_vCamMainFramer = m_vCamMain.GetCinemachineComponent<CinemachineFramingTransposer>();
 		m_lookaheadTimeOrig = m_vCamMainFramer.m_LookaheadTime;
 
-		// TODO: use Animator on persistent object?
-		float alpha = Mathf.Abs((Time.realtimeSinceStartup % 1.0f) - 0.5f) * 2.0f;
-		m_loadingIcon.color = new(m_loadingIcon.color.r, m_loadingIcon.color.g, m_loadingIcon.color.b, alpha);
+		// TODO: set loading screen as persistent object, deleting if one already exists
 	}
 
 	private void Start()
@@ -198,8 +198,15 @@ public class GameController : MonoBehaviour
 
 		m_waveWeight = m_waveStartWeight;
 
+		StartCoroutine(LoadCoroutine());
+	}
+
+	private IEnumerator LoadCoroutine()
+	{
+		Time.timeScale = 0.0f; // to prevent SFX/animations/etc. playing behind the loading screen
+
 		LayoutGenerator generator = new(new(m_type));
-		generator.Generate();
+		yield return StartCoroutine(generator.Generate());
 
 		// use generator to spawn rooms/locks/keys/items/etc.
 		LayoutGenerator.Node parentPending = null;
@@ -209,6 +216,8 @@ public class GameController : MonoBehaviour
 		bool failed = generator.ForEachNodeDepthFirst(node =>
 		{
 			Debug.Assert(node.m_room == null && node.m_type != LayoutGenerator.Node.Type.TightCoupling && node.m_type != LayoutGenerator.Node.Type.AreaDivider);
+
+			// TODO: find a way to yield from within a lambda to ensure smooth loading icon framerate?
 
 			LayoutGenerator.Node parent = node.TightCoupleParent;
 			if (parent != parentPending && nodesPending.Count > 0 && (parentPending != null || node.DirectParentsInternal.Any(n => n.m_type == LayoutGenerator.Node.Type.AreaDivider)))
@@ -232,10 +241,14 @@ public class GameController : MonoBehaviour
 			++m_seed; // to prevent infinite failure loop
 #endif
 			Retry(true); // TODO: more efficient way to guarantee room spawning?
-			return;
+			yield break;
 		}
 
+		if (LoadShouldYield("Post-generate")) { yield return null; }
+
 		bool saveExists = Load();
+
+		if (LoadShouldYield("Post-savefile")) { yield return null; }
 
 		// first-time initializations
 		if (m_npcs == null)
@@ -266,6 +279,7 @@ public class GameController : MonoBehaviour
 		float roomWidthMin = roomsHighToLow.Min(room => room.Bounds.size.x);
 		foreach (RoomController room in roomsHighToLow)
 		{
+			if (LoadShouldYield("roomsHighToLow.FinalizeTopDown()")) { yield return null; }
 			room.FinalizeTopDown(roomWidthMin);
 		}
 
@@ -302,6 +316,8 @@ public class GameController : MonoBehaviour
 			}
 		}
 
+		if (LoadShouldYield("Post-upgradeIndicators")) { yield return null; }
+
 		// spawn directional signs
 		int signIdx = 0;
 		foreach (GameObject signPrefab in m_directionSigns)
@@ -321,6 +337,8 @@ public class GameController : MonoBehaviour
 			++signIdx;
 		}
 
+		if (LoadShouldYield("Post-directionalSigns")) { yield return null; }
+
 		if (m_avatars.Count > 0)
 		{
 			// reapply upgrades to clear temporary intra-run boosts
@@ -336,6 +354,8 @@ public class GameController : MonoBehaviour
 			EnterAtDoor(m_avatars.ToArray());
 		}
 
+		if (LoadShouldYield("Post-ApplyUpgrades()")) { yield return null; }
+
 		if (!saveExists)
 		{
 			// TODO: move earlier?
@@ -344,24 +364,31 @@ public class GameController : MonoBehaviour
 			{
 				IsSceneLoad = true; // to preempt LoadScene() setting SceneIndexPrev, which we don't want in this case
 				StartCoroutine(LoadSceneCoroutine(tutorialSceneName, false, false));
-				return;
+				yield break;
 			}
 
 			m_dialogueController.Play(m_introDialogue.m_dialogue.RandomWeighted().m_lines, expressionSets: m_introDialogue.m_expressions); // TODO: take any preconditions into account?
 		}
+
+		if (LoadShouldYield("Post-tutorialCheck")) { yield return null; }
 
 		if (m_startWavesImmediately)
 		{
 			StartWaves();
 		}
 
+		if (LoadShouldYield("Post-StartWaves()")) { yield return null; }
+
 		if ((m_quitText != null || m_avatars.Count <= 0) && m_inputManager != null)
 		{
 			m_inputManager.EnableJoining();
 		}
 
+		if (LoadShouldYield("Post-EnableJoining()")) { yield return null; }
+
 		StartCoroutine(FadeCoroutine(false));
 
+		Time.timeScale = 1.0f;
 		IsSceneLoad = false;
 	}
 
@@ -374,6 +401,11 @@ public class GameController : MonoBehaviour
 
 	private void Update()
 	{
+		if (m_startRoom == null)
+		{
+			return; // not fully loaded yet
+		}
+
 		// update camera constraint/lookahead
 		// TODO: efficiency?
 		AvatarController liveAvatar = m_avatars.FirstOrDefault(avatar => avatar.IsAlive);
@@ -497,6 +529,20 @@ public class GameController : MonoBehaviour
 
 	private void OnApplicationQuit() => IsSceneLoad = true;
 
+
+	public bool LoadShouldYield(string debugName)
+	{
+		const float timeMax = 1.0f / 30.0f; // TODO: parameterize/derive?
+		if (Time.realtimeSinceStartup - m_loadYieldTimePrev >= timeMax)
+		{
+#if DEBUG_VERBOSE
+			Debug.Log("Load yield at " + debugName + " - previous: " + m_loadYieldTimePrev + ", current: " + Time.realtimeSinceStartup + " seconds");
+#endif
+			m_loadYieldTimePrev = Time.realtimeSinceStartup; // TODO: set this AFTER yielding to avoid the possibility of yielding w/ every call due to the time between frames?
+			return true;
+		}
+		return false;
+	}
 
 	public void AddCameraTargets(params Transform[] transforms) => AddCameraTargetsSized(0.0f, transforms);
 

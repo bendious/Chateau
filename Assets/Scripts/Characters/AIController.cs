@@ -288,6 +288,7 @@ public sealed class AIController : KinematicCharacter
 			m_aiState.Exit();
 			m_aiState = null;
 		}
+		m_target = null; // to avoid subsequent goal automatically using the avatar as the target even if it should only target enemies
 	}
 
 	public void AddAllowedState(AIState.Type type) => m_allowedStates = m_allowedStates.Append(type).ToArray();
