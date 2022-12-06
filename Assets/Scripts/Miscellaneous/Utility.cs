@@ -91,7 +91,7 @@ public static class Utility
 		Debug.Assert(valueCount == weightsArray.Length); // NOTE that we could use an array slice to handle values[] w/ shorter length than weights[] by ignoring the excess weights (the opposite situation works out equivalently w/o explicit handling since weightRandom will never result in looping beyond the number of weights given), but as of yet that hasn't been necessary
 		float weightSum = weightsArray.Sum();
 		Debug.Assert(weightSum > 0.0f);
-		float weightRandom = UnityEngine.Random.Range(0.0f, weightSum);
+		float weightRandom = UnityEngine.Random.Range(float.Epsilon, weightSum);
 
 		int idxItr = 0;
 		while (weightRandom > weightsArray[idxItr])

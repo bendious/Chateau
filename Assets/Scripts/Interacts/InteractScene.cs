@@ -23,6 +23,7 @@ public class InteractScene : MonoBehaviour, IInteractable
 	private bool m_activated = false;
 
 	private KinematicCharacter m_interactorMostRecent;
+	private float m_gravityModifierOrig = -1.0f;
 
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "UNT0001:Empty Unity message", Justification = "required to force enable/disable checkbox in Inspector")]
@@ -36,6 +37,7 @@ public class InteractScene : MonoBehaviour, IInteractable
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
 		m_interactorMostRecent = interactor;
+		m_gravityModifierOrig = interactor.gravityModifier;
 
 		if (m_isSaveDeletion || !GameController.Instance.Victory)
 		{
@@ -51,8 +53,10 @@ public class InteractScene : MonoBehaviour, IInteractable
 	{
 		// start animations and wait for trigger to call LoadScene()
 		m_activated = true;
-		m_interactorMostRecent.transform.position = new(transform.position.x, m_interactorMostRecent.transform.position.y, m_interactorMostRecent.transform.position.z); // TODO: animate into position?
+		Vector2 offsetPos = (Vector2)transform.position + m_interactorMostRecent.gameObject.OriginToCenterY();
+		m_interactorMostRecent.Teleport(new(offsetPos.x, offsetPos.y, m_interactorMostRecent.transform.position.z)); // TODO: animate into position?
 		m_interactorMostRecent.GetComponent<Animator>().SetTrigger("despawn");
+		m_interactorMostRecent.gravityModifier = 0.0f; // due to some doors missing ground underneath them...
 		GetComponent<Animator>().SetTrigger("activate");
 	}
 
@@ -69,6 +73,10 @@ public class InteractScene : MonoBehaviour, IInteractable
 		}
 		else
 		{
+			if (m_interactorMostRecent != null)
+			{
+				m_interactorMostRecent.gravityModifier = m_gravityModifierOrig; // due to some doors missing ground underneath them...
+			}
 			GameController.Instance.LoadScene(m_sceneDestination);
 		}
 	}

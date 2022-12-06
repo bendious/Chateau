@@ -114,6 +114,8 @@ public abstract class KinematicObject : MonoBehaviour
 			body.velocity *= 0;
 		}
 		velocity *= 0;
+		m_velocityForcedWeight = Vector2.zero;
+		m_velocityForcedWeightVel = Vector2.zero;
 	}
 
 	protected virtual void Awake()
