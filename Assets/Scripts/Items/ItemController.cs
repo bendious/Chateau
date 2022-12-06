@@ -10,6 +10,8 @@ using UnityEngine.VFX;
 [DisallowMultipleComponent, RequireComponent(typeof(Rigidbody2D), typeof(AudioSource), typeof(Collider2D)), /*RequireComponent(typeof(SpriteRenderer), typeof(TrailRenderer))*/] // NOTE that we assume {Trail/Sprite}Renderer are present, but can be on child object(s)
 public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, IKey, ISavable
 {
+	[SerializeField] private float m_interactPriority = 1.0f;
+
 	[TextArea] public string m_tooltip;
 
 	public SwingInfo m_swingInfo = new() {
@@ -172,6 +174,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 	private void OnDestroy() => IsCriticalPath = false; // to ensure cleanup of a possible SceneManager.sceneLoaded delegate
 
+
+	public float Priority(KinematicCharacter interactor) => m_interactPriority;
 
 	public void Interact(KinematicCharacter interactor, bool reverse) => interactor.ChildAttach(this);
 

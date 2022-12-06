@@ -11,6 +11,14 @@ PrefabInstance:
       propertyPath: m_tooltip
       value: "Longsword\nVery damaging. If you can get it moving fast enough...\n "
       objectReference: {fileID: 0}
+    - target: {fileID: 1419385988314699729, guid: d6378c47c976ded42b5a2fb07fe89624, type: 3}
+      propertyPath: m_swingInfo.m_damage
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1419385988314699729, guid: d6378c47c976ded42b5a2fb07fe89624, type: 3}
+      propertyPath: m_swingInfo.m_angularNewtonmeters
+      value: 200
+      objectReference: {fileID: 0}
     - target: {fileID: 1803285933312635345, guid: d6378c47c976ded42b5a2fb07fe89624, type: 3}
       propertyPath: m_Name
       value: SwordLong
@@ -65,7 +73,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8410139943605883657, guid: d6378c47c976ded42b5a2fb07fe89624, type: 3}
       propertyPath: m_Mass
-      value: 2
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 8883486419607122168, guid: d6378c47c976ded42b5a2fb07fe89624, type: 3}
       propertyPath: m_PropertySheet.m_NamedObject.m_Array.Array.data[0].m_Value
