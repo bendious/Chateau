@@ -527,9 +527,18 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 					Detach(true);
 				}
 				ItemController otherItem = collider.GetComponent<ItemController>();
-				if (otherItem != null && otherItem.m_detachOnDamage)
+				if (otherItem != null)
 				{
-					otherItem.Detach(true);
+					if (otherItem.m_detachOnDamage)
+					{
+						otherItem.Detach(true);
+					}
+					if (otherItem.transform.parent == null && m_trail.emitting)
+					{
+						// reflect!
+						// TODO: also set layer? deliberately add speed?
+						otherItem.SetCause(Cause);
+					}
 				}
 				DebugEvent(collider, contacts, ConsoleCommands.ItemDebugLevels.Damage);
 			}

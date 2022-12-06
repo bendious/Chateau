@@ -1822,7 +1822,6 @@ MonoBehaviour:
   m_difficultyMin: 0
   m_difficultyMax: 0
   m_loadingScreen: {fileID: 7202315660601374811}
-  m_loadingIcon: {fileID: 2073031957805775272}
   m_fadeSeconds: 0.25
   m_timerUI: {fileID: 4722330076168976223}
   m_timerAnimator: {fileID: 6963762329565886585}
@@ -5739,6 +5738,11 @@ MonoBehaviour:
   - m_object:
     - Some elements of the environment can be hazardous to you... or to your adversaries.
     - Positioning can be the difference between life and death.
+    m_weight: 1
+  - m_object:
+    - Incoming projectiles can be blocked by held items.
+    - Swinging as they make contact might even reflect them back from whence they
+      came!
     m_weight: 1
 --- !u!222 &5837914634819301278
 CanvasRenderer:
