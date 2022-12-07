@@ -11,7 +11,7 @@ public class BackgroundResize : MonoBehaviour
 	{
 		IEnumerator delayedSetTransform()
 		{
-			yield return new WaitUntil(() => !GameController.IsSceneLoad); // due to needing GameController.m_ctGroupOverview.BoundingBox and GameController.LoadCoroutine() taking an indeterminate number of frames
+			yield return new WaitUntil(() => GameController.Instance.m_ctGroupOverview.BoundingBox.extents != Vector3.zero); // due to GameController.LoadCoroutine() taking an indeterminate number of frames and m_ctGroupOverview.BoundingBox not being calculated until a frame afterward // TODO: more reliable trigger?
 			Bounds lookoutBbox = GameController.Instance.m_ctGroupOverview.BoundingBox;
 			Vector3 extentsExpanded = lookoutBbox.extents + m_margin;
 			float aspectRatio = Camera.main.aspect;
