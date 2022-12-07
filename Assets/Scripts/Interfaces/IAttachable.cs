@@ -58,7 +58,10 @@ public interface IAttachable
 
 		// "cancel" the effect of DontDestroyOnLoad() in case we were attached to the avatar
 		// see https://answers.unity.com/questions/1491238/undo-dontdestroyonload.html
-		SceneManager.MoveGameObjectToScene(attachableObj, SceneManager.GetActiveScene());
+		if (!GameController.IsSceneLoad)
+		{
+			SceneManager.MoveGameObjectToScene(attachableObj, SceneManager.GetActiveScene());
+		}
 
 		AvatarController avatar = holderTf == null ? null : holderTf.GetComponent<AvatarController>();
 		if (avatar != null)

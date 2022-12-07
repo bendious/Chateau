@@ -1394,7 +1394,6 @@ public class RoomController : MonoBehaviour
 		visitedRooms.Add(this);
 
 		// group this room's shadow casters under the top-level GameController caster
-		GameController.Instance.GetComponent<CompositeShadowCaster2D>().enabled = true; // NOTE that the top-level caster has to start disabled due to an assert from CompositeShadowCaster2D when empty of child casters
 		GetComponent<CompositeShadowCaster2D>().enabled = false;
 		transform.SetParent(GameController.Instance.transform);
 

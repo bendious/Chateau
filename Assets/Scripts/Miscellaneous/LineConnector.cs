@@ -116,12 +116,18 @@ public class LineConnector : MonoBehaviour
 				float jointLength = joint is DistanceJoint2D distJoint ? distJoint.distance : joint is SpringJoint2D springJoint ? springJoint.distance : 0.0f; // TODO: cache?
 				if (lengthSq >= jointLength * jointLength - Utility.FloatEpsilon)
 				{
-					joint.enabled = true;
+					if (joint != null)
+					{
+						joint.enabled = true;
+					}
 					line.positionCount = 2;
 				}
 				else
 				{
-					joint.enabled = false; // prevent spring forces
+					if (joint != null)
+					{
+						joint.enabled = false; // prevent spring forces
+					}
 
 					// find points in global space since gravity is non-local
 					Vector3 startPosGlobal = line.transform.localToWorldMatrix * startPosLocal;

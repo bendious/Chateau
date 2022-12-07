@@ -1801,6 +1801,7 @@ MonoBehaviour:
   m_spawnPointPrefabs:
   - m_object: {fileID: 7287174281192745631, guid: 196ada7618954f24ab2fd50f97411481, type: 3}
     m_weight: 1
+  m_spawnPointHeightMax: 6
   m_backdrop: {fileID: 7839578346001510096}
   m_walls:
   - {fileID: 2929849760781198063}

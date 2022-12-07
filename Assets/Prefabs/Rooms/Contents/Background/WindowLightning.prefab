@@ -5,6 +5,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 154935948270800787, guid: 3ad08329e9fd1bc47ac830284d62f36d, type: 3}
@@ -268,6 +269,15 @@ PrefabInstance:
       value: WindowLightning
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1099924914147523828, guid: 3ad08329e9fd1bc47ac830284d62f36d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5245903928959134268}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8852922857223391415, guid: 3ad08329e9fd1bc47ac830284d62f36d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6356771542933790005}
   m_SourcePrefab: {fileID: 100100000, guid: 3ad08329e9fd1bc47ac830284d62f36d, type: 3}
 --- !u!4 &2848107284536343376 stripped
 Transform:
@@ -389,6 +399,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 2848107284536343376}
     m_Modifications:
     - target: {fileID: 3948690924511646562, guid: cfbaadf79fc588048828fdf3288a20e1, type: 3}
@@ -418,4 +429,12 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 5125841352658113908, guid: cfbaadf79fc588048828fdf3288a20e1, type: 3}
     - {fileID: 56445184068183188, guid: cfbaadf79fc588048828fdf3288a20e1, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cfbaadf79fc588048828fdf3288a20e1, type: 3}
+--- !u!4 &5245903928959134268 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4484617074198263228, guid: cfbaadf79fc588048828fdf3288a20e1, type: 3}
+  m_PrefabInstance: {fileID: 8570841176344780672}
+  m_PrefabAsset: {fileID: 0}

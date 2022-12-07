@@ -564,7 +564,7 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	public RoomController RoomFromPosition(Vector2 position) => m_startRoom.FromPosition(position); // TODO: work even when disconnected from start room?
+	public RoomController RoomFromPosition(Vector2 position) => m_startRoom == null ? null : m_startRoom.FromPosition(position); // TODO: work even when disconnected from start room?
 
 	public RoomController RandomReachableRoom(AIController ai, GameObject endpointObj, bool endpointIsStart) => m_startRoom.WithDescendants.Where(room => ai.Pathfind(endpointIsStart ? endpointObj : room.gameObject, endpointIsStart ? room.gameObject : endpointObj, Vector2.zero) != null).Random();
 
@@ -1177,10 +1177,7 @@ public class GameController : MonoBehaviour
 
 	private void StartWaves()
 	{
-		if (m_waveEscalationMax <= 0.0f || Random.value > 0.5f) // TODO: parameterize?
-		{
-			m_nextWaveTime = Random.Range(m_waveSecondsMin, m_waveSecondsMax);
-		}
+		m_nextWaveTime = Time.time + Random.Range(m_waveSecondsMin, m_waveSecondsMax);
 		StartCoroutine(SpawnWavesCoroutine());
 		if (m_waveEscalationMax > 0.0f)
 		{

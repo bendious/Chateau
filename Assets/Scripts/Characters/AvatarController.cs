@@ -266,8 +266,7 @@ public sealed class AvatarController : KinematicCharacter
 			rendererIndicator.enabled = rendererOrig != null && !lightIndicator.enabled;
 
 			// set transform
-			// NOTE the extra logic due to Light2D not handling sprite pivots the same way as SpriteRenderer...
-			Vector3 indicatorPos = lightIndicator.enabled ? lightOrig != null ? lightOrig.transform.position : m_focusObj.transform.position + m_focusObj.transform.rotation * Vector3.Scale(rendererOrig.bounds.size, new Vector2(0.5f - (rendererOrig.flipX ? -rendererOrig.sprite.pivot.x : rendererOrig.sprite.pivot.x) / rendererOrig.sprite.rect.size.x, 0.5f - (rendererOrig.flipY ? -rendererOrig.sprite.pivot.y : rendererOrig.sprite.pivot.y) / rendererOrig.sprite.rect.size.y)) : m_focusObj.transform.position;
+			Vector3 indicatorPos = lightOrig != null ? lightOrig.transform.position : m_focusObj.transform.position;
 			m_focusIndicator.transform.SetPositionAndRotation(indicatorPos, lightOrig != null && lightIndicator.enabled ? lightOrig.transform.rotation : m_focusObj.transform.rotation);
 
 			// use sprite light to encourage bloom
