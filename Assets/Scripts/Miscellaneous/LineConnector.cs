@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 
 [DisallowMultipleComponent]
@@ -75,6 +76,11 @@ public class LineConnector : MonoBehaviour
 
 	private void LateUpdate()
 	{
+		if (Time.timeScale == 0.0f)
+		{
+			return;
+		}
+
 		Quaternion rotChar = m_character == null ? Quaternion.identity : m_character.transform.rotation;
 		Vector3 shoulderPosLocal = m_parentTfOrig.position + (rotChar * (m_character != null ? m_character.ArmOffset : Vector2.zero) + (m_arm == null ? Vector3.zero : (Vector3)(Vector2)m_arm.AttachOffsetLocal)) - transform.position; // NOTE the removal of Z from m_arm.AttachOffsetLocal
 		Color color = m_parentRenderer.color;
@@ -105,8 +111,48 @@ public class LineConnector : MonoBehaviour
 			line.enabled = lengthSq >= m_lengthMinSq && (m_lengthMaxSq <= 0.0f || lengthSq <= m_lengthMaxSq);
 			if (line.enabled)
 			{
-				line.SetPosition(0, startPosLocal);
-				line.SetPosition(1, endPosLocal);
+				int positionIdx = 0;
+				line.SetPosition(positionIdx++, startPosLocal);
+				float jointLength = joint is DistanceJoint2D distJoint ? distJoint.distance : joint is SpringJoint2D springJoint ? springJoint.distance : 0.0f; // TODO: cache?
+				if (lengthSq >= jointLength * jointLength - Utility.FloatEpsilon)
+				{
+					joint.enabled = true;
+					line.positionCount = 2;
+				}
+				else
+				{
+					joint.enabled = false; // prevent spring forces
+
+					// find points in global space since gravity is non-local
+					Vector3 startPosGlobal = line.transform.localToWorldMatrix * startPosLocal;
+					Vector3 endPosGlobal = line.transform.localToWorldMatrix * endPosLocal;
+					Vector3 diffGlobal = endPosGlobal - startPosGlobal;
+					Vector3 midpoint = diffGlobal * 0.5f;
+
+					// approximate the parabola running through {start/end}PosLocal w/ tangents meeting at a midpoint lowered based on the amount of slack available
+					// semi-related background at https://www.quora.com/Given-two-points-of-a-parabola-and-the-intersection-of-the-tangent-lines-that-passes-through-those-points-how-can-I-find-the-equation-of-the-parabola
+					// estimating the drop as if the line were two straight segments, from the Pythagorean theorem we have jointLengthHalf^2 + yDrop^2 = (jointLengthHalf + slackDistHalf)^2
+					float slackDistHalf = (jointLength - Mathf.Sqrt(lengthSq)) * 0.5f;
+					float jointLengthHalf = jointLength * 0.5f;
+					midpoint.y -= Mathf.Sqrt(Mathf.Pow(jointLengthHalf + slackDistHalf, 2.0f) - jointLengthHalf * jointLengthHalf);
+
+					// y = ax^2 + bx + c
+					// since we're treating the start point as the origin, c is zero and b is the tangent of the parabola at x=0
+					// a can then be calculated by plugging in values from the end point: diffGlobal.y = a*diffGlobal.x^2 + b*diffGlobal.x
+					float b = midpoint.y / (midpoint.x.FloatEqual(0.0f, 0.1f) ? 0.1f : midpoint.x); // NOTE the high epsilon to somewhat mitigate artifacts when the start/end points are nearly identical
+					float a = (diffGlobal.y - b * diffGlobal.x) / (diffGlobal.x * diffGlobal.x);
+
+					// iterate over the parabola and calculate localspace points
+					line.positionCount = 10; // TODO: parameterize/vary/derive?
+					for (int n = line.positionCount - 1; positionIdx < n; ++positionIdx)
+					{
+						float iPct = positionIdx / (float)n;
+						float x = Mathf.Lerp(0.0f, diffGlobal.x, iPct);
+						line.SetPosition(positionIdx, transform.worldToLocalMatrix * new Vector3(x, a * x * x + b * x, Mathf.Lerp(startPosGlobal.z, endPosGlobal.z, iPct)));
+					}
+				}
+				line.SetPosition(positionIdx++, endPosLocal);
+
 				if (m_colorMatching && (line.colorGradient.colorKeys.First().color != color || line.colorGradient.alphaKeys.First().alpha != color.a)) // TODO: don't assume a constant gradient across the line?
 				{
 					line.colorGradient = newGradient.Value; // NOTE that we have to replace the whole gradient rather than just setting individual attributes due to the annoying way LineRenderer prevents those changes
@@ -218,7 +264,11 @@ public class LineConnector : MonoBehaviour
 	{
 		// TODO: SFX? split into two lines?
 
-		joint.GetComponentInChildren<UnityEngine.Rendering.Universal.Light2D>().enabled = false; // TODO: move elsewhere?
+		// TODO: move elsewhere?
+		foreach (Light2D light in joint.GetComponentsInChildren<Light2D>())
+		{
+			light.enabled = false;
+		}
 
 		if (m_joints.All(existingJoint => existingJoint == joint || existingJoint == null))
 		{
