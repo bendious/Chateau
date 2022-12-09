@@ -1338,10 +1338,13 @@ public class RoomController : MonoBehaviour
 
 
 	// callbacks for RoomType.m_preconditionName, called via FinalizeRecursive()/SendMessage()
+	// TODO: variable preference factors?
 	public void IsAboveGround(SendMessageValue<float> result) => result.m_out = transform.position.y >= 0.0f ? 1.0f : 0.0f; // NOTE that the ground floor is always at y=0
 	public void IsBelowGround(SendMessageValue<float> result) => result.m_out = transform.position.y < 0.0f ? 1.0f : 0.0f; // NOTE that the ground floor is always at y=0
-	public void PreferNonDeadEnds(SendMessageValue<float> result) => result.m_out = m_doorwayInfos.Any(info => info.ChildRoom != null || info.SiblingShallowerRoom != null || info.SiblingDeeperRoom != null) ? GameController.Instance.m_roomTypes.Length : 1.0f / GameController.Instance.m_roomTypes.Length; // TODO: variable preference factor?
-	public void PreferDeadEnds(SendMessageValue<float> result) => result.m_out = m_doorwayInfos.Any(info => info.ChildRoom != null || info.SiblingShallowerRoom != null || info.SiblingDeeperRoom != null) ? 1.0f / GameController.Instance.m_roomTypes.Length : GameController.Instance.m_roomTypes.Length; // TODO: variable preference factor?
+	public void IsTopFloor(SendMessageValue<float> result) => result.m_out = Physics2D.OverlapArea(new(Bounds.min.x + m_physicsCheckEpsilon, Bounds.max.y + m_physicsCheckEpsilon), new(Bounds.max.x - m_physicsCheckEpsilon, Bounds.max.y + 100.0f), GameController.Instance.m_layerWalls) == null ? 1.0f : 0.0f; // TODO: efficiency?
+	public void PreferNonDeadEnds(SendMessageValue<float> result) => result.m_out = m_doorwayInfos.Any(info => info.ChildRoom != null || info.SiblingShallowerRoom != null || info.SiblingDeeperRoom != null) ? GameController.Instance.m_roomTypes.Length : 1.0f / GameController.Instance.m_roomTypes.Length;
+	public void PreferDeadEnds(SendMessageValue<float> result) => result.m_out = m_doorwayInfos.Any(info => info.ChildRoom != null || info.SiblingShallowerRoom != null || info.SiblingDeeperRoom != null) ? 1.0f / GameController.Instance.m_roomTypes.Length : GameController.Instance.m_roomTypes.Length;
+	public void PreferUpwardEntrance(SendMessageValue<float> result) => result.m_out = Parent != null && Parent.transform.position.y < transform.position.y ? GameController.Instance.m_roomTypes.Length : 1.0f / GameController.Instance.m_roomTypes.Length;
 
 
 	private int[] DoorwayReverseIndices(Vector2 replaceDirection)
