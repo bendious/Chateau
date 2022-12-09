@@ -142,6 +142,8 @@ public class GameController : MonoBehaviour
 
 	public static int SceneIndexPrev { get; private set; } = -1;
 
+	private static GameObject m_loadingScreenPersistent;
+
 	private float m_loadYieldTimePrev = 0.0f;
 
 	private RoomController m_startRoom;
@@ -189,7 +191,18 @@ public class GameController : MonoBehaviour
 		m_vCamMainFramer = m_vCamMain.GetCinemachineComponent<CinemachineFramingTransposer>();
 		m_lookaheadTimeOrig = m_vCamMainFramer.m_LookaheadTime;
 
-		// TODO: set loading screen as persistent object, deleting if one already exists
+		if (m_loadingScreenPersistent == null)
+		{
+			m_loadingScreenPersistent = m_loadingScreen;
+			m_loadingScreenPersistent.transform.SetParent(null);
+			DontDestroyOnLoad(m_loadingScreenPersistent);
+		}
+		else
+		{
+			m_loadingScreen.SetActive(false); // to prevent single-frame visibility while waiting to despawn
+			Simulation.Schedule<ObjectDespawn>().m_object = m_loadingScreen;
+			m_loadingScreen = m_loadingScreenPersistent;
+		}
 	}
 
 	private void Start()
@@ -351,7 +364,7 @@ public class GameController : MonoBehaviour
 				}
 			}
 
-			EnterAtDoor(m_avatars.ToArray());
+			EnterAtDoor(true, m_avatars.ToArray());
 		}
 
 		if (LoadShouldYield("Post-ApplyUpgrades()")) { yield return null; }
@@ -493,7 +506,7 @@ public class GameController : MonoBehaviour
 
 		if (m_startRoom != null)
 		{
-			EnterAtDoor(m_avatars.Last());
+			EnterAtDoor(false, m_avatars.Last());
 		}
 	}
 
@@ -1003,7 +1016,7 @@ public class GameController : MonoBehaviour
 		return roomCount;
 	}
 
-	public void EnterAtDoor(params KinematicCharacter[] characters)
+	public void EnterAtDoor(bool snapCamera, params KinematicCharacter[] characters)
 	{
 		// find closest door prioritized by previous scene
 		InteractScene[] doors = FindObjectsOfType<InteractScene>();
@@ -1013,7 +1026,7 @@ public class GameController : MonoBehaviour
 			door = doors.First(interact => Vector2.Distance(interact.transform.position, Vector2.zero) < 1.0f); // TODO: remove assumption that there will be a door at the origin?
 		}
 
-		// place characters(s) and aim(s)
+		// place characters(s), aim(s), and camera
 		bool includesAvatar = false;
 		foreach (KinematicCharacter character in characters)
 		{
@@ -1027,6 +1040,10 @@ public class GameController : MonoBehaviour
 			{
 				Instantiate(door.m_entryVFX.RandomWeighted(), character.transform);
 			}
+		}
+		if (snapCamera)
+		{
+			m_vCamMain.ForceCameraPosition(m_vCamMain.transform.position + door.transform.position, m_vCamMain.transform.rotation); // NOTE the assumption that the camera starts positioned relative to the origin w/ the same offset it should have from the entry door
 		}
 
 		// update shadow casting

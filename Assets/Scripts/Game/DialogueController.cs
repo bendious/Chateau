@@ -91,6 +91,7 @@ public class DialogueController : MonoBehaviour
 		m_callbackObject = callbackObject;
 		Character = character;
 		m_loopIdx = loopIdx;
+		m_forceNewLine = false;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
 		return StartCoroutine(AdvanceDialogue(lines, expressionSets, sfx, sprite, spriteColor));
@@ -287,6 +288,7 @@ public class DialogueController : MonoBehaviour
 			if (m_forceNewLine || ((submitKey == null || submitKey.WasPressedThisFrame()) && !stillRevealing)) // TODO: non-avatar delay before newline
 			{
 				// next line
+				m_forceNewLine = false;
 				m_continueIndicator.SetActive(false);
 				bool wasInFollowUp = m_queueFollowUp != null;
 				if (m_queueFollowUp != null && m_queueFollowUp.Count <= 1)
@@ -312,7 +314,6 @@ public class DialogueController : MonoBehaviour
 				}
 				m_revealedCharCount = 0;
 				m_lastRevealTime = Time.time;
-				m_forceNewLine = false;
 				submitReleasedSinceNewline = false;
 				stillRevealing = true;
 			}

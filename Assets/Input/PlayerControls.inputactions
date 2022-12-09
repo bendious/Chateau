@@ -644,6 +644,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Join",
+                    "type": "Button",
+                    "id": "d9faaf16-7d8e-453b-8f28-b8299a6eb2ba",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Cancel",
                     "type": "Button",
                     "id": "6879bd39-bd33-4d50-bc05-af89aad36975",
@@ -887,17 +896,6 @@
                 },
                 {
                     "name": "",
-                    "id": "e01cc04e-c25d-4716-8730-2011b092787b",
-                    "path": "<Gamepad>/start",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "Submit",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "d951f2b2-4ae3-45ec-984e-49501b8aff6b",
                     "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
@@ -970,6 +968,50 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse;KeyboardOnly",
                     "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9c2dd279-37f6-49d1-ab60-a39e34093743",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Join",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cef9f69b-32a2-4a7a-82a7-655b3f0f3bdc",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Join",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "53ea00a4-b972-495f-9042-85dd46f6723f",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardOnly;Keyboard&Mouse",
+                    "action": "Join",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b4d616b5-34a0-4531-9855-8608ba370e46",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardOnly;Keyboard&Mouse",
+                    "action": "Join",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

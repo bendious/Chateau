@@ -22,7 +22,7 @@ public class InteractScene : MonoBehaviour, IInteractable
 
 	private bool m_activated = false;
 
-	private KinematicCharacter m_interactorMostRecent;
+	private KinematicCharacter m_interactor; // TODO: support multiple?
 	private float m_gravityModifierOrig = -1.0f;
 
 
@@ -32,19 +32,19 @@ public class InteractScene : MonoBehaviour, IInteractable
 	}
 
 
-	public bool CanInteract(KinematicCharacter interactor) => enabled && (m_isSaveDeletion || !string.IsNullOrEmpty(m_sceneDestination)) && !GameController.Instance.m_dialogueController.IsPlaying;
+	public bool CanInteract(KinematicCharacter interactor) => enabled && (ShouldPlayDialogue ? !GameController.Instance.m_dialogueController.IsPlaying : !string.IsNullOrEmpty(m_sceneDestination)) && m_interactor == null;
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
-		m_interactorMostRecent = interactor;
-		m_gravityModifierOrig = interactor.gravityModifier;
-
-		if (m_isSaveDeletion || !GameController.Instance.Victory)
+		if (ShouldPlayDialogue)
 		{
 			// TODO: visual/audio indicator(s) rather than dialogue for non-Victory refusal?
 			GameController.Instance.m_dialogueController.Play(m_dialogue.m_dialogue.RandomWeighted().m_lines, gameObject, interactor.GetComponent<KinematicCharacter>(), expressionSets: m_dialogue.m_expressions);
 			return;
 		}
+
+		m_interactor = interactor;
+		m_gravityModifierOrig = interactor.gravityModifier;
 
 		StartAnimation();
 	}
@@ -52,17 +52,19 @@ public class InteractScene : MonoBehaviour, IInteractable
 	public void StartAnimation()
 	{
 		// start animations and wait for trigger to call LoadScene()
+		// TODO: timer-based backup?
 		m_activated = true;
-		Vector2 offsetPos = (Vector2)transform.position + m_interactorMostRecent.gameObject.OriginToCenterY();
-		m_interactorMostRecent.Teleport(new(offsetPos.x, offsetPos.y, m_interactorMostRecent.transform.position.z)); // TODO: animate into position?
-		m_interactorMostRecent.GetComponent<Animator>().SetTrigger("despawn");
-		m_interactorMostRecent.gravityModifier = 0.0f; // due to some doors missing ground underneath them...
+		Vector2 offsetPos = (Vector2)transform.position + m_interactor.gameObject.OriginToCenterY();
+		m_interactor.Teleport(new(offsetPos.x, offsetPos.y, m_interactor.transform.position.z)); // TODO: animate into position?
+		m_interactor.GetComponent<Animator>().SetTrigger("despawn");
+		m_interactor.gravityModifier = 0.0f; // due to some doors missing ground underneath them...
+		m_interactor.GetComponent<Health>().m_invincible = true;
 		GetComponent<Animator>().SetTrigger("activate");
 	}
 
 	public void LoadScene()
 	{
-		if (!m_activated || !CanInteract(null))
+		if (!m_activated)
 		{
 			return;
 		}
@@ -73,11 +75,15 @@ public class InteractScene : MonoBehaviour, IInteractable
 		}
 		else
 		{
-			if (m_interactorMostRecent != null)
+			if (m_interactor != null)
 			{
-				m_interactorMostRecent.gravityModifier = m_gravityModifierOrig; // due to some doors missing ground underneath them...
+				m_interactor.gravityModifier = m_gravityModifierOrig; // due to some doors missing ground underneath them...
+				m_interactor.GetComponent<Health>().m_invincible = false;
 			}
 			GameController.Instance.LoadScene(m_sceneDestination);
 		}
 	}
+
+
+	private bool ShouldPlayDialogue => m_isSaveDeletion || !GameController.Instance.Victory;
 }

@@ -117,7 +117,7 @@ public class CreditsController : MonoBehaviour
 			// hand-off to GameController
 			AIController ai = npcObj.GetComponent<AIController>();
 			GameController.Instance.NpcAdd(ai);
-			GameController.Instance.EnterAtDoor(ai);
+			GameController.Instance.EnterAtDoor(false, ai);
 		}
 
 		m_npcSpawningInProgress = false;
