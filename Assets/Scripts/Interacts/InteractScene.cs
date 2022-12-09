@@ -60,6 +60,7 @@ public class InteractScene : MonoBehaviour, IInteractable
 		m_interactor.gravityModifier = 0.0f; // due to some doors missing ground underneath them...
 		m_interactor.GetComponent<Health>().m_invincible = true;
 		GetComponent<Animator>().SetTrigger("activate");
+		StartCoroutine(m_interactor.gameObject.SoftStop(delayMax: 2.0f, postBehavior: Utility.SoftStopPost.Reactivate)); // TODO: determine delayMax based on animation length?
 	}
 
 	public void LoadScene()

@@ -490,7 +490,7 @@ public class LockController : MonoBehaviour, IUnlockable
 				{
 					if (vfx.enabled)
 					{
-						StartCoroutine(vfx.SoftStop(delayMax: m_vfxDisableDelaySeconds, wholeObject: false)); // disable after short delay to prevent existing particles remaining while off-screen and becoming visible once not culled
+						StartCoroutine(vfx.gameObject.SoftStop(delayMax: m_vfxDisableDelaySeconds, postBehavior: Utility.SoftStopPost.DisableComponents)); // disable after short delay to prevent existing particles remaining while off-screen and becoming visible once not culled
 					}
 					else
 					{
@@ -589,7 +589,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		{
 			if (m_vfxKeyDelay != null)
 			{
-				StartCoroutine(m_vfxKeyDelay.SoftStop(() => m_unlockInProgressCount > 0, m_vfxDisableDelaySeconds, false));
+				StartCoroutine(m_vfxKeyDelay.gameObject.SoftStop(() => m_unlockInProgressCount > 0, m_vfxDisableDelaySeconds, Utility.SoftStopPost.DisableComponents));
 			}
 			yield break;
 		}

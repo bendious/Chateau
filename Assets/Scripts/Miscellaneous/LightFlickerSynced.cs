@@ -119,7 +119,9 @@ public class LightFlickerSynced : MonoBehaviour
 		}
 		foreach (ComponentInfo<SpriteRenderer, Color> info in m_renderers)
 		{
-			info.m_component.color = info.m_max * colorPct;
+			Color colorNew = info.m_max * colorPct;
+			colorNew.a = info.m_component.color.a; // to preserve changes in alpha from other sources
+			info.m_component.color = colorNew;
 			foreach (Material material in info.m_component.materials)
 			{
 				material.SetFloat(m_emissivePctID, intensityT); // TODO: avoid creating separate material instances for each renderer w/o syncing un-synced LightFlicker components?
@@ -127,7 +129,9 @@ public class LightFlickerSynced : MonoBehaviour
 		}
 		foreach (ComponentInfo<Graphic, Color> info in m_ui)
 		{
-			info.m_component.color = info.m_max * colorPct;
+			Color colorNew = info.m_max * colorPct;
+			colorNew.a = info.m_component.color.a; // to preserve changes in alpha from other sources
+			info.m_component.color = colorNew;
 		}
 	}
 

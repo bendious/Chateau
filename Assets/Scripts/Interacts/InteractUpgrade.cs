@@ -66,16 +66,16 @@ public class InteractUpgrade : MonoBehaviour, IInteractable
 		}
 		Tuple<List<Color>, List<Gradient>> colors = m_active ? colorSource.FindColors() : null;
 
-		for (int i = 0; i < transform.childCount; ++i)
+		if (m_active)
 		{
-			// activate children
-			GameObject childObj = transform.GetChild(i).gameObject;
-			childObj.SetActive(true);
-
-			// enable/disable VFX
-			foreach (VisualEffect vfx in childObj.GetComponentsInChildren<VisualEffect>(true))
+			for (int i = 0; i < transform.childCount; ++i)
 			{
-				if (m_active)
+				// activate children
+				GameObject childObj = transform.GetChild(i).gameObject;
+				childObj.SetActive(true);
+
+				// enable VFX
+				foreach (VisualEffect vfx in childObj.GetComponentsInChildren<VisualEffect>(true))
 				{
 					// match color(s)
 					Light2D light = vfx.GetComponent<Light2D>();
@@ -89,11 +89,11 @@ public class InteractUpgrade : MonoBehaviour, IInteractable
 
 					vfx.Play();
 				}
-				else
-				{
-					StartCoroutine(vfx.SoftStop(() => m_active));
-				}
 			}
+		}
+		else
+		{
+			StartCoroutine(gameObject.SoftStop(() => m_active));
 		}
 		Debug.Assert(colors == null || (colors.Item1.Count == 0 && colors.Item2.Count == 0));
 

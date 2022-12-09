@@ -67,7 +67,7 @@ public class GameController : MonoBehaviour
 	public float m_difficultyMax = 0.0f;
 
 	[SerializeField] private GameObject m_loadingScreen;
-	public float m_fadeSeconds = 0.5f;
+	public float m_fadeSeconds = 0.25f;
 	[SerializeField] private Image m_timerUI;
 	[SerializeField] private Animator m_timerAnimator;
 	[SerializeField] private GameObject m_startUI;

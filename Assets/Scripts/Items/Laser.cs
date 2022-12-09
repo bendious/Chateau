@@ -41,7 +41,10 @@ public class Laser : MonoBehaviour
 		m_secondsAccum = 0.0f;
 		m_causeObjMostRecent = gameObject;
 
-		m_endpointLight.enabled = false;
+		if (m_endpointLight != null) // this check shouldn't be required normally, but may be sometimes due to scene change object destruction
+		{
+			m_endpointLight.enabled = false;
+		}
 
 		if (m_softstop != null)
 		{
@@ -50,7 +53,7 @@ public class Laser : MonoBehaviour
 		MonoBehaviour vfxCoroutineComp = m_endpointVFX.GetComponents<MonoBehaviour>().FirstOrDefault(c => c.isActiveAndEnabled); // NOTE that VisualEffect does not support StartCoroutine() itself since it is not based on MonoBehaviour
 		if (vfxCoroutineComp != null)
 		{
-			m_softstop = vfxCoroutineComp.StartCoroutine(m_endpointVFX.SoftStop(() => m_target != null, wholeObject: false));
+			m_softstop = vfxCoroutineComp.StartCoroutine(m_endpointVFX.gameObject.SoftStop(() => m_target != null, postBehavior: Utility.SoftStopPost.DisableComponents));
 		}
 		else
 		{
@@ -109,7 +112,7 @@ public class Laser : MonoBehaviour
 		// update VFX
 		if (m_target == null && m_softstop == null)
 		{
-			m_softstop = StartCoroutine(m_endpointVFX.SoftStop(() => m_target != null, wholeObject: false));
+			m_softstop = StartCoroutine(m_endpointVFX.gameObject.SoftStop(() => m_target != null, postBehavior: Utility.SoftStopPost.DisableComponents));
 		}
 		else
 		{

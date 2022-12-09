@@ -138,7 +138,7 @@ public class Hazard : MonoBehaviour
 		m_softstopping = true;
 		if (m_vfx != null)
 		{
-			yield return StartCoroutine(m_vfx.SoftStop(() => !m_softstopping));
+			yield return StartCoroutine(m_vfx.gameObject.SoftStop(() => !m_softstopping));
 		}
 		if (m_softstopping && !m_reenableOnDamage) // NOTE that we can't disable ourself completely if we need to continue listening for damage events
 		{

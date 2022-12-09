@@ -21,7 +21,7 @@ public class TimedDespawn : MonoBehaviour
 		VisualEffect vfx = GetComponent<VisualEffect>();
 		if (vfx != null)
 		{
-			yield return StartCoroutine(vfx.SoftStop(wholeObject: false)); // NOTE the synchronous coroutine nesting; see https://www.alanzucconi.com/2017/02/15/nested-coroutines-in-unity/ // NOTE also that we don't want to deactivate the whole object afterward to avoid preempting the rest of this coroutine
+			yield return StartCoroutine(gameObject.SoftStop(postBehavior: Utility.SoftStopPost.DisableComponents)); // NOTE the synchronous coroutine nesting; see https://www.alanzucconi.com/2017/02/15/nested-coroutines-in-unity/ // NOTE also that we don't want to deactivate the whole object afterward to avoid preempting the rest of this coroutine
 		}
 
 		Simulation.Schedule<ObjectDespawn>().m_object = gameObject;

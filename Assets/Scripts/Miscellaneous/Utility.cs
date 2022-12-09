@@ -344,17 +344,27 @@ public static class Utility
 		return false;
 	}
 
-	public static System.Collections.IEnumerator SoftStop(this VisualEffect vfx, Func<bool> shouldCancelFunc = null, float delayMax = 2.0f, bool wholeObject = true)
+	public enum SoftStopPost
 	{
-		vfx.Stop();
+		DeactivateObject,
+		DisableComponents,
+		Reactivate,
+	}
+	public static System.Collections.IEnumerator SoftStop(this GameObject rootObj, Func<bool> shouldCancelFunc = null, float delayMax = 2.0f, SoftStopPost postBehavior = SoftStopPost.DeactivateObject)
+	{
+		VisualEffect[] vfxAll = rootObj.GetComponentsInChildren<VisualEffect>();
+		foreach (VisualEffect vfx in vfxAll)
+		{
+			vfx.Stop();
+		}
 
 		// gather lights to fade out
 		// TODO: fade out other effects, too?
-		Tuple<LightFlickerSynced, Light2D, float>[] lights = vfx.GetComponentsInChildren<Light2D>().Select(light => Tuple.Create(light.GetComponent<LightFlickerSynced>(), light, light.intensity)).ToArray(); // TODO: ensure none of the intensities are temporary due to effects other than flickering?
+		Tuple<LightFlickerSynced, Light2D, float>[] lights = rootObj.GetComponentsInChildren<Light2D>().Select(light => Tuple.Create(light.GetComponent<LightFlickerSynced>(), light, light.intensity)).ToArray(); // TODO: ensure none of the intensities are temporary due to effects other than flickering?
 
 		// determine wait params
 		float waitTimeMax = Time.time + delayMax; // NOTE that if offscreen, the particles will stop simulating and never die until visible again, in which case we want to disable the object and not worry about killing particles
-		bool waitFunc() => vfx.aliveParticleCount <= 0 || Time.time > waitTimeMax || (shouldCancelFunc != null && shouldCancelFunc());
+		bool waitFunc() => vfxAll.Max(vfx => vfx.aliveParticleCount) <= 0 || Time.time > waitTimeMax || (shouldCancelFunc != null && shouldCancelFunc());
 
 		// wait
 		if (lights.Length <= 0)
@@ -397,19 +407,29 @@ public static class Utility
 			}
 		}
 
-		if (shouldCancelFunc != null && shouldCancelFunc())
+		if (postBehavior == SoftStopPost.Reactivate || (shouldCancelFunc != null && shouldCancelFunc()))
 		{
-			vfx.Play();
+			foreach (VisualEffect vfx in vfxAll)
+			{
+				vfx.Play();
+			}
 			yield break;
 		}
 
-		if (wholeObject)
+		if (postBehavior == SoftStopPost.DeactivateObject)
 		{
-			vfx.gameObject.SetActive(false);
+			rootObj.SetActive(false);
 		}
 		else
 		{
-			vfx.enabled = false;
+			foreach (VisualEffect vfx in vfxAll)
+			{
+				vfx.enabled = false;
+			}
+			foreach (Tuple<LightFlickerSynced, Light2D, float> light in lights)
+			{
+				light.Item2.enabled = false;
+			}
 		}
 	}
 
