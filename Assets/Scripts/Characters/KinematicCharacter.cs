@@ -64,6 +64,8 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	/// A velocity directed and sent to Bounce() when taking nonlethal damage
 	/// </summary>
 	public Vector2 m_damageBounceMagnitude = new(3.5f, 3.5f);
+	[SerializeField] private float m_damageBounceDecayTimeX = 0.25f;
+	[SerializeField] private float m_damageBounceDecayTimeY = 0.1f;
 
 	[SerializeField] private Vector2 m_armOffset;
 
@@ -287,7 +289,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		// knock away from source
 		// TODO: differentiate between source and weapon?
 		Vector2 bounceVecOriented = transform.position.x < evt.m_directCause.transform.position.x ? new(-m_damageBounceMagnitude.x, m_damageBounceMagnitude.y) : m_damageBounceMagnitude;
-		Bounce(bounceVecOriented);
+		Bounce(bounceVecOriented, m_damageBounceDecayTimeX, m_damageBounceDecayTimeY);
 	}
 
 	private void OnDeath(OnHealthDeath evt)

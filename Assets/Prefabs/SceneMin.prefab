@@ -1762,6 +1762,8 @@ MonoBehaviour:
   m_enemyPrefabs:
   - m_object: {fileID: 5008818805582489474, guid: 7279d3fac13df0c49a659889f1c1a70b, type: 3}
     m_weight: 1
+  - m_object: {fileID: 5801429579973755700, guid: 153c215062f383745bdcab955539c080, type: 3}
+    m_weight: 1
   - m_object: {fileID: 4591554789177784179, guid: 1187c6293fee67d4da01f8200f643835, type: 3}
     m_weight: 1
   - m_object: {fileID: 6725369280228572274, guid: 7d62d134f9eaace41a13bd84d8a9b5f7, type: 3}
@@ -1775,6 +1777,8 @@ MonoBehaviour:
   - m_object: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
     m_weight: 2
   - m_object: {fileID: 6078414917976764449, guid: 91d037443bcf7ff489d3fd3888a611c3, type: 3}
+    m_weight: 2
+  - m_object: {fileID: 1556465053515554114, guid: 93a5b4a81594c234f86f6ef08276e178, type: 3}
     m_weight: 2
   - m_object: {fileID: 1461884866152942204, guid: 206f3bb30caff0a48b30738ae5080706, type: 3}
     m_weight: 2

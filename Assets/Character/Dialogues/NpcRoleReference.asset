@@ -81,9 +81,21 @@ MonoBehaviour:
             melt right through 'em.
           m_eventName: 
           m_breakAfterward: 0
-        - m_text: Snakes
+        - m_text: Lizards
           m_preconditionName: EnemyTypeHasSpawned
           m_userdata: 1
+          m_followUp:
+          - Armadillo lizards, to be precise.
+          - Or at least, they seem related.
+          - They're tough little guys, that's for sure.
+          - Especially against physical attacks.
+          - But whatever you use, you'll just have to keep at it 'til they drop.
+          - At least they're slow, right?
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: Snakes
+          m_preconditionName: EnemyTypeHasSpawned
+          m_userdata: 2
           m_followUp:
           - Snakes?
           - Of course it had to be snakes.
@@ -95,7 +107,7 @@ MonoBehaviour:
           m_breakAfterward: 0
         - m_text: Frogs
           m_preconditionName: EnemyTypeHasSpawned
-          m_userdata: 2
+          m_userdata: 3
           m_followUp:
           - Ew.
           - I swear, if they try to lick me <i>one</i> more time, I swear I'll...
@@ -110,7 +122,7 @@ MonoBehaviour:
           m_breakAfterward: 0
         - m_text: Bats
           m_preconditionName: EnemyTypeHasSpawned
-          m_userdata: 3
+          m_userdata: 4
           m_followUp:
           - Bats, yes!
           - Shockingly easy to miss!
@@ -121,7 +133,7 @@ MonoBehaviour:
           m_breakAfterward: 0
         - m_text: Bone Piles
           m_preconditionName: EnemyTypeHasSpawned
-          m_userdata: 4
+          m_userdata: 5
           m_followUp:
           - Yeah, you definitely have some skeletons in your closets, buddy.
           - Talk about litterbugs, am I right?
@@ -136,7 +148,7 @@ MonoBehaviour:
           m_breakAfterward: 0
         - m_text: Spiders
           m_preconditionName: EnemyTypeHasSpawned
-          m_userdata: 5
+          m_userdata: 6
           m_followUp:
           - Yeah, we've got some big ones around here, don't we? At least they're
             not much for web-building.
@@ -153,7 +165,7 @@ MonoBehaviour:
           m_breakAfterward: 0
         - m_text: Shadows
           m_preconditionName: EnemyTypeHasSpawned
-          m_userdata: 6
+          m_userdata: 7
           m_followUp:
           - Hmm, the worst; shadows...
           - They look like people, don't they?
