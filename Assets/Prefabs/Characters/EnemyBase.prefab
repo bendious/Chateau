@@ -141,6 +141,12 @@ Rigidbody2D:
   m_AngularDrag: 0.05
   m_GravityScale: 1
   m_Material: {fileID: 6200000, guid: 5c45e442394b4ab42af037ccb3c5d669, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
   m_Interpolate: 1
   m_SleepingMode: 0
   m_CollisionDetection: 1
@@ -155,6 +161,25 @@ CapsuleCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 6200000, guid: 5c45e442394b4ab42af037ccb3c5d669, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -194,6 +219,8 @@ MonoBehaviour:
   m_dashDamage: 0
   m_dashSFX: []
   m_damageBounceMagnitude: {x: 7, y: 0}
+  m_damageBounceDecayTimeX: 0.25
+  m_damageBounceDecayTimeY: 0.1
   m_armOffset: {x: 0, y: 0}
   m_contactDamage: 1
   m_contactDamageType: 0
@@ -341,8 +368,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_maxHP: 1
-  m_damageAudio: {fileID: 8300000, guid: b7f741588644cd64bbee6387cb54a96d, type: 3}
-  m_deathAudio: {fileID: 8300000, guid: b7f741588644cd64bbee6387cb54a96d, type: 3}
+  m_damageSFX:
+  - m_object: {fileID: 8300000, guid: b7f741588644cd64bbee6387cb54a96d, type: 3}
+    m_weight: 1
+  m_deathSFX:
+  - m_object: {fileID: 8300000, guid: b7f741588644cd64bbee6387cb54a96d, type: 3}
+    m_weight: 1
   m_invincibilityTime: 0.25
   m_invincible: 0
   m_invincibilityDirection: {x: 0, y: 0}
@@ -376,6 +407,7 @@ MonoBehaviour:
     atime6: 0
     atime7: 0
     m_Mode: 0
+    m_ColorSpace: -1
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
   m_blinkSeconds: 0.3
@@ -407,6 +439,7 @@ MonoBehaviour:
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
   m_OverlapOperation: 0
   m_NormalMapDistance: 3
   m_NormalMapQuality: 2

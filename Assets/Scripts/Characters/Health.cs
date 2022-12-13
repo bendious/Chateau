@@ -28,8 +28,8 @@ public class Health : MonoBehaviour
 	/// </summary>
 	[SerializeField] private float m_maxHP = 1.0f;
 
-	public AudioClip m_damageAudio;
-	public AudioClip m_deathAudio;
+	public WeightedObject<AudioClip>[] m_damageSFX;
+	public WeightedObject<AudioClip>[] m_deathSFX;
 
 	public float m_invincibilityTime = 0.25f; // TODO: vary by animation played?
 	public bool m_invincible;
@@ -185,9 +185,9 @@ public class Health : MonoBehaviour
 		AudioSource audioSource = GetComponent<AudioSource>();
 		if (!mergeWithPrevious)
 		{
-			if (m_damageAudio != null)
+			if (m_damageSFX.Length > 0)
 			{
-				audioSource.PlayOneShot(m_damageAudio);
+				audioSource.PlayOneShot(m_damageSFX.RandomWeighted());
 			}
 			if (m_animator != null && notMinor)
 			{
@@ -206,17 +206,17 @@ public class Health : MonoBehaviour
 			// TODO: m_despawnOnDeath decoupled from m_character?
 			if (m_character != null)
 			{
-				if (m_deathAudio != null)
+				if (m_deathSFX.Length > 0)
 				{
-					audioSource.PlayOneShot(m_deathAudio);
+					audioSource.PlayOneShot(m_deathSFX.RandomWeighted());
 				}
 			}
 			else
 			{
 				Simulation.Schedule<ObjectDespawn>(0.001f).m_object = gameObject; // NOTE the slight "delay" (though it will probably still fall in the same frame) to ensure OnHealth{Decrement/Death} are processed first since they may need to access the object
-				if (m_deathAudio != null)
+				if (m_deathSFX.Length > 0)
 				{
-					AudioSource.PlayClipAtPoint(m_deathAudio, transform.position); // NOTE that we can't use audioSource since we're despawning immediately // TODO: efficiency? hide & delay despawn until after audio?
+					AudioSource.PlayClipAtPoint(m_deathSFX.RandomWeighted(), transform.position); // NOTE that we can't use audioSource since we're despawning immediately // TODO: efficiency? hide & delay despawn until after audio?
 				}
 			}
 		}

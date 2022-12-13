@@ -5,6 +5,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 21762023750632331, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
@@ -104,14 +105,6 @@ PrefabInstance:
       value: 64
       objectReference: {fileID: 0}
     - target: {fileID: 3693074839078316774, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
-      propertyPath: m_deathAudio
-      value: 
-      objectReference: {fileID: 8300000, guid: dd6057fd464f77942a0bf39c54651b32, type: 3}
-    - target: {fileID: 3693074839078316774, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
-      propertyPath: m_damageAudio
-      value: 
-      objectReference: {fileID: 8300000, guid: dd6057fd464f77942a0bf39c54651b32, type: 3}
-    - target: {fileID: 3693074839078316774, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
       propertyPath: m_gradient.ctime1
       value: 8126
       objectReference: {fileID: 0}
@@ -195,6 +188,14 @@ PrefabInstance:
       propertyPath: m_gradient.m_NumColorKeys
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 3693074839078316774, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
+      propertyPath: m_deathSFX.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 8300000, guid: dd6057fd464f77942a0bf39c54651b32, type: 3}
+    - target: {fileID: 3693074839078316774, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
+      propertyPath: m_damageSFX.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 8300000, guid: dd6057fd464f77942a0bf39c54651b32, type: 3}
     - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
       propertyPath: m_difficulty
       value: 40
@@ -444,6 +445,15 @@ PrefabInstance:
     - {fileID: 8424504606015649255, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
     - {fileID: 5850423430718726728, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
     - {fileID: 6367668619498002054, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 25075436683410029, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 922689420189268587}
+    - targetCorrespondingSourceObject: {fileID: 25075436683410029, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3621319959019523533}
   m_SourcePrefab: {fileID: 100100000, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
 --- !u!1 &6063473657391316580 stripped
 GameObject:
@@ -460,6 +470,25 @@ CapsuleCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 6200000, guid: 5c45e442394b4ab42af037ccb3c5d669, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0

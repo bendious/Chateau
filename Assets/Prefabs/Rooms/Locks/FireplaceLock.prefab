@@ -86,6 +86,7 @@ VisualEffect:
   m_InitialEventNameOverriden: 0
   m_StartSeed: 0
   m_ResetSeedOnPlay: 1
+  m_AllowInstancing: 1
   m_ResourceVersion: 1
   m_PropertySheet:
     m_Float:
@@ -195,6 +196,7 @@ VisualEffect:
           atime6: 0
           atime7: 0
           m_Mode: 0
+          m_ColorSpace: -1
           m_NumColorKeys: 3
           m_NumAlphaKeys: 4
         m_Name: LifetimeColor
@@ -249,6 +251,7 @@ VisualEffect:
   m_InitialEventNameOverriden: 0
   m_StartSeed: 0
   m_ResetSeedOnPlay: 1
+  m_AllowInstancing: 1
   m_ResourceVersion: 1
   m_PropertySheet:
     m_Float:
@@ -358,6 +361,7 @@ VisualEffect:
           atime6: 0
           atime7: 0
           m_Mode: 0
+          m_ColorSpace: -1
           m_NumColorKeys: 3
           m_NumAlphaKeys: 4
         m_Name: LifetimeColor
@@ -411,6 +415,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2212447094165274766, guid: 69d40fac0f1698941a65a3c419d31179, type: 3}
@@ -583,6 +588,42 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 6031679130521807462, guid: 69d40fac0f1698941a65a3c419d31179, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 2212447094165274766, guid: 69d40fac0f1698941a65a3c419d31179, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 878967767424307688}
+    - targetCorrespondingSourceObject: {fileID: 2212447094165274766, guid: 69d40fac0f1698941a65a3c419d31179, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6420969663883650954}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3563995205693016049, guid: 69d40fac0f1698941a65a3c419d31179, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1374238263853317685}
+    - targetCorrespondingSourceObject: {fileID: 3563995205693016049, guid: 69d40fac0f1698941a65a3c419d31179, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5579060361953244474}
+    - targetCorrespondingSourceObject: {fileID: 3563995205693016049, guid: 69d40fac0f1698941a65a3c419d31179, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6411377266111095127}
+    - targetCorrespondingSourceObject: {fileID: 3563995205693016049, guid: 69d40fac0f1698941a65a3c419d31179, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3095207594966458237}
+    - targetCorrespondingSourceObject: {fileID: 3563995205693016049, guid: 69d40fac0f1698941a65a3c419d31179, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3485330684330825334}
+    - targetCorrespondingSourceObject: {fileID: 3563995205693016049, guid: 69d40fac0f1698941a65a3c419d31179, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4246146117659770037}
+    - targetCorrespondingSourceObject: {fileID: 3563995205693016049, guid: 69d40fac0f1698941a65a3c419d31179, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5848845379622224117}
+    - targetCorrespondingSourceObject: {fileID: 3563995205693016049, guid: 69d40fac0f1698941a65a3c419d31179, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6034779674882206485}
+    - targetCorrespondingSourceObject: {fileID: 2310609452631622074, guid: 69d40fac0f1698941a65a3c419d31179, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 440551146412005350}
   m_SourcePrefab: {fileID: 100100000, guid: 69d40fac0f1698941a65a3c419d31179, type: 3}
 --- !u!4 &58844773760162204 stripped
 Transform:
@@ -607,6 +648,7 @@ VisualEffect:
   m_InitialEventNameOverriden: 0
   m_StartSeed: 0
   m_ResetSeedOnPlay: 1
+  m_AllowInstancing: 1
   m_ResourceVersion: 1
   m_PropertySheet:
     m_Float:
@@ -716,6 +758,7 @@ VisualEffect:
           atime6: 0
           atime7: 0
           m_Mode: 0
+          m_ColorSpace: -1
           m_NumColorKeys: 3
           m_NumAlphaKeys: 4
         m_Name: LifetimeColor
@@ -948,8 +991,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_maxHP: 99999
-  m_damageAudio: {fileID: 0}
-  m_deathAudio: {fileID: 0}
+  m_damageSFX: []
+  m_deathSFX: []
   m_invincibilityTime: 2
   m_invincible: 0
   m_invincibilityDirection: {x: 0, y: 0}
@@ -983,6 +1026,7 @@ MonoBehaviour:
     atime6: 0
     atime7: 0
     m_Mode: 0
+    m_ColorSpace: -1
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
   m_blinkSeconds: 0.3
@@ -1067,6 +1111,7 @@ MonoBehaviour:
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
   m_OverlapOperation: 0
   m_NormalMapDistance: 1
   m_NormalMapQuality: 0
@@ -1136,6 +1181,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 6200000, guid: d18c3df8db137cc4684c97f20fb78a73, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 1
   m_UsedByComposite: 0

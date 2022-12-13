@@ -6,11 +6,7 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - m_damageAudio: {instanceID: 0}
-  - m_deathAudio: {instanceID: 0}
   - m_healthUIParent: {instanceID: 0}
-  - m_healthSprite: {fileID: 21300000, guid: 66ce8ac3d26a2c0468edc3a8d88698e0, type: 3}
-  - m_healthMissingSprite: {fileID: 21300000, guid: 2581a037f6f73f84b98c2af8eaaf9d1d, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

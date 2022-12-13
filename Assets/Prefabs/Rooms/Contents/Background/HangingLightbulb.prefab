@@ -109,6 +109,7 @@ MonoBehaviour:
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
   m_OverlapOperation: 0
   m_NormalMapDistance: 1
   m_NormalMapQuality: 0
@@ -206,6 +207,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 6200000, guid: 448cd1b924f918643b17c77e4777d707, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -235,8 +255,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_maxHP: 1
-  m_damageAudio: {fileID: 0}
-  m_deathAudio: {fileID: 0}
+  m_damageSFX: []
+  m_deathSFX: []
   m_invincibilityTime: 0.1
   m_invincible: 0
   m_invincibilityDirection: {x: 0, y: 0}
@@ -270,6 +290,7 @@ MonoBehaviour:
     atime6: 0
     atime7: 0
     m_Mode: 0
+    m_ColorSpace: -1
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
   m_blinkSeconds: 0.3
@@ -288,6 +309,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 527082021829585196, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
@@ -431,6 +453,33 @@ PrefabInstance:
     - {fileID: 5849246084018440235, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
     - {fileID: 2590584663759917903, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
     - {fileID: 4014939671081850879, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1555945160637222004, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8261921552851709462}
+    - targetCorrespondingSourceObject: {fileID: 1555945160637222004, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8262175122106643858}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7701380722503224308, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 726940427875506108}
+    - targetCorrespondingSourceObject: {fileID: 7701380722503224308, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -5721765946122307793}
+    - targetCorrespondingSourceObject: {fileID: 7701380722503224308, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -264727343401529847}
+    - targetCorrespondingSourceObject: {fileID: 7701380722503224308, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 735465607307678022}
+    - targetCorrespondingSourceObject: {fileID: 7701380722503224308, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8494768819678429464}
+    - targetCorrespondingSourceObject: {fileID: 6246935606014528584, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 648266781495547821}
   m_SourcePrefab: {fileID: 100100000, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
 --- !u!4 &71164696563843773 stripped
 Transform:
@@ -452,6 +501,25 @@ CircleCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 6200000, guid: 88fc809a785b2da40af7b8a91cb43635, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -473,6 +541,25 @@ CircleCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 6200000, guid: 88fc809a785b2da40af7b8a91cb43635, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -492,6 +579,7 @@ SpringJoint2D:
   m_ConnectedRigidBody: {fileID: 0}
   m_BreakForce: 1000
   m_BreakTorque: Infinity
+  m_BreakAction: 3
   m_AutoConfigureConnectedAnchor: 0
   m_Anchor: {x: 0, y: 0.15}
   m_ConnectedAnchor: {x: 0, y: 0}
@@ -501,6 +589,7 @@ SpringJoint2D:
   m_Frequency: 2
 --- !u!120 &-264727343401529847
 LineRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -588,16 +677,20 @@ LineRenderer:
       atime6: 0
       atime7: 0
       m_Mode: 0
+      m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
     numCornerVertices: 0
     numCapVertices: 0
     alignment: 0
     textureMode: 1
+    textureScale: {x: 1, y: 1}
     shadowBias: 0.5
     generateLightingData: 0
+  m_MaskInteraction: 0
   m_UseWorldSpace: 0
   m_Loop: 0
+  m_ApplyActiveColorSpace: 0
 --- !u!114 &735465607307678022
 MonoBehaviour:
   m_ObjectHideFlags: 0

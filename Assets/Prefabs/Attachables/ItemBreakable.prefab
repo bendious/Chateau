@@ -42,6 +42,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -63,6 +82,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 996511831040732740, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
@@ -90,6 +110,18 @@ PrefabInstance:
       value: 0.333
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 996511831040732740, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6889080062031529221}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8260530995564227012, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 848659554012485791}
+    - targetCorrespondingSourceObject: {fileID: 8260530995564227012, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5798313233011251755}
   m_SourcePrefab: {fileID: 100100000, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
 --- !u!4 &1555945160637222004 stripped
 Transform:
@@ -132,8 +164,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_maxHP: 2
-  m_damageAudio: {fileID: 0}
-  m_deathAudio: {fileID: 0}
+  m_damageSFX: []
+  m_deathSFX: []
   m_invincibilityTime: 0.25
   m_invincible: 0
   m_invincibilityDirection: {x: 0, y: 0}
@@ -167,6 +199,7 @@ MonoBehaviour:
     atime6: 0
     atime7: 0
     m_Mode: 0
+    m_ColorSpace: -1
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
   m_blinkSeconds: 0.3
