@@ -37,12 +37,20 @@ public class CreditsController : MonoBehaviour
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnForward(InputValue input)
 	{
+		if (GameController.IsSceneLoad)
+		{
+			return;
+		}
 		UpdateRoom(room => room.FirstChild);
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "defined by InputSystem / PlayerInput component")]
 	public void OnBack(InputValue input)
 	{
+		if (GameController.IsSceneLoad)
+		{
+			return;
+		}
 		UpdateRoom(room => room.Parent);
 	}
 
@@ -52,7 +60,7 @@ public class CreditsController : MonoBehaviour
 
 	private IEnumerator SetInitialRoomDelayed()
 	{
-		yield return new WaitForEndOfFrame(); // due to GameController.m_startRoom not being immediately available
+		yield return new WaitUntil(() => !GameController.IsSceneLoad); // due to GameController.m_startRoom not being immediately available
 		UpdateRoom(null);
 	}
 
@@ -87,7 +95,7 @@ public class CreditsController : MonoBehaviour
 		m_npcSpawningInProgress = true;
 
 		// due to GameController.m_npcs[] not being assigned until Start() and GameController.m_npcsInstantiated[] not necessarily being updated before us when an NPC despawns, we wait before checking NPC counts
-		yield return new WaitForEndOfFrame();
+		yield return new WaitUntil(() => !GameController.IsSceneLoad);
 
 		int npcsTotal = GameController.Instance.NpcsTotal;
 		while (GameController.Instance.NpcsInstantiatedCount < npcsTotal)

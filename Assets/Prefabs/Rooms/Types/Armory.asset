@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17b48a8fa2e91f74cbd5326b5b117c17, type: 3}
   m_Name: Armory
   m_EditorClassIdentifier: 
-  m_preconditionNames: []
+  m_preconditionNames:
+  - PreferDeadEnds
   m_backdrops:
   - m_object:
       m_sprite: {fileID: 21300000, guid: 6e68c0d093f9505469997c5551fe6842, type: 3}
