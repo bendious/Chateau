@@ -5,6 +5,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1440117313163947046, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
@@ -85,6 +86,24 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: c7072900eea2a2347b0fee87ad95d73d, type: 3}
     m_RemovedComponents:
     - {fileID: 2462278832316299634, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2776260089369847715}
+    - targetCorrespondingSourceObject: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9146162500666701081}
+    - targetCorrespondingSourceObject: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1694946611709513568}
+    - targetCorrespondingSourceObject: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2261526499625535253}
+    - targetCorrespondingSourceObject: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3286500664980312624}
   m_SourcePrefab: {fileID: 100100000, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
 --- !u!1 &1365230811573513431 stripped
 GameObject:
@@ -104,6 +123,7 @@ VisualEffect:
   m_InitialEventNameOverriden: 0
   m_StartSeed: 0
   m_ResetSeedOnPlay: 1
+  m_AllowInstancing: 1
   m_ResourceVersion: 1
   m_PropertySheet:
     m_Float:
@@ -198,6 +218,7 @@ VisualEffect:
           atime6: 0
           atime7: 0
           m_Mode: 0
+          m_ColorSpace: -1
           m_NumColorKeys: 2
           m_NumAlphaKeys: 4
         m_Name: LifetimeColor
@@ -319,6 +340,10 @@ MonoBehaviour:
   m_damageImpulse: {x: 0, y: 0}
   m_damageSfx: []
   m_singleUse: 0
+  m_reenableOnDamage: 0
+  m_lifetimeSeconds: -1
+  m_vfx: {fileID: 0}
+  m_enableSfx: []
 --- !u!114 &3286500664980312624
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -343,6 +368,7 @@ MonoBehaviour:
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
   m_OverlapOperation: 0
   m_NormalMapDistance: 3
   m_NormalMapQuality: 1

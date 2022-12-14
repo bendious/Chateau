@@ -224,6 +224,8 @@ MonoBehaviour:
   m_armOffset: {x: 0, y: 0}
   m_contactDamage: 1
   m_contactDamageType: 0
+  m_dialogues:
+  - {fileID: 11400000, guid: 45b14dd5be7b8f54cafb34ca44d76197, type: 2}
   move: {x: 0, y: 0}
   m_allowedStates: 00000000010000000300000004000000
   m_passive: 0

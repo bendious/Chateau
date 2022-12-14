@@ -269,6 +269,10 @@ PrefabInstance:
       value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_dialogues.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
       propertyPath: m_attackSFX.Array.data[0]
       value: 
       objectReference: {fileID: 8300000, guid: 74ec83d22f6d9f24e910afefc39d0b64, type: 3}
@@ -312,6 +316,10 @@ PrefabInstance:
       propertyPath: m_damageBounceMagnitude.y
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_dialogues.Array.data[1]
+      value: 
+      objectReference: {fileID: 11400000, guid: 9f9643c4bb84cfe418e01134868deae2, type: 2}
     - target: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
       propertyPath: m_attackSFX.Array.data[10]
       value: 

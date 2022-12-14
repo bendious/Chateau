@@ -1438,9 +1438,9 @@ public class GameController : MonoBehaviour
 		yield return null; // delay one frame to mitigate input double-processing
 
 		// TODO: move into DialogueController?
-		if (m_dialogueController.IsPlaying && m_dialogueController.Character != null)
+		if (m_dialogueController.IsPlaying && m_dialogueController.Target != null)
 		{
-			AvatarController avatar = m_dialogueController.Character as AvatarController;
+			AvatarController avatar = m_dialogueController.Target as AvatarController;
 			if (avatar != null)
 			{
 				avatar.ControlsUI.Enable();

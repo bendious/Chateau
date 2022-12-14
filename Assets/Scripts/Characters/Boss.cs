@@ -218,7 +218,7 @@ public class Boss : MonoBehaviour
 		// dialogue
 		// see Synchronous Coroutines in https://www.alanzucconi.com/2017/02/15/nested-coroutines-in-unity/
 		// TODO: parameterize dialogue?
-		yield return GameController.Instance.m_dialogueController.Play(m_dialogue.m_dialogue.RandomWeighted().m_lines, gameObject, GameController.Instance.m_avatars.First(), m_dialogueSprite, m_colorFinal, m_dialogueSfx.Length <= 0 ? null : m_dialogueSfx.RandomWeighted(), expressionSets: m_dialogue.m_expressions); // TODO: take any preconditions into account?
+		yield return GameController.Instance.m_dialogueController.Play(m_dialogue.m_dialogue.RandomWeighted().m_lines, gameObject, GameController.Instance.m_avatars.First(), m_ai, m_dialogueSprite, m_colorFinal, m_dialogueSfx.Length <= 0 ? null : m_dialogueSfx.RandomWeighted(), expressionSets: m_dialogue.m_expressions); // TODO: take any preconditions into account?
 
 		m_room.AmbianceToMusic();
 

@@ -401,6 +401,10 @@ PrefabInstance:
       value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_dialogues.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
       propertyPath: m_damageBounceDecayTimeX
       value: 0.5
       objectReference: {fileID: 0}
@@ -412,6 +416,10 @@ PrefabInstance:
       propertyPath: m_damageBounceMagnitude.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2651140156555518892, guid: 3af15238824ff584c8c21c167b8c2dc3, type: 3}
+      propertyPath: m_dialogues.Array.data[1]
+      value: 
+      objectReference: {fileID: 11400000, guid: b2664b82150d6c648bfac5703a92cab3, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

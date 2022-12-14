@@ -28,6 +28,9 @@ public abstract class AIState
 	protected readonly AIController m_ai;
 
 
+	protected bool m_shouldStartDialogue = false;
+
+
 	private readonly bool m_targetFriendlies;
 	private readonly float m_ignoreDistancePct;
 
@@ -61,11 +64,12 @@ public abstract class AIState
 					return enemyAccessible ? 0.0f : float.Epsilon;
 				case Type.Pursue:
 				case Type.PursueErratic:
-					return enemyAccessible && distanceFromOffsetPos > ai.m_meleeRange && (numItems > 0 || holdCountMax <= 0 || !itemAccessible) ? (distanceFromOffsetPos != float.MaxValue ? 1.0f : float.Epsilon) : 0.0f;
+					float distToUse = itemAccessible || numItems > 0 ? distanceFromOffsetPos : distanceFromTarget;
+					return enemyAccessible && distToUse > ai.m_meleeRange && (numItems > 0 || holdCountMax <= 0 || !itemAccessible) ? (distToUse != float.MaxValue ? 1.0f : float.Epsilon) : 0.0f;
 				case Type.Flee:
 					return !ai.m_friendly && GameController.Instance.Victory ? 100.0f : 0.0f;
 				case Type.Melee:
-					return (numItems > 0 || !itemAccessible || !allowedTypes.Contains(Type.FindAmmo)) && holdCountMax > 0 ? Mathf.InverseLerp(2.0f * ai.m_meleeRange, ai.m_meleeRange, distanceFromTarget) : 0.0f;
+					return (numItems > 0 || !itemAccessible || !allowedTypes.Contains(Type.FindAmmo)) && holdCountMax > 0 ? Mathf.Max(float.Epsilon, Mathf.InverseLerp(2.0f * ai.m_meleeRange, ai.m_meleeRange, distanceFromTarget)) : 0.0f;
 				case Type.Throw:
 					return ai.m_target != null && distanceFromTarget > ai.m_meleeRange && numItems > 0 ? 1.0f : 0.0f;
 				case Type.ThrowAll:
@@ -190,13 +194,34 @@ public abstract class AIState
 #endif
 
 
-	protected static ItemController[] ItemsTargetable => GameObject.FindObjectsOfType<ItemController>(); // TODO: efficiency? include backpacks as well as items?
+	protected static ItemController[] ItemsTargetable => Object.FindObjectsOfType<ItemController>(); // TODO: efficiency? include backpacks as well as items?
 
 	protected static float PathfindDistanceTo(AIController ai, GameObject obj)
 	{
 		// TODO: efficiency? also prioritize based on damage? de-prioritize based on vertical distance / passing through m_ai.m_target?
 		System.Tuple<System.Collections.Generic.List<Vector2>, float> path = GameController.Instance.Pathfind(ai.gameObject, obj, ai.GetComponent<Collider2D>().bounds.extents.y, !ai.HasFlying && ai.jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue); // TODO: limit to max jump height once pathfinding takes platforms into account?
 		return path == null ? float.MaxValue : path.Item2;
+	}
+
+	protected void MaybeStartDialogue()
+	{
+		if (!m_shouldStartDialogue)
+		{
+			return;
+		}
+
+		m_shouldStartDialogue = false; // NOTE that we do this even if another conversation is playing, skipping rather than delaying our own dialogue
+		if (GameController.Instance.m_dialogueController.IsPlaying)
+		{
+			return;
+		}
+
+		InteractNpc npc = m_ai.GetComponent<InteractNpc>();
+		KinematicCharacter otherChar = m_ai.m_target == null ? null : m_ai.m_target.GetComponent<KinematicCharacter>();
+		if (npc != null && otherChar != null)
+		{
+			npc.Interact(otherChar, false);
+		}
 	}
 }
 
@@ -226,7 +251,6 @@ public sealed class AIFraternize : AIState
 	private GameObject m_wanderTarget; // NOTE that we can't just track a managed object via m_ai.m_target since that can be reset in other places
 
 	private float m_postSecRemaining;
-	private bool m_shouldStartDialogue;
 
 	private float m_enemyCheckTime;
 
@@ -266,19 +290,7 @@ public sealed class AIFraternize : AIState
 		// check for arrival
 		if (hasArrived)
 		{
-			if (m_shouldStartDialogue)
-			{
-				m_shouldStartDialogue = false;
-				if (!GameController.Instance.m_dialogueController.IsPlaying)
-				{
-					InteractNpc npc = m_ai.GetComponent<InteractNpc>();
-					KinematicCharacter otherChar = m_ai.m_target.GetComponent<KinematicCharacter>();
-					if (npc != null && otherChar != null)
-					{
-						npc.Interact(otherChar, false);
-					}
-				}
-			}
+			MaybeStartDialogue();
 
 			m_postSecRemaining -= Time.deltaTime;
 			if (m_postSecRemaining <= 0.0f)
@@ -466,6 +478,8 @@ public sealed class AIMelee : AIState
 {
 	public float m_swingTimeSeconds = 0.2f; // TODO: vary based on item weight?
 
+	public float m_dialoguePct = 0.5f;
+
 
 	private float m_durationRemaining;
 	private float m_swingDurationRemaining;
@@ -488,6 +502,8 @@ public sealed class AIMelee : AIState
 
 		m_item = m_ai.GetComponentInChildren<ItemController>();
 		m_arm = m_item != null ? m_item.GetComponentInParent<ArmController>() : m_ai.GetComponentInChildren<ArmController>(); // NOTE that we get the relevant arm even if planning to use m_item, since m_item could break or be taken during the course of this state // TODO: don't assume that AI only have items via arms?
+
+		m_shouldStartDialogue = Random.value <= m_dialoguePct;
 	}
 
 	public override AIState Update()
@@ -504,6 +520,7 @@ public sealed class AIMelee : AIState
 		if (m_swingDurationRemaining <= 0.0f)
 		{
 			Swing();
+			MaybeStartDialogue();
 		}
 
 		m_durationRemaining -= Time.deltaTime;
@@ -535,6 +552,8 @@ public class AIThrow : AIState
 {
 	public float m_waitSeconds = 0.5f;
 
+	public float m_dialoguePct = 0.5f;
+
 
 	// NOTE the use of relative rather than absolute times to avoid jumping to the end if started while passive
 	protected float PreSecondsRemaining { get; private set; }
@@ -554,6 +573,8 @@ public class AIThrow : AIState
 
 		PreSecondsRemaining = m_waitSeconds;
 		m_postSecondsRemaining = m_waitSeconds;
+
+		m_shouldStartDialogue = Random.value <= m_dialoguePct;
 	}
 
 	public override AIState Update()
@@ -581,6 +602,7 @@ public class AIThrow : AIState
 			{
 				item.Throw();
 				m_hasThrown = true;
+				MaybeStartDialogue();
 			}
 			// NOTE that we go ahead and start decrementing m_postSecondsRemaining in order to avoid getting stuck if there are no items left or our aim never steadies
 		}
@@ -1030,7 +1052,7 @@ public sealed class AIFinalDialogue : AIState
 
 		Boss boss = m_ai.GetComponent<Boss>();
 		Dialogue dialogue = boss.m_dialogueFinal;
-		Coroutine dialogueCoroutine = GameController.Instance.m_dialogueController.Play(dialogue.m_dialogue.RandomWeighted().m_lines, m_ai.gameObject, m_ai.m_target.GetComponent<KinematicCharacter>(), boss.m_dialogueSprite, boss.GetComponent<SpriteRenderer>().color, boss.m_dialogueSfx.RandomWeighted(), expressionSets: dialogue.m_expressions);
+		Coroutine dialogueCoroutine = GameController.Instance.m_dialogueController.Play(dialogue.m_dialogue.RandomWeighted().m_lines, m_ai.gameObject, m_ai.m_target.GetComponent<KinematicCharacter>(), m_ai, boss.m_dialogueSprite, boss.GetComponent<SpriteRenderer>().color, boss.m_dialogueSfx.RandomWeighted(), expressionSets: dialogue.m_expressions);
 		m_ai.StartCoroutine(WaitForDialogue(dialogueCoroutine)); // TODO: ensure AIController never accidentally interferes via StopAllCoroutines()?
 	}
 

@@ -102,7 +102,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 
 	private void InitializeDialogue()
 	{
-		Dialogue[] dialogue = GameController.NpcDialogues(Index);
+		Dialogue[] dialogue = m_ai.m_dialogues.Concat(GameController.NpcDialogues(Index)).ToArray();
 		m_dialogueCombined = dialogue.SelectMany(source => source.m_dialogue).ToArray(); // NOTE the lack of deep-copying here, allowing the source NpcDialogue weights to be edited below and subsequently saved by GameController.Save() // TODO: avoid relying on runtime edits to ScriptableObject?
 		m_expressionsCombined = dialogue.SelectMany(source => source.m_expressions).ToArray(); // NOTE the lack of deep-copying here since these shouldn't be edited anyway
 	}
@@ -111,7 +111,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 	{
 		// pick dialogue option(s)
 		InteractNpc otherNpc = interactor.GetComponent<InteractNpc>();
-		WeightedObject<Dialogue.Info>[] dialogueAllowed = DialogueFiltered(interactor is not AvatarController, otherNpc == null ? null : GameController.NpcDialogues(otherNpc.Index)).ToArray();
+		WeightedObject<Dialogue.Info>[] dialogueAllowed = DialogueFiltered(interactor is not AvatarController, otherNpc == null ? interactor.m_dialogues : interactor.m_dialogues.Concat(GameController.NpcDialogues(otherNpc.Index)).ToArray()).ToArray();
 		if (dialogueAllowed.Length <= 0)
 		{
 			yield break;
@@ -128,7 +128,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 		{
 			otherNpc.InitializeDialogue();
 		}
-		yield return GameController.Instance.m_dialogueController.Play(dialogueAppend != null ? dialogueCur.m_lines.Concat(dialogueAppend.m_lines) : dialogueCur.m_lines, gameObject, interactor.GetComponent<KinematicCharacter>(), m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_sfxChosen, dialogueCur.m_loop ? 0 : dialogueAppend != null && dialogueAppend.m_loop ? dialogueCur.m_lines.Length : -1, expressionSets: new WeightedObject<Dialogue.Expression>[][] { m_expressionsCombined, otherNpc == null ? null : otherNpc.m_expressionsCombined });
+		yield return GameController.Instance.m_dialogueController.Play(dialogueAppend != null ? dialogueCur.m_lines.Concat(dialogueAppend.m_lines) : dialogueCur.m_lines, gameObject, interactor, m_ai, m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_sfxChosen, dialogueCur.m_loop ? 0 : dialogueAppend != null && dialogueAppend.m_loop ? dialogueCur.m_lines.Length : -1, expressionSets: new WeightedObject<Dialogue.Expression>[][] { m_expressionsCombined, otherNpc == null ? null : otherNpc.m_expressionsCombined });
 
 		// update weight
 		WeightedObject<Dialogue.Info> weightedDialogueCur = m_dialogueCombined.First(dialogue => dialogue.m_object == dialogueCur); // TODO: support duplicate dialogue options?

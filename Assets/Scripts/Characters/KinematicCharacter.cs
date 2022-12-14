@@ -79,6 +79,8 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	/// </summary>
 	[SerializeField] private Health.DamageType m_contactDamageType = Health.DamageType.Blunt;
 
+	public Dialogue[] m_dialogues;
+
 
 	/// <summary>
 	/// Used to indicate desired direction of travel.
