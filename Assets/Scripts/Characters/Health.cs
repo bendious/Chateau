@@ -234,11 +234,15 @@ public class Health : MonoBehaviour
 		return true;
 	}
 
-	public void HealStart(float delaySeconds, int amount, GameObject source)
+	public bool HealStart(float delaySeconds, int amount, GameObject source)
 	{
-		Debug.Assert(!HealInProgress);
+		if (!CanIncrement || HealInProgress)
+		{
+			return false;
+		}
 		HealInProgress = true;
 		StartCoroutine(HealDelayed(delaySeconds, amount, source));
+		return true;
 	}
 
 	public void HealCancel() => HealInProgress = false; // NOTE that we don't forcibly stop HealDelayed() since it has cleanup to do
@@ -335,8 +339,8 @@ public class Health : MonoBehaviour
 	private IEnumerator HealDelayed(float delaySeconds, int amount, GameObject source)
 	{
 		float speedPrev = m_character.maxSpeed;
-		Debug.Assert(speedPrev > 0.0f); // TODO: better way of detecting/preventing multiple HealDelayed() instances in progress?
-		m_character.maxSpeed = 0.0f; // TODO: also prevent jump/swing/etc?
+		Debug.Assert(speedPrev > 0.0f); // multiple HealDelayed() instances at once, not prevented by HealStart()? // TODO: don't assume all healable characters have non-zero speed?
+		m_character.maxSpeed = 0.0f; // NOTE that this also prevents jump but still allows swinging
 		m_animator.SetBool("healing", true);
 
 		// TODO: in-progress SFX/VFX, UI?

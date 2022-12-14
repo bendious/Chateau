@@ -341,12 +341,15 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		if (m_healAmount > 0)
 		{
 			Health causeHealth = Cause.GetComponent<Health>();
-			if (causeHealth.CanIncrement && isPressed && Cause.IsGrounded)
+			if (isPressed && Cause.IsGrounded)
 			{
-				causeHealth.HealStart(m_healSeconds, m_healAmount, gameObject);
-				return true;
+				bool healStarted = causeHealth.HealStart(m_healSeconds, m_healAmount, gameObject);
+				if (healStarted)
+				{
+					return true;
+				}
 			}
-			else if (causeHealth.HealInProgress)
+			else if (!isPressed && causeHealth.HealInProgress)
 			{
 				causeHealth.HealCancel();
 				return true;

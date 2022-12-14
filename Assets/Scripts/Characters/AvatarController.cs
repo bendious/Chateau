@@ -262,7 +262,7 @@ public sealed class AvatarController : KinematicCharacter
 
 			// enable/disable indicator components
 			maskIndicator.enabled = maskOrig != null && rendererOrig != null && rendererOrig.maskInteraction != SpriteMaskInteraction.None;
-			lightIndicator.enabled = (rendererOrig != null || lightOrig != null) && !maskIndicator.enabled && (rendererOrig == null || rendererOrig.drawMode == SpriteDrawMode.Simple);
+			lightIndicator.enabled = (rendererOrig != null || lightOrig != null) && !maskIndicator.enabled && (rendererOrig == null || (rendererOrig.drawMode == SpriteDrawMode.Simple && !rendererOrig.flipX && !rendererOrig.flipY));
 			rendererIndicator.enabled = rendererOrig != null && !lightIndicator.enabled;
 
 			// set transform

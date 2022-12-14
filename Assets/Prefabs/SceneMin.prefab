@@ -684,14 +684,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 417752a4db20b3a4d98ab52b36f18bc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_canvasBackdropTf: {fileID: 6293600245715724113}
   m_image: {fileID: 2881218012078422813}
   m_text: {fileID: 4815298466047336436}
   m_continueIndicator: {fileID: 4849342224497113296}
   m_replyMenu: {fileID: 6841090358534865690}
   m_replyTemplate: {fileID: 4691223082999399946}
   m_worldspaceWidth: 8
+  m_worldspaceLayerName: UI
   m_revealSeconds: 0.05
   m_revealSecondsFast: 0.005
+  m_newlineSecondsMin: 0.5
   m_indicatorSpacing: 7.5
   m_merchantFollowUpCriticalPath:
   - '{merchantSellCriticalPath.}'
@@ -6756,7 +6759,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6000624192406270326}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

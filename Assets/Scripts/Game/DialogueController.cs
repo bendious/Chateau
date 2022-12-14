@@ -10,6 +10,7 @@ using UnityEngine.InputSystem;
 [DisallowMultipleComponent, RequireComponent(typeof(AudioSource))]
 public class DialogueController : MonoBehaviour
 {
+	[SerializeField] private RectTransform m_canvasBackdropTf;
 	[SerializeField] private UnityEngine.UI.Image m_image;
 	[SerializeField] private TMP_Text m_text;
 	[SerializeField] private GameObject m_continueIndicator;
@@ -17,9 +18,11 @@ public class DialogueController : MonoBehaviour
 	[SerializeField] private GameObject m_replyTemplate;
 
 	[SerializeField] private float m_worldspaceWidth = 8.0f;
+	[SerializeField] private string m_worldspaceLayerName = "UI"; // TODO: Editor drop-down list?
 
 	[SerializeField] private float m_revealSeconds = 0.05f;
 	[SerializeField] private float m_revealSecondsFast = 0.005f;
+	[SerializeField] private float m_newlineSecondsMin = 0.5f; // TODO: split into avatar/AI variants?
 
 	[SerializeField] private float m_indicatorSpacing = 7.5f;
 
@@ -58,9 +61,12 @@ public class DialogueController : MonoBehaviour
 	private static readonly Regex m_tagMatcher = new(@"<(.+)>.*?</\1>"); // NOTE the lazy rather than greedy wildcard matching to prevent multiple sets of identical tags being combined into one group // TODO: handle identical nested tags?
 
 	private AudioSource m_audio;
+	private RectTransform m_textTf;
 	private Canvas m_canvas;
+	private RectTransform m_canvasTf;
 
 	private int m_canvasLayerOrig;
+	private float m_canvasOffsetOrig;
 
 	private Queue<Line> m_queue;
 	private int m_revealedCharCount;
@@ -77,8 +83,11 @@ public class DialogueController : MonoBehaviour
 	private void Awake()
 	{
 		m_audio = GetComponent<AudioSource>();
+		m_textTf = m_text.GetComponent<RectTransform>();
 		m_canvas = GetComponent<Canvas>();
+		m_canvasTf = m_canvas.GetComponent<RectTransform>();
 		m_canvasLayerOrig = m_canvas.sortingLayerID;
+		m_canvasOffsetOrig = m_canvasBackdropTf.offsetMin.x; // TODO: don't assume min/max offset equality?
 	}
 
 
@@ -263,11 +272,32 @@ public class DialogueController : MonoBehaviour
 		bool submitReleasedSinceNewline = true;
 
 		// canvas setup
+		void setBackdropSize(float offsetMag)
+		{
+			m_canvasBackdropTf.offsetMin = new(offsetMag, m_canvasBackdropTf.offsetMin.y);
+			m_canvasBackdropTf.offsetMax = new(-offsetMag, m_canvasBackdropTf.offsetMax.y);
+		}
+		void fitBackdropToText()
+		{
+			if (isWorldspace)
+			{
+				// TODO: more accurate width to prevent thrashing between single- and double-lines
+				float widthAvailable = (m_canvasTf.sizeDelta.x - m_textTf.offsetMin.x) * 0.5f;
+				float textWidthMin = widthAvailable - m_textTf.offsetMin.x * 0.5f; // TODO: parameterize?
+				float offsetMag = m_canvasOffsetOrig + Mathf.Clamp(widthAvailable - m_text.preferredWidth * 0.5f, 0.0f, textWidthMin);
+				setBackdropSize(offsetMag);
+			}
+			else
+			{
+				setBackdropSize(m_canvasOffsetOrig);
+			}
+		}
 		m_canvas.renderMode = isWorldspace ? RenderMode.WorldSpace : RenderMode.ScreenSpaceOverlay;
-		m_canvas.sortingLayerID = isWorldspace ? 0 : m_canvasLayerOrig; // to prevent worldspace canvas visibility through Exterior objects // TODO: don't assume the default layer is always the desired worldspace layer?
+		m_canvas.sortingLayerID = isWorldspace ? SortingLayer.NameToID(m_worldspaceLayerName) : m_canvasLayerOrig; // to prevent worldspace canvas visibility through Exterior objects // TODO: cache worldspace layer ID?
 		RectTransform rectTf = m_canvas.GetComponent<RectTransform>();
 		float scale = isWorldspace ? m_worldspaceWidth / rectTf.sizeDelta.x : 1.0f;
 		m_canvas.transform.localScale = new(scale, scale, scale);
+		fitBackdropToText();
 		rectTf.pivot = new(0.5f, isWorldspace ? 0.0f : 0.5f);
 		m_canvas.GetComponent<AudioSource>().spatialBlend = isWorldspace ? 1.0f : 0.0f;
 		Transform followTf = isWorldspace ? sourceMain.transform : null;
@@ -298,7 +328,7 @@ public class DialogueController : MonoBehaviour
 
 			// maybe move to next line
 			bool stillRevealing = m_revealedCharCount + tagCharCount < textCurLen;
-			if (m_forceNewLine || ((submitKey == null || submitKey.WasPressedThisFrame()) && !stillRevealing)) // TODO: non-avatar delay before newline
+			if (m_forceNewLine || ((submitKey == null || submitKey.WasPressedThisFrame()) && !stillRevealing && m_lastRevealTime + m_newlineSecondsMin <= Time.time))
 			{
 				// next line
 				m_forceNewLine = false;
@@ -369,6 +399,7 @@ public class DialogueController : MonoBehaviour
 
 				// update UI
 				m_text.text = textCur == null ? null : textCur[0 .. Mathf.Min(textCur.Length, m_revealedCharCount + tagCharCount)] + endTags.Aggregate("", (a, b) => a + b);
+				fitBackdropToText();
 
 				// SFX
 				int indexCur = m_revealedCharCount + tagCharCount - 1;
@@ -379,7 +410,7 @@ public class DialogueController : MonoBehaviour
 
 				if (m_queue.Count > 0 && m_revealedCharCount + tagCharCount >= textCurLen)
 				{
-					yield return null; // to allow TMP to catch up with us & calculate bounds
+					m_text.ForceMeshUpdate(); // since we need the updated bounds
 
 					// display any replies
 					bool active = m_queueFollowUp == null && lineCur.m_replies != null && lineCur.m_replies.Length > 0;
@@ -422,7 +453,7 @@ public class DialogueController : MonoBehaviour
 						RectTransform menuTf = (RectTransform)m_replyMenu;
 						menuTf.sizeDelta = new(menuTf.sizeDelta.x, Mathf.Min(scrollTf.sizeDelta.y + Mathf.Abs(((RectTransform)menuTf.GetChild(0)).sizeDelta.y), Screen.height - menuTf.anchoredPosition.y));
 					}
-					else
+					else if (avatar != null)
 					{
 						// display continue indicator
 						Extents lineExtents = m_text.textInfo.lineInfo[m_text.textInfo.lineCount - 1].lineExtents; // NOTE that lineInfo.Last() may be stale info
