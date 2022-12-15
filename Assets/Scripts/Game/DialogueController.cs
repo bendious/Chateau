@@ -60,7 +60,7 @@ public class DialogueController : MonoBehaviour
 
 
 	private static readonly Regex m_tagMatcher = new(@"<(.+)>.*?</\1>"); // this matches corresponding start/end tags along w/ the contents between them // NOTE the lazy rather than greedy wildcard matching to prevent multiple sets of identical tags being combined into one group // TODO: handle identical nested tags (via balancing group expressions? - https://learn.microsoft.com/en-us/dotnet/standard/base-types/grouping-constructs-in-regular-expressions#balancing-group-definitions)?
-	private static readonly Regex m_commaRemovalMatcher = new(@"((?<=[\W^]),\s+|,\s+(?=[\W$]))"); // this matches comma-whitespace that is not preceded and followed by word characters // NOTE the lookahead/lookbehind assertions to match non-word characters and string start/end w/o including them in the comma-whitespace match value; https://learn.microsoft.com/en-us/dotnet/standard/base-types/grouping-constructs-in-regular-expressions#zero-width-positive-lookahead-assertions
+	private static readonly Regex m_commaRemovalMatcher = new(@"((?<=[^\w'""]),\s+|,\s+(?=[^\w'""]))"); // this matches comma-whitespace that is not preceded and followed by word characters or quotation marks // NOTE the lookahead/lookbehind assertions to match non-word characters and string start/end w/o including them in the comma-whitespace match value; https://learn.microsoft.com/en-us/dotnet/standard/base-types/grouping-constructs-in-regular-expressions#zero-width-positive-lookahead-assertions
 
 	private AudioSource m_audio;
 	private RectTransform m_textTf;
@@ -400,17 +400,18 @@ public class DialogueController : MonoBehaviour
 				endTags.Reverse(); // since closing tags should be in reverse order of the opening tags
 
 				// update UI
-				m_text.text = textCur == null ? null : textCur[0 .. Mathf.Min(textCur.Length, m_revealedCharCount + tagCharCount)] + endTags.Aggregate("", (a, b) => a + b);
+				int lenCur = Mathf.Min(textCur.Length, m_revealedCharCount + tagCharCount); // TODO: determine why this needs to be clamped sometimes?
+				m_text.text = textCur == null ? null : textCur[0 .. lenCur] + endTags.Aggregate("", (a, b) => a + b);
 				fitBackdropToText();
 
 				// SFX
-				int indexCur = m_revealedCharCount + tagCharCount - 1;
+				int indexCur = lenCur - 1;
 				if (m_audio.clip != null && !char.IsWhiteSpace(textCur, indexCur) && !char.IsPunctuation(textCur, indexCur))
 				{
 					m_audio.PlayOneShot(m_audio.clip);
 				}
 
-				if (m_queue.Count > 0 && m_revealedCharCount + tagCharCount >= textCurLen)
+				if (m_queue.Count > 0 && lenCur >= textCurLen)
 				{
 					m_text.ForceMeshUpdate(); // since we need the updated bounds
 

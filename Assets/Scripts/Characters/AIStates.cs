@@ -476,17 +476,22 @@ public sealed class AIFlee : AIState
 
 public sealed class AIMelee : AIState
 {
-	public float m_swingTimeSeconds = 0.2f; // TODO: vary based on item weight?
+	public float m_swingSecondsPerKg = 0.5f;
+	public float m_swingSecondsMin = 0.1f;
+	public float m_swingSecondsMax = 0.5f;
 
 	public float m_dialoguePct = 0.5f;
 
 
 	private float m_durationRemaining;
+	private float m_swingDuration;
 	private float m_swingDurationRemaining;
 
 
 	private ItemController m_item;
 	private ArmController m_arm;
+
+	private bool m_isSwingRelease = false;
 
 
 	public AIMelee(AIController ai)
@@ -502,6 +507,8 @@ public sealed class AIMelee : AIState
 
 		m_item = m_ai.GetComponentInChildren<ItemController>();
 		m_arm = m_item != null ? m_item.GetComponentInParent<ArmController>() : m_ai.GetComponentInChildren<ArmController>(); // NOTE that we get the relevant arm even if planning to use m_item, since m_item could break or be taken during the course of this state // TODO: don't assume that AI only have items via arms?
+
+		m_swingDuration = m_item != null ? Mathf.Clamp(m_item.GetComponent<Rigidbody2D>().mass * m_swingSecondsPerKg, m_swingSecondsMin, m_swingSecondsMax) : m_swingSecondsMin;
 
 		m_shouldStartDialogue = Random.value <= m_dialoguePct;
 	}
@@ -537,13 +544,14 @@ public sealed class AIMelee : AIState
 	{
 		if (m_item != null && m_item.transform.parent == m_arm.transform) // NOTE that we have to check whether we're still holding the item since it could have broken or been taken at any point since Enter()
 		{
-			m_item.Swing(false);
+			m_item.Swing(m_isSwingRelease);
 		}
 		else
 		{
-			m_arm.Swing(false, Random.value < 0.5f); // TODO: more deliberate use of jabs/swings?
+			m_arm.Swing(m_isSwingRelease, Random.value < 0.5f); // TODO: more deliberate use of jabs/swings?
 		}
-		m_swingDurationRemaining = m_swingTimeSeconds;
+		m_isSwingRelease = !m_isSwingRelease;
+		m_swingDurationRemaining = m_swingDuration; // TODO: separate swing/release durations?
 	}
 }
 
