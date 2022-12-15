@@ -33,6 +33,7 @@ MonoBehaviour:
           m_followUp: []
           m_eventName: DisablePlayerControlUntilHurt
           m_breakAfterward: 0
+      m_target: {fileID: 0}
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0

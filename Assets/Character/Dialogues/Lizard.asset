@@ -13,4 +13,12 @@ MonoBehaviour:
   m_Name: Lizard
   m_EditorClassIdentifier: 
   m_dialogue: []
-  m_expressions: []
+  m_expressions:
+  - m_object:
+      m_key: name
+      m_replacement: lizard
+    m_weight: 1
+  - m_object:
+      m_key: name
+      m_replacement: reptile
+    m_weight: 1

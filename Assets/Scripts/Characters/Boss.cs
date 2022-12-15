@@ -15,7 +15,7 @@ public class Boss : MonoBehaviour
 	[SerializeField] private float m_blinkSecondsMin = 0.5f;
 	[SerializeField] private float m_blinkSecondsMax = 10.0f;
 
-	[SerializeField] private Dialogue m_dialogue;
+	[SerializeField] private Dialogue m_dialogue; // TODO: combine w/ KinematicCharacter.m_dialogues[] w/o changing existing functionality?
 	public Dialogue m_dialogueFinal;
 
 	public Sprite m_dialogueSprite;

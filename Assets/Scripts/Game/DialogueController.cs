@@ -18,6 +18,7 @@ public class DialogueController : MonoBehaviour
 	[SerializeField] private GameObject m_replyTemplate;
 
 	[SerializeField] private float m_worldspaceWidth = 8.0f;
+	[SerializeField] private float m_worldspaceSpacing = 0.5f;
 	[SerializeField] private string m_worldspaceLayerName = "UI"; // TODO: Editor drop-down list?
 
 	[SerializeField] private float m_revealSeconds = 0.05f;
@@ -58,7 +59,8 @@ public class DialogueController : MonoBehaviour
 	private Transform ReplyParentTf => m_replyTemplate.transform.parent;
 
 
-	private static readonly Regex m_tagMatcher = new(@"<(.+)>.*?</\1>"); // NOTE the lazy rather than greedy wildcard matching to prevent multiple sets of identical tags being combined into one group // TODO: handle identical nested tags?
+	private static readonly Regex m_tagMatcher = new(@"<(.+)>.*?</\1>"); // this matches corresponding start/end tags along w/ the contents between them // NOTE the lazy rather than greedy wildcard matching to prevent multiple sets of identical tags being combined into one group // TODO: handle identical nested tags (via balancing group expressions? - https://learn.microsoft.com/en-us/dotnet/standard/base-types/grouping-constructs-in-regular-expressions#balancing-group-definitions)?
+	private static readonly Regex m_commaRemovalMatcher = new(@"((?<=[\W^]),\s+|,\s+(?=[\W$]))"); // this matches comma-whitespace that is not preceded and followed by word characters // NOTE the lookahead/lookbehind assertions to match non-word characters and string start/end w/o including them in the comma-whitespace match value; https://learn.microsoft.com/en-us/dotnet/standard/base-types/grouping-constructs-in-regular-expressions#zero-width-positive-lookahead-assertions
 
 	private AudioSource m_audio;
 	private RectTransform m_textTf;
@@ -311,7 +313,7 @@ public class DialogueController : MonoBehaviour
 			// TODO: efficiency?
 			if (isWorldspace && followTf != null)
 			{
-				m_canvas.transform.position = new(followTf.position.x, followTf.GetComponent<Collider2D>().bounds.max.y, followTf.position.z);
+				m_canvas.transform.position = new(followTf.position.x, followTf.GetComponent<Collider2D>().bounds.max.y + m_worldspaceSpacing, followTf.position.z);
 			}
 
 			// handle input for reply selection
@@ -487,10 +489,14 @@ public class DialogueController : MonoBehaviour
 		{
 			text = ReplaceExpressions(text, expressionSetsOrdered);
 
+			// TODO: move into ReplaceExpressions?
 			if (!string.IsNullOrEmpty(text)) // NOTE that we handle empty replacements even though we generally don't want to end up w/ an empty string
 			{
 				// compress double spaces to support blank expressions
 				text = text.Replace("  ", " ");
+
+				// remove commas made unnecessary by blank expressions
+				text = m_commaRemovalMatcher.Replace(text, "");
 
 				// auto-capitalize
 				char[] textArray = text.Trim().ToCharArray();

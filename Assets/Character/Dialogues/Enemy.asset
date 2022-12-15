@@ -13,4 +13,16 @@ MonoBehaviour:
   m_Name: Enemy
   m_EditorClassIdentifier: 
   m_dialogue: []
-  m_expressions: []
+  m_expressions:
+  - m_object:
+      m_key: name
+      m_replacement: 
+    m_weight: 5
+  - m_object:
+      m_key: name
+      m_replacement: ya creep
+    m_weight: 1
+  - m_object:
+      m_key: name
+      m_replacement: you
+    m_weight: 1

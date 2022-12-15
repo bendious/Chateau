@@ -691,6 +691,7 @@ MonoBehaviour:
   m_replyMenu: {fileID: 6841090358534865690}
   m_replyTemplate: {fileID: 4691223082999399946}
   m_worldspaceWidth: 8
+  m_worldspaceSpacing: 0.5
   m_worldspaceLayerName: UI
   m_revealSeconds: 0.05
   m_revealSecondsFast: 0.005
