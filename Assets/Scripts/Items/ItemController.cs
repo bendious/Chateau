@@ -79,6 +79,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	private Health m_health;
 	private Hazard m_hazard;
 
+	private int m_layerIdxOrig;
+
 	private Vector2 m_trailSizes;
 
 	private IHolder m_holder;
@@ -110,6 +112,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		m_renderer = GetComponentInChildren<SpriteRenderer>();
 		m_health = GetComponent<Health>();
 		m_hazard = GetComponent<Hazard>();
+
+		m_layerIdxOrig = gameObject.layer;
 
 		m_holder = transform.parent == null ? null : transform.parent.GetComponent<IHolder>();
 #pragma warning disable IDE0031 // NOTE that we don't use null propagation since IHolderControllers can be Unity objects as well, which don't like ?? or ?.
@@ -477,7 +481,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		if (isDetached && collisionSpeed < Physics2D.linearSleepTolerance)
 		{
 			ContactPoint2D supportingContact = contacts == null ? default : contacts.FirstOrDefault(contact => contact.normal.y > 0.0f); // TODO: handle multiple supporting contacts? better support angle?
-			if (supportingContact.collider != null)
+			if (supportingContact.collider != null && supportingContact.collider.gameObject.layer != GameController.Instance.m_layerWalls.ToIndex())
 			{
 				gameObject.layer = supportingContact.collider.gameObject.layer;
 				bodyLocal.Sleep(); // NOTE that changing the object's layer wakes it, so we have to manually Sleep() here
@@ -562,7 +566,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		if (isDetached && !collider.isTrigger)
 		{
 			// set layer back to default to re-enable default collisions
-			gameObject.layer = GameController.Instance.m_layerDefault.ToIndex();
+			gameObject.layer = m_layerIdxOrig;
 		}
 	}
 

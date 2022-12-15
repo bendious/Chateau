@@ -5,6 +5,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 996511831040732740, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
@@ -95,6 +96,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bust
       objectReference: {fileID: 0}
+    - target: {fileID: 8260530995564227012, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_tooltip
       value: "Bust\nA slightly cracked head fully capable of cracking other heads.
@@ -113,6 +118,12 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8260530995564227012, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5959674490757781397}
   m_SourcePrefab: {fileID: 100100000, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
 --- !u!1 &6163602902597221319 stripped
 GameObject:
@@ -129,6 +140,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 6200000, guid: d18c3df8db137cc4684c97f20fb78a73, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
