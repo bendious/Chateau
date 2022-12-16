@@ -70,3 +70,7 @@ MonoBehaviour:
       m_key: name
       m_replacement: Alex
     m_weight: 1
+  - m_object:
+      m_key: name
+      m_replacement: Alexander
+    m_weight: 0.25

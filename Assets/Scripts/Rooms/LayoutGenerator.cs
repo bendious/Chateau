@@ -53,6 +53,7 @@ public class LayoutGenerator
 			RoomIndefinite,
 			RoomIndefiniteCorrect,
 			Npc,
+			NpcGroup,
 			Enemy,
 			Key,
 			Lock, // TODO: treat as an in-between node (like {Tight/Root}Coupling)?
@@ -464,7 +465,7 @@ public class LayoutGenerator
 			new(Node.Type.Basement, new() { new(Node.Type.Secret, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.RoomIndefiniteCorrect, new() { new(Node.Type.Secret) }) }) }) }),
 			new(Node.Type.Tower),
 			new(Node.Type.Corridor),
-			new(Node.Type.Npc, new() { new(Node.Type.Npc), new(Node.Type.Npc), new(Node.Type.Npc), new(Node.Type.FinalHintSequence) }) }) }), // TODO: move NPC count into data?
+			new(Node.Type.NpcGroup, new() { new(Node.Type.FinalHintSequence) }) }) }),
 		new(Node.Type.Zone1, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceSmall, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceSmall, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceMedium, new() { new(Node.Type.SecretHintGroup), new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor1), new(Node.Type.ExitDoor2), new(Node.Type.FinalHint) }) }) }) }) }) }) }) }) }) }) }),
 		new(Node.Type.Zone2, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceSmall, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceMedium, new() { new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceLarge, new() { new(Node.Type.SecretHintGroup), new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor1), new(Node.Type.ExitDoor2), new(Node.Type.FinalHint) }) }) }) }) }) }) }) }) }) }) }) }),
 		new(Node.Type.Zone3, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceSmall, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceMedium, new() { new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceExtraLarge, new() { new(Node.Type.SecretHintGroup), new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor1), new(Node.Type.ExitDoor2), new(Node.Type.FinalHint) }) }) }) }) }) }) }) }) }) }) }) }),

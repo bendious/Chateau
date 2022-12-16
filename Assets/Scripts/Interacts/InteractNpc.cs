@@ -19,8 +19,6 @@ public class InteractNpc : MonoBehaviour, IInteractable
 	private bool HasSingleUseAvailable => DialogueFiltered(false).Any(line => line.m_object.m_singleUse);
 
 
-	private bool m_isVice;
-
 	private AIController m_ai;
 
 	private AudioClip m_sfxChosen;
@@ -31,8 +29,6 @@ public class InteractNpc : MonoBehaviour, IInteractable
 
 	private void Start()
 	{
-		m_isVice = Random.value > 0.5f; // TODO: choose exactly one NPC
-
 		m_ai = GetComponent<AIController>();
 
 		m_sfxChosen = m_sfx.RandomWeighted(); // TODO: save/load?

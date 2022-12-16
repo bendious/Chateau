@@ -1,0 +1,118 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40b15f190aba99942b804a292002a62c, type: 3}
+  m_Name: NpcAttitudeDepressed
+  m_EditorClassIdentifier: 
+  m_dialogue:
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: Oh, you're new, aren't you?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Or maybe I just haven't been paying attention...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 1
+      m_appendToAll: 0
+    m_weight: -1
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: I'm {name}, if it matters.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: I don't suppose it does, but people always want to know anyway.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 1
+      m_appendToAll: 0
+    m_weight: -1
+  m_expressions:
+  - m_object:
+      m_key: avatar
+      m_replacement: you
+    m_weight: 1
+  - m_object:
+      m_key: avatar
+      m_replacement: perky
+    m_weight: 1
+  - m_object:
+      m_key: avatar
+      m_replacement: sunshine
+    m_weight: 1
+  - m_object:
+      m_key: denied.
+      m_replacement: oh.
+    m_weight: 1
+  - m_object:
+      m_key: denied.
+      m_replacement: of course.
+    m_weight: 1
+  - m_object:
+      m_key: thanks.
+      m_replacement: hm.
+    m_weight: 1
+  - m_object:
+      m_key: assurance
+      m_replacement: maybe
+    m_weight: 1
+  - m_object:
+      m_key: assurance
+      m_replacement: perhaps
+    m_weight: 1
+  - m_object:
+      m_key: doubt.
+      m_replacement: I doubt it.
+    m_weight: 1
+  - m_object:
+      m_key: doubt.
+      m_replacement: honestly, I don't know about that.
+    m_weight: 1
+  - m_object:
+      m_key: confirmed.
+      m_replacement: sure.
+    m_weight: 1
+  - m_object:
+      m_key: confirmed.
+      m_replacement: well, so you say.
+    m_weight: 1
+  - m_object:
+      m_key: uncertainty.
+      m_replacement: who knows, right?
+    m_weight: 1
+  - m_object:
+      m_key: interjection
+      m_replacement: <i>*sigh*</i>
+    m_weight: 1
+  - m_object:
+      m_key: request.
+      m_replacement: hey, look...
+    m_weight: 1
+  - m_object:
+      m_key: request.
+      m_replacement: I know this is a burden, but...
+    m_weight: 1
+  - m_object:
+      m_key: request.
+      m_replacement: we need help.
+    m_weight: 1

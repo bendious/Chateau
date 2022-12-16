@@ -148,4 +148,12 @@ MonoBehaviour:
   - m_object:
       m_key: name
       m_replacement: Will
+    m_weight: 0.5
+  - m_object:
+      m_key: name
+      m_replacement: Bill
+    m_weight: 0.25
+  - m_object:
+      m_key: name
+      m_replacement: William
     m_weight: 1

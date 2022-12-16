@@ -86,7 +86,7 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   - m_object:
       m_preconditionName: 
       m_userdata: 0
@@ -111,7 +111,7 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   - m_object:
       m_preconditionName: 
       m_userdata: 0
@@ -128,7 +128,7 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   - m_object:
       m_preconditionName: 
       m_userdata: 0

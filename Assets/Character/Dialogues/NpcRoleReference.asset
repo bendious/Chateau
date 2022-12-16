@@ -274,3 +274,7 @@ MonoBehaviour:
       m_key: name
       m_replacement: Ida
     m_weight: 1
+  - m_object:
+      m_key: name
+      m_replacement: Mina
+    m_weight: 1

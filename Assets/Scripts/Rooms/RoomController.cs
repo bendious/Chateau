@@ -658,16 +658,17 @@ public class RoomController : MonoBehaviour
 					break;
 
 				case LayoutGenerator.Node.Type.Npc:
+				case LayoutGenerator.Node.Type.NpcGroup:
 					int sceneIdx = SceneManager.GetActiveScene().buildIndex;
-					if (sceneIdx == 0 ? npcDepthLocal + 1 > GameController.ZonesFinishedCount : npcDepthLocal + GameController.ZonesFinishedCount >= sceneIdx) // TODO: don't assume that the first scene is where NPCs congregate?
+					int numToSpawn = node.m_type == LayoutGenerator.Node.Type.NpcGroup ? GameController.ZonesFinishedCount - npcDepthLocal + (GameController.Instance.NpcsTotal - GameController.m_zoneCount) : (npcDepthLocal + GameController.ZonesFinishedCount >= sceneIdx ? 0 : 1);
+					for (int npcI = 0; npcI < numToSpawn; ++npcI)
 					{
-						break;
+						AIController npcPrefab = GameController.Instance.m_npcPrefabs.RandomWeighted();
+						InteractNpc npc = Instantiate(npcPrefab, InteriorPosition(0.0f) + (Vector3)npcPrefab.gameObject.OriginToCenterY(), Quaternion.identity).GetComponent<InteractNpc>();
+						npc.Index = npcDepthLocal + sceneIdx;
+						++npcDepthLocal;
+						GameController.Instance.NpcAdd(npc.GetComponent<AIController>());
 					}
-					AIController npcPrefab = GameController.Instance.m_npcPrefabs.RandomWeighted();
-					InteractNpc npc = Instantiate(npcPrefab, InteriorPosition(0.0f) + (Vector3)npcPrefab.gameObject.OriginToCenterY(), Quaternion.identity).GetComponent<InteractNpc>();
-					npc.Index = npcDepthLocal + System.Math.Max(0, sceneIdx - 1);
-					++npcDepthLocal;
-					GameController.Instance.NpcAdd(npc.GetComponent<AIController>());
 					break;
 
 				case LayoutGenerator.Node.Type.Enemy:

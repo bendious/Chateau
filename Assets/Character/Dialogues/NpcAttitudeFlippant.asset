@@ -71,7 +71,7 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   - m_object:
       m_preconditionName: 
       m_userdata: 0
@@ -88,7 +88,7 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   - m_object:
       m_preconditionName: 
       m_userdata: 0
@@ -109,7 +109,7 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   m_expressions:
   - m_object:
       m_key: avatar
@@ -122,6 +122,10 @@ MonoBehaviour:
   - m_object:
       m_key: avatar
       m_replacement: man
+    m_weight: 1
+  - m_object:
+      m_key: avatar
+      m_replacement: buddy
     m_weight: 1
   - m_object:
       m_key: denied.

@@ -258,7 +258,7 @@ public sealed class AvatarController : KinematicCharacter
 			SpriteRenderer rendererOrig = m_focusObj.GetComponent<SpriteRenderer>();
 			SpriteRenderer rendererIndicator = m_focusIndicator.GetComponent<SpriteRenderer>();
 			Light2D lightIndicator = m_focusIndicator.GetComponent<Light2D>();
-			Light2D lightOrig = m_focusObj.GetComponentsInChildren<Light2D>().FirstOrDefault(light => light.lightType == Light2D.LightType.Sprite);
+			Light2D lightOrig = m_focusObj.GetComponentsInChildren<Light2D>().FirstOrDefault(light => light.lightType == Light2D.LightType.Sprite); // TODO: prevent getting attached items/etc?
 
 			// enable/disable indicator components
 			maskIndicator.enabled = maskOrig != null && rendererOrig != null && rendererOrig.maskInteraction != SpriteMaskInteraction.None;
@@ -266,7 +266,7 @@ public sealed class AvatarController : KinematicCharacter
 			rendererIndicator.enabled = rendererOrig != null && !lightIndicator.enabled;
 
 			// set transform
-			Vector3 indicatorPos = lightOrig != null ? lightOrig.transform.position : m_focusObj.transform.position;
+			Vector3 indicatorPos = lightOrig != null && lightIndicator.enabled ? lightOrig.transform.position : m_focusObj.transform.position;
 			m_focusIndicator.transform.SetPositionAndRotation(indicatorPos, lightOrig != null && lightIndicator.enabled ? lightOrig.transform.rotation : m_focusObj.transform.rotation);
 
 			// use sprite light to encourage bloom

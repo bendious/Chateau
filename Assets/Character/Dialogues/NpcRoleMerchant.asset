@@ -195,6 +195,10 @@ MonoBehaviour:
       m_replacement: Martha
     m_weight: 1
   - m_object:
+      m_key: name
+      m_replacement: Mar
+    m_weight: 0.25
+  - m_object:
       m_key: merchantSellEmpty.
       m_replacement: no you don't...
     m_weight: 1
