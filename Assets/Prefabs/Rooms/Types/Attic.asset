@@ -89,6 +89,8 @@ MonoBehaviour:
     m_weight: 2
   - m_object: {fileID: 1271183342043709178, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
     m_weight: 2
+  - m_object: {fileID: 2907425131238390723, guid: 0ece77da1d06d544e95300c4cab993ca, type: 3}
+    m_weight: 0.2
   - m_object: {fileID: 1414968549233737426, guid: 3f97c916f0456194aae1b9746a252c90, type: 3}
     m_weight: 1
   m_itemsMin: 5

@@ -1,0 +1,101 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &4178523805165634873
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1271183342043709178, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_Name
+      value: MedKitLarge
+      objectReference: {fileID: 0}
+    - target: {fileID: 1950064730824268026, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_tooltip
+      value: 'Emergency Medical Kit (large)
+
+        Twice as big means twice as
+        healthy, right?
+
+
+        <sprite index=6>(hold): heal 2 hit points.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 1950064730824268026, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_healAmount
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1950064730824268026, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_throwSpeed
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1950064730824268026, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_healSeconds
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1950064730824268026, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_swingInfo.m_damage
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 1950064730824268026, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_swingInfo.m_angularNewtonmeters
+      value: 75
+      objectReference: {fileID: 0}
+    - target: {fileID: 3055789274918272293, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_Size.x
+      value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 3055789274918272293, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_Size.y
+      value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 3055789274918272293, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_Offset.x
+      value: 0.21
+      objectReference: {fileID: 0}
+    - target: {fileID: 3055789274918272293, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_EdgeRadius
+      value: 0.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 3055789274918272293, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.x
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 3055789274918272293, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3055789274918272293, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6896973149780239456, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 9338c1feb7f35b94cae3b9bf763d2dc5, type: 3}
+    - target: {fileID: 7985789872679238010, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7985789872679238010, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7985789872679238010, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7985789872679238010, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8940903357058751522, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
+      propertyPath: m_Mass
+      value: 0.5
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
