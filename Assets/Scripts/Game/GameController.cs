@@ -48,6 +48,7 @@ public class GameController : MonoBehaviour
 	public WeightedObject<AIController>[] m_npcPrefabs;
 	[SerializeField] private WeightedObject<Dialogue>[] m_npcRoles;
 	[SerializeField] private WeightedObject<Dialogue>[] m_npcAttitudes;
+	[SerializeField] private WeightedObject<Dialogue>[] m_npcLoyalties;
 	public GameObject[] m_doorInteractPrefabs;
 	public GameObject[] m_zoneFinishedIndicators;
 	public GameObject[] m_upgradeIndicators;
@@ -833,7 +834,7 @@ public class GameController : MonoBehaviour
 #endif
 		void NpcsRandomize()
 	{
-		m_npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => new[] { a, b }).Select(dialogue => new NpcInfo { m_color = Utility.ColorRandom(Color.black, Color.white, false), m_dialogues = dialogue }).ToArray();
+		m_npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => System.Tuple.Create(a, b)).Zip(m_npcLoyalties.RandomWeightedOrder(), (ab, c) => new[] { ab.Item1, ab.Item2, c }).Select(dialogues => new NpcInfo { m_color = Utility.ColorRandom(Color.black, Color.white, false), m_dialogues = dialogues }).ToArray();
 		for (int i = 0; i < NpcsTotal; ++i) // TODO: replace w/ ColorRandom() colorsToAvoid param?
 		{
 			NpcInfo info1 = m_npcs[i];
@@ -1072,8 +1073,9 @@ public class GameController : MonoBehaviour
 			{
 				bool dialogueCheckFunc(WeightedObject<Dialogue> dialogueWeighted) => dialogue == dialogueWeighted.m_object;
 				int attitudeIdx = System.Array.FindIndex(m_npcAttitudes, dialogueCheckFunc);
-				saveFile.Write(attitudeIdx >= 0 ? 0 : 1);
-				saveFile.Write(attitudeIdx >= 0 ? attitudeIdx : System.Array.FindIndex(m_npcRoles, dialogueCheckFunc));
+				int roleIdx = System.Array.FindIndex(m_npcRoles, dialogueCheckFunc);
+				saveFile.Write(attitudeIdx >= 0 ? 0 : roleIdx >= 0 ? 1 : 2);
+				saveFile.Write(attitudeIdx >= 0 ? attitudeIdx : roleIdx >= 0 ? roleIdx : System.Array.FindIndex(m_npcLoyalties, dialogueCheckFunc));
 				saveFile.Write(dialogue.m_dialogue, option => saveFile.Write(option.m_weight));
 			});
 			saveFile.Write(npc.m_color);
@@ -1121,7 +1123,8 @@ public class GameController : MonoBehaviour
 			{
 				Dialogue[] dialogue = saveFile.ReadArray(() =>
 				{
-					Dialogue dialogueTmp = (saveFile.ReadInt32() == 0 ? m_npcAttitudes : m_npcRoles)[saveFile.ReadInt32()].m_object;
+					int arrayIdx = saveFile.ReadInt32();
+					Dialogue dialogueTmp = (arrayIdx == 0 ? m_npcAttitudes : arrayIdx == 1 ? m_npcRoles : m_npcLoyalties)[saveFile.ReadInt32()].m_object;
 					int idxItr = 0;
 					saveFile.ReadArray(() =>
 					{

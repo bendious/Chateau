@@ -1823,6 +1823,17 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 11400000, guid: ac0fe86de21b55b4f845a2ab639c9817, type: 2}
     m_weight: 1
+  m_npcLoyalties:
+  - m_object: {fileID: 11400000, guid: 88a3fa734a082e04bb480cbaf2faf56a, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: 597a5a3097c865341b5302879327fdce, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: 3fc0a2fac6d0fd5418d7fd1617d79768, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: f251c9917befde64aaa011191f80f69b, type: 2}
+    m_weight: 1
+  - m_object: {fileID: 11400000, guid: dc535e6d75aedcc4fbfd8a1b36da8057, type: 2}
+    m_weight: 1
   m_doorInteractPrefabs:
   - {fileID: 5746196675388104066, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
   - {fileID: 9122007181668863787, guid: 18a928b181bfee64b887827ee31f4661, type: 3}

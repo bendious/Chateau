@@ -1,0 +1,108 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40b15f190aba99942b804a292002a62c, type: 3}
+  m_Name: NpcLoyaltyDevoted
+  m_EditorClassIdentifier: 
+  m_dialogue:
+  - m_object:
+      m_preconditionName: 
+      m_userdata: 0
+      m_lines:
+      - m_text: How are you, {avatar}?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: Holding up alright?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies:
+        - m_text: Yes.
+          m_preconditionName: 
+          m_userdata: 0
+          m_followUp:
+          - Good.
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: Not really.
+          m_preconditionName: 
+          m_userdata: 0
+          m_followUp:
+          - That's too bad.
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: I don't want to talk right now.
+          m_preconditionName: 
+          m_userdata: 0
+          m_followUp:
+          - Oh, alright. Sometime else, then.
+          m_eventName: 
+          m_breakAfterward: 1
+      - m_text: The work we're doing here...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: Sometimes it doesn't seem very important, does it?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: I mean, who cares about this old house, you know?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: We're certainly not saving the world here or anything.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: I can't really say that anybody else would even notice much if we
+          just gave up and abandoned the place altogether.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: And yet...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: That's not really the right way of looking at it, is it?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: This isn't even our house, after all...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: Cleaning this place up <i>is</i> important.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: Wondrous, even.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: <i>Especially</i> when it doesn't feel like it.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: Even if it's all we ever do, it will be enough to have done it well.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: When <i>He</i> returns, we'll at least be able to truly say that
+          we did our best.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0.25
+  m_expressions: []
