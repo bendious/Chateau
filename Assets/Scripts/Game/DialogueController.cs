@@ -215,7 +215,7 @@ public class DialogueController : MonoBehaviour
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)")]
 	public void MerchantBuy(Line.Reply reply)
 	{
-		// TODO: move hardcoded text into data?
+		// TODO: parameterize all expression names?
 		List<Line.Reply> replyList = new();
 		for (int type = 0, n = GameController.MerchantAcquiredCounts.Length; type < n; ++type)
 		{
@@ -225,12 +225,18 @@ public class DialogueController : MonoBehaviour
 			}
 			SavableFactory.SavableInfo savableInfo = GameController.Instance.m_savableFactory.m_savables[type];
 			bool enoughMaterials = GameController.MerchantMaterials >= savableInfo.m_materialsConsumed;
-			replyList.Add(new() { m_text = savableInfo.m_prefab.GetComponent<IAttachable>().Name + " - " + savableInfo.m_materialsConsumed + " materials", m_eventName = enoughMaterials ? "MerchantSpawn" : null, m_userdata = type, m_followUp = new[] { enoughMaterials ? "Here you go!" : "Hmm, I'll need more materials for that." } });
+			replyList.Add(new() { m_text = savableInfo.m_prefab.GetComponent<IAttachable>().Name + " - " + savableInfo.m_materialsConsumed + " materials", m_eventName = enoughMaterials ? "MerchantSpawn" : null, m_userdata = type, m_followUp = new[] { enoughMaterials ? "{merchantBuyPost.}" : "{merchantBuyInsufficient.}" } });
 		}
 
-		replyList.Add(new() { m_text = "Nothing, thanks.", m_followUp = new[] { "{denied.} {interjection} you know where to find me." }, m_breakAfterward = true });
+		if (replyList.Count <= 0)
+		{
+			m_queue.Enqueue(new() { m_text = "{merchantBuyEmpty.}" });
+			return;
+		}
 
-		m_queue.Enqueue(new() { m_text = "What'd ya have in mind? We've got " + GameController.MerchantMaterials + " materials to work with.", m_replies = replyList.ToArray() });
+		replyList.Add(new() { m_text = "{merchantBuyCancel.}", m_followUp = new[] { "{merchantBuyCanceled.}" }, m_breakAfterward = true });
+
+		m_queue.Enqueue(new() { m_text = "{merchantBuyPre.} {merchantMaterialsPre} " + GameController.MerchantMaterials + " {merchantMaterialsPost.}", m_replies = replyList.ToArray() }); // TODO: tie MerchantMaterials to a dynamic expression?
 	}
 
 	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)
@@ -489,29 +495,6 @@ public class DialogueController : MonoBehaviour
 		if (!string.IsNullOrEmpty(text))
 		{
 			text = ReplaceExpressions(text, expressionSetsOrdered);
-
-			// TODO: move into ReplaceExpressions?
-			if (!string.IsNullOrEmpty(text)) // NOTE that we handle empty replacements even though we generally don't want to end up w/ an empty string
-			{
-				// compress double spaces to support blank expressions
-				text = text.Replace("  ", " ");
-
-				// remove commas made unnecessary by blank expressions
-				text = m_commaRemovalMatcher.Replace(text, "");
-
-				// auto-capitalize
-				char[] textArray = text.Trim().ToCharArray();
-				textArray[0] = char.ToUpper(textArray.First());
-				for (int i = 2; i < textArray.Length; ++i)
-				{
-					char c = textArray[i - 2];
-					if (((c == '.' && (i < 3 || textArray[i - 3] != '.')) || c == '?' || c == '!') && char.IsWhiteSpace(textArray[i - 1])) // NOTE the extra logic to avoid capitalizing after ellipses
-					{
-						textArray[i] = char.ToUpper(textArray[i]);
-					}
-				}
-				text = new(textArray);
-			}
 		}
 
 		// update image if necessary
@@ -574,6 +557,30 @@ public class DialogueController : MonoBehaviour
 			}
 			++setIdx;
 		}
+
+		if (string.IsNullOrEmpty(text)) // NOTE that we handle empty replacements for cases such as ending a dialogue w/o further reply
+		{
+			return text;
+		}
+
+		// compress double spaces to support blank expressions
+		text = text.Replace("  ", " ");
+
+		// remove commas made unnecessary by blank expressions
+		text = m_commaRemovalMatcher.Replace(text, "");
+
+		// auto-capitalize
+		char[] textArray = text.Trim().ToCharArray();
+		textArray[0] = char.ToUpper(textArray.First());
+		for (int i = 2; i < textArray.Length; ++i)
+		{
+			char c = textArray[i - 2];
+			if (((c == '.' && (i < 3 || textArray[i - 3] != '.')) || c == '?' || c == '!') && char.IsWhiteSpace(textArray[i - 1])) // NOTE the extra logic to avoid capitalizing after ellipses
+			{
+				textArray[i] = char.ToUpper(textArray[i]);
+			}
+		}
+		text = new(textArray);
 
 		return text;
 	}

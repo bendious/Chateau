@@ -42,7 +42,7 @@ MonoBehaviour:
       m_lines:
       - m_text: What, you want something?
         m_source: {fileID: 0}
-        m_sourceDistMax: 3.4028235e+38
+        m_sourceDistMax: 3.402823e+38
         m_replies: []
       - m_text: Well I need materials to work with first.
         m_source: {fileID: 0}
@@ -221,12 +221,28 @@ MonoBehaviour:
     m_weight: 0.25
   - m_object:
       m_key: merchantSellEmpty.
-      m_replacement: no you don't...
+      m_replacement: no, you don't...
     m_weight: 1
   - m_object:
       m_key: merchantSellEmpty.
       m_replacement: are you referring to your body? 'Cause I can't really work with
         that.
+    m_weight: 0.25
+  - m_object:
+      m_key: merchantSellPre.
+      m_replacement: let me see, then.
+    m_weight: 1
+  - m_object:
+      m_key: merchantSellPre.
+      m_replacement: let me have it, then.
+    m_weight: 1
+  - m_object:
+      m_key: merchantSellPre.
+      m_replacement: what is it?
+    m_weight: 1
+  - m_object:
+      m_key: merchantSellPre.
+      m_replacement: which one?
     m_weight: 1
   - m_object:
       m_key: merchantSellPre.
@@ -234,18 +250,152 @@ MonoBehaviour:
     m_weight: 1
   - m_object:
       m_key: merchantSellPost.
+      m_replacement: '{thanks.}'
+    m_weight: 1
+  - m_object:
+      m_key: merchantSellPost.
       m_replacement: '{thanks.} {assurance} I won''t forget this.'
     m_weight: 1
   - m_object:
       m_key: merchantSellCriticalPath.
-      m_replacement: That looks important... I don't think I should take it.
+      m_replacement: that looks important...
+    m_weight: 1
+  - m_object:
+      m_key: merchantSellCriticalPath.
+      m_replacement: I don't think I should take that.
+    m_weight: 1
+  - m_object:
+      m_key: merchantSellCriticalPath.
+      m_replacement: that looks important... I don't think I should take it.
     m_weight: 1
   - m_object:
       m_key: merchantSellCancel.
-      m_replacement: Nevermind.
+      m_replacement: nevermind.
+    m_weight: 1
+  - m_object:
+      m_key: merchantSellCancel.
+      m_replacement: nothing, sorry.
     m_weight: 1
   - m_object:
       m_key: merchantSellCanceled.
-      m_replacement: '{denied.} Just don''t forget to come back if you change your
+      m_replacement: '{denied.}'
+    m_weight: 1
+  - m_object:
+      m_key: merchantSellCanceled.
+      m_replacement: '{denied.} just don''t forget to come back if you change your
         mind, {avatar}.'
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyEmpty.
+      m_replacement: you'll have to bring me some stuff first. I can't make things
+        out of nothing, you know!
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyEmpty.
+      m_replacement: '{interjection} remember what I said before? You''ll have to
+        bring me some stuff first. I can''t make things out of nothing, you know!'
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPre.
+      m_replacement: what'd ya have in mind?
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPre.
+      m_replacement: what'll it be?
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPre.
+      m_replacement: what d'ya need?
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPre.
+      m_replacement: what d'ya need today?
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPre.
+      m_replacement: what can I do for you?
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPre.
+      m_replacement: what can I do ya for? Uh, I mean, what can I do for you?
+    m_weight: 0.25
+  - m_object:
+      m_key: merchantBuyPre.
+      m_replacement: what's the need today?
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPost.
+      m_replacement: here you go!
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPost.
+      m_replacement: voila!
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPost.
+      m_replacement: give me a moment. Just kidding, I'm already done!
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyInsufficient.
+      m_replacement: hmm, I'll need more materials for that.
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyInsufficient.
+      m_replacement: I don't have enough to make that.
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyCancel.
+      m_replacement: nothing, thanks.
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyCancel.
+      m_replacement: nevermind.
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyCanceled.
+      m_replacement: '{denied.}'
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyCanceled.
+      m_replacement: '{denied.} {interjection} you know where to find me.'
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPre
+      m_replacement: we've got
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPre
+      m_replacement: I've got
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPre
+      m_replacement: you've got
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPre
+      m_replacement: we're at
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPre
+      m_replacement: I'm at
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPre
+      m_replacement: you're at
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPost.
+      m_replacement: materials.
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPost.
+      m_replacement: materials!
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPost.
+      m_replacement: materials to work with.
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPost.
+      m_replacement: materials to work with!
     m_weight: 1

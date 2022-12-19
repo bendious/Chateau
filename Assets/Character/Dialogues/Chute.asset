@@ -16,28 +16,44 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Drop something down the laundry chute?
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies:
-        - m_text: Yes
+        - m_text: '{confirmed.}'
           m_preconditionName: 
           m_userdata: 0
           m_followUp: []
           m_eventName: MerchantSell
           m_breakAfterward: 0
-        - m_text: No
+        - m_text: '{merchantSellCancel.}'
           m_preconditionName: 
           m_userdata: 0
           m_followUp: []
           m_eventName: 
           m_breakAfterward: 1
+      m_target: {fileID: 0}
       m_loop: 1
       m_singleUse: 0
       m_appendToAll: 1
     m_weight: 1
   m_expressions:
+  - m_object:
+      m_key: confirmed.
+      m_replacement: yes.
+    m_weight: 1
+  - m_object:
+      m_key: confirmed.
+      m_replacement: sure.
+    m_weight: 1
+  - m_object:
+      m_key: confirmed.
+      m_replacement: of course!
+    m_weight: 1
   - m_object:
       m_key: merchantSellEmpty.
       m_replacement: you don't have anything to drop.
@@ -45,7 +61,7 @@ MonoBehaviour:
   - m_object:
       m_key: merchantSellEmpty.
       m_replacement: it's too small for you to fit down.
-    m_weight: 1
+    m_weight: 0.25
   - m_object:
       m_key: merchantSellPre.
       m_replacement: which one?
@@ -56,11 +72,23 @@ MonoBehaviour:
     m_weight: 1
   - m_object:
       m_key: merchantSellCriticalPath.
-      m_replacement: For some reason, you feel you should hang on to that...
+      m_replacement: for some reason, you feel you should hang on to that...
     m_weight: 1
   - m_object:
       m_key: merchantSellCancel.
-      m_replacement: Not now.
+      m_replacement: no.
+    m_weight: 1
+  - m_object:
+      m_key: merchantSellCancel.
+      m_replacement: not now.
+    m_weight: 1
+  - m_object:
+      m_key: merchantSellCancel.
+      m_replacement: nevermind.
+    m_weight: 1
+  - m_object:
+      m_key: merchantSellCancel.
+      m_replacement: nope.
     m_weight: 1
   - m_object:
       m_key: merchantSellCanceled.
