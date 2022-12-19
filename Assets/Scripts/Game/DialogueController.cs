@@ -95,6 +95,11 @@ public class DialogueController : MonoBehaviour
 
 	public Coroutine Play(IEnumerable<Line> lines, GameObject callbackObject = null, KinematicCharacter target = null, KinematicCharacter sourceMain = null, Sprite sprite = null, Color spriteColor = default, AudioClip sfx = null, int loopIdx = -1, params WeightedObject<Dialogue.Expression>[][] expressionSets)
 	{
+		if (IsPlaying)
+		{
+			return null;
+		}
+
 		m_revealedCharCount = 0;
 		m_lastRevealTime = Time.time;
 		m_replyIdx = 0;
