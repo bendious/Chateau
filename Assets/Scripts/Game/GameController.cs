@@ -839,8 +839,12 @@ public class GameController : MonoBehaviour
 
 	public static void DebugToggleAllUnlocks()
 	{
-		ZonesFinishedCount = ZonesFinishedCount == m_zoneCount ? 0 : m_zoneCount;
-		m_secretsFoundBitmask.SetAll(!m_secretsFoundBitmask.Get(0));
+		// TODO: support setting particular values?
+		ZonesFinishedCount = (ZonesFinishedCount + 1) % (m_zoneCount + 1);
+		for (int i = 0; i < m_secretsFoundBitmask.Count; ++i)
+		{
+			m_secretsFoundBitmask.Set(i, !m_secretsFoundBitmask.Get(i));
+		}
 	}
 
 	public
