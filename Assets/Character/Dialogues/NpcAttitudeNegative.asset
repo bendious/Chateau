@@ -16,6 +16,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Well, well, well... Look who decided to actually show up!
         m_source: {fileID: 0}
@@ -55,6 +58,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: My name? {name}. Don't forget it, {avatar}, though I know you'll
           be leaving us again soon, anyway.
@@ -69,6 +75,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 0.5
+      m_relationshipIncrement: -0.1
       m_lines:
       - m_text: Kindly take your frivolous presence elsewhere.
         m_source: {fileID: 0}
@@ -90,6 +99,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 0.5
+      m_relationshipIncrement: -0.1
       m_lines:
       - m_text: 'Oh, good, just what we needed:'
         m_source: {fileID: 0}
@@ -115,6 +127,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0.1
       m_lines:
       - m_text: Ah, hooray, our daily allotment of sunshine and butterflies is here.
         m_source: {fileID: 0}
@@ -132,6 +147,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Whelp, we're dead now...
         m_source: {fileID: 0}
@@ -145,6 +163,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Well, we're <i>really</i> dead now...
         m_source: {fileID: 0}

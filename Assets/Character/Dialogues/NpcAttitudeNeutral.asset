@@ -16,6 +16,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: What, were you expecting something to jump out and attack you?
         m_source: {fileID: 0}
@@ -37,6 +40,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Oh, I'm {name}, by the way.
         m_source: {fileID: 0}

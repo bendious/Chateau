@@ -16,6 +16,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Hey!
         m_source: {fileID: 0}
@@ -33,6 +36,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: What, you want something?
         m_source: {fileID: 0}
@@ -65,6 +71,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Oh, and another thing.
         m_source: {fileID: 0}
@@ -92,6 +101,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: So, got anything memorable on ya? Or need something I've memorized?
         m_source: {fileID: 0}
@@ -124,6 +136,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: '{name1}, have you been playing with my stuff again?'
         m_source: {fileID: 0}
@@ -142,10 +157,13 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: '{name1}, I''ve told you a million times: <i>please</i> stop rearranging
           my supplies!'
@@ -165,10 +183,13 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: '{name1}, you were rummaging around in my workshop earlier, weren''t
           you?'
@@ -188,7 +209,7 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   m_expressions:
   - m_object:
       m_key: name

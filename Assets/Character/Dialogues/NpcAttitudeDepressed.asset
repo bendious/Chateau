@@ -16,6 +16,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Oh, you're new, aren't you?
         m_source: {fileID: 0}
@@ -29,10 +32,13 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 1
       m_appendToAll: 0
-    m_weight: -1
+    m_weight: 0
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: I'm {name}, if it matters.
         m_source: {fileID: 0}
@@ -46,7 +52,7 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 1
       m_appendToAll: 0
-    m_weight: -1
+    m_weight: 0
   m_expressions:
   - m_object:
       m_key: avatar

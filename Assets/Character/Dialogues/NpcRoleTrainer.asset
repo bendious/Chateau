@@ -16,6 +16,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: You may call me 'sensei', {avatar}.
         m_source: {fileID: 0}
@@ -25,10 +28,13 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 0.5
+      m_relationshipIncrement: 0.1
       m_lines:
       - m_text: '{avatar}.'
         m_source: {fileID: 0}
@@ -43,10 +49,13 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0.25
+      m_relationshipMax: 0.75
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Listen, {avatar}.
         m_source: {fileID: 0}
@@ -70,10 +79,13 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0.25
+      m_relationshipMax: 0.75
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: '{avatar}, {avatar}...'
         m_source: {fileID: 0}
@@ -92,10 +104,13 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Oh, hi {name1}.
         m_source: {fileID: 0}
@@ -105,10 +120,13 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: '{name1}, do you remember...'
         m_source: {fileID: 0}
@@ -118,10 +136,13 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: '{name1}, can I get your opinion...'
         m_source: {fileID: 0}
@@ -131,7 +152,7 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   m_expressions:
   - m_object:
       m_key: avatar

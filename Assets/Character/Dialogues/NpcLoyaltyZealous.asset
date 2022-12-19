@@ -16,6 +16,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 0.5
+      m_relationshipIncrement: 0.1
       m_lines:
       - m_text: Hey, how's it going?
         m_source: {fileID: 0}

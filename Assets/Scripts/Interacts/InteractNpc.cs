@@ -70,7 +70,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 #endif
 
 
-	private IEnumerable<WeightedObject<Dialogue.Info>> DialogueFiltered(bool excludeReplies, params Dialogue[] targets)
+	private IEnumerable<WeightedObject<Dialogue.Info>> DialogueFiltered(bool excludeReplies, int targetIndex = -1, params Dialogue[] targets)
 	{
 		// lazy initialize dialogue options
 		if (m_dialogueCombined == null)
@@ -79,9 +79,15 @@ public class InteractNpc : MonoBehaviour, IInteractable
 		}
 
 		// filter dialogue options
+		float relationshipCur = GameController.RelationshipPercent(Index, targetIndex >= 0 ? targetIndex : Index); // NOTE the use of -1 for "self-relationships" for non-NPC-targeted lines // TODO: better flag value(s)?
 		return m_dialogueCombined.Where(info =>
 		{
 			if (info.m_weight < 0.0f || (excludeReplies && info.m_object.m_lines.Any(line => line.m_replies.Length > 0)) || ((targets != null && targets.Length > 0) ? targets.All(target => target != info.m_object.m_target) : (info.m_object.m_target != null)))
+			{
+				return false;
+			}
+
+			if (relationshipCur < info.m_object.m_relationshipMin || relationshipCur > info.m_object.m_relationshipMax)
 			{
 				return false;
 			}
@@ -107,7 +113,8 @@ public class InteractNpc : MonoBehaviour, IInteractable
 	{
 		// pick dialogue option(s)
 		InteractNpc otherNpc = interactor.GetComponent<InteractNpc>();
-		WeightedObject<Dialogue.Info>[] dialogueAllowed = DialogueFiltered(interactor is not AvatarController, otherNpc == null ? interactor.m_dialogues : interactor.m_dialogues.Concat(GameController.NpcDialogues(otherNpc.Index)).ToArray()).ToArray();
+		int targetIndex = otherNpc != null ? otherNpc.Index : Index; // NOTE the use of "self-relationships" for non-NPC-targeted lines // TODO?
+		WeightedObject<Dialogue.Info>[] dialogueAllowed = DialogueFiltered(interactor is not AvatarController, targetIndex, otherNpc == null ? interactor.m_dialogues : interactor.m_dialogues.Concat(GameController.NpcDialogues(otherNpc.Index)).ToArray()).ToArray();
 		if (dialogueAllowed.Length <= 0)
 		{
 			yield break;
@@ -129,6 +136,12 @@ public class InteractNpc : MonoBehaviour, IInteractable
 		// update weight
 		WeightedObject<Dialogue.Info> weightedDialogueCur = m_dialogueCombined.First(dialogue => dialogue.m_object == dialogueCur); // TODO: support duplicate dialogue options?
 		weightedDialogueCur.m_weight = weightedDialogueCur.m_object.m_singleUse ? -1.0f : weightedDialogueCur.m_weight == 0.0f ? 1.0f : weightedDialogueCur.m_weight * m_weightUseScalar;
+
+		// update relationship level
+		if (weightedDialogueCur.m_object.m_relationshipIncrement != 0.0f)
+		{
+			GameController.RelationshipIncrement(Index, targetIndex, weightedDialogueCur.m_object.m_relationshipIncrement);
+		}
 
 		// deactivate single-minded pursuit if appropriate
 		if (m_ai != null && m_ai.m_friendly && m_ai.OnlyPursueAvatar && !HasSingleUseAvailable)

@@ -16,6 +16,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: HasFinishedZone
       m_userdata: 1
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Oh, hey! You're back!
         m_source: {fileID: 0}
@@ -52,6 +55,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: HasFinishedZone
       m_userdata: 2
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Ooo, did you get through the second wing, then?
         m_source: {fileID: 0}
@@ -78,6 +84,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: HasFinishedZone
       m_userdata: 3
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Ah, you got another one? Most excellent!
         m_source: {fileID: 0}
@@ -100,6 +109,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: HasFinishedZone
       m_userdata: 4
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Wow, have you gone through the whole mansion?
         m_source: {fileID: 0}
@@ -133,6 +145,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Stay away from danger!
         m_source: {fileID: 0}
@@ -154,6 +169,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: HasNotFinishedZone
       m_userdata: 3
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Hey, {avatar}.
         m_source: {fileID: 0}
@@ -217,6 +235,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: HasNotFinishedZone
       m_userdata: 3
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Oh, and if you see the others around, tell 'em to meet up here.
         m_source: {fileID: 0}
@@ -234,6 +255,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Feeling lost, {avatar}?
         m_source: {fileID: 0}
@@ -281,6 +305,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: HasNotFinishedZone
       m_userdata: 1
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Have you seen the Flames out there, {avatar}?
         m_source: {fileID: 0}
@@ -327,6 +354,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: HasFinishedZone
       m_userdata: 1
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Have you seen the Flames out there, {avatar}?
         m_source: {fileID: 0}
@@ -373,6 +403,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 0.5
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: I suppose you don't know, having never really lived here, but this
           whole place is basically a cylinder.
@@ -393,6 +426,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Be careful going deeper.
         m_source: {fileID: 0}
@@ -411,6 +447,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: The center... It used to be empty, but I don't think it is anymore.
         m_source: {fileID: 0}
@@ -428,6 +467,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Feel free to leave whatever you want here.
         m_source: {fileID: 0}
@@ -445,6 +487,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Keep your eyes open when you're out and about; I've found stashes
           of neat things in the most unexpected places.
@@ -469,6 +514,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: If you need to light a fire, watch yourself; the fireplaces around
           here are a little... finicky.
@@ -503,6 +551,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Be careful if you're headed down into the basement.
         m_source: {fileID: 0}
@@ -530,6 +581,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Oh, you saw the writing on the entrance hallway walls?
         m_source: {fileID: 0}
@@ -559,6 +613,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: HasFinishedZone
       m_userdata: 1
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Been talking to Martha?
         m_source: {fileID: 0}
@@ -589,6 +646,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: HasFinishedZone
       m_userdata: 1
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Me? I'm not actually from around here, you know.
         m_source: {fileID: 0}

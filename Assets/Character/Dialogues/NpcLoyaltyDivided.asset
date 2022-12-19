@@ -16,6 +16,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 0.5
+      m_relationshipIncrement: 0.1
       m_lines:
       - m_text: You ever wonder whether this is actually worth anything?
         m_source: {fileID: 0}
@@ -58,6 +61,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 0.5
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: '{name1}, how do you keep at it so seriously?'
         m_source: {fileID: 0}
@@ -83,6 +89,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 0.5
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: '{name1}, how do you keep at it so seriously?'
         m_source: {fileID: 0}

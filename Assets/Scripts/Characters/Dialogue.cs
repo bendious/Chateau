@@ -9,6 +9,9 @@ public class Dialogue : ScriptableObject
 	{
 		public string m_preconditionName;
 		public int m_userdata;
+		public float m_relationshipMin = 0.0f;
+		public float m_relationshipMax = 1.0f;
+		public float m_relationshipIncrement = 0.0f; // TODO: non-symmetric relationships?
 		public DialogueController.Line[] m_lines;
 		public Dialogue m_target;
 		public bool m_loop;

@@ -16,6 +16,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Customization rules, {avatar}!
         m_source: {fileID: 0}
@@ -25,46 +28,23 @@ MonoBehaviour:
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Customization rules, {name1}!
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
-      m_target: {fileID: 11400000, guid: a4d57240072259046ba25a999d984f47, type: 2}
+      m_target: {fileID: 11400000, guid: 3e5108d52554f7149afc46f1ce99448c, type: 2}
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0
-    m_weight: 0
-  - m_object:
-      m_preconditionName: 
-      m_userdata: 0
-      m_lines:
-      - m_text: Customization rules, {name1}!
-        m_source: {fileID: 0}
-        m_sourceDistMax: 3.4028235e+38
-        m_replies: []
-      m_target: {fileID: 11400000, guid: 249d36032d347d240b8638f14da317f9, type: 2}
-      m_loop: 0
-      m_singleUse: 0
-      m_appendToAll: 0
-    m_weight: 0
-  - m_object:
-      m_preconditionName: 
-      m_userdata: 0
-      m_lines:
-      - m_text: Customization rules, {name1}!
-        m_source: {fileID: 0}
-        m_sourceDistMax: 3.4028235e+38
-        m_replies: []
-      m_target: {fileID: 11400000, guid: 253660f765b3ae44fa1b73d1f26a6594, type: 2}
-      m_loop: 0
-      m_singleUse: 0
-      m_appendToAll: 0
-    m_weight: 0
+    m_weight: 1
   m_expressions:
   - m_object:
       m_key: name

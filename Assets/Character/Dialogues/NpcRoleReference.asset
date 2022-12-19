@@ -16,6 +16,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Isn't all this fascinating?
         m_source: {fileID: 0}
@@ -29,6 +32,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Fighting is just like chess.
         m_source: {fileID: 0}
@@ -46,6 +52,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Make sure you understand what types of damage are most effective
           against each type of pest.
@@ -65,6 +74,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Oh, did you want to ask me about something else, {avatar}?
         m_source: {fileID: 0}
@@ -229,42 +241,19 @@ MonoBehaviour:
       m_loop: 1
       m_singleUse: 0
       m_appendToAll: 1
-    m_weight: 0
-  - m_object:
-      m_preconditionName: 
-      m_userdata: 0
-      m_lines:
-      - m_text: '{name1}...'
-        m_source: {fileID: 0}
-        m_sourceDistMax: 3.4028235e+38
-        m_replies: []
-      m_target: {fileID: 11400000, guid: 23ae61cdb98cd1d47a9a15914cfdf4d7, type: 2}
-      m_loop: 0
-      m_singleUse: 0
-      m_appendToAll: 0
     m_weight: 1
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: '{name1}...'
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
-      m_target: {fileID: 11400000, guid: a4d57240072259046ba25a999d984f47, type: 2}
-      m_loop: 0
-      m_singleUse: 0
-      m_appendToAll: 0
-    m_weight: 1
-  - m_object:
-      m_preconditionName: 
-      m_userdata: 0
-      m_lines:
-      - m_text: '{name1}...'
-        m_source: {fileID: 0}
-        m_sourceDistMax: 3.4028235e+38
-        m_replies: []
-      m_target: {fileID: 11400000, guid: 253660f765b3ae44fa1b73d1f26a6594, type: 2}
+      m_target: {fileID: 11400000, guid: 3e5108d52554f7149afc46f1ce99448c, type: 2}
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0

@@ -156,6 +156,8 @@ public class GameController : MonoBehaviour
 	}
 	private static NpcInfo[] m_npcs;
 
+	private static float[][] m_npcRelationshipPcts;
+
 	private CinemachineConfiner2D m_vCamMainConfiner;
 	private CinemachineFramingTransposer m_vCamMainFramer;
 	private float m_lookaheadTimeOrig;
@@ -799,6 +801,19 @@ public class GameController : MonoBehaviour
 	public void EnemyTypeHasSpawned(DialogueController.Line.Reply reply) => reply.m_deactivated = !EnemyTypeHasSpawned(reply.m_userdata);
 	public void SecretFound(DialogueController.Line.Reply reply) => reply.m_deactivated = !SecretFound(reply.m_userdata);
 
+	// TODO: non-NPC relationships/indices?
+	public static float RelationshipPercent(int indexA, int indexB) => m_npcRelationshipPcts == null ? 0.0f : m_npcRelationshipPcts[indexA][indexB]; // NOTE that we have to "handle" early requests from InteractNpc.HasSingleUseAvailable
+
+	public static void RelationshipIncrement(int indexA, int indexB, float amount)
+	{
+		// TODO: non-symmetric relationships?
+		m_npcRelationshipPcts[indexA][indexB] = Mathf.Clamp01(m_npcRelationshipPcts[indexA][indexB] + amount);
+		if (indexA != indexB)
+		{
+			m_npcRelationshipPcts[indexB][indexA] = Mathf.Clamp01(m_npcRelationshipPcts[indexB][indexA] + amount);
+		}
+	}
+
 
 #if DEBUG
 	public void DebugSpawnEnemy(int typeIndex)
@@ -847,6 +862,13 @@ public class GameController : MonoBehaviour
 					info2.m_color = info2.m_color.ColorFlipComponent(Random.Range(0, 3), Color.black, Color.white);
 				}
 			}
+		}
+
+		// TODO: cleaner initialization / helper function?
+		m_npcRelationshipPcts = new float[NpcsTotal][];
+		for (int i = 0; i < NpcsTotal; ++i)
+		{
+			m_npcRelationshipPcts[i] = new float[NpcsTotal];
 		}
 	}
 
@@ -1081,6 +1103,8 @@ public class GameController : MonoBehaviour
 			saveFile.Write(npc.m_color);
 		});
 
+		saveFile.Write(m_npcRelationshipPcts, row => saveFile.Write(row, entry => saveFile.Write(entry)));
+
 		saveFile.Write(MerchantAcquiredCounts, saveFile.Write);
 		saveFile.Write(MerchantMaterials);
 
@@ -1141,6 +1165,9 @@ public class GameController : MonoBehaviour
 				});
 				return new NpcInfo { m_color = saveFile.ReadColor(), m_dialogues = dialogue };
 			});
+
+			m_npcRelationshipPcts = saveFile.ReadArray(() => saveFile.ReadArray(() => saveFile.ReadSingle()));
+			Debug.Assert(m_npcRelationshipPcts.Length == NpcsTotal && m_npcRelationshipPcts.All(row => row.Length == NpcsTotal));
 
 			// NOTE the somewhat awkward/not-fully-correct handling for entering a loaded scene after having incremented merchant numbers
 			int i = 0;

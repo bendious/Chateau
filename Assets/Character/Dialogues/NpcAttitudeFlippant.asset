@@ -16,6 +16,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Oh, have we met?
         m_source: {fileID: 0}
@@ -41,6 +44,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Me? I'm {name}.
         m_source: {fileID: 0}
@@ -58,6 +64,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 0.5
+      m_relationshipIncrement: -0.1
       m_lines:
       - m_text: '{name1}, chill. You''re scowling so hard I can hear it.'
         m_source: {fileID: 0}
@@ -75,6 +84,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 0.5
+      m_relationshipIncrement: 0.1
       m_lines:
       - m_text: Hey, {name1}, you okay?
         m_source: {fileID: 0}
@@ -92,6 +104,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 0.5
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Calm down, {name1}.
         m_source: {fileID: 0}
