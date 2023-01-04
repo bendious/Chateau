@@ -93,7 +93,7 @@ public class InteractUpgrade : MonoBehaviour, IInteractable
 		}
 		else
 		{
-			StartCoroutine(gameObject.SoftStop(() => m_active));
+			StartCoroutine(gameObject.SoftStop(() => m_active, postBehavior: Utility.SoftStopPost.DeactivateChildren));
 		}
 		Debug.Assert(colors == null || (colors.Item1.Count == 0 && colors.Item2.Count == 0));
 

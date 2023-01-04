@@ -346,11 +346,12 @@ public static class Utility
 
 	public enum SoftStopPost
 	{
-		DeactivateObject,
+		DeactivateRoot,
+		DeactivateChildren,
 		DisableComponents,
 		Reactivate,
 	}
-	public static System.Collections.IEnumerator SoftStop(this GameObject rootObj, Func<bool> shouldCancelFunc = null, float delayMax = 2.0f, SoftStopPost postBehavior = SoftStopPost.DeactivateObject)
+	public static System.Collections.IEnumerator SoftStop(this GameObject rootObj, Func<bool> shouldCancelFunc = null, float delayMax = 2.0f, SoftStopPost postBehavior = SoftStopPost.DeactivateRoot)
 	{
 		VisualEffect[] vfxAll = rootObj.GetComponentsInChildren<VisualEffect>();
 		foreach (VisualEffect vfx in vfxAll)
@@ -416,19 +417,20 @@ public static class Utility
 			yield break;
 		}
 
-		if (postBehavior == SoftStopPost.DeactivateObject)
+		if (postBehavior == SoftStopPost.DeactivateRoot)
 		{
 			rootObj.SetActive(false);
 		}
 		else
 		{
+			Action<Behaviour> disableOrDeactivate = postBehavior == SoftStopPost.DeactivateChildren ? c => c.gameObject.SetActive(false) : c => c.enabled = false;
 			foreach (VisualEffect vfx in vfxAll)
 			{
-				vfx.enabled = false;
+				disableOrDeactivate(vfx);
 			}
 			foreach (Tuple<LightFlickerSynced, Light2D, float> light in lights)
 			{
-				light.Item2.enabled = false;
+				disableOrDeactivate(light.Item2);
 			}
 		}
 	}
