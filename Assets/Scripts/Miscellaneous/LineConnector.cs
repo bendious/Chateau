@@ -133,19 +133,20 @@ public class LineConnector : MonoBehaviour
 					Vector3 startPosGlobal = line.transform.localToWorldMatrix * startPosLocal;
 					Vector3 endPosGlobal = line.transform.localToWorldMatrix * endPosLocal;
 					Vector3 diffGlobal = endPosGlobal - startPosGlobal;
-					Vector3 midpoint = diffGlobal * 0.5f;
+					Vector3 midpointGlobal = (endPosGlobal + startPosGlobal) * 0.5f;
 
 					// approximate the parabola running through {start/end}PosLocal w/ tangents meeting at a midpoint lowered based on the amount of slack available
 					// semi-related background at https://www.quora.com/Given-two-points-of-a-parabola-and-the-intersection-of-the-tangent-lines-that-passes-through-those-points-how-can-I-find-the-equation-of-the-parabola
 					// estimating the drop as if the line were two straight segments, from the Pythagorean theorem we have jointLengthHalf^2 + yDrop^2 = (jointLengthHalf + slackDistHalf)^2
 					float slackDistHalf = (jointLength - Mathf.Sqrt(lengthSq)) * 0.5f;
 					float jointLengthHalf = jointLength * 0.5f;
-					midpoint.y -= Mathf.Sqrt(Mathf.Pow(jointLengthHalf + slackDistHalf, 2.0f) - jointLengthHalf * jointLengthHalf);
+					midpointGlobal.y -= Mathf.Sqrt(Mathf.Pow(jointLengthHalf + slackDistHalf, 2.0f) - jointLengthHalf * jointLengthHalf);
+					Vector3 tangentGlobal = midpointGlobal - startPosGlobal;
 
 					// y = ax^2 + bx + c
-					// since we're treating the start point as the origin, c is zero and b is the tangent of the parabola at x=0
+					// since we're treating the start point as the origin, c is zero and b is the slope of the tangent to the parabola at x=0
 					// a can then be calculated by plugging in values from the end point: diffGlobal.y = a*diffGlobal.x^2 + b*diffGlobal.x
-					float b = midpoint.y / (midpoint.x.FloatEqual(0.0f, 0.1f) ? 0.1f : midpoint.x); // NOTE the high epsilon to somewhat mitigate artifacts when the start/end points are nearly identical
+					float b = tangentGlobal.y / (tangentGlobal.x.FloatEqual(0.0f) ? Mathf.Sign(tangentGlobal.x) * Utility.FloatEpsilon : tangentGlobal.x); // TODO: horizontal parabolas when appropriate?
 					float a = (diffGlobal.y - b * diffGlobal.x) / (diffGlobal.x * diffGlobal.x);
 
 					// iterate over the parabola and calculate localspace points
@@ -153,8 +154,9 @@ public class LineConnector : MonoBehaviour
 					for (int n = line.positionCount - 1; positionIdx < n; ++positionIdx)
 					{
 						float iPct = positionIdx / (float)n;
-						float x = Mathf.Lerp(0.0f, diffGlobal.x, iPct);
-						line.SetPosition(positionIdx, transform.worldToLocalMatrix * new Vector3(x, a * x * x + b * x, Mathf.Lerp(startPosGlobal.z, endPosGlobal.z, iPct)));
+						float xFromStart = Mathf.Lerp(0.0f, diffGlobal.x, iPct);
+						float yFromStart = a * xFromStart * xFromStart + b * xFromStart;
+						line.SetPosition(positionIdx, line.worldToLocalMatrix * new Vector3(xFromStart + startPosGlobal.x, yFromStart + startPosGlobal.y, Mathf.Lerp(startPosGlobal.z, endPosGlobal.z, iPct)));
 					}
 				}
 				line.SetPosition(positionIdx++, endPosLocal);
