@@ -77,9 +77,11 @@ public class DialogueController : MonoBehaviour
 	private Queue<string> m_queueFollowUp;
 	private GameObject m_callbackObject;
 	public KinematicCharacter Target { get; private set; }
+	private KinematicCharacter m_sourceMain;
 	private int m_loopIdx = -1;
 
 	private bool m_forceNewLine = false;
+	public bool Canceled { get; private set; }
 
 
 	private void Awake()
@@ -90,6 +92,19 @@ public class DialogueController : MonoBehaviour
 		m_canvasTf = m_canvas.GetComponent<RectTransform>();
 		m_canvasLayerOrig = m_canvas.sortingLayerID;
 		m_canvasOffsetOrig = m_canvasBackdropTf.offsetMin.x; // TODO: don't assume min/max offset equality?
+	}
+
+	private void OnEnable() => OnHealthDecrement.OnExecute += OnDamage;
+
+	private void OnDisable() => OnHealthDecrement.OnExecute -= OnDamage;
+
+	private void OnDamage(OnHealthDecrement evt)
+	{
+		if (!IsPlaying || Target is not AvatarController || (evt.m_health.gameObject != Target.gameObject && evt.m_health.gameObject != m_sourceMain.gameObject)) // TODO: handle damage to child objects of source/target?
+		{
+			return;
+		}
+		Canceled = true;
 	}
 
 
@@ -106,11 +121,13 @@ public class DialogueController : MonoBehaviour
 		m_queueFollowUp = null;
 		m_callbackObject = callbackObject;
 		Target = target;
+		m_sourceMain = sourceMain;
 		m_loopIdx = loopIdx;
 		m_forceNewLine = false;
+		Canceled = false;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
-		return StartCoroutine(AdvanceDialogue(lines, expressionSets, sfx, sprite, spriteColor, sourceMain));
+		return StartCoroutine(AdvanceDialogue(lines, expressionSets, sfx, sprite, spriteColor));
 	}
 
 	public void OnReplySelected(GameObject replyObject)
@@ -134,17 +151,8 @@ public class DialogueController : MonoBehaviour
 		{
 			m_forceNewLine = true;
 		}
-		m_replyMenu.gameObject.SetActive(false);
-		Transform parentTf = ReplyParentTf;
-		for (int i = 0, n = parentTf.childCount; i < n; ++i)
-		{
-			GameObject child = parentTf.GetChild(i).gameObject;
-			if (child == m_replyTemplate)
-			{
-				continue;
-			}
-			Simulation.Schedule<ObjectDespawn>().m_object = child;
-		}
+
+		CleanupReplyMenu();
 	}
 
 
@@ -260,7 +268,7 @@ public class DialogueController : MonoBehaviour
 	}
 
 
-	private System.Collections.IEnumerator AdvanceDialogue(IEnumerable<Line> linesOrig, WeightedObject<Dialogue.Expression>[][] expressionSets, AudioClip sfx, Sprite sprite, Color color, KinematicCharacter sourceMain)
+	private System.Collections.IEnumerator AdvanceDialogue(IEnumerable<Line> linesOrig, WeightedObject<Dialogue.Expression>[][] expressionSets, AudioClip sfx, Sprite sprite, Color color)
 	{
 		m_text.text = null;
 		m_queue = new(linesOrig);
@@ -313,12 +321,12 @@ public class DialogueController : MonoBehaviour
 		fitBackdropToText();
 		rectTf.pivot = new(0.5f, isWorldspace ? 0.0f : 0.5f);
 		m_canvas.GetComponent<AudioSource>().spatialBlend = isWorldspace ? 1.0f : 0.0f;
-		Transform followTf = isWorldspace ? sourceMain.transform : null;
+		Transform followTf = isWorldspace ? m_sourceMain.transform : null;
 
-		WaitUntil replyWait = new(() => !m_replyMenu.gameObject.activeInHierarchy);
+		WaitUntil replyWait = new(() => !m_replyMenu.gameObject.activeInHierarchy || Canceled);
 		int tagCharCount = 0;
 
-		while (m_queue.Count > 0)
+		while (m_queue.Count > 0 && !Canceled)
 		{
 			// NOTE that we don't use transform parenting/attachment to avoid destruction if character dies
 			// TODO: efficiency?
@@ -337,7 +345,7 @@ public class DialogueController : MonoBehaviour
 
 			// current state
 			// TODO: don't redo every time?
-			Line lineCur = NextLine(out string textCur, out int textCurLen, ref followTf, expressionSetsOrdered, sprite, color, sourceMain);
+			Line lineCur = NextLine(out string textCur, out int textCurLen, ref followTf, expressionSetsOrdered, sprite, color);
 
 			// maybe move to next line
 			bool stillRevealing = m_revealedCharCount + tagCharCount < textCurLen;
@@ -362,7 +370,7 @@ public class DialogueController : MonoBehaviour
 				else
 				{
 					m_queue.Dequeue();
-					lineCur = NextLine(out textCur, out textCurLen, ref followTf, expressionSetsOrdered, sprite, color, sourceMain);
+					lineCur = NextLine(out textCur, out textCurLen, ref followTf, expressionSetsOrdered, sprite, color);
 					if (lineCur == null)
 					{
 						break;
@@ -427,6 +435,7 @@ public class DialogueController : MonoBehaviour
 					m_text.ForceMeshUpdate(); // since we need the updated bounds
 
 					// display any replies
+					CleanupReplyMenu(); // just in case of leftovers from previous replies // NOTE that this has to be BEFORE m_replyMenu is activated
 					bool active = m_queueFollowUp == null && lineCur.m_replies != null && lineCur.m_replies.Length > 0;
 					m_replyMenu.gameObject.SetActive(active);
 					if (active)
@@ -489,10 +498,12 @@ public class DialogueController : MonoBehaviour
 		{
 			avatar.ControlsUI.Disable(); // TODO: check for other UI?
 		}
+		CleanupReplyMenu(); // in case of reply cancellation via damage/etc.
+		m_continueIndicator.SetActive(false); // in case of reply cancellation via damage/etc.
 		gameObject.SetActive(false);
 	}
 
-	private Line NextLine(out string text, out int textLen, ref Transform followTf, Dialogue.Expression[][] expressionSetsOrdered, Sprite spriteDefault, Color colorDefault, KinematicCharacter sourceMain)
+	private Line NextLine(out string text, out int textLen, ref Transform followTf, Dialogue.Expression[][] expressionSetsOrdered, Sprite spriteDefault, Color colorDefault)
 	{
 		Line line = m_queue.Count > 0 ? m_queue.Peek() : null;
 		text = m_queueFollowUp != null ? m_queueFollowUp.Peek() : line?.m_text;
@@ -507,11 +518,11 @@ public class DialogueController : MonoBehaviour
 		{
 			m_image.sprite = spriteDefault;
 			m_image.color = colorDefault;
-			followTf = sourceMain != null ? sourceMain.transform : Target != null ? Target.transform : null;
+			followTf = m_sourceMain != null ? m_sourceMain.transform : Target != null ? Target.transform : null;
 		}
 		else
 		{
-			InteractNpc sourceInteract = FindObjectsOfType<InteractNpc>().FirstOrDefault(interact => GameController.NpcDialogues(interact.Index).Contains(line.m_source) && Vector2.Distance(sourceMain.transform.position, interact.transform.position) <= line.m_sourceDistMax); // NOTE that we can't just use sourceMain since some dialogues reference third parties
+			InteractNpc sourceInteract = FindObjectsOfType<InteractNpc>().FirstOrDefault(interact => GameController.NpcDialogues(interact.Index).Contains(line.m_source) && Vector2.Distance(m_sourceMain.transform.position, interact.transform.position) <= line.m_sourceDistMax); // NOTE that we can't just use m_sourceMain since some dialogues reference third parties
 			if (sourceInteract == null)
 			{
 				// if the source is not present, end the dialogue // TODO: parameterize?
@@ -603,5 +614,21 @@ public class DialogueController : MonoBehaviour
 			Target.gameObject.SendMessage(functionName, value, SendMessageOptions.DontRequireReceiver);
 		}
 		GameController.Instance.gameObject.SendMessage(functionName, value, SendMessageOptions.DontRequireReceiver);
+	}
+
+	private void CleanupReplyMenu()
+	{
+		m_replyMenu.gameObject.SetActive(false);
+
+		Transform parentTf = ReplyParentTf;
+		for (int i = 0, n = parentTf.childCount; i < n; ++i)
+		{
+			GameObject child = parentTf.GetChild(i).gameObject;
+			if (child == m_replyTemplate)
+			{
+				continue;
+			}
+			Simulation.Schedule<ObjectDespawn>().m_object = child;
+		}
 	}
 }
