@@ -46,6 +46,11 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	[SerializeField] private Vector2 m_dashSecondsXY = new(0.2f, 0.2f);
 
 	/// <summary>
+	/// The minimum time in seconds between repeated dash activations
+	/// </summary>
+	[SerializeField] private float m_dashCooldownSec = 0.4f;
+
+	/// <summary>
 	/// Whether dash confers invulnerability
 	/// </summary>
 	[SerializeField] private bool m_dashInvincibility;
@@ -134,6 +139,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	private bool m_isDashing = false;
 	private bool m_dashAvailable = true;
+	private float m_dashTime;
 
 
 	protected override void Awake()
@@ -223,7 +229,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		{
 			m_dashAvailable = true;
 		}
-		if (m_dash && m_dashAvailable && !HasForcedVelocity)
+		if (m_dash && m_dashAvailable && m_dashTime + m_dashCooldownSec <= Time.time)
 		{
 			float moveDirX = (IsWallClinging ? m_wallNormal : move).x;
 			Bounce(moveDirX < -Utility.FloatEpsilon || (moveDirX.FloatEqual(0.0f) && LeftFacing) ? new(-m_dashVelocity.x, m_dashVelocity.y) : m_dashVelocity, m_dashSecondsXY.x, m_dashSecondsXY.y);
@@ -236,6 +242,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 				Simulation.Schedule<EnableDamage>(1.0f).m_health = m_health; // NOTE that this is just a fallback // TODO: more exact timing?
 			}
 			m_isDashing = true;
+			m_dashTime = Time.time;
 		}
 		else if (m_isDashing && !HasForcedVelocity) // TODO: take into account other sources of forced velocity?
 		{
@@ -315,7 +322,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		}
 		body.simulated = false; // TODO: continue simulating physics movement?
 
-		Bounce(Vector2.zero); // to remove any current forced input
+		BounceCancel(); // to remove any current forced input
 	}
 
 	public bool ChildAttach(IAttachable attachee)

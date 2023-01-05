@@ -57,7 +57,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 	public bool HasFlying => gravityModifier.FloatEqual(0.0f);
 
-	public bool HasForcedVelocity => !m_velocityForcedWeight.magnitude.FloatEqual(0.0f);
+	public bool HasForcedVelocity => m_forcedVelocities.Count > 0;
 
 	public Bounds Bounds => (m_colliders != null && m_colliders.Length > 0 ? m_colliders : GetComponents<Collider2D>()).ToBounds(); // NOTE the extra logic to support being used before Awake() to support prefabs // TODO: cache local bounds?
 
@@ -78,10 +78,16 @@ public abstract class KinematicObject : MonoBehaviour
 	protected Collider2D[] m_colliders;
 	private AvatarController m_avatar;
 
-	private Vector2 m_velocityForced = Vector2.zero;
-	private Vector2 m_velocityForcedWeight = Vector2.zero;
-	private Vector2 m_velocityForcedWeightVel = Vector2.zero;
-	private Vector2 m_velocityForcedSmoothTimes = Vector2.one;
+	private class ForcedVelocity
+	{
+		public readonly Vector2 m_velocityOrig;
+		public readonly Vector2 m_decayTimes;
+		public Vector2 m_weight = Vector2.one;
+		public Vector2 m_weightVel = Vector2.zero;
+
+		public ForcedVelocity(Vector2 velocity, Vector2 decayTimes) { m_velocityOrig = velocity; m_decayTimes = decayTimes; }
+	}
+	private readonly List<ForcedVelocity> m_forcedVelocities = new();
 
 	private int m_layerIdxOrig;
 	private const float m_wallPushDisableSeconds = 0.25f;
@@ -92,14 +98,10 @@ public abstract class KinematicObject : MonoBehaviour
 	/// <summary>
 	/// Bounce the objects velocity in a direction.
 	/// </summary>
-	/// <param name="dir"></param>
-	public void Bounce(Vector2 dir, float decayTimeX = 0.25f, float decayTimeY = 0.1f)
-	{
-		m_velocityForced = dir;
-		m_velocityForcedWeight = Vector2.one;
-		m_velocityForcedWeightVel = Vector2.zero;
-		m_velocityForcedSmoothTimes = new(decayTimeX, decayTimeY);
-	}
+	/// <param name="velocity"></param>
+	public void Bounce(Vector2 velocity, float decayTimeX = 0.25f, float decayTimeY = 0.1f) => m_forcedVelocities.Add(new ForcedVelocity(velocity, new Vector2(decayTimeX, decayTimeY)));
+
+	public void BounceCancel() => m_forcedVelocities.Clear();
 
 	/// <summary>
 	/// Teleport to some position.
@@ -114,8 +116,7 @@ public abstract class KinematicObject : MonoBehaviour
 			body.velocity *= 0;
 		}
 		velocity *= 0;
-		m_velocityForcedWeight = Vector2.zero;
-		m_velocityForcedWeightVel = Vector2.zero;
+		BounceCancel();
 	}
 
 	protected virtual void Awake()
@@ -196,18 +197,36 @@ public abstract class KinematicObject : MonoBehaviour
 		//if already falling, fall faster than the jump speed, otherwise use normal gravity.
 		velocity += (IsWallClinging ? m_wallClingGravityScalar : 1.0f) * (velocity.y < 0.0f ? gravityModifier : 1.0f) * Time.fixedDeltaTime * Physics2D.gravity;
 
-		velocity.x = Mathf.Lerp(TargetVelocity.x, m_velocityForced.x, m_velocityForcedWeight.x);
-		if (!m_velocityForcedWeight.y.FloatEqual(0.0f))
+		// apply target/forced velocities
+		Tuple<Vector2, Vector2> forcedVelSum = m_forcedVelocities.Aggregate(Tuple.Create(Vector2.zero, Vector2.zero), (sum, fv) => Tuple.Create(sum.Item1 + fv.m_velocityOrig * fv.m_weight, sum.Item2 + fv.m_weight));
+		velocity.x = Mathf.Lerp(TargetVelocity.x, forcedVelSum.Item1.x, forcedVelSum.Item2.x); // NOTE that this caps the summed weights at 1.0
+		if (!forcedVelSum.Item2.y.FloatEqual(0.0f))
 		{
-			velocity.y = Mathf.Lerp(velocity.y, m_velocityForced.y, m_velocityForcedWeight.y);
+			velocity.y = Mathf.Lerp(velocity.y, forcedVelSum.Item1.y, forcedVelSum.Item2.y); // NOTE that this caps the summed weights at 1.0
 		}
 		else if (HasFlying)
 		{
 			velocity.y = TargetVelocity.y;
 		}
 
-		// blend velocity back from forced if necessary
-		m_velocityForcedWeight = m_velocityForcedWeight.SmoothDamp(Vector2.zero, ref m_velocityForcedWeightVel, m_velocityForcedSmoothTimes);
+		// blend out / remove forced velocities
+		List<ForcedVelocity> fvToRemove = new(m_forcedVelocities.Count); // TODO: don't re-allocate each frame?
+		foreach (ForcedVelocity fv in m_forcedVelocities)
+		{
+			fv.m_weight = fv.m_weight.SmoothDamp(Vector2.zero, ref fv.m_weightVel, fv.m_decayTimes);
+			if (fv.m_weight.x.FloatEqual(0.0f) && fv.m_weight.y.FloatEqual(0.0f))
+			{
+				fvToRemove.Add(fv);
+			}
+		}
+		if (fvToRemove.Count > 0)
+		{
+			int nRemoved = m_forcedVelocities.RemoveAll(fv => fvToRemove.Contains(fv));
+			if (nRemoved != fvToRemove.Count)
+			{
+				Debug.LogWarning("Unremoved forced velocity?");
+			}
+		}
 
 		IsGrounded = false;
 		IsWallClinging = false;
