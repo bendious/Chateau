@@ -21,8 +21,6 @@ public sealed class AIController : KinematicCharacter
 	public float m_replanSecondsMin = 1.5f; // NOTE that this is just to discourage constant replanning and not a hard minimum; it can be preempted based on state change / etc.
 	public float m_replanSecondsMax = 3.0f;
 
-	public float m_offsetDegreesMaxPerArm = 60.0f;
-
 	public float m_meleeRange = 1.0f;
 	public float m_meleeSecondsMin = 0.5f;
 	public float m_meleeSecondsMax = 1.0f;
@@ -146,28 +144,7 @@ public sealed class AIController : KinematicCharacter
 		// aim items
 		if (HoldCountMax > 0 && m_aimLastFrame != Time.frameCount)
 		{
-			ArmController[] arms = GetComponentsInChildren<ArmController>();
-			if (arms.Length > 0)
-			{
-				ArmController primaryArm = arms.FirstOrDefault(arm => arm.GetComponentInChildren<ItemController>() != null);
-				Vector2 targetPosSafe = AimPosition();
-				if (primaryArm != null)
-				{
-					primaryArm.UpdateAim(ArmOffset, targetPosSafe, targetPosSafe);
-				}
-
-				int offsetScalar = primaryArm == null ? 0 : 1;
-				foreach (ArmController arm in arms.OrderBy(arm => -arm.transform.childCount)) // NOTE the ordering to aim non-empty arms first
-				{
-					if (arm == primaryArm)
-					{
-						continue; // primaryArm is already aimed
-					}
-					Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, offsetScalar * Mathf.Min(m_offsetDegreesMaxPerArm, 360 / arms.Length) * AimScalar) * (targetPosSafe - (Vector2)transform.position);
-					offsetScalar = offsetScalar <= 0 ? -offsetScalar + 1 : -offsetScalar; // this groups any arms w/ items around the primary arm in both directions
-					arm.UpdateAim(ArmOffset, aimPos, targetPosSafe);
-				}
-			}
+			AimArms(AimPosition(), AimScalar); // NOTE that we don't bother to skip AimPosition() if w/o arms, since the HoldCountMax check should skip in that case anyway
 			m_aimLastFrame = Time.frameCount;
 		}
 	}
@@ -492,7 +469,7 @@ public sealed class AIController : KinematicCharacter
 		// TODO: option to stop tracking target during certain actions?
 
 		// base target position
-		Vector2 aimPos = m_target == null ? (Vector2)transform.position + (LeftFacing ? Vector2.left : Vector2.right) : m_target.transform.position;
+		Vector2 aimPos = m_target == null ? (Vector2)transform.position + ((!move.x.FloatEqual(0.0f) ? move.x < 0.0f : LeftFacing) ? Vector2.left : Vector2.right) : m_target.transform.position; // TODO: ensure that desired movement direction is available here? take waypoints into account?
 
 		// aim directly if no arms/items
 		ArmController[] arms = GetComponentsInChildren<ArmController>();

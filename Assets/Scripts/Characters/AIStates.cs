@@ -506,7 +506,7 @@ public sealed class AIMelee : AIState
 		m_durationRemaining = Random.Range(m_ai.m_meleeSecondsMin, m_ai.m_meleeSecondsMax);
 
 		m_item = m_ai.GetComponentInChildren<ItemController>();
-		m_arm = m_item != null ? m_item.GetComponentInParent<ArmController>() : m_ai.GetComponentInChildren<ArmController>(); // NOTE that we get the relevant arm even if planning to use m_item, since m_item could break or be taken during the course of this state // TODO: don't assume that AI only have items via arms?
+		m_arm = m_item != null ? m_item.GetComponentInParent<ArmController>() : m_ai.PrimaryArm(m_ai.GetComponentsInChildren<ArmController>()); // NOTE that we get the relevant arm even if planning to use m_item, since m_item could break or be taken during the course of this state // TODO: don't assume that AI only have items via arms?
 
 		m_swingDuration = m_item != null ? Mathf.Clamp(m_item.GetComponent<Rigidbody2D>().mass * m_swingSecondsPerKg, m_swingSecondsMin, m_swingSecondsMax) : m_swingSecondsMin;
 

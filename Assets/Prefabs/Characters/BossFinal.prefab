@@ -221,10 +221,6 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
-      propertyPath: m_offsetDegreesMaxPerArm
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
       propertyPath: m_dialogues.Array.data[1]
       value: 
       objectReference: {fileID: 11400000, guid: 4b9e3cc059739164fadabb9451f32c99, type: 2}

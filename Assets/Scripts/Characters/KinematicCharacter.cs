@@ -69,6 +69,8 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	[SerializeField] private Vector2 m_armOffset;
 
+	[SerializeField] private float m_secondaryArmDegrees = -45.0f;
+
 	/// <summary>
 	/// Amount of damage caused to other characters that collide with this one
 	/// </summary>
@@ -369,6 +371,47 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	// TODO: CanBeDamagedBy()?
 
 	public virtual float TargetPriority(KinematicCharacter source, bool friendly) => source != this && source.CanDamage(gameObject) != friendly ? 1.0f : 0.0f;
+
+
+	public ArmController PrimaryArm(ArmController[] arms)
+	{
+		ArmController itemArm = arms.FirstOrDefault(arm => arm.GetComponentInChildren<ItemController>() != null);
+		return itemArm != null ? itemArm : LeftFacing ? arms.Last() : arms.First();
+	}
+
+	protected void AimArms(Vector2 aimPos, float narrowingScalar = 1.0f)
+	{
+		ArmController[] arms = GetComponentsInChildren<ArmController>();
+		if (arms.Length <= 0)
+		{
+			return;
+		}
+
+		// character facing
+		m_aimDir = aimPos.x > transform.position.x ? 1 : -1;
+
+		// primary aim
+		ArmController primaryArm = PrimaryArm(arms);
+		if (primaryArm == null)
+		{
+			primaryArm = arms.First();
+		}
+		primaryArm.UpdateAim(ArmOffset, aimPos, aimPos);
+
+		// secondary hold
+		int offsetScalar = 1; // for grouping any arms w/ items around the primary arm in both directions
+		Vector2 secondaryBasePos = arms.Length > 2 ? aimPos : transform.position + Quaternion.Euler(0.0f, 0.0f, LeftFacing ? 180.0f - m_secondaryArmDegrees : m_secondaryArmDegrees) * Vector2.right; // since sometimes secondary arms orient relative to the primary and sometimes they are independent // TODO: de-couple from arm count?
+		foreach (ArmController arm in arms.OrderBy(arm => -arm.transform.childCount)) // NOTE the ordering to aim non-empty arms first
+		{
+			if (arm == primaryArm)
+			{
+				continue; // primaryArm is already aimed
+			}
+			Vector2 aimPosCur = arms.Length <= 2 ? secondaryBasePos : (Vector2)transform.position + (Vector2)(Quaternion.Euler(0.0f, 0.0f, offsetScalar * (360 / arms.Length) * narrowingScalar) * (secondaryBasePos - (Vector2)transform.position));
+			arm.UpdateAim(ArmOffset, aimPosCur, aimPos);
+			offsetScalar = offsetScalar <= 0 ? -offsetScalar + 1 : -offsetScalar; // this groups any arms w/ items around the primary arm in both directions
+		}
+	}
 
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called from animation event")]

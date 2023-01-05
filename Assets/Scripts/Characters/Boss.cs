@@ -92,7 +92,7 @@ public class Boss : MonoBehaviour
 
 		Vector2 closestAvatarDiff = (Vector2)GameController.Instance.m_avatars.SelectMin(avatar => Vector2.Distance(avatar.transform.position, transform.position)).transform.position - (Vector2)transform.position; // TODO: don't re-choose every frame?
 		Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, m_introAimDegrees + Utility.ZDegrees(closestAvatarDiff)) * Vector2.right;
-		bool hasOffset = m_ai.m_offsetDegreesMaxPerArm > 0.0f;
+		bool hasOffset = m_ai.GetComponentsInChildren<ArmController>().Length > 2; // TODO: de-couple number of arms/eyes from whether they are offset from each other?
 		for (int i = hasOffset ? (int)m_introAimDegrees * m_arms.Length / 360 : 0; i < m_arms.Length; ++i)
 		{
 			m_arms[i].UpdateAim(m_ai.ArmOffset, aimPos, aimPos);

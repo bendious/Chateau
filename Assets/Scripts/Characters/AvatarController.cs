@@ -44,8 +44,6 @@ public sealed class AvatarController : KinematicCharacter
 
 	[SerializeField] private float m_moveSpringDampTime = 0.15f;
 
-	[SerializeField] private float m_secondaryDegrees = -45.0f;
-
 	[SerializeField] private float m_coyoteTime = 0.15f;
 
 	[SerializeField] private float m_throwIgnoreSeconds = 0.15f;
@@ -177,27 +175,7 @@ public sealed class AvatarController : KinematicCharacter
 
 		// aim camera/sprite
 		m_aimObject.transform.position = aimPosConstrained;
-		m_aimDir = aimPos.x > transform.position.x ? 1 : -1;
-
-		// aim arms/items
-		// primary aim
-		ArmController[] arms = GetComponentsInChildren<ArmController>();
-		ArmController primaryArm = arms.Length == 0 ? null : arms.First().transform.childCount > 0 || (arms.Last().transform.childCount == 0 && !LeftFacing) ? arms.First() : arms.Last();
-		if (primaryArm != null)
-		{
-			primaryArm.UpdateAim(ArmOffset, aimPos, aimPos);
-		}
-
-		// secondary hold
-		Vector3 secondaryAimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, LeftFacing ? 180.0f - m_secondaryDegrees : m_secondaryDegrees) * Vector3.right;
-		for (int i = 0; i < arms.Length; ++i)
-		{
-			if (arms[i] == primaryArm)
-			{
-				continue;
-			}
-			arms[i].UpdateAim(ArmOffset, secondaryAimPos, aimPos);
-		}
+		AimArms(aimPos);
 
 		// aim VFX
 		if (m_aimVfx.enabled)
@@ -405,7 +383,7 @@ public sealed class AvatarController : KinematicCharacter
 		ItemController primaryItem = GetComponentInChildren<ItemController>();
 		if (primaryItem == null)
 		{
-			(LeftFacing ? GetComponentsInChildren<ArmController>().Last() : GetComponentInChildren<ArmController>()).Swing(!input.isPressed, false);
+			PrimaryArm(GetComponentsInChildren<ArmController>()).Swing(!input.isPressed, false);
 		}
 		else
 		{
@@ -428,7 +406,7 @@ public sealed class AvatarController : KinematicCharacter
 		ItemController primaryItem = GetComponentInChildren<ItemController>();
 		if (primaryItem == null)
 		{
-			(LeftFacing ? GetComponentsInChildren<ArmController>().Last() : GetComponentInChildren<ArmController>()).Swing(!input.isPressed, true); // TODO: switch back and forth between both arms?
+			PrimaryArm(GetComponentsInChildren<ArmController>()).Swing(!input.isPressed, true); // TODO: switch back and forth between both arms?
 			return;
 		}
 
