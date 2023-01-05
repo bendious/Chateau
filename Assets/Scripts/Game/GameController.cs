@@ -183,6 +183,12 @@ public class GameController : MonoBehaviour
 
 	private void Awake()
 	{
+#if DEBUG
+		foreach (WeightedObject<Dialogue> dialogue in m_npcRoles.Concat(m_npcAttitudes).Concat(m_npcLoyalties))
+		{
+			dialogue.m_object.DebugRecordWeights();
+		}
+#endif
 		Instance = this;
 
 #if !FIXED_SEED
@@ -413,6 +419,16 @@ public class GameController : MonoBehaviour
 		IsSceneLoad = true;
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
 		Simulation.Clear();
+
+#if DEBUG
+		foreach (NpcInfo npcInfo in m_npcs)
+		{
+			foreach (Dialogue dialogue in npcInfo.m_dialogues)
+			{
+				dialogue.DebugResetWeights();
+			}
+		}
+#endif
 	}
 
 	private void Update()
