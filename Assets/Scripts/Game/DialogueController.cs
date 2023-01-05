@@ -292,6 +292,29 @@ public class DialogueController : MonoBehaviour
 		InputAction submitKey = isWorldspace ? null : avatar.Controls.actions["Submit"];
 		bool submitReleasedSinceNewline = true;
 
+		// walk-away prevention
+		// TODO: also include non-primary sources after speaking? allow limited functionality/movement?
+		bool npcSetPassive(KinematicCharacter c, bool passive)
+		{
+			if (c == null)
+			{
+				return false;
+			}
+			AIController ai = c.GetComponent<AIController>();
+			if (ai != null)
+			{
+				bool wasPassive = ai.m_passive;
+				ai.m_passive = passive;
+				return wasPassive != passive;
+			}
+			return false;
+		}
+		bool setPassive = false;
+		if (!isWorldspace)
+		{
+			setPassive = npcSetPassive(m_sourceMain, true);
+		}
+
 		// canvas setup
 		void setBackdropSize(float offsetMag)
 		{
@@ -501,6 +524,10 @@ public class DialogueController : MonoBehaviour
 		CleanupReplyMenu(); // in case of reply cancellation via damage/etc.
 		m_continueIndicator.SetActive(false); // in case of reply cancellation via damage/etc.
 		gameObject.SetActive(false);
+		if (setPassive)
+		{
+			npcSetPassive(m_sourceMain, false);
+		}
 	}
 
 	private Line NextLine(out string text, out int textLen, ref Transform followTf, Dialogue.Expression[][] expressionSetsOrdered, Sprite spriteDefault, Color colorDefault)

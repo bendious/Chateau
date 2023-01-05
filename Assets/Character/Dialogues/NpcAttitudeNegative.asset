@@ -34,7 +34,7 @@ MonoBehaviour:
         m_replies: []
       - m_text: But while you were gone, I realized something.
         m_source: {fileID: 0}
-        m_sourceDistMax: 3.4028235e+38
+        m_sourceDistMax: 3.402823e+38
         m_replies: []
       - m_text: All of this? It isn't yours anymore.
         m_source: {fileID: 0}
@@ -113,11 +113,11 @@ MonoBehaviour:
         m_replies: []
       - m_text: Oh.
         m_source: {fileID: 11400000, guid: ecc445ba987b94f4db2568e42e239914, type: 2}
-        m_sourceDistMax: 0
+        m_sourceDistMax: 6
         m_replies: []
       - m_text: Sorry...
         m_source: {fileID: 11400000, guid: ecc445ba987b94f4db2568e42e239914, type: 2}
-        m_sourceDistMax: 0
+        m_sourceDistMax: 6
         m_replies: []
       m_target: {fileID: 11400000, guid: ecc445ba987b94f4db2568e42e239914, type: 2}
       m_loop: 0
