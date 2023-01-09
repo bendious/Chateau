@@ -318,7 +318,7 @@ public abstract class KinematicObject : MonoBehaviour
 					if (move.y < 0.0f)
 					{
 						m_groundNormal = currentNormal;
-						m_groundMaterial = hit.collider.sharedMaterial != null ? hit.collider.sharedMaterial : hit.rigidbody.sharedMaterial;
+						m_groundMaterial = hit.collider.sharedMaterial != null || hit.rigidbody == null ? hit.collider.sharedMaterial : hit.rigidbody.sharedMaterial;
 						currentNormal.x = 0;
 					}
 				}

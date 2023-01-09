@@ -9,13 +9,20 @@ public class Explosion : MonoBehaviour
 	[SerializeField] private float m_damage = 1.0f;
 	[SerializeField] private Health.DamageType m_damageType = Health.DamageType.Heat;
 
+	[SerializeField] private float m_secondsMax = -1.0f;
+
 	[SerializeField] private WeightedObject<AudioClip>[] m_sfx;
 
 	public KinematicCharacter m_source;
 
 
+	private float m_startTime;
+
+
     private void Start()
     {
+		m_startTime = Time.time;
+
 		// SFX
 		if (m_sfx.Length > 0)
 		{
@@ -60,6 +67,10 @@ public class Explosion : MonoBehaviour
 	private void ProcessCollider(Collider2D collider)
 	{
 		if (!collider.gameObject.activeSelf || collider.transform.parent != null) // e.g. items in backpacks
+		{
+			return;
+		}
+		if (m_secondsMax >= 0.0f && m_startTime + m_secondsMax < Time.time)
 		{
 			return;
 		}

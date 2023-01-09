@@ -881,7 +881,7 @@ public class RoomController : MonoBehaviour
 							}
 							else
 							{
-								spline.InsertPointAt(i, posLocal);
+								spline.InsertPointAt(i, posLocal); // TODO: prevent rare too-close-to-neighbor assert
 								spline.SetTangentMode(i, ShapeTangentMode.Continuous); // TODO: parameterize / move into tangentFunc()?
 							}
 						}

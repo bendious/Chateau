@@ -1001,8 +1001,8 @@ public sealed class AISpawn : AIState
 		{
 			GameObject prefab = m_ai.m_attackPrefabs.RandomWeighted();
 			KinematicAccelerator prefabAccelerator = prefab.GetComponent<KinematicAccelerator>();
-			Vector3 spawnPos = prefabAccelerator == null ? m_ai.m_target.transform.position : m_ai.m_target.transform.position + (Random.value < 0.5f ? (Vector3)prefabAccelerator.m_startOffset : new(-prefabAccelerator.m_startOffset.x, prefabAccelerator.m_startOffset.y)); // TODO: make sure starting point is in room
-			m_spawnedObj = Object.Instantiate(prefab, spawnPos, Quaternion.identity);
+			Vector3 spawnPos = prefabAccelerator == null ? m_ai.transform.position : m_ai.m_target.transform.position + (Random.value < 0.5f ? (Vector3)prefabAccelerator.m_startOffset : new(-prefabAccelerator.m_startOffset.x, prefabAccelerator.m_startOffset.y)); // TODO: make sure starting point is in room
+			m_spawnedObj = Object.Instantiate(prefab, spawnPos, prefabAccelerator != null ? Quaternion.identity : Utility.ZRotation(m_ai.m_target.transform.position - spawnPos)); // TODO: parameterize rotation?
 			KinematicAccelerator accelerator = m_spawnedObj.GetComponent<KinematicAccelerator>();
 			if (accelerator != null)
 			{
