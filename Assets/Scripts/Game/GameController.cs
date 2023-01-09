@@ -421,6 +421,10 @@ public class GameController : MonoBehaviour
 		Simulation.Clear();
 
 #if DEBUG
+		if (m_npcs == null)
+		{
+			return;
+		}
 		foreach (NpcInfo npcInfo in m_npcs)
 		{
 			foreach (Dialogue dialogue in npcInfo.m_dialogues)
@@ -1077,7 +1081,6 @@ public class GameController : MonoBehaviour
 			if (character is AvatarController avatar)
 			{
 				includesAvatar = true;
-				avatar.m_aimObject.transform.position = character.transform.position;
 			}
 			if (door.m_entryVFX.Length > 0)
 			{

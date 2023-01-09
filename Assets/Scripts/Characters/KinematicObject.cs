@@ -107,7 +107,7 @@ public abstract class KinematicObject : MonoBehaviour
 	/// Teleport to some position.
 	/// </summary>
 	/// <param name="position"></param>
-	public void Teleport(Vector3 position)
+	public virtual void Teleport(Vector3 position)
 	{
 		transform.position = position;
 		if (body != null)

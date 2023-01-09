@@ -153,10 +153,10 @@ public sealed class AvatarController : KinematicCharacter
 	{
 		base.FixedUpdate();
 
-		Vector2 aimPosConstrained = m_aimObject.transform.position; // TODO: improve start/respawn aim position
+		Vector2 aimPosConstrained = m_aimObject.transform.position;
 		Vector2 aimPos = aimPosConstrained;
 
-		if (ControlEnabled)
+		if (ControlEnabled && (m_usingMouse || m_analogRecent != Vector2.zero)) // NOTE the check to prevent resetting aim position before any valid input has been receieved
 		{
 			// determine aim position(s)
 			Vector2 aimPctsFromCenter = AnalogCurrentIsValid ? m_analogCurrent : m_analogRecent;
@@ -320,6 +320,13 @@ public sealed class AvatarController : KinematicCharacter
 		UnityEditor.Handles.DrawWireArc(FocusPriorityPos, Vector3.forward, Vector3.right, 360.0f, 0.1f);
 	}
 #endif
+
+
+	public override void Teleport(Vector3 position)
+	{
+		m_aimObject.transform.position = position + (m_aimObject.transform.position - transform.position); // TODO: parameterize whether to teleport the aim?
+		base.Teleport(position);
+	}
 
 
 	// called by InputSystem / PlayerInput component
@@ -772,7 +779,6 @@ public sealed class AvatarController : KinematicCharacter
 			}
 		}
 		Teleport(spawnPos);
-		m_aimObject.transform.position = spawnPos;
 
 		GameController.Instance.AddCameraTargets(transform);
 
