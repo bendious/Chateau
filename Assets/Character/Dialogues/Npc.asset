@@ -16,6 +16,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: HI-YAH!
         m_source: {fileID: 0}
@@ -29,6 +32,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Take this, {name1}!
         m_source: {fileID: 0}
@@ -42,6 +48,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Take that, {name1}!
         m_source: {fileID: 0}
@@ -55,32 +64,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
-      m_lines:
-      - m_text: And this, {name1}!
-        m_source: {fileID: 0}
-        m_sourceDistMax: 0
-        m_replies: []
-      m_target: {fileID: 11400000, guid: 45b14dd5be7b8f54cafb34ca44d76197, type: 2}
-      m_loop: 0
-      m_singleUse: 0
-      m_appendToAll: 0
-    m_weight: 1
-  - m_object:
-      m_preconditionName: 
-      m_userdata: 0
-      m_lines:
-      - m_text: And that, {name1}!
-        m_source: {fileID: 0}
-        m_sourceDistMax: 0
-        m_replies: []
-      m_target: {fileID: 11400000, guid: 45b14dd5be7b8f54cafb34ca44d76197, type: 2}
-      m_loop: 0
-      m_singleUse: 0
-      m_appendToAll: 0
-    m_weight: 1
-  - m_object:
-      m_preconditionName: 
-      m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Begone, {name1}!
         m_source: {fileID: 0}
@@ -94,6 +80,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Get away, {name1}!
         m_source: {fileID: 0}
@@ -107,6 +96,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Gross!
         m_source: {fileID: 0}
@@ -120,6 +112,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Gross!
         m_source: {fileID: 0}
@@ -133,6 +128,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Why'd it have to be you, {name1}?
         m_source: {fileID: 0}
@@ -146,6 +144,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Ugh, so slimy!
         m_source: {fileID: 0}
@@ -159,6 +160,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Nananananananana...
         m_source: {fileID: 0}
@@ -172,6 +176,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Go make a mess somewhere else, {name1}!
         m_source: {fileID: 0}
@@ -185,6 +192,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Burn it with fire!
         m_source: {fileID: 0}
@@ -206,6 +216,9 @@ MonoBehaviour:
   - m_object:
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Go back to the dark, {name1}!
         m_source: {fileID: 0}

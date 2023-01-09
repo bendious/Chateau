@@ -31,16 +31,16 @@ public class Dialogue : ScriptableObject
 	public WeightedObject<Expression>[] m_expressions;
 
 
-#if DEBUG
-	private float[] m_debugWeightsOrig;
-	public void DebugRecordWeights() => m_debugWeightsOrig = m_dialogue.Select(wo => wo.m_weight).ToArray(); // TODO: reliable automatically-invoked alternative to Awake()?
-	public void DebugResetWeights()
+#if UNITY_EDITOR
+	private float[] m_editorWeightsOrig;
+	public void EditorRecordWeights() => m_editorWeightsOrig = m_dialogue.Select(wo => wo.m_weight).ToArray(); // TODO: reliable automatically-invoked alternative to Awake()?
+	public void EditorResetWeights()
 	{
 		// TODO: avoid stomping Inspector-based changes?
-		Debug.Assert(m_debugWeightsOrig != null && m_debugWeightsOrig.Length == m_dialogue.Length);
+		Debug.Assert(m_editorWeightsOrig != null && m_editorWeightsOrig.Length == m_dialogue.Length);
 		for (int i = 0; i < m_dialogue.Length; ++i)
 		{
-			m_dialogue[i].m_weight = m_debugWeightsOrig[i];
+			m_dialogue[i].m_weight = m_editorWeightsOrig[i];
 		}
 	}
 #endif

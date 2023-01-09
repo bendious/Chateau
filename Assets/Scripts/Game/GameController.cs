@@ -183,11 +183,8 @@ public class GameController : MonoBehaviour
 
 	private void Awake()
 	{
-#if DEBUG
-		foreach (WeightedObject<Dialogue> dialogue in m_npcRoles.Concat(m_npcAttitudes).Concat(m_npcLoyalties))
-		{
-			dialogue.m_object.DebugRecordWeights();
-		}
+#if UNITY_EDITOR
+		EditorForEachDialogue(d => d.EditorRecordWeights());
 #endif
 		Instance = this;
 
@@ -420,18 +417,8 @@ public class GameController : MonoBehaviour
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
 		Simulation.Clear();
 
-#if DEBUG
-		if (m_npcs == null)
-		{
-			return;
-		}
-		foreach (NpcInfo npcInfo in m_npcs)
-		{
-			foreach (Dialogue dialogue in npcInfo.m_dialogues)
-			{
-				dialogue.DebugResetWeights();
-			}
-		}
+#if UNITY_EDITOR
+		EditorForEachDialogue(d => d.EditorResetWeights());
 #endif
 	}
 
@@ -1500,4 +1487,15 @@ public class GameController : MonoBehaviour
 			}
 		}
 	}
+
+#if UNITY_EDITOR
+	private void EditorForEachDialogue(System.Action<Dialogue> f)
+	{
+		// see https://forum.unity.com/threads/how-to-properly-create-an-array-of-all-scriptableobjects-in-a-folder.794109/#post-5285391
+		foreach (Dialogue dialogue in UnityEditor.AssetDatabase.FindAssets("t:Dialogue").Select(guid => UnityEditor.AssetDatabase.LoadAssetAtPath<Dialogue>(UnityEditor.AssetDatabase.GUIDToAssetPath(guid))))
+		{
+			f(dialogue);
+		}
+	}
+#endif
 }

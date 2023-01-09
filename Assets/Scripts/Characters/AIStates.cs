@@ -65,7 +65,7 @@ public abstract class AIState
 				case Type.Pursue:
 				case Type.PursueErratic:
 					float distToUse = itemAccessible || numItems > 0 ? distanceFromOffsetPos : distanceFromTarget;
-					return enemyAccessible && distToUse > ai.m_meleeRange && (numItems > 0 || holdCountMax <= 0 || !itemAccessible) ? (distToUse != float.MaxValue ? 1.0f : float.Epsilon) : 0.0f;
+					return enemyAccessible && distToUse > ai.m_meleeRange && (numItems > 0 || holdCountMax <= 0 || !itemAccessible) ? (distToUse != float.MaxValue || enemyAccessible ? 1.0f : float.Epsilon) : 0.0f;
 				case Type.Flee:
 					return !ai.m_friendly && GameController.Instance.Victory ? 100.0f : 0.0f;
 				case Type.Melee:
