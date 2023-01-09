@@ -14,6 +14,7 @@ public abstract class KinematicObject : MonoBehaviour
 	/// The priority value used to decide which of two KinematicObjects should yield when colliding; higher priorities push lower priorities
 	/// </summary>
 	[SerializeField] private float m_priority;
+	public bool HasEqualPriority(KinematicObject otherComp) => m_priority == otherComp.m_priority;
 
 	public LayerMaskHelper m_layerIgnoreOneWay;
 

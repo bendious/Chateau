@@ -76,10 +76,10 @@ public class DespawnEffect : MonoBehaviour
 			return;
 		}
 
-		ProcessCollision((isObj1 ? evt.m_component2 : evt.m_component1).GetComponent<Collider2D>(), evt.m_position, isObj1 ? evt.m_normal : -evt.m_normal, Vector2.zero);
+		ProcessCollision((isObj1 ? evt.m_component2 : evt.m_component1).GetComponent<Collider2D>(), evt.m_position, isObj1 ? evt.m_normal : -evt.m_normal, Vector2.zero, evt.m_component1.HasEqualPriority(evt.m_component2));
 	}
 
-	private void ProcessCollision(Collider2D collider, Vector3 position, Vector2 normal, Vector2 preCollisionVelocity)
+	private void ProcessCollision(Collider2D collider, Vector3 position, Vector2 normal, Vector2 preCollisionVelocity, bool isEqualPriorityKinematic = false)
 	{
 		if (m_collidersToIgnore.Contains(collider))
 		{
@@ -97,7 +97,7 @@ public class DespawnEffect : MonoBehaviour
 		}
 
 		int groundLayerMask = GameController.Instance.m_layerWalls | GameController.Instance.m_layerOneWay; // TODO: parameterize?
-		if (((1 << collider.gameObject.layer) & groundLayerMask) != 0)
+		if (((1 << collider.gameObject.layer) & groundLayerMask) != 0 || isEqualPriorityKinematic) // NOTE the treatment of equal priority kinematic objects as if they were walls to prevent "stuck" accelerators
 		{
 			KinematicObject kinematicObj = GetComponent<KinematicObject>(); // TODO: cache?
 			Rigidbody2D body = GetComponent<Rigidbody2D>(); // TODO: cache?
