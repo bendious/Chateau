@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -119,15 +120,15 @@ public abstract class AIState
 			case Type.Spawn:
 				AISpawn state = new(ai);
 
+				// ramp spawn count / delay based on health
 				// TODO: parameterize / move elsewhere?
 				float healthPct = ai.GetComponent<Health>().PercentHP;
-				if (healthPct < 0.5f)
+				const int phaseCount = 4; // TODO: parameterize?
+				int phase = (int)((1.0f - healthPct) * phaseCount);
+				state.m_spawnCount += phase;
+				if (phase >= phaseCount - 1)
 				{
-					state.m_waitForDespawn = false;
-				}
-				if (healthPct < 0.25f)
-				{
-					state.m_delaySeconds *= 0.5f;
+					state.m_delaySeconds *= Mathf.Lerp(0.5f, 1.0f, healthPct * phaseCount); // TODO: some amount of randomization?
 				}
 
 				return state;
@@ -199,7 +200,7 @@ public abstract class AIState
 	protected static float PathfindDistanceTo(AIController ai, GameObject obj)
 	{
 		// TODO: efficiency? also prioritize based on damage? de-prioritize based on vertical distance / passing through m_ai.m_target?
-		System.Tuple<System.Collections.Generic.List<Vector2>, float> path = GameController.Instance.Pathfind(ai.gameObject, obj, ai.GetComponent<Collider2D>().bounds.extents.y, !ai.HasFlying && ai.jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue); // TODO: limit to max jump height once pathfinding takes platforms into account?
+		System.Tuple<List<Vector2>, float> path = GameController.Instance.Pathfind(ai.gameObject, obj, ai.GetComponent<Collider2D>().bounds.extents.y, !ai.HasFlying && ai.jumpTakeOffSpeed <= 0.0f ? 0.0f : float.MaxValue); // TODO: limit to max jump height once pathfinding takes platforms into account?
 		return path == null ? float.MaxValue : path.Item2;
 	}
 
@@ -958,6 +959,8 @@ public sealed class AISpawn : AIState
 {
 	public float m_delaySeconds = 0.5f;
 
+	public int m_spawnCount = 1;
+
 	public bool m_waitForDespawn = true;
 
 
@@ -965,7 +968,7 @@ public sealed class AISpawn : AIState
 	private float m_postDelayRemaining;
 
 	private bool m_spawned;
-	private GameObject m_spawnedObj;
+	private readonly List<GameObject> m_spawnedObjs = new();
 
 
 	public AISpawn(AIController ai) : base(ai)
@@ -1002,27 +1005,36 @@ public sealed class AISpawn : AIState
 			GameObject prefab = m_ai.m_attackPrefabs.RandomWeighted();
 			KinematicAccelerator prefabAccelerator = prefab.GetComponent<KinematicAccelerator>();
 			Vector3 spawnPos = prefabAccelerator == null ? m_ai.transform.position : m_ai.m_target.transform.position + (Random.value < 0.5f ? (Vector3)prefabAccelerator.m_startOffset : new(-prefabAccelerator.m_startOffset.x, prefabAccelerator.m_startOffset.y)); // TODO: make sure starting point is in room
-			m_spawnedObj = Object.Instantiate(prefab, spawnPos, prefabAccelerator != null ? Quaternion.identity : Utility.ZRotation(m_ai.m_target.transform.position - spawnPos)); // TODO: parameterize rotation?
-			KinematicAccelerator accelerator = m_spawnedObj.GetComponent<KinematicAccelerator>();
+			GameObject spawnedObj = Object.Instantiate(prefab, spawnPos, prefabAccelerator != null ? Quaternion.identity : Utility.ZRotation(m_ai.m_target.transform.position - spawnPos)); // TODO: parameterize rotation?
+			KinematicAccelerator accelerator = spawnedObj.GetComponent<KinematicAccelerator>();
 			if (accelerator != null)
 			{
 				accelerator.m_target = m_ai.m_target;
 			}
-			SpriteRenderer r = m_spawnedObj.GetComponent<SpriteRenderer>();
+			SpriteRenderer r = spawnedObj.GetComponent<SpriteRenderer>();
 			if (r != null)
 			{
 				r.color = m_ai.GetComponent<SpriteRenderer>().color;
 				r.flipX = spawnPos.x < m_ai.transform.position.x; // TODO: parameterize?
 			}
-			DespawnEffect despawnEffect = m_spawnedObj.GetComponent<DespawnEffect>();
+			DespawnEffect despawnEffect = spawnedObj.GetComponent<DespawnEffect>();
 			if (despawnEffect != null)
 			{
 				despawnEffect.CauseExternal = m_ai;
 			}
+			m_spawnedObjs.Add(spawnedObj);
 			m_spawned = true;
 		}
 
-		if (m_waitForDespawn && m_spawnedObj != null)
+		--m_spawnCount;
+		if (m_spawnCount > 0)
+		{
+			m_preDelayRemaining = m_delaySeconds;
+			m_spawned = false;
+			return this;
+		}
+
+		if (m_waitForDespawn && m_spawnedObjs.Any(obj => obj != null))
 		{
 			return this;
 		}
