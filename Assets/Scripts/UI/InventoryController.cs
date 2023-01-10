@@ -25,6 +25,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 	[SerializeField] private Image m_speedMeter;
 
 
+	private int m_templateOffset;
 	private Vector2 m_restPosition;
 	private Vector2 m_mouseOffset;
 	private Vector2 m_lerpVelocity;
@@ -32,6 +33,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 
 	private void Start()
 	{
+		m_templateOffset = transform.parent.GetComponentsInChildren<Transform>(true).First(tf => !tf.gameObject.activeSelf).GetSiblingIndex() + 1; // TODO: don't assume the template object is the first deactivated child?
 		m_restPosition = GetComponent<RectTransform>().anchoredPosition;
 	}
 
@@ -60,7 +62,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 		{
 			case PointerEventData.InputButton.Left:
 				{
-					ItemController item = ItemFromIndex(transform.root, transform.GetSiblingIndex()).m_item;
+					ItemController item = ItemFromIndex(transform.root, transform.GetSiblingIndex() - m_templateOffset).m_item;
 					if (item != null && item.gameObject.activeSelf)
 					{
 						item.Swing(false); // TODO: send both events?
@@ -69,7 +71,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 				break;
 			case PointerEventData.InputButton.Right:
 				{
-					ItemController item = ItemFromIndex(transform.root, transform.GetSiblingIndex()).m_item;
+					ItemController item = ItemFromIndex(transform.root, transform.GetSiblingIndex() - m_templateOffset).m_item;
 					if (item != null)
 					{
 						item.Use(true); // TODO: also send release event?
@@ -77,7 +79,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 				}
 				break;
 			case PointerEventData.InputButton.Middle:
-				if (transform.GetSiblingIndex() > 1) // NOTE the 1-based indexing due to template object
+				if (transform.GetSiblingIndex() > m_templateOffset)
 				{
 					SwapWithIndex(0);
 				}
@@ -119,7 +121,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 			}
 
 			// get other index and swap
-			SwapWithIndex(endElement.transform.GetSiblingIndex() - 1); // -1 due to template object
+			SwapWithIndex(endElement.transform.GetSiblingIndex() - m_templateOffset);
 			return;
 		}
 
@@ -127,7 +129,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 		RectTransform rectTf = GetComponent<RectTransform>();
 		if (eventData.position.y > m_restPosition.y + 2.0f * rectTf.sizeDelta.y)
 		{
-			SlotItemInfo slotItemInfo1 = ItemFromIndex(transform.root, transform.GetSiblingIndex());
+			SlotItemInfo slotItemInfo1 = ItemFromIndex(transform.root, transform.GetSiblingIndex() - m_templateOffset);
 			slotItemInfo1.m_item.Detach(false);
 
 			// reset/update display
@@ -142,7 +144,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 
 	public void Activate(bool tooltip)
 	{
-		ItemController item = ItemFromIndex(transform.root, transform.GetSiblingIndex()).m_item; // TODO: don't assume avatars will never have a parent?
+		ItemController item = ItemFromIndex(transform.root, transform.GetSiblingIndex() - m_templateOffset).m_item; // TODO: don't assume avatars will never have a parent?
 		if (item != null)
 		{
 			const float maxMeterPct = 2.0f; // TODO: parameterize/derive?
@@ -163,7 +165,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 	public void SwapWithIndex(int index2)
 	{
 		int siblingIndex1 = transform.GetSiblingIndex();
-		int siblingIndex2 = index2 + 1; // +1 due to deactivated template object
+		int siblingIndex2 = index2 + m_templateOffset;
 		Assert.AreNotEqual(siblingIndex1, siblingIndex2);
 		InventoryController element2 = transform.parent.GetChild(siblingIndex2).GetComponent<InventoryController>();
 
@@ -174,9 +176,9 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 		// swap avatar hold
 		// get items BEFORE editing attachments
 		Transform avatarTf = transform.root;
-		SlotItemInfo slotItemInfo1 = ItemFromIndex(avatarTf, siblingIndex1);
+		SlotItemInfo slotItemInfo1 = ItemFromIndex(avatarTf, siblingIndex1 - m_templateOffset);
 		ItemController item1 = slotItemInfo1.m_item;
-		SlotItemInfo slotItemInfo2 = ItemFromIndex(avatarTf, siblingIndex2);
+		SlotItemInfo slotItemInfo2 = ItemFromIndex(avatarTf, siblingIndex2 - m_templateOffset);
 		ItemController item2 = slotItemInfo2.m_item;
 
 		// detach (to prevent too-many-to-hold failed attachment) and then attach
@@ -228,23 +230,22 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 	{
 		// split index into holder/item indices
 		IHolder[] holders = character.GetComponentsInChildren<IHolder>().Where(holder => holder.Component.gameObject != character.gameObject).ToArray();
-		int itemIdx = index - 1; // NOTE that the indices are off by one between the inventory and avatar due to the inventory template object
 		int holderIdx = 0;
 		foreach (IHolder holderItr in holders)
 		{
-			if (itemIdx < holderItr.HoldCountMax)
+			if (index < holderItr.HoldCountMax)
 			{
 				break;
 			}
-			itemIdx -= holderItr.HoldCountMax;
+			index -= holderItr.HoldCountMax;
 			++holderIdx;
 		}
 
 		// get info
 		IHolder holder = holders[holderIdx];
 		Transform holderTf = holder.Component.transform;
-		Transform itemTf = holderTf.childCount > itemIdx ? holderTf.GetChild(itemIdx) : null;
-		return new() { m_item = itemTf == null ? null : itemTf.GetComponent<ItemController>(), m_holder = holder, m_holderIndex = itemIdx };
+		Transform itemTf = holderTf.childCount > index ? holderTf.GetChild(index) : null;
+		return new() { m_item = itemTf == null ? null : itemTf.GetComponent<ItemController>(), m_holder = holder, m_holderIndex = index };
 	}
 
 	private IEnumerator LerpToRest()

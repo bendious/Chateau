@@ -32,7 +32,7 @@ public sealed class AvatarController : KinematicCharacter
 	[SerializeField] private GameObject m_focusIndicator;
 	[SerializeField] private ButtonPrompt m_focusPrompt;
 	public GameObject m_aimObject;
-	[SerializeField] private GameObject m_inventoryUI;
+	public GameObject m_inventoryUI;
 
 	public Vector3 m_focusPromptOffset = new(0.0f, 0.3f, -0.15f);
 
@@ -552,11 +552,25 @@ public sealed class AvatarController : KinematicCharacter
 		{
 			m_inventoryUI.GetComponentsInChildren<InventoryController>()[m_inventoryIdx].Deactivate();
 		}
-		m_inventoryIdx = m_inventoryIdx < 0 ? 0 : -1;
+		if (m_inventoryIdx < 0)
+		{
+			ItemController[] items = GetComponentsInChildren<ItemController>(true); // TODO: don't assume inventory is ordered the same as items?
+			ItemController item = items.FirstOrDefault(item => item.m_activateInventory);
+			m_inventoryIdx = item == null ? 0 : Array.IndexOf(items, item);
+		}
+		else
+		{
+			m_inventoryIdx = -1;
+		}
 		if (m_inventoryIdx >= 0)
 		{
 			m_inventoryUI.GetComponentsInChildren<InventoryController>()[m_inventoryIdx].Activate(true);
 		}
+
+		// {de}activate button prompt animation
+		Image buttonPromptImage = m_inventoryUI.transform.GetChild(0).GetComponent<Image>();
+		buttonPromptImage.color = new(buttonPromptImage.color.r, buttonPromptImage.color.g, buttonPromptImage.color.b, m_inventoryIdx >= 0 ? 1.0f : 0.5f);
+		buttonPromptImage.GetComponent<Animator>().enabled = m_inventoryIdx >= 0;
 	}
 
 	// called by InputSystem / PlayerInput component
@@ -796,8 +810,8 @@ public sealed class AvatarController : KinematicCharacter
 			return;
 		}
 
-		GameObject templateObj = m_inventoryUI.transform.GetChild(0).gameObject;
-		Assert.IsFalse(templateObj.activeSelf);
+		// TODO: don't assume the template is the first deactivated object?
+		GameObject templateObj = m_inventoryUI.GetComponentsInChildren<Transform>(true).Select(tf => tf.gameObject).First(obj => !obj.activeSelf);
 
 		// gather all items/slots from child holders
 		Tuple<Transform, Color>[] itemInfos = GetComponentsInChildren<IHolder>().Where(holder => holder.Component != this).SelectMany(holder =>
@@ -814,13 +828,15 @@ public sealed class AvatarController : KinematicCharacter
 
 		// create/set one icon per item/slot
 		RectTransform templateTf = templateObj.transform.GetComponent<RectTransform>();
+		int templateOffset = templateTf.GetSiblingIndex() + 1;
 		Vector3 posItr = templateTf.anchoredPosition3D;
 		for (int iconIdx = 0; iconIdx < itemInfos.Length; ++iconIdx)
 		{
 			GameObject UIObj;
-			if (iconIdx + 1 < m_inventoryUI.transform.childCount)
+			int idxOffset = iconIdx + templateOffset;
+			if (idxOffset < m_inventoryUI.transform.childCount)
 			{
-				UIObj = m_inventoryUI.transform.GetChild(iconIdx + 1).gameObject;
+				UIObj = m_inventoryUI.transform.GetChild(idxOffset).gameObject;
 			}
 			else
 			{
@@ -852,7 +868,7 @@ public sealed class AvatarController : KinematicCharacter
 			inventoryController.m_tooltipPerItem.text = nonEmptySlot ? itemCur.Item1.GetComponent<ItemController>().m_tooltip : null;
 			inventoryController.m_draggable = nonEmptySlot;
 		}
-		for (int j = m_inventoryUI.transform.childCount - 1; j > itemInfos.Length; --j)
+		for (int j = m_inventoryUI.transform.childCount - 1; j > itemInfos.Length + templateOffset - 1; --j)
 		{
 			Transform childTf = m_inventoryUI.transform.GetChild(j);
 			childTf.SetParent(null); // in case we re-sync before the despawn is completed (e.g. backpack swapping)

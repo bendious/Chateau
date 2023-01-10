@@ -40,6 +40,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 
 	[SerializeField] private WeightedObject<string[]>[] m_sourceTextOptions;
+	public bool m_activateInventory;
 
 	[SerializeField] private GameObject m_drawPrefab;
 
@@ -204,6 +205,15 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		// TODO: generalize to IAttachable.AttachInternalShared()?
 		GetComponent<Collider2D>().isTrigger = false;
 
+		if (m_activateInventory)
+		{
+			AvatarController avatar = GetComponentInParent<AvatarController>();
+			if (avatar != null)
+			{
+				avatar.m_inventoryUI.transform.GetChild(0).GetComponent<Animator>().enabled = true; // TODO: don't assume the prompt is the first child?
+			}
+		}
+
 		if (m_drawObjectCurrent != null)
 		{
 			// stop drawing to prevent lines getting disabled "within" backpacks
@@ -251,6 +261,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		m_body.useFullKinematicContacts = false;
 
 		m_detachOnDamage = false;
+		m_activateInventory = false; // to prevent re-activating w/ every swap/reattach
 		m_holder = null;
 
 		if (gameObject.activeSelf)
@@ -278,6 +289,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		{
 			aggregateText = aggregateText.ReplaceFirst("#", element.Trim());
 		}
+		aggregateText = aggregateText.Replace("#", ""); // TODO: better cleanup of extra keys w/i a single line?
 
 		// set
 		GetComponentInChildren<TMP_Text>().text = aggregateText;

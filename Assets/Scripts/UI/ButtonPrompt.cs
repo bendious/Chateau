@@ -4,6 +4,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 
 [DisallowMultipleComponent]
@@ -53,6 +54,12 @@ public class ButtonPrompt : MonoBehaviour
 		if (renderer != null)
 		{
 			renderer.sprite = (Sprite)currentSprite;
+		}
+
+		Image image = GetComponent<Image>();
+		if (image != null)
+		{
+			image.sprite = (Sprite)currentSprite;
 		}
 
 		TMP_Text text = GetComponent<TMP_Text>();
