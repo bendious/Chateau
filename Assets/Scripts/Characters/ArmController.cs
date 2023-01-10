@@ -49,12 +49,13 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 	public bool IsSwinging => !m_aimVelocityContinuing.FloatEqual(0.0f, m_swingInfoCur.m_damageThresholdSpeed) || !m_radiusVelocityContinuing.FloatEqual(0.0f, m_swingInfoCur.m_damageThresholdSpeed);
 
-	public bool LeftFacing => Mathf.Cos(Mathf.Deg2Rad * m_aimDegreesArm) < 0.0f; // TODO: efficiency?
+	public bool LeftFacing => m_character.LeftFacing;
 
 
 	private Collider2D[] m_colliders;
 	private SpriteRenderer m_renderer;
 	private SpriteRenderer m_rendererParent;
+	private KinematicCharacter m_character;
 
 	private SwingInfo m_swingInfoCur;
 
@@ -92,6 +93,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 		m_renderer = GetComponent<SpriteRenderer>();
 		m_rendererParent = transform.parent.GetComponent<SpriteRenderer>();
+		m_character = transform.parent.GetComponent<KinematicCharacter>();
 	}
 
 	private void LateUpdate()
@@ -120,7 +122,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 			return;
 		}
 
-		if (!transform.parent.GetComponent<KinematicCharacter>().CanDamage(collision.gameObject))
+		if (!m_character.CanDamage(collision.gameObject))
 		{
 			return;
 		}
@@ -241,12 +243,11 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		transform.localPosition = (Vector3)rootOffset + (LeftFacing ? new(m_offset.x, m_offset.y, -m_offset.z) : m_offset) + rotationArm * Vector3.right * m_aimRadius;
 
 		// maybe flip sprite
-		bool leftFacingCached = LeftFacing;
 		void maybeFlipSprite(SpriteRenderer renderer)
 		{
 			// if we're flipping the sprite, the colliders may also need to be flipped
 			// TODO: don't assume vertical symmetry w/i each collider?
-			if (renderer.flipY != leftFacingCached)
+			if (renderer.flipY != LeftFacing)
 			{
 				foreach (Collider2D collider in renderer.GetComponents<Collider2D>())
 				{
@@ -254,7 +255,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 				}
 			}
 
-			renderer.flipY = leftFacingCached;
+			renderer.flipY = LeftFacing;
 		}
 		maybeFlipSprite(m_renderer);
 

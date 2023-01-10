@@ -9,6 +9,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1440117313163947046, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: 65f85a0b14295e647865f344b3250a49, type: 2}
+    - target: {fileID: 1440117313163947046, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
       propertyPath: m_SpriteTilingProperty.border.w
       value: 0.16
       objectReference: {fileID: 0}

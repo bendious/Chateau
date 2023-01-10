@@ -1676,7 +1676,7 @@ public class RoomController : MonoBehaviour
 		foreach (SpriteRenderer renderer in renderers)
 		{
 			renderer.size = size;
-			renderer.GetComponent<BoxCollider2D>().size = size;
+			renderer.GetComponent<BoxCollider2D>().size = doorwayInfo.Room.Parent == null && replaceDirection == Vector2.down && doorwayInfo.m_object.transform.position.x == 0.0f ? size * 0.95f : size; // NOTE the workaround to avoid electric gates under the spawn point immediately damaging avatars after spawn // TODO: more intelligent placement? don't assume the spawn point is always in the root room at x=0?
 			if (isSecret)
 			{
 				renderer.color = LayoutNodes.First().AreaParents.First().m_room.m_wallColor; // NOTE that in case m_wallColor isn't set yet FinalizeRecursive() will iterate over existing doorway blockers when m_wallColor is set

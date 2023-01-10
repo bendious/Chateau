@@ -72,7 +72,7 @@ VFXRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 0
 --- !u!2083052967 &9089537406007890943
 VisualEffect:
   m_ObjectHideFlags: 0
@@ -86,6 +86,7 @@ VisualEffect:
   m_InitialEventNameOverriden: 0
   m_StartSeed: 0
   m_ResetSeedOnPlay: 1
+  m_AllowInstancing: 1
   m_ResourceVersion: 1
   m_PropertySheet:
     m_Float:
@@ -195,6 +196,7 @@ VisualEffect:
           atime6: 0
           atime7: 0
           m_Mode: 0
+          m_ColorSpace: -1
           m_NumColorKeys: 3
           m_NumAlphaKeys: 4
         m_Name: LifetimeColor
@@ -289,6 +291,7 @@ VisualEffect:
   m_InitialEventNameOverriden: 0
   m_StartSeed: 0
   m_ResetSeedOnPlay: 1
+  m_AllowInstancing: 1
   m_ResourceVersion: 1
   m_PropertySheet:
     m_Float:
@@ -395,6 +398,7 @@ VisualEffect:
           atime6: 0
           atime7: 0
           m_Mode: 0
+          m_ColorSpace: -1
           m_NumColorKeys: 2
           m_NumAlphaKeys: 4
         m_Name: LifetimeColor
@@ -408,6 +412,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 996511831040732740, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
@@ -457,6 +462,10 @@ PrefabInstance:
     - target: {fileID: 2907253195876467281, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_NormalMapQuality
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2907253195876467281, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_OverlapOperation
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2907253195876467281, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
       propertyPath: m_NormalMapDistance
@@ -567,6 +576,24 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 996511831040732740, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8835337628947733264}
+    - targetCorrespondingSourceObject: {fileID: 996511831040732740, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4687183465856818821}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8260530995564227012, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1327962047896188470}
+    - targetCorrespondingSourceObject: {fileID: 8260530995564227012, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2472244926817708377}
+    - targetCorrespondingSourceObject: {fileID: 8260530995564227012, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5872930815740241500}
   m_SourcePrefab: {fileID: 100100000, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
 --- !u!1 &2867064283445791729 stripped
 GameObject:
@@ -612,7 +639,7 @@ VFXRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 0
 --- !u!2083052967 &2472244926817708377
 VisualEffect:
   m_ObjectHideFlags: 0
@@ -626,6 +653,7 @@ VisualEffect:
   m_InitialEventNameOverriden: 0
   m_StartSeed: 0
   m_ResetSeedOnPlay: 1
+  m_AllowInstancing: 1
   m_ResourceVersion: 1
   m_PropertySheet:
     m_Float:
@@ -732,6 +760,7 @@ VisualEffect:
           atime6: 0
           atime7: 0
           m_Mode: 0
+          m_ColorSpace: -1
           m_NumColorKeys: 3
           m_NumAlphaKeys: 4
         m_Name: LifetimeColor
