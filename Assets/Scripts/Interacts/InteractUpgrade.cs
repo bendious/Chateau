@@ -87,6 +87,8 @@ public class InteractUpgrade : MonoBehaviour, IInteractable
 					vfx.SetGradient(m_vfxGradientID, colors.Item2.First());
 					colors.Item2.RemoveAt(0);
 
+					vfx.gameObject.SetActive(true);
+					vfx.enabled = true;
 					vfx.Play();
 				}
 			}
