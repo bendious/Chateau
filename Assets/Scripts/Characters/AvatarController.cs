@@ -535,6 +535,7 @@ public sealed class AvatarController : KinematicCharacter
 			if (primaryAttachable != null)
 			{
 				primaryAttachable.Detach(false);
+				// NOTE that m_inventoryIdx may now be invalid, but will be corrected by InventorySync()
 			}
 		}
 	}
@@ -868,12 +869,14 @@ public sealed class AvatarController : KinematicCharacter
 			inventoryController.m_tooltipPerItem.text = nonEmptySlot ? itemCur.Item1.GetComponent<ItemController>().m_tooltip : null;
 			inventoryController.m_draggable = nonEmptySlot;
 		}
-		for (int j = m_inventoryUI.transform.childCount - 1; j > itemInfos.Length + templateOffset - 1; --j)
+		int idxMax = itemInfos.Length - 1;
+		for (int j = m_inventoryUI.transform.childCount - 1; j > idxMax + templateOffset; --j)
 		{
 			Transform childTf = m_inventoryUI.transform.GetChild(j);
 			childTf.SetParent(null); // in case we re-sync before the despawn is completed (e.g. backpack swapping)
 			Simulation.Schedule<ObjectDespawn>().m_object = childTf.gameObject;
 		}
+		m_inventoryIdx = Mathf.Min(m_inventoryIdx, idxMax);
 	}
 
 	public void OnVictory()
