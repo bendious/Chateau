@@ -1743,6 +1743,8 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 11400000, guid: 4aaf630c720c1bb4f92e071861086172, type: 2}
     m_weight: 1
+  - m_object: {fileID: 11400000, guid: 3fc61e5694583e14292bdf65ed1f4c23, type: 2}
+    m_weight: 1
   m_roomTypesSecret:
   - m_object: {fileID: 11400000, guid: 30ab735d166f6cd45a32827777dd635d, type: 2}
     m_weight: 1

@@ -21,6 +21,7 @@ MonoBehaviour:
       m_proportionalColor: 0
     m_weight: 1
   m_walls: []
+  m_nonsquareShape: {fileID: 0}
   m_furniturePrefabs: []
   m_fillPctMin: 0
   m_itemPrefabs: []

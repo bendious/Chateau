@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17b48a8fa2e91f74cbd5326b5b117c17, type: 3}
+  m_Name: CaveEmpty
+  m_EditorClassIdentifier: 
+  m_preconditionNames:
+  - IsBelowGround
+  m_backdrops: []
+  m_walls:
+  - m_object:
+      m_sprite: {fileID: 21300000, guid: 122f7d08af701184ab628d335c7c5193, type: 3}
+      m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
+      m_colorMax: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+      m_proportionalColor: 1
+    m_weight: 1
+  m_nonsquareShape: {fileID: 11400000, guid: 27231b892adce8a44b5794355f7c3864, type: 2}
+  m_furniturePrefabs: []
+  m_fillPctMin: 0
+  m_itemPrefabs: []
+  m_itemRarePrefabs: []
+  m_itemsMin: 0
+  m_itemsMax: 0
+  m_decorations:
+  - m_object:
+      m_prefabs:
+      - m_object: {fileID: 8498127701983908984, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
+        m_weight: 1
+      m_rotationDegreesMax: 15
+      m_heightMin: 0.5
+      m_heightMax: 2
+      m_sharedHeight: 1
+    m_weight: 1
+  m_decorationsMin: 0
+  m_decorationsMax: 2
+  m_spawnPointsMax: 4

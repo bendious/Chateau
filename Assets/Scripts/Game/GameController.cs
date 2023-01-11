@@ -435,7 +435,7 @@ public class GameController : MonoBehaviour
 		RoomController constraintRoom = liveAvatar == null ? null : RoomFromPosition(liveAvatar.transform.position);
 		bool isLooking = m_avatars.Any(avatar => avatar.IsAlive && avatar.IsLooking);
 		bool unconstrained = constraintRoom == null || isLooking || m_avatars.Any(avatar => avatar.IsAlive && RoomFromPosition(avatar.transform.position) != constraintRoom);
-		m_vCamMainConfiner.m_BoundingShape2D = unconstrained ? null : constraintRoom.GetComponentInChildren<PolygonCollider2D>();
+		m_vCamMainConfiner.m_BoundingShape2D = unconstrained ? null : constraintRoom.m_cameraConstraint;
 		m_vCamMainFramer.m_LookaheadTime = isLooking ? 0.0f : m_lookaheadTimeOrig;
 
 		Simulation.Tick();

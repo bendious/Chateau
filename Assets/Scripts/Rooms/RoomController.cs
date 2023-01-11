@@ -39,6 +39,7 @@ public class RoomController : MonoBehaviour
 	[SerializeField] private float m_spawnPointHeightMax = 6.0f;
 
 	public GameObject m_backdrop;
+	public PolygonCollider2D m_cameraConstraint;
 
 	[SerializeField] private GameObject[] m_walls;
 
@@ -524,11 +525,11 @@ public class RoomController : MonoBehaviour
 		// per-area appearance
 		// TODO: separate RoomType into {Area/Room}Type? tend brighter based on progress?
 		IEnumerable<RoomController> areaParents = LayoutNodes.SelectMany(node => node.AreaParents).Select(node => node.m_room).Distinct();
-		RoomController areaParent = areaParents.FirstOrDefault(room => room.m_wallInfo != null);
+		RoomController areaParent = areaParents.FirstOrDefault(room => room.m_wallInfo != null && RoomType.m_walls.Any(wall => wall.m_object.m_sprite == room.m_wallInfo.m_sprite));
 		bool isAreaInit = areaParent == null;
 		if (isAreaInit)
 		{
-			areaParent = areaParents.First();
+			areaParent = areaParents.All(parent => parent.m_wallInfo == null) ? areaParents.First() : this;
 		}
 		m_wallInfo = areaParent.m_wallInfo ?? (RoomType.m_walls != null && RoomType.m_walls.Length > 0 ? RoomType.m_walls.RandomWeighted() : new());
 		m_wallColor = isAreaInit ? Utility.ColorRandom(m_wallInfo.m_colorMin, m_wallInfo.m_colorMax, m_wallInfo.m_proportionalColor) : areaParent.m_wallColor;
@@ -554,6 +555,73 @@ public class RoomController : MonoBehaviour
 				}
 				// NOTE that we leave the sprite alone since this is for secret gates
 				obj.GetComponent<SpriteRenderer>().color = m_wallColor; // TODO: slight variation?
+			}
+		}
+
+		// randomize non-square walls
+		if (RoomType.m_nonsquareShape != null)
+		{
+			foreach (GameObject wall in m_walls.Concat(m_doorwayInfos.Select(info => info.m_object)))
+			{
+				PolygonCollider2D collider = wall.GetComponent<PolygonCollider2D>();
+				if (collider == null)
+				{
+					continue;
+				}
+
+				// switch from box to polygon collider
+				BoxCollider2D colliderPrev = wall.GetComponent<BoxCollider2D>();
+				colliderPrev.enabled = false;
+				collider.enabled = true;
+
+				// switch from SpriteRenderer to SpriteShape
+				// TODO: assign parameters in Inspector rather than here? avoid creating components on-the-fly?
+				DestroyImmediate(wall.GetComponent<SpriteRenderer>()); // can't defer destruction since SpriteShapeRenderer conflicts w/ SpriteRenderer // TODO: efficiency?
+				SpriteShapeController shapeController = wall.AddComponent<SpriteShapeController>();
+				shapeController.spriteShape = RoomType.m_nonsquareShape;
+				shapeController.autoUpdateCollider = true;
+				shapeController.colliderDetail = 100; // TODO: parameterize/vary?
+				shapeController.splineDetail = shapeController.colliderDetail;
+				shapeController.spriteShapeRenderer.color = m_wallColor;
+				shapeController.enableTangents = true; // TODO: verify that this enhances 2D lighting?
+
+				// get shape info
+				Vector2 extents = colliderPrev.size * 0.5f; // NOTE that we can't use Bounds.extents since this is before it has existed for a physics frame
+				bool isVertical = extents.y > extents.x;
+				bool isNegative = isVertical ? wall.transform.localPosition.x > 0.0f : wall.transform.localPosition.y > 0.0f;
+				float extentMax = Mathf.Max(extents.x, extents.y);
+
+				// randomize SpriteShapeController.spline
+				const float heightMin = 0.0f;
+				const float heightMax = 1.0f;
+				Spline spline = shapeController.spline;
+				const int numPoints = 8; // TODO: calculate based on extents?
+				Vector3[] points = new Vector3[numPoints];
+				for (int i = 0; i < numPoints; ++i)
+				{
+					float x = i == numPoints - 2 ? extentMax : i == numPoints - 1 ? -extentMax : Mathf.Lerp(-extentMax, extentMax, i / (float)(numPoints - 3));
+					bool isEndpoint = i >= numPoints - 2;
+					float y = (isEndpoint ? -(isVertical ? extents.x : extents.y) : Random.Range(heightMin, heightMax)) * (isNegative ? -1.0f : 1.0f);
+					points[i] = new(isVertical ? y : x, isVertical ? x : y);
+
+					spline.InsertPointAt(i, points[i]);
+					spline.SetTangentMode(i, isEndpoint ? ShapeTangentMode.Linear : ShapeTangentMode.Continuous); // TODO: parameterize / move into tangentFunc()?
+				}
+				for (int i = 0; i < numPoints; ++i)
+				{
+					System.Tuple<Vector3, Vector3> tangents = TangentsFromSpline(spline, wall.transform.position, i, numPoints, false);
+					spline.SetLeftTangent(i, tangents.Item1);
+					spline.SetRightTangent(i, tangents.Item2);
+				}
+
+				// TODO: update shadow caster
+				// TODO: function?
+				ShadowCaster2D shadowCaster = wall.GetComponent<ShadowCaster2D>();
+				if (shadowCaster != null)
+				{
+					shadowCaster.NonpublicSetterWorkaround("m_ShapePath", points);
+					shadowCaster.NonpublicSetterWorkaround("m_ShapePathHash", points.GetHashCode());
+				}
 			}
 		}
 
@@ -840,7 +908,7 @@ public class RoomController : MonoBehaviour
 		// shared logic
 		float widthIncrementHalf = widthIncrement * 0.5f;
 		int layerMask = GameController.Instance.m_layerWalls | GameController.Instance.m_layerExterior;
-		void trySpawningExteriorDecoration(WeightedObject<GameObject>[] prefabs, Vector3 position, float heightOverride, float verticalScale, System.Func<int, int, Vector3> posFunc = null, System.Func<Spline, Vector3, int, int, System.Tuple<Vector3, Vector3>> tangentFunc = null)
+		void trySpawningExteriorDecoration(WeightedObject<GameObject>[] prefabs, Vector3 position, float heightOverride, float verticalScale, System.Func<int, int, Vector3> posFunc = null, System.Func<Spline, Vector3, int, int, bool, System.Tuple<Vector3, Vector3>> tangentFunc = null, bool groundCheck = false)
 		{
 			bool hasSpace = verticalScale == 0.0f ? position.y >= 0.0f : position.y > 0.0f && !Physics2D.OverlapArea(position + new Vector3(-widthIncrementHalf + m_physicsCheckEpsilon, verticalScale * m_physicsCheckEpsilon), position + new Vector3(widthIncrementHalf - m_physicsCheckEpsilon, verticalScale), layerMask); // TODO: more nuanced height check?
 			if (!hasSpace)
@@ -892,7 +960,7 @@ public class RoomController : MonoBehaviour
 					{
 						for (int i = 0; i < n; ++i)
 						{
-							System.Tuple<Vector3, Vector3> tangents = tangentFunc(spline, position, i, n);
+							System.Tuple<Vector3, Vector3> tangents = tangentFunc(spline, position, i, n, groundCheck);
 							spline.SetLeftTangent(i, tangents.Item1);
 							spline.SetRightTangent(i, tangents.Item2);
 						}
@@ -906,20 +974,6 @@ public class RoomController : MonoBehaviour
 				collider.size = new(widthIncrement, heightOverride >= 0.0f ? heightOverride : renderer != null ? renderer.size.y : collider.size.y);
 				collider.offset = new(collider.offset.x, collider.size.y * verticalScale * 0.5f);
 			}
-		}
-
-		bool tangentGroundCheck = false;
-		System.Tuple<Vector3, Vector3> tangentsFromSpline(Spline spline, Vector3 splinePos, int idx, int idxCount)
-		{
-			Vector3 pos = spline.GetPosition(idx);
-			if (tangentGroundCheck && pos.y + splinePos.y <= 0.0f)
-			{
-				return System.Tuple.Create(Vector3.zero, Vector3.zero);
-			}
-			Vector3 leftDiff = spline.GetPosition((idx - 1).Modulo(idxCount)) - pos;
-			Vector3 rightDiff = pos - spline.GetPosition((idx + 1).Modulo(idxCount));
-			Vector3 diffAvgDir = (leftDiff.normalized + rightDiff.normalized).normalized;
-			return System.Tuple.Create(leftDiff.magnitude * Random.Range(0.0f, 1.0f) * diffAvgDir, Random.Range(0.0f, 1.0f) * rightDiff.magnitude * -diffAvgDir);
 		}
 
 		// try to spawn exterior decorations
@@ -938,10 +992,9 @@ public class RoomController : MonoBehaviour
 			{
 				float radiusCur = Random.Range(1.0f, radiusMax); // TODO: more continuity?
 				return Quaternion.Euler(0.0f, 0.0f, idx * -360.0f / countMax) * Vector3.right * radiusCur; // NOTE the negative rotation direction since SpriteShapes expect clockwise rotation for calculating outward-facing tangents
-			}, tangentsFromSpline);
+			}, TangentsFromSpline);
 
 			// on ground
-			tangentGroundCheck = true;
 			if (transform.position.y == 0.0f)
 			{
 				exteriorPos.y = 0.0f;
@@ -951,7 +1004,7 @@ public class RoomController : MonoBehaviour
 					float extentX = extentXPerPoint * countMax;
 					float x = idx == countMax - 2 ? extentX : idx == countMax - 1 ? -extentX : Mathf.Lerp(-extentX, extentX, idx / (float)(countMax - 3));
 					return new(x, idx >= countMax - 2 ? 0.0f : Random.Range(0.1f, Bounds.size.y)); // TODO: allow across room vertical boundaries?
-				}, tangentsFromSpline);
+				}, TangentsFromSpline, true);
 			}
 
 			// below
@@ -1739,6 +1792,19 @@ public class RoomController : MonoBehaviour
 		RoomController[] keyRooms = doorwayInfo.ChildRoom == null ? new[] { this } : lockNode?.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray();
 		float depthPct = lockNode == null ? 0.0f : lockNode.DepthPercent;
 		spawnAction(unlockable, this, keyRooms == null || keyRooms.Length <= 0 ? null : doorwayInfo.m_excludeSelf.Value ? keyRooms.Where(room => room != this).ToArray() : keyRooms, depthPct);
+	}
+
+	private System.Tuple<Vector3, Vector3> TangentsFromSpline(Spline spline, Vector3 splinePos, int idx, int idxCount, bool groundCheck)
+	{
+		Vector3 pos = spline.GetPosition(idx);
+		if (groundCheck && pos.y + splinePos.y <= 0.0f)
+		{
+			return System.Tuple.Create(Vector3.zero, Vector3.zero);
+		}
+		Vector3 leftDiff = spline.GetPosition((idx - 1).Modulo(idxCount)) - pos;
+		Vector3 rightDiff = pos - spline.GetPosition((idx + 1).Modulo(idxCount));
+		Vector3 diffAvgDir = (leftDiff.normalized + rightDiff.normalized).normalized;
+		return System.Tuple.Create(leftDiff.magnitude * Random.Range(0.0f, 1.0f) * diffAvgDir, Random.Range(0.0f, 1.0f) * rightDiff.magnitude * -diffAvgDir);
 	}
 
 	private void OpenDoorway(DoorwayInfo doorwayInfo, bool open)

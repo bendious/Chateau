@@ -58,6 +58,7 @@ MonoBehaviour:
       m_colorMax: {r: 0.75, g: 0.75, b: 0.75, a: 1}
       m_proportionalColor: 0
     m_weight: 1
+  m_nonsquareShape: {fileID: 0}
   m_furniturePrefabs:
   - m_object: {fileID: 3500915504940809235, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
     m_weight: 0.5
