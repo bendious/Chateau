@@ -82,3 +82,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_launchDistance: 0
+  m_dampPct: 0.1
+  m_stiffness: 1000
+  m_mass: 1
+  m_heightMin: 0.3

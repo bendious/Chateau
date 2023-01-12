@@ -19,8 +19,8 @@ public class Explosion : MonoBehaviour
 	private float m_startTime;
 
 
-    private void Start()
-    {
+	private void Start()
+	{
 		m_startTime = Time.time;
 
 		// SFX
@@ -40,7 +40,7 @@ public class Explosion : MonoBehaviour
 				ProcessCollider(collider);
 			}
 		}
-    }
+	}
 
 	private void OnTriggerEnter2D(Collider2D collider)
 	{

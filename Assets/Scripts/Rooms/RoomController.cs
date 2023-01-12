@@ -1369,7 +1369,7 @@ public class RoomController : MonoBehaviour
 
 			if (ladder.TryGetComponent<Spring>(out var spring))
 			{
-				spring.m_launchDistance = heightDiff;
+				spring.m_launchDistance = heightDiff + rungOnlyHeight;
 			}
 
 			// iterate

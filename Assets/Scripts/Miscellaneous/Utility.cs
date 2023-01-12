@@ -212,6 +212,26 @@ public static class Utility
 
 	public static Vector2 Clamp(this Vector2 v, float min, float max) => new(Mathf.Clamp(v.x, min, max), Mathf.Clamp(v.y, min, max));
 
+	public static float DampedSpring(float current, float target, float dampPct, bool isAngle, float stiffness, float mass, ref float velocityCurrent)
+	{
+		// spring motion: F = kx - dv, where x = {vel/pos}_desired - {vel/pos}_current
+		// critically damped spring: d = 2*sqrt(km)
+		float dampingFactor = 2.0f * Mathf.Sqrt(stiffness * mass) * dampPct;
+		Debug.Assert(dampingFactor > 0.0f);
+		float diff = target - current;
+		while (isAngle && Mathf.Abs(diff) > 180.0f)
+		{
+			diff -= diff < 0.0f ? -360.0f : 360.0f;
+		}
+		float force = stiffness * diff - dampingFactor * velocityCurrent;
+
+		float accel = force / mass;
+		float dt = Time.fixedDeltaTime;
+		velocityCurrent += accel * dt;
+
+		return current + velocityCurrent * dt;
+	}
+
 	public static Vector2 SmoothDamp(this Vector2 current, Vector2 target, ref Vector2 currentVelocity, float smoothTime) => SmoothDamp(current, target, ref currentVelocity, new Vector2(smoothTime, smoothTime));
 
 	public static Vector2 SmoothDamp(this Vector2 current, Vector2 target, ref Vector2 currentVelocity, Vector2 smoothTimes)
@@ -273,7 +293,7 @@ public static class Utility
 		return collider.attachedRigidbody.GetComponent<Health>();
 	}
 
-	public static Bounds ToBounds(this Collider2D[] colliders) => colliders.Aggregate(new Bounds() { size = Vector3.negativeInfinity }, (bounds, collider) => { bounds.Encapsulate(collider.bounds); return bounds; });
+	public static Bounds ToBounds(this IEnumerable<Collider2D> colliders) => colliders.Aggregate(new Bounds() { size = Vector3.negativeInfinity }, (bounds, collider) => { bounds.Encapsulate(collider.bounds); return bounds; });
 
 	public static bool ShouldIgnore(this Collider2D self, Rigidbody2D body, Collider2D[] colliders, float dynamicsMassThreshold = 0.0f, Type ignoreChildrenExcept = null, float oneWayTopEpsilon = -1.0f, bool ignoreStatics = false, bool ignorePhysicsSystem = false)
 	{

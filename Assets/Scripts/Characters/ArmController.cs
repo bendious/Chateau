@@ -225,13 +225,13 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		// update current speed
 		m_aimVelocityArm += m_aimVelocityContinuing;
 		m_aimRadiusVelocity += m_radiusVelocityContinuing;
-		m_aimVelocityContinuing = DampedSpring(m_aimVelocityContinuing, 0.0f, 1.0f, false, m_swingDecayStiffness, ref m_aimVelocityContinuingVel);
-		m_radiusVelocityContinuing = DampedSpring(m_radiusVelocityContinuing, 0.0f, 1.0f, false, m_swingDecayStiffness, ref m_radiusVelocityContinuingVel);
+		m_aimVelocityContinuing = Utility.DampedSpring(m_aimVelocityContinuing, 0.0f, 1.0f, false, m_swingDecayStiffness, m_massTotal, ref m_aimVelocityContinuingVel);
+		m_radiusVelocityContinuing = Utility.DampedSpring(m_radiusVelocityContinuing, 0.0f, 1.0f, false, m_swingDecayStiffness, m_massTotal, ref m_radiusVelocityContinuingVel);
 
 		// update current rotation
 		float targetDegreesArm = AimDegreesRaw(transform.parent.position, rootOffset, aimPositionArm, m_aimDegreesArm);
-		m_aimDegreesArm = DampedSpring(m_aimDegreesArm, targetDegreesArm, m_swingInfoCur.m_aimSpringDampPct, true, m_aimStiffness, ref m_aimVelocityArm);
-		m_aimRadius = DampedSpring(m_aimRadius, m_radiusBase, m_swingInfoCur.m_radiusSpringDampPct, false, m_radiusStiffness, ref m_aimRadiusVelocity);
+		m_aimDegreesArm = Utility.DampedSpring(m_aimDegreesArm, targetDegreesArm, m_swingInfoCur.m_aimSpringDampPct, true, m_aimStiffness, m_massTotal, ref m_aimVelocityArm);
+		m_aimRadius = Utility.DampedSpring(m_aimRadius, m_radiusBase, m_swingInfoCur.m_radiusSpringDampPct, false, m_radiusStiffness, m_massTotal, ref m_aimRadiusVelocity);
 		m_swingDirection = (targetDegreesArm - m_aimDegreesArm).Modulo(360.0f) < 180.0f; // should swing "up" if we are "below" the current target angle
 
 		// apply
@@ -264,7 +264,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		for (int i = 0; i < transform.childCount; ++i)
 		{
 			Transform childTf = transform.GetChild(i);
-			m_aimDegreesItem = DampedSpring(m_aimDegreesItem, IsSwinging ? 0.0f : AimDegreesRaw(childTf.position, Vector2.zero, aimPositionItem, m_aimDegreesItem) - m_aimDegreesArm + (LeftFacing ? -m_aimDegreesItemRestOffsetAbs : m_aimDegreesItemRestOffsetAbs), 1.0f, true, m_aimStiffness, ref m_aimVelocityItem); // NOTE that aiming for all items uses critical damping rather than m_swingInfoCur.m_aimSpringDampPct, to prevent overly-annoying aim jiggle // TODO: parameterize?
+			m_aimDegreesItem = Utility.DampedSpring(m_aimDegreesItem, IsSwinging ? 0.0f : AimDegreesRaw(childTf.position, Vector2.zero, aimPositionItem, m_aimDegreesItem) - m_aimDegreesArm + (LeftFacing ? -m_aimDegreesItemRestOffsetAbs : m_aimDegreesItemRestOffsetAbs), 1.0f, true, m_aimStiffness, m_massTotal, ref m_aimVelocityItem); // NOTE that aiming for all items uses critical damping rather than m_swingInfoCur.m_aimSpringDampPct, to prevent overly-annoying aim jiggle // TODO: parameterize?
 			childTf.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesItem);
 
 			if (hasJoint)
@@ -294,25 +294,5 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		SwingInfo infoFinal = isJab ? m_jabInfo : m_swingInfoCur; // TODO: handle "jabbing" with a held item via per-item jab speeds?
 		m_aimVelocityContinuing += (forward ? infoFinal.m_angularNewtonmeters : -infoFinal.m_angularNewtonmeters) / m_massTotal / torqueArmLength;
 		m_radiusVelocityContinuing += infoFinal.m_linearNewtons / m_massTotal;
-	}
-
-	private float DampedSpring(float current, float target, float dampPct, bool isAngle, float stiffness, ref float velocityCurrent)
-	{
-		// spring motion: F = kx - dv, where x = {vel/pos}_desired - {vel/pos}_current
-		// critically damped spring: d = 2*sqrt(km)
-		float dampingFactor = 2.0f * Mathf.Sqrt(m_aimStiffness * m_massTotal) * dampPct;
-		UnityEngine.Assertions.Assert.IsTrue(dampingFactor > 0.0f);
-		float diff = target - current;
-		while (isAngle && Mathf.Abs(diff) > 180.0f)
-		{
-			diff -= diff < 0.0f ? -360.0f : 360.0f;
-		}
-		float force = stiffness * diff - dampingFactor * velocityCurrent;
-
-		float accel = force / m_massTotal;
-		float dt = Time.fixedDeltaTime;
-		velocityCurrent += accel * dt;
-
-		return current + velocityCurrent * dt;
 	}
 }
