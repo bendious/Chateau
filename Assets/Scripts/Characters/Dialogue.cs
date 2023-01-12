@@ -37,7 +37,11 @@ public class Dialogue : ScriptableObject
 	public void EditorResetWeights()
 	{
 		// TODO: avoid stomping Inspector-based changes?
-		Debug.Assert(m_editorWeightsOrig != null && m_editorWeightsOrig.Length == m_dialogue.Length);
+		if (m_editorWeightsOrig == null)
+		{
+			return;
+		}
+		Debug.Assert(m_editorWeightsOrig.Length == m_dialogue.Length);
 		for (int i = 0; i < m_dialogue.Length; ++i)
 		{
 			m_dialogue[i].m_weight = m_editorWeightsOrig[i];

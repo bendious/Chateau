@@ -16,7 +16,10 @@ public class RoomType : ScriptableObject
 	}
 	public WeightedObject<SpriteInfo>[] m_backdrops;
 	public WeightedObject<SpriteInfo>[] m_walls;
+
 	public UnityEngine.U2D.SpriteShape m_nonsquareShape;
+	public Material m_nonsquareMaterialFill;
+	public Material m_nonsquareMaterialEdge;
 
 	public WeightedObject<GameObject>[] m_furniturePrefabs;
 	public float m_fillPctMin = 0.25f;

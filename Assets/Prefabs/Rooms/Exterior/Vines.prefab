@@ -45,6 +45,25 @@ PolygonCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -64,6 +83,7 @@ PolygonCollider2D:
       - {x: -1, y: 1}
       - {x: -1, y: -1}
       - {x: 1, y: -1}
+  m_UseDelaunayMesh: 0
 --- !u!1971053207 &6848462992233837457
 SpriteShapeRenderer:
   m_ObjectHideFlags: 0
@@ -114,6 +134,7 @@ SpriteShapeRenderer:
   m_LocalAABB:
     m_Center: {x: -0.005138755, y: 0.01188755, z: 0}
     m_Extent: {x: 1.710485, y: 1.7304716, z: 0}
+  m_SpriteSortPoint: 0
 --- !u!114 &2039324468397634857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134,8 +155,6 @@ MonoBehaviour:
       rightTangent: {x: 0.0902063, y: -0.13438474, z: -0}
       mode: 1
       height: 1
-      bevelCutoff: 0
-      bevelSize: 0
       spriteIndex: 0
       corner: 1
       m_CornerMode: 1
@@ -144,8 +163,6 @@ MonoBehaviour:
       rightTangent: {x: -0.11909157, y: -0.11769259, z: 0}
       mode: 1
       height: 1
-      bevelCutoff: 0
-      bevelSize: 0
       spriteIndex: 0
       corner: 1
       m_CornerMode: 1
@@ -154,8 +171,6 @@ MonoBehaviour:
       rightTangent: {x: -0.108821034, y: 0.1115011, z: 0}
       mode: 1
       height: 1
-      bevelCutoff: 0
-      bevelSize: 0
       spriteIndex: 0
       corner: 1
       m_CornerMode: 1
@@ -164,8 +179,6 @@ MonoBehaviour:
       rightTangent: {x: 0.07990077, y: 0.11214957, z: -0}
       mode: 1
       height: 1
-      bevelCutoff: 0
-      bevelSize: 0
       spriteIndex: 0
       corner: 1
       m_CornerMode: 1
@@ -180,11 +193,12 @@ MonoBehaviour:
   m_ColliderDetail: 16
   m_ColliderOffset: 0
   m_UpdateCollider: 1
-  m_OptimizeCollider: 1
-  m_OptimizeGeometry: 1
   m_EnableTangents: 0
   m_GeometryCached: 0
   m_UTess2D: 0
+  m_Creator: {fileID: 0}
+  m_Modifiers: []
+  m_ColliderSegment: []
 --- !u!114 &5211118646724264901
 MonoBehaviour:
   m_ObjectHideFlags: 0

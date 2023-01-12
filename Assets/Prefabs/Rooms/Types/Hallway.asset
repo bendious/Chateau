@@ -59,6 +59,8 @@ MonoBehaviour:
       m_proportionalColor: 0
     m_weight: 1
   m_nonsquareShape: {fileID: 0}
+  m_nonsquareMaterialFill: {fileID: 0}
+  m_nonsquareMaterialEdge: {fileID: 0}
   m_furniturePrefabs:
   - m_object: {fileID: 3500915504940809235, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
     m_weight: 0.5
@@ -93,7 +95,7 @@ MonoBehaviour:
       m_prefabs:
       - m_object: {fileID: 2395381759834517093, guid: 2fd8693fca9d54d49a605a52efb21ffc, type: 3}
         m_weight: 4
-      m_rotationDegreesMax: 90
+      m_rotationDegreesMax: 10
       m_heightMin: 4
       m_heightMax: 6
       m_sharedHeight: 1

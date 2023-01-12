@@ -583,29 +583,43 @@ public class RoomController : MonoBehaviour
 				shapeController.colliderDetail = 100; // TODO: parameterize/vary?
 				shapeController.splineDetail = shapeController.colliderDetail;
 				shapeController.spriteShapeRenderer.color = m_wallColor;
-				shapeController.enableTangents = true; // TODO: verify that this enhances 2D lighting?
+				if (RoomType.m_nonsquareMaterialFill != null || RoomType.m_nonsquareMaterialEdge != null)
+				{
+					Material[] materialsPrev = shapeController.spriteShapeRenderer.materials;
+					shapeController.spriteShapeRenderer.materials = new[] { RoomType.m_nonsquareMaterialFill != null ? RoomType.m_nonsquareMaterialFill : materialsPrev[0], RoomType.m_nonsquareMaterialEdge != null ? RoomType.m_nonsquareMaterialEdge : materialsPrev[1] };
+				}
 
 				// get shape info
 				Vector2 extents = colliderPrev.size * 0.5f; // NOTE that we can't use Bounds.extents since this is before it has existed for a physics frame
 				bool isVertical = extents.y > extents.x;
 				bool isNegative = isVertical ? wall.transform.localPosition.x > 0.0f : wall.transform.localPosition.y > 0.0f;
 				float extentMax = Mathf.Max(extents.x, extents.y);
+				Spline spline = shapeController.spline;
+				List<Sprite> sprites = RoomType.m_nonsquareShape.angleRanges.First().sprites; // TODO: support multiple angle ranges?
+				Sprite sprite = sprites.FirstOrDefault(s => s != null); // TODO: don't assume all sprites have equivalent size?
+				float spriteWidth = sprite != null ? sprite.texture.width / sprite.pixelsPerUnit : 1.0f; // TODO: parameterize default value?
+				int numPoints = Mathf.RoundToInt(extentMax * 2.0f / spriteWidth) + 2;
+				const float heightMin = 0.0f;
+				float heightMax = spriteWidth; // TODO: parameterize?
 
 				// randomize SpriteShapeController.spline
-				const float heightMin = 0.0f;
-				const float heightMax = 1.0f;
-				Spline spline = shapeController.spline;
-				const int numPoints = 8; // TODO: calculate based on extents?
+				float xStart = isVertical == isNegative ? -extentMax : extentMax;
+				float xEnd = isVertical == isNegative ? extentMax : -extentMax;
 				Vector3[] points = new Vector3[numPoints];
 				for (int i = 0; i < numPoints; ++i)
 				{
-					float x = i == numPoints - 2 ? extentMax : i == numPoints - 1 ? -extentMax : Mathf.Lerp(-extentMax, extentMax, i / (float)(numPoints - 3));
+					float x = i == numPoints - 2 ? xEnd : i == numPoints - 1 ? xStart : Mathf.Lerp(xStart, xEnd, i / (float)(numPoints - 3));
 					bool isEndpoint = i >= numPoints - 2;
-					float y = (isEndpoint ? -(isVertical ? extents.x : extents.y) : Random.Range(heightMin, heightMax)) * (isNegative ? -1.0f : 1.0f);
+					float y = (isEndpoint ? -(isVertical ? extents.x : extents.y) : Random.Range(heightMin, heightMax)) * (isNegative ? -1.0f : 1.0f); // TODO: take previous point into account for smoothness?
 					points[i] = new(isVertical ? y : x, isVertical ? x : y);
 
 					spline.InsertPointAt(i, points[i]);
 					spline.SetTangentMode(i, isEndpoint ? ShapeTangentMode.Linear : ShapeTangentMode.Continuous); // TODO: parameterize / move into tangentFunc()?
+					spline.SetHeight(i, Random.value); // TODO: more deliberate choice / continuity?
+					if (!isEndpoint && i < numPoints - 3)
+					{
+						spline.SetSpriteIndex(i, Random.Range(0, sprites.Count));
+					}
 				}
 				for (int i = 0; i < numPoints; ++i)
 				{
