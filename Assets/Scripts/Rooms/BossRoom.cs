@@ -14,7 +14,7 @@ public class BossRoom : MonoBehaviour
 	[SerializeField] private int m_platformsMin = 0;
 	[SerializeField] private int m_platformsMax = 4;
 
-	public WeightedObject<GameObject>[] m_spawnedLadderPrefabs;
+	public WeightedObject<RoomController.LadderInfo>[] m_spawnedLadderPrefabs;
 
 	[SerializeField] private AudioClip m_audioOutro;
 	[SerializeField] private AudioClip m_music;

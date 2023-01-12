@@ -43,7 +43,12 @@ public class RoomController : MonoBehaviour
 
 	[SerializeField] private GameObject[] m_walls;
 
-	[SerializeField] private WeightedObject<GameObject>[] m_ladderRungPrefabs;
+	[System.Serializable] public class LadderInfo
+	{
+		public GameObject m_rungPrefab;
+		public bool m_singleRung;
+	}
+	[SerializeField] private WeightedObject<LadderInfo>[] m_ladderRungPrefabs;
 	[SerializeField] private float m_ladderRungSkewMax = 0.2f;
 
 	[SerializeField] private float m_cutbackBreakablePct = 0.5f;
@@ -1298,33 +1303,34 @@ public class RoomController : MonoBehaviour
 		return newRoom;
 	}
 
-	public GameObject SpawnLadder(GameObject doorway, GameObject prefabForced = null, bool spawnBunched = false)
+	public GameObject SpawnLadder(GameObject doorway, LadderInfo prefabForced = null, bool spawnBunched = false)
 	{
 #if DEBUG
 		DoorwayInfo info = m_doorwayInfos.FirstOrDefault(info => info.m_object == doorway || info.m_blocker == doorway);
 		Debug.Assert(info != null && !info.m_disallowLadders);
 #endif
 
-		GameObject ladderRungPrefab = prefabForced != null || m_ladderRungPrefabs.Length <= 0 ? prefabForced : m_ladderRungPrefabs.RandomWeighted();
-		if (ladderRungPrefab == null)
+		LadderInfo ladderRungInfo = prefabForced != null || m_ladderRungPrefabs.Length <= 0 ? prefabForced : m_ladderRungPrefabs.RandomWeighted();
+		if (ladderRungInfo == null)
 		{
 			return null;
 		}
+		GameObject ladderRungPrefab = ladderRungInfo.m_rungPrefab;
 
 		// determine rung count/height
 		DistanceJoint2D firstJoint = ladderRungPrefab.GetComponent<DistanceJoint2D>(); // TODO: genericize?
-		bool hanging = firstJoint != null;
+		bool hanging = firstJoint != null; // TODO: move into LadderInfo?
 		float yTop = doorway.transform.position.y - (hanging ? 0.0f : 1.5f); // TODO: base top distance on character jump height?
 		float heightDiff = yTop - transform.position.y; // TODO: don't assume pivot point is always the place to stop?
 		float rungOnlyHeight = ladderRungPrefab.GetComponent<SpriteRenderer>().size.y;
 		float rungHeightTotal = hanging ? firstJoint.distance + rungOnlyHeight : rungOnlyHeight;
-		int rungCount = Mathf.RoundToInt(heightDiff / rungHeightTotal) - (hanging ? 1 : 0);
+		int rungCount = ladderRungInfo.m_singleRung ? 1 : Mathf.RoundToInt(heightDiff / rungHeightTotal) - (hanging ? 1 : 0);
 		if (!hanging)
 		{
 			rungHeightTotal = heightDiff / rungCount;
 		}
 
-		Vector3 posItr = doorway.transform.position;
+		Vector3 posItr = ladderRungInfo.m_singleRung ? new(doorway.transform.position.x, transform.position.y, doorway.transform.position.z) : doorway.transform.position; // TODO: separate param for spawning at the base rather than the top?
 		GameObject firstRung = null;
 		bool postSpawnDrop = hanging && spawnBunched;
 		posItr.y = yTop - (postSpawnDrop ? 0.0f : rungHeightTotal);
@@ -1350,7 +1356,7 @@ public class RoomController : MonoBehaviour
 			}
 			bodyPrev = ladder.GetComponent<Rigidbody2D>();
 
-			if (!hanging)
+			if (!hanging && !ladderRungInfo.m_singleRung)
 			{
 				// resize
 				// NOTE that we adjust bottom-up ladders to ensure the top rung is within reach of any lock above it due to the way that combination locks used to work
@@ -1359,6 +1365,11 @@ public class RoomController : MonoBehaviour
 				BoxCollider2D collider = ladder.GetComponent<BoxCollider2D>();
 				collider.size = new(collider.size.x, rungHeightTotal);
 				collider.offset = new(collider.offset.x, rungHeightTotal * 0.5f);
+			}
+
+			if (ladder.TryGetComponent<Spring>(out var spring))
+			{
+				spring.m_launchDistance = heightDiff;
 			}
 
 			// iterate

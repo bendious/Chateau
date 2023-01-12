@@ -14,7 +14,7 @@ public class GateController : MonoBehaviour, IUnlockable
 	}
 	public WeightedObject<LockInfo>[] m_lockPrefabs;
 
-	public WeightedObject<GameObject>[] m_ladderPrefabs;
+	public WeightedObject<RoomController.LadderInfo>[] m_ladderPrefabs;
 
 
 	public GameObject Parent { get; set; }

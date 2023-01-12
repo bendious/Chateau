@@ -5,6 +5,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 129263369300021056, guid: b2846bbea2ec52e4082109700bc8c035, type: 3}
@@ -92,6 +93,21 @@ PrefabInstance:
       value: -224166
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3219298760607032273, guid: b2846bbea2ec52e4082109700bc8c035, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5042462613699380047}
+    - targetCorrespondingSourceObject: {fileID: 3219298760607032273, guid: b2846bbea2ec52e4082109700bc8c035, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3100708120344252675}
+    - targetCorrespondingSourceObject: {fileID: 3219298760607032273, guid: b2846bbea2ec52e4082109700bc8c035, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3971886578593133822}
+    - targetCorrespondingSourceObject: {fileID: 3219298760607032273, guid: b2846bbea2ec52e4082109700bc8c035, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 116330599843900332}
   m_SourcePrefab: {fileID: 100100000, guid: b2846bbea2ec52e4082109700bc8c035, type: 3}
 --- !u!1 &1412368570536617553 stripped
 GameObject:
@@ -108,6 +124,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -357,7 +392,9 @@ MonoBehaviour:
   m_platformsMin: 0
   m_platformsMax: 4
   m_spawnedLadderPrefabs:
-  - m_object: {fileID: 6981071687859246632, guid: 17e8567260500674f88fe723983904c9, type: 3}
+  - m_object:
+      m_rungPrefab: {fileID: 6981071687859246632, guid: 17e8567260500674f88fe723983904c9, type: 3}
+      m_singleRung: 0
     m_weight: 1
   m_audioOutro: {fileID: 8300000, guid: 7392dd28435646f4c8c9bbf84154c707, type: 3}
   m_music: {fileID: 8300000, guid: 9acfb6f89edbdd949b513fe6314f7a84, type: 3}
