@@ -13,9 +13,14 @@ public class Spring : MonoBehaviour
 	[SerializeField] private float m_mass = 1.0f;
 	[SerializeField] private float m_heightMin = 0.25f;
 
+	[SerializeField] private float m_speedThreshold = 5.0f;
+	[SerializeField] private WeightedObject<AudioClip>[] m_sfxFast;
+	[SerializeField] private WeightedObject<AudioClip>[] m_sfxSlow;
+
 
 	private SpriteRenderer m_renderer;
 	private BoxCollider2D m_collider;
+	private AudioSource m_audio;
 
 	private float m_heightInitial;
 	private float m_offsetPct;
@@ -23,12 +28,14 @@ public class Spring : MonoBehaviour
 
 	private readonly HashSet<Rigidbody2D> m_supportedBodies = new();
 	private bool m_isAnimating;
+	private bool m_sfxIsFast;
 
 
 	private void Awake()
 	{
 		m_renderer = GetComponent<SpriteRenderer>();
 		m_collider = GetComponent<BoxCollider2D>();
+		m_audio = GetComponent<AudioSource>();
 		m_heightInitial = m_collider.size.y; // TODO: don't assume the renderer and collider heights are the same?
 		m_offsetPct = m_collider.offset.y / m_heightInitial;
 		m_diffMin = -m_heightInitial + m_heightMin;
@@ -68,7 +75,7 @@ public class Spring : MonoBehaviour
 		while (m_supportedBodies.Count > 0 || !diff.FloatEqual(0.0f) || !diffVel.FloatEqual(0.0f))
 		{
 			// calculate
-			float massTotal = m_supportedBodies.Sum(b => b.mass);
+			float massTotal = m_supportedBodies.Sum(b => b == null ? 0.0f : b.mass);
 			float restDiff = massTotal * -Physics2D.gravity.magnitude / m_stiffness; // force = stiffness * diff, force = mass * accel = mass * gravity --> diff = mass * gravity / stiffness
 			diff = Utility.DampedSpring(diff, restDiff, m_dampPct, false, m_stiffness, m_mass, ref diffVel);
 			if (diff < m_diffMin)
@@ -88,6 +95,10 @@ public class Spring : MonoBehaviour
 				List<Collider2D> colliders = new();
 				foreach (Rigidbody2D body in m_supportedBodies)
 				{
+					if (body == null) // in case of destroyed objects
+					{
+						continue;
+					}
 					body.GetAttachedColliders(colliders);
 					Bounds bounds = colliders.ToBounds();
 					float bodyDiff = m_collider.bounds.max.y + colliderDiff - bounds.min.y;
@@ -101,7 +112,7 @@ public class Spring : MonoBehaviour
 			m_collider.offset = new(m_collider.offset.x, heightCur * m_offsetPct);
 
 			// launch
-			if (diff > restDiff && diffVel > 0.0f)
+			if (diff > restDiff && diffVel > m_speedThreshold)
 			{
 				// calculate launch velocity
 				// TODO: take player inputs into account?
@@ -111,6 +122,10 @@ public class Spring : MonoBehaviour
 
 				foreach (Rigidbody2D body in m_supportedBodies)
 				{
+					if (body == null) // in case of destroyed objects
+					{
+						continue;
+					}
 					switch (body.bodyType)
 					{
 						case RigidbodyType2D.Dynamic:
@@ -132,11 +147,25 @@ public class Spring : MonoBehaviour
 				m_supportedBodies.Clear();
 			}
 
-			// TODO: SFX/VFX
+			// SFX
+			bool isFast = Mathf.Abs(diffVel) >= m_speedThreshold;
+			if (!m_audio.isPlaying || isFast != m_sfxIsFast)
+			{
+				WeightedObject<AudioClip>[] clips = isFast ? m_sfxFast : m_sfxSlow;
+				if (clips.Length > 0)
+				{
+					m_audio.clip = clips.RandomWeighted();
+					m_audio.Play();
+				}
+				m_sfxIsFast = isFast;
+			}
+
+			// TODO: VFX?
 
 			yield return null;
 		}
 
+		m_audio.Stop();
 		m_isAnimating = false;
 	}
 }
