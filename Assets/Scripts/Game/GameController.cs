@@ -274,10 +274,7 @@ public class GameController : MonoBehaviour
 		{
 			NpcsRandomize();
 		}
-		if (MerchantAcquiredCounts == null)
-		{
-			MerchantAcquiredCounts = new int[m_savableFactory.m_savables.Length]; // TODO: don't assume the same number/arrangement of savables in each scene?
-		}
+		MerchantAcquiredCounts ??= new int[m_savableFactory.m_savables.Length]; // TODO: don't assume the same number/arrangement of savables in each scene?
 		if (NarrowPathColors == null)
 		{
 			NarrowPathColors = new Color[m_narrowPathLength];
@@ -286,10 +283,7 @@ public class GameController : MonoBehaviour
 				NarrowPathColors[i] = Utility.ColorRandom(Color.black, Color.white, false); // NOTE that we don't have to worry about duplicate colors here since these are sequential and not presented simultaneously
 			}
 		}
-		if (m_enemySpawnCounts == null)
-		{
-			m_enemySpawnCounts = new int[m_enemyPrefabs.Length]; // TODO: don't assume the same number/arrangement of enemies in each scene
-		}
+		m_enemySpawnCounts ??= new int[m_enemyPrefabs.Length]; // TODO: don't assume the same number/arrangement of enemies in each scene
 
 		// fill rooms
 		int npcDepth = 0;
@@ -1364,8 +1358,7 @@ public class GameController : MonoBehaviour
 
 	private void OnObjectDespawn(ObjectDespawn evt)
 	{
-		AIController ai = evt.m_object.GetComponent<AIController>();
-		if (ai == null)
+		if (!evt.m_object.TryGetComponent(out AIController ai))
 		{
 			return;
 		}

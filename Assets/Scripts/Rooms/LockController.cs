@@ -456,10 +456,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		{
 			// unlock parent
 			IUnlockable parentLock = Parent == null ? null : Parent.GetComponent<IUnlockable>();
-			if (parentLock != null)
-			{
-				parentLock.Unlock(key, silent);
-			}
+			parentLock?.Unlock(key, silent);
 
 			if (!silent)
 			{
@@ -475,18 +472,15 @@ public class LockController : MonoBehaviour, IUnlockable
 			{
 				Simulation.Schedule<CameraTargetRemove>(1.0f).m_transform = transform; // TODO: guarantee camera reaches us?
 
-				Hazard hazard = GetComponent<Hazard>();
-				if (hazard != null)
+				if (TryGetComponent(out Hazard hazard))
 				{
 					hazard.enabled = !hazard.enabled;
 				}
-				Collider2D collider = GetComponent<Collider2D>();
-				if (collider != null)
+				if (TryGetComponent(out Collider2D collider))
 				{
 					collider.enabled = hazard != null && hazard.enabled;
 				}
-				VisualEffect vfx = GetComponent<VisualEffect>();
-				if (vfx != null)
+				if (TryGetComponent(out VisualEffect vfx))
 				{
 					if (vfx.enabled)
 					{
@@ -498,19 +492,16 @@ public class LockController : MonoBehaviour, IUnlockable
 						vfx.Play();
 					}
 				}
-				Light2D light = GetComponent<Light2D>();
-				if (light != null)
+				if (TryGetComponent(out Light2D light))
 				{
 					light.enabled = !light.enabled; // TODO: disable as part of vfx.SoftStop() by splitting lights and VFX onto their own object
 				}
-				LightFlicker lightFlicker = GetComponent<LightFlicker>();
-				if (lightFlicker != null)
+				if (TryGetComponent(out LightFlicker lightFlicker))
 				{
 					lightFlicker.enabled = !lightFlicker.enabled;
 				}
 
-				LineRenderer line = GetComponent<LineRenderer>();
-				if (line != null)
+				if (TryGetComponent(out LineRenderer line))
 				{
 					line.colorGradient = new() { colorKeys = new GradientColorKey[] { new(GetComponent<SpriteRenderer>().color * m_activeColorPct, 0.0f) }, alphaKeys = new GradientAlphaKey[] { new(1.0f, 0.0f) } };
 				}

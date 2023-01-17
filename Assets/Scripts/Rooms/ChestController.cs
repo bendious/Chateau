@@ -146,10 +146,7 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 		Debug.Assert(key == null || IsValidNextKey(key.Component.gameObject));
 		GetComponent<SpriteRenderer>().sprite = m_spriteUnlocked;
 		m_isLocked = false;
-		if (key != null)
-		{
-			key.Deactivate();
-		}
+		key?.Deactivate();
 		if (!silent)
 		{
 			GetComponent<AudioSource>().PlayOneShot(m_unlockSFX.RandomWeighted());

@@ -94,8 +94,7 @@ public class InteractFollow : MonoBehaviour, IInteractable, IKey
 				foreach (Renderer renderer in interact.GetComponentsInChildren<Renderer>().Where(r => r is not SpriteMask)) // NOTE that this includes SpriteRenderers as well as MeshRenderers for text
 				{
 					renderer.sortingOrder = orderItr;
-					SpriteMask mask = renderer.GetComponent<SpriteMask>();
-					if (mask != null)
+					if (renderer.TryGetComponent(out SpriteMask mask))
 					{
 						mask.frontSortingOrder = orderItr;
 						mask.backSortingOrder = orderItr - 1;

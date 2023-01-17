@@ -37,8 +37,7 @@ public interface IAttachable
 
 		attachableComp.gameObject.layer = holderComp.gameObject.layer;
 
-		AvatarController avatar = holderComp.GetComponent<AvatarController>();
-		if (avatar != null)
+		if (holderComp.TryGetComponent(out AvatarController avatar))
 		{
 			avatar.InventorySync();
 		}

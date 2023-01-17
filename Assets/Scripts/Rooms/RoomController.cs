@@ -239,8 +239,7 @@ public class RoomController : MonoBehaviour
 		LockController[] locks = prefab.GetComponents<LockController>();
 		if (locks.Length <= 0)
 		{
-			GateController gate = prefab.GetComponent<GateController>();
-			if (gate != null)
+			if (prefab.TryGetComponent(out GateController gate))
 			{
 				locks = gate.m_lockPrefabs.Select(info => info.m_object.m_prefab.GetComponent<LockController>()).ToArray();
 			}
@@ -568,8 +567,7 @@ public class RoomController : MonoBehaviour
 		{
 			foreach (GameObject wall in m_walls.Concat(m_doorwayInfos.Select(info => info.m_object)))
 			{
-				PolygonCollider2D collider = wall.GetComponent<PolygonCollider2D>();
-				if (collider == null)
+				if (!wall.TryGetComponent(out PolygonCollider2D collider))
 				{
 					continue;
 				}
@@ -635,8 +633,7 @@ public class RoomController : MonoBehaviour
 
 				// TODO: update shadow caster
 				// TODO: function?
-				ShadowCaster2D shadowCaster = wall.GetComponent<ShadowCaster2D>();
-				if (shadowCaster != null)
+				if (wall.TryGetComponent(out ShadowCaster2D shadowCaster))
 				{
 					shadowCaster.NonpublicSetterWorkaround("m_ShapePath", points);
 					shadowCaster.NonpublicSetterWorkaround("m_ShapePathHash", points.GetHashCode());
@@ -897,10 +894,7 @@ public class RoomController : MonoBehaviour
 			itemCount += furniture.Item1.SpawnItems(furniture.Item2 != null || LayoutNodes.Any(node => node.m_type == LayoutGenerator.Node.Type.BonusItems), RoomType, itemCount, furnitureRemaining, prefabsSpawned).Count;
 			--furnitureRemaining;
 
-			if (furniture.Item2 != null)
-			{
-				furniture.Item2.SpawnKeysDynamic(this, new[] { this }, 0.0f); // TODO: spaced-out keys?
-			}
+			furniture.Item2?.SpawnKeysDynamic(this, new[] { this }, 0.0f); // TODO: spaced-out keys?
 		}
 
 		// spawn keys
@@ -937,16 +931,14 @@ public class RoomController : MonoBehaviour
 
 			GameObject obj = Instantiate(prefabs.RandomWeighted(), position, transform.rotation, transform);
 
-			SpriteRenderer renderer = obj.GetComponent<SpriteRenderer>();
-			if (renderer != null)
+			if (obj.TryGetComponent(out SpriteRenderer renderer))
 			{
 				renderer.size = new(widthIncrement, heightOverride >= 0.0f ? heightOverride : renderer.size.y);
 			}
 
 			if (posFunc != null || tangentFunc != null)
 			{
-				SpriteShapeController shape = obj.GetComponent<SpriteShapeController>();
-				if (shape != null)
+				if (obj.TryGetComponent(out SpriteShapeController shape))
 				{
 					Spline spline = shape.spline;
 					int nInitial = spline.GetPointCount();
@@ -987,8 +979,7 @@ public class RoomController : MonoBehaviour
 				}
 			}
 
-			BoxCollider2D collider = obj.GetComponent<BoxCollider2D>();
-			if (collider != null)
+			if (obj.TryGetComponent(out BoxCollider2D collider))
 			{
 				collider.size = new(widthIncrement, heightOverride >= 0.0f ? heightOverride : renderer != null ? renderer.size.y : collider.size.y);
 				collider.offset = new(collider.offset.x, collider.size.y * verticalScale * 0.5f);
@@ -1126,8 +1117,7 @@ public class RoomController : MonoBehaviour
 					{
 						overlap = Mathf.Max(overlap, getOverlap(renderer.bounds, bboxNew));
 					}
-					RectTransform tf = renderer.GetComponent<RectTransform>();
-					if (tf != null)
+					if (renderer.TryGetComponent(out RectTransform tf))
 					{
 						Bounds bboxRect = new((Vector3)tf.rect.center + tf.position, tf.rect.size);
 						if (bboxRect.Intersects(bboxNew))
@@ -1206,8 +1196,7 @@ public class RoomController : MonoBehaviour
 			keyObj = prefab.GetComponent<ISavable>() == null ? Instantiate(prefab, spawnPos, Quaternion.identity, isItem ? null : transform) : GameController.Instance.m_savableFactory.Instantiate(prefab, spawnPos, Quaternion.identity);
 		}
 
-		ItemController item = keyObj.GetComponent<ItemController>();
-		if (item != null)
+		if (keyObj.TryGetComponent(out ItemController item))
 		{
 			item.IsCriticalPath = isCriticalPath;
 		}
@@ -1367,7 +1356,7 @@ public class RoomController : MonoBehaviour
 				collider.offset = new(collider.offset.x, rungHeightTotal * 0.5f);
 			}
 
-			if (ladder.TryGetComponent<Spring>(out var spring))
+			if (ladder.TryGetComponent(out Spring spring))
 			{
 				spring.m_launchDistance = heightDiff + rungOnlyHeight;
 			}
@@ -1701,8 +1690,8 @@ public class RoomController : MonoBehaviour
 	{
 		GameObject[] doorInteractPrefabs = GameController.Instance.m_doorInteractPrefabs;
 		GameObject doorPrefab = doorInteractPrefabs[System.Math.Min(doorInteractPrefabs.Length - 1, doorwayDepth)];
-		InteractScene doorInteract = Instantiate(doorPrefab, isEntrance ? transform.position : InteriorPosition(0.0f, 0.0f, doorPrefab), Quaternion.identity, transform).GetComponent<InteractScene>();
-		if (doorInteract != null)
+		GameObject doorObj = Instantiate(doorPrefab, isEntrance ? transform.position : InteriorPosition(0.0f, 0.0f, doorPrefab), Quaternion.identity, transform);
+		if (doorObj.TryGetComponent(out InteractScene doorInteract))
 		{
 			doorInteract.Depth = doorwayDepth;
 		}
@@ -1767,22 +1756,19 @@ public class RoomController : MonoBehaviour
 			}
 			if (renderers.Length > 1)
 			{
-				Health health = renderer.GetComponent<Health>();
-				if (health != null)
+				if (renderer.TryGetComponent(out Health health))
 				{
 					health.m_invincibilityDirection = replaceDirection;
 				}
 			}
 
-			VisualEffect vfx = renderer.GetComponent<VisualEffect>();
-			if (vfx != null)
+			if (renderer.TryGetComponent(out VisualEffect vfx))
 			{
 				vfx.SetVector3("StartAreaSize", size);
 			}
 
 			// update shadow caster shape
-			ShadowCaster2D shadowCaster = renderer.GetComponent<ShadowCaster2D>();
-			if (shadowCaster != null)
+			if (renderer.TryGetComponent(out ShadowCaster2D shadowCaster))
 			{
 				Vector3 extents = size * 0.5f;
 				Vector3[] shapePath = new Vector3[] { new(-extents.x, -extents.y), new(extents.x, -extents.y), new(extents.x, extents.y), new(-extents.x, extents.y) };
@@ -1839,8 +1825,7 @@ public class RoomController : MonoBehaviour
 		GameObject doorway = doorwayInfo.m_object;
 
 		// enable/disable doorway
-		PlatformEffector2D effector = doorway.GetComponent<PlatformEffector2D>();
-		if (effector == null)
+		if (!doorway.TryGetComponent(out PlatformEffector2D effector))
 		{
 			doorway.SetActive(!open);
 		}
@@ -1987,8 +1972,7 @@ public class RoomController : MonoBehaviour
 
 				// NOTE the copy to prevent editing other branches' paths
 				// TODO: efficiency?
-				List<RoomController> roomPathNew = new(pathItr.m_pathRooms);
-				roomPathNew.Add(roomNext);
+				List<RoomController> roomPathNew = new(pathItr.m_pathRooms) { roomNext };
 				List<Vector2> posPathNew = new(pathItr.m_pathPositions);
 				connectionPoints.RemoveAt(0); // since this is redundant w/ posPathNew.Last()
 				posPathNew.AddRange(connectionPoints);

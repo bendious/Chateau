@@ -12,13 +12,11 @@ public class DisableAnimatorControl : StateMachineBehaviour
 	// OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
 	override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
 	{
-		m_avatar = animator.GetComponent<AvatarController>();
-		if (m_avatar != null)
+		if (animator.TryGetComponent<AvatarController>(out m_avatar))
 		{
 			m_avatar.DisablePlayerControl();
 		}
-		m_ai = animator.GetComponent<AIController>();
-		if (m_ai != null)
+		if (animator.TryGetComponent<AIController>(out m_ai))
 		{
 			m_wasPassive = m_ai.m_passive;
 			m_ai.m_passive = true;

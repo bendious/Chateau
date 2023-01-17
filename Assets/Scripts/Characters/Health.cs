@@ -166,8 +166,7 @@ public class Health : MonoBehaviour
 		{
 			item.SetCause(sourceCharacter);
 		}
-		DespawnEffect effect = GetComponent<DespawnEffect>();
-		if (effect != null)
+		if (TryGetComponent(out DespawnEffect effect))
 		{
 			effect.CauseExternal = sourceCharacter;
 		}

@@ -234,8 +234,7 @@ public class LineConnector : MonoBehaviour
 		{
 			return;
 		}
-		Rigidbody2D body = GetComponent<Rigidbody2D>();
-		if (body == null)
+		if (!TryGetComponent(out Rigidbody2D body))
 		{
 			return;
 		}

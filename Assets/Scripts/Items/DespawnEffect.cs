@@ -132,8 +132,8 @@ public class DespawnEffect : MonoBehaviour
 
 	private void SpawnEffect(Action type, Vector3 position)
 	{
-		Explosion explosion = Instantiate(type == Action.TriggerRepeated && m_prefabAltRepeated != null ? m_prefabAltRepeated : m_prefab, position, transform.rotation).GetComponent<Explosion>();
-		if (explosion != null)
+		GameObject effectObj = Instantiate(type == Action.TriggerRepeated && m_prefabAltRepeated != null ? m_prefabAltRepeated : m_prefab, position, transform.rotation);
+		if (effectObj.TryGetComponent(out Explosion explosion))
 		{
 			explosion.m_source = Cause;
 		}

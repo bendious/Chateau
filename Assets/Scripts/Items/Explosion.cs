@@ -89,8 +89,7 @@ public class Explosion : MonoBehaviour
 			}
 		}
 
-		Health health = collider.GetComponent<Health>();
-		if (health == null)
+		if (!collider.TryGetComponent(out Health health))
 		{
 			return;
 		}

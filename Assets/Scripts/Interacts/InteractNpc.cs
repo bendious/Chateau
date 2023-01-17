@@ -120,10 +120,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 			yield break;
 		}
 		Dialogue.Info dialogueCur = dialogueAllowed.FirstOrDefault(dialogue => dialogue.m_weight == 0.0f)?.m_object;
-		if (dialogueCur == null)
-		{
-			dialogueCur = dialogueAllowed.RandomWeighted();
-		}
+		dialogueCur ??= dialogueAllowed.RandomWeighted();
 		Dialogue.Info dialogueAppend = dialogueCur.m_singleUse ? null : dialogueAllowed.FirstOrDefault(dialogueWeighted => dialogueWeighted.m_object.m_appendToAll && dialogueWeighted.m_object != dialogueCur)?.m_object; // TODO: support multiple append dialogues?
 
 		// play dialogue

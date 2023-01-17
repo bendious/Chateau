@@ -531,12 +531,7 @@ public sealed class AvatarController : KinematicCharacter
 		}
 		else
 		{
-			IAttachable primaryAttachable = GetComponentInChildren<IAttachable>(true);
-			if (primaryAttachable != null)
-			{
-				primaryAttachable.Detach(false);
-				// NOTE that m_inventoryIdx may now be invalid, but will be corrected by InventorySync()
-			}
+			GetComponentInChildren<IAttachable>(true)?.Detach(false); // NOTE that this may invalidate m_inventoryIdx, but it will be corrected by InventorySync()
 		}
 	}
 
@@ -921,8 +916,7 @@ public sealed class AvatarController : KinematicCharacter
 		{
 			return;
 		}
-		IAttachable attachable = evt.m_object.GetComponent<IAttachable>();
-		if (attachable == null)
+		if (!evt.m_object.TryGetComponent(out IAttachable attachable))
 		{
 			return;
 		}

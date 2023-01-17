@@ -119,8 +119,7 @@ public class FurnitureController : MonoBehaviour
 		Vector3 spawnPos = ItemSpawnPosition(prefab, sizeScalarX, sizeScalarY);
 		GameObject keyObj = prefab.GetComponent<ISavable>() == null ? Instantiate(prefab, spawnPos, Quaternion.identity) : GameController.Instance.m_savableFactory.Instantiate(prefab, spawnPos, Quaternion.identity);
 
-		ItemController item = keyObj.GetComponent<ItemController>();
-		if (item != null)
+		if (keyObj.TryGetComponent(out ItemController item))
 		{
 			item.IsCriticalPath = isCriticalPath;
 		}

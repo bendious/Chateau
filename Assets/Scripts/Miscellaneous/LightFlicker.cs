@@ -61,10 +61,7 @@ public sealed class LightFlicker : LightFlickerSynced
 
 	public void AddChild(LightFlickerSynced child)
 	{
-		if (m_children == null)
-		{
-			m_children = new();
-		}
+		m_children ??= new();
 		child.UpdateIntensity(false, m_phase, false);
 		m_children.Add(child);
 	}

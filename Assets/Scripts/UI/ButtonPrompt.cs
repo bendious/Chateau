@@ -50,20 +50,17 @@ public class ButtonPrompt : MonoBehaviour
 		string currentSchemeName = m_playerInput.currentControlScheme;
 		UnityEngine.Object currentSprite = m_infos.First(info => Array.Exists(info.m_controlSchemeNames, schemeName => schemeName == currentSchemeName)).m_sprites[m_index];
 
-		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-		if (renderer != null)
+		if (TryGetComponent(out SpriteRenderer renderer))
 		{
 			renderer.sprite = (Sprite)currentSprite;
 		}
 
-		Image image = GetComponent<Image>();
-		if (image != null)
+		if (TryGetComponent(out Image image))
 		{
 			image.sprite = (Sprite)currentSprite;
 		}
 
-		TMP_Text text = GetComponent<TMP_Text>();
-		if (text != null)
+		if (TryGetComponent(out TMP_Text text))
 		{
 			text.spriteAsset = (TMP_SpriteAsset)currentSprite;
 		}

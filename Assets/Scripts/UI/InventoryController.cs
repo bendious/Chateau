@@ -208,9 +208,7 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 		}
 
 		// swap icon positions
-		Vector3 tmp = m_restPosition;
-		m_restPosition = element2.m_restPosition;
-		element2.m_restPosition = tmp;
+		(element2.m_restPosition, m_restPosition) = (m_restPosition, element2.m_restPosition);
 
 		// slide to new positions
 		StartCoroutine(LerpToRest());

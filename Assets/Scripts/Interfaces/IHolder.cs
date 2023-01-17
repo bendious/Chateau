@@ -107,8 +107,7 @@ public interface IHolder
 			}
 		}
 
-		AvatarController avatar = holderTf.parent.GetComponent<AvatarController>();
-		if (avatar != null)
+		if (holderTf.parent.TryGetComponent(out AvatarController avatar))
 		{
 			avatar.InventorySync(); // TODO: avoid multi-sync when detaching multiple (e.g. upon death)?
 		}

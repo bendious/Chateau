@@ -217,8 +217,7 @@ public class DialogueController : MonoBehaviour
 		}
 
 		// despawn
-		DespawnEffect despawnEffect = attachableComp.GetComponent<DespawnEffect>();
-		if (despawnEffect != null)
+		if (attachableComp.TryGetComponent(out DespawnEffect despawnEffect))
 		{
 			Destroy(despawnEffect);
 		}
@@ -300,8 +299,7 @@ public class DialogueController : MonoBehaviour
 			{
 				return false;
 			}
-			AIController ai = c.GetComponent<AIController>();
-			if (ai != null)
+			if (c.TryGetComponent(out AIController ai))
 			{
 				bool wasPassive = ai.m_passive;
 				ai.m_passive = passive;
@@ -422,7 +420,7 @@ public class DialogueController : MonoBehaviour
 				tagCharCount = 0;
 				List<string> endTags = new();
 				MatchCollection matches = m_tagMatcher.Matches(textCur);
-				foreach (Match match in matches)
+				foreach (Match match in matches.Cast<Match>())
 				{
 					Debug.Assert(match.Success);
 					if (match.Index < m_revealedCharCount + tagCharCount)

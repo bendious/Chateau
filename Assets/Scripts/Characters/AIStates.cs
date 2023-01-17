@@ -1006,19 +1006,16 @@ public sealed class AISpawn : AIState
 			KinematicAccelerator prefabAccelerator = prefab.GetComponent<KinematicAccelerator>();
 			Vector3 spawnPos = prefabAccelerator == null ? m_ai.transform.position : m_ai.m_target.transform.position + (Random.value < 0.5f ? (Vector3)prefabAccelerator.m_startOffset : new(-prefabAccelerator.m_startOffset.x, prefabAccelerator.m_startOffset.y)); // TODO: make sure starting point is in room
 			GameObject spawnedObj = Object.Instantiate(prefab, spawnPos, prefabAccelerator != null ? Quaternion.identity : Utility.ZRotation(m_ai.m_target.transform.position - spawnPos)); // TODO: parameterize rotation?
-			KinematicAccelerator accelerator = spawnedObj.GetComponent<KinematicAccelerator>();
-			if (accelerator != null)
+			if (spawnedObj.TryGetComponent(out KinematicAccelerator accelerator))
 			{
 				accelerator.m_target = m_ai.m_target;
 			}
-			SpriteRenderer r = spawnedObj.GetComponent<SpriteRenderer>();
-			if (r != null)
+			if (spawnedObj.TryGetComponent(out SpriteRenderer r))
 			{
 				r.color = m_ai.GetComponent<SpriteRenderer>().color;
 				r.flipX = spawnPos.x < m_ai.transform.position.x; // TODO: parameterize?
 			}
-			DespawnEffect despawnEffect = spawnedObj.GetComponent<DespawnEffect>();
-			if (despawnEffect != null)
+			if (spawnedObj.TryGetComponent(out DespawnEffect despawnEffect))
 			{
 				despawnEffect.CauseExternal = m_ai;
 			}

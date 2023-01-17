@@ -78,8 +78,7 @@ public class InteractUpgrade : MonoBehaviour, IInteractable
 				foreach (VisualEffect vfx in childObj.GetComponentsInChildren<VisualEffect>(true))
 				{
 					// match color(s)
-					Light2D light = vfx.GetComponent<Light2D>();
-					if (light != null)
+					if (vfx.TryGetComponent(out Light2D light))
 					{
 						light.color = colors.Item1.First();
 						colors.Item1.RemoveAt(0);
@@ -112,8 +111,7 @@ public class InteractUpgrade : MonoBehaviour, IInteractable
 
 		foreach (VisualEffect vfx in GetComponentsInChildren<VisualEffect>(true))
 		{
-			Light2D light = vfx.GetComponent<Light2D>();
-			if (light != null)
+			if (vfx.TryGetComponent(out Light2D light))
 			{
 				colors.Item1.Add(light.color);
 			}

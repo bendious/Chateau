@@ -167,8 +167,7 @@ public abstract class KinematicObject : MonoBehaviour
 				}
 
 				// resolve kinematic-kinematic collisions
-				KinematicObject otherKinematic = contact.collider.GetComponent<KinematicObject>();
-				if (otherKinematic != null)
+				if (contact.collider.TryGetComponent(out KinematicObject otherKinematic))
 				{
 					KinematicCollision evt = Simulation.Schedule<KinematicCollision>();
 					evt.m_component1 = this;
@@ -284,8 +283,7 @@ public abstract class KinematicObject : MonoBehaviour
 			for (int i = 0; i < count; i++)
 			{
 				RaycastHit2D hit = m_hitBuffer[i];
-				KinematicObject otherKinematic = hit.collider.GetComponent<KinematicObject>();
-				if (otherKinematic != null)
+				if (hit.collider.TryGetComponent(out KinematicObject otherKinematic))
 				{
 					KinematicCollision evt = Simulation.Schedule<KinematicCollision>();
 					evt.m_component1 = this;

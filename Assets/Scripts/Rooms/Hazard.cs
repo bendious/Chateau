@@ -94,8 +94,7 @@ public class Hazard : MonoBehaviour
 
 		// TODO: check for unlocking
 
-		Health health = collider.GetComponent<Health>();
-		if (health == null)
+		if (!collider.TryGetComponent(out Health health))
 		{
 			return;
 		}

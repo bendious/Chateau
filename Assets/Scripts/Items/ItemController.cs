@@ -253,11 +253,10 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 		UpdateTrailWidth(false);
 
-		if (m_holder != null) // NOTE that this is valid for items attached to static geometry rather than an IHolder
-		{
-			m_holder.ChildDetach(this, noAutoReplace);
-		}
+		m_holder?.ChildDetach(this, noAutoReplace); // NOTE that m_holder is null for items attached to static geometry rather than an IHolder
 
+		{
+		}
 		m_body.useFullKinematicContacts = false;
 
 		m_detachOnDamage = false;
@@ -549,8 +548,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 				{
 					Detach(true);
 				}
-				ItemController otherItem = collider.GetComponent<ItemController>();
-				if (otherItem != null)
+				if (collider.TryGetComponent(out ItemController otherItem))
 				{
 					if (otherItem.m_detachOnDamage)
 					{

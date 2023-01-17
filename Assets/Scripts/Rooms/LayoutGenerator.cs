@@ -304,10 +304,7 @@ public class LayoutGenerator
 
 			foreach (Node child in children)
 			{
-				if (child.DirectParentsInternal == null)
-				{
-					child.DirectParentsInternal = new();
-				}
+				child.DirectParentsInternal ??= new();
 				Assert.IsTrue(!child.DirectParentsInternal.Contains(this));
 				child.DirectParentsInternal.Add(this);
 			}
