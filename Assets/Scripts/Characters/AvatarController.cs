@@ -296,8 +296,6 @@ public sealed class AvatarController : KinematicCharacter
 	{
 		base.OnDestroy();
 
-		DetachAll();
-
 		Controls.actions.FindActionMap("Avatar").FindAction("LookToggle").canceled -= OnLookToggleCancel; // TODO: cleaner workaround / remove hardcoding?
 		OnHealthDecrement.OnExecute -= OnDamage;
 		OnHealthDeath.OnExecute -= OnDeath;
@@ -365,6 +363,10 @@ public sealed class AvatarController : KinematicCharacter
 	public void OnLookToggle(InputValue input)
 	{
 		IsLooking = ControlEnabled && input != null && input.isPressed;
+		if (m_aimObject == null) // to prevent asserts during shutdown
+		{
+			return;
+		}
 		if (IsLooking)
 		{
 			GameController.Instance.AddCameraTargets(m_aimObject.transform);

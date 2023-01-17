@@ -255,7 +255,9 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 		m_holder?.ChildDetach(this, noAutoReplace); // NOTE that m_holder is null for items attached to static geometry rather than an IHolder
 
+		if (m_body == null) // to prevent asserts during shutdown
 		{
+			return;
 		}
 		m_body.useFullKinematicContacts = false;
 

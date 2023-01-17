@@ -57,7 +57,13 @@ public interface IAttachable
 
 		// "cancel" the effect of DontDestroyOnLoad() in case we were attached to the avatar
 		// see https://answers.unity.com/questions/1491238/undo-dontdestroyonload.html
-		if (!GameController.IsSceneLoad)
+		if (GameController.IsSceneLoad)
+		{
+			// workaround for Unity leaving avatar-held objects around after shutdown
+			// NOTE that we can't use DespawnObject or deferred Destroy() due to the program ending immediately
+			GameObject.DestroyImmediate(attachableObj);
+		}
+		else
 		{
 			SceneManager.MoveGameObjectToScene(attachableObj, SceneManager.GetActiveScene());
 		}
@@ -76,7 +82,7 @@ public interface IAttachable
 		Transform tf = Component.transform;
 		Transform parentTf = tf.parent;
 		SpriteRenderer renderer = tf.GetComponentInChildren<SpriteRenderer>();
-		SpriteRenderer parentRenderer = parentTf.GetComponent<SpriteRenderer>();
+		SpriteRenderer parentRenderer = parentTf == null ? null : parentTf.GetComponent<SpriteRenderer>();
 		WaitUntil waitCondition = new(() => parentTf == null || tf.parent != parentTf || parentRenderer.color.a != renderer.color.a);
 
 		while (parentTf != null && tf.parent == parentTf)

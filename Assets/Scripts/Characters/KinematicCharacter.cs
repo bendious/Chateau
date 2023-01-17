@@ -173,6 +173,8 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	{
 		OnHealthDecrement.OnExecute -= OnDamage;
 		OnHealthDeath.OnExecute -= OnDeath;
+
+		DetachAll();
 	}
 
 
