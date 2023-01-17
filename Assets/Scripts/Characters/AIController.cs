@@ -30,6 +30,7 @@ public sealed class AIController : KinematicCharacter
 	[SerializeField] private bool m_airControl = true;
 	[SerializeField] private bool m_jumpAlways;
 	[SerializeField] private float m_jumpPct = 0.05f;
+	[SerializeField] private float m_jumpPctRapid = 0.25f;
 
 	[SerializeField] private float m_dropDecayTime = 0.2f;
 
@@ -152,10 +153,7 @@ public sealed class AIController : KinematicCharacter
 #if UNITY_EDITOR
 	private void OnDrawGizmos()
 	{
-		if (m_aiState != null)
-		{
-			m_aiState.DebugGizmo();
-		}
+		m_aiState?.DebugGizmo();
 
 		if (ConsoleCommands.AIDebugLevel >= (int)ConsoleCommands.AIDebugLevels.Positions)
 		{
@@ -182,10 +180,7 @@ public sealed class AIController : KinematicCharacter
 		OnHealthDecrement.OnExecute -= OnDamage;
 		OnHealthDeath.OnExecute -= OnDeath;
 
-		if (m_aiState != null)
-		{
-			m_aiState.Exit(); // in case the AIState manages external things (e.g. AIFinalDialogue loads a scene)
-		}
+		m_aiState?.Exit(); // in case the AIState manages external things (e.g. AIFinalDialogue loads a scene)
 	}
 
 
@@ -225,10 +220,7 @@ public sealed class AIController : KinematicCharacter
 			// NOTE that we can't split this across frames since we might not get another Update() call due to death
 			m_aiState.Exit();
 			m_aiState = stateNew;
-			if (m_aiState != null)
-			{
-				m_aiState.Enter();
-			}
+			m_aiState?.Enter();
 		}
 	}
 
@@ -375,7 +367,10 @@ public sealed class AIController : KinematicCharacter
 			// TODO: only jump when directly below, but w/o getting stuck?
 			Bounds nextBounds = targetCollider == null || m_pathfindWaypoints.Count > 1 ? new(nextWaypoint, Vector3.zero) : targetCollider.bounds;
 			Bounds selfBounds = Bounds;
-			if (IsGrounded && (m_jumpAlways || nextBounds.min.y > selfBounds.max.y) && Random.value <= m_jumpPct)
+			List<ContactPoint2D> contacts = new();
+			body.GetContacts(contacts);
+			bool jumpOverObstruction = dir.y.FloatEqual(0.0f) && contacts.Any(c => Vector2.Dot(c.normal, dir) < 0.0f);
+			if (IsGrounded && (m_jumpAlways || jumpOverObstruction || nextBounds.min.y > selfBounds.max.y) && Random.value <= (jumpOverObstruction || (dir.x == 0.0f && dir.y != 0.0f) ? m_jumpPctRapid : m_jumpPct))
 			{
 				m_jump = 1.0f;
 				if (!m_airControl)
@@ -393,7 +388,7 @@ public sealed class AIController : KinematicCharacter
 					m_jump *= Mathf.Min(1.0f, waypointDiff.magnitude / jumpMaxDist); // TODO: separate x/y logic for improved upward movement?
 				}
 			}
-			move.y = IsGrounded && nextBounds.max.y < selfBounds.min.y ? -1.0f : Mathf.SmoothDamp(move.y, 0.0f, ref m_dropDecayVel, m_dropDecayTime * 2.0f); // NOTE the IsGrounded check and damped decay (x2 since IsDropping's threshold is -0.5) to cause stopping at each ladder rung when descending
+			move.y = IsGrounded && nextBounds.max.y < selfBounds.min.y ? -1.0f : Mathf.SmoothDamp(move.y, 0.0f, ref m_dropDecayVel, m_dropDecayTime * 2.0f); // NOTE the IsGrounded check and damped decay (x2 since IsDropping's threshold is -0.5) to cause stopping at each ladder rung when descending // TODO: handle dropping through springs
 		}
 
 		return m_pathfindWaypoints.Count == 0;
@@ -431,10 +426,7 @@ public sealed class AIController : KinematicCharacter
 	public void DebugPathfindTest()
 	{
 		m_target = GameController.Instance.m_avatars.First();
-		if (m_aiState != null)
-		{
-			m_aiState.Exit();
-		}
+		m_aiState?.Exit();
 		m_aiState = new AIPursue(this);
 		m_aiState.Enter();
 	}
