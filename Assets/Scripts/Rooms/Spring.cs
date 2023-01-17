@@ -45,7 +45,7 @@ public class Spring : MonoBehaviour
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		if (m_launchDistance == 0.0f || collision.rigidbody == null || collision.rigidbody.bodyType == RigidbodyType2D.Static || collision.transform.parent != null)
+		if (collision.rigidbody == null || collision.rigidbody.bodyType == RigidbodyType2D.Static || collision.transform.parent != null)
 		{
 			return;
 		}
@@ -69,7 +69,9 @@ public class Spring : MonoBehaviour
 
 	private void FixedUpdate()
 	{
-		if (m_supportedBodies.Count <= 0 && m_diff.FloatEqual(0.0f) && m_diffVel.FloatEqual(0.0f))
+		float massTotal = m_mass + m_supportedBodies.Sum(b => b == null ? 0.0f : b.mass);
+		m_diffRest = massTotal * -Physics2D.gravity.magnitude / m_stiffness; // force = stiffness * diff, force = mass * accel = mass * gravity --> diff = mass * gravity / stiffness
+		if (m_supportedBodies.Count <= 0 && m_diff.FloatEqual(m_diffRest) && m_diffVel.FloatEqual(0.0f))
 		{
 			if (m_audio.isPlaying)
 			{
@@ -79,9 +81,7 @@ public class Spring : MonoBehaviour
 		}
 
 		// calculate
-		float massTotal = m_mass + m_supportedBodies.Sum(b => b == null ? 0.0f : b.mass);
-		m_diffRest = massTotal * -Physics2D.gravity.magnitude / m_stiffness; // force = stiffness * diff, force = mass * accel = mass * gravity --> diff = mass * gravity / stiffness
-		m_diff = Utility.DampedSpring(m_diff, m_diffRest, m_dampPct, false, m_stiffness, m_mass, ref m_diffVel);
+		m_diff = Utility.DampedSpring(m_diff, m_diffRest, m_dampPct, false, m_stiffness, m_mass, ref m_diffVel); // NOTE that DampedSpring().mass is only the mass attached to the spring, not the total mass
 		if (m_diff < m_diffMin)
 		{
 			m_diff = m_diffMin;
@@ -92,7 +92,6 @@ public class Spring : MonoBehaviour
 		float heightCur = m_heightInitial + m_diff;
 		m_renderer.size = new(m_renderer.size.x, heightCur);
 		float colliderDiff = heightCur - m_collider.size.y;
-		if (!colliderDiff.FloatEqual(0.0f))
 		{
 			// make sure supported bodies stay in contact w/ our collider as it shrinks
 			// NOTE that this occurs BEFORE setting m_collider.{size/offset}
@@ -105,13 +104,11 @@ public class Spring : MonoBehaviour
 				}
 				KinematicObject kObj = body.GetComponent<KinematicObject>();
 				float upwardSpeed = kObj == null ? body.velocity.y : kObj.velocity.y;
-				if (m_diffVel < 0.0f || m_diffVel > upwardSpeed)
-				{
-					body.GetAttachedColliders(colliders);
-					Bounds bounds = colliders.ToBounds();
-					float bodyDiff = m_collider.bounds.max.y + colliderDiff - bounds.min.y;
-					body.position = new(body.position.x, body.position.y + bodyDiff);
-				}
+				body.GetAttachedColliders(colliders);
+				Bounds bounds = colliders.ToBounds();
+				float bodyDiff = m_collider.bounds.max.y + colliderDiff - bounds.min.y;
+				bool shouldStick = m_diffVel <= 0.0f || (m_diffVel > m_speedThreshold && m_diffVel > upwardSpeed);
+				body.position = new(body.position.x, body.position.y + bodyDiff + (shouldStick ? 0.0f : 0.1f)); // NOTE the small amount of space added when deliberately releasing // TODO: don't assume upward-facing springs?
 			}
 		}
 		m_collider.size = new(m_collider.size.x, heightCur);
@@ -136,7 +133,13 @@ public class Spring : MonoBehaviour
 
 	private void MaybeLaunch(Rigidbody2D body)
 	{
-		if (!m_supportedBodies.Contains(body) || m_diff < m_diffRest || m_diffVel < m_speedThreshold)
+		if (!m_supportedBodies.Contains(body))
+		{
+			return;
+		}
+		m_supportedBodies.Remove(body);
+
+		if (m_diff < m_diffRest || m_diffVel <= 0.0f)
 		{
 			return;
 		}
@@ -175,10 +178,7 @@ public class Spring : MonoBehaviour
 		}
 
 		// disable collision to prevent multi-launching
-		List<Collider2D> colliders = new();
-		body.GetAttachedColliders(colliders);
+		Collider2D[] colliders = body.GetComponentsInChildren<Collider2D>(true); // NOTE that this includes even attached colliders w/ their own body
 		EnableCollision.TemporarilyDisableCollision(new[] { m_collider }, colliders);
-
-		m_supportedBodies.Remove(body);
 	}
 }
