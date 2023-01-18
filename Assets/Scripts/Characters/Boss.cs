@@ -51,6 +51,8 @@ public class Boss : MonoBehaviour
 		m_health = GetComponent<Health>();
 		m_health.SetMax(m_health.GetMax() * GameController.Instance.m_zoneScalar);
 		m_colorFinal = m_health.ColorCurrent;
+
+		m_ai.AimScalar = 0.0f;
 	}
 
 	private void OnWillRenderObject()
@@ -85,19 +87,23 @@ public class Boss : MonoBehaviour
 
 	private void FixedUpdate()
 	{
-		if (!IsArmReveal)
+		if (!m_ai.m_noArmUpdates)
 		{
 			return;
 		}
 
-		Vector2 closestAvatarDiff = (Vector2)GameController.Instance.m_avatars.SelectMin(avatar => Vector2.Distance(avatar.transform.position, transform.position)).transform.position - (Vector2)transform.position; // TODO: don't re-choose every frame?
+		bool isReveal = IsArmReveal;
+		Vector2 closestAvatarDiff = m_started && isReveal ? (Vector2)GameController.Instance.m_avatars.SelectMin(avatar => Vector2.Distance(avatar.transform.position, transform.position)).transform.position - (Vector2)transform.position : m_ai.LeftFacing ? Vector2.left : Vector2.right; // TODO: don't re-choose every frame?
 		Vector2 aimPos = transform.position + Quaternion.Euler(0.0f, 0.0f, m_introAimDegrees + Utility.ZDegrees(closestAvatarDiff)) * Vector2.right;
 		bool hasOffset = m_ai.GetComponentsInChildren<ArmController>().Length > 2; // TODO: de-couple number of arms/eyes from whether they are offset from each other?
 		for (int i = hasOffset ? (int)m_introAimDegrees * m_arms.Length / 360 : 0; i < m_arms.Length; ++i)
 		{
 			m_arms[i].UpdateAim(m_ai.ArmOffset, aimPos, aimPos);
 		}
-		m_introAimDegrees = Mathf.SmoothDamp(m_introAimDegrees, 360.0f, ref m_introAimVel, m_smoothTimeSlow);
+		if (isReveal)
+		{
+			m_introAimDegrees = Mathf.SmoothDamp(m_introAimDegrees, 360.0f, ref m_introAimVel, m_smoothTimeSlow);
+		}
 	}
 
 	private void OnDestroy()
@@ -139,6 +145,7 @@ public class Boss : MonoBehaviour
 		m_started = false;
 		m_activatedFully = false;
 		m_ai.m_passive = true;
+		m_ai.m_noArmUpdates = true;
 		m_ai.gravityModifier = 1.0f;
 		m_ai.Teleport(m_debugStartPos);
 		m_health.m_invincible = true;
@@ -213,7 +220,10 @@ public class Boss : MonoBehaviour
 		// reveal arms / roll eyes
 		// (see also FixedUpdate())
 		m_introAimDegrees = 0.0f;
+		m_ai.AimScalar = 1.0f;
+		m_ai.m_noArmUpdates = true;
 		yield return new WaitWhile(() => IsArmReveal);
+		m_ai.m_noArmUpdates = false;
 
 		// dialogue
 		// see Synchronous Coroutines in https://www.alanzucconi.com/2017/02/15/nested-coroutines-in-unity/

@@ -12,6 +12,7 @@ public sealed class AIController : KinematicCharacter
 	[SerializeField] private AIState.Type[] m_allowedStates = new[] { AIState.Type.Fraternize, AIState.Type.Pursue, AIState.Type.Flee, AIState.Type.RamSwoop };
 
 	public bool m_passive;
+	public bool m_noArmUpdates;
 	public bool m_friendly;
 
 	public float m_difficulty = 1.0f;
@@ -137,7 +138,7 @@ public sealed class AIController : KinematicCharacter
 	{
 		base.FixedUpdate();
 
-		if (m_passive) // NOTE that though arms should generally be updated even when passive, boss intros rely on that not being the case... // TODO: decouple?
+		if (m_noArmUpdates) // NOTE that though arms should generally be updated even when passive, boss intros rely on manipulating the arms independently
 		{
 			return;
 		}

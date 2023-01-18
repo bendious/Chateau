@@ -33,9 +33,9 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	[SerializeField] private float m_radiusBase = 0.0f;
 
 	[SerializeField] private float m_aimStiffnessMin = 25.0f;
-	[SerializeField] private float m_aimStiffnessMax = 125.0f;
-	[SerializeField] private float m_radiusStiffnessMin = 100.0f;
-	[SerializeField] private float m_radiusStiffnessMax = 150.0f;
+	[SerializeField] private float m_aimStiffnessMax = 100.0f;
+	[SerializeField] private float m_radiusStiffnessMin = 25.0f;
+	[SerializeField] private float m_radiusStiffnessMax = 100.0f;
 	[SerializeField] private float m_springMassMax = 1.0f;
 
 	[SerializeField] private float m_swingDecayStiffness = 100.0f;

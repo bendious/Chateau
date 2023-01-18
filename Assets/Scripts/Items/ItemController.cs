@@ -243,6 +243,10 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		if (avatar != null)
 		{
 			avatar.StopAiming();
+			if (m_activateInventory)
+			{
+				avatar.m_inventoryUI.transform.GetChild(0).GetComponent<Animator>().enabled = false; // TODO: don't assume the prompt is the first child? check for any other held object w/ m_activateInventory?
+			}
 		}
 
 		Health causeHealth = Cause == null ? null : Cause.GetComponent<Health>();
