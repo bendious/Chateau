@@ -1842,7 +1842,7 @@ public class RoomController : MonoBehaviour
 			// TODO: match wall texture?
 			SpriteRenderer renderer = doorway.GetComponent<SpriteRenderer>();
 			renderer.color = open ? m_oneWayPlatformColor : m_wallColor;
-			renderer.sprite = open ? m_floorPlatformSprite : m_wallInfo.m_sprite;
+			renderer.sprite = open ? m_floorPlatformSprite : (m_wallInfo.m_sprite != null ? m_wallInfo.m_sprite : renderer.sprite);
 			doorway.GetComponent<ShadowCaster2D>().enabled = !open;
 		}
 
