@@ -204,6 +204,7 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 2048
   minGroundNormalY: 0.65
+  m_maxSlideDot: 0.707
   m_minWallClingNormalY: 3.4028235e+38
   gravityModifier: 1
   m_wallClingGravityScalar: 0.1
@@ -215,6 +216,7 @@ MonoBehaviour:
   m_damageScalar: 1
   m_dashVelocity: {x: 15, y: 0}
   m_dashSecondsXY: {x: 0.2, y: 0.2}
+  m_dashCooldownSec: 0.4
   m_dashInvincibility: 0
   m_dashDamage: 0
   m_dashSFX: []
@@ -230,6 +232,7 @@ MonoBehaviour:
   move: {x: 0, y: 0}
   m_allowedStates: 00000000010000000300000004000000
   m_passive: 0
+  m_noArmUpdates: 0
   m_friendly: 0
   m_difficulty: 1
   m_targetOffset: {x: 0, y: 0}
@@ -244,12 +247,13 @@ MonoBehaviour:
   m_airControl: 1
   m_jumpAlways: 0
   m_jumpPct: 0.05
+  m_jumpPctRapid: 0.25
   m_dropDecayTime: 0.2
   m_attackSFX: []
   m_attackPrefabs: []
   m_teleportVFX: []
   m_attentionFlagPrefab: {fileID: 0}
-  m_heldPrefab: {fileID: 0}
+  m_heldItems: []
   m_targetSelectTimeNext: 0
   m_pathfindTimeNext: 0
 --- !u!82 &5843668731025413174

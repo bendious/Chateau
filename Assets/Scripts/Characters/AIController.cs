@@ -43,7 +43,7 @@ public sealed class AIController : KinematicCharacter
 	[SerializeField] private GameObject m_attentionFlagPrefab;
 
 
-	[SerializeField] private GameObject m_heldPrefab;
+	[SerializeField] private WeightedObject<ItemController>[] m_heldItems;
 
 
 	public float AimOffsetDegrees { private get; set; }
@@ -86,7 +86,7 @@ public sealed class AIController : KinematicCharacter
 
 		m_targetOffsetOrig = m_targetOffset;
 
-		if (m_heldPrefab == null)
+		if (m_heldItems.Length <= 0)
 		{
 			return;
 		}
@@ -447,7 +447,7 @@ public sealed class AIController : KinematicCharacter
 			{
 				continue;
 			}
-			arm.ChildAttach(GameController.Instance.m_savableFactory.Instantiate(m_heldPrefab, transform.position, transform.rotation).GetComponent<ItemController>());
+			arm.ChildAttach(GameController.Instance.m_savableFactory.Instantiate(m_heldItems.RandomWeighted().gameObject, transform.position, transform.rotation).GetComponent<ItemController>()); // TODO: generic SavableFactory.Instantiate() param?
 		}
 
 		// clear AI state in case we had just planned to go get items
