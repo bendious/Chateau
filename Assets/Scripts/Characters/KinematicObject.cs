@@ -19,14 +19,19 @@ public abstract class KinematicObject : MonoBehaviour
 	public LayerMaskHelper m_layerIgnoreOneWay;
 
 	/// <summary>
-	/// The minimum normal (dot product) considered suitable for the entity sit on.
+	/// The minimum normal (dot product) considered suitable for the entity to sit on.
 	/// </summary>
-	public float minGroundNormalY = 0.65f;
+	[SerializeField] private float minGroundNormalY = 0.65f;
+
+	/// <summary>
+	/// The maximum dot product for collisions considered suitable for the entity to slide past.
+	/// </summary>
+	[SerializeField] private float m_maxSlideDot = 0.707f; // NOTE that this corresponds approximately to a 45-degree collision angle (1/sqrt(2))
 
 	/// <summary>
 	/// The minimum normal (dot product) considered suitable for the entity to cling to.
 	/// </summary>
-	public float m_minWallClingNormalY = float.MaxValue;
+	[SerializeField] protected float m_minWallClingNormalY = float.MaxValue;
 
 	/// <summary>
 	/// A custom gravity coefficient applied to this entity.
@@ -36,7 +41,7 @@ public abstract class KinematicObject : MonoBehaviour
 	/// <summary>
 	/// Gravity scalar applied while wall clinging.
 	/// </summary>
-	public float m_wallClingGravityScalar = 0.1f;
+	[SerializeField] private float m_wallClingGravityScalar = 0.1f;
 
 	/// <summary>
 	/// The current velocity of the entity.
@@ -242,6 +247,8 @@ public abstract class KinematicObject : MonoBehaviour
 		gameObject.layer = shouldIgnoreOneWays ? m_layerIgnoreOneWay.ToIndex() : m_layerIdxOrig;
 		m_contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
 
+		// move, treating x/y movement separately
+		// TODO: unify?
 		Lazy<bool> isNearGround = new(() => Physics2D.Raycast(Bounds.min, Vector2.down, m_nearGroundDistance, GameController.Instance.m_layerWalls).collider != null, false); // TODO: cheaper way to avoid starting wall cling when right above the ground? cast whole collider for better detection?
 		PerformMovement(move, false, ref isNearGround);
 
@@ -276,6 +283,8 @@ public abstract class KinematicObject : MonoBehaviour
 		}
 
 		// check if we hit anything in current direction of travel
+		Vector2 moveDir = move.normalized;
+		Vector2 movePerpendicular = Vector2.zero;
 		foreach (Collider2D collider in m_colliders)
 		{
 			m_hitBuffer.Clear();
@@ -321,6 +330,18 @@ public abstract class KinematicObject : MonoBehaviour
 						currentNormal.x = 0;
 					}
 				}
+				else
+				{
+					float dot = Vector2.Dot(moveDir, currentNormal);
+					if (dot < 0.0f && dot > -m_maxSlideDot)
+					{
+						// angle movement to slide off
+						distance *= -dot;
+						Vector2 tangent1 = new(-currentNormal.y, currentNormal.x);
+						Vector2 tangent2 = new(currentNormal.y, -currentNormal.x);
+						movePerpendicular = (Vector2.Dot(move, tangent1) >= Vector2.Dot(move, tangent2) ? tangent1 : tangent2) * distance; // TODO: don't stomp any previous value?
+					}
+				}
 				if (!IsGrounded && currentNormal.y >= m_minWallClingNormalY && velocity.y <= 0.0f && !isNearGround.Value)
 				{
 					IsWallClinging = true;
@@ -338,7 +359,7 @@ public abstract class KinematicObject : MonoBehaviour
 							velocity -= projection * currentNormal;
 						}
 					}
-					else if (!isNearGround.Value)
+					else if (movePerpendicular == Vector2.zero && !isNearGround.Value) // TODO: ignore movePerpendicular if set by a previous collision
 					{
 						// airborne, but hit something, so cancel horizontal velocity.
 						velocity.x = 0.0f;
@@ -349,7 +370,7 @@ public abstract class KinematicObject : MonoBehaviour
 				distance = modifiedDistance < distance ? modifiedDistance : distance;
 			}
 		}
-		body.position += move.normalized * distance;
+		body.position += moveDir * distance + movePerpendicular;
 
 		// detect out-of-bounds experiences
 		if (body.position.y < -1000.0f) // TODO: automatically determine suitable lower bound? remove / expand as necessary for runtime generation?
