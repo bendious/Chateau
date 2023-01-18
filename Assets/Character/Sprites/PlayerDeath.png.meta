@@ -53,7 +53,7 @@ TextureImporter:
       213: 21300030
     second: Unity_MC_render_death_15
   externalObjects: {}
-  serializedVersion: 11
+  serializedVersion: 12
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -70,11 +70,12 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
-  ignoreMasterTextureLimit: 0
+  ignoreMipmapLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -113,6 +114,8 @@ TextureImporter:
   textureFormatSet: 0
   ignorePngGamma: 0
   applyGammaDecoding: 1
+  swizzle: 50462976
+  cookieLightType: 1
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
@@ -161,342 +164,258 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 1
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Unity_MC_render_death_0
+      name: PlayerDeath_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 378
+        y: 256
         width: 128
-        height: 126
+        height: 128
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bda2d5f8f623e4a8796652186b0bcc76
-      internalID: 21300000
+      spriteID: 6d877f0662bbb6f4fbcdb8202d8db479
+      internalID: 2023966889
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Unity_MC_render_death_1
+      name: PlayerDeath_1
       rect:
         serializedVersion: 2
         x: 128
-        y: 378
+        y: 256
         width: 128
-        height: 126
+        height: 128
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 658d4b646a01448c5bcb2de564e6a49e
-      internalID: 21300002
+      spriteID: a8e2fb2ddbdf98e44adb37f6c0f36704
+      internalID: -683950809
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Unity_MC_render_death_2
+      name: PlayerDeath_2
       rect:
         serializedVersion: 2
         x: 256
-        y: 378
+        y: 256
         width: 128
-        height: 126
+        height: 128
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1df9e15e4a2ca48e79424d6c84dd9733
-      internalID: 21300004
+      spriteID: 84079dc0a8292484f8f82418bf91add5
+      internalID: 160064970
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Unity_MC_render_death_3
+      name: PlayerDeath_3
       rect:
         serializedVersion: 2
         x: 384
-        y: 378
+        y: 256
         width: 128
-        height: 126
+        height: 128
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 036f5e5a6203d471e9de01d741b3e0ca
-      internalID: 21300006
+      spriteID: 3dfc95bac1887734a8d94b7b0a0e9aa3
+      internalID: -504060223
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Unity_MC_render_death_4
-      rect:
-        serializedVersion: 2
-        x: 512
-        y: 378
-        width: 128
-        height: 126
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: b9aa33764a27040f68a05d77d94f25c9
-      internalID: 21300008
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Unity_MC_render_death_5
+      name: PlayerDeath_4
       rect:
         serializedVersion: 2
         x: 0
-        y: 252
+        y: 128
         width: 128
-        height: 126
+        height: 128
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 091a0b7284bdc4a639610f2a3cd2e811
-      internalID: 21300010
+      spriteID: 4caa010e6612b9f40a5c2b4c942b5d06
+      internalID: 431035915
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Unity_MC_render_death_6
+      name: PlayerDeath_5
       rect:
         serializedVersion: 2
         x: 128
-        y: 252
+        y: 128
         width: 128
-        height: 126
+        height: 128
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9a2a7ee0c8cfc4b858e87293e0ddba8e
-      internalID: 21300012
+      spriteID: afd7f8bcf04241f4dbbdad2333328182
+      internalID: -2017423513
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Unity_MC_render_death_7
+      name: PlayerDeath_6
       rect:
         serializedVersion: 2
         x: 256
-        y: 252
+        y: 128
         width: 128
-        height: 126
+        height: 128
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d4ba64c4f4b1742b0aa1a91b8733df1c
-      internalID: 21300014
+      spriteID: 75ce808e5b904974faa5f2ca03c3c311
+      internalID: 394979557
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Unity_MC_render_death_8
+      name: PlayerDeath_7
       rect:
         serializedVersion: 2
         x: 384
-        y: 252
+        y: 128
         width: 128
-        height: 126
+        height: 128
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d7cd0ac7a026b4d71acb37f5ef590b43
-      internalID: 21300016
+      spriteID: 06fa7814c0e63ea479dfeb5b7bd71d00
+      internalID: 1323652440
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Unity_MC_render_death_9
-      rect:
-        serializedVersion: 2
-        x: 512
-        y: 252
-        width: 128
-        height: 126
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ea39c381d4a014179af4fcad39c5dae7
-      internalID: 21300018
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Unity_MC_render_death_10
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 126
-        width: 128
-        height: 126
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ba704574a285145fab4cafefd960d205
-      internalID: 21300020
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Unity_MC_render_death_11
-      rect:
-        serializedVersion: 2
-        x: 128
-        y: 126
-        width: 128
-        height: 126
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: e73c72c9bc1c1459b907b4d111c86268
-      internalID: 21300022
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Unity_MC_render_death_12
-      rect:
-        serializedVersion: 2
-        x: 256
-        y: 126
-        width: 128
-        height: 126
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 11b28a96e553d44d194415b87e966d36
-      internalID: 21300024
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Unity_MC_render_death_13
-      rect:
-        serializedVersion: 2
-        x: 384
-        y: 126
-        width: 128
-        height: 126
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: f2315faca0d4d4bb69b5e42e707a76f0
-      internalID: 21300026
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Unity_MC_render_death_14
-      rect:
-        serializedVersion: 2
-        x: 512
-        y: 126
-        width: 128
-        height: 126
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 7ca1c5c5f2ca34630ad0a1bd51f75afb
-      internalID: 21300028
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Unity_MC_render_death_15
+      name: PlayerDeath_8
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 128
-        height: 126
+        height: 128
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ae25d87d072474fa6ab5310d8fb81c68
-      internalID: 21300030
+      spriteID: 7480ab9e0b694e64d90d3a60bb395ea4
+      internalID: -1390753103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDeath_9
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 0
+        width: 128
+        height: 128
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fa3558e2cc24d5742b3f82bec210df89
+      internalID: 403617073
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDeath_10
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 0
+        width: 128
+        height: 128
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 04b1de8e1e29b41489f107054bba60e1
+      internalID: -216966267
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDeath_11
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 0
+        width: 128
+        height: 128
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 02ff645bb681ec84a86616f1e672f75f
+      internalID: -1787712401
       vertices: []
       indices: 
       edges: []
@@ -514,25 +433,20 @@ TextureImporter:
     - texture: {fileID: 2800000, guid: e572079db36f2674b84145f5d91f9131, type: 3}
       name: _NormalMap
     nameFileIdTable:
-      Unity_MC_render_death_3: 21300006
-      Unity_MC_render_death_4: 21300008
-      Unity_MC_render_death_5: 21300010
-      Unity_MC_render_death_0: 21300000
-      Unity_MC_render_death_12: 21300024
-      Unity_MC_render_death_9: 21300018
-      Unity_MC_render_death_11: 21300022
-      Unity_MC_render_death_7: 21300014
-      Unity_MC_render_death_13: 21300026
-      Unity_MC_render_death_14: 21300028
-      Unity_MC_render_death_6: 21300012
-      Unity_MC_render_death_15: 21300030
-      Unity_MC_render_death_8: 21300016
-      Unity_MC_render_death_2: 21300004
-      Unity_MC_render_death_1: 21300002
-      Unity_MC_render_death_10: 21300020
-  spritePackingTag: 
+      PlayerDeath_9: 403617073
+      PlayerDeath_4: 431035915
+      PlayerDeath_0: 2023966889
+      PlayerDeath_6: 394979557
+      PlayerDeath_11: -1787712401
+      PlayerDeath_2: 160064970
+      PlayerDeath_5: -2017423513
+      PlayerDeath_10: -216966267
+      PlayerDeath_7: 1323652440
+      PlayerDeath_1: -683950809
+      PlayerDeath_3: -504060223
+      PlayerDeath_8: -1390753103
+  mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 

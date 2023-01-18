@@ -777,27 +777,17 @@ public sealed class AvatarController : KinematicCharacter
 		EnablePlayerControl();
 		m_controlDisabledUntilHurt = false;
 
-		Vector3 spawnPos = gameObject.OriginToCenterY();
-		if (!resetPosition)
+		if (resetPosition)
 		{
-			foreach (AvatarController avatar in GameController.Instance.m_avatars)
-			{
-				if (avatar == this || !avatar.IsAlive)
-				{
-					continue;
-				}
-				spawnPos = GameController.Instance.RoomFromPosition(avatar.transform.position).SpawnPointRandom();
-				break;
-			}
+			Teleport(gameObject.OriginToCenterY());
 		}
-		Teleport(spawnPos);
 
 		GameController.Instance.AddCameraTargets(transform);
 
 		jumpState = JumpState.Grounded;
 
 		m_animator.SetBool("dead", false);
-		m_animator.SetTrigger("respawn");
+		m_animator.SetTrigger(resetPosition ? "respawn" : "revive");
 	}
 
 	// TODO: move to event handler?
