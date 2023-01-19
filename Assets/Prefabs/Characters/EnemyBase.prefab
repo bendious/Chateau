@@ -380,10 +380,10 @@ MonoBehaviour:
   m_deathSFX:
   - m_object: {fileID: 8300000, guid: b7f741588644cd64bbee6387cb54a96d, type: 3}
     m_weight: 1
-  m_invincibilityTime: 0.25
+  m_invincibilityTime: 0
   m_invincible: 0
   m_invincibilityDirection: {x: 0, y: 0}
-  m_damageMergeSeconds: 0.1
+  m_damageMergeSeconds: 0.25
   m_minorDamageThreshold: 0.1
   m_gradientActive: 1
   m_gradient:

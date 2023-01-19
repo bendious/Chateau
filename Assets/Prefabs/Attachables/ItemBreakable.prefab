@@ -166,10 +166,10 @@ MonoBehaviour:
   m_maxHP: 2
   m_damageSFX: []
   m_deathSFX: []
-  m_invincibilityTime: 0.25
+  m_invincibilityTime: 0
   m_invincible: 0
   m_invincibilityDirection: {x: 0, y: 0}
-  m_damageMergeSeconds: 0.1
+  m_damageMergeSeconds: 0.25
   m_minorDamageThreshold: 0.1
   m_gradientActive: 0
   m_gradient:

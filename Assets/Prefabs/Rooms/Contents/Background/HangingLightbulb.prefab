@@ -388,10 +388,6 @@ PrefabInstance:
       propertyPath: m_maxHP
       value: 0.25
       objectReference: {fileID: 0}
-    - target: {fileID: 5798313233011251755, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
-      propertyPath: m_invincibilityTime
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5849246084018440235, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
       propertyPath: m_SpriteTilingProperty.pivot.x
       value: 0.5

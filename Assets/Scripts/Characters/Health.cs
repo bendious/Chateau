@@ -20,6 +20,7 @@ public class Health : MonoBehaviour
 		Heat,
 		Electric,
 		Chemical,
+		Shatter,
 	}
 
 
@@ -31,11 +32,11 @@ public class Health : MonoBehaviour
 	public WeightedObject<AudioClip>[] m_damageSFX;
 	public WeightedObject<AudioClip>[] m_deathSFX;
 
-	public float m_invincibilityTime = 0.25f; // TODO: vary by animation played?
+	public float m_invincibilityTime = 0.0f; // TODO: vary by animation played?
 	public bool m_invincible;
 	public Vector2 m_invincibilityDirection;
 
-	[SerializeField] private float m_damageMergeSeconds = 0.1f;
+	[SerializeField] private float m_damageMergeSeconds = 0.25f;
 
 	public float m_minorDamageThreshold = 0.1f;
 
@@ -75,6 +76,7 @@ public class Health : MonoBehaviour
 
 	private float m_lastDamageTime; // NOTE that this excludes minor damage
 	private float m_lastDamageAmount; // NOTE that this is pre-scaled damage amount and excludes minor damage
+	private DamageType m_lastDamageType;
 
 
 	/// <summary>
@@ -114,7 +116,7 @@ public class Health : MonoBehaviour
 	public virtual bool Decrement(GameObject source, GameObject directCause, float amount, DamageType type) // TODO: types[]?
 	{
 		bool notMinor = amount >= m_minorDamageThreshold;
-		bool mergeWithPrevious = notMinor && amount > m_lastDamageAmount && m_lastDamageAmount >= m_minorDamageThreshold && m_lastDamageTime + m_damageMergeSeconds >= Time.time;
+		bool mergeWithPrevious = notMinor && type == m_lastDamageType && m_lastDamageTime + m_damageMergeSeconds >= Time.time;
 		if (!mergeWithPrevious && m_invincible)
 		{
 			return false;
@@ -134,9 +136,12 @@ public class Health : MonoBehaviour
 		}
 
 		// NOTE that we merge BEFORE scaling to preserve the final summed amount
-		// TODO: take damage type(s) into account?
 		if (mergeWithPrevious)
 		{
+			if (amount <= m_lastDamageAmount)
+			{
+				return false;
+			}
 			amount -= m_lastDamageAmount;
 			m_lastDamageAmount += amount;
 		}
@@ -144,6 +149,7 @@ public class Health : MonoBehaviour
 		{
 			m_lastDamageTime = Time.time;
 			m_lastDamageAmount = amount;
+			m_lastDamageType = type;
 		}
 
 		// scale

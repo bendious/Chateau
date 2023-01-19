@@ -157,8 +157,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		KinematicCharacter character = collision.collider.GetComponent<KinematicCharacter>(); // NOTE that we use the collider object rather than collision.gameObject since w/ characters & arms, they are not always the same
-		if (character != null)
+		if (collision.collider.TryGetComponent(out KinematicCharacter character)) // NOTE that we use the collider object rather than collision.gameObject since w/ characters & arms, they are not always the same
 		{
 			OnCharacterCollision(character);
 		}

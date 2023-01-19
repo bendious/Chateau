@@ -5936,6 +5936,10 @@ MonoBehaviour:
     - Want to start completely over?
     - Simply leave the mansion the way you came in.
     m_weight: 1
+  - m_object:
+    - When breakable items shatter, the shards do additional damage to any nearby
+      foes.
+    m_weight: 9999
 --- !u!222 &5837914634819301278
 CanvasRenderer:
   m_ObjectHideFlags: 0
