@@ -429,16 +429,20 @@ PrefabInstance:
       value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 6941436806059290100, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
-      propertyPath: m_nondamageColliders.Array.size
+      propertyPath: m_perColliderDamage.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6941436806059290100, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
-      propertyPath: m_nondamageColliders.Array.data[0]
+      propertyPath: m_swingInfo.m_damageThresholdSpeed
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6941436806059290100, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
+      propertyPath: m_perColliderDamage.Array.data[0].m_object
       value: 
       objectReference: {fileID: 1645964253089420559}
     - target: {fileID: 6941436806059290100, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
-      propertyPath: m_swingInfo.m_damageThresholdSpeed
-      value: 2
+      propertyPath: m_perColliderDamage.Array.data[0].m_weight
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7701380722503224308, guid: f81790cc57ed7be48a3f2bc814f4c286, type: 3}
       propertyPath: m_Name

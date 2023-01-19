@@ -425,11 +425,7 @@ public sealed class AvatarController : KinematicCharacter
 			m_aimVfx.enabled = true;
 			Sprite itemSprite = primaryItem.GetComponentInChildren<SpriteRenderer>().sprite;
 			m_aimVfx.SetTexture(m_spriteID, itemSprite.texture);
-			Vector3 itemSize = primaryItem.GetComponents<Collider2D>().Where(collider => !primaryItem.m_nondamageColliders.Contains(collider)).Select(collider => collider.bounds).Aggregate((bbox1, bbox2) =>
-			{
-				bbox1.Encapsulate(bbox2);
-				return bbox1;
-			}).size;
+			Vector3 itemSize = primaryItem.GetComponents<Collider2D>().Where(collider => !primaryItem.m_perColliderDamage.Any(info => info.m_object == collider && info.m_weight < 1.0f)).ToBounds().size;
 			m_aimVfx.SetFloat(m_sizeID, Mathf.Max(itemSize.x, itemSize.y));
 			m_aimVfx.SetFloat(m_speedID, primaryItem.m_throwSpeed);
 			m_aiming = true;

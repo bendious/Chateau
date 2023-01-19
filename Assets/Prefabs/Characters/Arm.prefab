@@ -122,7 +122,7 @@ MonoBehaviour:
   m_radiusBase: 0
   m_aimStiffnessMin: 25
   m_aimStiffnessMax: 100
-  m_radiusStiffnessMin: 25
+  m_radiusStiffnessMin: 100
   m_radiusStiffnessMax: 100
   m_springMassMax: 1
   m_swingDecayStiffness: 100

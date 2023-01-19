@@ -36,7 +36,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public bool m_detachOnDamage = false; // TODO: cumulative damage threshold?
 	[SerializeField] private bool m_keyDestroyAfterUse = true;
 
-	public Collider2D[] m_nondamageColliders;
+	public WeightedObject<Collider2D>[] m_perColliderDamage;
 
 
 	[SerializeField] private WeightedObject<string[]>[] m_sourceTextOptions;
@@ -476,7 +476,8 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		// get reused info
 		bool isDetached = m_holder == null;
 		GameObject mainObj = rigidbody == null ? collider.gameObject : rigidbody.gameObject;
-		bool canDamage = Cause != null && Cause.CanDamage(mainObj) && !m_nondamageColliders.Contains(colliderLocal);
+		WeightedObject<Collider2D> perColliderDamageInfo = m_perColliderDamage.FirstOrDefault(c => c.m_object == colliderLocal);
+		bool canDamage = Cause != null && Cause.CanDamage(mainObj) && (perColliderDamageInfo == null || perColliderDamageInfo.m_weight != 0.0f);
 		KinematicObject kinematicObj = mainObj.GetComponent<KinematicObject>();
 		KinematicCharacter character = kinematicObj as KinematicCharacter; // NOTE that this works since objects shouldn't ever have multiple different KinematicObject-derived components
 
@@ -544,7 +545,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			{
 				if (otherHealth != null)
 				{
-					otherHealth.Decrement(Cause != null ? Cause.gameObject : gameObject, gameObject, m_swingInfo.m_damage, m_swingInfo.m_damageType);
+					otherHealth.Decrement(Cause != null ? Cause.gameObject : gameObject, gameObject, perColliderDamageInfo != null ? perColliderDamageInfo.m_weight : m_swingInfo.m_damage, m_swingInfo.m_damageType);
 				}
 				if (m_health != null && !collider.isTrigger)
 				{
