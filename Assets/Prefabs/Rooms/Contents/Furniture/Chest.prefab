@@ -275,6 +275,8 @@ MonoBehaviour:
     m_weight: 0.2
   - m_object: {fileID: 2669405598871929106, guid: ca1c40b66b5ed6149bdb17ca934cbef6, type: 3}
     m_weight: 0.4
+  - m_object: {fileID: 1803285933312635345, guid: b9a8947953ee2794f9233cc46b164157, type: 3}
+    m_weight: 0.4
   m_keyPrefabs:
   - m_object: {fileID: 3890078018485269670, guid: 454cace899734f041b6cb967dd51ff20, type: 3}
     m_weight: 1

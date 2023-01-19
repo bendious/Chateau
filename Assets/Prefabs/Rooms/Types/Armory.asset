@@ -59,6 +59,8 @@ MonoBehaviour:
       m_proportionalColor: 0
     m_weight: 1
   m_nonsquareShape: {fileID: 0}
+  m_nonsquareMaterialFill: {fileID: 0}
+  m_nonsquareMaterialEdge: {fileID: 0}
   m_furniturePrefabs:
   - m_object: {fileID: 3500915504940809235, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
     m_weight: 0.5
@@ -80,6 +82,8 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 2907425131238390723, guid: 0ece77da1d06d544e95300c4cab993ca, type: 3}
     m_weight: 0.1
+  - m_object: {fileID: 1803285933312635345, guid: b9a8947953ee2794f9233cc46b164157, type: 3}
+    m_weight: 0.5
   m_itemRarePrefabs:
   - m_object: {fileID: 6742067164057762051, guid: fe19ae7d467611c4dab6bd28c4ea1d9f, type: 3}
     m_weight: 4

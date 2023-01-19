@@ -40,6 +40,8 @@ MonoBehaviour:
     m_weight: 0.5
   - m_object: {fileID: 5329113729594168994, guid: a39b436b4827fa148af89586f9b560f3, type: 3}
     m_weight: 0.5
+  - m_object: {fileID: 1803285933312635345, guid: b9a8947953ee2794f9233cc46b164157, type: 3}
+    m_weight: 0.1
   m_itemRarePrefabs:
   - m_object: {fileID: 4221545259124064584, guid: 7aa2626782080084b96d4ea339f988f0, type: 3}
     m_weight: 1

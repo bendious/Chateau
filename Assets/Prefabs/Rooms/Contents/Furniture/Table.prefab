@@ -119,6 +119,8 @@ MonoBehaviour:
     m_weight: 0.2
   - m_object: {fileID: 1414968549233737426, guid: 3f97c916f0456194aae1b9746a252c90, type: 3}
     m_weight: 0.2
+  - m_object: {fileID: 1803285933312635345, guid: b9a8947953ee2794f9233cc46b164157, type: 3}
+    m_weight: 0.4
 --- !u!212 &3857514424952958384 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 4774662376995590474, guid: 717755c04a138404d80679d2c0d06ab5, type: 3}
