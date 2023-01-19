@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: e18959d46b63f3c4c8cc020a433cf848
+guid: 3e6b8714cc021ab48977a67d56be454a
 labels:
 - Audio
 - Character
@@ -14,7 +14,7 @@ AudioImporter:
     compressionFormat: 1
     quality: 1
     conversionMode: 0
-    preloadAudioData: 1
+    preloadAudioData: 0
   platformSettingOverrides: {}
   forceToMono: 0
   normalize: 1
