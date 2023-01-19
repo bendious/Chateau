@@ -26,6 +26,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	[SerializeField] private float m_impactStrongPctScalar = 2.0f;
 	public float m_restDegreesOffset = 0.0f;
 	public float m_throwSpeed = 20.0f;
+	[SerializeField] private float m_armSpeedToRotationScalar = 360.0f;
 	public float m_vfxAlpha = 0.5f;
 	public int m_healAmount = 0;
 	[SerializeField] private float m_healSeconds = 3.0f;
@@ -427,6 +428,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		Quaternion holderRotation = m_holder.Component.transform.rotation;
 		m_body.velocity = holderRotation * Vector2.right * m_throwSpeed;
 		ArmController arm = (ArmController)m_holder; // NOTE that m_holder gets unset by Detach(), but PostThrow() needs to be called afterward
+		m_body.angularVelocity += arm.Velocity * m_armSpeedToRotationScalar; // TODO: take angular inertia into account? use Rigidbody2D.AddForceAtPosition()?
 		Detach(false);
 		arm.PostThrow();
 

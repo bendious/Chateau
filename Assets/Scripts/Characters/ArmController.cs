@@ -45,7 +45,8 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	public bool m_colorMatching = true;
 
 
-	public float Speed => Mathf.Abs(Mathf.Deg2Rad * (m_aimVelocityArm + m_aimVelocityItem) * ((Vector2)transform.parent.position - (Vector2)transform.position).magnitude) + Mathf.Abs(m_aimRadiusVelocity); // NOTE the conversion from angular velocity to linear speed via arclength=radians*radius // TODO: incorporate aim velocity directions?
+	public float Velocity => Mathf.Deg2Rad * (m_aimVelocityArm + m_aimVelocityItem) * ((Vector2)transform.parent.position - (Vector2)transform.position).magnitude + m_aimRadiusVelocity; // NOTE the conversion from angular velocity to linear speed via arclength=radians*radius
+	public float Speed => Mathf.Abs(Velocity);
 
 	public bool IsSwinging => !m_aimVelocityContinuing.FloatEqual(0.0f, m_swingInfoCur.m_damageThresholdSpeed) || !m_radiusVelocityContinuing.FloatEqual(0.0f, m_swingInfoCur.m_damageThresholdSpeed);
 
