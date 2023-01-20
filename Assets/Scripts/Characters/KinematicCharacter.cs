@@ -387,6 +387,8 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		return itemArm != null ? itemArm : LeftFacing ? arms.Last() : arms.First();
 	}
 
+	public void MatchFacingToAim(Vector2 aimPos) => m_aimDir = aimPos.x > transform.position.x ? 1 : -1;
+
 	protected void AimArms(Vector2 aimPos, float narrowingScalar = 1.0f)
 	{
 		ArmController[] arms = GetComponentsInChildren<ArmController>();
@@ -396,7 +398,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		}
 
 		// character facing
-		m_aimDir = aimPos.x > transform.position.x ? 1 : -1;
+		MatchFacingToAim(aimPos);
 
 		// primary aim
 		ArmController primaryArm = PrimaryArm(arms);
