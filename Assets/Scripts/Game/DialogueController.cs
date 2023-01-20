@@ -55,6 +55,18 @@ public class DialogueController : MonoBehaviour
 
 	public bool IsPlaying => gameObject.activeSelf;
 
+	public bool CanInterrupt(KinematicCharacter newInteractor)
+	{
+		// allow avatar to cancel non-avatar offscreen dialogue
+		if (m_sourceMain == null || newInteractor is not AvatarController || Target is AvatarController)
+		{
+			return false;
+		}
+		// TODO: more robust offscreen checks?
+		Vector3 sourceViewPos = Camera.main.WorldToViewportPoint(m_sourceMain.transform.position);
+		return sourceViewPos.x < 0.0f || sourceViewPos.x > 1.0f || sourceViewPos.y < 0.0f || sourceViewPos.y > 1.0f;
+	}
+
 
 	private Transform ReplyParentTf => m_replyTemplate.transform.parent;
 
@@ -82,6 +94,7 @@ public class DialogueController : MonoBehaviour
 
 	private bool m_forceNewLine = false;
 	public bool Canceled { get; private set; }
+	public void Cancel() => Canceled = true;
 
 
 	private void Awake()
@@ -370,7 +383,7 @@ public class DialogueController : MonoBehaviour
 
 			// maybe move to next line
 			bool stillRevealing = m_revealedCharCount + tagCharCount < textCurLen;
-			if (m_forceNewLine || ((submitKey == null || submitKey.WasPressedThisFrame()) && !stillRevealing && m_lastRevealTime + m_newlineSecondsMin <= Time.time))
+			if (m_forceNewLine || (((submitKey == null && !ConsoleCommands.PassiveAI) || (submitKey != null && submitKey.WasPressedThisFrame())) && !stillRevealing && m_lastRevealTime + m_newlineSecondsMin <= Time.time))
 			{
 				// next line
 				m_forceNewLine = false;

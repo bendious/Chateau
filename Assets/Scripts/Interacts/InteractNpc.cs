@@ -44,7 +44,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 	}
 
 
-	public bool CanInteract(KinematicCharacter interactor) => !GameController.Instance.m_dialogueController.IsPlaying && !GameController.Instance.ActiveEnemiesRemain();
+	public bool CanInteract(KinematicCharacter interactor) => (!GameController.Instance.m_dialogueController.IsPlaying || GameController.Instance.m_dialogueController.CanInterrupt(interactor)) && !GameController.Instance.ActiveEnemiesRemain();
 
 	public void Interact(KinematicCharacter interactor, bool reverse) => StartCoroutine(PlayDialogueCoroutine(interactor));
 
@@ -123,12 +123,21 @@ public class InteractNpc : MonoBehaviour, IInteractable
 		dialogueCur ??= dialogueAllowed.RandomWeighted();
 		Dialogue.Info dialogueAppend = dialogueCur.m_singleUse ? null : dialogueAllowed.FirstOrDefault(dialogueWeighted => dialogueWeighted.m_object.m_appendToAll && dialogueWeighted.m_object != dialogueCur)?.m_object; // TODO: support multiple append dialogues?
 
+		// interrupt other dialogue if necessary
+		DialogueController dialogueController = GameController.Instance.m_dialogueController;
+		if (dialogueController.IsPlaying && dialogueController.CanInterrupt(interactor))
+		{
+			dialogueController.Cancel();
+			yield return new WaitUntil(() => !dialogueController.IsPlaying);
+			Debug.Assert(dialogueController.Canceled); // TODO: prevent/handle other dialogues jumping the line?
+		}
+
 		// play dialogue
 		if (otherNpc != null && otherNpc.m_expressionsCombined == null)
 		{
 			otherNpc.InitializeDialogue();
 		}
-		Coroutine dialogueCoroutine = GameController.Instance.m_dialogueController.Play(dialogueAppend != null ? dialogueCur.m_lines.Concat(dialogueAppend.m_lines) : dialogueCur.m_lines, gameObject, interactor, m_ai, m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_sfxChosen, dialogueCur.m_loop ? 0 : dialogueAppend != null && dialogueAppend.m_loop ? dialogueCur.m_lines.Length : -1, expressionSets: new WeightedObject<Dialogue.Expression>[][] { m_expressionsCombined, otherNpc == null ? interactor.m_dialogues.SelectMany(d => d.m_expressions).ToArray() : otherNpc.m_expressionsCombined });
+		Coroutine dialogueCoroutine = dialogueController.Play(dialogueAppend != null ? dialogueCur.m_lines.Concat(dialogueAppend.m_lines) : dialogueCur.m_lines, gameObject, interactor, m_ai, m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_sfxChosen, dialogueCur.m_loop ? 0 : dialogueAppend != null && dialogueAppend.m_loop ? dialogueCur.m_lines.Length : -1, expressionSets: new WeightedObject<Dialogue.Expression>[][] { m_expressionsCombined, otherNpc == null ? interactor.m_dialogues.SelectMany(d => d.m_expressions).ToArray() : otherNpc.m_expressionsCombined });
 
 		// early-out / wait
 		if (dialogueCoroutine == null)
@@ -136,7 +145,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 			yield break; // if the dialogue failed to start, we don't want to update anything
 		}
 		yield return dialogueCoroutine;
-		if (GameController.Instance.m_dialogueController.Canceled) // TODO: don't assume that Canceled hasn't been reset by a new dialogue yet?
+		if (dialogueController.Canceled) // TODO: don't assume that Canceled hasn't been reset by a new dialogue yet?
 		{
 			yield break; // if the dialogue was canceled, we don't want to update anything
 		}
