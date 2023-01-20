@@ -36,6 +36,7 @@ public class GameController : MonoBehaviour
 	public WeightedObject<RoomController>[] m_entryRoomPrefabs;
 	public WeightedObject<RoomController>[] m_roomPrefabs;
 	public WeightedObject<RoomController>[] m_bossRoomPrefabs;
+	public WeightedObject<Boss>[] m_bossPrefabs; // NOTE that this is combined w/ BossRoom.m_bossPrefabs[] before selection
 	public WeightedObject<GameObject>[] m_gatePrefabs;
 	public WeightedObject<GameObject>[] m_lockPrefabs;
 	public WeightedObject<GameObject>[] m_keyPrefabs;

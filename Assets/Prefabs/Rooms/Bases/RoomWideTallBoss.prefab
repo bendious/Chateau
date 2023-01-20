@@ -382,6 +382,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_bossPrefabs:
+  - m_object: {fileID: -5807057192999814669, guid: 8af4cb4eb2c7b8b40a9d71a1d201cb56, type: 3}
+    m_weight: 1
   - m_object: {fileID: 5059967226220737805, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
     m_weight: 1
   m_bossHeightMin: 0

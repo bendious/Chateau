@@ -1657,6 +1657,9 @@ MonoBehaviour:
   m_bossRoomPrefabs:
   - m_object: {fileID: 1362718354108733869, guid: 334661055f7cd0d428253c133da63b70, type: 3}
     m_weight: 1
+  m_bossPrefabs:
+  - m_object: {fileID: 5059967226220737805, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
+    m_weight: 1
   m_gatePrefabs:
   - m_object: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
     m_weight: 1
