@@ -73,6 +73,8 @@ public class BossRoom : MonoBehaviour
 		// seal room
 		GetComponent<RoomController>().SealRoom(true);
 		GameController.Instance.m_bossRoomSealed = true;
+		GameController.Instance.RemoveUnreachableEnemies(); // despawn outside enemies for efficiency since they shouldn't be relevant to the boss fight
+		// TODO: stop wave timer
 
 		// play ambiance SFX
 		// TODO: use MusicManager to prevent music starting during ambiance (once it supports multiple sources)
@@ -116,6 +118,7 @@ public class BossRoom : MonoBehaviour
 
 		// reset room entrance(s)
 		GetComponent<RoomController>().SealRoom(false, true);
+		GameController.Instance.m_bossRoomSealed = false;
 	}
 
 
@@ -123,8 +126,6 @@ public class BossRoom : MonoBehaviour
 	private void DebugOnRespawn(DebugRespawn evt)
 	{
 		EndFight();
-
-		GameController.Instance.m_bossRoomSealed = false;
 
 		// reset boss
 		if (m_boss != null)

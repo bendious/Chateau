@@ -622,7 +622,7 @@ public class GameController : MonoBehaviour
 
 	public void RemoveUnreachableEnemies()
 	{
-		if (!m_waveSealing)
+		if (!m_waveSealing && !m_bossRoomSealed)
 		{
 			return;
 		}
@@ -632,7 +632,7 @@ public class GameController : MonoBehaviour
 		List<AIController> unreachableEnemies = new();
 		HashSet<RoomController> roomsToUnseal = new();
 
-		foreach (AIController enemy in m_enemiesInWave)
+		foreach (AIController enemy in m_bossRoomSealed ? m_enemies : m_enemiesInWave)
 		{
 			RoomController room = RoomFromPosition(enemy.transform.position);
 			if (reachableRooms.Contains(room))
@@ -643,9 +643,20 @@ public class GameController : MonoBehaviour
 			unreachableEnemies.Add(enemy);
 			roomsToUnseal.Add(room);
 		}
-		m_enemiesInWave.RemoveAll(enemy => unreachableEnemies.Contains(enemy));
+		if (m_bossRoomSealed)
+		{
+			// for efficiency, despawn enemies rather than just removing from the wave
+			foreach (AIController enemy in unreachableEnemies)
+			{
+				Simulation.Schedule<ObjectDespawn>().m_object = enemy.gameObject;
+			}
+		}
+		else
+		{
+			m_enemiesInWave.RemoveAll(enemy => unreachableEnemies.Contains(enemy));
+		}
 
-		if (m_enemiesInWave.Count <= 0)
+		if (!m_bossRoomSealed && m_enemiesInWave.Count <= 0)
 		{
 			roomsToUnseal.UnionWith(reachableRooms);
 		}
