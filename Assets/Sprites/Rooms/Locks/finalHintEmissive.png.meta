@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 681d932cb0d3eae498026f678bc60aca
+guid: 3cc8bece06f330c4bb33cf8d85d72d80
 labels:
 - Architecture
 TextureImporter:
@@ -117,11 +117,7 @@ TextureImporter:
     indices: 
     edges: []
     weights: []
-    secondaryTextures:
-    - texture: {fileID: 2800000, guid: c2c95eda5f84a864bb88c18ff89f0711, type: 3}
-      name: _NormalMap
-    - texture: {fileID: 2800000, guid: 3cc8bece06f330c4bb33cf8d85d72d80, type: 3}
-      name: _Emissive
+    secondaryTextures: []
     nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0

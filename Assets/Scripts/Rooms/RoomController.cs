@@ -1496,9 +1496,10 @@ public class RoomController : MonoBehaviour
 				}
 
 				// create room
-				// TODO: better way of specifying gate color? prevent similar colors?
-				Color colorCorrect = GameController.Instance.OnNarrowPath ? GameController.NarrowPathColors[System.Math.Clamp(depth - 2, 0, GameController.NarrowPathColors.Length - 1)] : Color.black;
-				newNodeTree.First().AreaParents.First().m_room.m_wallColor = isCorrect ? colorCorrect : Utility.ColorRandom(Color.black, Color.white, false, colorsToAvoid: colorCorrect); // TODO: better way of getting NarrowPathColors[] index?
+				// TODO: better way of specifying gate color?
+				const float colorDifferentiationEpsilon = 0.4f; // TODO: parameterize?
+				Color colorCorrect = GameController.Instance.OnNarrowPath ? GameController.NarrowPathColors[System.Math.Clamp(depth - 2, 0, GameController.NarrowPathColors.Length - 1)] : Color.black; // TODO: better way of getting NarrowPathColors[] index?
+				newNodeTree.First().AreaParents.First().m_room.m_wallColor = isCorrect ? colorCorrect : Utility.ColorRandom(Color.black, Color.white, false, colorDifferentiationEpsilon, colorCorrect);
 				RoomController newRoom = SpawnChildRoom(GameController.Instance.m_roomPrefabs.RandomWeighted(), newNodeTree.SelectMany(node => node.WithDescendants).ToArray(), new[] { Vector2.left, Vector2.right, Vector2.down }, ref dummyIdx); // TODO: allow upward generation as long as it doesn't break through the ground?
 				if (newRoom != null)
 				{

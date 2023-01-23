@@ -14,11 +14,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1859701914287655628, guid: 1e53d8d386c460b458335eafe46b523a, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 3.95
+      value: 2.35
       objectReference: {fileID: 0}
     - target: {fileID: 1859701914287655628, guid: 1e53d8d386c460b458335eafe46b523a, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 2.25
+      value: 0.75
       objectReference: {fileID: 0}
     - target: {fileID: 1859701914287655628, guid: 1e53d8d386c460b458335eafe46b523a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -42,15 +42,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3783111977055794987, guid: 1e53d8d386c460b458335eafe46b523a, type: 3}
       propertyPath: m_Name
-      value: KingFlameText0
+      value: SurrenderText0
       objectReference: {fileID: 0}
     - target: {fileID: 8659232764014285603, guid: 1e53d8d386c460b458335eafe46b523a, type: 3}
       propertyPath: m_index
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8984177041054512046, guid: 1e53d8d386c460b458335eafe46b523a, type: 3}
       propertyPath: m_text
-      value: The Eight Flames light the way to the King
+      value: Surrender
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
