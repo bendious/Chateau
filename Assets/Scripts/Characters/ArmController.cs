@@ -216,7 +216,7 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		// play audio if not holding anything (any held item will play audio for itself)
 		if (GetComponentInChildren<IAttachable>() == null)
 		{
-			GetComponent<AudioSource>().PlayOneShot(GameController.Instance.m_materialSystem.Find(m_colliders.First().sharedMaterial).m_movementAudio.Random()); // TODO: don't assume first collider is main material?
+			GameController.Instance.m_materialSystem.Find(m_colliders.First().sharedMaterial).PlayMovementAudio(GetComponent<AudioSource>()); // TODO: don't assume first collider is main material?
 		}
 	}
 

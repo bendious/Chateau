@@ -319,7 +319,15 @@ public sealed class AIFraternize : AIState
 		{
 			Debug.Assert(m_wanderTarget.name == m_targetName);
 			Transform targetTf = m_wanderTarget.transform;
-			targetTf.position = GameController.Instance.RandomReachableRoom(m_ai, m_ai.gameObject, true).InteriorPosition(m_ai.HasFlying ? float.MaxValue : 0.0f);
+			RoomController targetRoom = GameController.Instance.RandomReachableRoom(m_ai, m_ai.gameObject, true);
+			if (targetRoom == null)
+			{
+				Debug.LogWarning("No reachable rooms for AI wander?");
+			}
+			else
+			{
+				targetTf.position = targetRoom.InteriorPosition(m_ai.HasFlying ? float.MaxValue : 0.0f);
+			}
 			m_ai.m_target = targetTf; // NOTE that we have to set this each time since m_target can be reset elsewhere
 		}
 		else

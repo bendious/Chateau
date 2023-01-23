@@ -763,6 +763,11 @@ public class RoomController : MonoBehaviour
 					break;
 
 				case LayoutGenerator.Node.Type.Upgrade:
+					if (GameController.Instance.m_zoneFinishedIndicators.Length <= 0)
+					{
+						Debug.LogWarning("No assigned zone finished indicators?");
+						break;
+					}
 					GameObject prefabInitial = GameController.Instance.m_zoneFinishedIndicators.Random();
 					InteractUpgrade[] upgradeInitial = new[] { Instantiate(prefabInitial, InteriorPosition(0.0f, prefabInitial), Quaternion.identity, transform).GetComponent<InteractUpgrade>() };
 					upgradeInitial.First().ToggleActivation(true);
@@ -1204,7 +1209,7 @@ public class RoomController : MonoBehaviour
 		return keyObj;
 	}
 
-	public Vector3 SpawnPointRandom() => (m_spawnPoints == null ? gameObject : m_spawnPoints.Random()).transform.position;
+	public Vector3 SpawnPointRandom() => (m_spawnPoints == null || m_spawnPoints.Length <= 0 ? gameObject : m_spawnPoints.Random()).transform.position;
 
 	public System.Tuple<List<Vector2>, float> PositionPath(GameObject start, GameObject end, PathFlags flags = PathFlags.None, float extentY = -1.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, float incrementDegrees = -1.0f)
 	{

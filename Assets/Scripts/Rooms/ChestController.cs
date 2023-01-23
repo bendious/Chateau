@@ -135,7 +135,13 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 			return;
 		}
 
-		m_keyObj = keyRooms.Random().SpawnKey(m_keyPrefabs.RandomWeighted(), 0.0f, true, IsCriticalPath);
+		RoomController keyRoomSafe = keyRooms == null || keyRooms.Length <= 0 ? lockRoom : keyRooms.Random();
+		if (keyRoomSafe == null)
+		{
+			Debug.LogWarning("No rooms given when spawning keys?");
+			return;
+		}
+		m_keyObj = keyRoomSafe.SpawnKey(m_keyPrefabs.RandomWeighted(), 0.0f, true, IsCriticalPath);
 		GetComponent<SpriteRenderer>().color = m_keyObj.GetComponent<SpriteRenderer>().color;
 	}
 

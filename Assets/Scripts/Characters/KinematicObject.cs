@@ -267,9 +267,7 @@ public abstract class KinematicObject : MonoBehaviour
 	private void GroundAudioEvent(AnimationEvent evt)
 	{
 		PhysicsMaterial2D colliderMaterial = m_colliders.Select(c => c.sharedMaterial).FirstOrDefault(m => m != null); // TODO: prioritize between multiple different materials?
-		MaterialPairInfo info = GameController.Instance.m_materialSystem.PairBestMatch(m_groundMaterial, colliderMaterial != null ? colliderMaterial : body.sharedMaterial);
-		AudioSource source = GetComponent<AudioSource>(); // TODO: cache?
-		source.PlayOneShot(evt.intParameter == 0 || info.m_collisionStrongAudio.Length <= 0 ? info.m_collisionAudio.Random() : info.m_collisionStrongAudio.RandomWeighted()); // TODO: separate arrays for collision/ground SFX?
+		GameController.Instance.m_materialSystem.PairBestMatch(m_groundMaterial, colliderMaterial != null ? colliderMaterial : body.sharedMaterial)?.PlayCollisionAudio(evt.intParameter != 0, GetComponent<AudioSource>()); // TODO: cache audio source?
 	}
 
 

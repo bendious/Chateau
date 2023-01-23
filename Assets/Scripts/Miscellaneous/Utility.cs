@@ -74,7 +74,7 @@ public static class Utility
 
 	public static IEnumerable<WeightedObject<T1>> CombineWeighted<T1, T2, TKey>(this IEnumerable<WeightedObject<T1>> a, IEnumerable<WeightedObject<T2>> b, Func<WeightedObject<T1>, TKey> aToKey, Func<WeightedObject<T2>, TKey> bToKey) => a.Join(b, aToKey, bToKey, (pair1, pair2) => new WeightedObject<T1> { m_object = pair1.m_object, m_weight = pair1.m_weight * pair2.m_weight });
 
-	public static T Random<T>(this IEnumerable<T> options) => options.ElementAt(UnityEngine.Random.Range(0, options.Count()));
+	public static T Random<T>(this IEnumerable<T> options) => options == null || options.Count() <= 0 ? default : options.ElementAt(UnityEngine.Random.Range(0, options.Count()));
 
 	public static T RandomWeighted<T>(this IEnumerable<WeightedObject<T>> pairs) => pairs.ElementAt(pairs.RandomWeightedIndex()).m_object;
 

@@ -584,7 +584,7 @@ public class GameController : MonoBehaviour
 
 	public RoomController RoomFromPosition(Vector2 position) => m_startRoom == null ? null : m_startRoom.FromPosition(position); // TODO: work even when disconnected from start room?
 
-	public RoomController RandomReachableRoom(AIController ai, GameObject endpointObj, bool endpointIsStart) => m_startRoom.WithDescendants.Where(room => ai.Pathfind(endpointIsStart ? endpointObj : room.gameObject, endpointIsStart ? room.gameObject : endpointObj, Vector2.zero) != null).Random();
+	public RoomController RandomReachableRoom(AIController ai, GameObject endpointObj, bool endpointIsStart) => m_startRoom == null ? null : m_startRoom.WithDescendants.Where(room => ai.Pathfind(endpointIsStart ? endpointObj : room.gameObject, endpointIsStart ? room.gameObject : endpointObj, Vector2.zero) != null).Random();
 
 	public System.Tuple<List<Vector2>, float> Pathfind(GameObject start, GameObject target, float extentY = -1.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, RoomController.PathFlags flags = RoomController.PathFlags.ObstructionCheck)
 	{
@@ -1309,6 +1309,11 @@ public class GameController : MonoBehaviour
 
 		// determine enemy types allowed for this wave
 		WeightedObject<AIController>[] optionsInitial = m_enemyPrefabs.Where(weightedObj => weightedObj.m_object.m_difficulty <= m_waveWeight).ToArray();
+		if (optionsInitial.Length <= 0)
+		{
+			Debug.LogWarning("No valid enemies when trying to spawn a wave?");
+			yield break;
+		}
 		float restrictPct = 1.0f - Mathf.Pow(Random.value, 2.0f); // NOTE that we bias the distribution toward more rather than less restriction
 		WeightedObject<AIController>[] options = optionsInitial.Where(weightedObj => Random.value > restrictPct).ToArray();
 		if (options.Length <= 0)
@@ -1350,8 +1355,18 @@ public class GameController : MonoBehaviour
 
 	private void SpawnEnemy(AIController enemyPrefab)
 	{
+		if (m_startRoom == null)
+		{
+			Debug.LogWarning("Trying to spawn an enemy before any rooms?");
+			return;
+		}
 		KinematicCharacter target = m_avatars.Count <= 0 ? AiTargets.FirstOrDefault(t => t is AIController ai && ai.m_friendly) : m_avatars.Random();
 		RoomController spawnRoom = target == null ? m_startRoom.WithDescendants.Random() : m_waveSealing ? RoomFromPosition(target.transform.position) : RandomReachableRoom(enemyPrefab, target.gameObject, false);
+		if (spawnRoom == null)
+		{
+			Debug.LogWarning("No room found to spawn an enemy?");
+			return;
+		}
 		AIController enemy = Instantiate(enemyPrefab, spawnRoom.SpawnPointRandom(), Quaternion.identity);
 		EnemyAdd(enemy);
 		if (m_waveSealing) // NOTE that for non-sealed zones we don't invoke EnemyAddToWave() directly anymore, since we aren't guaranteed to be within reach of the avatar(s) - instead it will occur through AIController.NavigateTowardTarget(); however, we still need instantly active enemies in sealed zones to avoid immediately un-sealing during single-enemy waves

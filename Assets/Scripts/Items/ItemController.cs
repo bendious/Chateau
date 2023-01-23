@@ -532,8 +532,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 			if (material1 != m_impactAudioLastMaterial || m_impactAudioLastTime + m_impactAudioRepeatSeconds <= Time.time) // TODO: also compare local material for multi-material objects?
 			{
 				PhysicsMaterial2D material2 = colliderLocal.sharedMaterial != null || bodyLocal == null ? colliderLocal.sharedMaterial : bodyLocal.sharedMaterial;
-				MaterialPairInfo info = GameController.Instance.m_materialSystem.PairBestMatch(material1, material2);
-				m_audioSource.PlayOneShot(info.m_collisionStrongAudio.Length > 0 && collisionSpeed >= sfxThresholdSpeed * m_impactStrongPctScalar ? info.m_collisionStrongAudio.RandomWeighted() : info.m_collisionAudio.Random());
+				GameController.Instance.m_materialSystem.PairBestMatch(material1, material2)?.PlayCollisionAudio(collisionSpeed >= sfxThresholdSpeed * m_impactStrongPctScalar, m_audioSource);
 				m_impactAudioLastTime = Time.time;
 				m_impactAudioLastMaterial = material1;
 			}
@@ -621,7 +620,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		{
 			return;
 		}
-		m_audioSource.PlayOneShot(GameController.Instance.m_materialSystem.Find(m_colliders.First(c => c != null).sharedMaterial).m_movementAudio.Random()); // TODO: don't assume first collider is main material?
+		GameController.Instance.m_materialSystem.Find(m_colliders.First(c => c != null).sharedMaterial).PlayMovementAudio(m_audioSource); // TODO: don't assume first collider is main material?
 	}
 
 
