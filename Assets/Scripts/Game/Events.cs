@@ -50,16 +50,6 @@ public class KinematicCollision : Event<KinematicCollision>
 }
 
 /// <summary>
-/// This event is fired when player control of an avatar should be re-enabled.
-/// </summary>
-public class EnableControl : Event<EnableControl>
-{
-	public AvatarController m_avatar;
-
-	public override void Execute() => m_avatar.EnablePlayerControl();
-}
-
-/// <summary>
 /// This event is fired when damage to an object should be re-enabled.
 /// </summary>
 public class EnableDamage : Event<EnableDamage>

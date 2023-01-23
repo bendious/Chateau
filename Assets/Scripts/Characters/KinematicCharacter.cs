@@ -274,7 +274,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		TargetVelocity = move * maxSpeed;
 	}
 
-	protected virtual bool OnCharacterCollision(KinematicCharacter character)
+	private bool OnCharacterCollision(KinematicCharacter character)
 	{
 		// temporarily disable collision to prevent getting stuck
 		// NOTE that this is BEFORE the early-out

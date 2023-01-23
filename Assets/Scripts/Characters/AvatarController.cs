@@ -3,7 +3,6 @@ using System;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
@@ -45,6 +44,7 @@ public sealed class AvatarController : KinematicCharacter
 	[SerializeField] private float m_moveSpringDampTime = 0.15f;
 
 	[SerializeField] private float m_coyoteTime = 0.15f;
+	[SerializeField] private float m_coyoteReverseTime = 0.15f;
 
 	[SerializeField] private float m_throwIgnoreSeconds = 0.15f;
 
@@ -66,6 +66,7 @@ public sealed class AvatarController : KinematicCharacter
 	private bool m_controlDisabledUntilHurt = false;
 
 	private float m_leftGroundTime = -1.0f;
+	private float m_cachedJumpTime = -1.0f;
 
 	private GameObject m_focusObj;
 
@@ -141,7 +142,7 @@ public sealed class AvatarController : KinematicCharacter
 			// update velocity
 			move = move.SmoothDamp(m_moveDesired, ref m_moveVel, m_moveSpringDampTime);
 		}
-		else
+		else if (IsGrounded)
 		{
 			move = Vector2.zero;
 		}
@@ -456,6 +457,7 @@ public sealed class AvatarController : KinematicCharacter
 		else
 		{
 			m_stopJump = true;
+			m_cachedJumpTime = input.isPressed ? Time.time : -1.0f;
 		}
 	}
 
@@ -694,7 +696,6 @@ public sealed class AvatarController : KinematicCharacter
 			return;
 		}
 
-		DisablePlayerControl();
 		InventorySync(); // since KinematicCharacter.OnDeath() drops all attachables
 
 		if (GameController.Instance.m_avatars.All(avatar => !avatar.IsAlive))
@@ -736,20 +737,6 @@ public sealed class AvatarController : KinematicCharacter
 		// NOTE that we purposely don't call base.DespawnSelf() since the avatar shouldn't despawn on death
 	}
 
-	protected override bool OnCharacterCollision(KinematicCharacter character)
-	{
-		bool hurt = base.OnCharacterCollision(character);
-		if (!hurt)
-		{
-			return false;
-		}
-
-		DisablePlayerControl(); // re-enabled via EnablePlayerControl() animation trigger
-		Simulation.Schedule<EnableControl>(1.0f).m_avatar = this; // NOTE that this is only a timer-based fallback
-
-		return hurt;
-	}
-
 
 	public void Respawn(bool clearInventory, bool resetPosition)
 	{
@@ -770,7 +757,6 @@ public sealed class AvatarController : KinematicCharacter
 		}
 
 		m_health.Respawn();
-		EnablePlayerControl();
 		m_controlDisabledUntilHurt = false;
 
 		if (resetPosition)
@@ -870,7 +856,6 @@ public sealed class AvatarController : KinematicCharacter
 		}
 
 		m_controlDisabledUntilHurt = false;
-		DisablePlayerControl();
 		m_animator.SetTrigger("victory");
 		GetComponent<Health>().m_invincible = true;
 	}
@@ -926,7 +911,14 @@ public sealed class AvatarController : KinematicCharacter
 		switch (jumpState)
 		{
 			case JumpState.Grounded:
-				if (!IsGrounded)
+				if (IsGrounded)
+				{
+					if (m_cachedJumpTime + m_coyoteReverseTime >= Time.time)
+					{
+						goto case JumpState.PrepareToJump; // C#'s version of fallthrough; see https://stackoverflow.com/questions/174155/switch-statement-fallthrough-in-c
+					}
+				}
+				else
 				{
 					jumpState = JumpState.InFlight;
 					m_leftGroundTime = Time.time;
