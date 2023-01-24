@@ -17,7 +17,7 @@ public interface IHolder
 
 
 	public bool ChildAttach(IAttachable attachable);
-	public void ChildDetach(IAttachable attachable, bool noAutoReplace);
+	public void ChildDetach(IAttachable attachable, bool noAutoReplace, IHolder holderNew);
 
 
 	protected static bool ChildAttachInternal(IAttachable attachable, IHolder holder)
@@ -33,7 +33,7 @@ public interface IHolder
 		if (attachableComp.transform.parent != null)
 		{
 			// ensure any special detach logic gets invoked
-			attachable.Detach(false);
+			attachable.Detach(false, holder);
 		}
 
 		bool attached = attachable.AttachInternal(holder);
@@ -52,7 +52,7 @@ public interface IHolder
 		return true;
 	}
 
-	protected static void ChildDetachInternal(IAttachable attachable, IHolder holder, bool noAutoReplace)
+	protected static void ChildDetachInternal(IAttachable attachable, IHolder holder, bool noAutoReplace, IHolder holderNew)
 	{
 		IAttachable.DetachInternalShared(attachable);
 
@@ -99,7 +99,7 @@ public interface IHolder
 			// try attaching each child item until one works
 			foreach (IAttachable newAttachable in otherAttachables)
 			{
-				newAttachable.Detach(true);
+				newAttachable.Detach(true, holderNew);
 				foundReplacement = holder.ChildAttach(newAttachable);
 				if (foundReplacement)
 				{
@@ -111,9 +111,14 @@ public interface IHolder
 			}
 		}
 
+		// TODO: combine via KinematicCharacter virtual function?
 		if (holderTf.parent.TryGetComponent(out AvatarController avatar))
 		{
 			avatar.InventorySync(); // TODO: avoid multi-sync when detaching multiple (e.g. upon death)?
+		}
+		else if (holderTf.parent.TryGetComponent(out AIController ai))
+		{
+			ai.OnChildDetached(holderNew);
 		}
 
 		return;

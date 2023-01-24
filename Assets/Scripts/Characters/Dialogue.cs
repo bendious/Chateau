@@ -10,6 +10,12 @@ public class Dialogue : ScriptableObject
 {
 	[Serializable] public class Info
 	{
+		public enum Type
+		{
+			Normal,
+			Theft,
+		}
+		public Type m_type;
 		public string m_preconditionName;
 		public int m_userdata;
 		public float m_relationshipMin = 0.0f;

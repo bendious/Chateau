@@ -10,7 +10,7 @@ public interface IAttachable
 
 
 	// NOTE that there is no Attach() since the entry point is IHolder.ChildAttach()
-	public void Detach(bool noAutoReplace);
+	public void Detach(bool noAutoReplace, IHolder holderNew = null);
 
 	// this (although public) should only be called by IHolder.ChildAttach{Internal}() // TODO?
 	public bool AttachInternal(IHolder holder);
@@ -27,7 +27,7 @@ public interface IAttachable
 		if (attachableTf.parent != null)
 		{
 			// ensure any special detach logic gets invoked
-			attachable.Detach(false);
+			attachable.Detach(false, holder);
 		}
 
 		Component holderComp = holder.Component;

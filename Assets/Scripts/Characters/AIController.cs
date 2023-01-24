@@ -32,6 +32,7 @@ public sealed class AIController : KinematicCharacter
 	[SerializeField] private bool m_jumpAlways;
 	[SerializeField] private float m_jumpPct = 0.05f;
 	[SerializeField] private float m_jumpPctRapid = 0.25f;
+	[SerializeField] private float m_theftDialoguePct = 0.5f; // TODO: vary / derive from assigned Dialogue types?
 
 	[SerializeField] private float m_dropDecayTime = 0.2f;
 
@@ -207,6 +208,21 @@ public sealed class AIController : KinematicCharacter
 
 	public override float TargetPriority(KinematicCharacter source, bool friendly) => m_passive ? 0.0f : base.TargetPriority(source, friendly);
 
+
+	public void OnChildDetached(IHolder holderNew)
+	{
+		if (holderNew == null)
+		{
+			return;
+		}
+		if (holderNew is KinematicCharacter otherCharacter || (holderNew.Component.transform.parent != null && holderNew.Component.transform.parent.TryGetComponent(out otherCharacter))) // TODO: support holders attached to characters in arbitrary ways?
+		{
+			if (TryGetComponent(out InteractNpc npc) && Random.value < m_theftDialoguePct)
+			{
+				npc.StartDialogue(otherCharacter, Dialogue.Info.Type.Theft);
+			}
+		}
+	}
 
 	private void OnDamage(OnHealthDecrement evt)
 	{

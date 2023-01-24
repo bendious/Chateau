@@ -185,14 +185,14 @@ public sealed class ArmController : MonoBehaviour, IHolder
 		return true;
 	}
 
-	public /*override*/ void ChildDetach(IAttachable attachable, bool noAutoReplace)
+	public /*override*/ void ChildDetach(IAttachable attachable, bool noAutoReplace, IHolder holderNew)
 	{
 		m_swingInfoCur = m_swingInfoDefault; // NOTE that this has to be BEFORE ItemDetachInternal(), which might re-attach a replacement w/ a non-default SwingInfo
 		m_massTotal = m_mass;
 		m_aimStiffness = m_aimStiffnessMax;
 		m_radiusStiffness = m_radiusStiffnessMax;
 
-		IHolder.ChildDetachInternal(attachable, this, noAutoReplace);
+		IHolder.ChildDetachInternal(attachable, this, noAutoReplace, holderNew);
 
 		foreach (Collider2D collider in m_colliders)
 		{

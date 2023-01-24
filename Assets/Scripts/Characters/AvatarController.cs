@@ -643,7 +643,7 @@ public sealed class AvatarController : KinematicCharacter
 		// detach
 		foreach (IAttachable attachable in attachables)
 		{
-			attachable.Detach(true);
+			attachable.Detach(true); // TODO: specify holderNew?
 		}
 
 		// re-attach

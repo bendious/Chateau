@@ -46,7 +46,9 @@ public class InteractNpc : MonoBehaviour, IInteractable
 
 	public bool CanInteract(KinematicCharacter interactor) => (!GameController.Instance.m_dialogueController.IsPlaying || GameController.Instance.m_dialogueController.CanInterrupt(interactor)) && !GameController.Instance.ActiveEnemiesRemain();
 
-	public void Interact(KinematicCharacter interactor, bool reverse) => StartCoroutine(PlayDialogueCoroutine(interactor));
+	public void Interact(KinematicCharacter interactor, bool reverse) => StartDialogue(interactor);
+
+	public void StartDialogue(KinematicCharacter otherCharacter, Dialogue.Info.Type type = Dialogue.Info.Type.Normal) => StartCoroutine(PlayDialogueCoroutine(otherCharacter, type));
 
 	// called via Interact()/SendMessage(NpcDialogue.Info.m_preconditionName)
 	public void HasFinishedZone(SendMessageValue<Dialogue.Info, bool> info)
@@ -70,7 +72,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 #endif
 
 
-	private IEnumerable<WeightedObject<Dialogue.Info>> DialogueFiltered(bool excludeReplies, int targetIndex = -1, params Dialogue[] targets)
+	private IEnumerable<WeightedObject<Dialogue.Info>> DialogueFiltered(bool excludeReplies, Dialogue.Info.Type type = Dialogue.Info.Type.Normal, int targetIndex = -1, params Dialogue[] targets)
 	{
 		// lazy initialize dialogue options
 		if (m_dialogueCombined == null)
@@ -82,7 +84,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 		float relationshipCur = GameController.RelationshipPercent(Index, targetIndex >= 0 ? targetIndex : Index); // NOTE the use of -1 for "self-relationships" for non-NPC-targeted lines // TODO: better flag value(s)?
 		return m_dialogueCombined.Where(info =>
 		{
-			if (info.m_weight < 0.0f || (excludeReplies && info.m_object.m_lines.Any(line => line.m_replies.Length > 0)) || ((targets != null && targets.Length > 0) ? targets.All(target => target != info.m_object.m_target) : (info.m_object.m_target != null)))
+			if (info.m_weight < 0.0f || info.m_object.m_type != type || (excludeReplies && info.m_object.m_lines.Any(line => line.m_replies.Length > 0)) || ((targets != null && targets.Length > 0) ? targets.All(target => target != info.m_object.m_target) : (info.m_object.m_target != null)))
 			{
 				return false;
 			}
@@ -109,12 +111,12 @@ public class InteractNpc : MonoBehaviour, IInteractable
 		m_expressionsCombined = dialogue.SelectMany(source => source.m_expressions).ToArray(); // NOTE the lack of deep-copying here since these shouldn't be edited anyway
 	}
 
-	private System.Collections.IEnumerator PlayDialogueCoroutine(KinematicCharacter interactor)
+	private System.Collections.IEnumerator PlayDialogueCoroutine(KinematicCharacter interactor, Dialogue.Info.Type type)
 	{
 		// pick dialogue option(s)
 		InteractNpc otherNpc = interactor.GetComponent<InteractNpc>();
 		int targetIndex = otherNpc != null ? otherNpc.Index : Index; // NOTE the use of "self-relationships" for non-NPC-targeted lines // TODO?
-		WeightedObject<Dialogue.Info>[] dialogueAllowed = DialogueFiltered(interactor is not AvatarController, targetIndex, otherNpc == null ? interactor.m_dialogues : interactor.m_dialogues.Concat(GameController.NpcDialogues(otherNpc.Index)).ToArray()).ToArray();
+		WeightedObject<Dialogue.Info>[] dialogueAllowed = DialogueFiltered(interactor is not AvatarController, type, targetIndex, otherNpc == null ? interactor.m_dialogues : interactor.m_dialogues.Concat(GameController.NpcDialogues(otherNpc.Index)).ToArray()).ToArray();
 		if (dialogueAllowed.Length <= 0)
 		{
 			yield break;
@@ -137,7 +139,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 		{
 			otherNpc.InitializeDialogue();
 		}
-		Coroutine dialogueCoroutine = dialogueController.Play(dialogueAppend != null ? dialogueCur.m_lines.Concat(dialogueAppend.m_lines) : dialogueCur.m_lines, gameObject, interactor, m_ai, m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_sfxChosen, dialogueCur.m_loop ? 0 : dialogueAppend != null && dialogueAppend.m_loop ? dialogueCur.m_lines.Length : -1, expressionSets: new WeightedObject<Dialogue.Expression>[][] { m_expressionsCombined, otherNpc == null ? interactor.m_dialogues.SelectMany(d => d.m_expressions).ToArray() : otherNpc.m_expressionsCombined });
+		Coroutine dialogueCoroutine = dialogueController.Play(dialogueAppend != null ? dialogueCur.m_lines.Concat(dialogueAppend.m_lines) : dialogueCur.m_lines, gameObject, interactor, m_ai, m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_sfxChosen, dialogueCur.m_type != Dialogue.Info.Type.Normal, dialogueCur.m_loop ? 0 : dialogueAppend != null && dialogueAppend.m_loop ? dialogueCur.m_lines.Length : -1, expressionSets: new WeightedObject<Dialogue.Expression>[][] { m_expressionsCombined, otherNpc == null ? interactor.m_dialogues.SelectMany(d => d.m_expressions).ToArray() : otherNpc.m_expressionsCombined });
 
 		// early-out / wait
 		if (dialogueCoroutine == null)

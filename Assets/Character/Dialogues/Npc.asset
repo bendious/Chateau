@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -30,6 +31,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -46,6 +48,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -62,6 +65,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -78,6 +82,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -94,6 +99,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -110,6 +116,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -126,6 +133,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -142,6 +150,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -158,6 +167,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -174,6 +184,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -190,6 +201,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -214,6 +226,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -229,4 +242,101 @@ MonoBehaviour:
       m_singleUse: 0
       m_appendToAll: 0
     m_weight: 1
-  m_expressions: []
+  - m_object:
+      m_type: 1
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: ...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 1
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Hey{.}
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 1
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: That's mine{.}
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 1
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Give that back{.}
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 1
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Come back with that{.}
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  m_expressions:
+  - m_object:
+      m_key: .
+      m_replacement: .
+    m_weight: 1
+  - m_object:
+      m_key: .
+      m_replacement: ...
+    m_weight: 1
+  - m_object:
+      m_key: .
+      m_replacement: '!'
+    m_weight: 1

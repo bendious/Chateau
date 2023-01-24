@@ -121,7 +121,7 @@ public class DialogueController : MonoBehaviour
 	}
 
 
-	public Coroutine Play(IEnumerable<Line> lines, GameObject callbackObject = null, KinematicCharacter target = null, KinematicCharacter sourceMain = null, Sprite sprite = null, Color spriteColor = default, AudioClip sfx = null, int loopIdx = -1, params WeightedObject<Dialogue.Expression>[][] expressionSets)
+	public Coroutine Play(IEnumerable<Line> lines, GameObject callbackObject = null, KinematicCharacter target = null, KinematicCharacter sourceMain = null, Sprite sprite = null, Color spriteColor = default, AudioClip sfx = null, bool forceWorldspace = false, int loopIdx = -1, params WeightedObject<Dialogue.Expression>[][] expressionSets)
 	{
 		if (IsPlaying)
 		{
@@ -140,7 +140,7 @@ public class DialogueController : MonoBehaviour
 		Canceled = false;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
-		return StartCoroutine(AdvanceDialogue(lines, expressionSets, sfx, sprite, spriteColor));
+		return StartCoroutine(AdvanceDialogue(lines, expressionSets, sfx, forceWorldspace, sprite, spriteColor));
 	}
 
 	public void OnReplySelected(GameObject replyObject)
@@ -280,7 +280,7 @@ public class DialogueController : MonoBehaviour
 	}
 
 
-	private System.Collections.IEnumerator AdvanceDialogue(IEnumerable<Line> linesOrig, WeightedObject<Dialogue.Expression>[][] expressionSets, AudioClip sfx, Sprite sprite, Color color)
+	private System.Collections.IEnumerator AdvanceDialogue(IEnumerable<Line> linesOrig, WeightedObject<Dialogue.Expression>[][] expressionSets, AudioClip sfx, bool forceWorldspace, Sprite sprite, Color color)
 	{
 		m_text.text = null;
 		m_queue = new(linesOrig);
@@ -296,11 +296,11 @@ public class DialogueController : MonoBehaviour
 			m_canvas.enabled = true;
 		}
 		AvatarController avatar = Target as AvatarController;
-		if (avatar != null)
+		bool isWorldspace = forceWorldspace || avatar == null;
+		if (!isWorldspace)
 		{
 			avatar.ControlsUI.Enable();
 		}
-		bool isWorldspace = avatar == null;
 		InputAction submitKey = isWorldspace ? null : avatar.Controls.actions["Submit"];
 		bool submitReleasedSinceNewline = true;
 
@@ -510,7 +510,7 @@ public class DialogueController : MonoBehaviour
 						RectTransform menuTf = (RectTransform)m_replyMenu;
 						menuTf.sizeDelta = new(menuTf.sizeDelta.x, Mathf.Min(scrollTf.sizeDelta.y + Mathf.Abs(((RectTransform)menuTf.GetChild(0)).sizeDelta.y), Screen.height - menuTf.anchoredPosition.y));
 					}
-					else if (avatar != null)
+					else if (!isWorldspace)
 					{
 						// display continue indicator
 						Extents lineExtents = m_text.textInfo.lineInfo[m_text.textInfo.lineCount - 1].lineExtents; // NOTE that lineInfo.Last() may be stale info
@@ -528,7 +528,7 @@ public class DialogueController : MonoBehaviour
 			}
 		}
 
-		if (avatar != null)
+		if (!isWorldspace)
 		{
 			avatar.ControlsUI.Disable(); // TODO: check for other UI?
 		}

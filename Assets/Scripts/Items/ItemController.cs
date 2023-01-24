@@ -242,7 +242,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public string Name => m_tooltip.Split('\n').First(); // TODO: decouple from m_tooltip?
 
 	// this is the detachment entry point
-	public void /*override*/ Detach(bool noAutoReplace)
+	public void /*override*/ Detach(bool noAutoReplace, IHolder holderNew = null)
 	{
 		// ensure our aim indicators don't get stuck on
 		AvatarController avatar = Cause == null ? null : Cause.GetComponent<AvatarController>();
@@ -263,7 +263,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 
 		UpdateTrailWidth(false);
 
-		m_holder?.ChildDetach(this, noAutoReplace); // NOTE that m_holder is null for items attached to static geometry rather than an IHolder
+		m_holder?.ChildDetach(this, noAutoReplace, holderNew); // NOTE that m_holder is null for items attached to static geometry rather than an IHolder
 
 		if (m_body == null) // to prevent asserts during shutdown
 		{

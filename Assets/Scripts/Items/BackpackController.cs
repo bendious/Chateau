@@ -34,11 +34,11 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable, 
 		return true;
 	}
 
-	public /*override*/ void ChildDetach(IAttachable attachable, bool noAutoReplace)
+	public /*override*/ void ChildDetach(IAttachable attachable, bool noAutoReplace, IHolder holderNew)
 	{
 		attachable.Component.gameObject.SetActive(true);
 
-		IHolder.ChildDetachInternal(attachable, this, noAutoReplace);
+		IHolder.ChildDetachInternal(attachable, this, noAutoReplace, holderNew);
 	}
 
 
@@ -54,9 +54,9 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable, 
 		return true;
 	}
 
-	public /*override*/ void Detach(bool noAutoReplace)
+	public /*override*/ void Detach(bool noAutoReplace, IHolder holderNew)
 	{
-		transform.parent.GetComponent<IHolder>().ChildDetach(this, noAutoReplace);
+		transform.parent.GetComponent<IHolder>().ChildDetach(this, noAutoReplace, holderNew);
 
 		StopAllCoroutines();
 	}

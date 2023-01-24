@@ -221,7 +221,7 @@ public abstract class AIState
 		KinematicCharacter otherChar = m_ai.m_target == null ? null : m_ai.m_target.GetComponent<KinematicCharacter>();
 		if (npc != null && otherChar != null)
 		{
-			npc.Interact(otherChar, false);
+			npc.StartDialogue(otherChar);
 		}
 	}
 }
@@ -270,7 +270,7 @@ public sealed class AIFraternize : AIState
 		m_wanderTarget = Random.value <= m_wanderPct ? new(m_targetName) : null;
 
 		m_postSecRemaining = Random.Range(m_postSecMin, m_postSecMax);
-		m_shouldStartDialogue = m_wanderTarget == null && Random.value <= m_dialoguePct;
+		m_shouldStartDialogue = m_wanderTarget == null && Random.value <= m_dialoguePct; // TODO: check cooldown if avatar is the target?
 
 		m_ai.m_replanSecondsMin = m_retargetSecMin;
 		m_ai.m_replanSecondsMax = m_retargetSecMax;
