@@ -42,11 +42,16 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable, 
 	}
 
 
-	public void AttachInternal(IHolder holder)
+	public bool AttachInternal(IHolder holder)
 	{
-		IAttachable.AttachInternalShared(this, holder, GetComponent<Rigidbody2D>());
+		bool attached = IAttachable.AttachInternalShared(this, holder, GetComponent<Rigidbody2D>());
+		if (!attached)
+		{
+			return false;
+		}
 
 		StartCoroutine(UpdateOffset());
+		return true;
 	}
 
 	public /*override*/ void Detach(bool noAutoReplace)

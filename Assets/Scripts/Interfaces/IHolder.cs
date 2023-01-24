@@ -36,7 +36,11 @@ public interface IHolder
 			attachable.Detach(false);
 		}
 
-		attachable.AttachInternal(holder);
+		bool attached = attachable.AttachInternal(holder);
+		if (!attached)
+		{
+			return false;
+		}
 
 		Transform holderParent = holderComp.transform.parent;
 		AvatarController avatar = holderParent == null ? null : holderParent.GetComponent<AvatarController>();

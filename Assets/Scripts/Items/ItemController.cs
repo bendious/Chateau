@@ -186,9 +186,13 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	public void Interact(KinematicCharacter interactor, bool reverse) => interactor.ChildAttach(this);
 
 	// this (although public) should only be called by IHolder.ChildAttachInternal() // TODO?
-	public void AttachInternal(IHolder holder)
+	public bool AttachInternal(IHolder holder)
 	{
-		IAttachable.AttachInternalShared(this, holder, m_body);
+		bool attached = IAttachable.AttachInternalShared(this, holder, m_body);
+		if (!attached)
+		{
+			return false;
+		}
 
 		m_holder = holder;
 
@@ -232,6 +236,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		UpdateTrailWidth(true);
 
 		SetCause(holder.Component.transform.root.GetComponent<KinematicCharacter>());
+		return true;
 	}
 
 	public string Name => m_tooltip.Split('\n').First(); // TODO: decouple from m_tooltip?

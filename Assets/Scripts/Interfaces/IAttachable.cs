@@ -13,12 +13,16 @@ public interface IAttachable
 	public void Detach(bool noAutoReplace);
 
 	// this (although public) should only be called by IHolder.ChildAttach{Internal}() // TODO?
-	public void AttachInternal(IHolder holder);
+	public bool AttachInternal(IHolder holder);
 
 
-	public static void AttachInternalShared(IAttachable attachable, IHolder holder, Rigidbody2D body)
+	public static bool AttachInternalShared(IAttachable attachable, IHolder holder, Rigidbody2D body)
 	{
 		Component attachableComp = attachable.Component;
+		if (!attachableComp.gameObject.activeSelf) // should only happen in the case of objects starting to be destroyed in the same frame as they are collected for attachment
+		{
+			return false;
+		}
 		Transform attachableTf = attachableComp.transform;
 		if (attachableTf.parent != null)
 		{
@@ -43,6 +47,7 @@ public interface IAttachable
 		}
 
 		(attachableComp as MonoBehaviour).StartCoroutine(attachable.MirrorParentAlphaCoroutine());
+		return true;
 	}
 
 	public static void DetachInternalShared(IAttachable attachable)
