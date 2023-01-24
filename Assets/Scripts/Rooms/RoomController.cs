@@ -785,18 +785,29 @@ public class RoomController : MonoBehaviour
 				case LayoutGenerator.Node.Type.FinalHint:
 				case LayoutGenerator.Node.Type.FinalHintSequence:
 					GameObject hintPrefab = m_hintPrefabs.RandomWeighted();
-					Vector3 spawnPos = InteriorPosition(float.MaxValue, hintPrefab/*, edgeBuffer: GameController.m_narrowPathLength*/); // TODO: ensure the whole sequence can fit
+					Bounds placementBounds = BoundsInterior;
+					Vector3 spawnPos = InteriorPosition(float.MaxValue, hintPrefab); // NOTE that we don't use edgeBuffer to ensure the whole sequence can fit since the total width can be wide enough to exclude all vertical placements in some rooms
+					float width = 0.0f;
 					int sceneIndex = SceneManager.GetActiveScene().buildIndex;
+					List<GameObject> spawnedHints = new();
 					for (int i = 0; i < (node.m_type == LayoutGenerator.Node.Type.FinalHintSequence ? GameController.m_narrowPathLength : 1); ++i)
 					{
+						if (!placementBounds.Contains(spawnPos + new Vector3(width, 0.0f)))
+						{
+							spawnPos.x -= width;
+							foreach (GameObject obj in spawnedHints)
+							{
+								obj.transform.position = new(obj.transform.position.x - width, obj.transform.position.y); // TODO: handle rooms too narrow to fit entire sequence?
+							}
+						}
 						GameObject hintObj = Instantiate(hintPrefab, spawnPos, Quaternion.identity);
 						Color hintColor = (sceneIndex != 0 || (i % 2 == 0 ? GameController.SecretFound(i / 2) : GameController.ZonesFinishedCount > i / 2)) ? GameController.NarrowPathColors[GameController.m_hintsPerZone * System.Math.Max(0, sceneIndex - 1) + GameController.Instance.NarrowPathHintCount] : Color.black; // TODO: guarantee order of hints spawned?
-						float width = 0.0f;
 						foreach (SpriteRenderer r in hintObj.GetComponentsInChildren<SpriteRenderer>())
 						{
 							r.color = hintColor;
 							width = Mathf.Max(width, r.bounds.size.x);
 						}
+						spawnedHints.Add(hintObj);
 						++GameController.Instance.NarrowPathHintCount;
 						spawnPos.x += width;
 						hintPrefab = m_hintPrefabs.RandomWeighted();
