@@ -746,6 +746,12 @@ public class GameController : MonoBehaviour
 		SceneManager.LoadScene(name);
 	}
 
+	public void StopWaves()
+	{
+		m_timerUI.gameObject.SetActive(false);
+		m_nextWaveTime = -1.0f; // NOTE that this is checked by the relevant coroutines to break out of their loops
+	}
+
 	public void OnVictory()
 	{
 		if (Victory) // although OnVictory() shouldn't ever be called multiple times, we don't want to trigger effects in zones where Victory is set initially
@@ -760,9 +766,7 @@ public class GameController : MonoBehaviour
 		{
 			avatar.OnVictory();
 		}
-		m_timerUI.gameObject.SetActive(false);
-		m_nextWaveTime = -1.0f;
-		StopAllCoroutines(); // TODO: continue spawning waves?
+		StopWaves();
 
 		GetComponent<MusicManager>().Play(m_victoryAudio);
 
@@ -1265,7 +1269,7 @@ public class GameController : MonoBehaviour
 		while (m_nextWaveTime >= 0.0f)
 		{
 			yield return ConsoleCommands.TimerPaused ? waitUntilUnpaused : new WaitForSeconds(m_nextWaveTime - Time.time);
-			if (ConsoleCommands.TimerPaused)
+			if (ConsoleCommands.TimerPaused || m_nextWaveTime < 0.0f)
 			{
 				continue;
 			}

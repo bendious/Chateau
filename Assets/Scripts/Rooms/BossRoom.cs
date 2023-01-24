@@ -74,7 +74,7 @@ public class BossRoom : MonoBehaviour
 		GetComponent<RoomController>().SealRoom(true);
 		GameController.Instance.m_bossRoomSealed = true;
 		GameController.Instance.RemoveUnreachableEnemies(); // despawn outside enemies for efficiency since they shouldn't be relevant to the boss fight
-		// TODO: stop wave timer
+		GameController.Instance.StopWaves();
 
 		// play ambiance SFX
 		// TODO: use MusicManager to prevent music starting during ambiance (once it supports multiple sources)
