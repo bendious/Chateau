@@ -157,10 +157,10 @@ public sealed class AvatarController : KinematicCharacter
 		Vector2 aimPosConstrained = m_aimObject.transform.position;
 		Vector2 aimPos = aimPosConstrained;
 
-		if (ControlEnabled && (m_usingMouse || m_analogRecent != Vector2.zero)) // NOTE the check to prevent resetting aim position before any valid input has been receieved
+		if (ControlEnabled)
 		{
 			// determine aim position(s)
-			Vector2 aimPctsFromCenter = AnalogCurrentIsValid ? m_analogCurrent : m_analogRecent;
+			Vector2 aimPctsFromCenter = AnalogCurrentIsValid ? m_analogCurrent : m_analogRecent != Vector2.zero ? m_analogRecent : (aimPos - (Vector2)transform.position).normalized; // NOTE the m_analogRecent check, to retain the current aim direction while still constraining aim distance before any valid look input has been receieved
 			Camera camera = Camera.main; // TODO: cache?
 			if (m_usingMouse)
 			{
