@@ -72,7 +72,7 @@ public class DialogueController : MonoBehaviour
 
 
 	private static readonly Regex m_tagMatcher = new(@"<(.+)>.*?</\1>"); // this matches corresponding start/end tags along w/ the contents between them // NOTE the lazy rather than greedy wildcard matching to prevent multiple sets of identical tags being combined into one group // TODO: handle identical nested tags (via balancing group expressions? - https://learn.microsoft.com/en-us/dotnet/standard/base-types/grouping-constructs-in-regular-expressions#balancing-group-definitions)?
-	private static readonly Regex m_commaRemovalMatcher = new(@"((?<=[^\w'""]),\s+|,\s+(?=[^\w'""]))"); // this matches comma-whitespace that is not preceded and followed by word characters or quotation marks // NOTE the lookahead/lookbehind assertions to match non-word characters and string start/end w/o including them in the comma-whitespace match value; https://learn.microsoft.com/en-us/dotnet/standard/base-types/grouping-constructs-in-regular-expressions#zero-width-positive-lookahead-assertions
+	private static readonly Regex m_commaRemovalMatcher = new(@"((?<=[^\w'"">]),\s+|,\s+(?=[^\w'""<]))"); // this matches comma-whitespace that is not preceded and followed by word characters or quotation marks or HTML tag brackets // NOTE the lookahead/lookbehind assertions to match non-word characters and string start/end w/o including them in the comma-whitespace match value; https://learn.microsoft.com/en-us/dotnet/standard/base-types/grouping-constructs-in-regular-expressions#zero-width-positive-lookahead-assertions
 
 	private AudioSource m_audio;
 	private RectTransform m_textTf;
@@ -95,6 +95,9 @@ public class DialogueController : MonoBehaviour
 	private bool m_forceNewLine = false;
 	public bool Canceled { get; private set; }
 	public void Cancel() => Canceled = true;
+
+	private float m_dialogueTimePrevious = float.MinValue; // NOTE that this is set at the END, not the beginning, of each dialogue
+	public float TimeSincePreviousDialogue => Time.time - m_dialogueTimePrevious;
 
 
 	private void Awake()
@@ -539,6 +542,8 @@ public class DialogueController : MonoBehaviour
 		{
 			npcSetPassive(m_sourceMain, false);
 		}
+
+		m_dialogueTimePrevious = Time.time;
 	}
 
 	private Line NextLine(out string text, out int textLen, ref Transform followTf, Dialogue.Expression[][] expressionSetsOrdered, Sprite spriteDefault, Color colorDefault)

@@ -29,6 +29,7 @@ public abstract class AIState
 	protected readonly AIController m_ai;
 
 
+	private const float m_avatarDialogueCooldownSeconds = 5.0f; // TODO: vary/expose?
 	protected bool m_shouldStartDialogue = false;
 
 
@@ -212,7 +213,7 @@ public abstract class AIState
 		}
 
 		m_shouldStartDialogue = false; // NOTE that we do this even if another conversation is playing, skipping rather than delaying our own dialogue
-		if (GameController.Instance.m_dialogueController.IsPlaying)
+		if ((GameController.Instance.m_dialogueController.IsPlaying && !GameController.Instance.m_dialogueController.CanInterrupt(m_ai)) || (m_ai.m_target != null && m_ai.m_target is AvatarController && GameController.Instance.m_dialogueController.TimeSincePreviousDialogue < m_avatarDialogueCooldownSeconds))
 		{
 			return;
 		}
@@ -270,7 +271,7 @@ public sealed class AIFraternize : AIState
 		m_wanderTarget = Random.value <= m_wanderPct ? new(m_targetName) : null;
 
 		m_postSecRemaining = Random.Range(m_postSecMin, m_postSecMax);
-		m_shouldStartDialogue = m_wanderTarget == null && Random.value <= m_dialoguePct; // TODO: check cooldown if avatar is the target?
+		m_shouldStartDialogue = m_wanderTarget == null && Random.value <= m_dialoguePct;
 
 		m_ai.m_replanSecondsMin = m_retargetSecMin;
 		m_ai.m_replanSecondsMax = m_retargetSecMax;

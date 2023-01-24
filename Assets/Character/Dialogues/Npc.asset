@@ -281,7 +281,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
-      m_relationshipMax: 1
+      m_relationshipMax: 0.5
       m_relationshipIncrement: 0
       m_lines:
       - m_text: That's mine{.}
@@ -298,7 +298,7 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
-      m_relationshipMax: 1
+      m_relationshipMax: 0.5
       m_relationshipIncrement: 0
       m_lines:
       - m_text: Give that back{.}
@@ -315,10 +315,163 @@ MonoBehaviour:
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
-      m_relationshipMax: 1
+      m_relationshipMax: 0.5
       m_relationshipIncrement: 0
       m_lines:
       - m_text: Come back with that{.}
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 1
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 0.5
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: I need that{.}
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 1
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 0.5
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: I needed that{.}
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 1
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0.5
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Oh, you need that?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 1
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0.5
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Oh, you need that, I guess?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 1
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0.5
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Need any help with that?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 1
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0.5
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Hey, good luck out there{.}
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 1
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0.5
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Here you go!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 1
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0.5
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: I kept it safe for ya!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 1
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0.9
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Thanks for that, boss!
         m_source: {fileID: 0}
         m_sourceDistMax: 0
         m_replies: []
