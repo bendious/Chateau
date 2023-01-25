@@ -52,10 +52,14 @@ MonoBehaviour:
       m_proportionalColor: 0
     m_weight: 1
   m_nonsquareShape: {fileID: 0}
+  m_nonsquareMaterialFill: {fileID: 0}
+  m_nonsquareMaterialEdge: {fileID: 0}
   m_furniturePrefabs: []
   m_fillPctMin: 0
   m_itemPrefabs:
   - m_object: {fileID: 6048625821855157070, guid: a5c7caeee92be8249ba14b290b6bb238, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 1271183342043709178, guid: f9973d3f1b28d794a8abb35b478b95fe, type: 3}
     m_weight: 1
   m_itemRarePrefabs: []
   m_itemsMin: 0

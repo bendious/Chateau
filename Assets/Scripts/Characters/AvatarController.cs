@@ -32,6 +32,7 @@ public sealed class AvatarController : KinematicCharacter
 	[SerializeField] private ButtonPrompt m_focusPrompt;
 	public GameObject m_aimObject;
 	public GameObject m_inventoryUI;
+	public Image m_progressMeterUI;
 
 	public Vector3 m_focusPromptOffset = new(0.0f, 0.3f, -0.15f);
 
@@ -756,7 +757,10 @@ public sealed class AvatarController : KinematicCharacter
 			InventorySync();
 		}
 
-		m_health.Respawn();
+		if (!IsAlive) // TODO: check if any avatar is dead?
+		{
+			m_health.Respawn();
+		}
 		m_controlDisabledUntilHurt = false;
 
 		if (resetPosition)

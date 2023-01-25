@@ -728,8 +728,10 @@ public class RoomController : MonoBehaviour
 					Instantiate(prefab, InteriorPosition(info.m_heightMin, info.m_heightMax, prefab, rotation), rotation, transform);
 					if (node.m_type == LayoutGenerator.Node.Type.TutorialInteract && (GameController.Instance.m_avatars == null || !GameController.Instance.m_avatars.Any(avatar => avatar.GetComponentInChildren<ItemController>(true) != null)))
 					{
-						prefab = RoomType.m_itemPrefabs.RandomWeighted(); // TODO: spawn on table
-						GameController.Instance.m_savableFactory.Instantiate(prefab, InteriorPosition(0.0f), Quaternion.identity);
+						foreach (WeightedObject<GameObject> item in RoomType.m_itemPrefabs)
+						{
+							GameController.Instance.m_savableFactory.Instantiate(item.m_object, InteriorPosition(0.0f), Quaternion.identity); // TODO: spawn on table
+						}
 					}
 					break;
 

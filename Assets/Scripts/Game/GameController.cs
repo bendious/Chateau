@@ -149,6 +149,7 @@ public class GameController : MonoBehaviour
 	private float m_loadYieldTimePrev = 0.0f;
 
 	private RoomController m_startRoom;
+	private float m_startHealth = -1.0f;
 
 	private struct NpcInfo
 	{
@@ -382,6 +383,7 @@ public class GameController : MonoBehaviour
 			}
 
 			m_dialogueController.Play(m_introDialogue.m_dialogue.RandomWeighted().m_lines, expressionSets: m_introDialogue.m_expressions); // TODO: take any preconditions into account?
+			m_startHealth = 1.0f;
 		}
 
 		if (LoadShouldYield("Post-tutorialCheck")) { yield return null; }
@@ -1229,6 +1231,10 @@ public class GameController : MonoBehaviour
 		// health
 		Health health = avatar.GetComponent<Health>();
 		health.SetMax(avatarObjOrig.GetComponent<Health>().GetMax() + m_upgradeCounts[(int)InteractUpgrade.Type.Health]);
+		if (m_startHealth > 0.0f)
+		{
+			health.SetCurrent(m_startHealth);
+		}
 
 		// lighting
 		// TODO: affect non-avatar lights?

@@ -29,6 +29,9 @@ public class Health : MonoBehaviour
 	/// </summary>
 	[SerializeField] private float m_maxHP = 1.0f;
 
+	[SerializeField] private float m_currentHP;
+	public float CurrentHP => m_currentHP;
+
 	public WeightedObject<AudioClip>[] m_damageSFX;
 	public WeightedObject<AudioClip>[] m_deathSFX;
 
@@ -68,9 +71,6 @@ public class Health : MonoBehaviour
 	public Color ColorCurrent => m_gradient.Evaluate(1.0f - PercentHP);
 
 
-	public float CurrentHP { get; private set; }
-
-
 	private Animator m_animator;
 	private KinematicCharacter m_character;
 
@@ -98,12 +98,17 @@ public class Health : MonoBehaviour
 		}
 
 		// update current health
-		CurrentHP = m_maxHP - diff;
+		SetCurrent(m_maxHP - diff);
 		if (CurrentHP <= 0.0f)
 		{
 			Decrement(null, null, 0.0f, DamageType.Generic); // TODO: split out death function?
 		}
 	}
+
+	/// <summary>
+	/// Set the current HP of the entity. Skips all player-facing effects such as animation/SFX/blink/etc.
+	/// </summary>
+	public virtual void SetCurrent(float hp) => m_currentHP = Mathf.Clamp(hp, 0.0f, m_maxHP);
 
 	/// <summary>
 	/// Increment the HP of the entity.
@@ -266,7 +271,10 @@ public class Health : MonoBehaviour
 	{
 		m_animator = GetComponent<Animator>();
 		m_character = GetComponent<KinematicCharacter>();
-		CurrentHP = m_maxHP;
+		if (CurrentHP <= 0.0f)
+		{
+			SetCurrent(m_maxHP);
+		}
 	}
 
 	private void Start()
@@ -307,7 +315,7 @@ public class Health : MonoBehaviour
 	private bool IncrementInternal(float diff)
 	{
 		float hpPrev = CurrentHP;
-		CurrentHP = Mathf.Clamp(CurrentHP + diff, 0.0f, m_maxHP);
+		SetCurrent(CurrentHP + diff);
 
 		if (m_gradientActive)
 		{
@@ -348,10 +356,32 @@ public class Health : MonoBehaviour
 		m_character.maxSpeed = 0.0f; // NOTE that this also prevents jump but still allows swinging
 		m_animator.SetBool("healing", true);
 
-		// TODO: in-progress SFX/VFX, UI?
+		// TODO: in-progress SFX/VFX?
 
+		// UI
+		// TODO: move into HealthUI?
+		AvatarController avatar = m_character as AvatarController;
+		UnityEngine.UI.Image progressMeter = avatar == null ? null : avatar.m_progressMeterUI;
+		Vector3 uiOffset = new(0.0f, m_character.GetComponent<Collider2D>().bounds.extents.y);
+
+		// per-frame update / wait
 		float healTime = Time.time + delaySeconds;
-		yield return new WaitUntil(() => !HealInProgress || Time.time >= healTime);
+		bool isDone() => !HealInProgress || Time.time >= healTime;
+		if (progressMeter != null)
+		{
+			progressMeter.gameObject.SetActive(true);
+			while (!isDone())
+			{
+				progressMeter.transform.position = Camera.main.WorldToScreenPoint(m_character.transform.position + uiOffset); // TODO: worldspace canvas?
+				progressMeter.fillAmount = 1.0f - (healTime - Time.time) / delaySeconds;
+				yield return null;
+			}
+			progressMeter.gameObject.SetActive(false);
+		}
+		else
+		{
+			yield return new WaitUntil(isDone);
+		}
 
 		m_animator.SetBool("healing", false);
 		m_character.maxSpeed = speedPrev;
