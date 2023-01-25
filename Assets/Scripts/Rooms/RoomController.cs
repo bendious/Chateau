@@ -608,14 +608,10 @@ public class RoomController : MonoBehaviour
 				// randomize SpriteShapeController.spline
 				float xStart = isVertical == isNegative ? -extentMax : extentMax;
 				float xEnd = isVertical == isNegative ? extentMax : -extentMax;
-				Vector3[] points = new Vector3[numPoints];
+				Vector3[] points = HeightSplinePoints(numPoints, isNegative, isVertical, true, xStart, xEnd, extentMax, Mathf.Min(extents.x, extents.y), heightMin);
 				for (int i = 0; i < numPoints; ++i)
 				{
-					float x = i == numPoints - 2 ? xEnd : i == numPoints - 1 ? xStart : Mathf.Lerp(xStart, xEnd, i / (float)(numPoints - 3));
 					bool isEndpoint = i >= numPoints - 2;
-					float y = (isEndpoint ? -(isVertical ? extents.x : extents.y) : Random.Range(heightMin, heightMax)) * (isNegative ? -1.0f : 1.0f); // TODO: take previous point into account for smoothness?
-					points[i] = new(isVertical ? y : x, isVertical ? x : y);
-
 					spline.InsertPointAt(i, points[i]);
 					spline.SetTangentMode(i, isEndpoint ? ShapeTangentMode.Linear : ShapeTangentMode.Continuous); // TODO: parameterize / move into tangentFunc()?
 					spline.SetHeight(i, Random.value); // TODO: more deliberate choice / continuity?
@@ -939,7 +935,7 @@ public class RoomController : MonoBehaviour
 		// shared logic
 		float widthIncrementHalf = widthIncrement * 0.5f;
 		int layerMask = GameController.Instance.m_layerWalls | GameController.Instance.m_layerExterior;
-		void trySpawningExteriorDecoration(WeightedObject<GameObject>[] prefabs, Vector3 position, float heightOverride, float verticalScale, System.Func<int, int, Vector3> posFunc = null, System.Func<Spline, Vector3, int, int, bool, System.Tuple<Vector3, Vector3>> tangentFunc = null, bool groundCheck = false)
+		void trySpawningExteriorDecoration(WeightedObject<GameObject>[] prefabs, Vector3 position, float heightOverride, float verticalScale, System.Func<int, Vector3[]> posFunc = null, System.Func<Spline, Vector3, int, int, bool, System.Tuple<Vector3, Vector3>> tangentFunc = null, bool groundCheck = false)
 		{
 			bool hasSpace = verticalScale == 0.0f ? position.y >= 0.0f : position.y > 0.0f && !Physics2D.OverlapArea(position + new Vector3(-widthIncrementHalf + m_physicsCheckEpsilon, verticalScale * m_physicsCheckEpsilon), position + new Vector3(widthIncrementHalf - m_physicsCheckEpsilon, verticalScale), layerMask); // TODO: more nuanced height check?
 			if (!hasSpace)
@@ -965,9 +961,10 @@ public class RoomController : MonoBehaviour
 					// set positions
 					if (posFunc != null)
 					{
+						Vector3[] positions = posFunc(n);
 						for (int i = 0; i < n; ++i)
 						{
-							Vector3 posLocal = posFunc(i, n);
+							Vector3 posLocal = positions[i];
 							if (posLocal.y + position.y < 0.0f) // TODO: parameterize / move into posFunc()?
 							{
 								posLocal.y = -position.y;
@@ -1016,22 +1013,17 @@ public class RoomController : MonoBehaviour
 			// TODO: support multiple per width increment?
 			exteriorPos.y = Bounds.center.y;
 			float radiusMax = Mathf.Min(widthIncrementHalf, Bounds.extents.y);
-			trySpawningExteriorDecoration(m_exteriorPrefabsWithin, exteriorPos + new Vector3(Random.Range(-widthIncrementHalf, widthIncrementHalf), Random.Range(-Bounds.extents.y, Bounds.extents.y)), -1.0f, 0.0f, (idx, countMax) =>
-			{
-				float radiusCur = Random.Range(1.0f, radiusMax); // TODO: more continuity?
-				return Quaternion.Euler(0.0f, 0.0f, idx * -360.0f / countMax) * Vector3.right * radiusCur; // NOTE the negative rotation direction since SpriteShapes expect clockwise rotation for calculating outward-facing tangents
-			}, TangentsFromSpline);
+			trySpawningExteriorDecoration(m_exteriorPrefabsWithin, exteriorPos + new Vector3(Random.Range(-widthIncrementHalf, widthIncrementHalf), Random.Range(-Bounds.extents.y, Bounds.extents.y)), -1.0f, 0.0f, countMax => Enumerable.Range(0, countMax).Select(i => Quaternion.Euler(0.0f, 0.0f, i * -360.0f / countMax) * Vector3.right * Random.Range(1.0f, radiusMax)).ToArray(), TangentsFromSpline); // NOTE the negative rotation direction since SpriteShapes expect clockwise rotation for calculating outward-facing tangents // TODO: more radius continuity
 
 			// on ground
 			if (transform.position.y == 0.0f)
 			{
 				exteriorPos.y = 0.0f;
 				float extentXPerPoint = Random.Range(0.5f, 1.0f); // TODO: parameterize?
-				trySpawningExteriorDecoration(m_exteriorPrefabsOnGround, exteriorPos + new Vector3(Random.Range(-widthIncrementHalf, widthIncrementHalf), 0.0f), -1.0f, 0.0f, (idx, countMax) =>
+				trySpawningExteriorDecoration(m_exteriorPrefabsOnGround, exteriorPos + new Vector3(Random.Range(-widthIncrementHalf, widthIncrementHalf), 0.0f), -1.0f, 0.0f, countMax =>
 				{
 					float extentX = extentXPerPoint * countMax;
-					float x = idx == countMax - 2 ? extentX : idx == countMax - 1 ? -extentX : Mathf.Lerp(-extentX, extentX, idx / (float)(countMax - 3));
-					return new(x, idx >= countMax - 2 ? 0.0f : Random.Range(0.1f, Bounds.size.y)); // TODO: allow across room vertical boundaries?
+					return HeightSplinePoints(countMax, false, false, false, -extentX, extentX, extentX, Bounds.size.y, 0.5f); // TODO: vary/derive more of the arguments?
 				}, TangentsFromSpline, true);
 			}
 
@@ -1822,6 +1814,56 @@ public class RoomController : MonoBehaviour
 		RoomController[] keyRooms = doorwayInfo.ChildRoom == null ? new[] { this } : lockNode?.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray();
 		float depthPct = lockNode == null ? 0.0f : lockNode.DepthPercent;
 		spawnAction(unlockable, this, keyRooms == null || keyRooms.Length <= 0 ? null : doorwayInfo.m_excludeSelf.Value ? keyRooms.Where(room => room != this).ToArray() : keyRooms, depthPct);
+	}
+
+	// TODO: combine height/tangent functions?
+	private Vector3[] HeightSplinePoints(int numPoints, bool isNegative, bool isVertical, bool fixedUpperCorners, float xStart, float xEnd, float xExtent, float yExtent, float heightMin)
+	{
+		Vector3 pointOriented(float x, float h)
+		{
+			float height = isNegative ? -h : h;
+			return isVertical ? new Vector3(height, x) : new Vector3(x, height);
+		}
+
+		Vector3[] points = new Vector3[numPoints];
+
+		// set fixed corners
+		points[0] = pointOriented(xStart, fixedUpperCorners ? yExtent : Random.Range(heightMin, yExtent));
+		int corner1Idx = numPoints - 3;
+		points[corner1Idx] = pointOriented(xEnd, fixedUpperCorners ? yExtent : Random.Range(heightMin, yExtent));
+		points[numPoints - 2] = pointOriented(xEnd, -yExtent);
+		points[numPoints - 1] = pointOriented(xStart, -yExtent);
+
+		void assignMidpointsRecursive(int idxA, int idxB)
+		{
+			int idxMid = (idxA + idxB) / 2;
+			if (idxMid == idxA || idxMid == idxB)
+			{
+				return;
+			}
+
+			// average & randomize
+			float randomOffset = Random.Range(-1.0f, 1.0f) * Vector2.Distance(points[idxA], points[idxB]) / xExtent; // TODO: parameterize the amount of randomness
+			Vector3 pointMid = (points[idxA] + points[idxB]) * 0.5f + pointOriented(0.0f, randomOffset);
+
+			// clamp
+			if (isVertical)
+			{
+				pointMid.x = isNegative ? Mathf.Min(-heightMin, pointMid.x) : Mathf.Max(heightMin, pointMid.x);
+			}
+			else
+			{
+				pointMid.y = isNegative ? Mathf.Min(-heightMin, pointMid.y) : Mathf.Max(heightMin, pointMid.y);
+			}
+			points[idxMid] = pointMid;
+
+			// recurse
+			assignMidpointsRecursive(idxA, idxMid);
+			assignMidpointsRecursive(idxMid, idxB);
+		}
+		assignMidpointsRecursive(0, corner1Idx);
+
+		return points;
 	}
 
 	private System.Tuple<Vector3, Vector3> TangentsFromSpline(Spline spline, Vector3 splinePos, int idx, int idxCount, bool groundCheck)
