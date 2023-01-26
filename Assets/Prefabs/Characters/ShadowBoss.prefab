@@ -403,10 +403,6 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
-      propertyPath: m_teleportVFX.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
       propertyPath: m_damageBounceMagnitude.x
       value: 2
       objectReference: {fileID: 0}
@@ -451,11 +447,15 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
-      propertyPath: m_teleportVFX.Array.data[0].m_object
-      value: 
-      objectReference: {fileID: 5619937708861602581, guid: b363f802b17433241a7c521332180164, type: 3}
+      propertyPath: m_teleportTriggers.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
-      propertyPath: m_teleportVFX.Array.data[0].m_weight
+      propertyPath: m_teleportTriggers.Array.data[0].m_object
+      value: teleport
+      objectReference: {fileID: 0}
+    - target: {fileID: 4804607705647458998, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
+      propertyPath: m_teleportTriggers.Array.data[0].m_weight
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6020121203224396573, guid: 88d1ab59b4a85406a92050557863fdc1, type: 3}
@@ -667,6 +667,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  m_introAimBlendTowardAvatar: 0
   m_blinkSecondsMin: 0.5
   m_blinkSecondsMax: 10
   m_dialogue: {fileID: 11400000, guid: 4b9e3cc059739164fadabb9451f32c99, type: 2}

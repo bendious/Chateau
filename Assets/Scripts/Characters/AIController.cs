@@ -40,8 +40,8 @@ public sealed class AIController : KinematicCharacter
 	public WeightedObject<GameObject>[] m_attackPrefabs;
 
 	public WeightedObject<string>[] m_teleportTriggers;
-	public WeightedObject<GameObject>[] m_teleportVFX;
 	public float TeleportTime { get; private set; }
+	public float TeleportTimeFinish { get; private set; }
 
 	[SerializeField] private GameObject m_attentionFlagPrefab;
 
@@ -529,4 +529,7 @@ public sealed class AIController : KinematicCharacter
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called from animation event")]
 	private void TeleportActivate() => TeleportTime = Time.time;
+
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called from animation event")]
+	private void TeleportFinish() => TeleportTimeFinish = Time.time;
 }

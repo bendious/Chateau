@@ -83,7 +83,7 @@ public abstract class AIState
 				case Type.FindAmmo:
 					return !itemAccessible || holdCountMax <= 0 ? 0.0f : 1.0f - itemHoldPct;
 				case Type.Teleport:
-					return Mathf.Max(0.0f, AITeleport.CooldownPct * (1.0f - 1.0f / distanceFromOffsetPos));
+					return Mathf.Max(0.0f, AITeleport.CooldownPct * (1.0f - 1.0f / Mathf.Min(distanceFromTarget, distanceFromOffsetPos)));
 				case Type.Spawn:
 					return ai.m_attackPrefabs.Length > 0 && ai.m_target != null && ai.m_target.GetComponent<Health>().IsAlive ? 1.0f : 0.0f;
 				case Type.FinalDialogue:
@@ -883,21 +883,10 @@ public sealed class AIFindAmmo : AIState
 
 public sealed class AITeleport : AIState
 {
-	public float m_delaySeconds = 0.5f;
-
-
 	public static float CooldownPct => Time.time < m_lastFinishTime ? 0.0f : (Time.time - m_lastFinishTime) / (Time.time - m_lastFinishTime + m_cooldownHalflifeSeconds);
 
 
-	private readonly bool m_hasAnim;
-
 	private float m_startTime;
-	private float m_preSeconds;
-	private float m_midSeconds;
-	private float m_postSeconds;
-
-	private bool m_animStarted;
-	private bool m_preVFXSpawned; // TODO: move to anim trigger?
 	private bool m_teleported;
 
 
@@ -907,16 +896,13 @@ public sealed class AITeleport : AIState
 
 	public AITeleport(AIController ai) : base(ai)
 	{
-		m_hasAnim = m_ai.m_teleportTriggers.Length > 0;
 	}
 
 	public override void Enter()
 	{
 		// NOTE that we purposely don't invoke base.Enter() since we don't require retargeting
 		m_startTime = Time.time;
-		m_preSeconds = m_delaySeconds;
-		m_midSeconds = m_hasAnim ? 0.0f : m_delaySeconds;
-		m_postSeconds = m_delaySeconds;
+		m_ai.GetComponent<Animator>().SetTrigger(m_ai.m_teleportTriggers.RandomWeighted());
 	}
 
 	public override AIState Update()
@@ -925,53 +911,20 @@ public sealed class AITeleport : AIState
 
 		m_ai.move = Vector2.zero;
 
-		if (m_preSeconds > 0.0f)
-		{
-			m_preSeconds -= Time.deltaTime;
-			return this;
-		}
-
-		if (!m_animStarted && m_hasAnim)
-		{
-			m_ai.GetComponent<Animator>().SetTrigger(m_ai.m_teleportTriggers.RandomWeighted());
-			m_animStarted = true;
-		}
-
-		if (!m_preVFXSpawned)
-		{
-			if (m_ai.m_teleportVFX.Length > 0)
-			{
-				Object.Instantiate(m_ai.m_teleportVFX.RandomWeighted(), m_ai.transform.position, m_ai.transform.rotation);
-			}
-			m_preVFXSpawned = true;
-		}
-
-		if (m_midSeconds > 0.0f)
-		{
-			m_midSeconds -= Time.deltaTime;
-			return this;
-		}
-
+		// wait for teleport trigger
 		if (!m_teleported)
 		{
-			if (!m_hasAnim || (m_ai.TeleportTime > m_startTime && m_ai.TeleportTime <= Time.time))
+			if (m_ai.TeleportTime > m_startTime && m_ai.TeleportTime <= Time.time)
 			{
-				Vector3 newPos = GameController.Instance.RoomFromPosition(m_ai.transform.position).InteriorPosition(float.MaxValue, m_ai.gameObject) + (Vector3)m_ai.gameObject.OriginToCenterY();
-				if (m_ai.m_teleportVFX.Length > 0)
-				{
-					Object.Instantiate(m_ai.m_teleportVFX.RandomWeighted(), newPos, m_ai.transform.rotation);
-				}
-				m_ai.Teleport(newPos);
+				m_ai.Teleport(GameController.Instance.RoomFromPosition(m_ai.transform.position).InteriorPosition(float.MaxValue, m_ai.gameObject) + (Vector3)m_ai.gameObject.OriginToCenterY());
 				m_teleported = true;
 			}
 			return this;
 		}
 
-		// TODO: wait for end of animation?
-
-		if (m_postSeconds > 0.0f)
+		// wait for end trigger
+		if (m_ai.TeleportTimeFinish < m_startTime || m_ai.TeleportTimeFinish > Time.time)
 		{
-			m_postSeconds -= Time.deltaTime;
 			return this;
 		}
 

@@ -24,6 +24,10 @@ public class AnimatorHelper : MonoBehaviour
 		{
 			m_audioSource.PlayOneShot(collection.Random());
 		}
+		else if (evt.objectReferenceParameter is GameObject prefab)
+		{
+			Instantiate(prefab, transform.position, transform.rotation); // TODO: handle positioning/attachment?
+		}
 		else
 		{
 			Debug.Assert(false, "Unhandled animation trigger.");
