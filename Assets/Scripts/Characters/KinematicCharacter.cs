@@ -389,7 +389,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	public void MatchFacingToAim(Vector2 aimPos) => m_aimDir = aimPos.x > transform.position.x ? 1 : -1;
 
-	protected void AimArms(Vector2 aimPos, float narrowingScalar = 1.0f)
+	protected void AimArms(Vector2 aimPosBase, float offsetDegrees = 0.0f, float narrowingScalar = 1.0f)
 	{
 		ArmController[] arms = GetComponentsInChildren<ArmController>();
 		if (arms.Length <= 0)
@@ -398,7 +398,10 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		}
 
 		// character facing
-		MatchFacingToAim(aimPos);
+		MatchFacingToAim(aimPosBase);
+
+		// rotational offset
+		Vector2 aimPosOffset = offsetDegrees == 0.0f ? aimPosBase : (Vector2)(Quaternion.Euler(0.0f, 0.0f, offsetDegrees) * (aimPosBase - (Vector2)transform.position)) + (Vector2)transform.position;
 
 		// primary aim
 		ArmController primaryArm = PrimaryArm(arms);
@@ -406,11 +409,11 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		{
 			primaryArm = arms.First();
 		}
-		primaryArm.UpdateAim(ArmOffset, aimPos, aimPos);
+		primaryArm.UpdateAim(ArmOffset, aimPosOffset, aimPosOffset);
 
 		// secondary hold
 		int offsetScalar = 1; // for grouping any arms w/ items around the primary arm in both directions
-		Vector2 secondaryBasePos = arms.Length > 2 ? aimPos : transform.position + Quaternion.Euler(0.0f, 0.0f, LeftFacing ? 180.0f - m_secondaryArmDegrees : m_secondaryArmDegrees) * Vector2.right; // since sometimes secondary arms orient relative to the primary and sometimes they are independent // TODO: de-couple from arm count?
+		Vector2 secondaryBasePos = arms.Length > 2 ? aimPosOffset : transform.position + Quaternion.Euler(0.0f, 0.0f, LeftFacing ? 180.0f - m_secondaryArmDegrees : m_secondaryArmDegrees) * Vector2.right; // since sometimes secondary arms orient relative to the primary and sometimes they are independent // TODO: de-couple from arm count?
 		foreach (ArmController arm in arms.OrderBy(arm => -arm.transform.childCount)) // NOTE the ordering to aim non-empty arms first
 		{
 			if (arm == primaryArm)
@@ -418,7 +421,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 				continue; // primaryArm is already aimed
 			}
 			Vector2 aimPosCur = arms.Length <= 2 ? secondaryBasePos : (Vector2)transform.position + (Vector2)(Quaternion.Euler(0.0f, 0.0f, offsetScalar * (360 / arms.Length) * narrowingScalar) * (secondaryBasePos - (Vector2)transform.position));
-			arm.UpdateAim(ArmOffset, aimPosCur, aimPos);
+			arm.UpdateAim(ArmOffset, aimPosCur, aimPosOffset);
 			offsetScalar = offsetScalar <= 0 ? -offsetScalar + 1 : -offsetScalar; // this groups any arms w/ items around the primary arm in both directions
 		}
 	}

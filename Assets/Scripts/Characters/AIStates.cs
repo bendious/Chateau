@@ -75,7 +75,7 @@ public abstract class AIState
 				case Type.Throw:
 					return ai.m_target != null && distanceFromTarget > ai.m_meleeRange && numItems > 0 ? 1.0f : 0.0f;
 				case Type.ThrowAll:
-					return ai.m_target != null && numItems > 1 ? itemHoldPct : 0.0f;
+					return ai.m_target != null && numItems > 1 ? itemHoldPct : 0.0f; // TODO: prioritize being in the center of the room?
 				case Type.ThrowAllNarrow:
 					return ai.m_target != null && numItems > 1 ? itemHoldPct : 0.0f;
 				case Type.RamSwoop:
@@ -641,6 +641,7 @@ public class AIThrow : AIState
 public class AIThrowAll : AIThrow
 {
 	public float m_waitSecondsOverride = 1.0f;
+	public float m_aimFreezeHealthThreshold = 0.5f;
 
 
 	protected bool m_hasThrownAll = false;
@@ -654,6 +655,12 @@ public class AIThrowAll : AIThrow
 	{
 		m_waitSeconds = m_waitSecondsOverride;
 		m_spinScalar = 360.0f / m_waitSeconds; // TODO: move to Update() if m_waitSeconds ever needs to be set externally
+	}
+
+	public override void Enter()
+	{
+		base.Enter();
+		m_ai.AimFreeze = m_ai.GetComponent<Health>().PercentHP >= m_aimFreezeHealthThreshold; // TODO: account for difficulty level / boss phase?
 	}
 
 	public override AIState Update()
@@ -679,6 +686,7 @@ public class AIThrowAll : AIThrow
 	{
 		base.Exit();
 		m_ai.AimOffsetDegrees = 0.0f; // in case of canceling during pre-throw
+		m_ai.AimFreeze = false;
 	}
 }
 
@@ -688,13 +696,18 @@ public sealed class AIThrowAllNarrow : AIThrowAll
 	public float m_narrowingPct = 0.25f;
 
 
-	private readonly float m_narrowingScalar;
+	private float m_narrowingScalar;
 
 
 	public AIThrowAllNarrow(AIController ai)
 		: base(ai)
 	{
-		m_narrowingScalar = 1.0f / m_waitSeconds; // TODO: move to Update() if m_waitSeconds ever needs to be set externally
+	}
+
+	public override void Enter()
+	{
+		base.Enter();
+		m_narrowingScalar = 1.0f / m_waitSeconds;
 	}
 
 	public override AIState Update()

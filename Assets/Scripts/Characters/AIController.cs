@@ -49,12 +49,14 @@ public sealed class AIController : KinematicCharacter
 	[SerializeField] private WeightedObject<ItemController>[] m_heldItems;
 
 
+	public bool AimFreeze { private get; set; }
 	public float AimOffsetDegrees { private get; set; }
 	public float AimScalar { private get; set; } = 1.0f;
 
 	public bool OnlyPursueAvatar { get; private set; }
 
 
+	private Vector2 m_aimPosition;
 	private int m_aimLastFrame; // OPTIMIZATION: only aim arms once per frame even if physics is stepping more
 
 	[HideInInspector] public float m_targetSelectTimeNext;
@@ -149,7 +151,8 @@ public sealed class AIController : KinematicCharacter
 		// aim items
 		if (HoldCountMax > 0 && m_aimLastFrame != Time.frameCount)
 		{
-			AimArms(AimPosition(), AimScalar); // NOTE that we don't bother to skip AimPosition() if w/o arms, since the HoldCountMax check should skip in that case anyway
+			UpdateAimPosition();
+			AimArms(m_aimPosition, AimOffsetDegrees, AimScalar);
 			m_aimLastFrame = Time.frameCount;
 		}
 	}
@@ -171,7 +174,7 @@ public sealed class AIController : KinematicCharacter
 
 			if (HoldCountMax > 0)
 			{
-				UnityEditor.Handles.DrawWireArc(AimPosition(), Vector3.forward, Vector3.right, 360.0f, 0.1f);
+				UnityEditor.Handles.DrawWireArc(m_aimPosition, Vector3.forward, Vector3.right, 360.0f, 0.1f);
 			}
 		}
 	}
@@ -476,18 +479,21 @@ public sealed class AIController : KinematicCharacter
 		}
 	}
 
-	private Vector2 AimPosition()
+	private void UpdateAimPosition()
 	{
-		// TODO: option to stop tracking target during certain actions?
+		if (AimFreeze)
+		{
+			return;
+		}
 
 		// base target position
-		Vector2 aimPos = m_target == null ? (Vector2)transform.position + ((!move.x.FloatEqual(0.0f) ? move.x < 0.0f : LeftFacing) ? Vector2.left : Vector2.right) : m_target.transform.position; // TODO: ensure that desired movement direction is available here? take waypoints into account?
+		m_aimPosition = m_target == null ? (Vector2)transform.position + ((!move.x.FloatEqual(0.0f) ? move.x < 0.0f : LeftFacing) ? Vector2.left : Vector2.right) : m_target.transform.position; // TODO: ensure that desired movement direction is available here? take waypoints into account?
 
 		// aim directly if no arms/items
 		ArmController[] arms = GetComponentsInChildren<ArmController>();
 		if (arms.Length <= 0)
 		{
-			return aimPos;
+			return;
 		}
 		ItemController aimItem = null;
 		arms.FirstOrDefault(arm =>
@@ -497,29 +503,21 @@ public sealed class AIController : KinematicCharacter
 		});
 		if (aimItem == null)
 		{
-			return aimPos;
+			return;
 		}
 
-		if (AimOffsetDegrees != 0.0f)
+		// approximate the parabolic trajectory
+		// given ax^2 + bx + c = 0, b = (-c - ax^2) / x = -c/x - ax
+		Vector2 posDiff = m_aimPosition - (Vector2)aimItem.transform.position;
+		float timeDiffApprox = posDiff.magnitude / aimItem.m_throwSpeed;
+		if (timeDiffApprox > 0.0f)
 		{
-			// add rotational offset
-			aimPos = (Vector2)(Quaternion.Euler(0.0f, 0.0f, AimOffsetDegrees) * (aimPos - (Vector2)transform.position)) + (Vector2)transform.position;
-		}
-		else
-		{
-			// approximate the parabolic trajectory
-			// given ax^2 + bx + c = 0, b = (-c - ax^2) / x = -c/x - ax
-			Vector2 posDiff = aimPos - (Vector2)aimItem.transform.position;
-			float timeDiffApprox = posDiff.magnitude / aimItem.m_throwSpeed;
-			if (timeDiffApprox > 0.0f)
-			{
-				const float gravity = /*Physics2D.gravity.y*/-9.81f; // TODO: determine why Physics2D.gravity does not match the outcome
-				float launchSlopePerSec = posDiff.y / timeDiffApprox - gravity * timeDiffApprox;
-				aimPos.y = aimItem.transform.position.y + launchSlopePerSec * timeDiffApprox;
-			}
+			const float gravity = /*Physics2D.gravity.y*/-9.81f; // TODO: determine why Physics2D.gravity does not match the outcome
+			float launchSlopePerSec = posDiff.y / timeDiffApprox - gravity * timeDiffApprox;
+			m_aimPosition.y = aimItem.transform.position.y + launchSlopePerSec * timeDiffApprox;
 		}
 
-		return aimPos;
+		return;
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called from animation event")]
