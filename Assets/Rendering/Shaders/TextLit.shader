@@ -6,8 +6,11 @@ Shader "TextLit"
 	{
 		// Sprite-Lit-Default
 		_MainTex("Diffuse", 2D) = "white" {}
+		_Emissive("Emissive", 2D) = "black" {}
 		_MaskTex("Mask", 2D) = "white" {}
 		_NormalMap("Normal Map", 2D) = "bump" {}
+
+		_EmissivePct("Emissive Intensity", Float) = 0
 
 		// TMP_SDF-Mobile
 		[HDR] _FaceColor("Face Color", Color) = (1,1,1,1)
@@ -143,9 +146,13 @@ Shader "TextLit"
 
 			TEXTURE2D(_MainTex);
 			SAMPLER(sampler_MainTex);
+			TEXTURE2D(_Emissive);
+			SAMPLER(sampler_Emissive);
 			TEXTURE2D(_MaskTex);
 			SAMPLER(sampler_MaskTex);
 			half4 _MainTex_ST;
+
+			half _EmissivePct;
 
 			#if USE_SHAPE_LIGHT_TYPE_0
 			SHAPE_LIGHT(0)
@@ -259,7 +266,18 @@ Shader "TextLit"
 				InitializeSurfaceData(main.rgb, main.a, mask, surfaceData);
 				InitializeInputData(i.uv, i.lightingUV, inputData);
 
-				return CombinedShapeLightShared(surfaceData, inputData);
+				half4 emissive = SAMPLE_TEXTURE2D(_Emissive, sampler_Emissive, i.uv);
+				if (emissive.r == 0.0 && emissive.r == 0.0 && emissive.r == 0.0 && emissive.a > 0.0) // TODO: better way to support alpha-only textures?
+				{
+					const float alphaSq = emissive.a * emissive.a; // to increase contrast at gradual edges // TODO: un-hardcode?
+					emissive.r = alphaSq;
+					emissive.g = alphaSq;
+					emissive.b = alphaSq;
+				}
+				emissive *= i.color * _EmissivePct;
+				emissive.a = 0.0f; // NOTE that alpha seems to wrap rather than clamp
+
+				return CombinedShapeLightShared(surfaceData, inputData) + emissive;
 			}
 			ENDHLSL
 		}

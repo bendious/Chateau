@@ -5,8 +5,13 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 739993353693209061, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 1893886860811871903, guid: baa5050be5acb854baa5d479de5d6b80, type: 2}
     - target: {fileID: 3246914194384268826, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
       propertyPath: m_text
       value: The King is real
@@ -15,6 +20,10 @@ PrefabInstance:
       propertyPath: m_spriteAsset
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 3246914194384268826, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 1893886860811871903, guid: baa5050be5acb854baa5d479de5d6b80, type: 2}
     - target: {fileID: 5219552273189721976, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -49,6 +58,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 5052129682484522357, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7287174281192745631, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8659232764014285603}
   m_SourcePrefab: {fileID: 100100000, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
 --- !u!1 &3783111977055794987 stripped
 GameObject:

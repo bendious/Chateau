@@ -5,6 +5,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 8377146280284097707}
     m_Modifications:
     - target: {fileID: 2942325694449404290, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
@@ -36,18 +37,35 @@ PrefabInstance:
       value: TorchSconce
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
+--- !u!4 &581651478363682592 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2942325694449404290, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
+  m_PrefabInstance: {fileID: 2361941541240176290}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4336413434890410963
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 739993353693209061, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 10e325b5355799e48a254087cafddd92, type: 2}
     - target: {fileID: 3246914194384268826, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
       propertyPath: m_text
       value: The End?
       objectReference: {fileID: 0}
+    - target: {fileID: 3246914194384268826, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 10e325b5355799e48a254087cafddd92, type: 2}
     - target: {fileID: 3246914194384268826, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
       propertyPath: m_HorizontalAlignment
       value: 2
@@ -85,6 +103,15 @@ PrefabInstance:
       value: CreditsStart
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 5219552273189721976, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 581651478363682592}
+    - targetCorrespondingSourceObject: {fileID: 5219552273189721976, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4613899154697215383}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ab6efc32f95dc9f4d9065036c8f4add0, type: 3}
 --- !u!224 &8377146280284097707 stripped
 RectTransform:
@@ -96,6 +123,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 8377146280284097707}
     m_Modifications:
     - target: {fileID: 2942325694449404290, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
@@ -127,4 +155,12 @@ PrefabInstance:
       value: TorchSconce (1)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
+--- !u!4 &4613899154697215383 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2942325694449404290, guid: 0717b1290d4572c429c650fdb7aea80e, type: 3}
+  m_PrefabInstance: {fileID: 7553347416441394197}
+  m_PrefabAsset: {fileID: 0}
