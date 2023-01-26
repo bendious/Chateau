@@ -1726,6 +1726,9 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 798767993087980408, guid: 2e81a61a96e51a24e8a385879e02d47a, type: 3}
     m_weight: 1
+  m_hintPrefabs:
+  - m_object: {fileID: 8070934608592190955, guid: 05b519667d302a149a79a956cc725830, type: 3}
+    m_weight: 1
   m_textPrefabs: []
   m_roomTypes:
   - m_object: {fileID: 11400000, guid: d935886517d03ba4aa24782d51e0f3d1, type: 2}

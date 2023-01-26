@@ -25,8 +25,6 @@ public class RoomController : MonoBehaviour
 	[SerializeField] private WeightedObject<GameObject>[] m_cutbackPrefabs;
 	[SerializeField] private GameObject[] m_lockOrderedPrefabs;
 
-	[SerializeField] private WeightedObject<GameObject>[] m_hintPrefabs;
-
 	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsAbove;
 	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsWithin;
 	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsOnGround;
@@ -782,7 +780,7 @@ public class RoomController : MonoBehaviour
 
 				case LayoutGenerator.Node.Type.FinalHint:
 				case LayoutGenerator.Node.Type.FinalHintSequence:
-					GameObject hintPrefab = m_hintPrefabs.RandomWeighted();
+					GameObject hintPrefab = GameController.Instance.m_hintPrefabs.RandomWeighted();
 					Bounds placementBounds = BoundsInterior;
 					Vector3 spawnPos = InteriorPosition(float.MaxValue, hintPrefab); // NOTE that we don't use edgeBuffer to ensure the whole sequence can fit since the total width can be wide enough to exclude all vertical placements in some rooms
 					float width = 0.0f;
@@ -808,7 +806,7 @@ public class RoomController : MonoBehaviour
 						spawnedHints.Add(hintObj);
 						++GameController.Instance.NarrowPathHintCount;
 						spawnPos.x += width;
-						hintPrefab = m_hintPrefabs.RandomWeighted();
+						hintPrefab = GameController.Instance.m_hintPrefabs.RandomWeighted();
 					}
 					break;
 
