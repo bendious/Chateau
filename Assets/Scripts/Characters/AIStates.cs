@@ -889,11 +889,15 @@ public sealed class AITeleport : AIState
 	public static float CooldownPct => Time.time < m_lastFinishTime ? 0.0f : (Time.time - m_lastFinishTime) / (Time.time - m_lastFinishTime + m_cooldownHalflifeSeconds);
 
 
-	private readonly float m_preDelayTime;
-	private readonly float m_midDelayTime;
-	private readonly float m_postDelayTime;
+	private readonly bool m_hasAnim;
 
-	private bool m_preVFXSpawned;
+	private float m_startTime;
+	private float m_preSeconds;
+	private float m_midSeconds;
+	private float m_postSeconds;
+
+	private bool m_animStarted;
+	private bool m_preVFXSpawned; // TODO: move to anim trigger?
 	private bool m_teleported;
 
 
@@ -903,28 +907,34 @@ public sealed class AITeleport : AIState
 
 	public AITeleport(AIController ai) : base(ai)
 	{
-		m_preDelayTime = Time.time + m_delaySeconds;
-		m_midDelayTime = Time.time + m_delaySeconds * 2.0f;
-		m_postDelayTime = Time.time + m_delaySeconds * 3.0f;
+		m_hasAnim = m_ai.m_teleportTriggers.Length > 0;
+	}
 
-		m_lastFinishTime = m_postDelayTime;
+	public override void Enter()
+	{
+		// NOTE that we purposely don't invoke base.Enter() since we don't require retargeting
+		m_startTime = Time.time;
+		m_preSeconds = m_delaySeconds;
+		m_midSeconds = m_hasAnim ? 0.0f : m_delaySeconds;
+		m_postSeconds = m_delaySeconds;
 	}
 
 	public override AIState Update()
 	{
-		AIState baseVal = base.Update();
-		if (baseVal != this)
-		{
-			return baseVal;
-		}
+		// NOTE that we purposely don't invoke base.Update() since we don't require retargeting or want to early-out if we can't find a target
 
 		m_ai.move = Vector2.zero;
 
-		// TODO: animation
-
-		if (m_preDelayTime > Time.time)
+		if (m_preSeconds > 0.0f)
 		{
+			m_preSeconds -= Time.deltaTime;
 			return this;
+		}
+
+		if (!m_animStarted && m_hasAnim)
+		{
+			m_ai.GetComponent<Animator>().SetTrigger(m_ai.m_teleportTriggers.RandomWeighted());
+			m_animStarted = true;
 		}
 
 		if (!m_preVFXSpawned)
@@ -936,27 +946,36 @@ public sealed class AITeleport : AIState
 			m_preVFXSpawned = true;
 		}
 
-		if (m_midDelayTime > Time.time)
+		if (m_midSeconds > 0.0f)
 		{
+			m_midSeconds -= Time.deltaTime;
 			return this;
 		}
 
 		if (!m_teleported)
 		{
-			Vector3 newPos = GameController.Instance.RoomFromPosition(m_ai.transform.position).InteriorPosition(float.MaxValue, m_ai.gameObject) + (Vector3)m_ai.gameObject.OriginToCenterY();
-			if (m_ai.m_teleportVFX.Length > 0)
+			if (!m_hasAnim || (m_ai.TeleportTime > m_startTime && m_ai.TeleportTime <= Time.time))
 			{
-				Object.Instantiate(m_ai.m_teleportVFX.RandomWeighted(), newPos, m_ai.transform.rotation);
+				Vector3 newPos = GameController.Instance.RoomFromPosition(m_ai.transform.position).InteriorPosition(float.MaxValue, m_ai.gameObject) + (Vector3)m_ai.gameObject.OriginToCenterY();
+				if (m_ai.m_teleportVFX.Length > 0)
+				{
+					Object.Instantiate(m_ai.m_teleportVFX.RandomWeighted(), newPos, m_ai.transform.rotation);
+				}
+				m_ai.Teleport(newPos);
+				m_teleported = true;
 			}
-			m_ai.Teleport(newPos);
-			m_teleported = true;
-		}
-
-		if (m_postDelayTime > Time.time)
-		{
 			return this;
 		}
 
+		// TODO: wait for end of animation?
+
+		if (m_postSeconds > 0.0f)
+		{
+			m_postSeconds -= Time.deltaTime;
+			return this;
+		}
+
+		m_lastFinishTime = Time.time; // NOTE that this is not in Exit() since we only want to set it for fully-completed teleports
 		return null;
 	}
 

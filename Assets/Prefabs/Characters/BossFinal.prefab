@@ -221,12 +221,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
+      propertyPath: m_teleportVFX.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
       propertyPath: m_dialogues.Array.data[1]
       value: 
       objectReference: {fileID: 11400000, guid: 4b9e3cc059739164fadabb9451f32c99, type: 2}
     - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
       propertyPath: m_allowedStates.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
       propertyPath: m_attackPrefabs.Array.size
@@ -234,7 +238,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
       propertyPath: m_allowedStates.Array.data[2]
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
+      propertyPath: m_allowedStates.Array.data[3]
       value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
+      propertyPath: m_teleportTriggers.Array.size
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
       propertyPath: m_attackPrefabs.Array.data[0].m_object
@@ -258,6 +270,14 @@ PrefabInstance:
       objectReference: {fileID: 1949470060110950323, guid: 55ae585e76f26394fbe144d495342124, type: 3}
     - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
       propertyPath: m_attackPrefabs.Array.data[2].m_weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
+      propertyPath: m_teleportTriggers.Array.data[0].m_object
+      value: teleport
+      objectReference: {fileID: 0}
+    - target: {fileID: 3712062193969334785, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
+      propertyPath: m_teleportTriggers.Array.data[0].m_weight
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5059967226220737805, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}

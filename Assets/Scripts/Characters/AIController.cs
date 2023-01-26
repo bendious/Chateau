@@ -39,7 +39,9 @@ public sealed class AIController : KinematicCharacter
 	[SerializeField] private AudioClip[] m_attackSFX; // TODO: remove in favor of animation triggers w/ AudioCollection?
 	public WeightedObject<GameObject>[] m_attackPrefabs;
 
+	public WeightedObject<string>[] m_teleportTriggers;
 	public WeightedObject<GameObject>[] m_teleportVFX;
+	public float TeleportTime { get; private set; }
 
 	[SerializeField] private GameObject m_attentionFlagPrefab;
 
@@ -524,4 +526,7 @@ public sealed class AIController : KinematicCharacter
 	private void EnablePlayerControl()
 	{
 	}
+
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "called from animation event")]
+	private void TeleportActivate() => TeleportTime = Time.time;
 }
