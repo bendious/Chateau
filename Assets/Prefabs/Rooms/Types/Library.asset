@@ -17,8 +17,8 @@ MonoBehaviour:
   m_backdrops:
   - m_object:
       m_sprite: {fileID: 21300000, guid: 78dbedb2ab0e05f49b249801ee9fd4b7, type: 3}
-      m_colorMin: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-      m_colorMax: {r: 1, g: 1, b: 1, a: 1}
+      m_colorMin: {r: 0.25, g: 0.25, b: 0.25, a: 1}
+      m_colorMax: {r: 0.5, g: 0.5, b: 0.5, a: 1}
       m_proportionalColor: 0
     m_weight: 1
   m_walls:
@@ -59,6 +59,8 @@ MonoBehaviour:
       m_proportionalColor: 0
     m_weight: 1
   m_nonsquareShape: {fileID: 0}
+  m_nonsquareMaterialFill: {fileID: 0}
+  m_nonsquareMaterialEdge: {fileID: 0}
   m_furniturePrefabs:
   - m_object: {fileID: 3500915504940809235, guid: 6523d15d7e9538c41ac62ba6f5d2c053, type: 3}
     m_weight: 1
