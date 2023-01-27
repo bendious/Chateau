@@ -96,7 +96,7 @@ public class DespawnEffect : MonoBehaviour
 			}
 		}
 
-		int groundLayerMask = GameController.Instance.m_layerWalls | GameController.Instance.m_layerOneWay; // TODO: parameterize?
+		int groundLayerMask = GameController.Instance.m_layerWalls | GameController.Instance.m_layerOneWay; // TODO: parameterize? ignore ladders?
 		if (((1 << collider.gameObject.layer) & groundLayerMask) != 0 || isEqualPriorityKinematic) // NOTE the treatment of equal priority kinematic objects as if they were walls to prevent "stuck" accelerators
 		{
 			KinematicObject kinematicObj = GetComponent<KinematicObject>(); // TODO: cache?

@@ -74,6 +74,14 @@ public class LineConnector : MonoBehaviour
 		m_lengthMaxSq = m_lengthMax * m_lengthMax;
 	}
 
+	private void OnDisable()
+	{
+		foreach (LineRenderer line in m_lines)
+		{
+			line.enabled = false;
+		}
+	}
+
 	private void LateUpdate()
 	{
 		if (Time.timeScale == 0.0f)
@@ -269,7 +277,7 @@ public class LineConnector : MonoBehaviour
 
 	private void RemoveJoint(Joint2D joint)
 	{
-		// TODO: SFX? split into two lines?
+		// TODO: SFX? split into two lines? keep rendering to a simulated/virtual disconnected point/object?
 
 		// TODO: move elsewhere?
 		foreach (Light2D light in joint.GetComponentsInChildren<Light2D>())
