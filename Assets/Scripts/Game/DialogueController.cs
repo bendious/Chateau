@@ -39,6 +39,9 @@ public class DialogueController : MonoBehaviour
 			public string m_text;
 			public string m_preconditionName;
 			public int m_userdata;
+			public float m_relationshipMin = 0.0f;
+			public float m_relationshipMax = 1.0f;
+			public float m_relationshipIncrement = 0.0f; // TODO: non-symmetric relationships?
 			public string[] m_followUp;
 			public string m_eventName; // TODO: less error-prone type?
 			public bool m_breakAfterward;
@@ -85,6 +88,7 @@ public class DialogueController : MonoBehaviour
 	private Queue<Line> m_queue;
 	private int m_revealedCharCount;
 	private float m_lastRevealTime;
+	private bool m_submitReleasedSinceNewline;
 	private int m_replyIdx;
 	private Queue<string> m_queueFollowUp;
 	private GameObject m_callbackObject;
@@ -157,11 +161,21 @@ public class DialogueController : MonoBehaviour
 			SendMessages(replyCur.m_eventName, replyCur);
 		}
 
+		if (replyCur.m_relationshipIncrement != 0.0f)
+		{
+			// TODO: function?
+			InteractNpc npcA = Target.GetComponent<InteractNpc>();
+			InteractNpc npcB = m_sourceMain.GetComponent<InteractNpc>();
+			Debug.Assert(npcA != null || npcB != null); // TODO: support avatar-avatar / enemy-enemy dialogue replies?
+			GameController.RelationshipIncrement(npcA == null ? npcB.Index : npcA.Index, npcB == null ? npcA.Index : npcB.Index, replyCur.m_relationshipIncrement); // NOTE the use of "self-relationships" for non-NPC-targeted lines // TODO?
+		}
+
 		if (m_queueFollowUp == null && replyCur?.m_followUp != null && replyCur.m_followUp.Length > 0)
 		{
 			m_queueFollowUp = new(replyCur.m_followUp);
 			m_revealedCharCount = 0;
 			m_lastRevealTime = Time.time;
+			m_submitReleasedSinceNewline = false;
 		}
 		else
 		{
@@ -305,7 +319,7 @@ public class DialogueController : MonoBehaviour
 			avatar.ControlsUI.Enable();
 		}
 		InputAction submitKey = isWorldspace ? null : avatar.Controls.actions["Submit"];
-		bool submitReleasedSinceNewline = true;
+		m_submitReleasedSinceNewline = false;
 
 		// walk-away prevention
 		// TODO: also include non-primary sources after speaking? allow limited functionality/movement?
@@ -415,14 +429,14 @@ public class DialogueController : MonoBehaviour
 				}
 				m_revealedCharCount = 0;
 				m_lastRevealTime = Time.time;
-				submitReleasedSinceNewline = false;
+				m_submitReleasedSinceNewline = false;
 				stillRevealing = true;
 			}
 			bool submitPressed = submitKey != null && submitKey.IsPressed();
-			submitReleasedSinceNewline = submitReleasedSinceNewline || !submitPressed;
+			m_submitReleasedSinceNewline = m_submitReleasedSinceNewline || !submitPressed;
 
 			// maybe reveal next letter(s)
-			float revealDurationCur = stillRevealing && submitReleasedSinceNewline && submitPressed ? m_revealSecondsFast : m_revealSeconds;
+			float revealDurationCur = stillRevealing && m_submitReleasedSinceNewline && submitPressed ? m_revealSecondsFast : m_revealSeconds;
 			float nextRevealTime = m_lastRevealTime + revealDurationCur;
 			if (stillRevealing && nextRevealTime <= Time.time)
 			{
@@ -491,6 +505,20 @@ public class DialogueController : MonoBehaviour
 							if (replyCur.m_deactivated)
 							{
 								continue;
+							}
+
+							// check relationship
+							if (replyCur.m_relationshipMin > 0.0f || replyCur.m_relationshipMax < 1.0f)
+							{
+								// TODO: function?
+								InteractNpc npcA = Target.GetComponent<InteractNpc>();
+								InteractNpc npcB = m_sourceMain.GetComponent<InteractNpc>();
+								Debug.Assert(npcA != null || npcB != null); // TODO: support avatar-avatar / enemy-enemy dialogue replies?
+								float relationshipPctCur = GameController.RelationshipPercent(npcA == null ? npcB.Index : npcA.Index, npcB == null ? npcA.Index : npcB.Index); // NOTE the use of "self-relationships" for non-NPC-targeted lines // TODO?
+								if (relationshipPctCur < replyCur.m_relationshipMin || relationshipPctCur > replyCur.m_relationshipMax)
+								{
+									continue;
+								}
 							}
 
 							GameObject newObj = Instantiate(m_replyTemplate, ReplyParentTf);

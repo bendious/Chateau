@@ -2267,7 +2267,7 @@ MonoBehaviour:
   - m_object:
       m_rungPrefab: {fileID: 3053993417278667278, guid: 7ec48c87efd81a14dbbf79e9caa5a7e0, type: 3}
       m_singleRung: 1
-    m_weight: 1
+    m_weight: 0.5
   m_ladderRungSkewMax: 0.2
   m_cutbackBreakablePct: 0.5
   m_noLadderNoPlatformPct: 0.5

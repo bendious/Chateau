@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
+      m_type: 0
       m_preconditionName: HasFinishedZone
       m_userdata: 1
       m_relationshipMin: 0
@@ -53,6 +54,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: HasFinishedZone
       m_userdata: 2
       m_relationshipMin: 0
@@ -82,6 +84,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: HasFinishedZone
       m_userdata: 3
       m_relationshipMin: 0
@@ -107,6 +110,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: HasFinishedZone
       m_userdata: 4
       m_relationshipMin: 0
@@ -143,6 +147,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -167,6 +172,32 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Try not to dally too much when you're out in the more dangerous wings.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: The longer you're in one of them, the more pests seem to show up.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: They're attracted to noise, maybe, and follow where others are going.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 0
+  - m_object:
+      m_type: 0
       m_preconditionName: HasNotFinishedZone
       m_userdata: 3
       m_relationshipMin: 0
@@ -205,6 +236,9 @@ MonoBehaviour:
         - m_text: No way.
           m_preconditionName: 
           m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: -0.1
           m_followUp:
           - '{denied.}'
           m_eventName: 
@@ -212,6 +246,9 @@ MonoBehaviour:
         - m_text: Alright.
           m_preconditionName: 
           m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0.1
           m_followUp:
           - '{thanks.}'
           - The first wing is through the door right over there marked by torches.
@@ -223,6 +260,9 @@ MonoBehaviour:
         - m_text: Already done.
           m_preconditionName: 
           m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: -0.1
           m_followUp:
           - Umm, are you sure? You might want to re-check that...
           m_eventName: 
@@ -233,6 +273,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: HasNotFinishedZone
       m_userdata: 3
       m_relationshipMin: 0
@@ -253,6 +294,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -266,6 +308,9 @@ MonoBehaviour:
         - m_text: Yes.
           m_preconditionName: 
           m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0.1
           m_followUp:
           - '{confirmed.}'
           m_eventName: 
@@ -273,6 +318,9 @@ MonoBehaviour:
         - m_text: No.
           m_preconditionName: 
           m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0
           m_followUp:
           - '{doubt.}'
           m_eventName: 
@@ -280,6 +328,9 @@ MonoBehaviour:
         - m_text: Maybe...
           m_preconditionName: 
           m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0.1
           m_followUp:
           - '{uncertainty.}'
           m_eventName: 
@@ -303,6 +354,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: HasNotFinishedZone
       m_userdata: 1
       m_relationshipMin: 0
@@ -352,6 +404,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: HasFinishedZone
       m_userdata: 1
       m_relationshipMin: 0
@@ -401,6 +454,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -424,6 +478,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -445,6 +500,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -465,6 +521,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -485,6 +542,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -512,6 +570,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -549,6 +608,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -579,6 +639,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -611,6 +672,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: HasFinishedZone
       m_userdata: 1
       m_relationshipMin: 0
@@ -644,6 +706,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: HasFinishedZone
       m_userdata: 1
       m_relationshipMin: 0
@@ -659,6 +722,84 @@ MonoBehaviour:
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 0
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Whoever built this place must have really hated stairs, don't you
+          think?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: I mean, I've got nothing against a good ladder now and again, but
+          everywhere?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: And then there's the <i>springs</i>...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Right? What do you think?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies:
+        - m_text: I hate it.
+          m_preconditionName: 
+          m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0.1
+          m_followUp:
+          - I thought so!
+          - So do you think you could you maybe... work on changing it?
+          - I mean, yeah, it'd be a <i>ton</i> of work, but if you really hate it...
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: I love it.
+          m_preconditionName: 
+          m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0.1
+          m_followUp:
+          - Really? Why?
+          - Well, to each their own, I guess.
+          - It's not like it's <i>my</i> house, anyway.
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: I'm indifferent.
+          m_preconditionName: 
+          m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0
+          m_followUp:
+          - Oh.
+          - Maybe I just put too much thought into building design...
+          - Nevermind me, I'll just go start a hardware store or something.
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: What are you talking about?
+          m_preconditionName: 
+          m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 0.5
+          m_relationshipIncrement: -0.1
+          m_followUp:
+          - Oh, nothing.
+          - Nothing of consequence, anyway.
+          m_eventName: 
+          m_breakAfterward: 0
       m_target: {fileID: 0}
       m_loop: 0
       m_singleUse: 0
