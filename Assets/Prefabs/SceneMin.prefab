@@ -2238,7 +2238,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_source: {fileID: 8283942685491559060}
-  m_smoothTime: 0.5
+  m_smoothTime: 1
   m_volumeCurve:
     serializedVersion: 2
     m_Curve:
