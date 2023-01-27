@@ -238,6 +238,11 @@ public class LockController : MonoBehaviour, IUnlockable
 			return false; // prevent consuming generic keys after already unlocked
 		}
 
+		if (m_keySpeedMin <= 0.0f && m_keyDelaySeconds <= 0.0f && obj.TryGetComponent(out ItemController item) && (item.Cause == null || item.Cause is not AvatarController))
+		{
+			return false; // prevent NPC-held/loose keys unlocking things by accident
+		}
+
 		bool CheckKey(IKey key)
 		{
 			if (key == null || key.Component == null)
@@ -587,7 +592,7 @@ public class LockController : MonoBehaviour, IUnlockable
 		m_unlockInProgressCount = 0;
 
 		IKey key = tf.GetComponent<IKey>();
+		Unlock(key); // NOTE that this has to be BEFORE key.Use() since that might detach the item and lose the cause before it is verified
 		key.Use();
-		Unlock(key);
 	}
 }

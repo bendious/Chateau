@@ -145,7 +145,7 @@ public class ChestController : FurnitureController, IInteractable, IUnlockable
 		GetComponent<SpriteRenderer>().color = m_keyObj.GetComponent<SpriteRenderer>().color;
 	}
 
-	public bool IsValidNextKey(GameObject obj) => m_keyObj == obj;
+	public bool IsValidNextKey(GameObject obj) => m_keyObj == obj && (!obj.TryGetComponent(out ItemController item) || (item.Cause != null && item.Cause is AvatarController));
 
 	public bool Unlock(IKey key, bool silent = false)
 	{

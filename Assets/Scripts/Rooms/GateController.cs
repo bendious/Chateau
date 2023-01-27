@@ -35,8 +35,8 @@ public class GateController : MonoBehaviour, IUnlockable
 
 		// TODO: check for full unlocking first?
 		IKey key = collider.GetComponent<IKey>();
+		m_child.Unlock(key); // NOTE that this has to be BEFORE key.Use() since that might detach the item and lose the cause before it has been verified
 		key.Use();
-		m_child.Unlock(key);
 	}
 
 	public void SpawnKeysStatic(RoomController lockRoom, RoomController[] keyRooms, float difficultyPct)
