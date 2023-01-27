@@ -102,7 +102,7 @@ public sealed class AIController : KinematicCharacter
 	{
 		if (ShouldSkipUpdates)
 		{
-			move = Vector2.zero;
+			move = HasFlying || IsGrounded ? Vector2.zero : move;
 		}
 		else
 		{
@@ -252,7 +252,7 @@ public sealed class AIController : KinematicCharacter
 		{
 			return;
 		}
-		enabled = false;
+		m_passive = true;
 	}
 
 
@@ -312,7 +312,7 @@ public sealed class AIController : KinematicCharacter
 
 		if (m_target == null || ShouldSkipUpdates)
 		{
-			move = Vector2.zero;
+			move = HasFlying || IsGrounded ? Vector2.zero : move;
 			return false; // TODO: flag to trigger idle behavior if unable to find target?
 		}
 

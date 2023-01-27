@@ -17,7 +17,6 @@ public class BossRoom : MonoBehaviour
 	public WeightedObject<RoomController.LadderInfo>[] m_spawnedLadderPrefabs;
 
 	[SerializeField] private AudioClip m_audioOutro;
-	[SerializeField] private AudioClip m_music;
 
 
 	private Boss m_boss;
@@ -105,7 +104,7 @@ public class BossRoom : MonoBehaviour
 		sources[1].loop = false;
 		sources.First().clip = m_audioOutro;
 		sources.First().PlayScheduled(AudioSettings.dspTime + sources[1].clip.length - sources[1].time);
-		GameController.Instance.GetComponent<MusicManager>().Play(m_music);
+		GameController.Instance.GetComponent<MusicManager>().Play(m_boss.m_music);
 	}
 
 	public void EndFight()

@@ -24,6 +24,8 @@ public class Boss : MonoBehaviour
 
 	public WeightedObject<AudioClip>[] m_dialogueSfx;
 
+	public AudioClip m_music; // TODO: per-phase music?
+
 
 #if DEBUG
 	private Vector3 m_debugStartPos;

@@ -55,7 +55,7 @@ public sealed class AvatarController : KinematicCharacter
 	public PlayerInput Controls { get; private set; }
 	public InputActionMap ControlsUI { get; private set; }
 
-	public bool IsAlive => ConsoleCommands.NeverDie || m_health.IsAlive;
+	public override bool IsAlive => ConsoleCommands.NeverDie || base.IsAlive;
 
 
 	private bool ControlEnabled => m_controlEnabled && !m_controlDisabledUntilHurt;

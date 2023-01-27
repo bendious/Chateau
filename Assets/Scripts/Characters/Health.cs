@@ -120,6 +120,11 @@ public class Health : MonoBehaviour
 	/// </summary>
 	public virtual bool Decrement(GameObject source, GameObject directCause, float amount, DamageType type) // TODO: types[]?
 	{
+		if (!IsAlive)
+		{
+			return false;
+		}
+
 		bool notMinor = amount >= m_minorDamageThreshold;
 		bool mergeWithPrevious = notMinor && type == m_lastDamageType && m_lastDamageTime + m_damageMergeSeconds >= Time.time;
 		if (!mergeWithPrevious && m_invincible)

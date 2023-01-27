@@ -90,7 +90,7 @@ public class DespawnEffect : MonoBehaviour
 		if (m_triggerEnemy != Action.None && Cause != null)
 		{
 			KinematicCharacter character = collider.GetComponent<KinematicCharacter>();
-			if (character != null && character.GetComponent<Health>().IsAlive && Cause.CanDamage(character.gameObject))
+			if (character != null && character.IsAlive && Cause.CanDamage(character.gameObject))
 			{
 				trigger = (Action)Math.Max((byte)trigger, (byte)m_triggerEnemy);
 			}

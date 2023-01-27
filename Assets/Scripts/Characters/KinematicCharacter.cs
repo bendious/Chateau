@@ -134,6 +134,8 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	public bool IsDropping => move.y < -0.5f && maxSpeed > 0.0f;
 
+	public virtual bool IsAlive => m_health.IsAlive;
+
 
 	private bool m_wasGrounded;
 
@@ -281,6 +283,11 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		// TODO: disable w/ all characters rather than just this one? ensure consistent re-enable time? don't double-disable collision due to both characters' OnCharacterCollision()?
 		EnableCollision.TemporarilyDisableCollision(GetComponentsInChildren<Collider2D>(), character.GetComponentsInChildren<Collider2D>());
 
+		if (!IsAlive)
+		{
+			return false;
+		}
+
 		float damage = m_isDashing ? m_dashDamage : m_contactDamage;
 		if (damage.FloatEqual(0.0f) || !CanDamage(character.gameObject))
 		{
@@ -317,11 +324,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 		m_animator.SetBool("dead", true);
 
-		foreach (Collider2D collider in m_colliders)
-		{
-			collider.enabled = false;
-		}
-		body.simulated = false; // TODO: continue simulating physics movement?
+		gravityModifier = Mathf.Max(gravityModifier, 0.5f); // make flying characters drop // TODO: parameterize minimum value?
 
 		BounceCancel(); // to remove any current forced input
 	}

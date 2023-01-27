@@ -117,6 +117,11 @@ public sealed class ArmController : MonoBehaviour, IHolder
 	// TODO: combine w/ ItemController version?
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
+		if (!m_character.IsAlive)
+		{
+			return;
+		}
+
 		Rigidbody2D body = m_colliders.First().attachedRigidbody;
 		if (collision.collider.ShouldIgnore(body, m_colliders, oneWayTopEpsilon: float.MaxValue))
 		{

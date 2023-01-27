@@ -676,6 +676,7 @@ MonoBehaviour:
   m_dialogueSfx:
   - m_object: {fileID: 8300000, guid: 1025e3899f74ad24196eb7ad747e0f63, type: 3}
     m_weight: 1
+  m_music: {fileID: 8300000, guid: 9acfb6f89edbdd949b513fe6314f7a84, type: 3}
 --- !u!1001 &8203299277311398250
 PrefabInstance:
   m_ObjectHideFlags: 0
