@@ -1105,7 +1105,7 @@ public sealed class AIFinalDialogue : AIState
 		}
 
 		GameController.Instance.m_fadeSeconds = m_visualFadeOutSeconds;
-		GameController.Instance.LoadScene("Credits"); // TODO: un-hardcode scene name?
+		GameController.Instance.LoadScene("Credits", false); // TODO: un-hardcode scene name?
 	}
 
 

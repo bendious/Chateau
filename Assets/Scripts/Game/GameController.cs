@@ -75,6 +75,7 @@ public class GameController : MonoBehaviour
 	[SerializeField] private Animator m_timerAnimator;
 	[SerializeField] private GameObject m_startUI;
 	[SerializeField] private Canvas m_pauseUI;
+	[SerializeField] private Canvas m_confirmationUI;
 	[SerializeField] private TMPro.TMP_Text m_quitText;
 	[SerializeField] private PlayerInputManager m_inputManager;
 	public Canvas m_gameOverUI;
@@ -137,10 +138,15 @@ public class GameController : MonoBehaviour
 	public bool Victory { get; private set; }
 
 
+	private bool PlayerHasNotConfirmed => m_confirmationUI.enabled; // TODO: less obtuse means of message-passing?
+
+
 	[SerializeField] private string[] m_savableTags;
 
 
+#if DEBUG
 	public static int Seed => m_seed;
+#endif
 	private static int m_seed;
 
 	public static int SceneIndexPrev { get; private set; } = -1;
@@ -403,7 +409,7 @@ public class GameController : MonoBehaviour
 
 		if (LoadShouldYield("Post-EnableJoining()")) { yield return null; }
 
-		StartCoroutine(FadeCoroutine(false));
+		StartCoroutine(FadeCoroutine(false, false));
 
 		Time.timeScale = 1.0f;
 		IsSceneLoad = false;
@@ -597,7 +603,7 @@ public class GameController : MonoBehaviour
 
 	public void TogglePause(bool noTimeScale = false)
 	{
-		if (m_loadingScreen.activeSelf || m_gameOverUI.gameObject.activeSelf)
+		if (m_loadingScreen.activeSelf || m_confirmationUI.gameObject.activeSelf || m_gameOverUI.gameObject.activeSelf)
 		{
 			return;
 		}
@@ -715,10 +721,11 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
-		StartCoroutine(FadeCoroutine(true, SceneManager.GetActiveScene().name, !noInventoryClear, noInventoryClear));
+		StartCoroutine(FadeCoroutine(true, true, SceneManager.GetActiveScene().name, !noInventoryClear, noInventoryClear));
 	}
 
-	public void LoadScene(string name) => StartCoroutine(FadeCoroutine(true, name));
+	public void LoadScene(string name) => LoadScene(name, true); // NOTE that this overload is necessary since Unity callbacks set in the Inspector can't handle multiple arguments even if all but one have default arguments
+	public void LoadScene(string name, bool confirm /*= true*/) => StartCoroutine(FadeCoroutine(confirm, true, name));
 
 	private IEnumerator LoadSceneCoroutine(string name, bool save, bool noInventoryClear)
 	{
@@ -776,21 +783,12 @@ public class GameController : MonoBehaviour
 		// TODO: roll credits / etc.?
 	}
 
-	public void Quit(bool isSaveDeletion)
+	public void Quit(bool noConfirm)
 	{
-		if (!isSaveDeletion)
+		if (!noConfirm)
 		{
-			if (m_avatars.Count > 1)
-			{
-				OnPlayerLeft(m_avatars.Last().GetComponent<PlayerInput>());
-				return;
-			}
-
-			if (SceneManager.GetActiveScene().buildIndex == 0) // to prevent save-quitting from Tutorial (see Save() exception for creating saves outside the Entryway) // TODO: replace Tutorial Quit button w/ Entryway button once Tutorial has been completed?
-			{
-				m_avatars.First().DetachAll(); // to save even items being held
-				Save(); // TODO: prompt player?
-			}
+			StartCoroutine(QuitAfterConfirmationCoroutine());
+			return;
 		}
 
 #if UNITY_EDITOR
@@ -1416,8 +1414,17 @@ public class GameController : MonoBehaviour
 	}
 
 	// TODO: start scene load in background during fade?
-	private IEnumerator FadeCoroutine(bool fadeOut, string nextSceneName = null, bool save = true, bool noInventoryClear = false)
+	private IEnumerator FadeCoroutine(bool confirm, bool fadeOut, string nextSceneName = null, bool save = true, bool noInventoryClear = false)
 	{
+		if (confirm)
+		{
+			yield return StartCoroutine(PlayerConfirmationCoroutine());
+			if (PlayerHasNotConfirmed)
+			{
+				yield break;
+			}
+		}
+
 		if (m_pauseUI.isActiveAndEnabled)
 		{
 			TogglePause(Time.timeScale > 0.0f);
@@ -1464,6 +1471,37 @@ public class GameController : MonoBehaviour
 		{
 			StartCoroutine(LoadSceneCoroutine(nextSceneName, save, noInventoryClear));
 		}
+	}
+
+	private IEnumerator QuitAfterConfirmationCoroutine()
+	{
+		yield return StartCoroutine(PlayerConfirmationCoroutine());
+		if (PlayerHasNotConfirmed)
+		{
+			yield break;
+		}
+
+		// TODO: before confirmation dialogue?
+		if (m_avatars.Count > 1)
+		{
+			OnPlayerLeft(m_avatars.Last().GetComponent<PlayerInput>());
+			yield break;
+		}
+
+		if (SceneManager.GetActiveScene().buildIndex == 0) // to prevent save-quitting from Tutorial (see Save() exception for creating saves outside the Entryway) // TODO: replace Tutorial Quit button w/ Entryway button once Tutorial has been completed?
+		{
+			m_avatars.First().DetachAll(); // to save even items being held
+			Save();
+		}
+
+		Quit(true);
+	}
+
+	private IEnumerator PlayerConfirmationCoroutine()
+	{
+		yield return StartCoroutine(ActivateMenuCoroutine(m_confirmationUI, true));
+		yield return new WaitUntil(() => !m_confirmationUI.isActiveAndEnabled);
+		yield return StartCoroutine(ActivateMenuCoroutine(m_confirmationUI, false)); // in order to ensure auxiliary menu logic (e.g. currently selected object) is run
 	}
 
 	private IEnumerator TimerCoroutine()

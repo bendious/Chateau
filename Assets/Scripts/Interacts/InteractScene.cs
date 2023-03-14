@@ -81,7 +81,7 @@ public class InteractScene : MonoBehaviour, IInteractable
 				m_interactor.gravityModifier = m_gravityModifierOrig; // due to some doors missing ground underneath them...
 				m_interactor.GetComponent<Health>().m_invincible = false;
 			}
-			GameController.Instance.LoadScene(m_sceneDestination);
+			GameController.Instance.LoadScene(m_sceneDestination, false);
 		}
 	}
 
