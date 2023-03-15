@@ -155,7 +155,7 @@ public class GameController : MonoBehaviour
 
 	private float m_loadYieldTimePrev = 0.0f;
 
-	private RoomController m_startRoom;
+	private readonly List<RoomController> m_roomRoots = new();
 	private float m_startHealth = -1.0f;
 
 	private struct NpcInfo
@@ -296,13 +296,16 @@ public class GameController : MonoBehaviour
 
 		// fill rooms
 		int npcDepth = 0;
-		m_startRoom.FinalizeRecursive(ref npcDepth);
-		RoomController[] roomsHighToLow = m_startRoom.WithDescendants.OrderBy(room => -room.transform.position.y).ToArray();
-		float roomWidthMin = roomsHighToLow.Min(room => room.Bounds.size.x);
-		foreach (RoomController room in roomsHighToLow)
+		foreach (RoomController roomRoot in m_roomRoots)
 		{
-			if (LoadShouldYield("roomsHighToLow.FinalizeTopDown()")) { yield return null; }
-			room.FinalizeTopDown(roomWidthMin);
+			roomRoot.FinalizeRecursive(ref npcDepth);
+			RoomController[] roomsHighToLow = roomRoot.WithDescendants.OrderBy(room => -room.transform.position.y).ToArray();
+			float roomWidthMin = roomsHighToLow.Min(room => room.Bounds.size.x);
+			foreach (RoomController room in roomsHighToLow)
+			{
+				if (LoadShouldYield("roomsHighToLow.FinalizeTopDown()")) { yield return null; }
+				room.FinalizeTopDown(roomWidthMin);
+			}
 		}
 
 		// spawn progress indicator(s)
@@ -346,12 +349,13 @@ public class GameController : MonoBehaviour
 		{
 			// position
 			Vector3 targetPos = (signIdx < m_specialRoomCount ? SpecialRooms[signIdx].transform : FindObjectsOfType<InteractScene>().First(interact => interact.DestinationIndex == signIdx - m_specialRoomCount + 1).transform).position; // TODO: less hardcoding?
-			float offsetMag = Random.Range(2.0f, m_startRoom.BoundsInterior.extents.x); // TODO: determine min offset based on start door width? take offset room centers into account?
-			bool toLeft = targetPos.x < m_startRoom.transform.position.x || (targetPos.x == m_startRoom.transform.position.x && Random.value > 0.5f);
-			Vector3 signPos = m_startRoom.InteriorPosition(0.0f, signPrefab, xPreferred: m_startRoom.transform.position.x + (toLeft ? -offsetMag : offsetMag));
+			RoomController roomFirst = m_roomRoots.First();
+			float offsetMag = Random.Range(2.0f, roomFirst.BoundsInterior.extents.x); // TODO: determine min offset based on start door width? take offset room centers into account?
+			bool toLeft = targetPos.x < roomFirst.transform.position.x || (targetPos.x == roomFirst.transform.position.x && Random.value > 0.5f);
+			Vector3 signPos = roomFirst.InteriorPosition(0.0f, signPrefab, xPreferred: roomFirst.transform.position.x + (toLeft ? -offsetMag : offsetMag));
 
 			// spawn
-			GameObject sign = Instantiate(signPrefab, signPos, Quaternion.identity, m_startRoom.transform);
+			GameObject sign = Instantiate(signPrefab, signPos, Quaternion.identity, roomFirst.transform);
 
 			// aim
 			sign.transform.GetChild(0).transform.rotation = Utility.ZRotation(targetPos - signPos); // TODO: un-hardcode child index?
@@ -428,7 +432,7 @@ public class GameController : MonoBehaviour
 
 	private void Update()
 	{
-		if (m_startRoom == null)
+		if (m_roomRoots.Count == 0)
 		{
 			return; // not fully loaded yet
 		}
@@ -518,7 +522,7 @@ public class GameController : MonoBehaviour
 			isFirst = false;
 		}
 
-		if (m_startRoom != null)
+		if (m_roomRoots.Count > 0)
 		{
 			EnterAtDoor(false, m_avatars.Last());
 		}
@@ -571,6 +575,10 @@ public class GameController : MonoBehaviour
 		return false;
 	}
 
+	public void AddRootRoom(RoomController room) => m_roomRoots.Add(room);
+
+	public bool RemoveRootRoom(RoomController room) => m_roomRoots.Remove(room);
+
 	public void AddCameraTargets(params Transform[] transforms) => AddCameraTargetsSized(0.0f, transforms);
 
 	public void AddCameraTargetsSized(float size, params Transform[] transforms)
@@ -591,9 +599,9 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	public RoomController RoomFromPosition(Vector2 position) => m_startRoom == null ? null : m_startRoom.FromPosition(position); // TODO: work even when disconnected from start room?
+	public RoomController RoomFromPosition(Vector2 position) => m_roomRoots.Select(root => root.FromPosition(position)).FirstOrDefault(room => room != null);
 
-	public RoomController RandomReachableRoom(AIController ai, GameObject endpointObj, bool endpointIsStart) => m_startRoom == null ? null : m_startRoom.WithDescendants.Where(room => ai.Pathfind(endpointIsStart ? endpointObj : room.gameObject, endpointIsStart ? room.gameObject : endpointObj, Vector2.zero) != null).Random();
+	public RoomController RandomReachableRoom(AIController ai, GameObject endpointObj, bool endpointIsStart) => m_roomRoots.Select(root => root.WithDescendants.Where(room => ai.Pathfind(endpointIsStart ? endpointObj : room.gameObject, endpointIsStart ? room.gameObject : endpointObj, Vector2.zero) != null).Random()).FirstOrDefault(room => room != null); // NOTE that we try to avoid looping over m_roomRoots[] more than necessary by invoking Random() inside Select() since (at the moment, at least) each room only ever has one root // TODO: improve worst-case efficiency
 
 	public System.Tuple<List<Vector2>, float> Pathfind(GameObject start, GameObject target, float extentY = -1.0f, float upwardMax = float.MaxValue, Vector2 offsetMag = default, RoomController.PathFlags flags = RoomController.PathFlags.ObstructionCheck)
 	{
@@ -700,7 +708,7 @@ public class GameController : MonoBehaviour
 	{
 		if (ConsoleCommands.RegenerateDisabled)
 		{
-			foreach (RoomController room in m_startRoom.WithDescendants)
+			foreach (RoomController room in m_roomRoots.SelectMany(root => root.WithDescendants))
 			{
 				room.SealRoom(false);
 			}
@@ -898,7 +906,7 @@ public class GameController : MonoBehaviour
 		{
 			List<LayoutGenerator.Node> newList = new();
 			int numDoors = 0;
-			int doorsMax = 6 - (m_startRoom == null ? 0 : 1); // TODO: determine based on room prefab
+			int doorsMax = 6 - (m_roomRoots.Count == 0 ? 0 : 1); // TODO: determine based on room prefab
 			bool isDoor = false;
 			do
 			{
@@ -925,13 +933,14 @@ public class GameController : MonoBehaviour
 		{
 			if (nodesList.Exists(node => node.m_type == LayoutGenerator.Node.Type.Entrance))
 			{
-				Assert.IsNull(m_startRoom);
-				m_startRoom = Instantiate(m_entryRoomPrefabs.RandomWeighted()).GetComponent<RoomController>();
-				m_startRoom.SetNodes(nodesList.ToArray());
+				Debug.Assert(m_roomRoots.Count == 0);
+				RoomController root = Instantiate(m_entryRoomPrefabs.RandomWeighted());
+				AddRootRoom(root);
+				root.SetNodes(nodesList.ToArray());
 				++roomCount;
-				if (m_startRoom.transform.position.y >= 0.0f)
+				if (root.transform.position.y >= 0.0f)
 				{
-					m_ctGroupOverview.AddMember(m_startRoom.m_backdrop.transform, 1.0f, 0.0f);
+					m_ctGroupOverview.AddMember(root.m_backdrop.transform, 1.0f, 0.0f);
 				}
 				Debug.Assert(SpecialRooms == null);
 				if (m_specialRoomCount > 0)
@@ -1359,13 +1368,13 @@ public class GameController : MonoBehaviour
 
 	private void SpawnEnemy(AIController enemyPrefab)
 	{
-		if (m_startRoom == null)
+		if (m_roomRoots.Count == 0)
 		{
 			Debug.LogWarning("Trying to spawn an enemy before any rooms?");
 			return;
 		}
 		KinematicCharacter target = m_avatars.Count <= 0 ? AiTargets.FirstOrDefault(t => t is AIController ai && ai.m_friendly) : m_avatars.Random();
-		RoomController spawnRoom = target == null ? m_startRoom.WithDescendants.Random() : m_waveSealing ? RoomFromPosition(target.transform.position) : RandomReachableRoom(enemyPrefab, target.gameObject, false);
+		RoomController spawnRoom = target == null ? m_roomRoots.SelectMany(root => root.WithDescendants).Random() : m_waveSealing ? RoomFromPosition(target.transform.position) : RandomReachableRoom(enemyPrefab, target.gameObject, false);
 		if (spawnRoom == null)
 		{
 			Debug.LogWarning("No room found to spawn an enemy?");

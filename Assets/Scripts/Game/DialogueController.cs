@@ -120,7 +120,7 @@ public class DialogueController : MonoBehaviour
 
 	private void OnDamage(OnHealthDecrement evt)
 	{
-		if (!IsPlaying || Target is not AvatarController || (evt.m_health.gameObject != Target.gameObject && evt.m_health.gameObject != m_sourceMain.gameObject)) // TODO: handle damage to child objects of source/target?
+		if (!IsPlaying || Target is not AvatarController || (evt.m_health.gameObject != Target.gameObject && (m_sourceMain == null || evt.m_health.gameObject != m_sourceMain.gameObject))) // NOTE that Target should never be null when playing // TODO: handle damage to child objects of source/target?
 		{
 			return;
 		}

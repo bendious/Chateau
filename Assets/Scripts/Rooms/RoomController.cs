@@ -255,6 +255,7 @@ public class RoomController : MonoBehaviour
 	private void OnDestroy()
 	{
 		ObjectDespawn.OnExecute -= OnObjectDespawn;
+		GameController.Instance.RemoveRootRoom(this);
 	}
 
 #if UNITY_EDITOR
@@ -1517,7 +1518,7 @@ public class RoomController : MonoBehaviour
 					m_runtimeRooms.RemoveAll(room => room == null); // NOTE that this is so that we don't need to bother detecting scene load and clearing m_runtimeRooms[]
 					if (m_runtimeRooms.Count >= runtimeRoomsMax)
 					{
-						RoomController roomToDelete = m_runtimeRooms.SelectMax(room => GameController.Instance.m_avatars.Min(avatar => (avatar.transform.position - room.Bounds.ClosestPoint(avatar.transform.position)).sqrMagnitude));
+						RoomController roomToDelete = m_runtimeRooms.SelectMax(room => GameController.Instance.m_avatars.Min(avatar => (avatar.transform.position - room.Bounds.ClosestPoint(avatar.transform.position)).sqrMagnitude)); // TODO: prefer to avoid cutting off return path?
 
 						foreach (DoorwayInfo doorway in roomToDelete.m_doorwayInfos)
 						{
@@ -1525,8 +1526,12 @@ public class RoomController : MonoBehaviour
 							{
 								continue;
 							}
-							doorway.m_infoReverse.Room.OpenDoorway(doorway.m_infoReverse, false);
+							doorway.ConnectedRoom.OpenDoorway(doorway.m_infoReverse, false); // TODO: also clean up blocker?
 							doorway.m_infoReverse.m_infoReverse = null;
+							if (doorway.ChildRoom != null)
+							{
+								GameController.Instance.AddRootRoom(doorway.ChildRoom);
+							}
 						}
 
 						// TODO: despawn any non-child objects in room?
@@ -1728,7 +1733,7 @@ public class RoomController : MonoBehaviour
 
 		// pick & create gate
 		GameObject blockerPrefab = isOrdered ? m_lockOrderedPrefabs[System.Math.Min(orderedLockIdx++, m_lockOrderedPrefabs.Length - 1)] : RandomWeightedByKeyCount(gatesFinal, ObjectToKeyStats, preferredKeyCount, depthPct);
-		Debug.Assert(doorwayInfo.m_blocker == null);
+		Debug.Assert(doorwayInfo.m_blocker == null); // TODO: handle leftover blockers from dynamically spawned & destroyed rooms?
 		doorwayInfo.m_blocker = Instantiate(blockerPrefab, doorwayInfo.m_object.transform.position, Quaternion.identity, transform);
 
 		// set references
