@@ -169,31 +169,46 @@ public static class Utility
 		float[] pcts = proportional ? Enumerable.Repeat(UnityEngine.Random.value, 4).ToArray() : new[] { UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value };
 		Color color = new(Mathf.Lerp(min.r, max.r, pcts[0]), Mathf.Lerp(min.g, max.g, pcts[1]), Mathf.Lerp(min.b, max.b, pcts[2]), Mathf.Lerp(min.a, max.a, pcts[3]));
 
-		if (ColorsSimilar(color, RoomController.m_oneWayPlatformColor, epsilon) || ColorsSimilar(color, Color.black, epsilon) || colorsToAvoid.Any(colorToAvoid => color.ColorsSimilar(colorToAvoid, epsilon)))
+		colorsToAvoid = colorsToAvoid.Concat(new Color[] { RoomController.m_oneWayPlatformColor, Color.black }).ToArray(); // TODO: efficiency? don't assume that black and platform-color should always be avoided?
+		if (colorsToAvoid.Any(colorToAvoid => color.ColorsSimilar(colorToAvoid, epsilon)))
 		{
-			// TODO: ensure new color does not happen to be similar to any colors to avoid?
-			if (proportional)
-			{
-				for (int i = 0; i < 3; ++i)
-				{
-					color = color.ColorFlipComponent(i, min, max);
-				}
-			}
-			else
-			{
-				color = color.ColorFlipComponent(UnityEngine.Random.Range(0, 3), min, max);
-			}
+			color = color.ColorDifferentiate(colorsToAvoid, min, max);
 		}
 
 		return color;
 	}
 
-	public static Color ColorFlipComponent(this Color color, int idx, Color min, Color max)
+	// TODO: voronoi-based differentiation to prevent ending up w/ tightly-packed colors?
+	private static Color ColorDifferentiate(this Color color, IEnumerable<Color> colorsToAvoid, Color min, Color max)
 	{
-		// flip one component as far as it can go within the given range
-		float minComp = min[idx];
-		float maxComp = max[idx];
-		color[idx] = Mathf.Lerp(minComp, maxComp, (Mathf.InverseLerp(minComp, maxComp, color[idx]) + 0.5f) % 1.0f);
+		// helper to calculate the value midway below a given value and diff within the modular range [min,max]
+		static float flipComponent(float min, float max, float valueAbove, float valueDiff) => (valueAbove - valueDiff * 0.5f - min).Modulo(max - min) + min;
+
+		// loop through components to find the maximum empty space w/i the color range
+		float vDiff = 0.0f;
+		float vAbove = -1.0f;
+		for (int idx = 0; idx < 3; ++idx)
+		{
+			// sort & clamp the component values
+			float minComp = min[idx];
+			float maxComp = max[idx];
+			float[] componentsSorted = colorsToAvoid.Select(colorToAvoid => Mathf.Clamp(colorToAvoid[idx], minComp, maxComp)).OrderBy(t => t).ToArray(); // NOTE the clamp in case any values are outside [min,max]
+
+			// find the maximum modular distance between adjacent values
+			for (int i = 0; i < componentsSorted.Length; ++i)
+			{
+				float v = componentsSorted[i];
+				float diffBelow = i == 0 ? (v - minComp) + (maxComp - componentsSorted.Last()) : v - componentsSorted[i - 1];
+				if (diffBelow > vDiff)
+				{
+					vDiff = diffBelow;
+					vAbove = v;
+				}
+			}
+
+			color[idx] = flipComponent(minComp, maxComp, vAbove, vDiff);
+		}
+
 		return color;
 	}
 

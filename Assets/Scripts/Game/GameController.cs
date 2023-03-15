@@ -871,20 +871,15 @@ public class GameController : MonoBehaviour
 #endif
 		void NpcsRandomize()
 	{
-		m_npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => System.Tuple.Create(a, b)).Zip(m_npcLoyalties.RandomWeightedOrder(), (ab, c) => new[] { ab.Item1, ab.Item2, c }).Select(dialogues => new NpcInfo { m_color = Utility.ColorRandom(Color.black, Color.white, false), m_dialogues = dialogues }).ToArray();
-		for (int i = 0; i < NpcsTotal; ++i) // TODO: replace w/ ColorRandom() colorsToAvoid param?
+		const float colorEpsilon = 0.4f; // TODO: parameterize?
+		List<Color> colors = new();
+		int n = Mathf.Max(m_npcAttitudes.Length, m_npcRoles.Length, m_npcLoyalties.Length);
+		for (int i = 0; i < n; ++i)
 		{
-			NpcInfo info1 = m_npcs[i];
-			for (int j = i + 1; j < NpcsTotal; ++j)
-			{
-				NpcInfo info2 = m_npcs[j];
-				if (info1.m_color.ColorsSimilar(info2.m_color))
-				{
-					// TODO: ensure flipping does not result in conflict w/ any previous color?
-					info2.m_color = info2.m_color.ColorFlipComponent(Random.Range(0, 3), Color.black, Color.white);
-				}
-			}
+			colors.Add(Utility.ColorRandom(Color.black, Color.white, false, colorEpsilon, colors.ToArray())); // TODO: efficiency? differentiate closest-together colors first?
 		}
+		m_npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => System.Tuple.Create(a, b)).Zip(m_npcLoyalties.RandomWeightedOrder(), (ab, c) => new[] { ab.Item1, ab.Item2, c }).Zip(colors, (dialogues, color) => new NpcInfo { m_color = color, m_dialogues = dialogues }).ToArray();
+		Debug.Assert(n == NpcsTotal);
 
 		// TODO: cleaner initialization / helper function?
 		m_npcRelationshipPcts = new float[NpcsTotal][];
