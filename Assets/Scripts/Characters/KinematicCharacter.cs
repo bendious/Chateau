@@ -157,6 +157,17 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		OnHealthDeath.OnExecute += OnDeath;
 	}
 
+	private void OnDisable() => OnEnableDisable(false);
+
+	private void OnEnable() => OnEnableDisable(true);
+
+	private void OnEnableDisable(bool enabled)
+	{
+		m_animator.enabled = enabled;
+		m_colliders.First().attachedRigidbody.simulated = enabled; // TODO: don't assume all colliders share the same rigidbody?
+		m_spriteRenderer.color = new Color(m_spriteRenderer.color.r, m_spriteRenderer.color.g, m_spriteRenderer.color.b, enabled ? 1.0f : 0.0f); // NOTE that this also propagates to arms/attachables via ArmController.LateUpdate()/IAttachable.MirrorParentAlphaCoroutine() // TODO: don't assume full opacity when enabled?
+	}
+
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
 		if (collision.collider.TryGetComponent(out KinematicCharacter character)) // NOTE that we use the collider object rather than collision.gameObject since w/ characters & arms, they are not always the same
@@ -381,7 +392,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	// TODO: CanBeDamagedBy()?
 
-	public virtual float TargetPriority(KinematicCharacter source, bool friendly) => source != this && source.CanDamage(gameObject) != friendly ? 1.0f : 0.0f;
+	public virtual float TargetPriority(KinematicCharacter source, bool friendly) => enabled && source != this && source.CanDamage(gameObject) != friendly ? 1.0f : 0.0f;
 
 
 	public ArmController PrimaryArm(ArmController[] arms)

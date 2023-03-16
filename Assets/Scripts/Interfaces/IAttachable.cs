@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.VFX;
 
 
 public interface IAttachable
@@ -88,6 +89,8 @@ public interface IAttachable
 		Transform parentTf = tf.parent;
 		SpriteRenderer renderer = tf.GetComponentInChildren<SpriteRenderer>();
 		SpriteRenderer parentRenderer = parentTf == null ? null : parentTf.GetComponent<SpriteRenderer>();
+		VisualEffect[] vfx = renderer.GetComponentsInChildren<VisualEffect>(true);
+		LightFlickerSynced[] lights = renderer.GetComponentsInChildren<LightFlickerSynced>(true); // TODO: handle non-flicker lights?
 		WaitUntil waitCondition = new(() => parentTf == null || tf.parent != parentTf || parentRenderer.color.a != renderer.color.a);
 
 		while (parentTf != null && tf.parent == parentTf)
@@ -95,6 +98,14 @@ public interface IAttachable
 			Color color = renderer.color;
 			color.a = parentRenderer.color.a;
 			renderer.color = color;
+			foreach (VisualEffect effect in vfx)
+			{
+				effect.enabled = color.a > 0.0f; // TODO: fine-grained alpha control? avoid stomping enabled state?
+			}
+			foreach (LightFlickerSynced light in lights)
+			{
+				light.IntensityScalar = color.a; // TODO: avoid stomping on soft-stops?
+			}
 
 			yield return waitCondition;
 		}

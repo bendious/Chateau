@@ -175,6 +175,7 @@ public class GameController : MonoBehaviour
 	private CinemachineFramingTransposer m_vCamMainFramer;
 	private float m_lookaheadTimeOrig;
 
+	private bool m_doorEntryDelayed = false;
 	private bool m_usingMouse = false;
 
 	private float m_waveWeight;
@@ -559,6 +560,10 @@ public class GameController : MonoBehaviour
 		if (focus)
 		{
 			Cursor.visible = m_usingMouse;
+			if (m_doorEntryDelayed)
+			{
+				EnterAtDoor(true, m_avatars.ToArray());
+			}
 		}
 	}
 
@@ -733,7 +738,7 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
-		StartCoroutine(FadeCoroutine(true, true, SceneManager.GetActiveScene().name, !noInventoryClear, noInventoryClear));
+		StartCoroutine(FadeCoroutine(!noInventoryClear, true, SceneManager.GetActiveScene().name, !noInventoryClear, noInventoryClear)); // TODO: split noInventoryClear?
 	}
 
 	public void LoadScene(string name) => LoadScene(name, true); // NOTE that this overload is necessary since Unity callbacks set in the Inspector can't handle multiple arguments even if all but one have default arguments
@@ -742,7 +747,7 @@ public class GameController : MonoBehaviour
 	private IEnumerator LoadSceneCoroutine(string name, bool save, bool noInventoryClear)
 	{
 		Scene sceneCur = SceneManager.GetActiveScene();
-		if (!IsSceneLoad && sceneCur.name != name)
+		if (sceneCur.name != name)
 		{
 			SceneIndexPrev = sceneCur.buildIndex;
 		}
@@ -1071,6 +1076,12 @@ public class GameController : MonoBehaviour
 
 	public void EnterAtDoor(bool snapCamera, params KinematicCharacter[] characters)
 	{
+		if (m_doorEntryDelayed && Application.isFocused && m_startWavesImmediately)
+		{
+			StartWaves();
+		}
+		m_doorEntryDelayed = !Application.isFocused;
+
 		// find closest door prioritized by previous scene
 		InteractScene[] doors = FindObjectsOfType<InteractScene>();
 		InteractScene door = SceneIndexPrev < 0 ? null : doors.Where(interact => interact.DestinationIndex == SceneIndexPrev).OrderBy(interact => interact.transform.position.sqrMagnitude).FirstOrDefault();
@@ -1083,7 +1094,12 @@ public class GameController : MonoBehaviour
 		bool includesAvatar = false;
 		foreach (KinematicCharacter character in characters)
 		{
+			character.enabled = !m_doorEntryDelayed;
 			character.Teleport(door.transform.position + (Vector3)character.gameObject.OriginToCenterY());
+			if (!character.enabled)
+			{
+				continue;
+			}
 			if (character is AvatarController avatar)
 			{
 				includesAvatar = true;
@@ -1105,7 +1121,10 @@ public class GameController : MonoBehaviour
 		}
 
 		// animate door
-		door.GetComponent<Animator>().SetTrigger("activate");
+		if (!m_doorEntryDelayed)
+		{
+			door.GetComponent<Animator>().SetTrigger("activate");
+		}
 	}
 
 	private void Save()
@@ -1257,6 +1276,11 @@ public class GameController : MonoBehaviour
 
 	private void StartWaves()
 	{
+		if (!Application.isFocused)
+		{
+			m_startWavesImmediately = true;
+			return; // we will be re-invoked via OnApplicationFocus()/EnterAtDoor() when focus is regained
+		}
 		m_nextWaveTime = Time.time + Random.Range(m_waveSecondsMin, m_waveSecondsMax);
 		StartCoroutine(SpawnWavesCoroutine());
 		if (m_waveEscalationMax > 0.0f)
