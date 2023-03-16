@@ -108,7 +108,11 @@ public class GameController : MonoBehaviour
 	[HideInInspector] public bool m_bossRoomSealed = false;
 
 
-	public static bool IsSceneLoad { get; private set; } = true;
+	private static bool m_isSceneLoadInternal = true;
+	public static bool IsSceneLoad {
+		get => m_isSceneLoadInternal;
+		private set { m_isSceneLoadInternal = value; Application.runInBackground = value; } // whenever loading, finish even if application is minimized/tabbed-away // NOTE though that pausing in background is ignored by the Editor when a debugger is attached
+	}
 
 	public static GameController Instance { get; private set; }
 
@@ -416,7 +420,7 @@ public class GameController : MonoBehaviour
 		StartCoroutine(FadeCoroutine(false, false));
 
 		Time.timeScale = 1.0f;
-		IsSceneLoad = false;
+		// NOTE that IsSceneLoad is now reset at the end of FadeCoroutine()
 	}
 
 	private void OnDestroy()
@@ -1436,6 +1440,7 @@ public class GameController : MonoBehaviour
 
 		if (fadeOut)
 		{
+			IsSceneLoad = true; // to allow fade-in/out to complete in background // TODO: prevent this from preempting despawn effects while still visible?
 			GetComponent<MusicManager>().FadeOut(m_fadeSeconds);
 		}
 
@@ -1469,6 +1474,7 @@ public class GameController : MonoBehaviour
 		if (!fadeOut)
 		{
 			m_loadingScreen.SetActive(false);
+			IsSceneLoad = false; // to allow fade-in/out to complete in background
 		}
 
 		if (!string.IsNullOrEmpty(nextSceneName))
