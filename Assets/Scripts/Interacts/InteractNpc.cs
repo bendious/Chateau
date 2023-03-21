@@ -36,6 +36,11 @@ public class InteractNpc : MonoBehaviour, IInteractable
 		// set NPC appearance
 		// TODO: move elsewhere?
 		GetComponent<SpriteRenderer>().color = GameController.NpcColor(Index);
+		GameObject clothing = GameController.NpcClothing(Index);
+		if (clothing != null)
+		{
+			Instantiate(clothing, transform);
+		}
 
 		if (m_ai != null && m_ai.m_friendly && UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex == 0 && HasSingleUseAvailable) // TODO: remove 0th scene hardcoding?
 		{

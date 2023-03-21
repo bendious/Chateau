@@ -2004,6 +2004,17 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 11400000, guid: dc535e6d75aedcc4fbfd8a1b36da8057, type: 2}
     m_weight: 1
+  m_npcClothing:
+  - m_object: {fileID: 5740513439009272771, guid: ae9b33a6758aaf746a8ceae00987e8fa, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 713019248034754521, guid: 0ed64329a21db884f871faaae2e5f0cc, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 0}
+    m_weight: 1
+  - m_object: {fileID: 0}
+    m_weight: 1
+  - m_object: {fileID: 0}
+    m_weight: 1
   m_doorInteractPrefabs:
   - {fileID: 5746196675388104066, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
   - {fileID: 9122007181668863787, guid: 18a928b181bfee64b887827ee31f4661, type: 3}
