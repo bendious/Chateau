@@ -15,6 +15,8 @@ public class ClothController : MonoBehaviour
 	private void Start()
 	{
 		m_character = GetComponentInParent<KinematicCharacter>(); // TODO: handle attachment/detachment
+
+		GetComponent<Cloth>().capsuleColliders = m_character.GetComponentsInChildren<CapsuleCollider>(); // TODO: also support sphere collider pairs? don't stomp existing capsuleColliders[] entries?
 	}
 
 	private void LateUpdate()

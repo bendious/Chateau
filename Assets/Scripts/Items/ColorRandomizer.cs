@@ -34,5 +34,14 @@ public class ColorRandomizer : MonoBehaviour
 			}
 			r.color = color;
 		}
+
+		foreach (SkinnedMeshRenderer r in GetComponentsInChildren<SkinnedMeshRenderer>())
+		{
+			if (r.GetComponentInParent<ColorRandomizer>() != this)
+			{
+				continue; // skip descendants w/ a more immediate ColorRandomizer
+			}
+			r.material.color = color; // TODO: avoid duplicating materials?
+		}
 	}
 }

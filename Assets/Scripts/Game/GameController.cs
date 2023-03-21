@@ -168,7 +168,7 @@ public class GameController : MonoBehaviour
 	{
 		public Dialogue[] m_dialogues;
 		public Color m_color;
-		public GameObject m_clothing;
+		public GameObject m_clothing; // TODO: support multiple pieces?
 	}
 	private static NpcInfo[] m_npcs;
 
