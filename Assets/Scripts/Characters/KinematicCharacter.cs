@@ -72,7 +72,8 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	[SerializeField] private float m_damageBounceDecayTimeX = 0.25f;
 	[SerializeField] private float m_damageBounceDecayTimeY = 0.1f;
 
-	[SerializeField] private Vector2 m_armOffset;
+	[SerializeField] private Vector2 m_armOffset; // TODO: rename to m_shoulderOffset for accuracy/clarity?
+	[SerializeField] private Vector2 m_headOffset;
 
 	[SerializeField] private float m_secondaryArmDegrees = -45.0f;
 
@@ -129,6 +130,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	public bool LeftFacing => m_spriteRenderer.flipX;
 
 	public Vector2 ArmOffset => LeftFacing ? new(-m_armOffset.x, m_armOffset.y) : m_armOffset;
+	public Vector2 HeadOffset => LeftFacing ? new(-m_headOffset.x, m_headOffset.y) : m_headOffset;
 
 	public bool IsPickingUp { get; protected set; }
 
