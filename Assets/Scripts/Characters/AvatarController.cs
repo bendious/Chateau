@@ -749,7 +749,7 @@ public sealed class AvatarController : KinematicCharacter
 
 		if (clearInventory)
 		{
-			foreach (IAttachable attachable in GetComponentsInChildren<IAttachable>())
+			foreach (IAttachable attachable in GetComponentsInChildren<IAttachable>()) // NOTE that we purposely ignore disabled components, which should only occur w/i other attachables, and that we have to process all descendants due to arms being intermediate objects
 			{
 				attachable.Detach(true); // to allow correct UI sync immediately
 				Simulation.Schedule<ObjectDespawn>().m_object = attachable.Component.gameObject;
@@ -788,16 +788,12 @@ public sealed class AvatarController : KinematicCharacter
 		GameObject templateObj = m_inventoryUI.GetComponentsInChildren<Transform>(true).Select(tf => tf.gameObject).First(obj => !obj.activeSelf);
 
 		// gather all items/slots from child holders
-		Tuple<Transform, Color>[] itemInfos = GetComponentsInChildren<IHolder>().Where(holder => holder.Component != this).SelectMany(holder =>
+		Tuple<Component, Color>[] itemInfos = GetComponentsInChildren<IHolder>().Where(holder => holder.Component != this).SelectMany(holder =>
 		{
 			Transform holderTf = holder.Component.transform;
-			Tuple<Transform, Color>[] children = new Tuple<Transform, Color>[holder.HoldCountMax];
 			Color holderColor = holderTf.GetComponent<SpriteRenderer>().color;
-			for (int i = 0; i < holder.HoldCountMax; ++i)
-			{
-				children[i] = Tuple.Create(i < holderTf.childCount ? holderTf.GetChild(i) : null, holderColor);
-			}
-			return children;
+			Tuple<Component, Color>[] children = holderTf.GetComponentsInDirectChildren<IAttachable>(a => a.Component, true).Select(attachable => Tuple.Create(attachable.Component, holderColor)).ToArray();
+			return children.Length < holder.HoldCountMax ? children.Concat(Enumerable.Repeat(Tuple.Create<Component, Color>(null, holderColor), holder.HoldCountMax - children.Length)).ToArray() : children; // TODO: efficiency?
 		}).ToArray();
 
 		// create/set one icon per item/slot
@@ -820,7 +816,7 @@ public sealed class AvatarController : KinematicCharacter
 				UIObj.SetActive(true);
 			}
 			Image uiImage = UIObj.GetComponent<Image>();
-			Tuple<Transform, Color> itemCur = itemInfos[iconIdx];
+			Tuple<Component, Color> itemCur = itemInfos[iconIdx];
 			bool nonEmptySlot = itemCur.Item1 != null;
 			if (nonEmptySlot)
 			{

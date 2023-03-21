@@ -242,7 +242,8 @@ public class InventoryController : MonoBehaviour, IPointerEnterHandler, IPointer
 		// get info
 		IHolder holder = holders[holderIdx];
 		Transform holderTf = holder.Component.transform;
-		Transform itemTf = holderTf.childCount > index ? holderTf.GetChild(index) : null;
+		IAttachable[] siblings = holderTf.GetComponentsInDirectChildren<IAttachable>(a => a.Component, true).ToArray();
+		Transform itemTf = siblings.Length > index ? siblings[index].Component.transform : null;
 		return new() { m_item = itemTf == null ? null : itemTf.GetComponent<ItemController>(), m_holder = holder, m_holderIndex = index };
 	}
 

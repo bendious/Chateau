@@ -383,7 +383,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 
 	public void DetachAll()
 	{
-		foreach (IAttachable attachee in GetComponentsInChildren<IAttachable>())
+		foreach (IAttachable attachee in GetComponentsInChildren<IAttachable>()) // NOTE that we purposely ignore disabled components, which should only occur w/i other attachables, and that we have to process all descendants due to arms being intermediate objects
 		{
 			attachee.Detach(true);
 		}

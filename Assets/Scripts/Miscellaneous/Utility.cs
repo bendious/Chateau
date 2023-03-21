@@ -294,6 +294,10 @@ public static class Utility
 		return source.Remove(index, oldValue.Length).Insert(index, newValue);
 	}
 
+	public static IEnumerable<T> GetComponentsInDirectChildren<T>(this Component component, Func<T, Component> tToComp, bool includeInactive = false) => component.GetComponentsInChildren<T>(includeInactive).Where(child => tToComp(child).transform.parent == component.transform); // TODO: avoid unnecessary recursion of GetComponentsInChildren() while still supporting includeInactive flag?
+
+	public static IEnumerable<T> GetComponentsInDirectChildren<T>(this Component component, bool includeInactive = false) where T : Component => component.GetComponentsInDirectChildren<T>(c => c, includeInactive);
+
 	public static Health ToHealth(this Collider2D collider)
 	{
 		if (collider == null)

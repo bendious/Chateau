@@ -24,7 +24,7 @@ public interface IHolder
 	{
 		// prevent over-holding
 		Component holderComp = holder.Component;
-		if (holderComp.transform.childCount >= holder.HoldCountMax)
+		if (holderComp.GetComponentsInDirectChildren<IAttachable>(a => a.Component, true).Count() >= holder.HoldCountMax)
 		{
 			return false;
 		}
@@ -46,7 +46,7 @@ public interface IHolder
 		AvatarController avatar = holderParent == null ? null : holderParent.GetComponent<AvatarController>();
 		if (avatar != null)
 		{
-			avatar.InventorySync();
+			avatar.InventorySync(); // TODO: prevent multi-sync during inventory swap/scroll
 		}
 
 		return true;

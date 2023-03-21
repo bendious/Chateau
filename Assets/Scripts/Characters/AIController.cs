@@ -464,7 +464,7 @@ public sealed class AIController : KinematicCharacter
 
 		foreach (ArmController arm in GetComponentsInChildren<ArmController>())
 		{
-			if (arm.transform.childCount > 0)
+			if (arm.GetComponentsInDirectChildren<IAttachable>(a => a.Component).Count() > 0)
 			{
 				continue;
 			}

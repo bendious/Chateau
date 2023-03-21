@@ -266,17 +266,17 @@ public sealed class ArmController : MonoBehaviour, IHolder
 
 		// update held items
 		bool hasJoint = GetComponentInChildren<Joint2D>() != null;
-		for (int i = 0; i < transform.childCount; ++i)
+		foreach (SpriteRenderer childRenderer in this.GetComponentsInDirectChildren<SpriteRenderer>())
 		{
-			Transform childTf = transform.GetChild(i);
-			m_aimDegreesItem = Utility.DampedSpring(m_aimDegreesItem, IsSwinging ? 0.0f : AimDegreesRaw(childTf.position, Vector2.zero, aimPositionItem, m_aimDegreesItem) - m_aimDegreesArm + (LeftFacing ? -m_aimDegreesItemRestOffsetAbs : m_aimDegreesItemRestOffsetAbs), 1.0f, true, m_aimStiffness, m_massTotal, ref m_aimVelocityItem); // NOTE that aiming for all items uses critical damping rather than m_swingInfoCur.m_aimSpringDampPct, to prevent overly-annoying aim jiggle // TODO: parameterize?
+			Transform childTf = childRenderer.transform;
+			m_aimDegreesItem = Utility.DampedSpring(m_aimDegreesItem, IsSwinging ? 0.0f : AimDegreesRaw(childTf.position, Vector2.zero, aimPositionItem, m_aimDegreesItem) - m_aimDegreesArm + (LeftFacing ? -m_aimDegreesItemRestOffsetAbs : m_aimDegreesItemRestOffsetAbs), 1.0f, true, m_aimStiffness, m_massTotal, ref m_aimVelocityItem); // NOTE that aiming for all items uses critical damping rather than m_swingInfoCur.m_aimSpringDampPct, to prevent overly-annoying aim jiggle // TODO: parameterize? don't modify m_aimDegreesItem multiple times per frame even if there are multiple attachments?
 			childTf.localRotation = Quaternion.Euler(0.0f, 0.0f, m_aimDegreesItem);
 
 			if (hasJoint)
 			{
 				continue; // still-connected joint objects (e.g. lightbulbs) may rely on the sprite being un-flipped
 			}
-			maybeFlipSprite(childTf.GetComponentInChildren<SpriteRenderer>());
+			maybeFlipSprite(childRenderer);
 		}
 	}
 
