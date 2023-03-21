@@ -5,6 +5,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 967777380363587974, guid: 9ecf75cb82e6b5b4da0fb23b27cb2a1f, type: 3}
@@ -96,6 +97,12 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3224368909162631007, guid: 9ecf75cb82e6b5b4da0fb23b27cb2a1f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2548474356318102515}
   m_SourcePrefab: {fileID: 100100000, guid: 9ecf75cb82e6b5b4da0fb23b27cb2a1f, type: 3}
 --- !u!1 &4221545259124064584 stripped
 GameObject:
@@ -116,4 +123,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_holdCountMax: 2
   m_name: Backpack
-  m_attachOffsetLocal: {x: 0, y: -0.1, z: 0.2}
+  m_attachOffsetLocal: {x: 0, y: -0.1, z: 0.75}

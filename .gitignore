@@ -173,7 +173,7 @@ StyleCopReport.xml
 *_h.h
 *.ilk
 #*.meta # this conflicts w/ needing to store Unity .meta files
-*.obj
+#*.obj # needed due to mesh OBJ files
 *.iobj
 *.pch
 *.ipdb
