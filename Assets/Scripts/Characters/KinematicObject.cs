@@ -87,11 +87,28 @@ public abstract class KinematicObject : MonoBehaviour
 	private class ForcedVelocity
 	{
 		public readonly Vector2 m_velocityOrig;
-		public readonly Vector2 m_decayTimes;
+		public readonly AnimationCurve m_decayX;
+		public readonly AnimationCurve m_decayY;
 		public Vector2 m_weight = Vector2.one;
-		public Vector2 m_weightVel = Vector2.zero;
 
-		public ForcedVelocity(Vector2 velocity, Vector2 decayTimes) { m_velocityOrig = velocity; m_decayTimes = decayTimes; }
+		private float m_time = 0.0f;
+		private readonly float m_timeMax;
+
+		public ForcedVelocity(Vector2 velocity, AnimationCurve decayX, AnimationCurve decayY)
+		{
+			m_velocityOrig = velocity;
+			m_decayX = decayX;
+			m_decayY = decayY;
+			m_timeMax = Mathf.Max(decayX.keys.Last().time, decayY.keys.Last().time); // TODO: don't assume keys sorted by time?
+		}
+
+		public bool Advance(float dt)
+		{
+			m_time += dt;
+			m_weight.x = m_decayX.Evaluate(m_time);
+			m_weight.y = m_decayY.Evaluate(m_time);
+			return m_time >= m_timeMax;
+		}
 	}
 	private readonly List<ForcedVelocity> m_forcedVelocities = new();
 
@@ -102,10 +119,20 @@ public abstract class KinematicObject : MonoBehaviour
 
 
 	/// <summary>
-	/// Bounce the objects velocity in a direction.
+	/// Bounce the object's velocity in a direction using explicit decay curves.
 	/// </summary>
-	/// <param name="velocity"></param>
-	public void Bounce(Vector2 velocity, float decayTimeX = 0.25f, float decayTimeY = 0.1f) => m_forcedVelocities.Add(new ForcedVelocity(velocity, new Vector2(decayTimeX, decayTimeY)));
+	/// <param name="velocity">The maximum velocity to apply.</param>
+	/// <param name="decayCurveX">The percentage of x-velocity to apply at each time.</param>
+	/// <param name="decayCurveY">The percentage of y-velocity to apply at each time.</param>
+	public void Bounce(Vector2 velocity, AnimationCurve decayCurveX, AnimationCurve decayCurveY) => m_forcedVelocities.Add(new ForcedVelocity(velocity, decayCurveX, decayCurveY));
+
+	/// <summary>
+	/// Bounce the object's velocity in a direction using fade-in-out curves over given times.
+	/// </summary>
+	/// <param name="velocity">The maximum velocity to apply.</param>
+	/// <param name="decayTimeX">The time over which to apply a fade-in-out curve to x-velocity.</param>
+	/// <param name="decayTimeY">The time over which to apply a fade-in-out curve to y-velocity.</param>
+	public void Bounce(Vector2 velocity, float decayTimeX = 0.25f, float decayTimeY = 0.1f) => Bounce(velocity, AnimationCurve.EaseInOut(0.0f, 1.0f, decayTimeX, 0.0f), AnimationCurve.EaseInOut(0.0f, 1.0f, decayTimeY, 0.0f));
 
 	public void BounceCancel() => m_forcedVelocities.Clear();
 
@@ -218,8 +245,8 @@ public abstract class KinematicObject : MonoBehaviour
 		List<ForcedVelocity> fvToRemove = new(m_forcedVelocities.Count); // TODO: don't re-allocate each frame?
 		foreach (ForcedVelocity fv in m_forcedVelocities)
 		{
-			fv.m_weight = fv.m_weight.SmoothDamp(Vector2.zero, ref fv.m_weightVel, fv.m_decayTimes);
-			if (fv.m_weight.x.FloatEqual(0.0f) && fv.m_weight.y.FloatEqual(0.0f))
+			bool done = fv.Advance(Time.deltaTime);
+			if (done)
 			{
 				fvToRemove.Add(fv);
 			}
@@ -238,7 +265,7 @@ public abstract class KinematicObject : MonoBehaviour
 
 		Vector2 deltaPosition = velocity * Time.fixedDeltaTime;
 
-		Vector2 moveAlongGround = new(m_groundNormal.y, -m_groundNormal.x);
+		Vector2 moveAlongGround = IsGrounded ? new(m_groundNormal.y, -m_groundNormal.x) : Vector2.right;
 
 		Vector2 move = moveAlongGround * deltaPosition.x;
 

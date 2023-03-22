@@ -169,7 +169,7 @@ public class Spring : MonoBehaviour
 				body.AddForceAtPosition(launchVel, collisionPos); // NOTE that we don't take into account the mass of the object since dynamic launches don't need to be as precise and feel better when not mass-independent
 				break;
 			case RigidbodyType2D.Kinematic:
-				float decayTime = launchSpeed / twoG; // since y = v0*t - g*t^2, y' = v = v0 - 2*g*t, so when v=0, t = v0 / 2*g
+				float decayTime = launchSpeed / /*twoG*/Physics2D.gravity.magnitude/*?*/; // since y = v0*t - g*t^2, y' = v = v0 - 2*g*t, so when v=0, t = v0 / 2*g
 				kObj.Bounce(launchVel, decayTime, decayTime);
 				break;
 			default:

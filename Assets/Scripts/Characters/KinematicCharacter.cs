@@ -41,9 +41,10 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	[SerializeField] private Vector2 m_dashVelocity = new(25.0f, 0.0f);
 
 	/// <summary>
-	/// Dash x/y component durations
+	/// Dash x/y decay curves
 	/// </summary>
-	[SerializeField] private Vector2 m_dashSecondsXY = new(0.2f, 0.2f);
+	[SerializeField] private AnimationCurve m_dashDecayX = AnimationCurve.EaseInOut(0.0f, 1.0f, 0.4f, 0.0f);
+	[SerializeField] private AnimationCurve m_dashDecayY = AnimationCurve.EaseInOut(0.0f, 1.0f, 0.4f, 0.0f);
 
 	/// <summary>
 	/// The minimum time in seconds between repeated dash activations
@@ -69,8 +70,8 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	/// A velocity directed and sent to Bounce() when taking nonlethal damage
 	/// </summary>
 	public Vector2 m_damageBounceMagnitude = new(3.5f, 3.5f);
-	[SerializeField] private float m_damageBounceDecayTimeX = 0.25f;
-	[SerializeField] private float m_damageBounceDecayTimeY = 0.1f;
+	[SerializeField] private AnimationCurve m_damageBounceDecayX = AnimationCurve.EaseInOut(0.0f, 1.0f, 0.5f, 0.0f);
+	[SerializeField] private AnimationCurve m_damageBounceDecayY = AnimationCurve.EaseInOut(0.0f, 1.0f, 0.2f, 0.0f);
 
 	[SerializeField] private Vector2 m_armOffset; // TODO: rename to m_shoulderOffset for accuracy/clarity?
 	[SerializeField] private Vector2 m_headOffset;
@@ -229,7 +230,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 				}
 				if (canWallJump)
 				{
-					Bounce(Quaternion.Euler(0.0f, 0.0f, m_wallNormal.x < 0.0f ? -m_wallJumpDegrees : m_wallJumpDegrees) * m_wallNormal * m_jump * jumpTakeOffSpeed);
+					Bounce(Quaternion.Euler(0.0f, 0.0f, m_wallNormal.x < 0.0f ? -m_wallJumpDegrees : m_wallJumpDegrees) * m_wallNormal * m_jump * jumpTakeOffSpeed); // TODO: parameterized decay curves?
 				}
 			}
 		}
@@ -248,14 +249,14 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		if (m_dash && m_dashAvailable && m_dashTime + m_dashCooldownSec <= Time.time)
 		{
 			float moveDirX = (IsWallClinging ? m_wallNormal : move).x;
-			Bounce(moveDirX < -Utility.FloatEpsilon || (moveDirX.FloatEqual(0.0f) && LeftFacing) ? new(-m_dashVelocity.x, m_dashVelocity.y) : m_dashVelocity, m_dashSecondsXY.x, m_dashSecondsXY.y);
+			Bounce(moveDirX < -Utility.FloatEpsilon || (moveDirX.FloatEqual(0.0f) && LeftFacing) ? new(-m_dashVelocity.x, m_dashVelocity.y) : m_dashVelocity, m_dashDecayX, m_dashDecayY);
 			m_animator.SetBool("dash", true);
 			m_audioSource.PlayOneShot(m_dashSFX.RandomWeighted());
 			m_dashAvailable = false;
 			if (m_dashInvincibility)
 			{
 				m_health.m_invincible = true;
-				Simulation.Schedule<EnableDamage>(1.0f).m_health = m_health; // NOTE that this is just a fallback // TODO: more exact timing?
+				Simulation.Schedule<EnableDamage>(1.0f).m_health = m_health; // NOTE that this is just a fallback // TODO: more exact timing? prevent preempting subsequent invincibilities (e.g. when multi-dashing?)
 			}
 			m_isDashing = true;
 			m_dashTime = Time.time;
@@ -321,7 +322,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		// knock away from source
 		// TODO: differentiate between source and weapon?
 		Vector2 bounceVecOriented = transform.position.x < evt.m_directCause.transform.position.x ? new(-m_damageBounceMagnitude.x, m_damageBounceMagnitude.y) : m_damageBounceMagnitude;
-		Bounce(bounceVecOriented, m_damageBounceDecayTimeX, m_damageBounceDecayTimeY);
+		Bounce(bounceVecOriented, m_damageBounceDecayX, m_damageBounceDecayY);
 	}
 
 	private void OnDeath(OnHealthDeath evt)
