@@ -46,7 +46,7 @@ public class RoomController : MonoBehaviour
 		public GameObject m_rungPrefab;
 		public bool m_singleRung;
 	}
-	[SerializeField] private WeightedObject<LadderInfo>[] m_ladderRungPrefabs;
+	[SerializeField] private WeightedObject<LadderInfo>[] m_ladderRungPrefabs; // NOTE that this is combined w/ GameController.m_ladderRungPrefabs[] before selection
 	[SerializeField] private float m_ladderRungSkewMax = 0.2f;
 
 	[SerializeField] private float m_cutbackBreakablePct = 0.5f;
@@ -1308,7 +1308,8 @@ public class RoomController : MonoBehaviour
 		Debug.Assert(info != null && !info.m_disallowLadders);
 #endif
 
-		LadderInfo ladderRungInfo = prefabForced != null || m_ladderRungPrefabs.Length <= 0 ? prefabForced : m_ladderRungPrefabs.RandomWeighted();
+		WeightedObject<LadderInfo>[] allowedLadders = m_ladderRungPrefabs.CombineWeighted(GameController.Instance.m_ladderRungPrefabs, weightedInfo => weightedInfo.m_object.m_rungPrefab, weightedPrefab => weightedPrefab.m_object).ToArray();
+		LadderInfo ladderRungInfo = prefabForced != null || allowedLadders.Length <= 0 ? prefabForced : allowedLadders.RandomWeighted();
 		if (ladderRungInfo == null)
 		{
 			return null;

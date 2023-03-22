@@ -1822,6 +1822,13 @@ MonoBehaviour:
   m_bossPrefabs:
   - m_object: {fileID: 5059967226220737805, guid: 0b66bf3bab7098a4e93112c61a1d3129, type: 3}
     m_weight: 1
+  m_ladderRungPrefabs:
+  - m_object: {fileID: 5142660895504974057, guid: 717755c04a138404d80679d2c0d06ab5, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 6981071687859246632, guid: 17e8567260500674f88fe723983904c9, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 3053993417278667278, guid: 7ec48c87efd81a14dbbf79e9caa5a7e0, type: 3}
+    m_weight: 1
   m_gatePrefabs:
   - m_object: {fileID: 6454192830596295347, guid: 55cf2aea0d37c48bab25b9f509791a5c, type: 3}
     m_weight: 1

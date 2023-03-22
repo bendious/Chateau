@@ -37,6 +37,7 @@ public class GameController : MonoBehaviour
 	public WeightedObject<RoomController>[] m_roomPrefabs;
 	public WeightedObject<RoomController>[] m_bossRoomPrefabs;
 	public WeightedObject<Boss>[] m_bossPrefabs; // NOTE that this is combined w/ BossRoom.m_bossPrefabs[] before selection
+	public WeightedObject<GameObject>[] m_ladderRungPrefabs; // NOTE that this is combined w/ RoomController.m_ladderRungPrefabs[] before selection
 	public WeightedObject<GameObject>[] m_gatePrefabs;
 	public WeightedObject<GameObject>[] m_lockPrefabs;
 	public WeightedObject<GameObject>[] m_keyPrefabs;
@@ -1452,7 +1453,7 @@ public class GameController : MonoBehaviour
 	// TODO: start scene load in background during fade?
 	private IEnumerator FadeCoroutine(bool confirm, bool fadeOut, string nextSceneName = null, bool save = true, bool noInventoryClear = false)
 	{
-		if (confirm)
+		if (confirm && !m_gameOverUI.isActiveAndEnabled) // NOTE that gameover is checked here rather than in PlayerConfirmationCoroutine(), allowing game exit to still prompt even from gameover
 		{
 			yield return StartCoroutine(PlayerConfirmationCoroutine());
 			if (PlayerHasNotConfirmed)
