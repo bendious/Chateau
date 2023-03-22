@@ -15,6 +15,16 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	public float maxSpeed = 7;
 
 	/// <summary>
+	/// Maximum allowed decrease from maxSpeed when determining current velocity.
+	/// </summary>
+	[SerializeField] private float m_speedDecreaseMax = 0.0f;
+
+	/// <summary>
+	/// Maximum allowed variation per second when applying speed decrease.
+	/// </summary>
+	[SerializeField] private float m_speedVariationMaxPerSec = 0.0f;
+
+	/// <summary>
 	/// Max jump velocity
 	/// </summary>
 	public float jumpTakeOffSpeed = 7;
@@ -140,6 +150,8 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	public virtual bool IsAlive => m_health.IsAlive;
 
 
+	private float m_speedDecreaseCur = 0.0f;
+
 	private bool m_wasGrounded;
 
 	private bool m_isDashing = false;
@@ -169,6 +181,8 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		m_animator.enabled = enabled;
 		m_colliders.First().attachedRigidbody.simulated = enabled; // TODO: don't assume all colliders share the same rigidbody?
 		m_spriteRenderer.color = new Color(m_spriteRenderer.color.r, m_spriteRenderer.color.g, m_spriteRenderer.color.b, enabled ? 1.0f : 0.0f); // NOTE that this also propagates to arms/attachables via ArmController.LateUpdate()/IAttachable.MirrorParentAlphaCoroutine() // TODO: don't assume full opacity when enabled?
+
+		m_speedDecreaseCur = Random.Range(0.0f, m_speedDecreaseMax); // TODO: randomize w/ every new AIState?
 	}
 
 	private void OnCollisionEnter2D(Collision2D collision)
@@ -179,10 +193,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		}
 	}
 
-	private void OnCollisionStay2D(Collision2D collision)
-	{
-		OnCollisionEnter2D(collision);
-	}
+	private void OnCollisionStay2D(Collision2D collision) => OnCollisionEnter2D(collision);
 
 	protected virtual void OnDestroy()
 	{
@@ -286,7 +297,12 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 		m_animator.SetBool("aimReverse", m_aimDir != 0 && (velocity.x < 0.0f) != (m_aimDir < 0)); // NOTE that we compare x-velocity to 0.0 rather than Utility.FloatEpsilon since reverse aim needs to remain stable as velocity decays
 		m_animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / (maxSpeed == 0.0f ? 1.0f : maxSpeed));
 
-		TargetVelocity = move * maxSpeed;
+		TargetVelocity = move * Mathf.Max(0.0f, maxSpeed - m_speedDecreaseCur); // NOTE that m_speedVariationCur is applied only negatively to keep maxSpeed a true maximum
+		if (maxSpeed > 0.0f && m_speedVariationMaxPerSec > 0.0f && Time.deltaTime > 0.0f)
+		{
+			float varyMagMax = m_speedVariationMaxPerSec * Time.deltaTime;
+			m_speedDecreaseCur = Mathf.Clamp(m_speedDecreaseCur + Random.Range(-varyMagMax, varyMagMax), 0.0f, m_speedDecreaseMax);
+		}
 	}
 
 	private bool OnCharacterCollision(KinematicCharacter character)
