@@ -256,7 +256,6 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 			if (m_dashInvincibility)
 			{
 				m_health.m_invincible = true;
-				Simulation.Schedule<EnableDamage>(1.0f).m_health = m_health; // NOTE that this is just a fallback // TODO: more exact timing? prevent preempting subsequent invincibilities (e.g. when multi-dashing?)
 			}
 			m_isDashing = true;
 			m_dashTime = Time.time;

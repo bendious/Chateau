@@ -1526,7 +1526,11 @@ public class RoomController : MonoBehaviour
 							{
 								continue;
 							}
-							doorway.ConnectedRoom.OpenDoorway(doorway.m_infoReverse, false); // TODO: also clean up blocker?
+							doorway.ConnectedRoom.OpenDoorway(doorway.m_infoReverse, false); // TODO: ensure m_wallColor is correct despite any previous manipulation to force gate color?
+							if (doorway.m_infoReverse.m_blocker != null)
+							{
+								Simulation.Schedule<ObjectDespawn>().m_object = doorway.m_infoReverse.m_blocker;
+							}
 							doorway.m_infoReverse.m_infoReverse = null;
 							if (doorway.ChildRoom != null)
 							{
@@ -1733,7 +1737,7 @@ public class RoomController : MonoBehaviour
 
 		// pick & create gate
 		GameObject blockerPrefab = isOrdered ? m_lockOrderedPrefabs[System.Math.Min(orderedLockIdx++, m_lockOrderedPrefabs.Length - 1)] : RandomWeightedByKeyCount(gatesFinal, ObjectToKeyStats, preferredKeyCount, depthPct);
-		Debug.Assert(doorwayInfo.m_blocker == null); // TODO: handle leftover blockers from dynamically spawned & destroyed rooms?
+		Debug.Assert(doorwayInfo.m_blocker == null);
 		doorwayInfo.m_blocker = Instantiate(blockerPrefab, doorwayInfo.m_object.transform.position, Quaternion.identity, transform);
 
 		// set references
