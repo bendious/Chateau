@@ -23,7 +23,6 @@ public class RoomController : MonoBehaviour
 	[SerializeField] private DirectionalDoors[] m_doorDirectionalPrefabs;
 	[SerializeField] private WeightedObject<GameObject>[] m_doorSecretPrefabs;
 	[SerializeField] private WeightedObject<GameObject>[] m_cutbackPrefabs;
-	[SerializeField] private GameObject[] m_lockOrderedPrefabs;
 
 	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsAbove;
 	[SerializeField] private WeightedObject<GameObject>[] m_exteriorPrefabsWithin;
@@ -1737,7 +1736,7 @@ public class RoomController : MonoBehaviour
 		gatesFinal = isOrdered ? null : gatesFinal.Where(weightedObj => isLock ? weightedObj.m_object.GetComponentInChildren<IUnlockable>() != null : weightedObj.m_object.GetComponentInChildren<IUnlockable>() == null).CombineWeighted(isCutback ? GameController.Instance.m_cutbackPrefabs : GameController.Instance.m_gatePrefabs);
 
 		// pick & create gate
-		GameObject blockerPrefab = isOrdered ? m_lockOrderedPrefabs[System.Math.Min(orderedLockIdx++, m_lockOrderedPrefabs.Length - 1)] : RandomWeightedByKeyCount(gatesFinal, ObjectToKeyStats, preferredKeyCount, depthPct);
+		GameObject blockerPrefab = isOrdered ? GameController.Instance.m_gateOrderedPrefabs[System.Math.Min(orderedLockIdx++, GameController.Instance.m_gateOrderedPrefabs.Length - 1)] : RandomWeightedByKeyCount(gatesFinal, ObjectToKeyStats, preferredKeyCount, depthPct);
 		Debug.Assert(doorwayInfo.m_blocker == null);
 		doorwayInfo.m_blocker = Instantiate(blockerPrefab, doorwayInfo.m_object.transform.position, Quaternion.identity, transform);
 

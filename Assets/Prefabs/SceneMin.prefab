@@ -1861,6 +1861,10 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 5713708662116359284, guid: 8c3fc5c56eed601468de8c07cda1bb7a, type: 3}
     m_weight: 1
+  m_gateOrderedPrefabs:
+  - {fileID: 2462374082034073912, guid: 79633d7b16e714943859256a37691fe7, type: 3}
+  - {fileID: 552498985952961944, guid: 3d79e4eecd76cb5429ec575123b170d6, type: 3}
+  - {fileID: 6676558204597996972, guid: a07871bf36908524ea4aba70a9bb16f1, type: 3}
   m_keyPrefabs:
   - m_object: {fileID: 7680583005214381087, guid: a7c46a786f6b16841b2341cb70a08253, type: 3}
     m_weight: 1

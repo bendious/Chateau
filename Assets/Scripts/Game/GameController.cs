@@ -40,6 +40,7 @@ public class GameController : MonoBehaviour
 	public WeightedObject<GameObject>[] m_ladderRungPrefabs; // NOTE that this is combined w/ RoomController.m_ladderRungPrefabs[] before selection
 	public WeightedObject<GameObject>[] m_gatePrefabs;
 	public WeightedObject<GameObject>[] m_lockPrefabs;
+	public GameObject[] m_gateOrderedPrefabs;
 	public WeightedObject<GameObject>[] m_keyPrefabs;
 	public WeightedObject<GameObject>[] m_cutbackPrefabs;
 	public WeightedObject<GameObject>[] m_hintPrefabs;
