@@ -42,7 +42,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 			Instantiate(clothing, transform);
 		}
 
-		if (m_ai != null && m_ai.m_friendly && UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex == 0 && HasSingleUseAvailable) // TODO: remove 0th scene hardcoding?
+		if (m_ai != null && m_ai.m_friendly && UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex == GameController.m_hubSceneBuildIndex && HasSingleUseAvailable)
 		{
 			m_ai.SetOnlyPursueAvatar(true);
 		}

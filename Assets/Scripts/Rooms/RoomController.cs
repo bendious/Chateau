@@ -460,7 +460,7 @@ public class RoomController : MonoBehaviour
 				}
 
 				// maybe add one-way lock
-				Debug.Assert(noLadder || cutbackIsLocked || SceneManager.GetActiveScene().buildIndex == 0 || LayoutNodes.First().AreaParents.Zip(sibling.LayoutNodes.First().AreaParents, System.Tuple.Create).All(pair => pair.Item1 == pair.Item2), "Open cutback between separate areas?"); // TODO: don't assume 0th scene is open-concept?
+				Debug.Assert(noLadder || cutbackIsLocked || SceneManager.GetActiveScene().buildIndex == GameController.m_hubSceneBuildIndex || LayoutNodes.First().AreaParents.Zip(sibling.LayoutNodes.First().AreaParents, System.Tuple.Create).All(pair => pair.Item1 == pair.Item2), "Open cutback between separate areas?"); // TODO: don't assume hub scene is open-concept?
 				if (cutbackIsLocked || Random.value <= m_cutbackBreakablePct)
 				{
 					// add one-way lock
@@ -797,7 +797,7 @@ public class RoomController : MonoBehaviour
 							}
 						}
 						GameObject hintObj = Instantiate(hintPrefab, spawnPos, Quaternion.identity);
-						Color hintColor = (sceneIndex != 0 || (i % 2 == 0 ? GameController.SecretFound(i / 2) : GameController.ZonesFinishedCount > i / 2)) ? GameController.NarrowPathColors[GameController.m_hintsPerZone * System.Math.Max(0, sceneIndex - 1) + GameController.Instance.NarrowPathHintCount] : Color.black; // TODO: guarantee order of hints spawned?
+						Color hintColor = (sceneIndex != GameController.m_hubSceneBuildIndex || (i % 2 == 0 ? GameController.SecretFound(i / 2) : GameController.ZonesFinishedCount > i / 2)) ? GameController.NarrowPathColors[GameController.m_hintsPerZone * System.Math.Max(0, sceneIndex - 1) + GameController.Instance.NarrowPathHintCount] : Color.black; // TODO: guarantee order of hints spawned?
 						foreach (SpriteRenderer r in hintObj.GetComponentsInChildren<SpriteRenderer>())
 						{
 							r.color = hintColor;
@@ -1817,7 +1817,7 @@ public class RoomController : MonoBehaviour
 		}
 
 		// spawn keys
-		LayoutGenerator.Node lockNode = doorwayInfo.ChildRoom == null ? null : GateNodeToChild(doorwayInfo.ChildRoom.LayoutNodes, LayoutGenerator.Node.Type.Lock, SceneManager.GetActiveScene().buildIndex == 0 ? (LayoutGenerator.Node.Type)(-1) : LayoutGenerator.Node.Type.LockOrdered); // NOTE that we ignore LockOrdered nodes in the Entryway since they don't spawn their own keys // TODO: remove hardcoded index
+		LayoutGenerator.Node lockNode = doorwayInfo.ChildRoom == null ? null : GateNodeToChild(doorwayInfo.ChildRoom.LayoutNodes, LayoutGenerator.Node.Type.Lock, SceneManager.GetActiveScene().buildIndex == GameController.m_hubSceneBuildIndex ? (LayoutGenerator.Node.Type)(-1) : LayoutGenerator.Node.Type.LockOrdered); // NOTE that we ignore LockOrdered nodes in the hub since they don't spawn their own keys
 		RoomController[] keyRooms = doorwayInfo.ChildRoom == null ? new[] { this } : (lockNode != null && lockNode.m_type == LayoutGenerator.Node.Type.LockOrdered) ? new[] { GameController.Instance.RoomFromPosition(Vector2.zero).WithDescendants.Where(r => r.LayoutNodes.Max(n => n.Depth) < LayoutNodes.Max(n => n.Depth)).Random() } : lockNode?.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray(); // TODO: efficiency? don't assume that all ordered locks should have a key placed randomly in any prior room?
 		float depthPct = lockNode == null ? 0.0f : lockNode.DepthPercent;
 		spawnAction(unlockable, this, keyRooms == null || keyRooms.Length <= 0 ? null : doorwayInfo.m_excludeSelf.Value ? keyRooms.Where(room => room != this).ToArray() : keyRooms, depthPct);

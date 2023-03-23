@@ -869,6 +869,7 @@ public sealed class AIFindAmmo : AIState
 		ItemController[] items = ItemsTargetable;
 
 		// prioritize by pathfind distance
+		// TODO: allow some variation
 		System.Tuple<ItemController, float> closestTarget = items.Length <= 0 ? System.Tuple.Create<ItemController, float>(null, float.MaxValue) : items.SelectMinWithValue(item =>
 		{
 			if (item.transform.parent != null)
@@ -878,7 +879,7 @@ public sealed class AIFindAmmo : AIState
 			Hazard hazard = item.GetComponent<Hazard>();
 			if (hazard != null && hazard.isActiveAndEnabled)
 			{
-				return float.MaxValue; // ignore hazardous items
+				return float.MaxValue; // ignore hazardous items // TODO: allow sometimes / one time if not self-activated?
 			}
 			return PathfindDistanceTo(m_ai, item.gameObject);
 		});

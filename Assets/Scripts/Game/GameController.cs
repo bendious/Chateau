@@ -65,6 +65,7 @@ public class GameController : MonoBehaviour
 	[SerializeField] private bool m_waveSealing = false;
 	public float m_zoneScalar = 1.0f;
 
+	public const int m_hubSceneBuildIndex = 0; // TODO: un-hardcode?
 	public const int m_zoneCount = 4; // TODO: derive?
 	public const int m_hintsPerZone = 2;
 	public const int m_narrowPathLength = m_zoneCount * m_hintsPerZone;
@@ -243,6 +244,21 @@ public class GameController : MonoBehaviour
 	{
 		Time.timeScale = 0.0f; // to prevent SFX/animations/etc. playing behind the loading screen
 
+		if (!SaveHelpers.Exists()) // NOTE that we put up w/ an extra file operation in order to skip layout generation when it would just be thrown out anyway, w/o possibly invoking Load() multiple times due to layout failure/retry
+		{
+			const string tutorialSceneName = "Tutorial"; // TODO: un-hardcode?
+			if (SceneManager.GetActiveScene().name != tutorialSceneName)
+			{
+				StartCoroutine(LoadSceneCoroutine(tutorialSceneName, false, false, false));
+				yield break;
+			}
+
+			m_dialogueController.Play(m_introDialogue.m_dialogue.RandomWeighted().m_lines, expressionSets: m_introDialogue.m_expressions); // TODO: take any preconditions into account?
+			m_startHealth = 1.0f;
+		}
+
+		if (LoadShouldYield("Post-tutorialCheck")) { yield return null; }
+
 		LayoutGenerator generator = new(new(m_type));
 		yield return StartCoroutine(generator.Generate());
 
@@ -391,23 +407,6 @@ public class GameController : MonoBehaviour
 		}
 
 		if (LoadShouldYield("Post-ApplyUpgrades()")) { yield return null; }
-
-		if (!saveExists)
-		{
-			// TODO: move earlier?
-			const string tutorialSceneName = "Tutorial"; // TODO: un-hardcode?
-			if (SceneManager.GetActiveScene().name != tutorialSceneName)
-			{
-				IsSceneLoad = true; // to preempt LoadScene() setting SceneIndexPrev, which we don't want in this case
-				StartCoroutine(LoadSceneCoroutine(tutorialSceneName, false, false));
-				yield break;
-			}
-
-			m_dialogueController.Play(m_introDialogue.m_dialogue.RandomWeighted().m_lines, expressionSets: m_introDialogue.m_expressions); // TODO: take any preconditions into account?
-			m_startHealth = 1.0f;
-		}
-
-		if (LoadShouldYield("Post-tutorialCheck")) { yield return null; }
 
 		if (m_startWavesImmediately)
 		{
@@ -749,10 +748,10 @@ public class GameController : MonoBehaviour
 	public void LoadScene(string name) => LoadScene(name, true); // NOTE that this overload is necessary since Unity callbacks set in the Inspector can't handle multiple arguments even if all but one have default arguments
 	public void LoadScene(string name, bool confirm /*= true*/) => StartCoroutine(FadeCoroutine(confirm, true, name));
 
-	private IEnumerator LoadSceneCoroutine(string name, bool save, bool noInventoryClear)
+	private IEnumerator LoadSceneCoroutine(string name, bool save, bool noInventoryClear, bool setPrevScene)
 	{
 		Scene sceneCur = SceneManager.GetActiveScene();
-		if (sceneCur.name != name)
+		if (setPrevScene && sceneCur.name != name)
 		{
 			SceneIndexPrev = sceneCur.buildIndex;
 		}
@@ -1135,7 +1134,7 @@ public class GameController : MonoBehaviour
 	private void Save()
 	{
 		Scene activeScene = SceneManager.GetActiveScene();
-		if (activeScene.buildIndex != 0 && SaveHelpers.Exists()) // NOTE that we have to initially create saves from the tutorial scene in order to avoid an infinite loop from Start() tutorial-load check // TODO: don't assume only first scene stores contents?
+		if (activeScene.buildIndex != m_hubSceneBuildIndex && SaveHelpers.Exists()) // NOTE that we have to initially create saves from the tutorial scene in order to avoid an infinite loop from Start() tutorial-load check // TODO: don't assume only hub scene stores contents?
 		{
 			return;
 		}
@@ -1184,7 +1183,7 @@ public class GameController : MonoBehaviour
 	private bool Load()
 	{
 		Scene activeScene = SceneManager.GetActiveScene();
-		if (activeScene.buildIndex != 0) // TODO: don't assume only first scene stores contents?
+		if (activeScene.buildIndex != m_hubSceneBuildIndex) // TODO: don't assume only hub scene stores contents?
 		{
 			return SaveHelpers.Exists();
 		}
@@ -1509,7 +1508,7 @@ public class GameController : MonoBehaviour
 
 		if (!string.IsNullOrEmpty(nextSceneName))
 		{
-			StartCoroutine(LoadSceneCoroutine(nextSceneName, save, noInventoryClear));
+			StartCoroutine(LoadSceneCoroutine(nextSceneName, save, noInventoryClear, true));
 		}
 	}
 
@@ -1528,7 +1527,7 @@ public class GameController : MonoBehaviour
 			yield break;
 		}
 
-		if (SceneManager.GetActiveScene().buildIndex == 0) // to prevent save-quitting from Tutorial (see Save() exception for creating saves outside the Entryway) // TODO: replace Tutorial Quit button w/ Entryway button once Tutorial has been completed?
+		if (SceneManager.GetActiveScene().buildIndex == m_hubSceneBuildIndex) // to prevent save-quitting from Tutorial (see Save() exception for creating saves outside the Entryway) // TODO: replace Tutorial Quit button w/ Entryway button once Tutorial has been completed?
 		{
 			m_avatars.First().DetachAll(); // to save even items being held
 			Save();
