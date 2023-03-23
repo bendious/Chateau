@@ -1817,8 +1817,8 @@ public class RoomController : MonoBehaviour
 		}
 
 		// spawn keys
-		LayoutGenerator.Node lockNode = doorwayInfo.ChildRoom == null ? null : GateNodeToChild(doorwayInfo.ChildRoom.LayoutNodes, LayoutGenerator.Node.Type.Lock); // NOTE that we ignore LockOrdered nodes since Entryway locks don't spawn their own keys
-		RoomController[] keyRooms = doorwayInfo.ChildRoom == null ? new[] { this } : lockNode?.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray();
+		LayoutGenerator.Node lockNode = doorwayInfo.ChildRoom == null ? null : GateNodeToChild(doorwayInfo.ChildRoom.LayoutNodes, LayoutGenerator.Node.Type.Lock, SceneManager.GetActiveScene().buildIndex == 0 ? (LayoutGenerator.Node.Type)(-1) : LayoutGenerator.Node.Type.LockOrdered); // NOTE that we ignore LockOrdered nodes in the Entryway since they don't spawn their own keys // TODO: remove hardcoded index
+		RoomController[] keyRooms = doorwayInfo.ChildRoom == null ? new[] { this } : (lockNode != null && lockNode.m_type == LayoutGenerator.Node.Type.LockOrdered) ? new[] { GameController.Instance.RoomFromPosition(Vector2.zero).WithDescendants.Where(r => r.LayoutNodes.Max(n => n.Depth) < LayoutNodes.Max(n => n.Depth)).Random() } : lockNode?.DirectParents.Where(node => node.m_type == LayoutGenerator.Node.Type.Key).Select(node => node.m_room).ToArray(); // TODO: efficiency? don't assume that all ordered locks should have a key placed randomly in any prior room?
 		float depthPct = lockNode == null ? 0.0f : lockNode.DepthPercent;
 		spawnAction(unlockable, this, keyRooms == null || keyRooms.Length <= 0 ? null : doorwayInfo.m_excludeSelf.Value ? keyRooms.Where(room => room != this).ToArray() : keyRooms, depthPct);
 	}
