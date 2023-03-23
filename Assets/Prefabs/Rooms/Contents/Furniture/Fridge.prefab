@@ -105,6 +105,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 279241045730851109, guid: 965caaff450150540afaa57f9d77e599, type: 3}
@@ -493,6 +494,30 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 8984001299210157265, guid: 965caaff450150540afaa57f9d77e599, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 5947893568854861356, guid: 965caaff450150540afaa57f9d77e599, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5973572541271593524}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 9028243466021937491, guid: 965caaff450150540afaa57f9d77e599, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1228724357683440284}
+    - targetCorrespondingSourceObject: {fileID: 9028243466021937491, guid: 965caaff450150540afaa57f9d77e599, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1181835464869619514}
+    - targetCorrespondingSourceObject: {fileID: 9028243466021937491, guid: 965caaff450150540afaa57f9d77e599, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6327904716492350714}
+    - targetCorrespondingSourceObject: {fileID: 5720969914812464445, guid: 965caaff450150540afaa57f9d77e599, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2204217307631925149}
+    - targetCorrespondingSourceObject: {fileID: 4161673938005969252, guid: 965caaff450150540afaa57f9d77e599, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8850403046211565091}
+    - targetCorrespondingSourceObject: {fileID: 279241045730851109, guid: 965caaff450150540afaa57f9d77e599, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8203842841981133280}
   m_SourcePrefab: {fileID: 100100000, guid: 965caaff450150540afaa57f9d77e599, type: 3}
 --- !u!212 &236271745861406500 stripped
 SpriteRenderer:
@@ -676,6 +701,8 @@ MonoBehaviour:
     m_weight: 1
   m_itemRarePrefabs:
   - m_object: {fileID: 4892872906617963342, guid: c7eaa25f16cf12a43af6e9177433afc1, type: 3}
+    m_weight: 0.5
+  - m_object: {fileID: 1781602975083099602, guid: cc46703f0c2ac2b4e866bd000fa75702, type: 3}
     m_weight: 1
   m_keyPrefabs: []
   m_unlockSFX: []

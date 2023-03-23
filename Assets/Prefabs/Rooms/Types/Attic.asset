@@ -85,6 +85,8 @@ MonoBehaviour:
     m_weight: 1
   - m_object: {fileID: 6163602902597221319, guid: 96d9e3557a99fd54eb9b58b2e034dc4f, type: 3}
     m_weight: 1
+  - m_object: {fileID: 1781602975083099602, guid: cc46703f0c2ac2b4e866bd000fa75702, type: 3}
+    m_weight: 0.5
   m_itemRarePrefabs:
   - m_object: {fileID: 505130580196242298, guid: 71fa7082e8d89d145b74f631fa1055a0, type: 3}
     m_weight: 2
