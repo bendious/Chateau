@@ -173,14 +173,12 @@ public class DialogueController : MonoBehaviour
 		if (m_queueFollowUp == null && replyCur?.m_followUp != null && replyCur.m_followUp.Length > 0)
 		{
 			m_queueFollowUp = new(replyCur.m_followUp);
-			m_revealedCharCount = 0;
-			m_lastRevealTime = Time.time;
-			m_submitReleasedSinceNewline = false;
 		}
 		else
 		{
-			m_forceNewLine = true;
+			m_queue.Dequeue();
 		}
+		m_forceNewLine = true;
 
 		CleanupReplyMenu();
 	}
@@ -259,15 +257,37 @@ public class DialogueController : MonoBehaviour
 	{
 		// TODO: parameterize all expression names?
 		List<Line.Reply> replyList = new();
-		for (int type = 0, n = GameController.MerchantAcquiredCounts.Length; type < n; ++type)
+		switch (reply.m_userdata) // TODO: use an enum somehow?
 		{
-			if (GameController.MerchantAcquiredCounts[type] < 1)
-			{
-				continue;
-			}
-			SavableFactory.SavableInfo savableInfo = GameController.Instance.m_savableFactory.m_savables[type];
-			bool enoughMaterials = GameController.MerchantMaterials >= savableInfo.m_materialsConsumed;
-			replyList.Add(new() { m_text = savableInfo.m_prefab.GetComponent<IAttachable>().Name + " - " + savableInfo.m_materialsConsumed + " materials", m_eventName = enoughMaterials ? "MerchantSpawn" : null, m_userdata = type, m_followUp = new[] { enoughMaterials ? "{merchantBuyPost.}" : "{merchantBuyInsufficient.}" } });
+			case 0: // item merchant
+				for (int type = 0, n = GameController.MerchantAcquiredCounts.Length; type < n; ++type)
+				{
+					if (GameController.MerchantAcquiredCounts[type] < 1)
+					{
+						continue;
+					}
+					SavableFactory.SavableInfo savableInfo = GameController.Instance.m_savableFactory.m_savables[type];
+					bool enoughMaterials = GameController.MerchantMaterials >= savableInfo.m_materialsConsumed;
+					replyList.Add(new() { m_text = savableInfo.m_prefab.GetComponent<IAttachable>().Name + " - " + savableInfo.m_materialsConsumed + " materials", m_eventName = enoughMaterials ? "MerchantSpawn" : null, m_userdata = type, m_followUp = new[] { enoughMaterials ? "{merchantBuyPost.}" : "{merchantBuyInsufficient.}" } });
+				}
+				break;
+			case 1: // customization merchant
+				replyList.Add(new() { m_text = "For myself{.}", m_eventName = null, m_userdata = -1, m_followUp = new[] { "For you?", "TODO" } });
+				for (int npcI = 0; npcI < GameController.Instance.NpcsTotal; ++npcI)
+				{
+					Dialogue[] dialogues = GameController.NpcDialogues(npcI);
+					if (dialogues.All(dOuter => dOuter.m_dialogue.All(d => d.m_weight >= 0.0f))) // TODO: don't assume all NPCs have single-use introductions?
+					{
+						continue;
+					}
+					string[] npcNames = dialogues.SelectMany(d => d.m_expressions).Where(e => e.m_object.m_key == "name").Select(e => e.m_object.m_replacement).ToArray(); // TODO: detect current NPC and replace names w/ "you"/"me"
+					replyList.Add(new() { m_text = "For " + npcNames.Random() + "{.}", m_eventName = null, m_userdata = npcI, m_followUp = new[] { "For " + npcNames.Random() + "?", "TODO" } });
+				}
+				replyList.Add(new() { m_text = "For the house{.}", m_eventName = null, m_userdata = -1, m_followUp = new[] { "For the house?", "TODO" } });
+				break;
+			default:
+				Debug.LogError("Unhandled MerchantBuy type?");
+				break;
 		}
 
 		if (replyList.Count <= 0)
@@ -301,7 +321,6 @@ public class DialogueController : MonoBehaviour
 	{
 		m_text.text = null;
 		m_queue = new(linesOrig);
-		Dialogue.Expression[][] expressionSetsOrdered = expressionSets?.Select(set => set?.RandomWeightedOrder().ToArray()).ToArray(); // NOTE the conversion to an array to prevent IEnumerable re-calculating w/ each access // TODO: re-order after each line?
 		m_audio.clip = sfx;
 
 		// character/controls setup
@@ -377,6 +396,11 @@ public class DialogueController : MonoBehaviour
 		WaitUntil replyWait = new(() => !m_replyMenu.gameObject.activeInHierarchy || Canceled);
 		int tagCharCount = 0;
 
+		m_forceNewLine = true;
+		Line lineCur = null;
+		string textCur = null;
+		int textCurLen = -1;
+
 		while (m_queue.Count > 0 && !Canceled)
 		{
 			// NOTE that we don't use transform parenting/attachment to avoid destruction if character dies
@@ -394,42 +418,41 @@ public class DialogueController : MonoBehaviour
 				continue;
 			}
 
-			// current state
-			// TODO: don't redo every time?
-			Line lineCur = NextLine(out string textCur, out int textCurLen, ref followTf, expressionSetsOrdered, sprite, color);
-
 			// maybe move to next line
 			bool stillRevealing = m_revealedCharCount + tagCharCount < textCurLen;
 			if (m_forceNewLine || (((submitKey == null && !ConsoleCommands.PassiveAI) || (submitKey != null && submitKey.WasPressedThisFrame())) && !stillRevealing && m_lastRevealTime + m_newlineSecondsMin <= Time.time))
 			{
 				// next line
-				m_forceNewLine = false;
 				m_continueIndicator.SetActive(false);
-				bool wasInFollowUp = m_queueFollowUp != null;
-				if (m_queueFollowUp != null && m_queueFollowUp.Count <= 1)
+				if (!m_forceNewLine)
 				{
-					m_queueFollowUp = null;
-				}
-				if (m_queueFollowUp != null)
-				{
-					m_queueFollowUp.Dequeue();
-				}
-				else if (wasInFollowUp && lineCur.m_replies[m_replyIdx].m_breakAfterward)
-				{
-					break;
-				}
-				else
-				{
-					m_queue.Dequeue();
-					lineCur = NextLine(out textCur, out textCurLen, ref followTf, expressionSetsOrdered, sprite, color);
-					if (lineCur == null)
+					bool wasInFollowUp = m_queueFollowUp != null;
+					if (m_queueFollowUp != null && m_queueFollowUp.Count <= 1)
+					{
+						m_queueFollowUp = null;
+					}
+					if (m_queueFollowUp != null)
+					{
+						m_queueFollowUp.Dequeue();
+					}
+					else if (wasInFollowUp && lineCur.m_replies[m_replyIdx].m_breakAfterward)
 					{
 						break;
 					}
+					else
+					{
+						m_queue.Dequeue();
+					}
+				}
+				lineCur = CurrentLine(out textCur, out textCurLen, ref followTf, expressionSets, sprite, color);
+				if (lineCur == null)
+				{
+					break;
 				}
 				m_revealedCharCount = 0;
 				m_lastRevealTime = Time.time;
 				m_submitReleasedSinceNewline = false;
+				m_forceNewLine = false;
 				stillRevealing = true;
 			}
 			bool submitPressed = submitKey != null && submitKey.IsPressed();
@@ -523,7 +546,7 @@ public class DialogueController : MonoBehaviour
 
 							GameObject newObj = Instantiate(m_replyTemplate, ReplyParentTf);
 							newText = newObj.GetComponentInChildren<TMP_Text>();
-							newText.text = ReplaceExpressions(replyCur.m_text, expressionSetsOrdered);
+							newText.text = ReplaceExpressions(replyCur.m_text, expressionSets);
 							RectTransform newTf = newObj.GetComponent<RectTransform>();
 							if (yMargin == -1.0f)
 							{
@@ -574,14 +597,14 @@ public class DialogueController : MonoBehaviour
 		m_dialogueTimePrevious = Time.time;
 	}
 
-	private Line NextLine(out string text, out int textLen, ref Transform followTf, Dialogue.Expression[][] expressionSetsOrdered, Sprite spriteDefault, Color colorDefault)
+	private Line CurrentLine(out string text, out int textLen, ref Transform followTf, WeightedObject<Dialogue.Expression>[][] expressionSets, Sprite spriteDefault, Color colorDefault)
 	{
 		Line line = m_queue.Count > 0 ? m_queue.Peek() : null;
 		text = m_queueFollowUp != null ? m_queueFollowUp.Peek() : line?.m_text;
 
 		if (!string.IsNullOrEmpty(text))
 		{
-			text = ReplaceExpressions(text, expressionSetsOrdered);
+			text = ReplaceExpressions(text, expressionSets);
 		}
 
 		// update image if necessary
@@ -615,33 +638,31 @@ public class DialogueController : MonoBehaviour
 		return line;
 	}
 
-	private static string ReplaceExpressions(string text, Dialogue.Expression[][] expressionSetsOrdered)
+	private static string ReplaceExpressions(string text, WeightedObject<Dialogue.Expression>[][] expressionSets)
 	{
-		if (expressionSetsOrdered == null)
+		if (expressionSets == null)
 		{
 			return text;
 		}
 
-		bool foundReplacement = false; // NOTE that this isn't strictly necessary, but safeguards against infinite looping
 		int setIdx = 0;
-		foreach (Dialogue.Expression[] expressionSet in expressionSetsOrdered)
+		foreach (IEnumerable<Dialogue.Expression> expressionSet in expressionSets.Select(set => set?.RandomWeightedOrder()))
 		{
-			if (expressionSet != null)
+			bool foundReplacement = false; // NOTE that this isn't strictly necessary, but safeguards against infinite looping
+			do
 			{
-				do
+				foundReplacement = false;
+				foreach (Dialogue.Expression expression in expressionSet)
 				{
-					foreach (Dialogue.Expression expression in expressionSet)
+					string keyBracketed = "{" + expression.m_key + (setIdx > 0 ? setIdx.ToString() : "") + "}";
+					if (text.Contains(keyBracketed)) // TODO: reduce redundant searching?
 					{
-						string keyBracketed = "{" + expression.m_key + (setIdx > 0 ? setIdx.ToString() : "") + "}";
-						if (text.Contains(keyBracketed)) // TODO: reduce redundant searching?
-						{
-							foundReplacement = true;
-							text = text.ReplaceFirst(keyBracketed, expression.m_replacement);
-						}
+						foundReplacement = true;
+						text = text.ReplaceFirst(keyBracketed, expression.m_replacement);
 					}
 				}
-				while (foundReplacement && text.Contains('{')); // NOTE that we have to allow looping over expressionSet multiple times since expression replacements can contain keys from earlier in the list
 			}
+			while (foundReplacement && text.Contains('{')); // NOTE that we have to allow looping over expressionSet multiple times since expression replacements can contain keys from earlier in the list
 			++setIdx;
 		}
 

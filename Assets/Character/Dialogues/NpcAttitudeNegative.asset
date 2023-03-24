@@ -14,39 +14,59 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
       m_relationshipMax: 1
       m_relationshipIncrement: 0
       m_lines:
-      - m_text: Well, well, well... Look who decided to actually show up!
+      - m_text: Well, who do you think you are, {avatar}?
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
-      - m_text: The {avatar}!
+      - m_text: What, did you come here expecting to just waltz in and own the place?
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
-      - m_text: Finally! Do you even know how long you neglected this place?
+      - m_text: Hardly!
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
-      - m_text: But while you were gone, I realized something.
+      - m_text: Even a house as neglected as this is never leaderless, you know.
         m_source: {fileID: 0}
         m_sourceDistMax: 3.402823e+38
         m_replies: []
-      - m_text: All of this? It isn't yours anymore.
+      - m_text: All of this? It isn't yours.
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
-      - m_text: It's mine, {avatar}.
+      - m_text: Never has been, and never will be.
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
-      - m_text: You gave it up, and you can't just waltz in here and expect us to
-          even refrain from giving you the pummeling you deserve, much less let you
-          run things.
+      - m_text: Whose is it, then, you ask, {avatar}?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: It's mine, of course.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Isn't that obvious?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: I'm the one that everyone listens to around here, even if they won't
+          admit it.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: You should just give up any silly hope of ever running things.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: And even any hope of ever not getting pummelled like you deserve.
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
@@ -56,6 +76,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -73,6 +94,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 0
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -97,6 +119,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -125,6 +148,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -145,6 +169,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -161,6 +186,7 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0

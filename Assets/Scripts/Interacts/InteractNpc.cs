@@ -55,17 +55,11 @@ public class InteractNpc : MonoBehaviour, IInteractable
 
 	public void StartDialogue(KinematicCharacter otherCharacter, Dialogue.Info.Type type = Dialogue.Info.Type.Normal) => StartCoroutine(PlayDialogueCoroutine(otherCharacter, type));
 
+	// callbacks
 	// called via Interact()/SendMessage(NpcDialogue.Info.m_preconditionName)
-	public void HasFinishedZone(SendMessageValue<Dialogue.Info, bool> info)
-	{
-		info.m_out = GameController.ZonesFinishedCount >= info.m_in.m_userdata;
-	}
-
-	// called via Interact()/SendMessage(NpcDialogue.Info.m_preconditionName)
-	public void HasNotFinishedZone(SendMessageValue<Dialogue.Info, bool> info)
-	{
-		info.m_out = GameController.ZonesFinishedCount < info.m_in.m_userdata;
-	}
+	// TODO: move to GameController?
+	public void HasFinishedZone(SendMessageValue<Dialogue.Info, bool> info) => info.m_out = GameController.ZonesFinishedCount >= info.m_in.m_userdata;
+	public void HasNotFinishedZone(SendMessageValue<Dialogue.Info, bool> info) => info.m_out = GameController.ZonesFinishedCount < info.m_in.m_userdata;
 
 
 #if DEBUG

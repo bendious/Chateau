@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -30,6 +31,208 @@ MonoBehaviour:
       m_appendToAll: 0
     m_weight: 1
   - m_object:
+      m_type: 0
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Hey there.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 0
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 0.19
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: So!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Itching for something new?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies:
+        - m_text: Yes{.}
+          m_preconditionName: 
+          m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0
+          m_followUp:
+          - Well, unfortunately, I'm still getting set up at the moment.
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: No{.}
+          m_preconditionName: 
+          m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0
+          m_followUp:
+          - Well, I'm still getting set up at the moment anyway.
+          m_eventName: 
+          m_breakAfterward: 1
+      - m_text: But hopefully soon {name}'s Boutique and Interior Design will be
+          up and running!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: What do you think of the name?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies:
+        - m_text: I love it.
+          m_preconditionName: 
+          m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0.1
+          m_followUp:
+          - Well, I love that you love it!
+          - I'll hurry up and open as soon as I can!
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: I don't hate it.
+          m_preconditionName: 
+          m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0.05
+          m_followUp:
+          - Well, good enough, I suppose.
+          - Come back later and I'll show you why you should love it.
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: I hate it.
+          m_preconditionName: 
+          m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: -0.1
+          m_followUp:
+          - Oh.
+          - Well, that's alright.
+          - To each their own, right?
+          m_eventName: 
+          m_breakAfterward: 0
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 1
+    m_weight: 1
+  - m_object:
+      m_type: 0
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0.2
+      m_relationshipMax: 0.29
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Oh, back already?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: I'm not quite done, but...
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: I suppose I can give you a preview if you want.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies:
+        - m_text: Yes{.}
+          m_preconditionName: 
+          m_userdata: 1
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0.1
+          m_followUp:
+          - Excellent!
+          m_eventName: MerchantBuy
+          m_breakAfterward: 0
+        - m_text: No{.}
+          m_preconditionName: 
+          m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: -0.05
+          m_followUp:
+          - Ah.
+          - No, you're quite right, we should wait for the official grand opening!
+          m_eventName: 
+          m_breakAfterward: 1
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 1
+    m_weight: 1
+  - m_object:
+      m_type: 0
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0.3
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Welcome back!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 0
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0.3
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Itching for something new?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies:
+        - m_text: Yes{.}
+          m_preconditionName: 
+          m_userdata: 1
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0.1
+          m_followUp:
+          - Excellent!
+          m_eventName: MerchantBuy
+          m_breakAfterward: 0
+        - m_text: No{.}
+          m_preconditionName: 
+          m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0
+          m_followUp:
+          - Well, come back as soon as you are!
+          m_eventName: 
+          m_breakAfterward: 1
+      m_target: {fileID: 0}
+      m_loop: 1
+      m_singleUse: 0
+      m_appendToAll: 1
+    m_weight: 1
+  - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -37,6 +240,93 @@ MonoBehaviour:
       m_relationshipIncrement: 0
       m_lines:
       - m_text: Customization rules, {name1}!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 11400000, guid: 3e5108d52554f7149afc46f1ce99448c, type: 2}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 0
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 0.25
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: You know what this place needs?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: No, what?
+        m_source: {fileID: 11400000, guid: 3e5108d52554f7149afc46f1ce99448c, type: 2}
+        m_sourceDistMax: 6
+        m_replies: []
+      - m_text: I don't know; I was genuinely asking.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 11400000, guid: 3e5108d52554f7149afc46f1ce99448c, type: 2}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 0
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0.25
+      m_relationshipMax: 0.75
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: You know what this place needs?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: No, what?
+        m_source: {fileID: 11400000, guid: 3e5108d52554f7149afc46f1ce99448c, type: 2}
+        m_sourceDistMax: 6
+        m_replies: []
+      - m_text: Some more color!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: Who says everything has to be so dark and depressing?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: We should find some way to brighten things up a little!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      m_target: {fileID: 11400000, guid: 3e5108d52554f7149afc46f1ce99448c, type: 2}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 0
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0.75
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: You know what this place needs?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: No, what?
+        m_source: {fileID: 11400000, guid: 3e5108d52554f7149afc46f1ce99448c, type: 2}
+        m_sourceDistMax: 6
+        m_replies: []
+      - m_text: Nothing!
+        m_source: {fileID: 0}
+        m_sourceDistMax: 3.4028235e+38
+        m_replies: []
+      - m_text: It already has all of us, after all.
         m_source: {fileID: 0}
         m_sourceDistMax: 3.4028235e+38
         m_replies: []
@@ -54,3 +344,97 @@ MonoBehaviour:
       m_key: name
       m_replacement: Alexander
     m_weight: 0.25
+  - m_object:
+      m_key: merchantBuyEmpty.
+      m_replacement: you'll have to bring me some stuff first. I can't make things
+        out of nothing, you know!
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyEmpty.
+      m_replacement: '{interjection} remember what I said before? You''ll have to
+        bring me some stuff first. I can''t make things out of nothing, you know!'
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPre.
+      m_replacement: who's the lucky recipient?
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPre.
+      m_replacement: who's it for?
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPre.
+      m_replacement: for whom?
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPost.
+      m_replacement: here you go{.}
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPost.
+      m_replacement: voila{.}
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPost.
+      m_replacement: viola{.}
+    m_weight: 0.1
+  - m_object:
+      m_key: merchantBuyPost.
+      m_replacement: give me a moment{.} Just kidding, I'm already done!
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyInsufficient.
+      m_replacement: hmm, I'll need more materials for that{.}
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyInsufficient.
+      m_replacement: I don't have enough to make that{.}
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyCancel.
+      m_replacement: nothing, thanks{.}
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyCancel.
+      m_replacement: nevermind{.}
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyCanceled.
+      m_replacement: '{denied.}'
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyCanceled.
+      m_replacement: '{denied.} {interjection} you know where to find me{.}'
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPre
+      m_replacement: we've got
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPre
+      m_replacement: I've got
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPre
+      m_replacement: you've got
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPre
+      m_replacement: we're at
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPre
+      m_replacement: I'm at
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPre
+      m_replacement: you're at
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPost.
+      m_replacement: materials{.}
+    m_weight: 1
+  - m_object:
+      m_key: merchantMaterialsPost.
+      m_replacement: materials to work with{.}
+    m_weight: 1

@@ -335,7 +335,7 @@ MonoBehaviour:
       m_relationshipMax: 0.5
       m_relationshipIncrement: 0
       m_lines:
-      - m_text: I need that{.}
+      - m_text: I {kinda} need that{.}
         m_source: {fileID: 0}
         m_sourceDistMax: 0
         m_replies: []
@@ -352,7 +352,7 @@ MonoBehaviour:
       m_relationshipMax: 0.5
       m_relationshipIncrement: 0
       m_lines:
-      - m_text: I needed that{.}
+      - m_text: I {kinda} needed that{.}
         m_source: {fileID: 0}
         m_sourceDistMax: 0
         m_replies: []
@@ -492,4 +492,20 @@ MonoBehaviour:
   - m_object:
       m_key: .
       m_replacement: '!'
+    m_weight: 1
+  - m_object:
+      m_key: kinda
+      m_replacement: 
+    m_weight: 1
+  - m_object:
+      m_key: kinda
+      m_replacement: kinda
+    m_weight: 1
+  - m_object:
+      m_key: kinda
+      m_replacement: kind of
+    m_weight: 1
+  - m_object:
+      m_key: kinda
+      m_replacement: sort of
     m_weight: 1
