@@ -48,14 +48,14 @@ TagManager:
   - name: Architecture
     uniqueID: 44612063
     locked: 0
+  - name: Locks
+    uniqueID: 2156352063
+    locked: 0
   - name: Furniture
     uniqueID: 2233049609
     locked: 0
   - name: Default
     uniqueID: 0
-    locked: 0
-  - name: Locks
-    uniqueID: 2156352063
     locked: 0
   - name: WallsFront
     uniqueID: 2908569037

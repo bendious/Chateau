@@ -73,12 +73,15 @@ public class GateController : MonoBehaviour, IUnlockable
 		{
 			Parent.GetComponent<RoomController>().SpawnLadder(gameObject, m_ladderPrefabs.RandomWeighted(), true);
 		}
+		else
+		{
+			StartCoroutine(this.GateDespawnAnimationCoroutine());
+		}
 
 		if (!silent)
 		{
 			GameController.Instance.AddCameraTargets(transform);
 		}
-		Simulation.Schedule<ObjectDespawn>(1.0f).m_object = gameObject; // TODO: guarantee camera reaches us?
 		return true;
 	}
 }

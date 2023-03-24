@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -390,7 +391,7 @@ public static class Utility
 		DisableComponents,
 		Reactivate,
 	}
-	public static System.Collections.IEnumerator SoftStop(this GameObject rootObj, Func<bool> shouldCancelFunc = null, float delayMax = 2.0f, SoftStopPost postBehavior = SoftStopPost.DeactivateRoot)
+	public static IEnumerator SoftStop(this GameObject rootObj, Func<bool> shouldCancelFunc = null, float delayMax = 2.0f, SoftStopPost postBehavior = SoftStopPost.DeactivateRoot)
 	{
 		VisualEffect[] vfxAll = rootObj.GetComponentsInChildren<VisualEffect>();
 		foreach (VisualEffect vfx in vfxAll)
@@ -472,6 +473,21 @@ public static class Utility
 				disableOrDeactivate(light.Item2);
 			}
 		}
+	}
+
+	public static IEnumerator GateDespawnAnimationCoroutine(this Component gate, float smoothTime = 0.25f, float epsilon = FloatEpsilon, float postAnimationDelay = 0.0f)
+	{
+		// TODO: support sprite/color/fade animations?
+		Collider2D collider = gate.GetComponent<Collider2D>();
+		bool isVertical = collider.bounds.extents.y >= collider.bounds.extents.x;
+		Vector2 posFinal = gate.transform.position + new Vector3(isVertical ? 0.0f : UnityEngine.Random.value < 0.5f ? -collider.bounds.size.x : collider.bounds.size.x, isVertical ? collider.bounds.size.y : 0.0f); // TODO: support downward-sliding doors w/o odd visibility artifacts?
+		Vector2 vel = Vector3.zero;
+		while (Vector2.Distance(gate.transform.position, posFinal) > epsilon)
+		{
+			gate.transform.position = SmoothDamp(gate.transform.position, posFinal, ref vel, smoothTime);
+			yield return null;
+		}
+		Simulation.Schedule<ObjectDespawn>(postAnimationDelay).m_object = gate.gameObject; // TODO: guarantee camera reaches us first?
 	}
 
 	private const System.Reflection.BindingFlags m_nonpublicWorkaroundFlags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;

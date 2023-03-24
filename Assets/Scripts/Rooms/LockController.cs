@@ -469,9 +469,13 @@ public class LockController : MonoBehaviour, IUnlockable
 			}
 
 			// destroy/disable ourself
-			if (m_unlockDestroyDelay >= 0.0f)
+			if (m_unlockDestroyDelay > 0.0f)
 			{
-				Simulation.Schedule<ObjectDespawn>(m_unlockDestroyDelay).m_object = gameObject;
+				StartCoroutine(this.GateDespawnAnimationCoroutine(m_unlockDestroyDelay));
+			}
+			else if (m_unlockDestroyDelay == 0.0f)
+			{
+				Simulation.Schedule<ObjectDespawn>().m_object = gameObject;
 			}
 			else
 			{
