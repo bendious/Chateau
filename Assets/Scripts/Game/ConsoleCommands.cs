@@ -91,7 +91,13 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 				avatarHealth.Decrement(gameObject, null, 1.0f, Health.DamageType.Generic);
 			}
 		});
-		m_controls.Console.SpawnEnemy.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.DebugSpawnEnemy(Mathf.RoundToInt(m_controls.Console.SpawnEnemy.ReadValue<float>()) % 10));
+		m_controls.Console.SpawnEnemy.performed += ctx => ExecuteIfConsoleOpen(() =>
+		{
+			if (!m_controls.Console.Shift.IsPressed()) // due to re-using number/symbol keys for multiple console commands // TODO: move into data?
+			{
+				GameController.Instance.DebugSpawnEnemy(Mathf.RoundToInt(m_controls.Console.SpawnEnemy.ReadValue<float>()) % 10);
+			}
+		});
 		m_controls.Console.EnemiesPathfindTest.performed += ctx => ExecuteIfConsoleOpen(() =>
 		{
 			foreach (AIController ai in FindObjectsOfType<AIController>())
@@ -140,6 +146,13 @@ public /*static*/ class ConsoleCommands : MonoBehaviour
 			}
 		});
 		m_controls.Console.MusicTest.performed += ctx => ExecuteIfConsoleOpen(() => GameController.Instance.GetComponent<MusicManager>().DebugTest());
+		m_controls.Console.MerchantGrantMoney.performed += ctx => ExecuteIfConsoleOpen(() =>
+		{
+			if (m_controls.Console.Shift.IsPressed()) // due to re-using number/symbol keys for multiple console commands // TODO: move into data?
+			{
+				GameController.MerchantMaterials += 10; // TODO: parameterize amount (via second console command?)?
+			}
+		});
 	}
 
 	private void OnDisable()

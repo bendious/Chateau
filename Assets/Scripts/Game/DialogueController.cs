@@ -630,6 +630,9 @@ public class DialogueController : MonoBehaviour
 		{
 			npcSetPassive(m_sourceMain, false);
 		}
+		Target = null;
+		m_merchantType = -1;
+		m_merchantTargetIdx = -1;
 
 		m_dialogueTimePrevious = Time.time;
 	}

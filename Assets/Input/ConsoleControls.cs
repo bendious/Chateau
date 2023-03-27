@@ -224,6 +224,15 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MerchantGrantMoney"",
+                    ""type"": ""Button"",
+                    ""id"": ""857516eb-1204-4b21-ba83-afc2be3b765e"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -567,6 +576,17 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                     ""action"": ""ItemDebugLevel"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bf84fd23-f096-497d-9fd3-52adffa3eab3"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MerchantGrantMoney"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -597,6 +617,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         m_Console_UnlockAll = m_Console.FindAction("UnlockAll", throwIfNotFound: true);
         m_Console_InteractNpcRandomize = m_Console.FindAction("InteractNpcRandomize", throwIfNotFound: true);
         m_Console_MusicTest = m_Console.FindAction("MusicTest", throwIfNotFound: true);
+        m_Console_MerchantGrantMoney = m_Console.FindAction("MerchantGrantMoney", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -678,6 +699,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Console_UnlockAll;
     private readonly InputAction m_Console_InteractNpcRandomize;
     private readonly InputAction m_Console_MusicTest;
+    private readonly InputAction m_Console_MerchantGrantMoney;
     public struct ConsoleActions
     {
         private @ConsoleControls m_Wrapper;
@@ -704,6 +726,7 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         public InputAction @UnlockAll => m_Wrapper.m_Console_UnlockAll;
         public InputAction @InteractNpcRandomize => m_Wrapper.m_Console_InteractNpcRandomize;
         public InputAction @MusicTest => m_Wrapper.m_Console_MusicTest;
+        public InputAction @MerchantGrantMoney => m_Wrapper.m_Console_MerchantGrantMoney;
         public InputActionMap Get() { return m_Wrapper.m_Console; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -779,6 +802,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @MusicTest.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnMusicTest;
                 @MusicTest.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnMusicTest;
                 @MusicTest.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnMusicTest;
+                @MerchantGrantMoney.started -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnMerchantGrantMoney;
+                @MerchantGrantMoney.performed -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnMerchantGrantMoney;
+                @MerchantGrantMoney.canceled -= m_Wrapper.m_ConsoleActionsCallbackInterface.OnMerchantGrantMoney;
             }
             m_Wrapper.m_ConsoleActionsCallbackInterface = instance;
             if (instance != null)
@@ -849,6 +875,9 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
                 @MusicTest.started += instance.OnMusicTest;
                 @MusicTest.performed += instance.OnMusicTest;
                 @MusicTest.canceled += instance.OnMusicTest;
+                @MerchantGrantMoney.started += instance.OnMerchantGrantMoney;
+                @MerchantGrantMoney.performed += instance.OnMerchantGrantMoney;
+                @MerchantGrantMoney.canceled += instance.OnMerchantGrantMoney;
             }
         }
     }
@@ -877,5 +906,6 @@ public partial class @ConsoleControls : IInputActionCollection2, IDisposable
         void OnUnlockAll(InputAction.CallbackContext context);
         void OnInteractNpcRandomize(InputAction.CallbackContext context);
         void OnMusicTest(InputAction.CallbackContext context);
+        void OnMerchantGrantMoney(InputAction.CallbackContext context);
     }
 }
