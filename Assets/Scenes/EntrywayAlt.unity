@@ -139,14 +139,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: SceneMin
       objectReference: {fileID: 0}
-    - target: {fileID: 2233346953154689000, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 2233346953154689000, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Quit
-      objectReference: {fileID: 0}
     - target: {fileID: 2504569078711925974, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
@@ -155,13 +147,9 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4099526785388893419, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_text
-      value: Quit
-      objectReference: {fileID: 0}
-    - target: {fileID: 4597435333137130887, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_text
-      value: Quit
+    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_type
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_quitText
@@ -178,10 +166,6 @@ PrefabInstance:
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_waveSecondsMin
       value: 60
-      objectReference: {fileID: 0}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_saveLoadEnabled
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_waveStartWeight
@@ -331,14 +315,22 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7062028067604068574, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 6
+    - target: {fileID: 7576226454887440344, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_delayMax
+      value: 30
       objectReference: {fileID: 0}
-    - target: {fileID: 7062028067604068574, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Quit
+    - target: {fileID: 7576226454887440344, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_delayMin
+      value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 7576226454887440344, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_music.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7576226454887440344, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
+      propertyPath: m_music.Array.data[0].m_object
+      value: 
+      objectReference: {fileID: 8300000, guid: c0c0593e786ce0947989a224c9e56439, type: 3}
     - target: {fileID: 8494391376400586852, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -120

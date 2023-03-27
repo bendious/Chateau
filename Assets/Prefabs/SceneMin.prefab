@@ -2052,6 +2052,8 @@ MonoBehaviour:
   - {fileID: 1148680186476742398, guid: f507c347f46663f4ba585071eef0b2a6, type: 3}
   m_directionSigns: []
   m_specialRoomCount: 0
+  m_saveLoadEnabled: 0
+  m_isHubScene: 0
   m_allowHiddenDestructibles: 1
   m_allowCutbacks: 1
   m_waveSealing: 0

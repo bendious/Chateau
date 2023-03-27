@@ -60,12 +60,13 @@ public class GameController : MonoBehaviour
 	[SerializeField] private GameObject[] m_directionSigns;
 
 	[SerializeField] private int m_specialRoomCount;
+	public bool m_saveLoadEnabled = false;
+	public bool m_isHubScene = false;
 	public bool m_allowHiddenDestructibles = true;
 	public bool m_allowCutbacks = true;
 	[SerializeField] private bool m_waveSealing = false;
 	public float m_zoneScalar = 1.0f;
 
-	public const int m_hubSceneBuildIndex = 0; // TODO: un-hardcode?
 	public const int m_zoneCount = 4; // TODO: derive?
 	public const int m_hintsPerZone = 2;
 	public const int m_narrowPathLength = m_zoneCount * m_hintsPerZone;
@@ -1137,7 +1138,7 @@ public class GameController : MonoBehaviour
 	private void Save()
 	{
 		Scene activeScene = SceneManager.GetActiveScene();
-		if (activeScene.buildIndex != m_hubSceneBuildIndex && SaveHelpers.Exists()) // NOTE that we have to initially create saves from the tutorial scene in order to avoid an infinite loop from Start() tutorial-load check // TODO: don't assume only hub scene stores contents?
+		if (!m_saveLoadEnabled && SaveHelpers.Exists()) // NOTE that we have to initially create saves from the tutorial scene in order to avoid an infinite loop from Start() tutorial-load check
 		{
 			return;
 		}
@@ -1186,7 +1187,7 @@ public class GameController : MonoBehaviour
 	private bool Load()
 	{
 		Scene activeScene = SceneManager.GetActiveScene();
-		if (activeScene.buildIndex != m_hubSceneBuildIndex) // TODO: don't assume only hub scene stores contents?
+		if (!m_saveLoadEnabled)
 		{
 			return SaveHelpers.Exists();
 		}
@@ -1532,7 +1533,7 @@ public class GameController : MonoBehaviour
 			yield break;
 		}
 
-		if (SceneManager.GetActiveScene().buildIndex == m_hubSceneBuildIndex) // to prevent save-quitting from Tutorial (see Save() exception for creating saves outside the Entryway) // TODO: replace Tutorial Quit button w/ Entryway button once Tutorial has been completed?
+		if (m_saveLoadEnabled) // to prevent save-quitting from Tutorial (see Save() exception for creating saves outside the Entryway) // TODO: replace Tutorial Quit button w/ Entryway button once Tutorial has been completed?
 		{
 			m_avatars.First().DetachAll(); // to save even items being held
 			Save();

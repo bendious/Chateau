@@ -19,6 +19,7 @@ public class LayoutGenerator
 			Final,
 			Credits,
 			Zone4,
+			EntrywayAlt,
 
 			Entrance,
 			TutorialPlatforms,
@@ -463,10 +464,22 @@ public class LayoutGenerator
 			new(Node.Type.Tower),
 			new(Node.Type.Corridor),
 			new(Node.Type.NpcGroup, new() { new(Node.Type.FinalHintSequence) }) }) }),
+		new(Node.Type.EntrywayAlt, new() { new(Node.Type.Entrance, new() { // TODO: link directly to / merge w/ Entryway entry?
+			new(Node.Type.AreaDivider, new() {
+				new(Node.Type.ExitDoor1, new() {
+					new(Node.Type.LockOrdered, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor2) }) }),
+					new(Node.Type.LockOrdered, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomDown, new() { new(Node.Type.ExitDoor3) }) }) }), // TODO: move directional lock requirement into data?
+					new(Node.Type.LockOrdered, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomUp, new() { new(Node.Type.ExitDoor4) }) }) }) // TODO: move directional lock requirement into data?
+				})
+			}),
+			new(Node.Type.Basement, new() { new(Node.Type.Secret, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.RoomIndefiniteCorrect, new() { new(Node.Type.Secret) }) }) }) }),
+			new(Node.Type.Tower),
+			new(Node.Type.Corridor),
+			new(Node.Type.FinalHintSequence) }) }),
 		new(Node.Type.Zone1, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceSmall, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceSmall, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceMedium, new() { new(Node.Type.SecretHintGroup), new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.FinalHint), new(Node.Type.ExitDoor1, new() { new(Node.Type.LockOrdered, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.ExitDoor2) }) }) }) }) }) }) }) }) }) }) }) }) }) }),
 		new(Node.Type.Zone2, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceSmall, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceMedium, new() { new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceLarge, new() { new(Node.Type.SecretHintGroup), new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.FinalHint), new(Node.Type.ExitDoor1, new() { new(Node.Type.LockOrdered, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomDown, new() { new(Node.Type.ExitDoor2) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }), // TODO: move directional lock requirement into data?
 		new(Node.Type.Zone3, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceSmall, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceMedium, new() { new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceExtraLarge, new() { new(Node.Type.SecretHintGroup), new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.FinalHint), new(Node.Type.ExitDoor1, new() { new(Node.Type.LockOrdered, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomUp, new() { new(Node.Type.ExitDoor2) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }), // TODO: move directional lock requirement into data?
-		new(Node.Type.Zone4, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceSmall, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceMedium, new() { new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceLarge, new() { new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceExtraLarge, new() { new(Node.Type.SecretHintGroup), new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.ExitDoor1), new(Node.Type.FinalHint) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }),
+		new(Node.Type.Zone4, new() { new(Node.Type.Entrance, new() { new(Node.Type.SequenceSmall, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceMedium, new() { new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceLarge, new() { new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.SequenceExtraLarge, new() { new(Node.Type.SecretHintGroup), new(Node.Type.Lock, new() { new(Node.Type.AreaDivider, new() { new(Node.Type.Boss, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Npc), new(Node.Type.FinalHint), new(Node.Type.ExitDoor1, new() { new(Node.Type.Secret, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.RoomSecret, new() { new(Node.Type.ExitDoor2) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }) }),
 		new(Node.Type.Final, new() { new(Node.Type.Entrance, new() { new(Node.Type.Corridor, new() { new(Node.Type.Tower, new() { new(Node.Type.Tower, new() { new(Node.Type.Boss) }) }) }) }) }),
 		new(Node.Type.Credits, new() { new(Node.Type.Entrance, new() { new(Node.Type.Entrance + 1, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Entrance + 2, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Entrance + 3, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Entrance + 4, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Entrance + 5), new(Node.Type.Entrance + 6), new(Node.Type.Entrance + 7), new(Node.Type.Entrance + 8), new(Node.Type.Entrance + 9), new(Node.Type.Entrance + 10), new(Node.Type.Entrance + 11), new(Node.Type.Entrance + 12), new(Node.Type.Entrance + 13, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Entrance + 14, new() { new(Node.Type.TightCoupling, new() { new(Node.Type.Entrance + 15) }) }) }) }) }) }) }) }) }) }) }) }) }) }), // TODO: more generic Text{1-n} Types?
 
