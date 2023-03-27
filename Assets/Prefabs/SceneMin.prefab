@@ -2016,15 +2016,30 @@ MonoBehaviour:
   - m_object: {fileID: 11400000, guid: dc535e6d75aedcc4fbfd8a1b36da8057, type: 2}
     m_weight: 1
   m_npcClothing:
-  - m_object: {fileID: 5740513439009272771, guid: ae9b33a6758aaf746a8ceae00987e8fa, type: 3}
+  - m_object:
+      m_prefab: {fileID: 5740513439009272771, guid: ae9b33a6758aaf746a8ceae00987e8fa, type: 3}
+      m_materialsProduced: 30
+      m_materialsConsumed: 45
     m_weight: 1
-  - m_object: {fileID: 713019248034754521, guid: 0ed64329a21db884f871faaae2e5f0cc, type: 3}
+  - m_object:
+      m_prefab: {fileID: 713019248034754521, guid: 0ed64329a21db884f871faaae2e5f0cc, type: 3}
+      m_materialsProduced: 40
+      m_materialsConsumed: 60
     m_weight: 1
-  - m_object: {fileID: 1555560185630565423, guid: 1ae5e549e2a631c498a23145b5a7ed69, type: 3}
+  - m_object:
+      m_prefab: {fileID: 1555560185630565423, guid: 1ae5e549e2a631c498a23145b5a7ed69, type: 3}
+      m_materialsProduced: 40
+      m_materialsConsumed: 60
     m_weight: 1
-  - m_object: {fileID: 0}
+  - m_object:
+      m_prefab: {fileID: 0}
+      m_materialsProduced: 0
+      m_materialsConsumed: 0
     m_weight: 1
-  - m_object: {fileID: 0}
+  - m_object:
+      m_prefab: {fileID: 0}
+      m_materialsProduced: 0
+      m_materialsConsumed: 0
     m_weight: 1
   m_doorInteractPrefabs:
   - {fileID: 5746196675388104066, guid: a24e9833324864f489338cfc83a32cdc, type: 3}
@@ -3660,7 +3675,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1386398259
-  m_SortingLayer: 2
+  m_SortingLayer: 1
   m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: b1cb268f1f9295247aba67970898768e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -10667,7 +10682,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 500919307
-  m_SortingLayer: -4
+  m_SortingLayer: -5
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 713da4ba390c91148bd4aa22ba4e18f7, type: 3}
   m_Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}

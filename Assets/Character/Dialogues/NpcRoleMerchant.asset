@@ -313,31 +313,31 @@ MonoBehaviour:
     m_weight: 1
   - m_object:
       m_key: merchantBuyPre.
-      m_replacement: what'd ya have in mind?
+      m_replacement: '{so} what''d ya have in mind{?}'
     m_weight: 1
   - m_object:
       m_key: merchantBuyPre.
-      m_replacement: what'll it be?
+      m_replacement: '{so} what''ll it be{?}'
     m_weight: 1
   - m_object:
       m_key: merchantBuyPre.
-      m_replacement: what d'ya need?
+      m_replacement: '{so} what d''ya need{?}'
     m_weight: 1
   - m_object:
       m_key: merchantBuyPre.
-      m_replacement: what d'ya need today?
+      m_replacement: '{so} what d''ya need today{?}'
     m_weight: 1
   - m_object:
       m_key: merchantBuyPre.
-      m_replacement: what can I do for you?
+      m_replacement: '{so} what can I do for you{?}'
     m_weight: 1
   - m_object:
       m_key: merchantBuyPre.
-      m_replacement: what can I do ya for? Uh, I mean, what can I do for you?
+      m_replacement: '{so} what can I do ya for? Uh, I mean, what can I do for you?'
     m_weight: 0.25
   - m_object:
       m_key: merchantBuyPre.
-      m_replacement: what's the need today?
+      m_replacement: '{so} what''s the need today{?}'
     m_weight: 1
   - m_object:
       m_key: merchantBuyPost.

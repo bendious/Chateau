@@ -9,6 +9,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2856132380894005419, guid: ae9b33a6758aaf746a8ceae00987e8fa, type: 3}
+      propertyPath: m_name
+      value: Nightcap
+      objectReference: {fileID: 0}
+    - target: {fileID: 2856132380894005419, guid: ae9b33a6758aaf746a8ceae00987e8fa, type: 3}
       propertyPath: m_offset.x
       value: -0.1
       objectReference: {fileID: 0}

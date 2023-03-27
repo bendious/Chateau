@@ -9,6 +9,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2856132380894005419, guid: ae9b33a6758aaf746a8ceae00987e8fa, type: 3}
+      propertyPath: m_name
+      value: Top Hat
+      objectReference: {fileID: 0}
+    - target: {fileID: 2856132380894005419, guid: ae9b33a6758aaf746a8ceae00987e8fa, type: 3}
       propertyPath: m_offset.y
       value: 0.4
       objectReference: {fileID: 0}
@@ -42,7 +46,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 7c932fbdbd66c0941976b399c7d49879, type: 2}
     - target: {fileID: 5740513439009272771, guid: ae9b33a6758aaf746a8ceae00987e8fa, type: 3}
       propertyPath: m_Name
-      value: Tophat
+      value: TopHat
       objectReference: {fileID: 0}
     - target: {fileID: 8398231916858131098, guid: ae9b33a6758aaf746a8ceae00987e8fa, type: 3}
       propertyPath: m_BendingStiffness

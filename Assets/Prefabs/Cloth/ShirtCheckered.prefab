@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 560eb005bef3b5b419c180b661750c39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_name: Shirt (checkered)
   m_offset: {x: 0, y: -0.2, z: -0.25}
   m_offsetFromHead: 0
 --- !u!137 &4958244110621132046

@@ -494,6 +494,14 @@ MonoBehaviour:
       m_replacement: '!'
     m_weight: 1
   - m_object:
+      m_key: '?'
+      m_replacement: '?'
+    m_weight: 1
+  - m_object:
+      m_key: '?'
+      m_replacement: ', huh?'
+    m_weight: 1
+  - m_object:
       m_key: kinda
       m_replacement: 
     m_weight: 1
@@ -508,4 +516,16 @@ MonoBehaviour:
   - m_object:
       m_key: kinda
       m_replacement: sort of
+    m_weight: 1
+  - m_object:
+      m_key: so
+      m_replacement: 
+    m_weight: 1
+  - m_object:
+      m_key: so
+      m_replacement: so
+    m_weight: 1
+  - m_object:
+      m_key: so
+      m_replacement: so,
     m_weight: 1

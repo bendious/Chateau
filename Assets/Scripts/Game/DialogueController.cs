@@ -103,6 +103,9 @@ public class DialogueController : MonoBehaviour
 	private float m_dialogueTimePrevious = float.MinValue; // NOTE that this is set at the END, not the beginning, of each dialogue
 	public float TimeSincePreviousDialogue => Time.time - m_dialogueTimePrevious;
 
+	private int m_merchantType = -1;
+	private int m_merchantTargetIdx = -1;
+
 
 	private void Awake()
 	{
@@ -252,12 +255,13 @@ public class DialogueController : MonoBehaviour
 		Simulation.Schedule<ObjectDespawn>().m_object = attachableComp.gameObject;
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)")]
+	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)
 	public void MerchantBuy(Line.Reply reply)
 	{
 		// TODO: parameterize all expression names?
+		m_merchantType = reply.m_userdata; // TODO: use an enum somehow?
 		List<Line.Reply> replyList = new();
-		switch (reply.m_userdata) // TODO: use an enum somehow?
+		switch (m_merchantType)
 		{
 			case 0: // item merchant
 				for (int type = 0, n = GameController.MerchantAcquiredCounts.Length; type < n; ++type)
@@ -271,8 +275,8 @@ public class DialogueController : MonoBehaviour
 					replyList.Add(new() { m_text = savableInfo.m_prefab.GetComponent<IAttachable>().Name + " - " + savableInfo.m_materialsConsumed + " materials", m_eventName = enoughMaterials ? "MerchantSpawn" : null, m_userdata = type, m_followUp = new[] { enoughMaterials ? "{merchantBuyPost.}" : "{merchantBuyInsufficient.}" } });
 				}
 				break;
-			case 1: // customization merchant
-				replyList.Add(new() { m_text = "For myself{.}", m_eventName = null, m_userdata = -1, m_followUp = new[] { "For you?", "TODO" } });
+			case 1: // customization merchant stage 1
+				replyList.Add(new() { m_text = "{merchantBuyFor} myself{.}", m_eventName = "MerchantSetTargetAndBuy", m_userdata = -1, m_followUp = new[] { "{merchantBuyFor} you{?}" } });
 				for (int npcI = 0; npcI < GameController.Instance.NpcsTotal; ++npcI)
 				{
 					Dialogue[] dialogues = GameController.NpcDialogues(npcI);
@@ -281,9 +285,21 @@ public class DialogueController : MonoBehaviour
 						continue;
 					}
 					string[] npcNames = dialogues.SelectMany(d => d.m_expressions).Where(e => e.m_object.m_key == "name").Select(e => e.m_object.m_replacement).ToArray(); // TODO: detect current NPC and replace names w/ "you"/"me"
-					replyList.Add(new() { m_text = "For " + npcNames.Random() + "{.}", m_eventName = null, m_userdata = npcI, m_followUp = new[] { "For " + npcNames.Random() + "?", "TODO" } });
+					replyList.Add(new() { m_text = "{merchantBuyFor} " + npcNames.Random() + "{.}", m_eventName = "MerchantSetTargetAndBuy", m_userdata = npcI, m_followUp = new[] { "{merchantBuyFor} " + npcNames.Random() + "{?}" } });
 				}
-				replyList.Add(new() { m_text = "For the house{.}", m_eventName = null, m_userdata = -1, m_followUp = new[] { "For the house?", "TODO" } });
+				// TODO: option for Entryway customization?
+				break;
+			case 2: // customization merchant stage 2
+				for (int type = 0; type < GameController.Instance.m_npcClothing.Length; ++type)
+				{
+					WeightedObject<SavableFactory.SavableInfo> clothingInfo = GameController.Instance.m_npcClothing[type];
+					if (clothingInfo.m_object.m_prefab == null)
+					{
+						continue;
+					}
+					bool enoughMaterials = GameController.MerchantMaterials >= clothingInfo.m_object.m_materialsConsumed;
+					replyList.Add(new() { m_text = clothingInfo.m_object.m_prefab.GetComponent<ClothController>().m_name + " - " + clothingInfo.m_object.m_materialsConsumed + " materials", m_eventName = enoughMaterials ? "MerchantSpawn" : null, m_userdata = type, m_followUp = new[] { enoughMaterials ? (m_merchantTargetIdx == -1 ? "{merchantBuyPost.}" : "{merchantBuyPost2.}") : "{merchantBuyInsufficient.}" } });
+				}
 				break;
 			default:
 				Debug.LogError("Unhandled MerchantBuy type?");
@@ -298,21 +314,42 @@ public class DialogueController : MonoBehaviour
 
 		replyList.Add(new() { m_text = "{merchantBuyCancel.}", m_followUp = new[] { "{merchantBuyCanceled.}" }, m_breakAfterward = true });
 
-		m_queue.Enqueue(new() { m_text = "{merchantBuyPre.} {merchantMaterialsPre} " + GameController.MerchantMaterials + " {merchantMaterialsPost.}", m_replies = replyList.ToArray() }); // TODO: tie MerchantMaterials to a dynamic expression?
+		m_queue.Enqueue(new() { m_text = m_merchantType == 1 ? "{merchantBuyPre1.}" : "{merchantBuyPre.} {merchantMaterialsPre} " + GameController.MerchantMaterials + " {merchantMaterialsPost.}", m_replies = replyList.ToArray() }); // TODO: tie MerchantMaterials to a dynamic expression?
+	}
+
+	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)
+	public void MerchantSetTargetAndBuy(Line.Reply reply)
+	{
+		m_merchantTargetIdx = reply.m_userdata;
+		reply.m_userdata = m_merchantType + 1;
+		MerchantBuy(reply);
 	}
 
 	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)
 	public void MerchantSpawn(Line.Reply reply)
 	{
-		if (Target == null)
+		if (m_merchantTargetIdx < 0 && Target == null)
 		{
 			return;
 		}
+		SavableFactory.SavableInfo[] savables = m_merchantType == 0 ? GameController.Instance.m_savableFactory.m_savables : GameController.Instance.m_npcClothing.Select(weightedObj => weightedObj.m_object).ToArray(); // TODO: efficiency?
 		int savableType = reply.m_userdata;
-		int cost = GameController.Instance.m_savableFactory.m_savables[savableType].m_materialsConsumed;
+		int cost = savables[savableType].m_materialsConsumed;
 		Debug.Assert(GameController.MerchantMaterials >= cost);
-		ISavable savable = GameController.Instance.m_savableFactory.Instantiate(savableType, Target.transform.position, Quaternion.identity);
-		Target.ChildAttach(savable.Component.GetComponent<IAttachable>()); // TODO: don't assume all savables are also attachable?
+
+		KinematicCharacter targetFinal = m_merchantTargetIdx < 0 ? Target : null;
+		if (targetFinal == null)
+		{
+			GameController.Instance.NpcSetClothing(m_merchantTargetIdx, savableType);
+		}
+		else
+		{
+			GameObject savableObj = savables == GameController.Instance.m_savableFactory.m_savables ? GameController.Instance.m_savableFactory.Instantiate(savableType, targetFinal.transform.position, Quaternion.identity).Component.gameObject : Instantiate(savables[savableType].m_prefab, targetFinal.transform);
+			if (savableObj.transform.parent == null && savableObj.TryGetComponent(out IAttachable attachable))
+			{
+				targetFinal.ChildAttach(attachable);
+			}
+		}
 		GameController.MerchantMaterials -= cost;
 	}
 

@@ -355,16 +355,56 @@ MonoBehaviour:
         bring me some stuff first. I can''t make things out of nothing, you know!'
     m_weight: 1
   - m_object:
-      m_key: merchantBuyPre.
-      m_replacement: who's the lucky recipient?
+      m_key: merchantBuyPre1.
+      m_replacement: who's the lucky recipient{?}
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPre1.
+      m_replacement: who's it for{?}
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPre1.
+      m_replacement: for whom{?}
     m_weight: 1
   - m_object:
       m_key: merchantBuyPre.
-      m_replacement: who's it for?
+      m_replacement: '{so} what''d ya have in mind{?}'
     m_weight: 1
   - m_object:
       m_key: merchantBuyPre.
-      m_replacement: for whom?
+      m_replacement: '{so} what''ll it be{?}'
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPre.
+      m_replacement: '{so} what d''ya need{?}'
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPre.
+      m_replacement: '{so} what d''ya need today{?}'
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPre.
+      m_replacement: '{so} what can I do for you{?}'
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPre.
+      m_replacement: '{so} what can I do ya for? Uh, I mean, what can I do for you?'
+    m_weight: 0.25
+  - m_object:
+      m_key: merchantBuyPre.
+      m_replacement: '{so} what''s the need today{?}'
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyFor
+      m_replacement: 
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyFor
+      m_replacement: for
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyFor
+      m_replacement: it's for
     m_weight: 1
   - m_object:
       m_key: merchantBuyPost.
@@ -381,6 +421,10 @@ MonoBehaviour:
   - m_object:
       m_key: merchantBuyPost.
       m_replacement: give me a moment{.} Just kidding, I'm already done!
+    m_weight: 1
+  - m_object:
+      m_key: merchantBuyPost2.
+      m_replacement: Alright, I'll get that delivered when I have a chance.
     m_weight: 1
   - m_object:
       m_key: merchantBuyInsufficient.

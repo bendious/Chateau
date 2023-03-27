@@ -3,20 +3,30 @@ using UnityEngine;
 
 public class ClothController : MonoBehaviour
 {
+	public string m_name;
 	[SerializeField] private Vector3 m_offset;
 	[SerializeField] private bool m_offsetFromHead;
 
 
+	private Cloth m_cloth;
 	private KinematicCharacter m_character;
 
 	private bool m_wasLeftFacing;
 
 
+	private void Awake() => m_cloth = GetComponent<Cloth>();
+
 	private void Start()
 	{
-		m_character = GetComponentInParent<KinematicCharacter>(); // TODO: handle attachment/detachment
-
-		GetComponent<Cloth>().capsuleColliders = m_character.GetComponentsInChildren<CapsuleCollider>(); // TODO: also support sphere collider pairs? don't stomp existing capsuleColliders[] entries?
+		// TODO: handle attachment/detachment?
+		if (transform.parent != null)
+		{
+			m_character = GetComponentInParent<KinematicCharacter>();
+			if (m_character != null)
+			{
+				m_cloth.capsuleColliders = m_character.GetComponentsInChildren<CapsuleCollider>(); // TODO: also support sphere collider pairs? don't stomp existing capsuleColliders[] entries?
+			}
+		}
 	}
 
 	private void LateUpdate()
