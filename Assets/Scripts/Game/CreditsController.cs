@@ -60,7 +60,7 @@ public class CreditsController : MonoBehaviour
 
 	private IEnumerator SetInitialRoomDelayed()
 	{
-		yield return new WaitUntil(() => !GameController.IsSceneLoad); // due to GameController.m_startRoom not being immediately available
+		yield return new WaitUntil(() => GameController.Instance.RoomsReady); // due to GameController.m_startRoom not being immediately available
 		UpdateRoom(null);
 	}
 

@@ -140,6 +140,8 @@ public class GameController : MonoBehaviour
 
 	public RoomController[] SpecialRooms { get; private set; }
 
+	public bool RoomsReady => m_roomRoots.Count > 0; // TODO: ensure all rooms have been generated?
+
 	public int NpcsTotal => m_npcs.Length; // NOTE that this is not available until after Start()
 	public int NpcsInstantiatedCount => m_npcsInstantiated.Count;
 
@@ -597,7 +599,7 @@ public class GameController : MonoBehaviour
 
 	public void AddCameraTargetsSized(float size, params Transform[] transforms)
 	{
-		foreach (Transform tf in transforms)
+		foreach (Transform tf in transforms) // TODO: prevent multiple array allocations if adding multiple "at once"?
 		{
 			m_ctGroupMain.RemoveMember(tf); // prevent duplication // TODO: necessary?
 			m_ctGroupMain.AddMember(tf, 1.0f, size); // TODO: blend weight in?
@@ -607,7 +609,7 @@ public class GameController : MonoBehaviour
 
 	public void RemoveCameraTargets(params Transform[] transforms)
 	{
-		foreach (Transform tf in transforms)
+		foreach (Transform tf in transforms) // TODO: prevent multiple array allocations if removing multiple "at once"?
 		{
 			m_ctGroupMain.RemoveMember(tf); // TODO: blend weight out?
 		}
@@ -1432,6 +1434,8 @@ public class GameController : MonoBehaviour
 
 	private void OnObjectDespawn(ObjectDespawn evt)
 	{
+		RemoveCameraTargets(evt.m_object.transform);
+
 		if (!evt.m_object.TryGetComponent(out AIController ai))
 		{
 			return;

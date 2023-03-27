@@ -479,7 +479,7 @@ public class LockController : MonoBehaviour, IUnlockable
 			}
 			else
 			{
-				Simulation.Schedule<CameraTargetRemove>(1.0f).m_transform = transform; // TODO: guarantee camera reaches us?
+				Simulation.Schedule<CameraTargetRemove>(1.0f).m_transform = transform; // TODO: parameterize? guarantee camera reaches us?
 
 				if (TryGetComponent(out Hazard hazard))
 				{

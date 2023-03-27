@@ -72,6 +72,7 @@ public class GateController : MonoBehaviour, IUnlockable
 		if (m_ladderPrefabs != null && m_ladderPrefabs.Length > 0)
 		{
 			Parent.GetComponent<RoomController>().SpawnLadder(gameObject, m_ladderPrefabs.RandomWeighted(), true);
+			Simulation.Schedule<CameraTargetRemove>(1.0f).m_transform = transform; // TODO: parameterize? guarantee camera reaches us?
 		}
 		else
 		{
