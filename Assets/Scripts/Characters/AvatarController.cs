@@ -143,7 +143,7 @@ public sealed class AvatarController : KinematicCharacter
 			// update velocity
 			move = move.SmoothDamp(m_moveDesired, ref m_moveVel, m_moveSpringDampTime);
 		}
-		else if (IsGrounded)
+		else if (IsGrounded || gravityModifier.FloatEqual(0.0f))
 		{
 			move = Vector2.zero;
 		}

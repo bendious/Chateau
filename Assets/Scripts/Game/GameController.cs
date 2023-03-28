@@ -162,6 +162,7 @@ public class GameController : MonoBehaviour
 #endif
 	private static int m_seed;
 
+	public int SceneIndexEffective => m_isHubScene ? 0 : SceneManager.GetActiveScene().buildIndex; // due to alternate hub scenes needing to act as if they were the same scene // TODO: don't assume an index of 0?
 	public static int SceneIndexPrev { get; private set; } = -1;
 
 	private static GameObject m_loadingScreenPersistent;
@@ -754,10 +755,10 @@ public class GameController : MonoBehaviour
 
 	private IEnumerator LoadSceneCoroutine(string name, bool save, bool noInventoryClear, bool setPrevScene)
 	{
-		Scene sceneCur = SceneManager.GetActiveScene();
-		if (setPrevScene && sceneCur.name != name)
+		int sceneIdx = SceneIndexEffective;
+		if (setPrevScene && SceneManager.GetActiveScene().name != name)
 		{
-			SceneIndexPrev = sceneCur.buildIndex;
+			SceneIndexPrev = sceneIdx;
 		}
 
 		if (save)
@@ -775,7 +776,7 @@ public class GameController : MonoBehaviour
 
 		foreach (AvatarController avatar in m_avatars)
 		{
-			avatar.Respawn(!noInventoryClear && !Victory && ZonesFinishedCount < sceneCur.buildIndex, true);
+			avatar.Respawn(!noInventoryClear && !Victory && ZonesFinishedCount < sceneIdx, true);
 		}
 
 		SceneManager.LoadScene(name);
@@ -796,7 +797,7 @@ public class GameController : MonoBehaviour
 		}
 
 		Victory = true;
-		ZonesFinishedCount = System.Math.Max(ZonesFinishedCount, SceneManager.GetActiveScene().buildIndex);
+		ZonesFinishedCount = System.Math.Max(ZonesFinishedCount, SceneIndexEffective);
 		foreach (AvatarController avatar in m_avatars)
 		{
 			avatar.OnVictory();

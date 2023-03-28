@@ -32,7 +32,7 @@ public class InteractScene : MonoBehaviour, IInteractable
 	}
 
 
-	public bool CanInteract(KinematicCharacter interactor) => enabled && (ShouldPlayDialogue ? !GameController.Instance.m_dialogueController.IsPlaying : !string.IsNullOrEmpty(m_sceneDestination)) && m_interactor == null;
+	public bool CanInteract(KinematicCharacter interactor) => enabled && (ShouldPlayDialogue ? !GameController.Instance.m_dialogueController.IsPlaying : !string.IsNullOrEmpty(m_sceneDestination)) && m_interactor == null && !interactor.HasForcedVelocity;
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{

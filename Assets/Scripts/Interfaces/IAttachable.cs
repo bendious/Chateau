@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.VFX;
@@ -33,8 +34,7 @@ public interface IAttachable
 
 		Component holderComp = holder.Component;
 		attachableTf.SetParent(holderComp.transform);
-		attachableTf.localPosition = holder.ChildAttachPointLocal; // TODO: lerp?
-		attachableTf.localRotation = Quaternion.identity; // TODO: lerp?
+		attachableTf.SetLocalPositionAndRotation(holder.ChildAttachPointLocal, Quaternion.identity); // TODO: lerp?
 
 		body.velocity = Vector2.zero;
 		body.angularVelocity = 0.0f;
@@ -89,7 +89,7 @@ public interface IAttachable
 		Transform parentTf = tf.parent;
 		SpriteRenderer renderer = tf.GetComponentInChildren<SpriteRenderer>();
 		SpriteRenderer parentRenderer = parentTf == null ? null : parentTf.GetComponent<SpriteRenderer>();
-		VisualEffect[] vfx = renderer.GetComponentsInChildren<VisualEffect>(true);
+		VisualEffect[] vfx = renderer.GetComponentsInChildren<VisualEffect>().Where(vfx => vfx.enabled).ToArray(); // NOTE that we deliberately ignore deactivated/disabled VFX to avoid stomping their state // TODO: detect post-attachment enabling?
 		LightFlickerSynced[] lights = renderer.GetComponentsInChildren<LightFlickerSynced>(true); // TODO: handle non-flicker lights?
 		WaitUntil waitCondition = new(() => parentTf == null || tf.parent != parentTf || parentRenderer.color.a != renderer.color.a);
 

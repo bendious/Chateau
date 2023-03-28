@@ -739,7 +739,7 @@ public class RoomController : MonoBehaviour
 
 				case LayoutGenerator.Node.Type.Npc:
 				case LayoutGenerator.Node.Type.NpcGroup:
-					int sceneIdx = SceneManager.GetActiveScene().buildIndex;
+					int sceneIdx = GameController.Instance.SceneIndexEffective;
 					int numToSpawn = node.m_type == LayoutGenerator.Node.Type.NpcGroup ? GameController.ZonesFinishedCount - npcDepthLocal + (GameController.Instance.NpcsTotal - GameController.m_zoneCount) : (npcDepthLocal + GameController.ZonesFinishedCount >= sceneIdx ? 0 : 1);
 					for (int npcI = 0; npcI < numToSpawn; ++npcI)
 					{
@@ -784,7 +784,7 @@ public class RoomController : MonoBehaviour
 					Bounds placementBounds = BoundsInterior;
 					Vector3 spawnPos = InteriorPosition(float.MaxValue, hintPrefab); // NOTE that we don't use edgeBuffer to ensure the whole sequence can fit since the total width can be wide enough to exclude all vertical placements in some rooms
 					float width = 0.0f;
-					int sceneIdxEffective = GameController.Instance.m_isHubScene ? 0 : SceneManager.GetActiveScene().buildIndex; // TODO: don't assume all hub scenes should share the first index?
+					int sceneIdxEffective = GameController.Instance.SceneIndexEffective;
 					List<GameObject> spawnedHints = new();
 					for (int i = 0; i < (node.m_type == LayoutGenerator.Node.Type.FinalHintSequence ? GameController.m_narrowPathLength : 1); ++i)
 					{
