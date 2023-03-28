@@ -25,6 +25,16 @@ public class ClothController : MonoBehaviour
 			if (m_character != null)
 			{
 				m_cloth.capsuleColliders = m_character.GetComponentsInChildren<CapsuleCollider>(); // TODO: also support sphere collider pairs? don't stomp existing capsuleColliders[] entries?
+
+				// prevent double-clothing
+				foreach (ClothController otherCloth in m_character.GetComponentsInChildren<ClothController>())
+				{
+					if (otherCloth != this && otherCloth.m_offsetFromHead == m_offsetFromHead) // TODO: don't assume that only one clothing item is ever allowed per "slot"?
+					{
+						// TODO: detach rather than despawning?
+						Simulation.Schedule<ObjectDespawn>().m_object = otherCloth.gameObject;
+					}
+				}
 			}
 		}
 	}

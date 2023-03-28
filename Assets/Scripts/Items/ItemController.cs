@@ -144,7 +144,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 		{
 			if (vfx.enabled)
 			{
-				vfx.Play(); // TODO: determine why this doesn't work after arm hiding/revealing
+				vfx.Play();
 			}
 		}
 
