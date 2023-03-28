@@ -525,7 +525,7 @@ public class LayoutGenerator
 
 		while (nodeQueue.TryDequeue(out Node nodeItr))
 		{
-			if (GameController.Instance.LoadShouldYield("LayoutGenerator.Generate()"))
+			if (GameController.Instance.InitShouldYield("LayoutGenerator.Generate()"))
 			{
 				yield return null;
 			}

@@ -242,10 +242,10 @@ public class GameController : MonoBehaviour
 
 		m_waveWeight = m_waveStartWeight;
 
-		StartCoroutine(LoadCoroutine());
+		StartCoroutine(InitCoroutine());
 	}
 
-	private IEnumerator LoadCoroutine()
+	private IEnumerator InitCoroutine()
 	{
 		Time.timeScale = 0.0f; // to prevent SFX/animations/etc. playing behind the loading screen
 
@@ -262,7 +262,7 @@ public class GameController : MonoBehaviour
 			m_startHealth = 1.0f;
 		}
 
-		if (LoadShouldYield("Post-tutorialCheck")) { yield return null; }
+		if (InitShouldYield("Post-tutorialCheck")) { yield return null; }
 
 		LayoutGenerator generator = new(new(m_type));
 		yield return StartCoroutine(generator.Generate());
@@ -303,11 +303,11 @@ public class GameController : MonoBehaviour
 			yield break;
 		}
 
-		if (LoadShouldYield("Post-generate")) { yield return null; }
+		if (InitShouldYield("Post-generate")) { yield return null; }
 
-		bool saveExists = Load();
+		bool saveExists = LoadFromFile();
 
-		if (LoadShouldYield("Post-savefile")) { yield return null; }
+		if (InitShouldYield("Post-savefile")) { yield return null; }
 
 		// first-time initializations
 		if (m_npcs == null)
@@ -334,7 +334,7 @@ public class GameController : MonoBehaviour
 			float roomWidthMin = roomsHighToLow.Min(room => room.Bounds.size.x);
 			foreach (RoomController room in roomsHighToLow)
 			{
-				if (LoadShouldYield("roomsHighToLow.FinalizeTopDown()")) { yield return null; }
+				if (InitShouldYield("roomsHighToLow.FinalizeTopDown()")) { yield return null; }
 				room.FinalizeTopDown(roomWidthMin);
 			}
 		}
@@ -372,7 +372,7 @@ public class GameController : MonoBehaviour
 			}
 		}
 
-		if (LoadShouldYield("Post-upgradeIndicators")) { yield return null; }
+		if (InitShouldYield("Post-upgradeIndicators")) { yield return null; }
 
 		// spawn directional signs
 		int signIdx = 0;
@@ -394,7 +394,7 @@ public class GameController : MonoBehaviour
 			++signIdx;
 		}
 
-		if (LoadShouldYield("Post-directionalSigns")) { yield return null; }
+		if (InitShouldYield("Post-directionalSigns")) { yield return null; }
 
 		if (m_avatars.Count > 0)
 		{
@@ -411,21 +411,21 @@ public class GameController : MonoBehaviour
 			EnterAtDoor(true, m_avatars.ToArray());
 		}
 
-		if (LoadShouldYield("Post-ApplyUpgrades()")) { yield return null; }
+		if (InitShouldYield("Post-ApplyUpgrades()")) { yield return null; }
 
 		if (m_startWavesImmediately)
 		{
 			StartWaves();
 		}
 
-		if (LoadShouldYield("Post-StartWaves()")) { yield return null; }
+		if (InitShouldYield("Post-StartWaves()")) { yield return null; }
 
 		if ((m_quitText != null || m_avatars.Count <= 0) && m_inputManager != null)
 		{
 			m_inputManager.EnableJoining();
 		}
 
-		if (LoadShouldYield("Post-EnableJoining()")) { yield return null; }
+		if (InitShouldYield("Post-EnableJoining()")) { yield return null; }
 
 		StartCoroutine(FadeCoroutine(false, false));
 
@@ -579,7 +579,7 @@ public class GameController : MonoBehaviour
 	private void OnApplicationQuit() => IsSceneLoad = true;
 
 
-	public bool LoadShouldYield(string debugName)
+	public bool InitShouldYield(string debugName)
 	{
 		const float timeMax = 1.0f / 30.0f; // TODO: parameterize/derive?
 		if (Time.realtimeSinceStartup - m_loadYieldTimePrev >= timeMax)
@@ -763,7 +763,7 @@ public class GameController : MonoBehaviour
 
 		if (save)
 		{
-			Save();
+			SaveToFile();
 		}
 
 		if (Time.timeScale == 0.0f)
@@ -1136,7 +1136,7 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	private void Save()
+	private void SaveToFile()
 	{
 		Scene activeScene = SceneManager.GetActiveScene();
 		if (!m_saveLoadEnabled && SaveHelpers.Exists()) // NOTE that we have to initially create saves from the tutorial scene in order to avoid an infinite loop from Start() tutorial-load check
@@ -1185,7 +1185,7 @@ public class GameController : MonoBehaviour
 		saveFile.Write(savableObjs, obj => ISavable.Save(saveFile, obj.GetComponent<ISavable>()));
 	}
 
-	private bool Load()
+	private bool LoadFromFile()
 	{
 		Scene activeScene = SceneManager.GetActiveScene();
 		if (!m_saveLoadEnabled)
@@ -1539,7 +1539,7 @@ public class GameController : MonoBehaviour
 		if (m_saveLoadEnabled) // to prevent save-quitting from Tutorial (see Save() exception for creating saves outside the Entryway) // TODO: replace Tutorial Quit button w/ Entryway button once Tutorial has been completed?
 		{
 			m_avatars.First().DetachAll(); // to save even items being held
-			Save();
+			SaveToFile();
 		}
 
 		Quit(true);
