@@ -123,8 +123,8 @@ public class GameController : MonoBehaviour
 
 	public static Dialogue[] NpcDialogues(int index) => m_npcs[index].m_dialogues;
 	public static Color NpcColor(int index) => m_npcs[index].m_color;
-	public static GameObject NpcClothing(int index) => m_npcs[index].m_clothing;
-	public GameObject NpcSetClothing(int npcIndex, int clothingIndex) => m_npcs[npcIndex].m_clothing = m_npcClothing[clothingIndex].m_object.m_prefab;
+	public static List<GameObject> NpcClothing(int index) => m_npcs[index].m_clothing;
+	public void NpcAddClothing(int npcIndex, int clothingIndex) => m_npcs[npcIndex].m_clothing.Add(m_npcClothing[clothingIndex].m_object.m_prefab);
 
 	public static int[] MerchantAcquiredCounts;
 	public static int MerchantMaterials;
@@ -176,7 +176,7 @@ public class GameController : MonoBehaviour
 	{
 		public Dialogue[] m_dialogues;
 		public Color m_color;
-		public GameObject m_clothing; // TODO: support multiple pieces?
+		public List<GameObject> m_clothing;
 	}
 	private static NpcInfo[] m_npcs;
 
@@ -904,7 +904,7 @@ public class GameController : MonoBehaviour
 		{
 			colors.Add(Utility.ColorRandom(Color.black, Color.white, false, colorEpsilon, colors.ToArray())); // TODO: efficiency? differentiate closest-together colors first?
 		}
-		m_npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => System.Tuple.Create(a, b)).Zip(m_npcLoyalties.RandomWeightedOrder(), (ab, c) => new[] { ab.Item1, ab.Item2, c }).Zip(colors, (dialogues, color) => System.Tuple.Create(dialogues, color)).Zip(m_npcClothing.RandomWeightedOrder(), (dialoguesColor, clothing) => new NpcInfo { m_dialogues = dialoguesColor.Item1, m_color = dialoguesColor.Item2, m_clothing = clothing.m_prefab }).ToArray();
+		m_npcs = m_npcAttitudes.RandomWeightedOrder().Zip(m_npcRoles.RandomWeightedOrder(), (a, b) => System.Tuple.Create(a, b)).Zip(m_npcLoyalties.RandomWeightedOrder(), (ab, c) => new[] { ab.Item1, ab.Item2, c }).Zip(colors, (dialogues, color) => System.Tuple.Create(dialogues, color)).Zip(m_npcClothing.RandomWeightedOrder(), (dialoguesColor, clothing) => new NpcInfo { m_dialogues = dialoguesColor.Item1, m_color = dialoguesColor.Item2, m_clothing = new() { clothing.m_prefab } }).ToArray();
 		Debug.Assert(n == NpcsTotal);
 
 		// TODO: cleaner initialization / helper function?
@@ -1158,7 +1158,7 @@ public class GameController : MonoBehaviour
 				saveFile.Write(dialogue.m_dialogue, option => saveFile.Write(option.m_weight));
 			});
 			saveFile.Write(npc.m_color);
-			saveFile.Write(System.Array.FindIndex(m_npcClothing, option => option.m_object.m_prefab == npc.m_clothing)); // TODO: handle duplicates?
+			saveFile.Write(npc.m_clothing, clothingPrefab => saveFile.Write(System.Array.FindIndex(m_npcClothing, option => option.m_object.m_prefab == clothingPrefab))); // TODO: handle duplicates?
 		});
 
 		saveFile.Write(m_npcRelationshipPcts, row => saveFile.Write(row, entry => saveFile.Write(entry)));
@@ -1221,7 +1221,9 @@ public class GameController : MonoBehaviour
 					});
 					return dialogueTmp;
 				});
-				return new NpcInfo { m_dialogues = dialogue, m_color = saveFile.ReadColor(), m_clothing = m_npcClothing[saveFile.ReadInt32()].m_object.m_prefab };
+				Color color = saveFile.ReadColor();
+				List<GameObject> clothing = saveFile.ReadArray(() => m_npcClothing[saveFile.ReadInt32()].m_object.m_prefab).ToList();
+				return new NpcInfo { m_dialogues = dialogue, m_color = color, m_clothing = clothing };
 			});
 
 			m_npcRelationshipPcts = saveFile.ReadArray(() => saveFile.ReadArray(() => saveFile.ReadSingle()));

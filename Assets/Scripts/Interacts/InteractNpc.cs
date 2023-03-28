@@ -12,6 +12,8 @@ public class InteractNpc : MonoBehaviour, IInteractable
 
 	[SerializeField] private float m_weightUseScalar = 0.25f;
 
+	[SerializeField] private float m_clothingSkipPct = 0.25f;
+
 
 	public int Index { get; set; }
 
@@ -36,9 +38,12 @@ public class InteractNpc : MonoBehaviour, IInteractable
 		// set NPC appearance
 		// TODO: move elsewhere?
 		GetComponent<SpriteRenderer>().color = GameController.NpcColor(Index);
-		GameObject clothing = GameController.NpcClothing(Index);
-		if (clothing != null)
+		foreach (GameObject clothing in GameController.NpcClothing(Index).OrderBy(o => Random.value)) // TODO: deliberately pick up to one for each "slot"?
 		{
+			if (clothing == null || Random.value <= m_clothingSkipPct) // TODO: deliberately choose when to skip slots?
+			{
+				continue;
+			}
 			Instantiate(clothing, transform);
 		}
 

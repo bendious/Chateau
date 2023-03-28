@@ -340,7 +340,7 @@ public class DialogueController : MonoBehaviour
 		KinematicCharacter targetFinal = m_merchantTargetIdx < 0 ? Target : null;
 		if (targetFinal == null)
 		{
-			GameController.Instance.NpcSetClothing(m_merchantTargetIdx, savableType);
+			GameController.Instance.NpcAddClothing(m_merchantTargetIdx, savableType);
 		}
 		else
 		{
