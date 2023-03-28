@@ -149,11 +149,14 @@ public sealed class AIController : KinematicCharacter
 		}
 
 		// aim items
-		if (HoldCountMax > 0 && m_aimLastFrame != Time.frameCount)
+		if (HoldCountMax > 0)
 		{
-			UpdateAimPosition();
+			if (m_aimLastFrame != Time.frameCount)
+			{
+				UpdateAimPosition();
+				m_aimLastFrame = Time.frameCount;
+			}
 			AimArms(m_aimPosition, AimOffsetDegrees, AimScalar);
-			m_aimLastFrame = Time.frameCount;
 		}
 	}
 
