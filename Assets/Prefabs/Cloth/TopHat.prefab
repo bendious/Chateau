@@ -155,28 +155,5 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5740513439009272771, guid: ae9b33a6758aaf746a8ceae00987e8fa, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 7996960496475479156}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ae9b33a6758aaf746a8ceae00987e8fa, type: 3}
---- !u!1 &1555560185630565423 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5740513439009272771, guid: ae9b33a6758aaf746a8ceae00987e8fa, type: 3}
-  m_PrefabInstance: {fileID: 6502093066072020972}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &7996960496475479156
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1555560185630565423}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_colorMin: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-  m_colorMax: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  m_proportional: 1

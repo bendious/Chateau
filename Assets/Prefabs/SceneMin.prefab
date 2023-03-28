@@ -2032,14 +2032,24 @@ MonoBehaviour:
       m_materialsConsumed: 60
     m_weight: 1
   - m_object:
-      m_prefab: {fileID: 0}
-      m_materialsProduced: 0
-      m_materialsConsumed: 0
+      m_prefab: {fileID: 7098736142214211982, guid: e116bb261fffeda4bae321514cbdb240, type: 3}
+      m_materialsProduced: 30
+      m_materialsConsumed: 45
     m_weight: 1
   - m_object:
-      m_prefab: {fileID: 0}
-      m_materialsProduced: 0
-      m_materialsConsumed: 0
+      m_prefab: {fileID: 6487899418873479968, guid: e33f452ed2ab0494d88bbc48c9af0c08, type: 3}
+      m_materialsProduced: 40
+      m_materialsConsumed: 60
+    m_weight: 1
+  - m_object:
+      m_prefab: {fileID: 4207189826203090642, guid: c8138c2d8714d184da49fd3953bef724, type: 3}
+      m_materialsProduced: 50
+      m_materialsConsumed: 75
+    m_weight: 1
+  - m_object:
+      m_prefab: {fileID: 1440030074046269939, guid: 159f71237c2dd9e4189bb7c743fe1a2d, type: 3}
+      m_materialsProduced: 75
+      m_materialsConsumed: 100
     m_weight: 1
   m_doorInteractPrefabs:
   - {fileID: 5746196675388104066, guid: a24e9833324864f489338cfc83a32cdc, type: 3}

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2856132380894005419}
   - component: {fileID: 4958244110621132046}
   - component: {fileID: 8398231916858131098}
+  - component: {fileID: 5162242310815798575}
   m_Layer: 7
   m_Name: ShirtCheckered
   m_TagString: Untagged
@@ -183,3 +184,18 @@ Cloth:
   m_SelfAndInterCollisionIndices: 
   m_VirtualParticleWeights: []
   m_VirtualParticleIndices: 
+--- !u!114 &5162242310815798575
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5740513439009272771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d350d7ed443aae04cbcc07b732c6c0b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_colorMin: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  m_colorMax: {r: 1, g: 1, b: 1, a: 1}
+  m_proportional: 0
