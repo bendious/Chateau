@@ -200,11 +200,11 @@ public sealed class AIController : KinematicCharacter
 		{
 			return false;
 		}
-		if (m_friendly && target.GetComponent<AvatarController>() != null)
+		if (m_friendly && target.GetComponentInParent<AvatarController>() != null)
 		{
 			return false;
 		}
-		AIController otherAI = target.GetComponent<AIController>();
+		AIController otherAI = target.GetComponentInParent<AIController>();
 		if (otherAI != null && otherAI.m_friendly == m_friendly)
 		{
 			return false;

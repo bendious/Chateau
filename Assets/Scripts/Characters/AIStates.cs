@@ -35,13 +35,14 @@ public abstract class AIState
 
 	private readonly bool m_targetFriendlies;
 	private readonly float m_ignoreDistancePct;
+	private readonly float m_initialTargetDelayMax;
 
-
-	public AIState(AIController ai, bool targetFriendlies = false, float ignoreDistancePct = 0.0f)
+	public AIState(AIController ai, bool targetFriendlies = false, float ignoreDistancePct = 0.0f, float initialTargetDelayMax = 0.5f)
 	{
 		m_ai = ai;
 		m_targetFriendlies = targetFriendlies;
 		m_ignoreDistancePct = ignoreDistancePct;
+		m_initialTargetDelayMax = initialTargetDelayMax;
 	}
 
 	public static AIState FromTypePrioritized(Type[] allowedTypes, AIController ai)
@@ -55,7 +56,7 @@ public abstract class AIState
 
 		// TODO: efficiency?
 		bool enemyAccessible = GameController.Instance.AiTargets.Any(target => target.TargetPriority(ai, false) > 0.0f && PathfindDistanceTo(ai, target.gameObject) != float.MaxValue);
-		bool itemAccessible = allowedTypes.Contains(Type.FindAmmo) && ItemsTargetable.Any(item => item.transform.parent == null && PathfindDistanceTo(ai, item.gameObject) != float.MaxValue);
+		bool itemAccessible = allowedTypes.Contains(Type.FindAmmo) && ItemsTargetable.Any(item => item.Priority(ai) > 0.0f && PathfindDistanceTo(ai, item.gameObject) != float.MaxValue);
 
 		float[] priorities = allowedTypes.Select(type =>
 		{
@@ -144,8 +145,8 @@ public abstract class AIState
 	public virtual void Enter()
 	{
 		// NOTE that we don't want all AI spawned at the same time to retarget/repath immediately, but we also don't want any to just stand around for too long, so we just use a small fixed randomization
-		m_ai.m_targetSelectTimeNext = Time.time + Random.Range(0.0f, 0.5f);
-		m_ai.m_pathfindTimeNext = m_ai.m_targetSelectTimeNext + Random.Range(0.0f, 0.5f);
+		m_ai.m_targetSelectTimeNext = Time.time + Random.Range(0.0f, m_initialTargetDelayMax);
+		m_ai.m_pathfindTimeNext = m_ai.m_targetSelectTimeNext + Random.Range(0.0f, m_initialTargetDelayMax);
 	}
 
 	public virtual AIState Update()
@@ -163,7 +164,7 @@ public abstract class AIState
 		return this;
 	}
 
-	public virtual void Retarget()
+	protected virtual void Retarget()
 	{
 		KinematicCharacter[] candidates = GameController.Instance.AiTargets.ToArray();
 		if (candidates.Length <= 0)
@@ -314,7 +315,7 @@ public sealed class AIFraternize : AIState
 		return this;
 	}
 
-	public override void Retarget()
+	protected override void Retarget()
 	{
 		if (m_wanderTarget != null)
 		{
@@ -395,7 +396,7 @@ public class AIPursue : AIState
 		return this;
 	}
 
-	public override void Retarget()
+	protected override void Retarget()
 	{
 		if (m_ai.OnlyPursueAvatar)
 		{
@@ -809,35 +810,27 @@ public sealed class AIFindAmmo : AIState
 	public float m_multiFindPct = 0.5f; // TODO: determine based on relative distances to other items versus m_ai.m_target?
 
 
+	private Transform m_targetParent;
+
+
 	public AIFindAmmo(AIController ai)
-		: base(ai)
+		: base(ai, initialTargetDelayMax: 0.1f)
 	{
-	}
-
-	public override void Enter()
-	{
-		base.Enter();
-
-		Retarget();
 	}
 
 	public override AIState Update()
 	{
+		// validate target
+		if (m_ai.m_target == null || (m_ai.m_target.transform.parent != m_targetParent))
+		{
+			// request immediate retargeting in base.Update()
+			m_ai.m_targetSelectTimeNext = Time.time;
+		}
+
 		AIState baseVal = base.Update();
 		if (baseVal != this)
 		{
 			return baseVal;
-		}
-
-		// validate target
-		if (m_ai.m_target == null || (m_ai.m_target.transform.parent != null && m_ai.m_target.transform.parent != m_ai.transform))
-		{
-			Retarget();
-			if (m_ai.m_target == null)
-			{
-				// no reachable items? exit and fallback on some other state
-				return null;
-			}
 		}
 
 		// move
@@ -864,7 +857,7 @@ public sealed class AIFindAmmo : AIState
 		return this;
 	}
 
-	public override void Retarget()
+	protected override void Retarget()
 	{
 		ItemController[] items = ItemsTargetable;
 
@@ -872,19 +865,16 @@ public sealed class AIFindAmmo : AIState
 		// TODO: allow some variation
 		System.Tuple<ItemController, float> closestTarget = items.Length <= 0 ? System.Tuple.Create<ItemController, float>(null, float.MaxValue) : items.SelectMinWithValue(item =>
 		{
-			if (item.transform.parent != null)
-			{
-				return float.MaxValue; // ignore held items
-			}
 			Hazard hazard = item.GetComponent<Hazard>();
 			if (hazard != null && hazard.isActiveAndEnabled)
 			{
 				return float.MaxValue; // ignore hazardous items // TODO: allow sometimes / one time if not self-activated?
 			}
-			return PathfindDistanceTo(m_ai, item.gameObject);
+			return PathfindDistanceTo(m_ai, item.gameObject) / Mathf.Max(float.Epsilon, item.Priority(m_ai));
 		});
 
 		m_ai.m_target = closestTarget.Item1 == null || closestTarget.Item2 == float.MaxValue ? null : closestTarget.Item1;
+		m_targetParent = m_ai.m_target == null ? null : m_ai.m_target.transform.parent;
 	}
 
 	public override void Exit()
@@ -946,7 +936,7 @@ public sealed class AITeleport : AIState
 		return null;
 	}
 
-	public override void Retarget() => m_ai.m_target = null;
+	protected override void Retarget() => m_ai.m_target = null;
 }
 
 

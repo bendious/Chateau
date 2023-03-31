@@ -1388,7 +1388,7 @@ public class RoomController : MonoBehaviour
 		foreach (DoorwayInfo doorway in m_doorwayInfos)
 		{
 			const PathFlags flags = PathFlags.ObstructionCheck | PathFlags.Directional;
-			if (doorway.ConnectedRoom == null || (isBossUnseal && doorway.ParentRoom != null && RoomPath(doorway.Room.gameObject, doorway.ConnectedRoom.gameObject, flags) != null && doorway.ConnectedRoom.RoomPath(doorway.ConnectedRoom.gameObject, doorway.Room.gameObject, flags) != null)) // TODO: efficiency?
+			if (doorway.ConnectedRoom == null || ((doorway.m_disallowLadders || m_ladderRungPrefabs.Length <= 0) && doorway.DirectionOutward() == Vector2.up) || (isBossUnseal && doorway.ParentRoom != null && RoomPath(doorway.Room.gameObject, doorway.ConnectedRoom.gameObject, flags) != null && doorway.ConnectedRoom.RoomPath(doorway.ConnectedRoom.gameObject, doorway.Room.gameObject, flags) != null)) // TODO: efficiency?
 			{
 				continue;
 			}

@@ -117,6 +117,14 @@ PrefabInstance:
       propertyPath: m_swingInfo.m_damage
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_interactPriorityAttached
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653506315644129220, guid: 70ee6a703bf463945bc0cabf532b6139, type: 3}
+      propertyPath: m_interactPriorityAttachedFriendly
+      value: 0.005
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

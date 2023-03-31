@@ -406,7 +406,7 @@ public abstract class KinematicCharacter : KinematicObject, IHolder
 	}
 
 
-	public virtual bool CanDamage(GameObject target) => gameObject != target;
+	public virtual bool CanDamage(GameObject target) => gameObject != target; // TODO: check parent objects?
 
 	// TODO: CanBeDamagedBy()?
 

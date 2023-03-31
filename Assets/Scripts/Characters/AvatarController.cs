@@ -716,7 +716,7 @@ public sealed class AvatarController : KinematicCharacter
 
 	public override bool CanDamage(GameObject target)
 	{
-		if (!base.CanDamage(target) || GameController.Instance.m_avatars.Exists(avatar => avatar.gameObject == target))
+		if (!base.CanDamage(target) || target.GetComponentInParent<AvatarController>() != null)
 		{
 			return false;
 		}

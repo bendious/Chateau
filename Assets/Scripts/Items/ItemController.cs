@@ -11,6 +11,8 @@ using UnityEngine.VFX;
 public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, IKey, ISavable
 {
 	[SerializeField] private float m_interactPriority = 1.0f;
+	[SerializeField] private float m_interactPriorityAttached = 0.1f;
+	[SerializeField] private float m_interactPriorityAttachedFriendly = 0.01f;
 
 	[TextArea] public string m_tooltip;
 
@@ -181,7 +183,7 @@ public sealed class ItemController : MonoBehaviour, IInteractable, IAttachable, 
 	private void OnDestroy() => IsCriticalPath = false; // to ensure cleanup of a possible SceneManager.sceneLoaded delegate
 
 
-	public float Priority(KinematicCharacter interactor) => m_interactPriority;
+	public float Priority(KinematicCharacter interactor) => transform.parent == null || interactor is AvatarController ? m_interactPriority : interactor.CanDamage(transform.parent.gameObject) ? m_interactPriorityAttached : GameController.Instance.ActiveEnemiesRemain() ? m_interactPriorityAttachedFriendly : 0.0f; // TODO: allow occasional theft from friendlies even when not in combat?
 
 	public void Interact(KinematicCharacter interactor, bool reverse) => interactor.ChildAttach(this);
 
