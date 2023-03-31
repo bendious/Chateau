@@ -32,19 +32,18 @@ public class InteractScene : MonoBehaviour, IInteractable
 	}
 
 
-	public bool CanInteract(KinematicCharacter interactor) => enabled && (ShouldPlayDialogue ? !GameController.Instance.m_dialogueController.IsPlaying : !string.IsNullOrEmpty(m_sceneDestination)) && m_interactor == null && !interactor.HasForcedVelocity;
+	public bool CanInteract(KinematicCharacter interactor) => enabled && (ShouldPlayDialogue ? !GameController.Instance.m_dialogueController.IsPlaying : !string.IsNullOrEmpty(m_sceneDestination)) && (!m_isSaveDeletion || SaveHelpers.Exists()) && m_interactor == null && !interactor.HasForcedVelocity;
 
 	public void Interact(KinematicCharacter interactor, bool reverse)
 	{
-		if (ShouldPlayDialogue)
-		{
-			// TODO: visual/audio indicator(s) rather than dialogue for non-Victory refusal?
-			GameController.Instance.m_dialogueController.Play(m_dialogue.m_dialogue.RandomWeighted().m_lines, gameObject, interactor.GetComponent<KinematicCharacter>(), expressionSets: m_dialogue.m_expressions);
-			return;
-		}
-
 		m_interactor = interactor;
 		m_gravityModifierOrig = interactor.gravityModifier;
+
+		if (ShouldPlayDialogue)
+		{
+			StartCoroutine(PlayDialogueCoroutine());
+			return;
+		}
 
 		StartAnimation();
 	}
@@ -72,6 +71,7 @@ public class InteractScene : MonoBehaviour, IInteractable
 
 		if (m_isSaveDeletion)
 		{
+			// TODO: delay? separate animation trigger?
 			GameController.Instance.DeleteSaveAndQuit();
 		}
 		else
@@ -86,5 +86,14 @@ public class InteractScene : MonoBehaviour, IInteractable
 	}
 
 
-	private bool ShouldPlayDialogue => m_isSaveDeletion || !GameController.Instance.Victory;
+	private bool ShouldPlayDialogue => m_isSaveDeletion || !GameController.Instance.Victory; // TODO: visual/audio indicator(s) rather than dialogue for non-Victory refusal?
+
+	private System.Collections.IEnumerator PlayDialogueCoroutine()
+	{
+		yield return GameController.Instance.m_dialogueController.Play(m_dialogue.m_dialogue.RandomWeighted().m_lines, gameObject, m_interactor.GetComponent<KinematicCharacter>(), expressionSets: m_dialogue.m_expressions);
+		if (!m_activated)
+		{
+			m_interactor = null;
+		}
+	}
 }

@@ -58,6 +58,11 @@ public sealed class BackpackController : MonoBehaviour, IHolder, IInteractable, 
 	{
 		transform.parent.GetComponent<IHolder>().ChildDetach(this, noAutoReplace, holderNew);
 
+		if (this == null) // TODO: remove once IAttachable.DetachInternalShared() DestroyImmediate() workaround is removed
+		{
+			return;
+		}
+
 		StopAllCoroutines();
 	}
 

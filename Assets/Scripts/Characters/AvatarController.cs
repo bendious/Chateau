@@ -445,7 +445,7 @@ public sealed class AvatarController : KinematicCharacter
 	// called by InputSystem / PlayerInput component
 	public void OnJump(InputValue input)
 	{
-		if (!ControlEnabled)
+		if (!ControlEnabled || GameController.Instance.m_dialogueController.Target == this)
 		{
 			return;
 		}
@@ -752,6 +752,10 @@ public sealed class AvatarController : KinematicCharacter
 			foreach (IAttachable attachable in GetComponentsInChildren<IAttachable>()) // NOTE that we purposely ignore disabled components, which should only occur w/i other attachables, and that we have to process all descendants due to arms being intermediate objects
 			{
 				attachable.Detach(true); // to allow correct UI sync immediately
+				if (attachable == null || attachable.Component == null) // TODO: remove once IAttachable.DetachInternalShared() DestroyImmediate() workaround is removed
+				{
+					continue;
+				}
 				Simulation.Schedule<ObjectDespawn>().m_object = attachable.Component.gameObject;
 			}
 			InventorySync();

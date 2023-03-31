@@ -69,7 +69,7 @@ public interface IHolder
 		}
 
 		// find any valid other holders
-		Collider2D[] attachableColliders = attachable.Component.GetComponents<Collider2D>();
+		Collider2D[] attachableColliders = attachable == null ? null : attachable.Component.GetComponents<Collider2D>();
 		int thisSiblingIdx = holderTf.GetSiblingIndex();
 		bool foundReplacement = false;
 		foreach (IHolder otherHolder in holderTf.parent.GetComponentsInChildren<IHolder>())

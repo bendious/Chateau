@@ -19,6 +19,11 @@ public class EnableCollision : Event<EnableCollision>
 
 	public static void TemporarilyDisableCollision(IEnumerable<Collider2D> aList, IEnumerable<Collider2D> bList, float durationSeconds = 0.25f)
 	{
+		if (aList == null || bList == null)
+		{
+			return;
+		}
+
 		// TODO: efficiency?
 		foreach (Collider2D a in aList.Where(c => c != null))
 		{

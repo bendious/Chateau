@@ -14,41 +14,107 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
       m_lines:
       - m_text: Leaving so soon? I was hoping you'd stay more like... forever.
         m_source: {fileID: 0}
         m_sourceDistMax: 0
+        m_replies:
+        - m_text: Who are you, ya creep?
+          m_preconditionName: 
+          m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0
+          m_followUp: []
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: Who are you?
+          m_preconditionName: 
+          m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0
+          m_followUp: []
+          m_eventName: 
+          m_breakAfterward: 0
+        - m_text: Who are you, sir?
+          m_preconditionName: 
+          m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0
+          m_followUp: []
+          m_eventName: 
+          m_breakAfterward: 0
+      - m_text: Didn't you wonder who left such helpful notes here for when you came
+          in all clueless?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
         m_replies: []
-      - m_text: You wouldn't want to lose all your progress, would you?
+      - m_text: Did you not feel welcomed? I wanted to help you come in farther so
+          that you would stay.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: Please do stay.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: Or if you really must leave, do come back soon.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: So will you truly go? I'm telling you, this is an important decision.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: Will you really abandon all the progress you've made so far?
         m_source: {fileID: 0}
         m_sourceDistMax: 0
         m_replies:
         - m_text: No.
           m_preconditionName: 
           m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0
           m_followUp: []
           m_eventName: 
           m_breakAfterward: 0
         - m_text: I guess not.
           m_preconditionName: 
           m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0
           m_followUp: []
           m_eventName: 
           m_breakAfterward: 0
         - m_text: I don't care. I want to start over.
           m_preconditionName: 
           m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0
           m_followUp: []
           m_eventName: StartAnimation
           m_breakAfterward: 0
         - m_text: Fine. I'll stay.
           m_preconditionName: 
           m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0
           m_followUp: []
           m_eventName: 
           m_breakAfterward: 0
+      m_target: {fileID: 0}
       m_loop: 0
       m_singleUse: 0
       m_appendToAll: 0

@@ -85,8 +85,6 @@ public class GameController : MonoBehaviour
 	[SerializeField] private PlayerInputManager m_inputManager;
 	public Canvas m_gameOverUI;
 
-	[SerializeField] private Dialogue m_introDialogue;
-
 	public MaterialSystem m_materialSystem;
 	public SavableFactory m_savableFactory;
 	public LightFlicker m_lightFlickerMaster;
@@ -257,8 +255,6 @@ public class GameController : MonoBehaviour
 				StartCoroutine(LoadSceneCoroutine(tutorialSceneName, false, false, false));
 				yield break;
 			}
-
-			m_dialogueController.Play(m_introDialogue.m_dialogue.RandomWeighted().m_lines, expressionSets: m_introDialogue.m_expressions); // TODO: take any preconditions into account?
 			m_startHealth = 1.0f;
 		}
 
@@ -1138,8 +1134,7 @@ public class GameController : MonoBehaviour
 
 	private void SaveToFile()
 	{
-		Scene activeScene = SceneManager.GetActiveScene();
-		if (!m_saveLoadEnabled && SaveHelpers.Exists()) // NOTE that we have to initially create saves from the tutorial scene in order to avoid an infinite loop from Start() tutorial-load check
+		if (!m_saveLoadEnabled && (SceneIndexPrev == -1 || SaveHelpers.Exists())) // NOTE that we have to initially create saves from the tutorial scene in order to avoid an infinite loop from Start() tutorial-load check, but we don't want to do so when retrying the scene // TODO: replace Tutorial Quit button w/ Entryway button once Tutorial has been completed?
 		{
 			return;
 		}
@@ -1181,7 +1176,8 @@ public class GameController : MonoBehaviour
 		saveFile.Write(upgradesActiveArray.First());
 		saveFile.Write(m_upgradeCounts, saveFile.Write);
 
-		GameObject[] savableObjs = m_savableTags.SelectMany(tag => GameObject.FindGameObjectsWithTag(tag)).Where(obj => obj.scene == SceneManager.GetActiveScene()).ToArray();
+		Scene activeScene = SceneManager.GetActiveScene();
+		GameObject[] savableObjs = m_savableTags.SelectMany(tag => GameObject.FindGameObjectsWithTag(tag)).Where(obj => obj.scene == activeScene).ToArray();
 		saveFile.Write(savableObjs, obj => ISavable.Save(saveFile, obj.GetComponent<ISavable>()));
 	}
 
@@ -1536,11 +1532,8 @@ public class GameController : MonoBehaviour
 			yield break;
 		}
 
-		if (m_saveLoadEnabled) // to prevent save-quitting from Tutorial (see Save() exception for creating saves outside the Entryway) // TODO: replace Tutorial Quit button w/ Entryway button once Tutorial has been completed?
-		{
-			m_avatars.First().DetachAll(); // to save even items being held
-			SaveToFile();
-		}
+		m_avatars.First().DetachAll(); // to save even items being held
+		SaveToFile();
 
 		Quit(true);
 	}
