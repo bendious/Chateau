@@ -131,10 +131,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1221687076549699989, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -40
-      objectReference: {fileID: 0}
     - target: {fileID: 1817590265900586355, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_Name
       value: SceneMin
@@ -142,18 +138,6 @@ PrefabInstance:
     - target: {fileID: 2233346953154689000, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 2233346953154689000, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Quit
-      objectReference: {fileID: 0}
-    - target: {fileID: 2504569078711925974, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2504569078711925974, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4099526785388893419, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_text
@@ -268,10 +252,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: f9d3ab5747cdc7542ad7ee6c138e034e, type: 2}
     - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_roomTypes.Array.data[0].m_weight
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5689484937066196568, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_roomTypes.Array.data[1].m_object
       value: 
       objectReference: {fileID: 11400000, guid: 1797092e12228ed40b4445be5b02c7b2, type: 2}
@@ -338,10 +318,6 @@ PrefabInstance:
     - target: {fileID: 7062028067604068574, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: Quit
-      objectReference: {fileID: 0}
-    - target: {fileID: 8494391376400586852, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -120
       objectReference: {fileID: 0}
     - target: {fileID: 8982816860446960670, guid: 3a2729b46c8db4744869995ae8b21ad9, type: 3}
       propertyPath: m_RootOrder
