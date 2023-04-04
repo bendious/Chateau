@@ -2662,10 +2662,9 @@ MonoBehaviour:
   m_paramNameSize: StartAreaSize
   m_paramNameRate: PeriodicTimeMinMax
   m_paramNameRateCount: PeriodicCountMinMax
-  m_paramNameLifetimeMin: SecondsMin
-  m_paramNameLifetimeMax: SecondsMax
+  m_paramNameKillboxPos: KillboxPos
+  m_paramNameKillboxSize: KillboxSize
   m_ratePerSizeMinMax: {x: 8, y: 16}
-  m_lifetimePerSizeMinMax: {x: 0.15, y: 0.2}
 --- !u!2083052967 &3489651179126843602
 VisualEffect:
   m_ObjectHideFlags: 0
@@ -2693,7 +2692,7 @@ VisualEffect:
       - m_Value: 1
         m_Name: SecondsMin
         m_Overridden: 1
-      - m_Value: 1.25
+      - m_Value: 5
         m_Name: SecondsMax
         m_Overridden: 1
     m_Vector2f:
@@ -2704,7 +2703,7 @@ VisualEffect:
       - m_Value: {x: 0.025, y: 0.05}
         m_Name: PeriodicTimeMinMax
         m_Overridden: 1
-      - m_Value: {x: 2, y: 4}
+      - m_Value: {x: 1, y: 1}
         m_Name: PeriodicCountMinMax
         m_Overridden: 1
     m_Vector3f:
@@ -2712,17 +2711,23 @@ VisualEffect:
       - m_Value: {x: 0, y: -10, z: 0}
         m_Name: Gravity
         m_Overridden: 1
-      - m_Value: {x: 0, y: 6, z: 0}
+      - m_Value: {x: 0, y: 7, z: 0}
         m_Name: StartAreaPos
         m_Overridden: 1
       - m_Value: {x: 20, y: 0, z: 0}
         m_Name: StartAreaSize
         m_Overridden: 1
-      - m_Value: {x: -1, y: -20, z: 0}
+      - m_Value: {x: -1, y: -600, z: 0}
         m_Name: SpeedStartMin
         m_Overridden: 1
       - m_Value: {x: 1, y: -5, z: 0}
         m_Name: SpeedStartMax
+        m_Overridden: 1
+      - m_Value: {x: 9999, y: 20, z: 1}
+        m_Name: KillboxSize
+        m_Overridden: 1
+      - m_Value: {x: 0, y: -16, z: 0}
+        m_Name: KillboxPos
         m_Overridden: 1
     m_Vector4f:
       m_Array: []
@@ -2740,12 +2745,21 @@ VisualEffect:
           - serializedVersion: 3
             time: 0
             value: 1
-            inSlope: -1
-            outSlope: -1
+            inSlope: 39
+            outSlope: 39
             tangentMode: 34
             weightedMode: 0
             inWeight: 0
             outWeight: 0.33333334
+          - serializedVersion: 3
+            time: 1
+            value: 40
+            inSlope: 39
+            outSlope: 39
+            tangentMode: 34
+            weightedMode: 0
+            inWeight: 0.33333334
+            outWeight: 0
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
@@ -2795,6 +2809,9 @@ VisualEffect:
       - m_Value: 1
         m_Name: VelocityAligned
         m_Overridden: 1
+      - m_Value: 1
+        m_Name: SizeFromSpeed
+        m_Overridden: 1
 --- !u!73398921 &7422487004495846443
 VFXRenderer:
   serializedVersion: 1
@@ -2834,7 +2851,7 @@ VFXRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1386398259
   m_SortingLayer: 1
-  m_SortingOrder: 0
+  m_SortingOrder: 3
 --- !u!1 &1511252470101697167
 GameObject:
   m_ObjectHideFlags: 0

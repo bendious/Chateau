@@ -442,7 +442,7 @@ public class GameController : MonoBehaviour
 
 	private void Update()
 	{
-		if (m_roomRoots.Count == 0)
+		if (!RoomsReady)
 		{
 			return; // not fully loaded yet
 		}
@@ -942,6 +942,13 @@ public class GameController : MonoBehaviour
 			nodesSplit.Enqueue(newList);
 		}
 
+		static void addAbovegroundRoomToGroup(RoomController r, CinemachineTargetGroup g)
+		{
+			if (r.transform.position.y + r.Bounds.size.y > 0.0f) // TODO: don't assume local origins are at floor level?
+			{
+				g.AddMember(r.m_backdrop.transform, 1.0f, r.Bounds.extents.magnitude * 0.5f); // TODO: parameterize size scalar?
+			}
+		}
 		RoomController insertedRoomParent = null;
 		while (nodesSplit.TryDequeue(out List<LayoutGenerator.Node> nodesList))
 		{
@@ -952,10 +959,7 @@ public class GameController : MonoBehaviour
 				AddRootRoom(root);
 				root.SetNodes(nodesList.ToArray());
 				++roomCount;
-				if (root.transform.position.y >= 0.0f)
-				{
-					m_ctGroupOverview.AddMember(root.m_backdrop.transform, 1.0f, 0.0f);
-				}
+				addAbovegroundRoomToGroup(root, m_ctGroupOverview);
 				Debug.Assert(SpecialRooms == null);
 				if (m_specialRoomCount > 0)
 				{
@@ -993,10 +997,7 @@ public class GameController : MonoBehaviour
 					{
 						++roomCount;
 						insertedRoomParent = null; // TODO: limit the length of chains of inserted rooms?
-						if (childRoom.transform.position.y >= 0.0f)
-						{
-							m_ctGroupOverview.AddMember(childRoom.m_backdrop.transform, 1.0f, 0.0f);
-						}
+						addAbovegroundRoomToGroup(childRoom, m_ctGroupOverview);
 						if (m_specialRoomCount > 0)
 						{
 							if (SpecialRooms.Any(room => room == null))

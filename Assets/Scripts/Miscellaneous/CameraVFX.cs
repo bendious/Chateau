@@ -11,18 +11,17 @@ public class CameraVFX : MonoBehaviour
 	[SerializeField] private string m_paramNameSize = "StartAreaSize";
 	[SerializeField] private string m_paramNameRate = "PeriodicTimeMinMax";
 	[SerializeField] private string m_paramNameRateCount = "PeriodicCountMinMax";
-	[SerializeField] private string m_paramNameLifetimeMin = "SecondsMin";
-	[SerializeField] private string m_paramNameLifetimeMax = "SecondsMax";
+	[SerializeField] private string m_paramNameKillboxPos = "KillboxPos";
+	[SerializeField] private string m_paramNameKillboxSize = "KillboxSize";
 	[SerializeField] private Vector2 m_ratePerSizeMinMax = new(8.0f, 16.0f);
-	[SerializeField] private Vector2 m_lifetimePerSizeMinMax = new(0.05f, 0.1f);
 
 
 	private int m_paramIDPos;
 	private int m_paramIDSize;
 	private int m_paramIDRate;
 	private int m_paramIDRateCount;
-	private int m_paramIDLifetimeMin;
-	private int m_paramIDLifetimeMax;
+	private int m_paramIDKillboxPos;
+	private int m_paramIDKillboxSize;
 
 	private float m_cameraSize = -1.0f;
 
@@ -33,8 +32,8 @@ public class CameraVFX : MonoBehaviour
 		m_paramIDSize = Shader.PropertyToID(m_paramNameSize);
 		m_paramIDRate = Shader.PropertyToID(m_paramNameRate);
 		m_paramIDRateCount = Shader.PropertyToID(m_paramNameRateCount);
-		m_paramIDLifetimeMin = Shader.PropertyToID(m_paramNameLifetimeMin);
-		m_paramIDLifetimeMax = Shader.PropertyToID(m_paramNameLifetimeMax);
+		m_paramIDKillboxPos = Shader.PropertyToID(m_paramNameKillboxPos);
+		m_paramIDKillboxSize = Shader.PropertyToID(m_paramNameKillboxSize);
 	}
 
 	private void Update() // TODO: only when camera transform changes?
@@ -56,8 +55,12 @@ public class CameraVFX : MonoBehaviour
 		m_vfx.SetVector2(m_paramIDRate, rate);
 		Vector2 rateCount = rate.x >= Time.deltaTime ? Vector2.one : new Vector2(Time.deltaTime, Time.deltaTime) / rate;
 		m_vfx.SetVector2(m_paramIDRateCount, rateCount);
-		Vector2 lifetime = m_lifetimePerSizeMinMax * m_cameraSize;
-		m_vfx.SetFloat(m_paramIDLifetimeMin, lifetime.x);
-		m_vfx.SetFloat(m_paramIDLifetimeMax, lifetime.y);
+
+		// position the killbox below the camera view, large enough to catch everything
+		// TODO: less hardcoding?
+		Vector3 killboxPos = new(spawnPos.x, -spawnPos.y - 0.5f * size.x, spawnPos.z);
+		m_vfx.SetVector3(m_paramIDKillboxPos, killboxPos);
+		Vector3 killboxSize = new(9999.0f, size.x, 1.0f);
+		m_vfx.SetVector3(m_paramIDKillboxSize, killboxSize);
 	}
 }
