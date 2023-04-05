@@ -474,7 +474,7 @@ public class RoomController : MonoBehaviour
 					if (doorwayInfo.m_blocker == null && Random.value < m_noLadderNoPlatformPct)
 					{
 						// non-platform hole
-						// TODO: AI pathfinding jump marker(s); prevent floating furniture?
+						// TODO: AI pathfinding jump marker(s); prevent floating furniture? ensure falling through never results in softlock
 						GameObject platformDoorway = direction.y > 0.0f ? reverseInfo.m_object : doorwayInfo.m_object;
 						DestroyImmediate(platformDoorway.GetComponent<PlatformEffector2D>()); // NOTE that we can't just disable the effector since SealRoom() would end up turning it back on, and we have to do destruction immediately since the wall color logic below checks it this frame...
 						platformDoorway.GetComponent<Collider2D>().usedByEffector = false;

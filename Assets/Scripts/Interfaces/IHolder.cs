@@ -11,7 +11,7 @@ public interface IHolder
 	public Vector3 AttachOffsetLocal { get; }
 	public Vector3 ChildAttachPointLocal { get; }
 
-	public float Speed => 0.0f; // TODO: move out of IHolderController?
+	public float Speed => 0.0f; // TODO: move out of IHolder?
 
 	public bool IsSwinging => false;
 

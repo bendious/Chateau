@@ -90,7 +90,7 @@ public class InteractScene : MonoBehaviour, IInteractable
 
 	private System.Collections.IEnumerator PlayDialogueCoroutine()
 	{
-		yield return GameController.Instance.m_dialogueController.Play(m_dialogue.m_dialogue.RandomWeighted().m_lines, gameObject, m_interactor.GetComponent<KinematicCharacter>(), expressionSets: m_dialogue.m_expressions);
+		yield return GameController.Instance.m_dialogueController.Play(m_dialogue.m_dialogue.RandomWeighted().m_lines, gameObject, m_interactor.GetComponent<KinematicCharacter>(), this, expressionSets: m_dialogue.m_expressions);
 		if (!m_activated)
 		{
 			m_interactor = null;

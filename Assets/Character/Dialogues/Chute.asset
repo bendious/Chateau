@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_dialogue:
   - m_object:
+      m_type: 0
       m_preconditionName: 
       m_userdata: 0
       m_relationshipMin: 0
@@ -27,12 +28,18 @@ MonoBehaviour:
         - m_text: '{confirmed.}'
           m_preconditionName: 
           m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0
           m_followUp: []
           m_eventName: MerchantSell
           m_breakAfterward: 0
         - m_text: '{merchantSellCancel.}'
           m_preconditionName: 
           m_userdata: 0
+          m_relationshipMin: 0
+          m_relationshipMax: 1
+          m_relationshipIncrement: 0
           m_followUp: []
           m_eventName: 
           m_breakAfterward: 1
@@ -68,7 +75,7 @@ MonoBehaviour:
     m_weight: 1
   - m_object:
       m_key: merchantSellPost.
-      m_replacement: it slid down the chute and vanished.
+      m_replacement: 
     m_weight: 1
   - m_object:
       m_key: merchantSellCriticalPath.

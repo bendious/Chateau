@@ -162,7 +162,7 @@ MonoBehaviour:
         m_weight: 1
       m_rotationDegreesMax: 0
       m_heightMin: 0
-      m_heightMax: 0.5
+      m_heightMax: 0
       m_sharedHeight: 1
     m_weight: 1
   m_decorationsMin: 0

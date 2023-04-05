@@ -93,7 +93,7 @@ public class DialogueController : MonoBehaviour
 	private Queue<string> m_queueFollowUp;
 	private GameObject m_callbackObject;
 	public KinematicCharacter Target { get; private set; }
-	private KinematicCharacter m_sourceMain;
+	private Component m_sourceMain;
 	private int m_loopIdx = -1;
 
 	private bool m_forceNewLine = false;
@@ -131,7 +131,7 @@ public class DialogueController : MonoBehaviour
 	}
 
 
-	public Coroutine Play(IEnumerable<Line> lines, GameObject callbackObject = null, KinematicCharacter target = null, KinematicCharacter sourceMain = null, Sprite sprite = null, Color spriteColor = default, AudioClip sfx = null, bool forceWorldspace = false, int loopIdx = -1, params WeightedObject<Dialogue.Expression>[][] expressionSets)
+	public Coroutine Play(IEnumerable<Line> lines, GameObject callbackObject = null, KinematicCharacter target = null, Component sourceMain = null, Sprite sprite = null, Color spriteColor = default, AudioClip sfx = null, bool forceWorldspace = false, int loopIdx = -1, params WeightedObject<Dialogue.Expression>[][] expressionSets)
 	{
 		if (IsPlaying)
 		{
@@ -146,7 +146,6 @@ public class DialogueController : MonoBehaviour
 		Target = target;
 		m_sourceMain = sourceMain;
 		m_loopIdx = loopIdx;
-		m_forceNewLine = false;
 		Canceled = false;
 
 		gameObject.SetActive(true); // NOTE that this has to be BEFORE trying to start the coroutine
@@ -252,7 +251,14 @@ public class DialogueController : MonoBehaviour
 		{
 			Destroy(despawnEffect);
 		}
-		Simulation.Schedule<ObjectDespawn>().m_object = attachableComp.gameObject;
+		if (m_sourceMain != null && m_sourceMain.TryGetComponent(out IDespawner despawner))
+		{
+			despawner.DespawnAttachable(attachable);
+		}
+		else
+		{
+			Simulation.Schedule<ObjectDespawn>().m_object = attachableComp.gameObject;
+		}
 	}
 
 	// called via OnReplySelected()/SendMessage(Line.Reply.m_eventName, Line.Reply)
@@ -379,7 +385,7 @@ public class DialogueController : MonoBehaviour
 
 		// walk-away prevention
 		// TODO: also include non-primary sources after speaking? allow limited functionality/movement?
-		bool npcSetPassive(KinematicCharacter c, bool passive)
+		bool npcSetPassive(Component c, bool passive)
 		{
 			if (c == null)
 			{
@@ -457,7 +463,7 @@ public class DialogueController : MonoBehaviour
 
 			// maybe move to next line
 			bool stillRevealing = m_revealedCharCount + tagCharCount < textCurLen;
-			if (m_forceNewLine || (((submitKey == null && !ConsoleCommands.PassiveAI) || (submitKey != null && submitKey.WasPressedThisFrame())) && !stillRevealing && m_lastRevealTime + m_newlineSecondsMin <= Time.time))
+			if (m_forceNewLine || lineCur == null || textCur == null || (((submitKey == null && !ConsoleCommands.PassiveAI) || (submitKey != null && submitKey.WasPressedThisFrame())) && !stillRevealing && m_lastRevealTime + m_newlineSecondsMin <= Time.time))
 			{
 				// next line
 				m_continueIndicator.SetActive(false);
@@ -482,15 +488,15 @@ public class DialogueController : MonoBehaviour
 					}
 				}
 				lineCur = CurrentLine(out textCur, out textCurLen, ref followTf, expressionSets, sprite, color);
-				if (lineCur == null)
-				{
-					break;
-				}
 				m_revealedCharCount = 0;
 				m_lastRevealTime = Time.time;
 				m_submitReleasedSinceNewline = false;
 				m_forceNewLine = false;
 				stillRevealing = true;
+				if (lineCur == null || textCur == null)
+				{
+					continue;
+				}
 			}
 			bool submitPressed = submitKey != null && submitKey.IsPressed();
 			m_submitReleasedSinceNewline = m_submitReleasedSinceNewline || !submitPressed;
@@ -708,7 +714,7 @@ public class DialogueController : MonoBehaviour
 
 		if (string.IsNullOrEmpty(text)) // NOTE that we handle empty replacements for cases such as ending a dialogue w/o further reply
 		{
-			return text;
+			return null;
 		}
 
 		// compress double spaces to support blank expressions
