@@ -422,12 +422,7 @@ public class LockController : MonoBehaviour, IUnlockable
 	}
 
 
-#if DEBUG
-	public
-#else
-	private
-#endif
-		bool Unlock(IKey key, bool silent = false)
+	public bool Unlock(IKey key, bool silent = false)
 	{
 		// handle given key
 		AudioSource audio = silent ? null : GetComponent<AudioSource>();

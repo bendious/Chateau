@@ -734,7 +734,9 @@ public class GameController : MonoBehaviour
 			{
 				avatar.Respawn(!noInventoryClear && !Victory, true);
 			}
+#if DEBUG
 			Simulation.Schedule<DebugRespawn>();
+#endif
 			StartCoroutine(ActivateMenuCoroutine(m_gameOverUI, false));
 			if (m_inputManager != null)
 			{
