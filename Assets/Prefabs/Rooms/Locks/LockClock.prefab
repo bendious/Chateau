@@ -71,7 +71,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 44612063
-  m_SortingLayer: -2
+  m_SortingLayer: -3
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: bd5e417386b61cb42ad37f1004d711ce, type: 3}
   m_Color: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -155,7 +155,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 44612063
-  m_SortingLayer: -2
+  m_SortingLayer: -3
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: bd5e417386b61cb42ad37f1004d711ce, type: 3}
   m_Color: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -239,7 +239,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 44612063
-  m_SortingLayer: -2
+  m_SortingLayer: -3
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: bd5e417386b61cb42ad37f1004d711ce, type: 3}
   m_Color: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -328,7 +328,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 44612063
-  m_SortingLayer: -2
+  m_SortingLayer: -3
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: d67c8e3b8df5b7040a49d7bf22c9bb6d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -365,6 +365,7 @@ MonoBehaviour:
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
   m_OverlapOperation: 0
   m_NormalMapDistance: 3
   m_NormalMapQuality: 2
@@ -429,6 +430,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -459,16 +479,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 802277718861969557}
   m_degreesIncrement: 30
-  m_sfx:
-  - m_object: {fileID: 8300000, guid: c985c1dd681a1a1498808833eb61f88b, type: 3}
+  m_sfx: []
+  m_sfxGroups:
+  - m_object: {fileID: 11400000, guid: 94e17cd9f1cb88e4aa7584e54f25d130, type: 2}
     m_weight: 1
-  - m_object: {fileID: 8300000, guid: 5f173814fc3e60e408683cf0d3bdd2b5, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: ba490a0b1bfd2ed4ba37286a4b3e2d38, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: d35120cd2bf4dfd43ba7f469318aad53, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: fb3aa4b1d0d24ad4780a6fdaa3a50399, type: 3}
+  - m_object: {fileID: 11400000, guid: 0c02be33387515e418438fece10a64d5, type: 2}
     m_weight: 1
 --- !u!114 &4828881810659085442
 MonoBehaviour:
@@ -556,7 +571,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 44612063
-  m_SortingLayer: -2
+  m_SortingLayer: -3
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: bd5e417386b61cb42ad37f1004d711ce, type: 3}
   m_Color: {r: 0.75, g: 0.75, b: 0.75, a: 1}
@@ -645,7 +660,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 44612063
-  m_SortingLayer: -2
+  m_SortingLayer: -3
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: d67c8e3b8df5b7040a49d7bf22c9bb6d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -682,6 +697,7 @@ MonoBehaviour:
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
   m_OverlapOperation: 0
   m_NormalMapDistance: 3
   m_NormalMapQuality: 2
@@ -746,6 +762,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -776,16 +811,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 412100480960186003}
   m_degreesIncrement: 30
-  m_sfx:
-  - m_object: {fileID: 8300000, guid: c985c1dd681a1a1498808833eb61f88b, type: 3}
+  m_sfx: []
+  m_sfxGroups:
+  - m_object: {fileID: 11400000, guid: 94e17cd9f1cb88e4aa7584e54f25d130, type: 2}
     m_weight: 1
-  - m_object: {fileID: 8300000, guid: 5f173814fc3e60e408683cf0d3bdd2b5, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: ba490a0b1bfd2ed4ba37286a4b3e2d38, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: d35120cd2bf4dfd43ba7f469318aad53, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: fb3aa4b1d0d24ad4780a6fdaa3a50399, type: 3}
+  - m_object: {fileID: 11400000, guid: 0c02be33387515e418438fece10a64d5, type: 2}
     m_weight: 1
 --- !u!114 &4981379792618694364
 MonoBehaviour:
@@ -948,8 +978,9 @@ MonoBehaviour:
   m_vfxKeyDelay: {fileID: 0}
   m_failureSFX: []
   m_unlockSFX:
-  - m_object: {fileID: 8300000, guid: bf527d825758e5b4ca7b69f5a02d9a56, type: 3}
+  - m_object: {fileID: 8300000, guid: 1656108844cda9241b0467084fb19d0e, type: 3}
     m_weight: 1
+  m_unlockVFX: []
   m_activeColorPct: 2
   m_unlockDestroyDelay: -1
 --- !u!212 &2431064046164445097
@@ -991,7 +1022,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 44612063
-  m_SortingLayer: -2
+  m_SortingLayer: -3
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: ebe73ca9363db456bacf42c025bb4847, type: 3}
   m_Color: {r: 0.25, g: 0.25, b: 0.25, a: 1}
@@ -1028,6 +1059,7 @@ MonoBehaviour:
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
   m_OverlapOperation: 0
   m_NormalMapDistance: 3
   m_NormalMapQuality: 2
@@ -1094,7 +1126,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 24300002, guid: 96a05763381b2794cbb2b9f850b82527, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.25
+  m_Volume: 1
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1263,7 +1295,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 44612063
-  m_SortingLayer: -2
+  m_SortingLayer: -3
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: d67c8e3b8df5b7040a49d7bf22c9bb6d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1300,6 +1332,7 @@ MonoBehaviour:
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
   m_OverlapOperation: 0
   m_NormalMapDistance: 3
   m_NormalMapQuality: 2
@@ -1364,6 +1397,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -1394,16 +1446,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 3402330263991083544}
   m_degreesIncrement: 30
-  m_sfx:
-  - m_object: {fileID: 8300000, guid: c985c1dd681a1a1498808833eb61f88b, type: 3}
+  m_sfx: []
+  m_sfxGroups:
+  - m_object: {fileID: 11400000, guid: 94e17cd9f1cb88e4aa7584e54f25d130, type: 2}
     m_weight: 1
-  - m_object: {fileID: 8300000, guid: 5f173814fc3e60e408683cf0d3bdd2b5, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: ba490a0b1bfd2ed4ba37286a4b3e2d38, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: d35120cd2bf4dfd43ba7f469318aad53, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: fb3aa4b1d0d24ad4780a6fdaa3a50399, type: 3}
+  - m_object: {fileID: 11400000, guid: 0c02be33387515e418438fece10a64d5, type: 2}
     m_weight: 1
 --- !u!114 &557071302027740913
 MonoBehaviour:
@@ -1496,7 +1543,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 44612063
-  m_SortingLayer: -2
+  m_SortingLayer: -3
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: d67c8e3b8df5b7040a49d7bf22c9bb6d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1533,6 +1580,7 @@ MonoBehaviour:
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
   m_OverlapOperation: 0
   m_NormalMapDistance: 3
   m_NormalMapQuality: 2
@@ -1597,6 +1645,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -1627,16 +1694,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 4046093784851667990}
   m_degreesIncrement: 30
-  m_sfx:
-  - m_object: {fileID: 8300000, guid: c985c1dd681a1a1498808833eb61f88b, type: 3}
+  m_sfx: []
+  m_sfxGroups:
+  - m_object: {fileID: 11400000, guid: 94e17cd9f1cb88e4aa7584e54f25d130, type: 2}
     m_weight: 1
-  - m_object: {fileID: 8300000, guid: 5f173814fc3e60e408683cf0d3bdd2b5, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: ba490a0b1bfd2ed4ba37286a4b3e2d38, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: d35120cd2bf4dfd43ba7f469318aad53, type: 3}
-    m_weight: 1
-  - m_object: {fileID: 8300000, guid: fb3aa4b1d0d24ad4780a6fdaa3a50399, type: 3}
+  - m_object: {fileID: 11400000, guid: 0c02be33387515e418438fece10a64d5, type: 2}
     m_weight: 1
 --- !u!114 &4041550452963584293
 MonoBehaviour:

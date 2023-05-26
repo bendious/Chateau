@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89fc1dc911c6b2646a27018952036436, type: 3}
+  m_Name: ClockTicks1
+  m_EditorClassIdentifier: 
+  m_collection:
+  - m_object: {fileID: 8300000, guid: d9d04b0fd6f1208469d6b4953613fbc6, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 3012e8ca70453434bbd389310aa1d7c3, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 377b2d550b813d847a24c70f751fe6fe, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 9617c21adaaf325428afa4de31864ed8, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 5c7855a367be5f84eb9e5606774e232b, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 62be481630424214ea1922545b749cde, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: f77a33d4df4115343aae54e26341317d, type: 3}
+    m_weight: 1
+  - m_object: {fileID: 8300000, guid: 21a44582aecb842459b8dd6933cdf5f0, type: 3}
+    m_weight: 1

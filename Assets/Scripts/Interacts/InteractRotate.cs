@@ -8,6 +8,7 @@ public class InteractRotate : MonoBehaviour, IInteractable, IKey
 	[SerializeField] private float m_degreesIncrement = 30.0f;
 
 	[SerializeField] private WeightedObject<AudioClip>[] m_sfx;
+	[SerializeField] private WeightedObject<AudioCollection>[] m_sfxGroups;
 
 
 	public IUnlockable Lock { get; set; }
@@ -24,10 +25,16 @@ public class InteractRotate : MonoBehaviour, IInteractable, IKey
 
 	private AudioSource m_audio;
 
+	private AudioCollection m_sfxGroup;
+
 
 	private void Start()
 	{
 		m_audio = GetComponentInParent<AudioSource>();
+		if (m_sfxGroups.Length > 0)
+		{
+			m_sfxGroup = m_sfxGroups.RandomWeighted(); // TODO: match between different InteractRotates w/ the same root object
+		}
 
 		if (m_rotator == null)
 		{
@@ -47,7 +54,11 @@ public class InteractRotate : MonoBehaviour, IInteractable, IKey
 		m_rotator.transform.rotation *= Quaternion.Euler(0.0f, 0.0f, reverse ? m_degreesIncrement : -m_degreesIncrement); // NOTE the reversal of the expected "reverse" semantics due to clockwise clock rotation // TODO: parameterize?
 		(Lock as LockController).CheckInput();
 
-		if (m_sfx.Length > 0)
+		if (m_sfxGroup != null)
+		{
+			m_audio.PlayOneShot(m_sfxGroup.m_collection.RandomWeighted());
+		}
+		else if (m_sfx.Length > 0)
 		{
 			m_audio.PlayOneShot(m_sfx.RandomWeighted());
 		}
