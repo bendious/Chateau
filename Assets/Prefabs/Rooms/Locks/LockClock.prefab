@@ -479,6 +479,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 802277718861969557}
   m_degreesIncrement: 30
+  m_autoInteractSec: 144
+  m_autoInteractChild: {fileID: 2426183006508102098}
+  m_avatarInteractTimeout: 12
   m_sfx: []
   m_sfxGroups:
   - m_object: {fileID: 11400000, guid: 94e17cd9f1cb88e4aa7584e54f25d130, type: 2}
@@ -811,6 +814,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 412100480960186003}
   m_degreesIncrement: 30
+  m_autoInteractSec: 12
+  m_autoInteractChild: {fileID: 47754329457599174}
+  m_avatarInteractTimeout: 12
   m_sfx: []
   m_sfxGroups:
   - m_object: {fileID: 11400000, guid: 94e17cd9f1cb88e4aa7584e54f25d130, type: 2}
@@ -1170,7 +1176,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -1446,6 +1452,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 3402330263991083544}
   m_degreesIncrement: 30
+  m_autoInteractSec: 1728
+  m_autoInteractChild: {fileID: 0}
+  m_avatarInteractTimeout: 12
   m_sfx: []
   m_sfxGroups:
   - m_object: {fileID: 11400000, guid: 94e17cd9f1cb88e4aa7584e54f25d130, type: 2}
@@ -1694,6 +1703,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rotator: {fileID: 4046093784851667990}
   m_degreesIncrement: 30
+  m_autoInteractSec: 1
+  m_autoInteractChild: {fileID: 5360347064228995123}
+  m_avatarInteractTimeout: 12
   m_sfx: []
   m_sfxGroups:
   - m_object: {fileID: 11400000, guid: 94e17cd9f1cb88e4aa7584e54f25d130, type: 2}
