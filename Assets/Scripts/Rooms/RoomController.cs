@@ -3,7 +3,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.SceneManagement;
 using UnityEngine.U2D;
 using UnityEngine.VFX;
 
@@ -195,6 +194,31 @@ public class RoomController : MonoBehaviour
 			}
 
 			return false;
+		}
+
+		internal float AdjacentRoomPct()
+		{
+			if (ConnectedRoom != null)
+			{
+				// rely on adjacent room's doorways
+				return ConnectedRoom.m_doorwayInfos.Count(i => i.ConnectedRoom != null) / (float)ConnectedRoom.m_doorwayInfos.Length;
+			}
+
+			// query GameController about surrounding space
+			int roomsFound = 0;
+			const int roomsMax = 4; // TODO: determine dynamically?
+			/*const*/ Vector2 gridSize = new(15.0f, 9.0f); // TODO: determine dynamically based on room prefabs?
+			Vector2 centerPos = (Vector2)m_object.transform.position + DirectionOutward() * gridSize * 0.5f;
+			for (int i = 0; i < roomsMax; ++i)
+			{
+				Vector2 checkPos = centerPos + Quaternion.Euler(0.0f, 0.0f, 90.0f * i) * Vector2.right * gridSize;
+				if (GameController.Instance.RoomFromPosition(checkPos) != null)
+				{
+					++roomsFound;
+				}
+			}
+			Debug.Assert(roomsFound > 0, "DoorwayInfo.AdjacentRoomPct() unable to find even the doorway's own room?");
+			return roomsFound / (float)roomsMax;
 		}
 	}
 	[SerializeField]
@@ -1439,9 +1463,9 @@ public class RoomController : MonoBehaviour
 		return indices.ToArray();
 	}
 
-	private T DoorwaysRandomOrder<T>(System.Func<DoorwayInfo, T> f)
+	private T DoorwaysRandomOrder<T>(System.Func<DoorwayInfo, T> f, bool prioritizeAdjacentRooms = true)
 	{
-		foreach (DoorwayInfo info in m_doorwayInfos.OrderBy(i => Random.value))
+		foreach (DoorwayInfo info in m_doorwayInfos.OrderBy(i => prioritizeAdjacentRooms ? 1.0f - Random.value * i.AdjacentRoomPct() : Random.value))
 		{
 			T result = f(info);
 			if (result != null)
