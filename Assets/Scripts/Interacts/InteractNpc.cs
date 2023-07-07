@@ -21,6 +21,11 @@ public class InteractNpc : MonoBehaviour, IInteractable
 	private bool HasSingleUseAvailable => DialogueFiltered(false).Any(line => line.m_object.m_singleUse);
 
 
+	static private MonoBehaviour[] m_interactorsPrev;
+	static private int m_interactionRepeatCount = 0;
+	const int m_repeatThreshold = 3;
+
+
 	private AIController m_ai;
 
 	private AudioClip m_sfxChosen;
@@ -56,7 +61,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 
 	public bool CanInteract(KinematicCharacter interactor) => (!GameController.Instance.m_dialogueController.IsPlaying || GameController.Instance.m_dialogueController.CanInterrupt(interactor)) && !GameController.Instance.ActiveEnemiesRemain();
 
-	public void Interact(KinematicCharacter interactor, bool reverse) => StartDialogue(interactor);
+	public void Interact(KinematicCharacter interactor, bool reverse) => StartDialogue(interactor, m_interactorsPrev != null && m_interactorsPrev.Contains(this) && m_interactorsPrev.Contains(interactor) && m_interactionRepeatCount > m_repeatThreshold ? Dialogue.Info.Type.Repetitive : Dialogue.Info.Type.Normal);
 
 	public void StartDialogue(KinematicCharacter otherCharacter, Dialogue.Info.Type type = Dialogue.Info.Type.Normal) => StartCoroutine(PlayDialogueCoroutine(otherCharacter, type));
 
@@ -117,6 +122,18 @@ public class InteractNpc : MonoBehaviour, IInteractable
 
 	private System.Collections.IEnumerator PlayDialogueCoroutine(KinematicCharacter interactor, Dialogue.Info.Type type)
 	{
+		// update repeat count
+		// TODO: don't count high-priority dialogue lines?
+		if (m_interactorsPrev != null && m_interactorsPrev.Length == 2 && m_interactorsPrev.Contains(this) && m_interactorsPrev.Contains(interactor))
+		{
+			++m_interactionRepeatCount;
+		}
+		else
+		{
+			m_interactorsPrev = new MonoBehaviour[] { this, interactor };
+			m_interactionRepeatCount = 0;
+		}
+
 		// pick dialogue option(s)
 		InteractNpc otherNpc = interactor.GetComponent<InteractNpc>();
 		int targetIndex = otherNpc != null ? otherNpc.Index : Index; // NOTE the use of "self-relationships" for non-NPC-targeted lines // TODO?
@@ -143,7 +160,7 @@ public class InteractNpc : MonoBehaviour, IInteractable
 		{
 			otherNpc.InitializeDialogue();
 		}
-		Coroutine dialogueCoroutine = dialogueController.Play(dialogueAppend != null ? dialogueCur.m_lines.Concat(dialogueAppend.m_lines) : dialogueCur.m_lines, gameObject, interactor, m_ai, m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_sfxChosen, dialogueCur.m_type != Dialogue.Info.Type.Normal, dialogueCur.m_loop ? 0 : dialogueAppend != null && dialogueAppend.m_loop ? dialogueCur.m_lines.Length : -1, expressionSets: new WeightedObject<Dialogue.Expression>[][] { m_expressionsCombined, otherNpc == null ? interactor.m_dialogues.SelectMany(d => d.m_expressions).ToArray() : otherNpc.m_expressionsCombined });
+		Coroutine dialogueCoroutine = dialogueController.Play(dialogueAppend != null ? dialogueCur.m_lines.Concat(dialogueAppend.m_lines) : dialogueCur.m_lines, gameObject, interactor, m_ai, m_dialogueSprite, GetComponent<SpriteRenderer>().color, m_sfxChosen, dialogueCur.m_type == Dialogue.Info.Type.Theft, dialogueCur.m_loop ? 0 : dialogueAppend != null && dialogueAppend.m_loop ? dialogueCur.m_lines.Length : -1, expressionSets: new WeightedObject<Dialogue.Expression>[][] { m_expressionsCombined, otherNpc == null ? interactor.m_dialogues.SelectMany(d => d.m_expressions).ToArray() : otherNpc.m_expressionsCombined });
 
 		// early-out / wait
 		if (dialogueCoroutine == null)

@@ -251,3 +251,23 @@ MonoBehaviour:
       m_key: request.
       m_replacement: you selfish {avatar}.
     m_weight: 1
+  - m_object:
+      m_key: talk to
+      m_replacement: bother
+    m_weight: 1
+  - m_object:
+      m_key: talk to
+      m_replacement: pester
+    m_weight: 1
+  - m_object:
+      m_key: talk to
+      m_replacement: bore
+    m_weight: 1
+  - m_object:
+      m_key: talk to
+      m_replacement: torture
+    m_weight: 1
+  - m_object:
+      m_key: talk to
+      m_replacement: distract
+    m_weight: 1

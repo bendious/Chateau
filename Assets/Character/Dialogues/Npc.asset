@@ -480,6 +480,44 @@ MonoBehaviour:
       m_singleUse: 0
       m_appendToAll: 0
     m_weight: 1
+  - m_object:
+      m_type: 2
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: Umm... are you going to make me repeat myself <i>again</i>?
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
+  - m_object:
+      m_type: 2
+      m_preconditionName: 
+      m_userdata: 0
+      m_relationshipMin: 0
+      m_relationshipMax: 1
+      m_relationshipIncrement: 0
+      m_lines:
+      - m_text: To be honest, I'm getting kind of tired of talking to you right now.
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      - m_text: '{can/can''t} you go {talk to} someone else {for a while}?'
+        m_source: {fileID: 0}
+        m_sourceDistMax: 0
+        m_replies: []
+      m_target: {fileID: 0}
+      m_loop: 0
+      m_singleUse: 0
+      m_appendToAll: 0
+    m_weight: 1
   m_expressions:
   - m_object:
       m_key: .
@@ -528,4 +566,44 @@ MonoBehaviour:
   - m_object:
       m_key: so
       m_replacement: so,
+    m_weight: 1
+  - m_object:
+      m_key: talk to
+      m_replacement: talk to
+    m_weight: 1
+  - m_object:
+      m_key: talk to
+      m_replacement: find
+    m_weight: 1
+  - m_object:
+      m_key: can/can't
+      m_replacement: can
+    m_weight: 1
+  - m_object:
+      m_key: can/can't
+      m_replacement: can't
+    m_weight: 1
+  - m_object:
+      m_key: for a while
+      m_replacement: for a while
+    m_weight: 1
+  - m_object:
+      m_key: for a while
+      m_replacement: now
+    m_weight: 1
+  - m_object:
+      m_key: for a while
+      m_replacement: 
+    m_weight: 1
+  - m_object:
+      m_key: for a while
+      m_replacement: for a bit
+    m_weight: 1
+  - m_object:
+      m_key: for a while
+      m_replacement: sometime
+    m_weight: 1
+  - m_object:
+      m_key: for a while
+      m_replacement: a while
     m_weight: 1

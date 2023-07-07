@@ -14,6 +14,7 @@ public class Dialogue : ScriptableObject
 		{
 			Normal,
 			Theft,
+			Repetitive,
 		}
 		public Type m_type;
 		public string m_preconditionName;
