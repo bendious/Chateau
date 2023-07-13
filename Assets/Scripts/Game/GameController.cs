@@ -30,6 +30,7 @@ public class GameController : MonoBehaviour
 	public CinemachineVirtualCamera m_vCamOverview;
 	[SerializeField] private CinemachineTargetGroup m_ctGroupMain;
 	public CinemachineTargetGroup m_ctGroupOverview;
+	[SerializeField] private CinemachineTargetGroup m_ctGroupMap;
 
 	public DialogueController m_dialogueController;
 
@@ -944,12 +945,14 @@ public class GameController : MonoBehaviour
 			nodesSplit.Enqueue(newList);
 		}
 
-		static void addAbovegroundRoomToGroup(RoomController r, CinemachineTargetGroup g)
+		void addRoomToCameraGroups(RoomController r)
 		{
+			float size = r.Bounds.extents.magnitude * 0.5f; // TODO: parameterize size scalar?
 			if (r.transform.position.y + r.Bounds.size.y > 0.0f) // TODO: don't assume local origins are at floor level?
 			{
-				g.AddMember(r.m_backdrop.transform, 1.0f, r.Bounds.extents.magnitude * 0.5f); // TODO: parameterize size scalar?
+				m_ctGroupOverview.AddMember(r.m_backdrop.transform, 1.0f, size);
 			}
+			m_ctGroupMap.AddMember(r.m_backdrop.transform, 1.0f, size);
 		}
 		RoomController insertedRoomParent = null;
 		while (nodesSplit.TryDequeue(out List<LayoutGenerator.Node> nodesList))
@@ -961,7 +964,7 @@ public class GameController : MonoBehaviour
 				AddRootRoom(root);
 				root.SetNodes(nodesList.ToArray());
 				++roomCount;
-				addAbovegroundRoomToGroup(root, m_ctGroupOverview);
+				addRoomToCameraGroups(root);
 				Debug.Assert(SpecialRooms == null);
 				if (m_specialRoomCount > 0)
 				{
@@ -999,7 +1002,7 @@ public class GameController : MonoBehaviour
 					{
 						++roomCount;
 						insertedRoomParent = null; // TODO: limit the length of chains of inserted rooms?
-						addAbovegroundRoomToGroup(childRoom, m_ctGroupOverview);
+						addRoomToCameraGroups(childRoom);
 						if (m_specialRoomCount > 0)
 						{
 							if (SpecialRooms.Any(room => room == null))
